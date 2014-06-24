@@ -1,5 +1,5 @@
 function [A R] = generalized_procrustes(A_measure)
-% Rotationaly align clouds of points (generalized Procrustes problem)
+% Rotationally align clouds of points (generalized Procrustes problem)
 %
 % function X = generalized_procrustes(A_measure)
 %
