@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of symfixedrankYYfactory</title>
+  <meta name="keywords" content="symfixedrankYYfactory">
+  <meta name="description" content="Manifold of n-by-n symmetric positive semidefinite matrices of rank k.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">symfixedrank</a> &gt; symfixedrankYYfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\symfixedrank&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>symfixedrankYYfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of n-by-n symmetric positive semidefinite matrices of rank k.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = symfixedrankYYfactory(n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of n-by-n symmetric positive semidefinite matrices of rank k.
+
+ function M = symfixedrankYYfactory(n, k)
+
+ The geometry is based on the paper,
+ M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
+ &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,
+ SIOPT, 2010.
+
+ Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
+
+ A point X on the manifold is parameterized as YY^T where Y is a matrix of
+ size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal 
+ directly with Y.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function etaproj = projection(Y, eta)</a></li><li><a href="#_sub2" class="code">function Ynew = retraction(Y, eta, t)</a></li><li><a href="#_sub3" class="code">function Ynew = exponential(Y, eta, t)</a></li><li><a href="#_sub4" class="code">function Y = random()</a></li><li><a href="#_sub5" class="code">function eta = randomvec(Y)</a></li><li><a href="#_sub6" class="code">function d = lincomb(Y, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = symfixedrankYYfactory(n, k)</a>
+0002 <span class="comment">% Manifold of n-by-n symmetric positive semidefinite matrices of rank k.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = symfixedrankYYfactory(n, k)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% The geometry is based on the paper,</span>
+0007 <span class="comment">% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,</span>
+0008 <span class="comment">% &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,</span>
+0009 <span class="comment">% SIOPT, 2010.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% A point X on the manifold is parameterized as YY^T where Y is a matrix of</span>
+0014 <span class="comment">% size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal</span>
+0015 <span class="comment">% directly with Y.</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.nanopt.org.</span>
+0018 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021 <span class="comment">%  July 10, 2013 (NB) : added vec, mat, tangent, tangent2ambient ;</span>
+0022 <span class="comment">%                       correction for the dimension of the manifold.</span>
+0023 
+0024 
+0025 M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d PSD matrices of rank %d'</span>, n, k);
+0026 
+0027 M.dim = @() k*n - k*(k-1)/2;
+0028 
+0029 <span class="comment">% Euclidean metric on the total space</span>
+0030 M.inner = @(Y, eta, zeta) trace(eta'*zeta);
+0031 
+0032 M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
+0033 
+0034 M.dist = @(Y, Z) error(<span class="string">'symfixedrankYYfactory.dist not implenented yet.'</span>);
+0035 
+0036 M.typicaldist = @() 10*k;
+0037 
+0038 M.proj = @<a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
+0039     <a name="_sub1" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
+0040         <span class="comment">% Projection onto the horizontal space</span>
+0041         YtY = Y'*Y;
+0042         SS = YtY;
+0043         AS = Y'*eta - eta'*Y;
+0044         Omega = lyap(SS, -AS);
+0045         etaproj = eta - Y*Omega;
+0046     <span class="keyword">end</span>
+0047 
+0048 M.tangent = M.proj;
+0049 M.tangent2ambient = @(Y, eta) eta;
+0050 
+0051 M.retr = @<a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
+0052     <a name="_sub2" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
+0053         <span class="keyword">if</span> nargin &lt; 3
+0054             t = 1.0;
+0055         <span class="keyword">end</span>
+0056         Ynew = Y + t*eta;
+0057     <span class="keyword">end</span>
+0058 
+0059 
+0060 M.egrad2rgrad = @(Y, eta) eta;
+0061 M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
+0062 
+0063 M.exp = @<a href="#_sub3" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
+0064     <a name="_sub3" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
+0065         <span class="keyword">if</span> nargin &lt; 3
+0066             t = 1.0;
+0067         <span class="keyword">end</span>
+0068         
+0069         Ynew = <a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
+0070         warning(<span class="string">'manopt:symfixedrankYYfactory:exp'</span>, <span class="keyword">...</span>
+0071             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0072             <span class="string">'manifold not implenented yet. Used retraction instead.'</span>]);
+0073     <span class="keyword">end</span>
+0074 
+0075 <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
+0076 M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
+0077 
+0078 M.rand = @<a href="#_sub4" class="code" title="subfunction Y = random()">random</a>;
+0079 
+0080     <a name="_sub4" href="#_subfunctions" class="code">function Y = random()</a>
+0081         Y = randn(n, k);
+0082     <span class="keyword">end</span>
+0083 
+0084 M.randvec = @<a href="#_sub5" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
+0085     <a name="_sub5" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
+0086         eta = randn(n, k);
+0087         eta = <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
+0088         nrm = M.norm(Y, eta);
+0089         eta = eta / nrm;
+0090     <span class="keyword">end</span>
+0091 
+0092 M.lincomb = @<a href="#_sub6" class="code" title="subfunction d = lincomb(Y, a1, d1, a2, d2) ">lincomb</a>;
+0093 
+0094 M.zerovec = @(Y) zeros(n, k);
+0095 
+0096 M.transp = @(Y1, Y2, d) <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
+0097     
+0098 M.vec = @(Y, u_mat) u_mat(:);
+0099 M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
+0100 M.vecmatareisometries = @() true;
+0101 
+0102 <span class="keyword">end</span>
+0103 
+0104 
+0105 <span class="comment">% Linear conbination of tangent vectors</span>
+0106 <a name="_sub6" href="#_subfunctions" class="code">function d = lincomb(Y, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0107 
+0108 <span class="keyword">if</span> nargin == 3
+0109     d  = a1*d1;
+0110 <span class="keyword">elseif</span> nargin == 5
+0111     d = a1*d1 + a2*d2;
+0112 <span class="keyword">else</span>
+0113     error(<span class="string">'Bad use of symfixedrankYYfactory.lincomb.'</span>);
+0114 <span class="keyword">end</span>
+0115 
+0116 <span class="keyword">end</span>
+0117 
+0118 
+0119 
+0120 
+0121</pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

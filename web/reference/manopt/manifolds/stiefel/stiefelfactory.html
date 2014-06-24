@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stiefelfactory</title>
+  <meta name="keywords" content="stiefelfactory">
+  <meta name="description" content="Returns a manifold structure to optimize over orthonormal matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">stiefel</a> &gt; stiefelfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\stiefel&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>stiefelfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold structure to optimize over orthonormal matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = stiefelfactory(n, p, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold structure to optimize over orthonormal matrices.
+
+ function M = stiefelfactory(n, p)
+ function M = stiefelfactory(n, p, k)
+
+ The Stiefel manifold is the set of orthonormal nxp matrices. If k
+ is larger than 1, this is the Cartesian product of the Stiefel manifold
+ taken k times. The metric is such that the manifold is a Riemannian
+ submanifold of R^nxp equipped with the usual trace inner product, that
+ is, it is the usual metric.
+
+ Points are represented as matrices X of size n x p x k (or n x p if k=1,
+ which is the default) such that each n x p matrix is orthonormal,
+ i.e., X'*X = eye(p) if k = 1, or X(:, :, i)' * X(:, :, i) = eye(p) for
+ i = 1 : k if k &gt; 1. Tangent vectors are represented as matrices the same
+ size as points.
+
+ By default, k = 1.
+
+ See also: grassmannfactory rotationsfactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html" class="code" title="function M = fixedrankMNquotientfactory(m, n, k)">fixedrankMNquotientfactory</a>	Manifold of m-by-n matrices of rank k with quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankembeddedfactory.html" class="code" title="function M = fixedrankembeddedfactory(m, n, k)">fixedrankembeddedfactory</a>	Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html" class="code" title="function M = fixedrankfactory_2factors_subspace_projection(m, n, k)">fixedrankfactory_2factors_subspace_projection</a>	Manifold of m-by-n matrices of rank k with quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors.html" class="code" title="function M = fixedrankfactory_3factors(m, n, k)">fixedrankfactory_3factors</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors_preconditioned.html" class="code" title="function M = fixedrankfactory_3factors_preconditioned(m, n, k)">fixedrankfactory_3factors_preconditioned</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub3" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub5" class="code">function X = random()</a></li><li><a href="#_sub6" class="code">function U = randomvec(X)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = stiefelfactory(n, p, k)</a>
+0002 <span class="comment">% Returns a manifold structure to optimize over orthonormal matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = stiefelfactory(n, p)</span>
+0005 <span class="comment">% function M = stiefelfactory(n, p, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% The Stiefel manifold is the set of orthonormal nxp matrices. If k</span>
+0008 <span class="comment">% is larger than 1, this is the Cartesian product of the Stiefel manifold</span>
+0009 <span class="comment">% taken k times. The metric is such that the manifold is a Riemannian</span>
+0010 <span class="comment">% submanifold of R^nxp equipped with the usual trace inner product, that</span>
+0011 <span class="comment">% is, it is the usual metric.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Points are represented as matrices X of size n x p x k (or n x p if k=1,</span>
+0014 <span class="comment">% which is the default) such that each n x p matrix is orthonormal,</span>
+0015 <span class="comment">% i.e., X'*X = eye(p) if k = 1, or X(:, :, i)' * X(:, :, i) = eye(p) for</span>
+0016 <span class="comment">% i = 1 : k if k &gt; 1. Tangent vectors are represented as matrices the same</span>
+0017 <span class="comment">% size as points.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% By default, k = 1.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% See also: grassmannfactory rotationsfactory</span>
+0022 
+0023 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0024 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">% Change log:</span>
+0027 <span class="comment">%  July 5, 2013 (NB) : Added ehess2rhess.</span>
+0028 
+0029     
+0030     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0031         k = 1;
+0032     <span class="keyword">end</span>
+0033     
+0034     <span class="keyword">if</span> k == 1
+0035         M.name = @() sprintf(<span class="string">'Stiefel manifold St(%d, %d)'</span>, n, p);
+0036     <span class="keyword">elseif</span> k &gt; 1
+0037         M.name = @() sprintf(<span class="string">'Product Stiefel manifold St(%d, %d)^%d'</span>, n, p, k);
+0038     <span class="keyword">else</span>
+0039         error(<span class="string">'k must be an integer no less than 1.'</span>);
+0040     <span class="keyword">end</span>
+0041     
+0042     M.dim = @() k*(n*p - .5*p*(p+1));
+0043     
+0044     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0045     
+0046     M.norm = @(x, d) norm(d(:));
+0047     
+0048     M.dist = @(x, y) error(<span class="string">'stiefel.dist not implemented yet.'</span>);
+0049     
+0050     M.typicaldist = @() sqrt(p*k);
+0051     
+0052     M.proj = @<a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>;
+0053     <a name="_sub1" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
+0054         
+0055         XtU = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), U);
+0056         symXtU = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(XtU);
+0057         Up = U - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, symXtU);
+0058         
+0059 <span class="comment">% The code above is equivalent to, but much faster than, the code below.</span>
+0060 <span class="comment">%</span>
+0061 <span class="comment">%     Up = zeros(size(U));</span>
+0062 <span class="comment">%     function A = sym(A), A = .5*(A+A'); end</span>
+0063 <span class="comment">%     for i = 1 : k</span>
+0064 <span class="comment">%         Xi = X(:, :, i);</span>
+0065 <span class="comment">%         Ui = U(:, :, i);</span>
+0066 <span class="comment">%         Up(:, :, i) = Ui - Xi*sym(Xi'*Ui);</span>
+0067 <span class="comment">%     end</span>
+0068 
+0069     <span class="keyword">end</span>
+0070     
+0071     M.tangent = M.proj;
+0072     
+0073     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0074     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0075     M.egrad2rgrad = M.proj;
+0076     
+0077     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0078     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0079         PXehess = <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, ehess);
+0080         XtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), egrad);
+0081         symXtG = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(XtG);
+0082         HsymXtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, symXtG);
+0083         rhess = PXehess - HsymXtG;
+0084     <span class="keyword">end</span>
+0085     
+0086     M.retr = @<a href="#_sub3" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0087     <a name="_sub3" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0088         <span class="keyword">if</span> nargin &lt; 3
+0089             t = 1.0;
+0090         <span class="keyword">end</span>
+0091         Y = X + t*U;
+0092         <span class="keyword">for</span> i = 1 : k
+0093             [Q, R] = qr(Y(:, :, i), 0);
+0094             <span class="comment">% The instruction with R assures we are not flipping signs</span>
+0095             <span class="comment">% of some columns, which should never happen in modern Matlab</span>
+0096             <span class="comment">% versions but may be an issue with older versions.</span>
+0097             Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+0098         <span class="keyword">end</span>
+0099     <span class="keyword">end</span>
+0100     
+0101     M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0102     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0103         <span class="keyword">if</span> nargin == 2
+0104             t = 1;
+0105         <span class="keyword">end</span>
+0106         Y = <a href="#_sub3" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>(X, U, t);
+0107         warning(<span class="string">'manopt:stiefel:exp'</span>, <span class="keyword">...</span>
+0108                [<span class="string">'Exponential for Stiefel manifold not implemented yet. '</span> <span class="keyword">...</span>
+0109                 <span class="string">'Used retraction instead.'</span>]);
+0110     <span class="keyword">end</span>
+0111 
+0112     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0113     
+0114     M.rand = @<a href="#_sub5" class="code" title="subfunction X = random()">random</a>;
+0115     <a name="_sub5" href="#_subfunctions" class="code">function X = random()</a>
+0116         X = zeros(n, p, k);
+0117         <span class="keyword">for</span> i = 1 : k
+0118             [Q, unused] = qr(randn(n, p), 0); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0119             X(:, :, i) = Q;
+0120         <span class="keyword">end</span>
+0121     <span class="keyword">end</span>
+0122     
+0123     M.randvec = @<a href="#_sub6" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0124     <a name="_sub6" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0125         U = <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p, k));
+0126         <span class="keyword">for</span> i = 1 : k
+0127             U(:, :, i) = U(:, :, i) / norm(U(:, :, i), <span class="string">'fro'</span>);
+0128         <span class="keyword">end</span>
+0129         U = U / sqrt(k);
+0130     <span class="keyword">end</span>
+0131     
+0132     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0133     
+0134     M.zerovec = @(x) zeros(n, p, k);
+0135     
+0136     M.transp = @(x1, x2, d) <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(x2, d);
+0137     
+0138     M.vec = @(x, u_mat) u_mat(:);
+0139     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
+0140     M.vecmatareisometries = @() true;
+0141 
+0142 <span class="keyword">end</span>
+0143 
+0144 <span class="comment">% Linear combination of tangent vectors</span>
+0145 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0146 
+0147     <span class="keyword">if</span> nargin == 3
+0148         d = a1*d1;
+0149     <span class="keyword">elseif</span> nargin == 5
+0150         d = a1*d1 + a2*d2;
+0151     <span class="keyword">else</span>
+0152         error(<span class="string">'Bad use of stiefel.lincomb.'</span>);
+0153     <span class="keyword">end</span>
+0154 
+0155 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

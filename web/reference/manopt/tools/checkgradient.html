@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of checkgradient</title>
+  <meta name="keywords" content="checkgradient">
+  <meta name="description" content="Checks the consistency of the cost function and the gradient.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; checkgradient.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>checkgradient
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks the consistency of the cost function and the gradient.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function checkgradient(problem, x, d) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks the consistency of the cost function and the gradient.
+
+ function checkgradient(problem)
+ function checkgradient(problem, x)
+ function checkgradient(problem, x, d)
+
+ checkgradient performs a numerical test to check that the gradient
+ defined in the problem structure agrees up to first order with the cost
+ function at some point x, along some direction d. The test is based on a
+ truncated Taylor series (see online Manopt documentation).
+
+ It is also tested that the gradient is indeed a tangent vector.
+ 
+ Both x and d are optional and will be sampled at random if omitted.
+
+ See also: <a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d)">checkdiff</a> <a href="checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d)">checkdiff</a>	Checks the consistency of the cost function and directional derivatives.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../examples/truncated_svd.html" class="code" title="function [U S V info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function checkgradient(problem, x, d)</a>
+0002 <span class="comment">% Checks the consistency of the cost function and the gradient.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function checkgradient(problem)</span>
+0005 <span class="comment">% function checkgradient(problem, x)</span>
+0006 <span class="comment">% function checkgradient(problem, x, d)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% checkgradient performs a numerical test to check that the gradient</span>
+0009 <span class="comment">% defined in the problem structure agrees up to first order with the cost</span>
+0010 <span class="comment">% function at some point x, along some direction d. The test is based on a</span>
+0011 <span class="comment">% truncated Taylor series (see online Manopt documentation).</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% It is also tested that the gradient is indeed a tangent vector.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Both x and d are optional and will be sampled at random if omitted.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% See also: checkdiff checkhessian</span>
+0018 
+0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0020 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0021 <span class="comment">% Contributors:</span>
+0022 <span class="comment">% Change log:</span>
+0023 
+0024     
+0025     <span class="comment">% Verify that the problem description is sufficient.</span>
+0026     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0027         error(<span class="string">'It seems no cost was provided.'</span>);  
+0028     <span class="keyword">end</span>
+0029     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0030         error(<span class="string">'It seems no gradient provided.'</span>);    
+0031     <span class="keyword">end</span>
+0032     
+0033     dbstore = struct();
+0034         
+0035     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
+0036     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
+0037     
+0038     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
+0039         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
+0040     <span class="keyword">end</span>
+0041     
+0042     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
+0043     <span class="keyword">if</span> ~x_isprovided
+0044         x = problem.M.rand();
+0045     <span class="keyword">end</span>
+0046     <span class="keyword">if</span> ~d_isprovided
+0047         d = problem.M.randvec(x);
+0048     <span class="keyword">end</span>
+0049 
+0050     <span class="comment">%% Check that the gradient yields a first order model of the cost.</span>
+0051     
+0052     <span class="comment">% By removing the 'directional derivative' function, it should be so</span>
+0053     <span class="comment">% (?) that the checkdiff function will use the gradient to compute</span>
+0054     <span class="comment">% directional derivatives.</span>
+0055     <span class="keyword">if</span> isfield(problem, <span class="string">'diff'</span>)
+0056         problem = rmfield(problem, <span class="string">'diff'</span>);
+0057     <span class="keyword">end</span>
+0058     <a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d)">checkdiff</a>(problem, x, d);
+0059     title(sprintf([<span class="string">'Gradient check.\nThe slope of the continuous line '</span> <span class="keyword">...</span>
+0060                    <span class="string">'should match that of the dashed (reference) line\n'</span> <span class="keyword">...</span>
+0061                    <span class="string">'over at least a few orders of magnitude for h.'</span>]));
+0062     xlabel(<span class="string">'h'</span>);
+0063     ylabel(<span class="string">'Approximation error'</span>);
+0064     
+0065     <span class="comment">%% Try to check that the gradient is a tangent vector.</span>
+0066     <span class="keyword">if</span> isfield(problem.M, <span class="string">'tangent'</span>)
+0067         grad = <a href="../../manopt/privatetools/getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>(problem, x, dbstore);
+0068         pgrad = problem.M.tangent(x, grad);
+0069         residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
+0070         err = problem.M.norm(x, residual);
+0071         fprintf(<span class="string">'The residual should be 0, or very close. Residual: %g.\n'</span>, err);
+0072         fprintf(<span class="string">'If it is far from 0, then the gradient is not in the tangent space.\n'</span>);
+0073     <span class="keyword">else</span>
+0074         fprintf([<span class="string">'Unfortunately, Manopt was unable to verify that the '</span><span class="keyword">...</span>
+0075                  <span class="string">'gradient is indeed a tangent vector.\nPlease verify '</span> <span class="keyword">...</span>
+0076                  <span class="string">'this manually or implement the ''tangent'' function '</span> <span class="keyword">...</span>
+0077                  <span class="string">'in your manifold structure.'</span>]);
+0078     <span class="keyword">end</span>
+0079 
+0080 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getStore</title>
+  <meta name="keywords" content="getStore">
+  <meta name="description" content="Extracts a store struct. pertaining to a point from the storedb database.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">privatetools</a> &gt; getStore.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\privatetools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getStore
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Extracts a store struct. pertaining to a point from the storedb database.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function store = getStore(problem, x, storedb) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Extracts a store struct. pertaining to a point from the storedb database.
+
+ function store = getStore(problem, x, storedb)
+
+ Queries the storedb database of structures (itself a structure) and
+ returns the store structure corresponding to the point x. If there is no
+ record for the point x, returns an empty structure.
+
+ See also: <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a> <a href="purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="getApproxHessian.html" class="code" title="function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)">getApproxHessian</a>	Computes an approximation of the Hessian of the cost fun. at x along d.</li><li><a href="getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="getEuclideanGradient.html" class="code" title="function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)">getEuclideanGradient</a>	Computes the Euclidean gradient of the cost function at x.</li><li><a href="getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function store = getStore(problem, x, storedb)</a>
+0002 <span class="comment">% Extracts a store struct. pertaining to a point from the storedb database.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function store = getStore(problem, x, storedb)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Queries the storedb database of structures (itself a structure) and</span>
+0007 <span class="comment">% returns the store structure corresponding to the point x. If there is no</span>
+0008 <span class="comment">% record for the point x, returns an empty structure.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% See also: setStore purgeStoredb</span>
+0011 
+0012 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0013 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0014 <span class="comment">% Contributors:</span>
+0015 <span class="comment">% Change log:</span>
+0016    
+0017     <span class="comment">% Construct the fieldname (key) associated to the queried point x.</span>
+0018     key = problem.M.hash(x);
+0019     
+0020     <span class="comment">% If there is a value stored for this key, return it.</span>
+0021     <span class="comment">% Otherwise, return an empty structure.</span>
+0022     <span class="keyword">if</span> isfield(storedb, key)
+0023         store = storedb.(key);
+0024     <span class="keyword">else</span>
+0025         store = struct();
+0026     <span class="keyword">end</span>
+0027 
+0028 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

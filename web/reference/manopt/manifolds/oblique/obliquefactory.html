@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of obliquefactory</title>
+  <meta name="keywords" content="obliquefactory">
+  <meta name="description" content="Returns a manifold struct to optimize over matrices w/ unit-norm columns.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">oblique</a> &gt; obliquefactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\oblique&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>obliquefactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over matrices w/ unit-norm columns.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = obliquefactory(n, m, transposed) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over matrices w/ unit-norm columns.
+
+ function M = obliquefactory(n, m)
+ function M = obliquefactory(n, m, transposed)
+
+ Oblique manifold: deals with matrices of size n x m such that each column
+ has unit 2-norm, i.e., is a point on the unit sphere in R^n. The metric
+ is such that the oblique manifold is a Riemannian submanifold of the
+ space of nxm matrices with the usual trace inner product, i.e., the usual
+ metric.
+
+ If transposed is set to true (it is false by default), then the matrices
+ are transposed: a point Y on the manifold is a matrix of size m x n and
+ each row has unit 2-norm. It is the same geometry, just a different
+ representation.
+
+ See also: spherefactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/packing_on_the_sphere.html" class="code" title="function X = packing_on_the_sphere(d, n, epsilon, X0)">packing_on_the_sphere</a>	Return a set of points spread out on the sphere.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function rhess = ehess2rhess(X, egrad, ehess, U)</a></li><li><a href="#_sub2" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub5" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub6" class="code">function X = normalize_columns(X)</a></li><li><a href="#_sub7" class="code">function PXH = projection(X, H)</a></li><li><a href="#_sub8" class="code">function y = sphere_exponential(x, d, t)</a></li><li><a href="#_sub9" class="code">function x = random(n, m)</a></li><li><a href="#_sub10" class="code">function d = randomvec(n, m, x)</a></li><li><a href="#_sub11" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = obliquefactory(n, m, transposed)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over matrices w/ unit-norm columns.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = obliquefactory(n, m)</span>
+0005 <span class="comment">% function M = obliquefactory(n, m, transposed)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Oblique manifold: deals with matrices of size n x m such that each column</span>
+0008 <span class="comment">% has unit 2-norm, i.e., is a point on the unit sphere in R^n. The metric</span>
+0009 <span class="comment">% is such that the oblique manifold is a Riemannian submanifold of the</span>
+0010 <span class="comment">% space of nxm matrices with the usual trace inner product, i.e., the usual</span>
+0011 <span class="comment">% metric.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% If transposed is set to true (it is false by default), then the matrices</span>
+0014 <span class="comment">% are transposed: a point Y on the manifold is a matrix of size m x n and</span>
+0015 <span class="comment">% each row has unit 2-norm. It is the same geometry, just a different</span>
+0016 <span class="comment">% representation.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% See also: spherefactory</span>
+0019 
+0020 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0021 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0022 <span class="comment">% Contributors:</span>
+0023 <span class="comment">% Change log:</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%    July 16, 2013 (NB) :</span>
+0026 <span class="comment">%       Added 'transposed' option, mainly for ease of comparison with the</span>
+0027 <span class="comment">%       elliptope geometry.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%    Nov. 29, 2013 (NB) :</span>
+0030 <span class="comment">%       Added normalize_columns function to make it easier to exploit the</span>
+0031 <span class="comment">%       bsxfun formulation of column normalization, which avoids using for</span>
+0032 <span class="comment">%       loops and provides performance gains. The exponential still uses a</span>
+0033 <span class="comment">%       for loop.</span>
+0034 
+0035     
+0036     <span class="keyword">if</span> ~exist(<span class="string">'transposed'</span>, <span class="string">'var'</span>) || isempty(transposed)
+0037         transposed = false;
+0038     <span class="keyword">end</span>
+0039     
+0040     <span class="keyword">if</span> transposed
+0041         trnsp = @(X) X';
+0042     <span class="keyword">else</span>
+0043         trnsp = @(X) X;
+0044     <span class="keyword">end</span>
+0045 
+0046     M.name = @() sprintf(<span class="string">'Oblique manifold OB(%d, %d)'</span>, n, m);
+0047     
+0048     M.dim = @() (n-1)*m;
+0049     
+0050     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0051     
+0052     M.norm = @(x, d) norm(d(:));
+0053     
+0054     M.dist = @(x, y) norm(real(acos(sum(trnsp(x).*trnsp(y), 1))));
+0055     
+0056     M.typicaldist = @() pi*sqrt(m);
+0057     
+0058     M.proj = @(X, U) trnsp(<a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(trnsp(X), trnsp(U)));
+0059     
+0060     M.tangent = M.proj;
+0061     
+0062     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0063     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0064     M.egrad2rgrad = M.proj;
+0065     
+0066     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, U)">ehess2rhess</a>;
+0067     <a name="_sub1" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, U)</a>
+0068         X = trnsp(X);
+0069         egrad = trnsp(egrad);
+0070         ehess = trnsp(ehess);
+0071         U = trnsp(U);
+0072         
+0073         PXehess = <a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(X, ehess);
+0074         inners = sum(X.*egrad, 1);
+0075         rhess = PXehess - bsxfun(@times, U, inners);
+0076         
+0077         rhess = trnsp(rhess);
+0078     <span class="keyword">end</span>
+0079     
+0080     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
+0081     <span class="comment">% Exponential on the oblique manifold</span>
+0082     <a name="_sub2" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
+0083         x = trnsp(x);
+0084         d = trnsp(d);
+0085         
+0086         <span class="keyword">if</span> nargin &lt; 3
+0087             t = 1.0;
+0088         <span class="keyword">end</span>
+0089 
+0090         m = size(x, 2);
+0091         y = zeros(size(x));
+0092         <span class="keyword">if</span> t ~= 0
+0093             <span class="keyword">for</span> i = 1 : m
+0094                 y(:, i) = <a href="#_sub8" class="code" title="subfunction y = sphere_exponential(x, d, t)">sphere_exponential</a>(x(:, i), d(:, i), t);
+0095             <span class="keyword">end</span>
+0096         <span class="keyword">else</span>
+0097             y = x;
+0098         <span class="keyword">end</span>
+0099 
+0100         y = trnsp(y);
+0101     <span class="keyword">end</span>
+0102 
+0103     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0104     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0105         x1 = trnsp(x1);
+0106         x2 = trnsp(x2);
+0107         
+0108         v = M.proj(x1, x2 - x1);
+0109         dists = acos(sum(x1.*x2, 1));
+0110         norms = sqrt(sum(v.^2, 1));
+0111         factors = dists./norms;
+0112         <span class="comment">% factors(dists &lt;= 1e-6) = 1;</span>
+0113         v = bsxfun(@times, v, factors);
+0114         
+0115         v = trnsp(v);
+0116     <span class="keyword">end</span>
+0117 
+0118     M.retr = @<a href="#_sub4" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
+0119     <span class="comment">% Retraction on the oblique manifold</span>
+0120     <a name="_sub4" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0121         x = trnsp(x);
+0122         d = trnsp(d);
+0123         
+0124         <span class="keyword">if</span> nargin &lt; 3
+0125             t = 1.0;
+0126         <span class="keyword">end</span>
+0127 
+0128         m = size(x, 2);
+0129         <span class="keyword">if</span> t ~= 0
+0130             y = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(x + t*d);
+0131         <span class="keyword">else</span>
+0132             y = x;
+0133         <span class="keyword">end</span>
+0134 
+0135         y = trnsp(y);
+0136     <span class="keyword">end</span>
+0137 
+0138     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0139     
+0140     M.rand = @() trnsp(<a href="#_sub9" class="code" title="subfunction x = random(n, m)">random</a>(n, m));
+0141     
+0142     M.randvec = @(x) trnsp(<a href="#_sub10" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, trnsp(x)));
+0143     
+0144     M.lincomb = @<a href="#_sub11" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0145     
+0146     M.zerovec = @(x) trnsp(zeros(n, m));
+0147     
+0148     M.transp = @(x1, x2, d) M.proj(x2, d);
+0149     
+0150     M.pairmean = @<a href="#_sub5" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0151     <a name="_sub5" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0152         y = trnsp(x1+x2);
+0153         y = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(y);
+0154         y = trnsp(y);
+0155     <span class="keyword">end</span>
+0156 
+0157     <span class="comment">% vec returns a vector representation of an input tangent vector which</span>
+0158     <span class="comment">% is represented as a matrix. mat returns the original matrix</span>
+0159     <span class="comment">% representation of the input vector representation of a tangent</span>
+0160     <span class="comment">% vector. vec and mat are thus inverse of each other. They are</span>
+0161     <span class="comment">% furthermore isometries between a subspace of R^nm and the tangent</span>
+0162     <span class="comment">% space at x.</span>
+0163     vect = @(X) X(:);
+0164     M.vec = @(x, u_mat) vect(trnsp(u_mat));
+0165     M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n, m]));
+0166     M.vecmatareisometries = @() true;
+0167 
+0168 <span class="keyword">end</span>
+0169 
+0170 <span class="comment">% Given a matrix X, returns the same matrix but with each column scaled so</span>
+0171 <span class="comment">% that they have unit 2-norm.</span>
+0172 <a name="_sub6" href="#_subfunctions" class="code">function X = normalize_columns(X)</a>
+0173     norms = sqrt(sum(X.^2, 1));
+0174     X = bsxfun(@times, X, 1./norms);
+0175 <span class="keyword">end</span>
+0176 
+0177 <span class="comment">% Orthogonal projection of the ambient vector H onto the tangent space at X</span>
+0178 <a name="_sub7" href="#_subfunctions" class="code">function PXH = projection(X, H)</a>
+0179 
+0180     <span class="comment">% Compute the inner product between each vector H(:, i) with its root</span>
+0181     <span class="comment">% point X(:, i), that is, X(:, i).' * H(:, i). Returns a row vector.</span>
+0182     inners = sum(X.*H, 1);
+0183     
+0184     <span class="comment">% Subtract from H the components of the H(:, i)'s that are parallel to</span>
+0185     <span class="comment">% the root points X(:, i).</span>
+0186     PXH = H - bsxfun(@times, X, inners);
+0187 
+0188     <span class="comment">% % Equivalent but slow code:</span>
+0189     <span class="comment">% m = size(X, 2);</span>
+0190     <span class="comment">% PXH = zeros(size(H));</span>
+0191     <span class="comment">% for i = 1 : m</span>
+0192     <span class="comment">%     PXH(:, i) = H(:, i) - X(:, i) * (X(:, i)'*H(:, i));</span>
+0193     <span class="comment">% end</span>
+0194 
+0195 <span class="keyword">end</span>
+0196 
+0197 <span class="comment">% Exponential on the sphere.</span>
+0198 <a name="_sub8" href="#_subfunctions" class="code">function y = sphere_exponential(x, d, t)</a>
+0199 
+0200     <span class="keyword">if</span> nargin == 2
+0201         t = 1.0;
+0202     <span class="keyword">end</span>
+0203     
+0204     td = t*d;
+0205     
+0206     nrm_td = norm(td);
+0207     
+0208     <span class="keyword">if</span> nrm_td &gt; 1e-6
+0209         y = x*cos(nrm_td) + (td/nrm_td)*sin(nrm_td);
+0210     <span class="keyword">else</span>
+0211         <span class="comment">% if the step is too small, to avoid dividing by nrm_td, we choose</span>
+0212         <span class="comment">% to approximate with this retraction-like step.</span>
+0213         y = x + td;
+0214         y = y / norm(y);
+0215     <span class="keyword">end</span>
+0216 
+0217 <span class="keyword">end</span>
+0218 
+0219 <span class="comment">% Uniform random sampling on the sphere.</span>
+0220 <a name="_sub9" href="#_subfunctions" class="code">function x = random(n, m)</a>
+0221 
+0222     x = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(randn(n, m));
+0223 
+0224 <span class="keyword">end</span>
+0225 
+0226 <span class="comment">% Random normalized tangent vector at x.</span>
+0227 <a name="_sub10" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
+0228 
+0229     d = randn(n, m);
+0230     d = <a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(x, d);
+0231     d = d / norm(d(:));
+0232 
+0233 <span class="keyword">end</span>
+0234 
+0235 <span class="comment">% Linear combination of tangent vectors</span>
+0236 <a name="_sub11" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0237 
+0238     <span class="keyword">if</span> nargin == 3
+0239         d = a1*d1;
+0240     <span class="keyword">elseif</span> nargin == 5
+0241         d = a1*d1 + a2*d2;
+0242     <span class="keyword">else</span>
+0243         error(<span class="string">'Bad use of oblique.lincomb.'</span>);
+0244     <span class="keyword">end</span>
+0245 
+0246 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

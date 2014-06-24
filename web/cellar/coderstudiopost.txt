@@ -1,0 +1,24 @@
+Coucou les jeunes!
+
+En parlant de ça: on n'est plus si jeunes.
+
+La dernière fois que j'ai fait du dev web avant cette semaine, c'était peu après qu'on s'est tous rencontrés: vers 2004, 2005. L'Internet a bien changé en 7 ans, sans me prévenir!
+
+Je m'y remets de bonne volonté pour un projet lié à mon doctorat (j'y ai développé une toolbox matlab d'assez bonne envergure, et si je veux que d'autres l'utilisent, il faut un site web pas trop moche qui présente une documentation pas trop mal ficelée).
+
+Après un peu de débroussaillage, j'ai jeté mon dévolu sur quelques outils qui m'impressionnent carrément, et je me disais que je partagerais bien les noms. Vu le public de Coder-Studio, je m'attends plus à des contre-propositions / infos intéressantes sur ces éléments que je viens de découvrir, plutôt que des "aah!" de découverte .
+
+* Bootstrap de twitter http://twitter.github.com/bootstrap/ : un ensemble de CSS et de javascript bien documentés pour servir de base au développement web. C'est pas une solution clés en main, mais ils définissent des composants de base qui se comportent bien sur différents browsers et sur différentes tailles d'écran. Je suis fort impressioné par ce qu'ils font, et c'est license Apache.
+
+* MathJax http://www.mathjax.org/ : permet d'écrire des équations en LaTeX dans une page web sans se soucier de rien du tout, et puis on ajoute simplement un javascript à la fin de la page. Ce script remplace ts les codes LaTeX par des équations, soit en MathML (standard W3C), soit en HTML+CSS. Le fin du fin: c'est pas des images qui sont générées, mais bien du texte! Donc ça respecte les mises en forme (couleur etc) et l'alignement parfait avec le reste du texte. C'est M-A-G-I-Q-U-E.
+
+* Google-code-prettify + matlab plugin + css de bootstrap http://code.google.com/p/google-code-prettify/ https://github.com/amroamroamro/prettify-matlab http://jewei.blogspot.be/2012/08/how-to … oogle.html : Une solution complète pour afficher simplement du code Matlab bien highlighté dans une page web, avec un style CSS qui provient à la base de Bootstrap et qui est donc bien adapté au style global.
+
+* BlueGriffon http://www.bluegriffon.org/ : un WYSIWYG gratuit pour sites webs, avec une bonne gestion du code source en parallèle. C'est pas parfait et la version gratuite ne gère pas les CSS, mais c'est qd même pas mal du tout (même si on passe l'essentiel du temps en mode source et pas en mode wysiwyg).
+
+
+C'est ce que j'utilise pour l'instant. Si vous avez des suggestions ou des commentaires, ça m'intéresse beaucoup! 
+
+Nicolas
+
+29 novembre 2012, 13:18

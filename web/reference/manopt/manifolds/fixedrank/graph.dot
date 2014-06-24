@@ -1,0 +1,11 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+
+  fixedrankMNquotientfactory [URL="fixedrankMNquotientfactory.html"];
+  fixedrankembeddedfactory [URL="fixedrankembeddedfactory.html"];
+  fixedrankfactory_2factors [URL="fixedrankfactory_2factors.html"];
+  fixedrankfactory_2factors_preconditioned [URL="fixedrankfactory_2factors_preconditioned.html"];
+  fixedrankfactory_2factors_subspace_projection [URL="fixedrankfactory_2factors_subspace_projection.html"];
+  fixedrankfactory_3factors [URL="fixedrankfactory_3factors.html"];
+  fixedrankfactory_3factors_preconditioned [URL="fixedrankfactory_3factors_preconditioned.html"];
+}

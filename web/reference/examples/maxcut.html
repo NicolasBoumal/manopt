@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of maxcut</title>
+  <meta name="keywords" content="maxcut">
+  <meta name="description" content="Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; maxcut.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>maxcut
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.
+ 
+ function x = maxcut(L)
+ function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
+
+ L is the Laplacian matrix describing the graph to cut. The Laplacian of a
+ graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the
+ sum of the weights of the edges adjacent to node i) and A is the
+ symmetric adjacency matrix of the graph (A(i, j) = A(j, i) is the weight
+ of the edge joining nodes i and j). If L is sparse, this will be
+ exploited.
+
+ If the graph has n nodes, then L is nxn and the output x is a vector of
+ length n such that x(i) is +1 or -1. This partitions the nodes of the
+ graph in two classes, in an attempt to maximize the sum of the weights of
+ the edges that go from one class to the other (MAX CUT problem).
+
+ cutvalue is the sum of the weights of the edges 'cut' by the partition x.
+
+ If the algorithm reached the global optimum of the underlying SDP
+ problem, then it produces an upperbound on the maximum cut value. This
+ value is returned in cutvalue_upperbound if it is found. Otherwise, that
+ output is set to NaN.
+
+ If r is specified (by default, r = n), the algorithm will stop at rank r.
+ This may prevent the algorithm from reaching a globally optimal solution
+ for the underlying SDP problem (but can greatly help in keeping the
+ execution time under control). If a global optimum of the SDP is reached
+ before rank r, the algorithm will stop of course.
+
+ Y is a matrix of size nxp, with p &lt;= r, such that X = Y*Y' is the best
+ solution found for the underlying SDP problem. If cutvalue_upperbound is
+ not NaN, then Y*Y' is optimal for the SDP and cutvalue_upperbound is its
+ cut value.
+ 
+ By Goemans and Williamson 1995, it is known that if the optimal value of
+ the SDP is reached, then the returned cut, in expectation, is at most at
+ a fraction 0.878 of the optimal cut. (This is not exactly valid because
+ we do not use random projection here; sign(Y*randn(size(Y, 2), 1)) will
+ give a cut that respects this statement -- it's usually worse though).
+
+ The algorithm is essentially that of:
+ Journee, Bach, Absil and Sepulchre, 2010
+ Low-rank optimization on the code of positive semidefinite matrices.
+
+ It is itself based on the famous SDP relaxation of MAX CUT:
+ Goemans and Williamson, 1995
+ Improved approximation algorithms for maximum cut and satisfiability
+ problems using semidefinite programming.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>	Manifold of n-by-n PSD matrices of rank k with unit diagonal elements.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [Y info] = maxcut_fixedrank(L, Y)</a></li><li><a href="#_sub2" class="code">function store = prepare(Y, store)</a></li><li><a href="#_sub3" class="code">function [f store] = cost(Y, store)</a></li><li><a href="#_sub4" class="code">function [g store] = grad(Y, store)</a></li><li><a href="#_sub5" class="code">function [h store] = hess(Y, U, store)</a></li><li><a href="#_sub6" class="code">function stats = statsfun(problem, Y, stats, store)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)</a>
+0002 <span class="comment">% Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function x = maxcut(L)</span>
+0005 <span class="comment">% function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% L is the Laplacian matrix describing the graph to cut. The Laplacian of a</span>
+0008 <span class="comment">% graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the</span>
+0009 <span class="comment">% sum of the weights of the edges adjacent to node i) and A is the</span>
+0010 <span class="comment">% symmetric adjacency matrix of the graph (A(i, j) = A(j, i) is the weight</span>
+0011 <span class="comment">% of the edge joining nodes i and j). If L is sparse, this will be</span>
+0012 <span class="comment">% exploited.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% If the graph has n nodes, then L is nxn and the output x is a vector of</span>
+0015 <span class="comment">% length n such that x(i) is +1 or -1. This partitions the nodes of the</span>
+0016 <span class="comment">% graph in two classes, in an attempt to maximize the sum of the weights of</span>
+0017 <span class="comment">% the edges that go from one class to the other (MAX CUT problem).</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% cutvalue is the sum of the weights of the edges 'cut' by the partition x.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% If the algorithm reached the global optimum of the underlying SDP</span>
+0022 <span class="comment">% problem, then it produces an upperbound on the maximum cut value. This</span>
+0023 <span class="comment">% value is returned in cutvalue_upperbound if it is found. Otherwise, that</span>
+0024 <span class="comment">% output is set to NaN.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% If r is specified (by default, r = n), the algorithm will stop at rank r.</span>
+0027 <span class="comment">% This may prevent the algorithm from reaching a globally optimal solution</span>
+0028 <span class="comment">% for the underlying SDP problem (but can greatly help in keeping the</span>
+0029 <span class="comment">% execution time under control). If a global optimum of the SDP is reached</span>
+0030 <span class="comment">% before rank r, the algorithm will stop of course.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% Y is a matrix of size nxp, with p &lt;= r, such that X = Y*Y' is the best</span>
+0033 <span class="comment">% solution found for the underlying SDP problem. If cutvalue_upperbound is</span>
+0034 <span class="comment">% not NaN, then Y*Y' is optimal for the SDP and cutvalue_upperbound is its</span>
+0035 <span class="comment">% cut value.</span>
+0036 <span class="comment">%</span>
+0037 <span class="comment">% By Goemans and Williamson 1995, it is known that if the optimal value of</span>
+0038 <span class="comment">% the SDP is reached, then the returned cut, in expectation, is at most at</span>
+0039 <span class="comment">% a fraction 0.878 of the optimal cut. (This is not exactly valid because</span>
+0040 <span class="comment">% we do not use random projection here; sign(Y*randn(size(Y, 2), 1)) will</span>
+0041 <span class="comment">% give a cut that respects this statement -- it's usually worse though).</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">% The algorithm is essentially that of:</span>
+0044 <span class="comment">% Journee, Bach, Absil and Sepulchre, 2010</span>
+0045 <span class="comment">% Low-rank optimization on the code of positive semidefinite matrices.</span>
+0046 <span class="comment">%</span>
+0047 <span class="comment">% It is itself based on the famous SDP relaxation of MAX CUT:</span>
+0048 <span class="comment">% Goemans and Williamson, 1995</span>
+0049 <span class="comment">% Improved approximation algorithms for maximum cut and satisfiability</span>
+0050 <span class="comment">% problems using semidefinite programming.</span>
+0051 
+0052 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0053 <span class="comment">%</span>
+0054 <span class="comment">% Main author: Nicolas Boumal, July 18, 2013</span>
+0055 <span class="comment">% Contributors:</span>
+0056 <span class="comment">%</span>
+0057 <span class="comment">% Change log:</span>
+0058 <span class="comment">%</span>
+0059 
+0060 
+0061     <span class="comment">% If no inputs are provided, generate a random Laplacian.</span>
+0062     <span class="comment">% This is for illustration purposes only.</span>
+0063     <span class="keyword">if</span> ~exist(<span class="string">'L'</span>, <span class="string">'var'</span>) || isempty(L)
+0064         n = 20;
+0065         A = triu(randn(n) &lt;= .4, 1);
+0066         A = A+A';
+0067         D = diag(sum(A, 2));
+0068         L = D-A;
+0069     <span class="keyword">end</span>
+0070 
+0071 
+0072     n = size(L, 1);
+0073     assert(size(L, 2) == n, <span class="string">'L must be square.'</span>);
+0074 
+0075     <span class="keyword">if</span> ~exist(<span class="string">'r'</span>, <span class="string">'var'</span>) || isempty(r) || r &gt; n
+0076         r = n;
+0077     <span class="keyword">end</span>
+0078     
+0079     <span class="comment">% We will let the rank increase. Each rank value will generate a cut.</span>
+0080     <span class="comment">% We have to go up in the rank to eventually find a certificate of SDP</span>
+0081     <span class="comment">% optimality. This in turn will give us an upperbound on the MAX CUT</span>
+0082     <span class="comment">% value and assure us that we're doing well, according to Goemans and</span>
+0083     <span class="comment">% Williamson's argument. In practice though, the good cuts often come</span>
+0084     <span class="comment">% up for low rank values, so we better keep track of the best one.</span>
+0085     best_x = ones(n, 1);
+0086     best_cutvalue = 0;
+0087     cutvalue_upperbound = NaN;
+0088     
+0089     time = [];
+0090     <a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> = [];
+0091     
+0092     <span class="keyword">for</span> rr = 2 : r
+0093         
+0094         manifold = <a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>(n, rr);
+0095         
+0096         <span class="keyword">if</span> rr == 2
+0097             
+0098             <span class="comment">% At first, for rank 2, generate a random point.</span>
+0099             Y0 = manifold.rand();
+0100              
+0101         <span class="keyword">else</span>
+0102             
+0103             <span class="comment">% To increase the rank, we could just add a column of zeros to</span>
+0104             <span class="comment">% the Y matrix. Unfortunately, this lands us in a saddle point.</span>
+0105             <span class="comment">% To escape from the saddle, we may compute an eigenvector of</span>
+0106             <span class="comment">% Sy associated to a negative eigenvalue: that will yield a</span>
+0107             <span class="comment">% (second order) descent direction Z. See Journee et al ; Sy is</span>
+0108             <span class="comment">% linked to dual certificates for the SDP.</span>
+0109             Y0 = [Y zeros(n, 1)];
+0110             LY0 = L*Y0;
+0111             Dy = spdiags(sum(LY0.*Y0, 2), 0, n, n);
+0112             Sy = (Dy - L)/4;
+0113             <span class="comment">% Find the smallest (the &quot;most negative&quot;) eigenvalue of Sy.</span>
+0114             [v, s] = eigs(Sy, 1, <span class="string">'SA'</span>);
+0115             <span class="comment">% If there is no negative eigenvalue for Sy, than we are not at</span>
+0116             <span class="comment">% a saddle point: we're actually done!</span>
+0117             <span class="keyword">if</span> s &gt;= -1e-10
+0118                 <span class="comment">% We can stop here: we found the global optimum of the SDP,</span>
+0119                 <span class="comment">% and hence the reached cost is a valid upper bound on the</span>
+0120                 <span class="comment">% maximum cut value.</span>
+0121                 cutvalue_upperbound = max(-[info.cost]);
+0122                 <span class="keyword">break</span>;
+0123             <span class="keyword">end</span>
+0124             
+0125             <span class="comment">% This is our escape direction.</span>
+0126             Z = manifold.proj(Y0, [zeros(n, rr-1) v]);
+0127             
+0128             <span class="comment">% % These instructions can be uncommented to see what the cost</span>
+0129             <span class="comment">% % function looks like at a saddle point.</span>
+0130             <span class="comment">% plotprofile(problem, Y0, Z, linspace(-1, 1, 101));</span>
+0131             <span class="comment">% drawnow; pause;</span>
+0132             
+0133             <span class="comment">% Now make a step in the Z direction to escape from the saddle.</span>
+0134             <span class="comment">% It is not obvious that it is ok to do a unit step ... perhaps</span>
+0135             <span class="comment">% need to be cautious here with the stepsize. It's not too</span>
+0136             <span class="comment">% critical though: the important point is to leave the saddle</span>
+0137             <span class="comment">% point. But it's nice to guarantee monotone decrease of the</span>
+0138             <span class="comment">% cost, and we can't do that with a constant step (at least,</span>
+0139             <span class="comment">% not without a proper argument to back it up).</span>
+0140             stepsize = 1.0;
+0141             Y0 = manifold.retr(Y0, Z, stepsize);
+0142             
+0143         <span class="keyword">end</span>
+0144         
+0145         <span class="comment">% Use the Riemannian optimization based algorithm lower in this</span>
+0146         <span class="comment">% file to reach a critical point (typically a local optimizer) of</span>
+0147         <span class="comment">% the max cut cost with fixed rank, starting from Y0.</span>
+0148         [Y info] = <a href="#_sub1" class="code" title="subfunction [Y info] = maxcut_fixedrank(L, Y)">maxcut_fixedrank</a>(L, Y0);
+0149         
+0150         <span class="comment">% Some info logging.</span>
+0151         thistime = [info.time];
+0152         <span class="keyword">if</span> ~isempty(time)
+0153             thistime = time(end) + thistime;
+0154         <span class="keyword">end</span>
+0155         time = [time thistime]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0156         <a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> = [<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> [info.cost]]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0157 
+0158         <span class="comment">% Time to turn the matrix Y into a cut.</span>
+0159         <span class="comment">% We can either do the random rounding as follows:</span>
+0160         <span class="comment">% x = sign(Y*randn(rr, 1));</span>
+0161         <span class="comment">% or extract the &quot;PCA direction&quot; of the points in Y and cut</span>
+0162         <span class="comment">% orthogonally to that direction, as follows:</span>
+0163         [u, ~, ~] = svds(Y, 1);
+0164         x = sign(u);
+0165 
+0166         cutvalue = (x'*L*x)/4;
+0167         <span class="keyword">if</span> cutvalue &gt; best_cutvalue
+0168             best_x = x;
+0169             best_cutvalue = cutvalue;
+0170         <span class="keyword">end</span>
+0171         
+0172     <span class="keyword">end</span>
+0173     
+0174     x = best_x;
+0175     cutvalue = best_cutvalue;
+0176     
+0177     plot(time, -<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>, <span class="string">'.-'</span>);
+0178     xlabel(<span class="string">'Time [s]'</span>);
+0179     ylabel(<span class="string">'Relaxed cut value'</span>);
+0180     title(<span class="string">'The relaxed cut value is an upper bound on the optimal cut value.'</span>);
+0181 
+0182 <span class="keyword">end</span>
+0183 
+0184 
+0185 <a name="_sub1" href="#_subfunctions" class="code">function [Y info] = maxcut_fixedrank(L, Y)</a>
+0186 <span class="comment">% Try to solve the (fixed) rank r relaxed max cut program, based on the</span>
+0187 <span class="comment">% Laplacian of the graph L and an initial guess Y. L is nxn and Y is nxr.</span>
+0188 
+0189     [n r] = size(Y);
+0190     assert(all(size(L) == n));
+0191     
+0192     <span class="comment">% The fixed rank elliptope geometry describes symmetric, positive</span>
+0193     <span class="comment">% semidefinite matrices of size n with rank r and all diagonal entries</span>
+0194     <span class="comment">% are 1.</span>
+0195     manifold = <a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>(n, r);
+0196     
+0197     <span class="comment">% % If you want to compare the performance of the elliptope geometry</span>
+0198     <span class="comment">% % against the (conceptually simpler) oblique manifold geometry,</span>
+0199     <span class="comment">% % uncomment this line.</span>
+0200     <span class="comment">% manifold = obliquefactory(r, n, true);</span>
+0201     
+0202     problem.M = manifold;
+0203     
+0204     <span class="comment">% % For rapid prototyping, these lines suffice to describe the cost</span>
+0205     <span class="comment">% % function and its gradient and Hessian (here expressed using the</span>
+0206     <span class="comment">% % Euclidean gradient and Hessian).</span>
+0207     <span class="comment">% problem.cost = @(Y)  -trace(Y'*L*Y)/4;</span>
+0208     <span class="comment">% problem.egrad = @(Y) -(L*Y)/2;</span>
+0209     <span class="comment">% problem.ehess = @(Y, U) -(L*U)/2;</span>
+0210     
+0211     <span class="comment">% Instead of the prototyping version, the functions below describe the</span>
+0212     <span class="comment">% cost, gradient and Hessian using the caching system (the store</span>
+0213     <span class="comment">% structure). This alows to execute exactly the required number of</span>
+0214     <span class="comment">% multiplications with the matrix L. These multiplications are counted</span>
+0215     <span class="comment">% using the Lproducts_counter and registered for each iteration in the</span>
+0216     <span class="comment">% info structure outputted by solvers, via the statsfun function.</span>
+0217     <span class="comment">% Notice that we do not use the store structure to count: this does not</span>
+0218     <span class="comment">% behave well in general and is not advised.</span>
+0219     
+0220     Lproducts_counter = 0;
+0221 
+0222     <span class="comment">% For every visited point Y, we will need L*Y. This function makes sure</span>
+0223     <span class="comment">% the quantity L*Y is available, but only computes it if it wasn't</span>
+0224     <span class="comment">% already computed.</span>
+0225     <a name="_sub2" href="#_subfunctions" class="code">function store = prepare(Y, store)</a>
+0226         <span class="keyword">if</span> ~isfield(store, <span class="string">'LY'</span>)
+0227             store.LY = L*Y;
+0228             Lproducts_counter = Lproducts_counter + 1;
+0229         <span class="keyword">end</span>
+0230     <span class="keyword">end</span>
+0231 
+0232     problem.cost = @<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>;
+0233     <a name="_sub3" href="#_subfunctions" class="code">function [f store] = cost(Y, store)</a>
+0234         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0235         LY = store.LY;
+0236         f = -(Y(:)'*LY(:))/4; <span class="comment">% = -trace(Y'*LY)/4;</span>
+0237     <span class="keyword">end</span>
+0238 
+0239     problem.grad = @<a href="#_sub4" class="code" title="subfunction [g store] = grad(Y, store)">grad</a>;
+0240     <a name="_sub4" href="#_subfunctions" class="code">function [g store] = grad(Y, store)</a>
+0241         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0242         LY = store.LY;
+0243         g = manifold.egrad2rgrad(Y, -LY/2);
+0244     <span class="keyword">end</span>
+0245 
+0246     problem.hess = @<a href="#_sub5" class="code" title="subfunction [h store] = hess(Y, U, store)">hess</a>;
+0247     <a name="_sub5" href="#_subfunctions" class="code">function [h store] = hess(Y, U, store)</a>
+0248         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0249         LY = store.LY;
+0250         LU = L*U;
+0251         Lproducts_counter = Lproducts_counter + 1;
+0252         h = manifold.ehess2rhess(Y, -LY/2, -LU/2, U);
+0253     <span class="keyword">end</span>
+0254 
+0255     <span class="comment">% statsfun is called exactly once after each iteration (including after</span>
+0256     <span class="comment">% the evaluation of the cost at the initial guess). We then register</span>
+0257     <span class="comment">% the value of the Lproducts counter (which counts how many product</span>
+0258     <span class="comment">% were needed since the last iteration), and reset it to zero.</span>
+0259     options.statsfun = @<a href="#_sub6" class="code" title="subfunction stats = statsfun(problem, Y, stats, store) ">statsfun</a>;
+0260     <a name="_sub6" href="#_subfunctions" class="code">function stats = statsfun(problem, Y, stats, store) </a><span class="comment">%#ok</span>
+0261         stats.Lproducts = Lproducts_counter;
+0262         Lproducts_counter = 0;
+0263     <span class="keyword">end</span>
+0264     
+0265 
+0266     <span class="comment">% % Diagnostics tools: to make sure the gradient and Hessian are</span>
+0267     <span class="comment">% % correct during the prototyping stage.</span>
+0268     <span class="comment">% checkgradient(problem); pause;</span>
+0269     <span class="comment">% checkhessian(problem); pause;</span>
+0270     
+0271     <span class="comment">% % To investigate the effect of the rotational invariance when using</span>
+0272     <span class="comment">% % the oblique or the elliptope geometry, or to study the saddle point</span>
+0273     <span class="comment">% % issue mentioned above, it is sometimes interesting to look at the</span>
+0274     <span class="comment">% % spectrum of the Hessian. For large dimensions, this is slow!</span>
+0275     <span class="comment">% stairs(sort(hessianspectrum(problem, Y)));</span>
+0276     <span class="comment">% drawnow; pause;</span>
+0277     
+0278     
+0279     <span class="comment">% % When facing a saddle point issue as described in the master</span>
+0280     <span class="comment">% % function, and when no sure mechanism exists to find an escape</span>
+0281     <span class="comment">% % direction, it may be helpful to set useRand to true and raise</span>
+0282     <span class="comment">% % miniter to more than 1, when using trustregions. This will tell the</span>
+0283     <span class="comment">% % solver to not stop before at least miniter iterations were</span>
+0284     <span class="comment">% % accomplished (thus disregarding the zero gradient at the saddle</span>
+0285     <span class="comment">% % point) and to use random search directions to kick start the inner</span>
+0286     <span class="comment">% % solve (tCG) step. It is not as efficient as finding a sure escape</span>
+0287     <span class="comment">% % direction, but sometimes it's the best we have.</span>
+0288     <span class="comment">% options.useRand = true;</span>
+0289     <span class="comment">% options.miniter = 5;</span>
+0290     
+0291     options.verbosity = 2;
+0292     Lproducts_counter = 0;
+0293     [Y Ycost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, Y, options); <span class="comment">%#ok</span>
+0294     
+0295     <span class="comment">% fprintf('Products with L: %d\n', sum([info.Lproducts]));</span>
+0296 
+0297 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

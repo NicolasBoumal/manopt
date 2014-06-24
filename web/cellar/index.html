@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Manopt - Matlab toolbox for optimization on manifolds</title>
+
+<style type="text/css"></style>
+<link title="Main style" rel="stylesheet" href="mainstyle.css" type="text/css">
+</head>
+<body>
+<!--palette: http://www.colourlovers.com/palette/292482/Terra-->
+<table style="background-color: white; width: 680px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="20" cellspacing="2">
+<tbody>
+<tr style="color: rgb(232, 221, 203);">
+<td style="vertical-align: top; background-color: rgb(205, 179, 128); text-align: center;"><span style="font-weight: bold;">Home | Download | Documentation |
+Tutorial | Publications | Contact</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">
+<h1>Manopt</h1>
+<h2>A
+matlab toolbox for optimization on manifolds</h2>
+</td>
+</tr>
+<tr>
+<td>
+<div>
+<h3>What is this?</h3>
+<div style="text-align: justify;">Manopt is a Matlab
+toolbox to solve
+optimization problems on manifolds. For
+basic use, one only needs to pick a manifold, provide the cost function
+(and possibly its derivatives) and pass it all on to a solver.
+Accompanying tools help the user in common tasks such as numerically
+checking whether the objective function agrees with its derivatives up
+to the appropriate order.
+</div>
+</div>
+<div>
+<h3>Why did we make it and what is it good for?</h3>
+<div style="text-align: justify;">Optimization on
+manifolds is a powerful paradigm to address nonlinear, nonconvex
+optimization problems that arise naturally in applications. With
+Manopt, it is easy to write code that solves problems of these various
+forms (and variations thereof):<br>
+<br>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Unconstrained optimization</td>
+</tr>
+<tr>
+<td><img style="width: 119px; height: 31px;" alt="$\min\limits_{X\in\mathbb{R}^{m\times n}} f(X)$" src="latex_euclidean.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Unit Frobenius norm constraint (sphere)</td>
+</tr>
+<tr>
+<td><img style="width: 308px; height: 31px;" alt="$\min\limits_{X\in\mathbb{R}^{m\times n}} f(X) \textrm{ such that } \|X\|_\textrm{F} = 1$" src="latex_sphere.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Orthonormality constraint (Stiefel manifold)</td>
+</tr>
+<tr>
+<td><img style="width: 309px; height: 34px;" alt="$\min\limits_{X\in\mathbb{R}^{n\times p}} f(X) \textrm{ such that } X\transpose X = I_p$" src="latex_stiefel.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Optimization of rotations (special orthogonal
+group)</td>
+</tr>
+<tr>
+<td><img style="width: 424px; height: 34px;" alt="$\min\limits_{R\in\mathbb{R}^{n\times n}} f(R) \textrm{ such that } R\transpose R = I_n , \det(R) = +1 $" src="latex_rotations.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Fixed-rank constraint</td>
+</tr>
+<tr>
+<td><img style="width: 338px; height: 31px;" alt="$\min\limits_{X\in\mathbb{R}^{m\times n}} f(X) \textrm{ such that } \rank(X) = k$" src="latex_fixedrank.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Optimization of subspaces (Grassmann manifold)</td>
+</tr>
+<tr>
+<td><img style="width: 422px; height: 31px;" alt="$\min\limits_{U \in \mathbb{R}^{n\times p}} f(\mathrm{span}(U)) \textrm{ such that } \rank(U) = p &lt; n$" src="latex_grassmann.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Unit norm constraints (oblique manifold)</td>
+</tr>
+<tr>
+<td><img style="width: 529px; height: 32px;" alt="$\min\limits_{x_1, \ldots, x_m\in\mathbb{R}^n} f(x_1, \ldots, x_m) \textrm{ such that } \|x_1\| = \cdots = \|x_m\| = 1 $" src="latex_oblique.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 550px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="5" cellspacing="0">
+<tbody>
+<tr>
+<td>Unit modulus constraints for complex numbers</td>
+</tr>
+<tr>
+<td><img style="width: 488px; height: 32px;" alt="$\min\limits_{z_1, \ldots, z_m\in\mathbb{C}} f(z_1, \ldots, z_m) \textrm{ such that } |z_1| = \cdots = |z_m| = 1$" src="latex_complexcircle.png"><br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+Depending on the availability of derivatives for the objective
+function, a number of optimization algorithms can be used:<br><ul><li>Smooth optimization</li><ul><li>Riemannian steepest-descent</li></ul><ul><li>Riemannian trust-regions<br></li></ul><li>Nonsmooth optimization</li><ul><li>(we are working on it)<br></li></ul><li>Derivative-free optimization</li><ul><li>Riemannian Nelder-Mead</li><li>Riemannian particle swarm optimization (PSO)</li></ul></ul>
+</div>
+</div>
+<div>
+<h3>Who are we?</h3>
+<div style="text-align: justify;">Manopt is
+developed and maintained at UCLouvain in the mathematical engineering department.
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div style="text-align: center; color: rgb(232, 221, 203); font-family: Arial,Helvetica,sans-serif; font-size: small;"><br>Last update: November 27, 2012<br>
+</div>
+</body></html>

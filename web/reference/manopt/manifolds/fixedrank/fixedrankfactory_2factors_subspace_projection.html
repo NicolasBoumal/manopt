@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fixedrankfactory_2factors_subspace_projection</title>
+  <meta name="keywords" content="fixedrankfactory_2factors_subspace_projection">
+  <meta name="description" content="Manifold of m-by-n matrices of rank k with quotient geometry.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">fixedrank</a> &gt; fixedrankfactory_2factors_subspace_projection.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\fixedrank&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>fixedrankfactory_2factors_subspace_projection
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of m-by-n matrices of rank k with quotient geometry.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = fixedrankfactory_2factors_subspace_projection(m, n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of m-by-n matrices of rank k with quotient geometry.
+
+ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
+
+ This follows the quotient geometry described in the following paper:
+ B. Mishra, G. Meyer, S. Bonnabel and R. Sepulchre
+ &quot;Fixed-rank matrix factorizations and Riemannian low-rank optimization&quot;,
+ arXiv, 2012.
+
+ Paper link: http://arxiv.org/abs/1209.0430
+
+ A point X on the manifold is represented as a structure with two
+ fields: L and R. The matrices L (mxk) is orthonormal,
+ while the matrix R (nxk) is a full column-rank
+ matrix.
+
+ Tangent vectors are represented as a structure with two fields: L, R.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function X = prepare(X)</a></li><li><a href="#_sub2" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub3" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub4" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub5" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub6" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub7" class="code">function R = exponential(X, eta, t)</a></li><li><a href="#_sub8" class="code">function X = random()</a></li><li><a href="#_sub9" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub10" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li><li><a href="#_sub11" class="code">function A = uf(A)</a></li><li><a href="#_sub12" class="code">function omega = nested_sylvester(sym_mat, asym_mat)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankfactory_2factors_subspace_projection(m, n, k)</a>
+0002 <span class="comment">% Manifold of m-by-n matrices of rank k with quotient geometry.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = fixedrankfactory_2factors_subspace_projection(m, n, k)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This follows the quotient geometry described in the following paper:</span>
+0007 <span class="comment">% B. Mishra, G. Meyer, S. Bonnabel and R. Sepulchre</span>
+0008 <span class="comment">% &quot;Fixed-rank matrix factorizations and Riemannian low-rank optimization&quot;,</span>
+0009 <span class="comment">% arXiv, 2012.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Paper link: http://arxiv.org/abs/1209.0430</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% A point X on the manifold is represented as a structure with two</span>
+0014 <span class="comment">% fields: L and R. The matrices L (mxk) is orthonormal,</span>
+0015 <span class="comment">% while the matrix R (nxk) is a full column-rank</span>
+0016 <span class="comment">% matrix.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Tangent vectors are represented as a structure with two fields: L, R.</span>
+0019 
+0020 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0021 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0022 <span class="comment">% Contributors:</span>
+0023 <span class="comment">% Change log:</span>
+0024     
+0025     
+0026     
+0027     M.name = @() sprintf(<span class="string">'LR'' quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
+0028     
+0029     M.dim = @() (m+n-k)*k;
+0030     
+0031     <span class="comment">% Some precomputations at the point X to be used in the inner product (and</span>
+0032     <span class="comment">% pretty much everywhere else).</span>
+0033     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
+0034         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'RtR'</span>,<span class="string">'invRtR'</span>}) == 1)
+0035             X.RtR = X.R'*X.R;
+0036             X.invRtR = eye(size(X.R,2))/ X.RtR;
+0037         <span class="keyword">end</span>
+0038     <span class="keyword">end</span>
+0039     
+0040     <span class="comment">% The choice of the metric is motivated by symmetry and scale</span>
+0041     <span class="comment">% invariance in the total space</span>
+0042     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0043     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0044         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0045         
+0046         ip = eta.L(:).'*zeta.L(:)  + trace(X.invRtR*(eta.R'*zeta.R) );
+0047     <span class="keyword">end</span>
+0048     
+0049     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0050     
+0051     M.dist = @(x, y) error(<span class="string">'fixedrankfactory_2factors_subspace_projection.dist not implemented yet.'</span>);
+0052     
+0053     M.typicaldist = @() 10*k;
+0054     
+0055     skew = @(X) .5*(X-X');
+0056     symm = @(X) .5*(X+X');
+0057     stiefel_proj = @(L, H) H - L*symm(L'*H);
+0058     
+0059     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction eta = egrad2rgrad(X, eta)">egrad2rgrad</a>;
+0060     <a name="_sub3" href="#_subfunctions" class="code">function eta = egrad2rgrad(X, eta)</a>
+0061         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0062         
+0063         eta.L = stiefel_proj(X.L, eta.L);
+0064         eta.R = eta.R*X.RtR;
+0065     <span class="keyword">end</span>
+0066     
+0067     
+0068     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0069     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0070         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0071         
+0072         <span class="comment">% Riemannian gradient</span>
+0073         rgrad = <a href="#_sub3" class="code" title="subfunction eta = egrad2rgrad(X, eta)">egrad2rgrad</a>(X, egrad);
+0074         
+0075         <span class="comment">% Directional derivative of the Riemannian gradient</span>
+0076         Hess.L = ehess.L - eta.L*symm(X.L'*egrad.L);
+0077         Hess.L = stiefel_proj(X.L, Hess.L);
+0078         
+0079         Hess.R = ehess.R*X.RtR + 2*egrad.R*symm(eta.R'*X.R);
+0080         
+0081         <span class="comment">% Correction factor for the non-constant metric on the factor R</span>
+0082         Hess.R = Hess.R - rgrad.R*((X.invRtR)*symm(X.R'*eta.R)) - eta.R*(X.invRtR*symm(X.R'*rgrad.R)) + X.R*(X.invRtR*symm(eta.R'*rgrad.R));
+0083         
+0084         <span class="comment">% Projection onto the horizontal space</span>
+0085         Hess = M.proj(X, Hess);
+0086     <span class="keyword">end</span>
+0087     
+0088     
+0089     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0090     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0091         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0092         
+0093         eta.L = stiefel_proj(X.L, eta.L); <span class="comment">% On the tangent space</span>
+0094         SS = X.RtR;
+0095         AS1 = 2*X.RtR*skew(X.L'*eta.L)*X.RtR;
+0096         AS2 = 2*skew(X.RtR*(X.R'*eta.R));
+0097         AS  = skew(AS1 + AS2);
+0098         
+0099         Omega = <a href="#_sub12" class="code" title="subfunction omega = nested_sylvester(sym_mat, asym_mat)">nested_sylvester</a>(SS,AS);
+0100         etaproj.L = eta.L - X.L*Omega;
+0101         etaproj.R = eta.R - X.R*Omega;
+0102     <span class="keyword">end</span>
+0103     
+0104     M.tangent = M.proj;
+0105     M.tangent2ambient = @(X, eta) eta;
+0106     
+0107     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0108     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0109         <span class="keyword">if</span> nargin &lt; 3
+0110             t = 1.0;
+0111         <span class="keyword">end</span>
+0112         Y.L = <a href="#_sub11" class="code" title="subfunction A = uf(A)">uf</a>(X.L + t*eta.L);
+0113         Y.R = X.R + t*eta.R;
+0114         
+0115         <span class="comment">% These are reused in the computation of the gradient and Hessian</span>
+0116         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
+0117     <span class="keyword">end</span>
+0118     
+0119     M.exp = @<a href="#_sub7" class="code" title="subfunction R = exponential(X, eta, t)">exponential</a>;
+0120     <a name="_sub7" href="#_subfunctions" class="code">function R = exponential(X, eta, t)</a>
+0121         <span class="keyword">if</span> nargin &lt; 3
+0122             t = 1.0;
+0123         <span class="keyword">end</span>
+0124         
+0125         R = <a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
+0126         warning(<span class="string">'manopt:fixedrankfactory_2factors_subspace_projection:exp'</span>, <span class="keyword">...</span>
+0127             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0128             <span class="string">'manifold not implemented yet. Lsed retraction instead.'</span>]);
+0129     <span class="keyword">end</span>
+0130     
+0131     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.L(:) ; X.R(:)])];
+0132     
+0133     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
+0134     <span class="comment">% Factors L lives on Stiefel manifold, hence we will reuse</span>
+0135     <span class="comment">% its random generator.</span>
+0136     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
+0137     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
+0138         X.L = stiefelm.rand();
+0139         X.R = randn(n, k);
+0140     <span class="keyword">end</span>
+0141     
+0142     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0143     <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0144         eta.L = randn(m, k);
+0145         eta.R = randn(n, k);
+0146         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0147         nrm = M.norm(X, eta);
+0148         eta.L = eta.L / nrm;
+0149         eta.R = eta.R / nrm;
+0150     <span class="keyword">end</span>
+0151     
+0152     M.lincomb = @<a href="#_sub10" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0153     
+0154     M.zerovec = @(X) struct(<span class="string">'L'</span>, zeros(m, k),<span class="keyword">...</span>
+0155         <span class="string">'R'</span>, zeros(n, k));
+0156     
+0157     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
+0158     
+0159     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0160     M.vec = @(X, U) [U.L(:) ; U.R(:)];
+0161     M.mat = @(X, u) struct(<span class="string">'L'</span>, reshape(u(1:(m*k)), m, k), <span class="keyword">...</span>
+0162         <span class="string">'R'</span>, reshape(u((m*k+1):end), n, k));
+0163     M.vecmatareisometries = @() false;
+0164     
+0165     
+0166 <span class="keyword">end</span>
+0167 
+0168 <span class="comment">% Linear combination of tangent vectors</span>
+0169 <a name="_sub10" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INLSL&gt;</span>
+0170     
+0171     <span class="keyword">if</span> nargin == 3
+0172         d.L = a1*d1.L;
+0173         d.R = a1*d1.R;
+0174     <span class="keyword">elseif</span> nargin == 5
+0175         d.L = a1*d1.L + a2*d2.L;
+0176         d.R = a1*d1.R + a2*d2.R;
+0177     <span class="keyword">else</span>
+0178         error(<span class="string">'Bad use of fixedrankfactory_2factors_subspace_projection.lincomb.'</span>);
+0179     <span class="keyword">end</span>
+0180     
+0181 <span class="keyword">end</span>
+0182 
+0183 <a name="_sub11" href="#_subfunctions" class="code">function A = uf(A)</a>
+0184     [L, unused, R] = svd(A, 0); <span class="comment">%#ok</span>
+0185     A = L*R';
+0186 <span class="keyword">end</span>
+0187 
+0188 <a name="_sub12" href="#_subfunctions" class="code">function omega = nested_sylvester(sym_mat, asym_mat)</a>
+0189     <span class="comment">% omega=nested_sylvester(sym_mat,asym_mat)</span>
+0190     <span class="comment">% This function solves the system of nested Sylvester equations:</span>
+0191     <span class="comment">%</span>
+0192     <span class="comment">%     X*sym_mat + sym_mat*X = asym_mat</span>
+0193     <span class="comment">%     Omega*sym_mat+sym_mat*Omega = X</span>
+0194     <span class="comment">% Mishra, Meyer, Bonnabel and Sepulchre, 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'</span>
+0195     
+0196     <span class="comment">% Lses built-in lyap function, but does not exploit the fact that it's</span>
+0197     <span class="comment">% twice the same sym_mat matrix that comes into play.</span>
+0198     
+0199     X = lyap(sym_mat, -asym_mat);
+0200     omega = lyap(sym_mat, -X);
+0201     
+0202 <span class="keyword">end</span>
+0203 
+0204 
+0205</pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

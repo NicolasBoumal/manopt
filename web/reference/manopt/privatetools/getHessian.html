@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getHessian</title>
+  <meta name="keywords" content="getHessian">
+  <meta name="description" content="Computes the Hessian of the cost function at x along d.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">privatetools</a> &gt; getHessian.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\privatetools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getHessian
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes the Hessian of the cost function at x along d.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [hess, storedb] = getHessian(problem, x, d, storedb) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes the Hessian of the cost function at x along d.
+
+ function [hess, storedb] = getHessian(problem, x, d, storedb)
+
+ Returns the Hessian at x along d of the cost function described in the
+ problem structure. The cache database storedb is passed along, possibly
+ modified and returned in the process.
+
+ If an exact Hessian is not provided, an approximate Hessian is returned
+ if possible, without warning. If not possible, an exception will be
+ thrown. To check whether an exact Hessian is available or not (typically
+ to issue a warning if not), use canGetHessian.
+
+ See also: <a href="getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a> <a href="getApproxHessian.html" class="code" title="function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)">getApproxHessian</a> <a href="canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a>	Checks whether the Euclidean gradient can be computed for a problem.</li><li><a href="getApproxHessian.html" class="code" title="function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)">getApproxHessian</a>	Computes an approximation of the Hessian of the cost fun. at x along d.</li><li><a href="getEuclideanGradient.html" class="code" title="function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)">getEuclideanGradient</a>	Computes the Euclidean gradient of the cost function at x.</li><li><a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>	Extracts a store struct. pertaining to a point from the storedb database.</li><li><a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>	Updates the store struct. pertaining to a point in the storedb database.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/trustregions/tCG.html" class="code" title="function [eta Heta inner_it stop_tCG storedb]= tCG(problem, x, grad, eta, Delta, options, storedb)">tCG</a>	tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [hess, storedb] = getHessian(problem, x, d, storedb)</a>
+0002 <span class="comment">% Computes the Hessian of the cost function at x along d.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [hess, storedb] = getHessian(problem, x, d, storedb)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns the Hessian at x along d of the cost function described in the</span>
+0007 <span class="comment">% problem structure. The cache database storedb is passed along, possibly</span>
+0008 <span class="comment">% modified and returned in the process.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% If an exact Hessian is not provided, an approximate Hessian is returned</span>
+0011 <span class="comment">% if possible, without warning. If not possible, an exception will be</span>
+0012 <span class="comment">% thrown. To check whether an exact Hessian is available or not (typically</span>
+0013 <span class="comment">% to issue a warning if not), use canGetHessian.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% See also: getPrecon getApproxHessian canGetHessian</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0018 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021     
+0022     <span class="keyword">if</span> isfield(problem, <span class="string">'hess'</span>)
+0023     <span class="comment">%% Compute the Hessian using hess.</span>
+0024 
+0025         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
+0026         <span class="keyword">if</span> ~is_octave
+0027             narg = nargin(problem.hess);
+0028         <span class="keyword">else</span>
+0029             narg = 3;
+0030         <span class="keyword">end</span>
+0031     
+0032         <span class="comment">% Check whether the hess function wants to deal with the store</span>
+0033         <span class="comment">% structure or not.</span>
+0034         <span class="keyword">switch</span> narg
+0035             <span class="keyword">case</span> 2
+0036                 hess = problem.hess(x, d);
+0037             <span class="keyword">case</span> 3
+0038                 <span class="comment">% Obtain, pass along, and save the store structure</span>
+0039                 <span class="comment">% associated to this point.</span>
+0040                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
+0041                 [hess store] = problem.hess(x, d, store);
+0042                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
+0043             <span class="keyword">otherwise</span>
+0044                 up = MException(<span class="string">'manopt:getHessian:badhess'</span>, <span class="keyword">...</span>
+0045                     <span class="string">'hess should accept 2 or 3 inputs.'</span>);
+0046                 throw(up);
+0047         <span class="keyword">end</span>
+0048     
+0049     <span class="keyword">elseif</span> isfield(problem, <span class="string">'ehess'</span>) &amp;&amp; <a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a>(problem)
+0050     <span class="comment">%% Compute the Hessian using ehess.</span>
+0051     
+0052         <span class="comment">% We will need the Euclidean gradient for the conversion from the</span>
+0053         <span class="comment">% Euclidean Hessian to the Riemannian Hessian.</span>
+0054         [egrad, storedb] = <a href="getEuclideanGradient.html" class="code" title="function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)">getEuclideanGradient</a>(problem, x, storedb);
+0055         
+0056         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
+0057         <span class="keyword">if</span> ~is_octave
+0058             narg = nargin(problem.ehess);
+0059         <span class="keyword">else</span>
+0060             narg = 3;
+0061         <span class="keyword">end</span>
+0062         
+0063         <span class="comment">% Check whether the ehess function wants to deal with the store</span>
+0064         <span class="comment">% structure or not.</span>
+0065         <span class="keyword">switch</span> narg
+0066             <span class="keyword">case</span> 2
+0067                 ehess = problem.ehess(x, d);
+0068             <span class="keyword">case</span> 3
+0069                 <span class="comment">% Obtain, pass along, and save the store structure</span>
+0070                 <span class="comment">% associated to this point.</span>
+0071                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
+0072                 [ehess store] = problem.ehess(x, d, store);
+0073                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
+0074             <span class="keyword">otherwise</span>
+0075                 up = MException(<span class="string">'manopt:getHessian:badehess'</span>, <span class="keyword">...</span>
+0076                     <span class="string">'ehess should accept 2 or 3 inputs.'</span>);
+0077                 throw(up);
+0078         <span class="keyword">end</span>
+0079         
+0080         <span class="comment">% Convert to the Riemannian Hessian</span>
+0081         hess = problem.M.ehess2rhess(x, egrad, ehess, d);
+0082         
+0083     <span class="keyword">else</span>
+0084     <span class="comment">%% Attempt the computation of an approximation of the Hessian.</span>
+0085         
+0086         [hess, storedb] = <a href="getApproxHessian.html" class="code" title="function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)">getApproxHessian</a>(problem, x, d, storedb);
+0087         
+0088     <span class="keyword">end</span>
+0089     
+0090 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

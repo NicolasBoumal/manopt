@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of euclideanfactory</title>
+  <meta name="keywords" content="euclideanfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over m-by-n matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; euclideanfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>euclideanfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over m-by-n matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = euclideanfactory(m, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over m-by-n matrices.
+
+ function M = euclideanfactory(m, n)
+
+ Returns M, a structure describing the Euclidean space of m-by-n matrices
+ equipped with the standard Frobenius distance and associated trace inner
+ product as a manifold for Manopt.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationaly align clouds of points (generalized Procrustes problem)</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li><li><a href="#_sub3" class="code">function v = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = euclideanfactory(m, n)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over m-by-n matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = euclideanfactory(m, n)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns M, a structure describing the Euclidean space of m-by-n matrices</span>
+0007 <span class="comment">% equipped with the standard Frobenius distance and associated trace inner</span>
+0008 <span class="comment">% product as a manifold for Manopt.</span>
+0009 
+0010 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0011 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0012 <span class="comment">% Contributors:</span>
+0013 <span class="comment">% Change log:</span>
+0014 <span class="comment">%  July 5, 2013 (NB): added egred2rgrad, ehess2rhess, mat, vec, tangent.</span>
+0015 
+0016     
+0017     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0018         n = 1;
+0019     <span class="keyword">end</span>
+0020 
+0021     M.name = @() sprintf(<span class="string">'Euclidean space R^(%dx%d)'</span>, m, n);
+0022     
+0023     M.dim = @() m*n;
+0024     
+0025     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0026     
+0027     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0028     
+0029     M.dist = @(x, y) norm(x-y, <span class="string">'fro'</span>);
+0030     
+0031     M.typicaldist = @() sqrt(m*n);
+0032     
+0033     M.proj = @(x, d) d;
+0034     
+0035     M.egrad2rgrad = @(x, g) g;
+0036     
+0037     M.ehess2rhess = @(x, eg, eh, d) eh;
+0038     
+0039     M.tangent = M.proj;
+0040     
+0041     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0042     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0043         <span class="keyword">if</span> nargin == 3
+0044             y = x + t*d;
+0045         <span class="keyword">else</span>
+0046             y = x + d;
+0047         <span class="keyword">end</span>
+0048     <span class="keyword">end</span>
+0049     
+0050     M.retr = M.exp;
+0051     
+0052     M.log = @(x, y) y-x;
+0053 
+0054     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0055     
+0056     M.rand = @() randn(m, n);
+0057     
+0058     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
+0059     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0060         u = randn(m, n);
+0061         u = u / norm(u, <span class="string">'fro'</span>);
+0062     <span class="keyword">end</span>
+0063     
+0064     M.lincomb = @<a href="#_sub3" class="code" title="subfunction v = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0065     <a name="_sub3" href="#_subfunctions" class="code">function v = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0066         <span class="keyword">if</span> nargin == 3
+0067             v = a1*d1;
+0068         <span class="keyword">elseif</span> nargin == 5
+0069             v = a1*d1 + a2*d2;
+0070         <span class="keyword">else</span>
+0071             error(<span class="string">'Bad usage of euclidean.lincomb'</span>);
+0072         <span class="keyword">end</span>
+0073     <span class="keyword">end</span>
+0074     
+0075     M.zerovec = @(x) zeros(m, n);
+0076     
+0077     M.transp = @(x1, x2, d) d;
+0078     
+0079     M.pairmean = @(x1, x2) .5*(x1+x2);
+0080     
+0081     M.vec = @(x, u_mat) u_mat(:);
+0082     M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
+0083     M.vecmatareisometries = @() true;
+0084 
+0085 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

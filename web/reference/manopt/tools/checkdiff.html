@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of checkdiff</title>
+  <meta name="keywords" content="checkdiff">
+  <meta name="description" content="Checks the consistency of the cost function and directional derivatives.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; checkdiff.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>checkdiff
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks the consistency of the cost function and directional derivatives.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function checkdiff(problem, x, d) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks the consistency of the cost function and directional derivatives.
+
+ function checkdiff(problem)
+ function checkdiff(problem, x)
+ function checkdiff(problem, x, d)
+
+ checkdiff performs a numerical test to check that the directional
+ derivatives defined in the problem structure agree up to first order with
+ the cost function at some point x, along some direction d. The test is
+ based on a truncated Taylor series (see online Manopt documentation).
+
+ Both x and d are optional and will be sampled at random if omitted.
+
+ See also: <a href="checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a> <a href="checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>	Checks whether dir. derivatives can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="identify_linear_piece.html" class="code" title="function [range poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function checkdiff(problem, x, d)</a>
+0002 <span class="comment">% Checks the consistency of the cost function and directional derivatives.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function checkdiff(problem)</span>
+0005 <span class="comment">% function checkdiff(problem, x)</span>
+0006 <span class="comment">% function checkdiff(problem, x, d)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% checkdiff performs a numerical test to check that the directional</span>
+0009 <span class="comment">% derivatives defined in the problem structure agree up to first order with</span>
+0010 <span class="comment">% the cost function at some point x, along some direction d. The test is</span>
+0011 <span class="comment">% based on a truncated Taylor series (see online Manopt documentation).</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Both x and d are optional and will be sampled at random if omitted.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% See also: checkgradient checkhessian</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0018 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021 
+0022         
+0023     <span class="comment">% Verify that the problem description is sufficient.</span>
+0024     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0025         error(<span class="string">'It seems no cost was provided.'</span>);  
+0026     <span class="keyword">end</span>
+0027     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>(problem)
+0028         error(<span class="string">'It seems no directional derivatives were provided.'</span>);    
+0029     <span class="keyword">end</span>
+0030     
+0031     dbstore = struct();
+0032         
+0033     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
+0034     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
+0035     
+0036     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
+0037         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
+0038     <span class="keyword">end</span>
+0039     
+0040     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
+0041     <span class="keyword">if</span> ~x_isprovided
+0042         x = problem.M.rand();
+0043     <span class="keyword">end</span>
+0044     <span class="keyword">if</span> ~d_isprovided
+0045         d = problem.M.randvec(x);
+0046     <span class="keyword">end</span>
+0047 
+0048     <span class="comment">% Compute the value f0 at f and directional derivative at x along d.</span>
+0049     f0 = <a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x, dbstore);
+0050     df0 = <a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>(problem, x, d, dbstore);
+0051     
+0052     <span class="comment">% Compute the value of f at points on the geodesic (or approximation of</span>
+0053     <span class="comment">% it) originating from x, along direction d, for stepsizes in a large</span>
+0054     <span class="comment">% range given by h.</span>
+0055     h = logspace(-8, 0, 51);
+0056     value = zeros(size(h));
+0057     <span class="keyword">for</span> i = 1 : length(h)
+0058         y = problem.M.exp(x, d, h(i));
+0059         value(i) = <a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, y, dbstore);
+0060     <span class="keyword">end</span>
+0061     
+0062     <span class="comment">% Compute the linear approximation of the cost function using f0 and</span>
+0063     <span class="comment">% df0 at the same points.</span>
+0064     model = polyval([df0 f0], h);
+0065     
+0066     <span class="comment">% Compute the approximation error</span>
+0067     err = abs(model - value);
+0068     
+0069     <span class="comment">% And plot it.</span>
+0070     loglog(h, err);
+0071     title(sprintf([<span class="string">'Directional derivative check.\nThe slope of the '</span><span class="keyword">...</span>
+0072                    <span class="string">'continuous line should match that of the dashed '</span><span class="keyword">...</span>
+0073                    <span class="string">'(reference) line\nover at least a few orders of '</span><span class="keyword">...</span>
+0074                    <span class="string">'magnitude for h.'</span>]));
+0075     xlabel(<span class="string">'h'</span>);
+0076     ylabel(<span class="string">'Approximation error'</span>);
+0077     
+0078     line(<span class="string">'xdata'</span>, [1e-8 1e0], <span class="string">'ydata'</span>, [1e-8 1e8], <span class="keyword">...</span>
+0079          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
+0080          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0081     
+0082     
+0083     <span class="comment">% In a numerically reasonable neighborhood, the error should decrease</span>
+0084     <span class="comment">% as the square of the stepsize, i.e., in loglog scale, the error</span>
+0085     <span class="comment">% should have a slope of 2.</span>
+0086     window_len = 10;
+0087     [range poly] = <a href="identify_linear_piece.html" class="code" title="function [range poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
+0088     hold on;
+0089         loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="keyword">...</span>
+0090                <span class="string">'r-'</span>, <span class="string">'LineWidth'</span>, 3);
+0091     hold off;
+0092     
+0093     fprintf(<span class="string">'The slope should be 2. It appears to be: %g.\n'</span>, poly(1));
+0094     fprintf([<span class="string">'If it is far from 2, then directional derivatives '</span> <span class="keyword">...</span>
+0095              <span class="string">'might be erroneous.\n'</span>]);
+0096     
+0097 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

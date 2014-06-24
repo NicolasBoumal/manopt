@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of linesearch_adaptive</title>
+  <meta name="keywords" content="linesearch_adaptive">
+  <meta name="description" content="Adaptive line search algorithm (step size selection) for descent methods.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">linesearch</a> &gt; linesearch_adaptive.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\linesearch&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>linesearch_adaptive
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Adaptive line search algorithm (step size selection) for descent methods.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [stepsize newx storedb lsmem lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Adaptive line search algorithm (step size selection) for descent methods.
+
+ function [stepsize newx storedb lsmem lsstats] = 
+      linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)
+
+ Adaptive linesearch algorithm for descent methods, based on a simple
+ backtracking method. On average, this line search intends to do only one
+ or two cost evaluations.
+
+ Contrary to linesearch.m, this function is not invariant under rescaling
+ of the search direction d. Nevertheless, it sometimes performs better.
+
+ Inputs/Outputs : see help for linesearch
+
+ See also: steepestdescent conjugategradients <a href="linesearch.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize newx storedb lsmem lsstats] = </a><span class="keyword">...</span>
+0002        linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)
+0003 <span class="comment">% Adaptive line search algorithm (step size selection) for descent methods.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% function [stepsize newx storedb lsmem lsstats] =</span>
+0006 <span class="comment">%      linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Adaptive linesearch algorithm for descent methods, based on a simple</span>
+0009 <span class="comment">% backtracking method. On average, this line search intends to do only one</span>
+0010 <span class="comment">% or two cost evaluations.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Contrary to linesearch.m, this function is not invariant under rescaling</span>
+0013 <span class="comment">% of the search direction d. Nevertheless, it sometimes performs better.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Inputs/Outputs : see help for linesearch</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% See also: steepestdescent conjugategradients linesearch</span>
+0018 
+0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0020 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0021 <span class="comment">% Contributors: Nicolas Boumal</span>
+0022 <span class="comment">% Change log:</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%   Sept. 13, 2013 (NB) :</span>
+0025 <span class="comment">%       The automatic direction reversal feature was removed (it triggered</span>
+0026 <span class="comment">%       when df0 &gt; 0). Direction reversal is a decision that needs to be</span>
+0027 <span class="comment">%       made by the solver, so it can know about it.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%    Nov. 7, 2013 (NB) :</span>
+0030 <span class="comment">%       The whole function has been recoded to mimick more closely the new</span>
+0031 <span class="comment">%       version of linesearch.m. The parameters are available through the</span>
+0032 <span class="comment">%       options structure passed to the solver and have the same names and</span>
+0033 <span class="comment">%       same meaning as for the base linesearch. The information is logged</span>
+0034 <span class="comment">%       more reliably.</span>
+0035 
+0036 
+0037     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0038     <span class="comment">% options structure which is passed to the solver.</span>
+0039     default_options.ls_contraction_factor = .5;
+0040     default_options.ls_suff_decr = .5;
+0041     default_options.ls_max_steps = 10;
+0042     default_options.ls_initial_stepsize = 1;
+0043     options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
+0044     
+0045     contraction_factor = options.ls_contraction_factor;
+0046     suff_decr = options.ls_suff_decr;
+0047     max_ls_steps = options.ls_max_steps;
+0048     initial_stepsize = options.ls_initial_stepsize;
+0049     
+0050     <span class="comment">% Compute the norm of the search direction.</span>
+0051     norm_d = problem.M.norm(x, d);
+0052     
+0053     <span class="comment">% If this is not the first iteration, then lsmem should have been</span>
+0054     <span class="comment">% filled with a suggestion for the initial step.</span>
+0055     <span class="keyword">if</span> isstruct(lsmem) &amp;&amp; isfield(lsmem, <span class="string">'init_alpha'</span>)
+0056         <span class="comment">% Pick initial step size based on where we were last time,</span>
+0057         alpha = lsmem.init_alpha;
+0058     
+0059     <span class="comment">% Otherwise, fall back to a user supplied suggestion.</span>
+0060     <span class="keyword">else</span>
+0061         alpha = initial_stepsize / norm_d;
+0062     <span class="keyword">end</span>
+0063 
+0064     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0065     newx = problem.M.retr(x, d, alpha);
+0066     [newf storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
+0067     cost_evaluations = 1;
+0068     
+0069     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
+0070     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
+0071         
+0072         <span class="comment">% Reduce the step size,</span>
+0073         alpha = contraction_factor * alpha;
+0074         
+0075         <span class="comment">% and look closer down the line</span>
+0076         newx = problem.M.retr(x, d, alpha);
+0077         [newf storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
+0078         cost_evaluations = cost_evaluations + 1;
+0079         
+0080         <span class="comment">% Make sure we don't run out of budget</span>
+0081         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0082             <span class="keyword">break</span>;
+0083         <span class="keyword">end</span>
+0084         
+0085     <span class="keyword">end</span>
+0086     
+0087     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0088     <span class="keyword">if</span> newf &gt; f0
+0089         alpha = 0;
+0090         newx = x;
+0091         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0092     <span class="keyword">end</span>
+0093     
+0094     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0095     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0096     stepsize = alpha * norm_d;
+0097 
+0098     <span class="comment">% Fill lsmem with a suggestion for what the next initial step size</span>
+0099     <span class="comment">% trial should be. On average we intend to do only one extra cost</span>
+0100     <span class="comment">% evaluation. Notice how the suggestion is not about stepsize but about</span>
+0101     <span class="comment">% alpha. This is the reason why this line search is not invariant under</span>
+0102     <span class="comment">% rescaling of the search direction d.</span>
+0103     <span class="keyword">switch</span> cost_evaluations
+0104         <span class="keyword">case</span> 1
+0105             <span class="comment">% If things go well, push your luck.</span>
+0106             lsmem.init_alpha = 2 * alpha;
+0107         <span class="keyword">case</span> 2
+0108             <span class="comment">% If things go smoothly, try to keep pace.</span>
+0109             lsmem.init_alpha = alpha;
+0110         <span class="keyword">otherwise</span>
+0111             <span class="comment">% If you backtracked a lot, the new stepsize is probably quite</span>
+0112             <span class="comment">% small: try to recover.</span>
+0113             lsmem.init_alpha = 2 * alpha;
+0114     <span class="keyword">end</span>
+0115     
+0116     <span class="comment">% Save some statistics also, for possible analysis.</span>
+0117     lsstats.costevals = cost_evaluations;
+0118     lsstats.stepsize = stepsize;
+0119     lsstats.alpha = alpha;
+0120     
+0121 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

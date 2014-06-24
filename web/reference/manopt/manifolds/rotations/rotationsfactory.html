@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of rotationsfactory</title>
+  <meta name="keywords" content="rotationsfactory">
+  <meta name="description" content="Returns a manifold structure to optimize over rotation matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">rotations</a> &gt; rotationsfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\rotations&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>rotationsfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold structure to optimize over rotation matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = rotationsfactory(n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold structure to optimize over rotation matrices.
+ 
+ function M = rotationsfactory(n)
+ function M = rotationsfactory(n, k)
+
+ Special orthogonal group (the manifold of rotations): deals with matrices
+ R of size n x n x k (or n x n if k = 1, which is the default) such that
+ each n x n matrix is orthogonal, with determinant 1, i.e., X'*X = eye(n)
+ if k = 1, or X(:, :, i)' * X(:, :, i) = eye(n) for i = 1 : k if k &gt; 1.
+
+ This is a description of SO(n)^k with the induced metric from the
+ embedding space (R^nxn)^k, i.e., this manifold is a Riemannian
+ submanifold of (R^nxn)^k endowed with the usual trace inner product.
+
+ Tangent vectors are represented in the Lie algebra, i.e., as skew
+ symmetric matrices. Use the function M.tangent2ambient(X, H) to switch
+ from the Lie algebra representation to the embedding space
+ representation.
+
+ By default, k = 1.
+
+ See also: stiefelfactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>	Generates uniformly random rotation matrices.</li><li><a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>	Generates random skew symmetric matrices with normal entries.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>	Returns the skew-symmetric parts of the matrices in the 3D matrix X.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationaly align clouds of points (generalized Procrustes problem)</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub4" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub5" class="code">function U = randomvec(X)</a></li><li><a href="#_sub6" class="code">function Y = pairmean(X1, X2)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = rotationsfactory(n, k)</a>
+0002 <span class="comment">% Returns a manifold structure to optimize over rotation matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = rotationsfactory(n)</span>
+0005 <span class="comment">% function M = rotationsfactory(n, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Special orthogonal group (the manifold of rotations): deals with matrices</span>
+0008 <span class="comment">% R of size n x n x k (or n x n if k = 1, which is the default) such that</span>
+0009 <span class="comment">% each n x n matrix is orthogonal, with determinant 1, i.e., X'*X = eye(n)</span>
+0010 <span class="comment">% if k = 1, or X(:, :, i)' * X(:, :, i) = eye(n) for i = 1 : k if k &gt; 1.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% This is a description of SO(n)^k with the induced metric from the</span>
+0013 <span class="comment">% embedding space (R^nxn)^k, i.e., this manifold is a Riemannian</span>
+0014 <span class="comment">% submanifold of (R^nxn)^k endowed with the usual trace inner product.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Tangent vectors are represented in the Lie algebra, i.e., as skew</span>
+0017 <span class="comment">% symmetric matrices. Use the function M.tangent2ambient(X, H) to switch</span>
+0018 <span class="comment">% from the Lie algebra representation to the embedding space</span>
+0019 <span class="comment">% representation.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% By default, k = 1.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% See also: stiefelfactory</span>
+0024 
+0025 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0026 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0027 <span class="comment">% Contributors:</span>
+0028 <span class="comment">% Change log:</span>
+0029 <span class="comment">%     Jan. 31, 2013, NB : added egrad2rgrad and ehess2rhess</span>
+0030 
+0031     
+0032     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0033         k = 1;
+0034     <span class="keyword">end</span>
+0035     
+0036     <span class="keyword">if</span> k == 1
+0037         M.name = @() sprintf(<span class="string">'Rotations manifold SO(%d)'</span>, n);
+0038     <span class="keyword">elseif</span> k &gt; 1
+0039         M.name = @() sprintf(<span class="string">'Product rotations manifold SO(%d)^%d'</span>, n, k);
+0040     <span class="keyword">else</span>
+0041         error(<span class="string">'k must be an integer no less than 1.'</span>);
+0042     <span class="keyword">end</span>
+0043     
+0044     M.dim = @() k*nchoosek(n, 2);
+0045     
+0046     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0047     
+0048     M.norm = @(x, d) norm(d(:));
+0049     
+0050     M.typicaldist = @() pi*sqrt(n*k);
+0051     
+0052     M.proj = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), H));
+0053     
+0054     M.tangent = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(H);
+0055     
+0056     M.tangent2ambient = @(X, U) <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, U);
+0057     
+0058     M.egrad2rgrad = M.proj;
+0059     
+0060     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction Rhess = ehess2rhess(X, Egrad, Ehess, H)">ehess2rhess</a>;
+0061     <a name="_sub1" href="#_subfunctions" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a>
+0062         <span class="comment">% Reminder : H contains skew-symmeric matrices. The actual</span>
+0063         <span class="comment">% direction that the point X is moved along is X*H.</span>
+0064         Xt = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X);
+0065         XtEgrad = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Egrad);
+0066         symXtEgrad = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(XtEgrad);
+0067         XtEhess = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Ehess);
+0068         Rhess = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>( XtEhess - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, symXtEgrad) );
+0069     <span class="keyword">end</span>
+0070     
+0071     M.retr = @<a href="#_sub2" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0072     <a name="_sub2" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0073         <span class="keyword">if</span> nargin == 3
+0074             tU = t*U;
+0075         <span class="keyword">else</span>
+0076             tU = U;
+0077         <span class="keyword">end</span>
+0078         Y = X + <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, tU);
+0079         <span class="keyword">for</span> i = 1 : k
+0080             [Q R] = qr(Y(:, :, i));
+0081             <span class="comment">% The instruction with R ensures we are not flipping signs</span>
+0082             <span class="comment">% of some columns, which should never happen in modern Matlab</span>
+0083             <span class="comment">% versions but may be an issue with older versions.</span>
+0084             Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+0085             <span class="comment">% This is guaranteed to always yield orthogonal matrices with</span>
+0086             <span class="comment">% determinant +1. Simply look at the eigenvalues of a skew</span>
+0087             <span class="comment">% symmetric matrix, than at those of identity plus that matrix,</span>
+0088             <span class="comment">% and compute their product for the determinant: it's stricly</span>
+0089             <span class="comment">% positive in all cases.</span>
+0090         <span class="keyword">end</span>
+0091     <span class="keyword">end</span>
+0092     
+0093     M.exp = @<a href="#_sub3" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0094     <a name="_sub3" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0095         <span class="keyword">if</span> nargin == 3
+0096             exptU = t*U;
+0097         <span class="keyword">else</span>
+0098             exptU = U;
+0099         <span class="keyword">end</span>
+0100         <span class="keyword">for</span> i = 1 : k
+0101             exptU(:, :, i) = expm(exptU(:, :, i));
+0102         <span class="keyword">end</span>
+0103         Y = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, exptU);
+0104     <span class="keyword">end</span>
+0105     
+0106     M.log = @<a href="#_sub4" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
+0107     <a name="_sub4" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
+0108         U = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), Y);
+0109         <span class="keyword">for</span> i = 1 : k
+0110             <span class="comment">% The result of logm should be real in theory, but it is</span>
+0111             <span class="comment">% numerically useful to force it.</span>
+0112             U(:, :, i) = real(logm(U(:, :, i)));
+0113         <span class="keyword">end</span>
+0114         <span class="comment">% Ensure the tangent vector is in the Lie algebra.</span>
+0115         U = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(U);
+0116     <span class="keyword">end</span>
+0117 
+0118     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0119     
+0120     M.rand = @() <a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(n, k);
+0121     
+0122     M.randvec = @<a href="#_sub5" class="code" title="subfunction U = randomvec(X) ">randomvec</a>;
+0123     <a name="_sub5" href="#_subfunctions" class="code">function U = randomvec(X) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0124         U = <a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>(n, k);
+0125         nrmU = sqrt(U(:).'*U(:));
+0126         U = U / nrmU;
+0127     <span class="keyword">end</span>
+0128     
+0129     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0130     
+0131     M.zerovec = @(x) zeros(n, n, k);
+0132     
+0133     M.transp = @(x1, x2, d) d;
+0134     
+0135     M.pairmean = @<a href="#_sub6" class="code" title="subfunction Y = pairmean(X1, X2)">pairmean</a>;
+0136     <a name="_sub6" href="#_subfunctions" class="code">function Y = pairmean(X1, X2)</a>
+0137         V = M.log(X1, X2);
+0138         Y = M.exp(X1, .5*V);
+0139     <span class="keyword">end</span>
+0140     
+0141     M.dist = @(x, y) M.norm(x, M.log(x, y));
+0142     
+0143     M.vec = @(x, u_mat) u_mat(:);
+0144     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
+0145     M.vecmatareisometries = @() true;
+0146 
+0147 <span class="keyword">end</span>
+0148 
+0149 <span class="comment">% Linear combination of tangent vectors</span>
+0150 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0151 
+0152     <span class="keyword">if</span> nargin == 3
+0153         d = a1*d1;
+0154     <span class="keyword">elseif</span> nargin == 5
+0155         d = a1*d1 + a2*d2;
+0156     <span class="keyword">else</span>
+0157         error(<span class="string">'Bad use of rotations.lincomb.'</span>);
+0158     <span class="keyword">end</span>
+0159 
+0160 <span class="keyword">end</span>
+0161</pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

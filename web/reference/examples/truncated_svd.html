@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of truncated_svd</title>
+  <meta name="keywords" content="truncated_svd">
+  <meta name="description" content="Returns an SVD decomposition of A truncated to rank p.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; truncated_svd.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>truncated_svd
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Returns an SVD decomposition of A truncated to rank p.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [U S V info] = truncated_svd(A, p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns an SVD decomposition of A truncated to rank p.
+
+ function [U S V] = truncated_svd(A, p)
+
+ Input: A real matrix A of size mxn and an integer p &lt;= min(m, n).
+ Output: An orthonormal matrix U of size mxp, an orthonormal matrix Y of
+         size nxp and a diagonal matrix S of size pxp with nonnegative and
+         decreasing diagonal entries such that USV.' is the best rank p
+         approximation of A according to the Frobenius norm. All real.
+         This function produces an output akin to svds.
+ 
+ The decomposition is obtained by maximizing
+   f(U, V) = .5*norm(U'*A*V, 'fro')^2
+ where U, V are orthonormal. Notice that f(U*Q, V*R) = f(U, V) for all
+ Q, R orthogonal pxp matrices. Hence, only the column spaces of U and V
+ matter and we may perform the optimization over a product of two
+ Grassmannian manifolds.
+
+ It is easy to show that maximizing f is equivalent to minimizing g with
+   g(U, V) = min_S norm(U*S*V' - A, 'fro')^2,
+ which confirms that we are going for a best low-rank approximation of A.
+ 
+ The inner workings of the Grassmann manifold use the built-in svd
+ function of Matlab but only for matrices of size mxp and nxp to
+ re-orthonormalize them.
+ 
+ Notice that we are actually chasing a best fixed-rank approximation of a
+ matrix, which is best obtained by working directly over a manifold of
+ fixed-rank matrices. This is simply an example script to demonstrate some
+ functionalities of the toolbox.
+ 
+ The code can be modified to accept a function handle for A(x) = A*x
+ instead of a matrix A, which is often useful. This would further require
+ a function handle At for the transpose of A, such that At(x) = A.'*x.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li><li><a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li><li><a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function f = cost(X)</a></li><li><a href="#_sub2" class="code">function g = egrad(X)</a></li><li><a href="#_sub3" class="code">function h = ehess(X, H)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [U S V info] = truncated_svd(A, p)</a>
+0002 <span class="comment">% Returns an SVD decomposition of A truncated to rank p.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [U S V] = truncated_svd(A, p)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input: A real matrix A of size mxn and an integer p &lt;= min(m, n).</span>
+0007 <span class="comment">% Output: An orthonormal matrix U of size mxp, an orthonormal matrix Y of</span>
+0008 <span class="comment">%         size nxp and a diagonal matrix S of size pxp with nonnegative and</span>
+0009 <span class="comment">%         decreasing diagonal entries such that USV.' is the best rank p</span>
+0010 <span class="comment">%         approximation of A according to the Frobenius norm. All real.</span>
+0011 <span class="comment">%         This function produces an output akin to svds.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% The decomposition is obtained by maximizing</span>
+0014 <span class="comment">%   f(U, V) = .5*norm(U'*A*V, 'fro')^2</span>
+0015 <span class="comment">% where U, V are orthonormal. Notice that f(U*Q, V*R) = f(U, V) for all</span>
+0016 <span class="comment">% Q, R orthogonal pxp matrices. Hence, only the column spaces of U and V</span>
+0017 <span class="comment">% matter and we may perform the optimization over a product of two</span>
+0018 <span class="comment">% Grassmannian manifolds.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% It is easy to show that maximizing f is equivalent to minimizing g with</span>
+0021 <span class="comment">%   g(U, V) = min_S norm(U*S*V' - A, 'fro')^2,</span>
+0022 <span class="comment">% which confirms that we are going for a best low-rank approximation of A.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% The inner workings of the Grassmann manifold use the built-in svd</span>
+0025 <span class="comment">% function of Matlab but only for matrices of size mxp and nxp to</span>
+0026 <span class="comment">% re-orthonormalize them.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% Notice that we are actually chasing a best fixed-rank approximation of a</span>
+0029 <span class="comment">% matrix, which is best obtained by working directly over a manifold of</span>
+0030 <span class="comment">% fixed-rank matrices. This is simply an example script to demonstrate some</span>
+0031 <span class="comment">% functionalities of the toolbox.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% The code can be modified to accept a function handle for A(x) = A*x</span>
+0034 <span class="comment">% instead of a matrix A, which is often useful. This would further require</span>
+0035 <span class="comment">% a function handle At for the transpose of A, such that At(x) = A.'*x.</span>
+0036 
+0037 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% Main author: Nicolas Boumal, July 5, 2013</span>
+0040 <span class="comment">% Contributors:</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% Change log:</span>
+0043 <span class="comment">%</span>
+0044 
+0045     
+0046     <span class="comment">% Generate some random data to test the function if none is given.</span>
+0047     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0048         A = randn(42, 60);
+0049     <span class="keyword">end</span>
+0050     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0051         p = 5;
+0052     <span class="keyword">end</span>
+0053     
+0054     <span class="comment">% Retrieve the size of the problem and make sure the requested</span>
+0055     <span class="comment">% approximation rank is at most the maximum possible rank.</span>
+0056     [m n] = size(A);
+0057     assert(p &lt;= min(m, n), <span class="string">'p must be smaller than the smallest dimension of A.'</span>);
+0058     
+0059     <span class="comment">% Define the cost and its derivatives on the Grassmann manifold</span>
+0060     tuple.U = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(m, p);
+0061     tuple.V = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, p);
+0062     <span class="comment">% All of the code will work just as well if we ignore the invariance</span>
+0063     <span class="comment">% property of the cost function indicated above and thus place U and V</span>
+0064     <span class="comment">% on the Stiefel manifold (orthonormal matrices) instead of the</span>
+0065     <span class="comment">% Grassmann manifold. Working on Stiefel is expected to be slower</span>
+0066     <span class="comment">% though, partly because de search space is higher dimensional and</span>
+0067     <span class="comment">% partly because the optimizers are not isolated.</span>
+0068     <span class="comment">% tuple.U = stiefelfactory(m, p);</span>
+0069     <span class="comment">% tuple.V = stiefelfactory(n, p);</span>
+0070     M = <a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>(tuple);
+0071     
+0072     <span class="comment">% Define a problem structure, specifying the manifold M, the cost</span>
+0073     <span class="comment">% function and its derivatives. Here, to demonstrate the rapid</span>
+0074     <span class="comment">% prototyping capabilities of Manopt, we directly define the Euclidean</span>
+0075     <span class="comment">% gradient and the Euclidean Hessian egrad and ehess instead of the</span>
+0076     <span class="comment">% Riemannian gradient and Hessian grad and hess. Manopt will take care</span>
+0077     <span class="comment">% of the conversion. This automatic conversion is usually not</span>
+0078     <span class="comment">% computationally optimal though, because much of the computations</span>
+0079     <span class="comment">% involved in obtaining the gradient could be reused to obtain the</span>
+0080     <span class="comment">% Hessian. After the prototyping stage, when efficiency becomes</span>
+0081     <span class="comment">% important, it makes sense to define grad and hess rather than egrad</span>
+0082     <span class="comment">% an ehess, and to use the caching system (the store structure).</span>
+0083     problem.M = M;
+0084     problem.cost  = @<a href="#_sub1" class="code" title="subfunction f = cost(X)">cost</a>;
+0085     problem.egrad = @<a href="#_sub2" class="code" title="subfunction g = egrad(X)">egrad</a>;
+0086     problem.ehess = @<a href="#_sub3" class="code" title="subfunction h = ehess(X, H)">ehess</a>;
+0087     
+0088     <span class="comment">% The functions below make many redundant computations. This</span>
+0089     <span class="comment">% performance hit can be alleviated by using the caching system.</span>
+0090     
+0091     <span class="comment">% Cost function</span>
+0092     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
+0093         U = X.U;
+0094         V = X.V;
+0095         f = -.5*norm(U'*A*V, <span class="string">'fro'</span>)^2;
+0096     <span class="keyword">end</span>
+0097     <span class="comment">% Euclidean gradient of the cost function</span>
+0098     <a name="_sub2" href="#_subfunctions" class="code">function g = egrad(X)</a>
+0099         U = X.U;
+0100         V = X.V;
+0101         AV = A*V;
+0102         AtU = A'*U;
+0103         g.U = -AV*(AV'*U);
+0104         g.V = -AtU*(AtU'*V);
+0105     <span class="keyword">end</span>
+0106     <span class="comment">% Euclidean Hessian of the cost function</span>
+0107     <a name="_sub3" href="#_subfunctions" class="code">function h = ehess(X, H)</a>
+0108         U = X.U;
+0109         V = X.V;
+0110         Udot = H.U;
+0111         Vdot = H.V;
+0112         AV = A*V;
+0113         AtU = A'*U;
+0114         AVdot = A*Vdot;
+0115         AtUdot = A'*Udot;
+0116         h.U = -(AVdot*AV'*U + AV*AVdot'*U + AV*AV'*Udot);
+0117         h.V = -(AtUdot*AtU'*V + AtU*AtUdot'*V + AtU*AtU'*Vdot);
+0118     <span class="keyword">end</span>
+0119     
+0120     
+0121     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0122     <span class="comment">% These things can be commented out of course.</span>
+0123     <a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>(problem);
+0124     pause;
+0125     <a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>(problem);
+0126     pause;
+0127     
+0128     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0129     <span class="comment">% default options are selected. Here, we specify a maximum trust</span>
+0130     <span class="comment">% region radius (which in turn induces an initial trust region radius).</span>
+0131     <span class="comment">% Note that this is not required: default values are used if we omit</span>
+0132     <span class="comment">% this. The diameter of the manifold scales like sqrt(2*p), hence the</span>
+0133     <span class="comment">% form of our (empirical) choice.</span>
+0134     options.Delta_bar = 4*sqrt(2*p);
+0135     [X Xcost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0136     U = X.U;
+0137     V = X.V;
+0138     
+0139     <span class="comment">% Finish the job by rotating U and V such that the middle matrix S can</span>
+0140     <span class="comment">% be diagonal with nonnegative, decreasing entries. This requires a</span>
+0141     <span class="comment">% small svd of size pxp.</span>
+0142     Spp = U'*A*V;
+0143     [Upp Spp Vpp] = svd(Spp);
+0144     U = U*Upp;
+0145     S = Spp;
+0146     V = V*Vpp;
+0147     
+0148     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
+0149     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
+0150     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
+0151     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
+0152     <span class="comment">% Hessian, this would also inform us on its performance.</span>
+0153     <span class="comment">%</span>
+0154     <span class="comment">% Notice that if the optimization is performed on a product of Stiefel</span>
+0155     <span class="comment">% manifolds instead of a product of Grassmannians, the double</span>
+0156     <span class="comment">% invariance under the orthogonal group O(p) will appear as twice</span>
+0157     <span class="comment">% p*(p-1)/2, thus p*(p-1) zero eigenvalues in the spectrum of the</span>
+0158     <span class="comment">% Hessian. This means that the minimizers are not isolated, which</span>
+0159     <span class="comment">% typically hinders convergence of second order algorithms.</span>
+0160     <span class="keyword">if</span> M.dim() &lt; 512
+0161         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
+0162         stairs(sort(evs));
+0163         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
+0164                <span class="string">'at the solution'</span>]);
+0165     <span class="keyword">end</span>
+0166 
+0167 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

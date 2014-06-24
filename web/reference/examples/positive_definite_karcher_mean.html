@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of positive_definite_karcher_mean</title>
+  <meta name="keywords" content="positive_definite_karcher_mean">
+  <meta name="description" content="Computes a Karcher mean of a collection of positive definite matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; positive_definite_karcher_mean.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>positive_definite_karcher_mean
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Computes a Karcher mean of a collection of positive definite matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function X = positive_definite_karcher_mean(A) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes a Karcher mean of a collection of positive definite matrices.
+
+ function X = positive_definite_karcher_mean(A)
+
+ Input:  A 3D matrix A of size nxnxm such that each slice A(:,:,k) is a
+         positive definite matrix of size nxn.
+ 
+ Output: A positive definite matrix X of size nxn which is a Karcher mean
+         of the m matrices in A, that is, X minimizes the sum of squared
+         Riemannian distances to the matrices in A:
+            f(X) = sum_k=1^m .5*dist^2(X, A(:, :, k))
+         The distance is defined by the natural metric on the set of
+         positive definite matrices: dist(X,Y) = norm(logm(X\Y), 'fro').
+ 
+ This simple example is not the best way to compute Karcher means. Its
+ purpose it to serve as base code to explore other algorithms. In
+ particular, in the presence of large noise, this algorithm seems to not
+ be able to reach points with a very small gradient norm. This may be
+ caused by insufficient accuracy in the gradient computation.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function f = cost(X)</a></li><li><a href="#_sub2" class="code">function g = grad(X)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function X = positive_definite_karcher_mean(A)</a>
+0002 <span class="comment">% Computes a Karcher mean of a collection of positive definite matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function X = positive_definite_karcher_mean(A)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input:  A 3D matrix A of size nxnxm such that each slice A(:,:,k) is a</span>
+0007 <span class="comment">%         positive definite matrix of size nxn.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Output: A positive definite matrix X of size nxn which is a Karcher mean</span>
+0010 <span class="comment">%         of the m matrices in A, that is, X minimizes the sum of squared</span>
+0011 <span class="comment">%         Riemannian distances to the matrices in A:</span>
+0012 <span class="comment">%            f(X) = sum_k=1^m .5*dist^2(X, A(:, :, k))</span>
+0013 <span class="comment">%         The distance is defined by the natural metric on the set of</span>
+0014 <span class="comment">%         positive definite matrices: dist(X,Y) = norm(logm(X\Y), 'fro').</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% This simple example is not the best way to compute Karcher means. Its</span>
+0017 <span class="comment">% purpose it to serve as base code to explore other algorithms. In</span>
+0018 <span class="comment">% particular, in the presence of large noise, this algorithm seems to not</span>
+0019 <span class="comment">% be able to reach points with a very small gradient norm. This may be</span>
+0020 <span class="comment">% caused by insufficient accuracy in the gradient computation.</span>
+0021 
+0022 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% Main author: Nicolas Boumal, Sept. 3, 2013</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Change log:</span>
+0028 <span class="comment">%</span>
+0029     
+0030     <span class="comment">% Generate some random data to test the function if none is given.</span>
+0031     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0032         n = 5;
+0033         m = 10;
+0034         A = zeros(n, n, m);
+0035         ref = diag(max(.1, 1+.1*randn(n, 1)));
+0036         <span class="keyword">for</span> i = 1 : m
+0037             noise = 0.01*randn(n);
+0038             noise = (noise + noise')/2;
+0039             [V D] = eig(ref + noise);
+0040             A(:, :, i) = V*diag(max(.01, diag(D)))*V';
+0041         <span class="keyword">end</span>
+0042     <span class="keyword">end</span>
+0043     
+0044     <span class="comment">% Retrieve the size of the problem:</span>
+0045     <span class="comment">% There are m matrices of size nxn to average.</span>
+0046     n = size(A, 1);
+0047     m = size(A, 3);
+0048     assert(n == size(A, 2), <span class="keyword">...</span>
+0049            [<span class="string">'The slices of A must be square, i.e., the '</span> <span class="keyword">...</span>
+0050             <span class="string">'first and second dimensions of A must be equal.'</span>]);
+0051     
+0052     <span class="comment">% Our search space is the set of positive definite matrices of size n.</span>
+0053     <span class="comment">% Notice that this is the only place we specify on which manifold we</span>
+0054     <span class="comment">% wish to compute Karcher means. Replacing this factory for another</span>
+0055     <span class="comment">% geometry will yield code to compute Karcher means on that other</span>
+0056     <span class="comment">% manifold, provided that manifold is equipped with a logarithmic map.</span>
+0057     M = <a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>(n);
+0058     
+0059     <span class="comment">% Define a problem structure, specifying the manifold M, the cost</span>
+0060     <span class="comment">% function and its gradient.</span>
+0061     problem.M = M;
+0062     problem.cost = @<a href="#_sub1" class="code" title="subfunction f = cost(X)">cost</a>;
+0063     problem.grad = @<a href="#_sub2" class="code" title="subfunction g = grad(X)">grad</a>;
+0064     
+0065     <span class="comment">% The functions below make many redundant computations. This</span>
+0066     <span class="comment">% performance hit can be alleviated by using the caching system. We go</span>
+0067     <span class="comment">% for a simple implementation here, as a tutorial example.</span>
+0068     
+0069     <span class="comment">% Cost function</span>
+0070     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
+0071         f = 0;
+0072         <span class="keyword">for</span> k = 1 : m
+0073             f = f + M.dist(X, A(:, :, k))^2;
+0074         <span class="keyword">end</span>
+0075         f = f/(2*m);
+0076     <span class="keyword">end</span>
+0077 
+0078     <span class="comment">% Riemannian gradient of the cost function</span>
+0079     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(X)</a>
+0080         g = M.zerovec(X);
+0081         <span class="keyword">for</span> k = 1 : m
+0082             <span class="comment">% Update g in a linear combination of the form</span>
+0083             <span class="comment">% g = g - [something]/m.</span>
+0084             g = M.lincomb(X, 1, g, -1/m, M.log(X, A(:, :, k)));
+0085         <span class="keyword">end</span>
+0086     <span class="keyword">end</span>
+0087     
+0088     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0089     <span class="comment">% These things can be commented out of course.</span>
+0090     <span class="comment">% The slopes should agree on part of the plot at least. In this case,</span>
+0091     <span class="comment">% it is sometimes necessary to inspect the plot visually to make the</span>
+0092     <span class="comment">% call, but it is indeed correct.</span>
+0093     <span class="comment">% checkgradient(problem);</span>
+0094     <span class="comment">% pause;</span>
+0095     
+0096     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
+0097     <span class="comment">% Our initial guess is the first data point.</span>
+0098     options.maxiter = 10;
+0099     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1), options);
+0100 
+0101 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

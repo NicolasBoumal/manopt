@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Manopt, trust-regions solver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentation of the Riemannian trust-regions solver in Manopt, the Matlab toolbox for optimization on Riemannian manifolds.">
+    <meta name="author" content="Nicolas Boumal">
+    <link href="favicon.ico" rel="icon" type="image/x-icon">
+    <!-- Le styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+body {
+	padding-top: 80px;
+	padding-bottom: 40px;
+}
+thead {
+	font-weight: bold;
+}
+</style> <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+    <link href="bootstrap/css/prettify.css" type="text/css" rel="stylesheet">
+    <link href="bootstrap/css/lang-matlab.css" type="text/css" rel="stylesheet">
+  </head>
+  <body onload="prettyPrint()">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner"> <a class="btn btn-navbar"><span class="icon-bar"></span>
+          <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+        <div class="container"> <a class="brand" href="index.html">Manopt</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="index.html"><i class="icon-home"></i> Home</a></li>
+              <li><a href="tutorial.html"><i class="icon-road"></i> Tutorial<br>
+                </a></li>
+              <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
+              <li><a href="about.html"><i class="icon-user"></i> About</a></li>
+              <li><a href="#contactmodal"><i class="icon-envelope"></i> Contact</a></li>
+            </ul>
+          </div>
+          <!--/.nav-collapse --> </div>
+      </div>
+    </div>
+    <!-- Contact modal Begin -->
+    <div id="contactmodal" class="modal hide fade" tabindex="-1">
+      <div class="modal-header"> <button type="button" class="close">×</button>
+        <h3 id="myModalLabel">To contact us</h3>
+      </div>
+      <div class="modal-body">
+        <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
+        <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
+        <p>We are happy to receive feedback and bug reports or requests for more
+          features, to discuss the toolbox in general as well as its
+          documentation and to help you use it.</p>
+        <p>We would also love to know how you use the toolbox, and if you built
+          nice manifold factories, solvers or tools that could benefit others.</p>
+      </div>
+      <div class="modal-footer"> <button class="btn">Close</button> </div>
+    </div>
+    <!-- Contact modal End -->
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <!--Body content-->
+          <section id="geometry">
+            <div class="page-header">
+              <h1>The Riemannian trust-regions solver</h1>
+            </div>
+            <p>Trust-region methods form a widely used class of nonlinear
+              optimization algorithms. They were generalized to the realm of
+              optimization on Riemannian manifolds in [ABG07], see also [AMS08],
+              specifically <a href="http://press.princeton.edu/chapters/absil/Absil_Chap7.pdf">chapter
+                7</a>. See [ABG07] for a listing and explanation of the
+              algorithm.</p>
+            <p>The standard convergence guarantees from the Euclidean setting
+              essentially carry over to the Riemannian setting: the method is
+              globally convergent, that is, regardless of the initial guess, it
+              will converge toward critical points. Furthermore, when the true
+              Hessian is used, we get quadratic local convergence; otherwise, we
+              still get linear local convergence (superlinear if the approximate
+              Hessian is "good enough"). See [ABG07] for precise theorem
+              statements and the assumptions that need to be verified (in
+              particular, sufficient smoothness of both the manifold and the
+              cost).</p>
+            <p>This trust-region method uses a truncated conjugate-gradient
+              (tCG) method to solve the inner minimization problems. This inner
+              solve can be preconditioned: simply provide a preconditioner in <a
+                href="tutorial.html#costdescription">the cost function
+                description</a>.</p>
+            <p>The implementation in Manopt is an adapted and improved version
+              of <a href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>,
+              the original code by the authors of [ABG07]. <strong>By default,
+                if no Hessian and no approximate Hessian are provided, Mano</strong><strong>pt
+                will appr</strong><strong>oximate the Hessian using finite
+                differences of the gradient</strong>. Empirically, this is seen
+              to perform excellently. The global convergence proof of the
+              Riemannian trust-region method can be extended to guarantee global
+              convergence with this nonlinear approximation of the Hessian too,
+              but there is currently no proof of superlinear convergence for
+              this algorithm. <strong>You </strong><strong>may disable this</strong>
+              by providing an approximate Hessian (for example, the identity
+              operator), or the Hessian of course. If you want more control over
+              the approximation algorithm, you may specify an approximate
+              Hessian in <a href="tutorial.html#costdescription">the cost
+                description</a> and perhaps start from the base code in <a href="http://www.manopt.org/reference/manopt/privatetools/getHessianFD.html"><tt>manopt/privatetools/getHessianFD.m</tt></a>.</p>
+            <p><br>
+            </p>
+            <p><strong> What should the problem structure specify about the cost
+                function $f$</strong><strong>?</strong></p>
+            <ul>
+              <li>Required: the manifold $\mathcal{M}$, the cost $f(x)$ and the
+                gradient $\operatorname{grad}f(x)$.</li>
+              <li>Recommended: the Hessian $\operatorname{Hess}f(x)[u]$, or
+                approximate Hessian.</li>
+              <li>Can help: a preconditioner $\operatorname{Prec}f(x)[u]$ (a
+                symmetric, positive definite operator that should approximate
+                the inverse of the Hessian).</li>
+            </ul>
+            <p><br>
+            </p>
+            <ul>
+            </ul>
+            <p></p>
+            <p><strong>How to call this solver?</strong></p>
+            <p>The solver <code>trustregions</code> is defined in the file <a
+                href="http://www.manopt.org/reference/manopt/solvers/trustregions/trustregions.html"><span
+                  style="font-family: monospace;">manopt/solvers/trustregions/trustregions.m</span></a>.
+              It may be called as follows: </p>
+            <ul>
+              <li><code>[x_opt cost_opt info] = trustregions(problem)</code> </li>
+              <li><code>[x_opt cost_opt info] = trustregions(problem, x0)</code></li>
+              <li><code>[x_opt cost_opt info] = trustregions(problem, [],
+                  options)</code> </li>
+              <li><code>[x_opt cost_opt info] = trustregions(problem, x0,
+                  options)</code></li>
+            </ul>
+            <p>The first input is a Manopt problem structure, describing the
+              manifold and the cost. The second input (optional) is a point on
+              the manifold from where the algorithm will start (initial guess).
+              The third input (optional) is a structure specifying option values
+              (see below).</p>
+            <p>For an in-depth description of the algorithm, with convergence
+              theory, see [ABG07] or [AMS08].</p>
+          </section>
+          <section id="toolset">
+            <div class="page-header">
+              <h1>Options and stopping criteria</h1>
+            </div>
+            <p>All options have default values, so that you seldom have to tweak
+              them. Nevertheless, from time to time, good tuning may bring about
+              nice performance boosts or better control. The <a href="tutorial.html#solvers">tutorial
+                page</a> documents generic options. Among those, the present
+              solver supports <code>options."..."</code>:</p>
+            <ul>
+              <li>Output and logging: <code>verbosity</code>, <code>debug</code>,
+                <code>statsfun</code></li>
+              <li>Stopping criteria: <code>maxiter</code>, <code>maxtime</code>,
+                <span style="color: #dd1144;"><span style="font-family: Monaco,Menlo,Consolas,&quot;Courier New&quot;,monospace;"></span></span><code>tolcost</code>,
+                <code>tolgradnorm</code>, <code>stopfun</code></li>
+              <li>Misc.: <code>storedepth</code></li>
+            </ul>
+            In addition, you may add the following specific options to the <code>options</code>
+            structure:<br>
+            <br>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td>Field name (<code>options."..."</code>)<br>
+                  </td>
+                  <td>Value type<br>
+                  </td>
+                  <td>Description<br>
+                  </td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="3" rowspan="1"><strong>Solver specific</strong><br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>Delta0</code></td>
+                  <td>double</td>
+                  <td>Initial radius $\Delta_0$ of the trust-region. You should
+                    not set this parameter without setting <code>Delta_bar</code>.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>Delta_bar</code><br>
+                  </td>
+                  <td>double<br>
+                  </td>
+                  <td>Maximum radius $\bar\Delta$ the trust-region can have. If
+                    you specify this parameter but not <code>Delta0</code>,
+                    then <code>Delta0</code> will be set to 1/8 times this
+                    parameter.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>useRand</code><br>
+                  </td>
+                  <td>Boolean<br>
+                  </td>
+                  <td>Use randomization to try to escape saddle points (false by
+                    default; you should have a good reason to activate this). If
+                    activated, the preconditioner is not used.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>kappa</code></td>
+                  <td>double</td>
+                  <td>Parameter $\kappa$ in the stopping criterion for the inner
+                    iterations (truncated CG). See [ABG07].<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>theta</code></td>
+                  <td>double</td>
+                  <td>Parameter $0 &lt; \theta \leq 1$ in the stopping criterion
+                    for the inner iterations (truncated CG). Set to 1.0
+                    (default) to reach for a quadratic convergence (if the
+                    Hessian is provided). See [ABG07].<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>rho_prime</code></td>
+                  <td>double</td>
+                  <td>Steps (at the outer iteration level) are only accepted if
+                    $\rho$ (see the Outputs section) is at least $\rho' \in [0,
+                    1/4)$. Defaults to 0.1. Make it smaller to accept steps more
+                    often, and larger to reject steps more often. See [ABG07].<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>rho_regularization</code></td>
+                  <td>double</td>
+                  <td>Close to convergence, evaluating the performance ratio
+                    $\rho$ is numerically challenging. Meanwhile, close to
+                    convergence, the quadratic model should be a good fit and
+                    the steps should be accepted. Regularization lets $\rho$ go
+                    to 1 as the model decrease and actual decrease go to zero.
+                    Set this option to zero to disable regularization (not
+                    recommended). See in-code for the specifics. This heuristic
+                    is documented in the book by Conn Gould and Toint on
+                    trust-region methods, <a title="Link to google books. You may need to right-click on the page and select &quot;reload&quot;."
+                      href="http://books.google.be/books?id=5kNC4fqssYQC&amp;lpg=PP1&amp;pg=PA793#v=onepage&amp;q&amp;f=false">section
+                      17.4.2</a>.</td>
+                </tr>
+                <tr>
+                  <td><code>debug</code></td>
+                  <td>Integer</td>
+                  <td>If set to 1 or more, will display the value of all options
+                    used and extra information at each iteration (the larger the
+                    number, the more information is displayed).</td>
+                </tr>
+                <tr>
+                  <td colspan="3" rowspan="1"><strong>Stopping criteria</strong><br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>maxiter</code></td>
+                  <td>integer<br>
+                  </td>
+                  <td>Stop after this number of outer iterations.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>miniter</code><br>
+                  </td>
+                  <td>integer<br>
+                  </td>
+                  <td>If useRand is true, do not stop before at least this many
+                    outer iterations were executed.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>maxinner</code><br>
+                  </td>
+                  <td>integer<br>
+                  </td>
+                  <td>Maximum number of inner iterations (usually, the number of
+                    Hessian evaluations) per outer iteration. This option may be
+                    quite critical for the overall performance of the algorithm.
+                    Setting it too low can jeopardize the quadratic convergence
+                    of the algorithm, but setting too high can sometimes slow
+                    down the algorithm at unimportant stages of the
+                    optimization.<br>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>mininner</code><br>
+                  </td>
+                  <td>integer<br>
+                  </td>
+                  <td>Minimum number of inner iterations per outer iteration,
+                    unless negative curvature is detected or the trust-region is
+                    exceeded during the inner iterations.<br>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="alert alert-info"><strong>Heads up!</strong> <code>options.statsfun</code>
+              is called with the point <code>x</code> that was reached last,
+              after the accept/reject decision. Hence: if the step was accepted,
+              we get that new <code>x</code>, with a <code>store</code> which
+              only saw the call for the cost and for the gradient. If the step
+              was rejected, we get the same <code>x</code> as previously, with
+              the <code>store</code> structure containing everything that was
+              computed at that point (possibly including previous rejects at
+              that same point). Hence, <code>statsfun</code> should not be used
+              in conjunction with the <code>store</code> to count operations
+              for example. Instead, you could use a global variable and
+              increment that variable directly from the cost related functions.
+              It is however possible to use <code>statsfun</code> with the <code>store</code>
+              to compute, for example, alternate merit functions on the point <code>x</code>.</div>
+          </section>
+          <section id="output">
+            <section id="output">
+              <div class="page-header">
+                <h1>Outputs</h1>
+              </div>
+              <p>The first output is the best point $x$ found on the manifold.
+                The second output is the value of the cost function at that
+                point. The third output is a structure array containing
+                information about the iterations performed by the solver. The <a
+                  href="tutorial.html#solvers">tutorial page</a> documents
+                generic fields that may appear in the <code>info</code>
+                structure array. Among those, the present solver will populate:</p>
+              <ul>
+                <li><code>iter</code>, <code>time</code>, <code>cost</code>, <code>gradnorm</code>,</li>
+                <li>and whatever <code>options.statsfun</code> logged, if it
+                  was provided.</li>
+              </ul>
+              <p>In addition,you will find this information:</p>
+              <table style="width: 100%;" class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <td>Field name (<code>[info."..."]</code>)<br>
+                    </td>
+                    <td>Value type<br>
+                    </td>
+                    <td>Description<br>
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>rho</code></td>
+                    <td>double<br>
+                    </td>
+                    <td>Performance ratio $\rho_k$ of the iterate $k$: ratio
+                      between the actual cost improvement (as indicated by the
+                      cost function) and the expected cost improvement (as
+                      indicated by the quadratic model).<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>rhonum</code>, <code>rhoden</code></td>
+                    <td>double</td>
+                    <td>Regularized numerator and denominator of the performance
+                      ratio $\rho$, such that $\rho = \rho_{num}/\rho_{den}$.
+                      The numerator corresponds to the actual decrease and the
+                      denominator corresponds to the model decrease.</td>
+                  </tr>
+                  <tr>
+                    <td><code>accepted</code><br>
+                    </td>
+                    <td>Boolean </td>
+                    <td>Whether the iterate was accepted or rejected.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>stepsize</code></td>
+                    <td>double</td>
+                    <td>The (Riemannian) norm of the vector returned by the
+                      inner solver tCG and which is retracted to obtain the
+                      proposed next iterate. If <code>accepted</code> is true
+                      for the corresponding iterate, this is the size of the
+                      step from the previous to the new iterate. If <code>accepted</code>
+                      is false, the step was not executed and this is the size
+                      of the rejected step.</td>
+                  </tr>
+                  <tr>
+                    <td><code>numinner</code><br>
+                    </td>
+                    <td>integer<br>
+                    </td>
+                    <td>The number of inner iterations used to compute the next
+                      iterate.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>Delta</code><br>
+                    </td>
+                    <td>double<br>
+                    </td>
+                    <td>The trust-region radius $\Delta_k$ at the outer
+                      iteration $k$.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>cauchy</code><br>
+                    </td>
+                    <td>Boolean </td>
+                    <td>(if useRand is true) indicates whether the Cauchy point
+                      was used at this iterate or not.<br>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>Recall the structure array syntax in Matlab: <code>[info.time]</code>
+                will return a vector of all the times logged (mind the
+                brackets).</p>
+              <div class="alert alert-info"><strong>Heads up!</strong> The model
+                decrease <code>rhoden</code> is theoretically always positive,
+                but finite numerical accuracy or a nonlinear / non-symmetric
+                approximate Hessian operator (or its approximation) may
+                jeopardize that. When this happens, the step is rejected and the
+                trust-region radius is reduced. If this happens too often, this
+                is the sign that something is wrong with the Hessian or its
+                approximation. You may detect this either by inspecting the text
+                output (look for the message "<span style="font-family: monospace;">model
+                  did not decrease</span>") or by looking for true values in <code>[info.rhoden]
+                  &lt; 0</code>, and of course using the <code>checkhessian</code>
+                tool. If you did not provide a Hessian or approximation, then
+                the generic finite-difference approximation of it is in use, <a
+                  href="http://www.manopt.org/reference/manopt/privatetools/getHessianFD.html"><code>getHessianFD</code></a>.
+                It is nonlinear and may at times lead to negative <code>rhoden</code>.
+                If this happens, you may either try to provide an alternative
+                Hessian operator, or try the <a href="http://manopt.org/reference/manopt/solvers/conjugategradient/conjugategradient.html"><code>conjugategradient</code></a>
+                solver for example. if you decide to copy <a href="http://www.manopt.org/reference/manopt/privatetools/getHessianFD.html"><code>getHessianFD</code></a>
+                to a new file to modify it, tuning the <code>epsilon</code>
+                parameter is the first thing to try.</div>
+            </section>
+          </section>
+          <!--
+          <section id="example">            <div class="page-header">
+              <h1>Example</h1>            </div>
+            <p>Most examples use the trust-regions solver. We'll add a              specific example here with more advanced option usage later.</p>
+            --><!-- <pre class="prettyprint lang-matlab linenums"><br></pre> --><!--
+          </section>          -->
+          <section id="references">
+            <div class="page-header">
+              <h1>References</h1>
+            </div>
+            [ABG07] P.-A. Absil, C.G. Baker, K.A. Gallivan, <a href="http://perso.uclouvain.be/pa.absil/Publi/RTR.htm">Trust-region
+              methods on Riemannian manifolds</a>, FoCM, 2007.<br>
+            [AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
+              href="http://press.princeton.edu/chapters/absil/">Optimization
+              Algorithms on Matrix Manifolds</a>, Princeton University Press,
+            2008. </section>
+          <section id="examples">
+            <div class="page-header">
+              <h1>List of examples</h1>
+            </div>
+            <p>See <a href="reference/examples/index.html">the examples folder</a>
+              distributed with Manopt 1.0.3 and more recent.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+    <!-- /container -->
+    <!-- Le javascript ================================================== -->
+    <script type="text/javascript" src="bootstrap/js/jquery.min.js">
+	</script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js">
+	</script>
+    <script type="text/javascript" src="bootstrap/js/prettify.js">
+	</script>
+    <script type="text/javascript" src="bootstrap/js/lang-matlab.js">
+	</script>
+    <script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});</script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> <script type="text/javascript">
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-37402854-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+ var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+ })();
+</script> </body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of multiprod</title>
+  <meta name="keywords" content="multiprod">
+  <meta name="description" content="MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; multiprod.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>multiprod
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function c = multiprod(a, b, idA, idB) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.
+   C = MULTIPROD(A,B) is equivalent  to C = MULTIPROD(A,B,[1 2],[1 2])
+   C = MULTIPROD(A,B,[D1 D2]) is eq. to C = MULTIPROD(A,B,[D1 D2],[D1 D2])
+   C = MULTIPROD(A,B,D1) is equival. to C = MULTIPROD(A,B,D1,D1)
+
+   MULTIPROD performs multiple matrix products, with array expansion (AX)
+   enabled. Its first two arguments A and B are &quot;block arrays&quot; of any
+   size, containing one or more 1-D or 2-D subarrays, called &quot;blocks&quot; (*).
+   For instance, a 5×6×3 array may be viewed as an array containing five
+   6×3 blocks. In this case, its size is denoted by 5×(6×3). The 1 or 2
+   adjacent dimensions along which the blocks are contained are called the
+   &quot;internal dimensions&quot; (IDs) of the array (°).
+
+   1) 2-D by 2-D BLOCK(S) (*)
+         C = MULTIPROD(A, B, [DA1 DA2], [DB1 DB2]) contains the products
+         of the P×Q matrices in A by the R×S matrices in B. [DA1 DA2] are
+         the IDs of A; [DB1 DB2] are the IDs of B.
+
+   2) 2-D by 1-D BLOCK(S) (*)
+         C = MULTIPROD(A, B, [DA1 DA2], DB1) contains the products of the
+         P×Q matrices in A by the R-element vectors in B. The latter are
+         considered to be R×1 matrices. [DA1 DA2] are the IDs of A; DB1 is
+         the ID of B.
+
+   3) 1-D by 2-D BLOCK(S) (*)
+         C = MULTIPROD(A, B, DA1, [DB1 DB2]) contains the products of the 
+         Q-element vectors in A by the R×S matrices in B. The vectors in A
+         are considered to be 1×Q matrices. DA1 is the ID of A; [DB1 DB2]
+         are the IDs of B.
+
+   4) 1-D BY 1-D BLOCK(S) (*)
+      (a) If either SIZE(A, DA1) == 1 or SIZE(B, DB1) == 1, or both,
+             C = MULTIPROD(A, B, DA1, DB1) returns products of scalars by 
+             vectors, or vectors by scalars or scalars by scalars.
+      (b) If SIZE(A, DA1) == SIZE(B, DB1), 
+             C = MULTIPROD(A, B, [0 DA1], [DB1 0]) or 
+             C = MULTIPROD(A, B, DA1, DB1) virtually turns the vectors
+             contained in A and B into 1×P and P×1 matrices, respectively,
+             then returns their products, similar to scalar products.
+             Namely, C = DOT2(A, B, DA1, DB1) is equivalent to 
+             C = MULTIPROD(CONJ(A), B, [0 DA1], [DB1 0]).
+      (c) Without limitations on the length of the vectors in A and B,
+             C = MULTIPROD(A, B, [DA1 0], [0 DB1]) turns the vectors
+             contained in A and B into P×1 and 1×Q matrices, respectively,
+             then returns their products, similar to outer products.
+             Namely, C = OUTER(A, B, DA1, DB1) is equivalent to
+             C = MULTIPROD(CONJ(A), B, [DA1 0], [0 DB1]).
+
+   Common constraints for all syntaxes:
+      The external dimensions of A and B must either be identical or 
+      compatible with AX rules. The internal dimensions of each block
+      array must be adjacent (DA2 == DA1 + 1 and DB2 == DB1 + 1 are
+      required). DA1 and DB1 are allowed to be larger than NDIMS(A) and
+      NDIMS(B). In syntaxes 1, 2, and 3, Q == R is required, unless the
+      blocks in A or B are scalars. 
+
+   Array expansion (AX):
+      AX is a powerful generalization to N-D of the concept of scalar
+      expansion. Indeed, A and B may be scalars, vectors, matrices or
+      multi-dimensional arrays. Scalar expansion is the virtual
+      replication or annihilation of a scalar which allows you to combine
+      it, element by element, with an array X of any size (e.g. X+10,
+      X*10, or []-10). Similarly, in MULTIPROD, the purpose of AX is to
+      automatically match the size of the external dimensions (EDs) of A
+      and B, so that block-by-block products can be performed. ED matching
+      is achieved by means of a dimension shift followed by a singleton
+      expansion:
+      1) Dimension shift (see SHIFTDIM).
+            Whenever DA1 ~= DB1, a shift is applied to impose DA1 == DB1.
+            If DA1 &gt; DB1, B is shifted to the right by DA1 - DB1 steps.
+            If DB1 &gt; DA1, A is shifted to the right by DB1 - DA1 steps.
+      2) Singleton expansion (SX).
+            Whenever an ED of either A or B is singleton and the
+            corresponding ED of the other array is not, the mismatch is
+            fixed by virtually replicating the array (or diminishing it to
+            length 0) along that dimension.
+ 
+   MULTIPROD is a generalization for N-D arrays of the matrix
+   multiplication function MTIMES, with AX enabled. Vector inner, outer,
+   and cross products generalized for N-D arrays and with AX enabled are
+   performed by DOT2, OUTER, and CROSS2 (MATLAB Central, file #8782).
+   Elementwise multiplications (see TIMES) and other elementwise binary
+   operations with AX enabled are performed by BAXFUN (MATLAB Central,
+   file #23084). Together, these functions make up the “ARRAYLAB toolbox”.
+
+   Input and output format:
+      The size of the EDs of C is determined by AX. Block size is
+      determined as follows, for each of the above-listed syntaxes:
+      1) C contains P×S matrices along IDs MAX([DA1 DA2], [DB1 DB2]).
+      2) Array     Block size     ID(s)
+         ----------------------------------------------------
+         A         P×Q  (2-D)     [DA1 DA2]
+         B         R    (1-D)     DB1
+         C (a)     P    (1-D)     MAX(DA1, DB1)
+         C (b)     P×Q  (2-D)     MAX([DA1 DA2], [DB1 DB1+1])
+         ----------------------------------------------------
+         (a) The 1-D blocks in B are not scalars (R &gt; 1).
+         (b) The 1-D blocks in B are scalars (R = 1).
+      3) Array     Block size     ID(s)
+         ----------------------------------------------------
+         A           Q  (1-D)     DA1
+         B         R×S  (2-D)     [DB1 DB2]
+         C (a)       S  (1-D)     MAX(DA1, DB1)
+         C (b)     R×S  (2-D)     MAX([DA1 DA1+1], [DB1 DB2])
+         ----------------------------------------------------
+         (a) The 1-D blocks in A are not scalars (Q &gt; 1).
+         (b) The 1-D blocks in A are scalars (Q = 1).
+      4)     Array     Block size         ID(s)
+         --------------------------------------------------------------
+         (a) A         P        (1-D)     DA1
+             B         Q        (1-D)     DB1
+             C         MAX(P,Q) (1-D)     MAX(DA1, DB1)
+         --------------------------------------------------------------
+         (b) A         P        (1-D)     DA1
+             B         P        (1-D)     DB1
+             C         1        (1-D)     MAX(DA1, DB1)
+         --------------------------------------------------------------
+         (c) A         P        (1-D)     DA1
+             B         Q        (1-D)     DB1
+             C         P×Q      (2-D)     MAX([DA1 DA1+1], [DB1 DB1+1])
+         --------------------------------------------------------------
+
+   Terminological notes:
+   (*) 1-D and 2-D blocks are generically referred to as &quot;vectors&quot; and 
+       &quot;matrices&quot;, respectively. However, both may be also called
+       “scalars” if they have a single element. Moreover, matrices with a
+       single row or column (e.g. 1×3 or 3×1) may be also called “row
+       vectors” or “column vectors”.
+   (°) Not to be confused with the &quot;inner dimensions&quot; of the two matrices
+       involved in a product X * Y, defined as the 2nd dimension of X and
+       the 1st of Y (DA2 and DB1 in syntaxes 1, 2, 3).
+
+   Examples:
+    1) If  A is .................... a 5×(6×3)×2 array,
+       and B is .................... a 5×(3×4)×2 array,
+       C = MULTIPROD(A, B, [2 3]) is a 5×(6×4)×2 array.
+
+       A single matrix A pre-multiplies each matrix in B
+       If  A is ........................... a (1×3)    single matrix,
+       and B is ........................... a 10×(3×4) 3-D array,
+       C = MULTIPROD(A, B, [1 2], [3 4]) is a 10×(1×4) 3-D array.
+
+       Each matrix in A pre-multiplies each matrix in B (all possible
+       combinations)
+       If  A is .................... a (6×3)×5   array,
+       and B is .................... a (3×4)×1×2 array,
+       C = MULTIPROD(A, B, [1 2]) is a (6×4)×5×2 array.
+
+   2a) If  A is ........................... a 5×(6×3)×2 4-D array,
+       and B is ........................... a 5×(3)×2   3-D array,
+       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6)×2   3-D array.
+
+   2b) If  A is ........................... a 5×(6×3)×2 4-D array,
+       and B is ........................... a 5×(1)×2   3-D array,
+       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6×3)×2 4-D array.
+
+   4a) If both A and B are .................. 5×(6)×2   3-D arrays,
+       C = MULTIPROD(A, B, 2) is .......... a 5×(1)×2   3-D array, while
+   4b) C = MULTIPROD(A, B, [2 0], [0 2]) is a 5×(6×6)×2 4-D array
+
+   See also DOT2, OUTER, CROSS2, BAXFUN, <a href="multitransp.html" class="code" title="function b = multitransp(a, dim)">MULTITRANSP</a>, <a href="multitrace.html" class="code" title="function tr = multitrace(A)">MULTITRACE</a>, <a href="multiscale.html" class="code" title="function A = multiscale(scale, A)">MULTISCALE</a>.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationaly align clouds of points (generalized Procrustes problem)</li><li><a href="../../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>	Returns a manifold structure to optimize over rotation matrices.</li><li><a href="../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)</a></li><li><a href="#_sub2" class="code">function [sizeA, sizeB, shiftC, delC, sizeisnew, idA, idB,</a></li><li><a href="#_sub3" class="code">function [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)</a></li><li><a href="#_sub4" class="code">function [newsize, flag] = addsing(size0, dim, ns)</a></li><li><a href="#_sub5" class="code">function [newsize, flag] = delsing(size0, dim, ns)</a></li><li><a href="#_sub6" class="code">function [newsize, flag] = swapdim(size0, dim)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function c = multiprod(a, b, idA, idB)</a>
+0002 <span class="comment">%MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</span>
+0003 <span class="comment">%   C = MULTIPROD(A,B) is equivalent  to C = MULTIPROD(A,B,[1 2],[1 2])</span>
+0004 <span class="comment">%   C = MULTIPROD(A,B,[D1 D2]) is eq. to C = MULTIPROD(A,B,[D1 D2],[D1 D2])</span>
+0005 <span class="comment">%   C = MULTIPROD(A,B,D1) is equival. to C = MULTIPROD(A,B,D1,D1)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   MULTIPROD performs multiple matrix products, with array expansion (AX)</span>
+0008 <span class="comment">%   enabled. Its first two arguments A and B are &quot;block arrays&quot; of any</span>
+0009 <span class="comment">%   size, containing one or more 1-D or 2-D subarrays, called &quot;blocks&quot; (*).</span>
+0010 <span class="comment">%   For instance, a 5×6×3 array may be viewed as an array containing five</span>
+0011 <span class="comment">%   6×3 blocks. In this case, its size is denoted by 5×(6×3). The 1 or 2</span>
+0012 <span class="comment">%   adjacent dimensions along which the blocks are contained are called the</span>
+0013 <span class="comment">%   &quot;internal dimensions&quot; (IDs) of the array (°).</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   1) 2-D by 2-D BLOCK(S) (*)</span>
+0016 <span class="comment">%         C = MULTIPROD(A, B, [DA1 DA2], [DB1 DB2]) contains the products</span>
+0017 <span class="comment">%         of the P×Q matrices in A by the R×S matrices in B. [DA1 DA2] are</span>
+0018 <span class="comment">%         the IDs of A; [DB1 DB2] are the IDs of B.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   2) 2-D by 1-D BLOCK(S) (*)</span>
+0021 <span class="comment">%         C = MULTIPROD(A, B, [DA1 DA2], DB1) contains the products of the</span>
+0022 <span class="comment">%         P×Q matrices in A by the R-element vectors in B. The latter are</span>
+0023 <span class="comment">%         considered to be R×1 matrices. [DA1 DA2] are the IDs of A; DB1 is</span>
+0024 <span class="comment">%         the ID of B.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   3) 1-D by 2-D BLOCK(S) (*)</span>
+0027 <span class="comment">%         C = MULTIPROD(A, B, DA1, [DB1 DB2]) contains the products of the</span>
+0028 <span class="comment">%         Q-element vectors in A by the R×S matrices in B. The vectors in A</span>
+0029 <span class="comment">%         are considered to be 1×Q matrices. DA1 is the ID of A; [DB1 DB2]</span>
+0030 <span class="comment">%         are the IDs of B.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%   4) 1-D BY 1-D BLOCK(S) (*)</span>
+0033 <span class="comment">%      (a) If either SIZE(A, DA1) == 1 or SIZE(B, DB1) == 1, or both,</span>
+0034 <span class="comment">%             C = MULTIPROD(A, B, DA1, DB1) returns products of scalars by</span>
+0035 <span class="comment">%             vectors, or vectors by scalars or scalars by scalars.</span>
+0036 <span class="comment">%      (b) If SIZE(A, DA1) == SIZE(B, DB1),</span>
+0037 <span class="comment">%             C = MULTIPROD(A, B, [0 DA1], [DB1 0]) or</span>
+0038 <span class="comment">%             C = MULTIPROD(A, B, DA1, DB1) virtually turns the vectors</span>
+0039 <span class="comment">%             contained in A and B into 1×P and P×1 matrices, respectively,</span>
+0040 <span class="comment">%             then returns their products, similar to scalar products.</span>
+0041 <span class="comment">%             Namely, C = DOT2(A, B, DA1, DB1) is equivalent to</span>
+0042 <span class="comment">%             C = MULTIPROD(CONJ(A), B, [0 DA1], [DB1 0]).</span>
+0043 <span class="comment">%      (c) Without limitations on the length of the vectors in A and B,</span>
+0044 <span class="comment">%             C = MULTIPROD(A, B, [DA1 0], [0 DB1]) turns the vectors</span>
+0045 <span class="comment">%             contained in A and B into P×1 and 1×Q matrices, respectively,</span>
+0046 <span class="comment">%             then returns their products, similar to outer products.</span>
+0047 <span class="comment">%             Namely, C = OUTER(A, B, DA1, DB1) is equivalent to</span>
+0048 <span class="comment">%             C = MULTIPROD(CONJ(A), B, [DA1 0], [0 DB1]).</span>
+0049 <span class="comment">%</span>
+0050 <span class="comment">%   Common constraints for all syntaxes:</span>
+0051 <span class="comment">%      The external dimensions of A and B must either be identical or</span>
+0052 <span class="comment">%      compatible with AX rules. The internal dimensions of each block</span>
+0053 <span class="comment">%      array must be adjacent (DA2 == DA1 + 1 and DB2 == DB1 + 1 are</span>
+0054 <span class="comment">%      required). DA1 and DB1 are allowed to be larger than NDIMS(A) and</span>
+0055 <span class="comment">%      NDIMS(B). In syntaxes 1, 2, and 3, Q == R is required, unless the</span>
+0056 <span class="comment">%      blocks in A or B are scalars.</span>
+0057 <span class="comment">%</span>
+0058 <span class="comment">%   Array expansion (AX):</span>
+0059 <span class="comment">%      AX is a powerful generalization to N-D of the concept of scalar</span>
+0060 <span class="comment">%      expansion. Indeed, A and B may be scalars, vectors, matrices or</span>
+0061 <span class="comment">%      multi-dimensional arrays. Scalar expansion is the virtual</span>
+0062 <span class="comment">%      replication or annihilation of a scalar which allows you to combine</span>
+0063 <span class="comment">%      it, element by element, with an array X of any size (e.g. X+10,</span>
+0064 <span class="comment">%      X*10, or []-10). Similarly, in MULTIPROD, the purpose of AX is to</span>
+0065 <span class="comment">%      automatically match the size of the external dimensions (EDs) of A</span>
+0066 <span class="comment">%      and B, so that block-by-block products can be performed. ED matching</span>
+0067 <span class="comment">%      is achieved by means of a dimension shift followed by a singleton</span>
+0068 <span class="comment">%      expansion:</span>
+0069 <span class="comment">%      1) Dimension shift (see SHIFTDIM).</span>
+0070 <span class="comment">%            Whenever DA1 ~= DB1, a shift is applied to impose DA1 == DB1.</span>
+0071 <span class="comment">%            If DA1 &gt; DB1, B is shifted to the right by DA1 - DB1 steps.</span>
+0072 <span class="comment">%            If DB1 &gt; DA1, A is shifted to the right by DB1 - DA1 steps.</span>
+0073 <span class="comment">%      2) Singleton expansion (SX).</span>
+0074 <span class="comment">%            Whenever an ED of either A or B is singleton and the</span>
+0075 <span class="comment">%            corresponding ED of the other array is not, the mismatch is</span>
+0076 <span class="comment">%            fixed by virtually replicating the array (or diminishing it to</span>
+0077 <span class="comment">%            length 0) along that dimension.</span>
+0078 <span class="comment">%</span>
+0079 <span class="comment">%   MULTIPROD is a generalization for N-D arrays of the matrix</span>
+0080 <span class="comment">%   multiplication function MTIMES, with AX enabled. Vector inner, outer,</span>
+0081 <span class="comment">%   and cross products generalized for N-D arrays and with AX enabled are</span>
+0082 <span class="comment">%   performed by DOT2, OUTER, and CROSS2 (MATLAB Central, file #8782).</span>
+0083 <span class="comment">%   Elementwise multiplications (see TIMES) and other elementwise binary</span>
+0084 <span class="comment">%   operations with AX enabled are performed by BAXFUN (MATLAB Central,</span>
+0085 <span class="comment">%   file #23084). Together, these functions make up the “ARRAYLAB toolbox”.</span>
+0086 <span class="comment">%</span>
+0087 <span class="comment">%   Input and output format:</span>
+0088 <span class="comment">%      The size of the EDs of C is determined by AX. Block size is</span>
+0089 <span class="comment">%      determined as follows, for each of the above-listed syntaxes:</span>
+0090 <span class="comment">%      1) C contains P×S matrices along IDs MAX([DA1 DA2], [DB1 DB2]).</span>
+0091 <span class="comment">%      2) Array     Block size     ID(s)</span>
+0092 <span class="comment">%         ----------------------------------------------------</span>
+0093 <span class="comment">%         A         P×Q  (2-D)     [DA1 DA2]</span>
+0094 <span class="comment">%         B         R    (1-D)     DB1</span>
+0095 <span class="comment">%         C (a)     P    (1-D)     MAX(DA1, DB1)</span>
+0096 <span class="comment">%         C (b)     P×Q  (2-D)     MAX([DA1 DA2], [DB1 DB1+1])</span>
+0097 <span class="comment">%         ----------------------------------------------------</span>
+0098 <span class="comment">%         (a) The 1-D blocks in B are not scalars (R &gt; 1).</span>
+0099 <span class="comment">%         (b) The 1-D blocks in B are scalars (R = 1).</span>
+0100 <span class="comment">%      3) Array     Block size     ID(s)</span>
+0101 <span class="comment">%         ----------------------------------------------------</span>
+0102 <span class="comment">%         A           Q  (1-D)     DA1</span>
+0103 <span class="comment">%         B         R×S  (2-D)     [DB1 DB2]</span>
+0104 <span class="comment">%         C (a)       S  (1-D)     MAX(DA1, DB1)</span>
+0105 <span class="comment">%         C (b)     R×S  (2-D)     MAX([DA1 DA1+1], [DB1 DB2])</span>
+0106 <span class="comment">%         ----------------------------------------------------</span>
+0107 <span class="comment">%         (a) The 1-D blocks in A are not scalars (Q &gt; 1).</span>
+0108 <span class="comment">%         (b) The 1-D blocks in A are scalars (Q = 1).</span>
+0109 <span class="comment">%      4)     Array     Block size         ID(s)</span>
+0110 <span class="comment">%         --------------------------------------------------------------</span>
+0111 <span class="comment">%         (a) A         P        (1-D)     DA1</span>
+0112 <span class="comment">%             B         Q        (1-D)     DB1</span>
+0113 <span class="comment">%             C         MAX(P,Q) (1-D)     MAX(DA1, DB1)</span>
+0114 <span class="comment">%         --------------------------------------------------------------</span>
+0115 <span class="comment">%         (b) A         P        (1-D)     DA1</span>
+0116 <span class="comment">%             B         P        (1-D)     DB1</span>
+0117 <span class="comment">%             C         1        (1-D)     MAX(DA1, DB1)</span>
+0118 <span class="comment">%         --------------------------------------------------------------</span>
+0119 <span class="comment">%         (c) A         P        (1-D)     DA1</span>
+0120 <span class="comment">%             B         Q        (1-D)     DB1</span>
+0121 <span class="comment">%             C         P×Q      (2-D)     MAX([DA1 DA1+1], [DB1 DB1+1])</span>
+0122 <span class="comment">%         --------------------------------------------------------------</span>
+0123 <span class="comment">%</span>
+0124 <span class="comment">%   Terminological notes:</span>
+0125 <span class="comment">%   (*) 1-D and 2-D blocks are generically referred to as &quot;vectors&quot; and</span>
+0126 <span class="comment">%       &quot;matrices&quot;, respectively. However, both may be also called</span>
+0127 <span class="comment">%       “scalars” if they have a single element. Moreover, matrices with a</span>
+0128 <span class="comment">%       single row or column (e.g. 1×3 or 3×1) may be also called “row</span>
+0129 <span class="comment">%       vectors” or “column vectors”.</span>
+0130 <span class="comment">%   (°) Not to be confused with the &quot;inner dimensions&quot; of the two matrices</span>
+0131 <span class="comment">%       involved in a product X * Y, defined as the 2nd dimension of X and</span>
+0132 <span class="comment">%       the 1st of Y (DA2 and DB1 in syntaxes 1, 2, 3).</span>
+0133 <span class="comment">%</span>
+0134 <span class="comment">%   Examples:</span>
+0135 <span class="comment">%    1) If  A is .................... a 5×(6×3)×2 array,</span>
+0136 <span class="comment">%       and B is .................... a 5×(3×4)×2 array,</span>
+0137 <span class="comment">%       C = MULTIPROD(A, B, [2 3]) is a 5×(6×4)×2 array.</span>
+0138 <span class="comment">%</span>
+0139 <span class="comment">%       A single matrix A pre-multiplies each matrix in B</span>
+0140 <span class="comment">%       If  A is ........................... a (1×3)    single matrix,</span>
+0141 <span class="comment">%       and B is ........................... a 10×(3×4) 3-D array,</span>
+0142 <span class="comment">%       C = MULTIPROD(A, B, [1 2], [3 4]) is a 10×(1×4) 3-D array.</span>
+0143 <span class="comment">%</span>
+0144 <span class="comment">%       Each matrix in A pre-multiplies each matrix in B (all possible</span>
+0145 <span class="comment">%       combinations)</span>
+0146 <span class="comment">%       If  A is .................... a (6×3)×5   array,</span>
+0147 <span class="comment">%       and B is .................... a (3×4)×1×2 array,</span>
+0148 <span class="comment">%       C = MULTIPROD(A, B, [1 2]) is a (6×4)×5×2 array.</span>
+0149 <span class="comment">%</span>
+0150 <span class="comment">%   2a) If  A is ........................... a 5×(6×3)×2 4-D array,</span>
+0151 <span class="comment">%       and B is ........................... a 5×(3)×2   3-D array,</span>
+0152 <span class="comment">%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6)×2   3-D array.</span>
+0153 <span class="comment">%</span>
+0154 <span class="comment">%   2b) If  A is ........................... a 5×(6×3)×2 4-D array,</span>
+0155 <span class="comment">%       and B is ........................... a 5×(1)×2   3-D array,</span>
+0156 <span class="comment">%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6×3)×2 4-D array.</span>
+0157 <span class="comment">%</span>
+0158 <span class="comment">%   4a) If both A and B are .................. 5×(6)×2   3-D arrays,</span>
+0159 <span class="comment">%       C = MULTIPROD(A, B, 2) is .......... a 5×(1)×2   3-D array, while</span>
+0160 <span class="comment">%   4b) C = MULTIPROD(A, B, [2 0], [0 2]) is a 5×(6×6)×2 4-D array</span>
+0161 <span class="comment">%</span>
+0162 <span class="comment">%   See also DOT2, OUTER, CROSS2, BAXFUN, MULTITRANSP, MULTITRACE, MULTISCALE.</span>
+0163 
+0164 <span class="comment">% $ Version: 2.1 $</span>
+0165 <span class="comment">% CODE      by:            Paolo de Leva</span>
+0166 <span class="comment">%                          (Univ. of Rome, Foro Italico, IT)    2009 Jan 24</span>
+0167 <span class="comment">%           optimized by:  Paolo de Leva</span>
+0168 <span class="comment">%                          Jinhui Bai (Georgetown Univ., D.C.)  2009 Jan 24</span>
+0169 <span class="comment">% COMMENTS  by:            Paolo de Leva                        2009 Feb 24</span>
+0170 <span class="comment">% OUTPUT    tested by:     Paolo de Leva                        2009 Feb 24</span>
+0171 <span class="comment">% -------------------------------------------------------------------------</span>
+0172 
+0173 error( nargchk(2, 4, nargin) ); <span class="comment">% Allow 2 to 4 input arguments</span>
+0174 <span class="keyword">switch</span> nargin <span class="comment">% Setting IDA and/or IDB</span>
+0175     <span class="keyword">case</span> 2, idA = [1 2]; idB = [1 2];
+0176     <span class="keyword">case</span> 3, idB = idA;
+0177 <span class="keyword">end</span>
+0178 
+0179 <span class="comment">% ESC 1 - Special simple case (both A and B are 2D), solved using C = A * B</span>
+0180 
+0181      <span class="keyword">if</span> ndims(a)==2 &amp;&amp; ndims(b)==2 &amp;&amp; <span class="keyword">...</span>
+0182          isequal(idA,[1 2]) &amp;&amp; isequal(idB,[1 2])
+0183          c = a * b; <span class="keyword">return</span>
+0184      <span class="keyword">end</span>
+0185 
+0186 <span class="comment">% MAIN 0 - Checking and evaluating array size, block size, and IDs</span>
+0187 
+0188      sizeA0 = size(a);
+0189      sizeB0 = size(b);
+0190      [sizeA, sizeB, shiftC, delC, sizeisnew, idA, idB, <span class="keyword">...</span>
+0191      squashOK, sxtimesOK, timesOK, mtimesOK, sumOK] = <span class="keyword">...</span>
+0192                                            sizeval(idA,idB, sizeA0,sizeB0);
+0193 
+0194 <span class="comment">% MAIN 1 - Applying dimension shift (first step of AX) and</span>
+0195 <span class="comment">%          turning both A and B into arrays of either 1-D or 2-D blocks</span>
+0196 
+0197      <span class="keyword">if</span> sizeisnew(1), a = reshape(a, sizeA); <span class="keyword">end</span>    
+0198      <span class="keyword">if</span> sizeisnew(2), b = reshape(b, sizeB); <span class="keyword">end</span>
+0199 
+0200 <span class="comment">% MAIN 2 - Performing products with or without SX (second step of AX)</span>
+0201 
+0202      <span class="keyword">if</span> squashOK <span class="comment">% SQUASH + MTIMES (fastest engine)</span>
+0203          c = <a href="#_sub1" class="code" title="subfunction c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)">squash2D_mtimes</a>(a,b, idA,idB, sizeA,sizeB, squashOK); 
+0204      <span class="keyword">elseif</span> timesOK <span class="comment">% TIMES (preferred w.r. to SX + TIMES)</span>
+0205          <span class="keyword">if</span> sumOK, c = sum(a .* b, sumOK);
+0206          <span class="keyword">else</span>      c =     a .* b; <span class="keyword">end</span>
+0207      <span class="keyword">elseif</span> sxtimesOK <span class="comment">% SX + TIMES</span>
+0208          <span class="keyword">if</span> sumOK, c = sum(bsxfun(@times, a, b), sumOK);
+0209          <span class="keyword">else</span>      c =     bsxfun(@times, a, b); <span class="keyword">end</span>
+0210      <span class="keyword">elseif</span> mtimesOK <span class="comment">% MTIMES (rarely used)</span>
+0211          c = a * b;
+0212      <span class="keyword">end</span>
+0213 
+0214 <span class="comment">% MAIN 3 - Reshaping C (by inserting or removing singleton dimensions)</span>
+0215 
+0216      [sizeC sizeCisnew] = <a href="#_sub3" class="code" title="subfunction [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)">adjustsize</a>(size(c), shiftC, false, delC, false);
+0217      <span class="keyword">if</span> sizeCisnew, c = reshape(c, sizeC); <span class="keyword">end</span>
+0218 
+0219 
+0220 <a name="_sub1" href="#_subfunctions" class="code">function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)</a>
+0221 <span class="comment">% SQUASH2D_MTIMES  Multiproduct with single-block expansion (SBX).</span>
+0222 <span class="comment">%    Actually, no expansion is performed. The multi-block array is</span>
+0223 <span class="comment">%    rearranged from N-D to 2-D, then MTIMES is applied, and eventually the</span>
+0224 <span class="comment">%    result is rearranged back to N-D. No additional memory is required.</span>
+0225 <span class="comment">%    One and only one of the two arrays must be single-block, and its IDs</span>
+0226 <span class="comment">%    must be [1 2] (MAIN 1 removes leading singletons). Both arrays</span>
+0227 <span class="comment">%    must contain 2-D blocks (MAIN 1 expands 1-D blocks to 2-D).</span>
+0228 
+0229     <span class="keyword">if</span> squashOK == 1 <span class="comment">% A is multi-block, B is single-block (squashing A)</span>
+0230 
+0231         <span class="comment">% STEP 1 - Moving IDA(2) to last dimension</span>
+0232         nd = length(sizeA);
+0233         d2 = idA(2);    
+0234         order = [1:(d2-1) (d2+1):nd d2]; <span class="comment">% Partial shifting</span>
+0235         a = permute(a, order); <span class="comment">% ...×Q</span>
+0236 
+0237         <span class="comment">% STEP 2 - Squashing A from N-D to 2-D</span>
+0238         q = sizeB(1);
+0239         s = sizeB(2);
+0240         lengthorder = length(order);
+0241         collapsedsize = sizeA(order(1:lengthorder-1)); 
+0242         n = prod(collapsedsize);
+0243         a = reshape(a, [n, q]); <span class="comment">% N×Q</span>
+0244         fullsize = [collapsedsize s]; <span class="comment">% Size to reshape C back to N-D</span>
+0245 
+0246     <span class="keyword">else</span> <span class="comment">% B is multi-block, A is single-block (squashing B)</span>
+0247 
+0248         <span class="comment">% STEP 1 - Moving IDB(1) to first dimension</span>
+0249         nd = length(sizeB);
+0250         d1 = idB(1);    
+0251         order = [d1 1:(d1-1) (d1+1):nd]; <span class="comment">% Partial shifting</span>
+0252         b = permute(b, order); <span class="comment">% Q×...</span>
+0253 
+0254         <span class="comment">% STEP 2 - Squashing B from N-D to 2-D</span>
+0255         p = sizeA(1);
+0256         q = sizeA(2);
+0257         lengthorder = length(order);
+0258         collapsedsize = sizeB(order(2:lengthorder)); 
+0259         n = prod(collapsedsize);
+0260         b = reshape(b, [q, n]); <span class="comment">% Q×N</span>
+0261         fullsize = [p collapsedsize]; <span class="comment">% Size to reshape C back to N-D</span>
+0262 
+0263     <span class="keyword">end</span>
+0264 
+0265     <span class="comment">% FINAL STEPS - Multiplication, reshape to N-D, inverse permutation</span>
+0266     invorder(order) = 1 : lengthorder;
+0267     c = permute (reshape(a*b, fullsize), invorder);
+0268 
+0269 
+0270 <a name="_sub2" href="#_subfunctions" class="code">function [sizeA, sizeB, shiftC, delC, sizeisnew, idA, idB, </a><span class="keyword">...</span>
+0271           squashOK, sxtimesOK, timesOK, mtimesOK, sumOK] = <span class="keyword">...</span>
+0272                                           sizeval(idA0,idB0, sizeA0,sizeB0)
+0273 <span class="comment">%SIZEVAL   Evaluation of array size, block size, and IDs</span>
+0274 <span class="comment">%    Possible values for IDA and IDB:</span>
+0275 <span class="comment">%        [DA1 DA2], [DB1 DB2]</span>
+0276 <span class="comment">%        [DA1 DA2], [DB1]</span>
+0277 <span class="comment">%        [DA1],     [DB1 DB2]</span>
+0278 <span class="comment">%        [DA1],     [DB1]</span>
+0279 <span class="comment">%        [DA1 0],   [0 DB1]</span>
+0280 <span class="comment">%        [0 DA1],   [DB1 0]</span>
+0281 <span class="comment">%</span>
+0282 <span class="comment">%    sizeA/B     Equal to sizeA0/B0 if RESHAPE is not needed in MAIN 1</span>
+0283 <span class="comment">%    shiftC, delC    Variables controlling MAIN 3.</span>
+0284 <span class="comment">%    sizeisnew   1x2 logical array; activates reshaping of A and B.</span>
+0285 <span class="comment">%    idA/B       May change only if squashOK ~= 0</span>
+0286 <span class="comment">%    squashOK    If only A or B is a multi-block array (M-B) and the other</span>
+0287 <span class="comment">%                is single-block (1-B), it will be rearranged from N-D to</span>
+0288 <span class="comment">%                2-D. If both A and B are 1-B or M-B arrays, squashOK = 0.</span>
+0289 <span class="comment">%                If only A (or B) is a M-B array, squashOK = 1 (or 2).</span>
+0290 <span class="comment">%    sxtimesOK, timesOK, mtimesOK    Flags controlling MAIN 2 (TRUE/FALSE).</span>
+0291 <span class="comment">%    sumOK       Dimension along which SUM is performed. If SUM is not</span>
+0292 <span class="comment">%                needed, sumOK = 0.</span>
+0293 
+0294 <span class="comment">% Initializing output arguments</span>
+0295 
+0296     idA = idA0;
+0297     idB = idB0;
+0298      squashOK = 0;
+0299     sxtimesOK = false;
+0300       timesOK = false;
+0301      mtimesOK = false;
+0302         sumOK = 0;
+0303     shiftC = 0;
+0304     delC = 0;
+0305 
+0306 <span class="comment">% Checking for gross input errors</span>
+0307 
+0308     NidA = numel(idA);
+0309     NidB = numel(idB);
+0310     idA1 = idA(1);
+0311     idB1 = idB(1);
+0312     <span class="keyword">if</span>  NidA&gt;2 || NidB&gt;2 || NidA==0 || NidB==0 || <span class="keyword">...</span>
+0313            ~isreal(idA1) ||    ~isreal(idB1)   || <span class="keyword">...</span>
+0314         ~isnumeric(idA1) || ~isnumeric(idB1)   || <span class="keyword">...</span>
+0315                  0&gt;idA1  ||          0&gt;idB1    || <span class="keyword">...</span><span class="comment"> % negative </span>
+0316          idA1~=fix(idA1) ||  idB1~=fix(idB1)   || <span class="keyword">...</span><span class="comment"> % non-integer</span>
+0317          ~isfinite(idA1) ||  ~isfinite(idB1) <span class="comment">% Inf or NaN</span>
+0318         error(<span class="string">'MULTIPROD:InvalidDimensionArgument'</span>, <span class="keyword">...</span>
+0319         [<span class="string">'Internal-dimension arguments (e.g., [IDA1 IDA2]) must\n'</span>, <span class="keyword">...</span>
+0320          <span class="string">'contain only one or two non-negative finite integers'</span>]);
+0321     <span class="keyword">end</span>
+0322 
+0323 <span class="comment">% Checking Syntaxes containing zeros (4b/c)</span>
+0324 
+0325     declared_outer = false;
+0326     idA2 = idA(NidA); <span class="comment">% It may be IDA1 = IDA2 (1-D block)</span>
+0327     idB2 = idB(NidB);
+0328 
+0329     <span class="keyword">if</span> any(idA==0) || any(idB==0)
+0330         
+0331         <span class="comment">% &quot;Inner products&quot;: C = MULTIPROD(A, B, [0 DA1], [DB1 0])</span>
+0332         <span class="keyword">if</span> idA1==0 &amp;&amp; idA2&gt;0 &amp;&amp; idB1&gt;0 &amp;&amp; idB2==0
+0333             idA1 = idA2;
+0334             idB2 = idB1;
+0335         <span class="comment">% &quot;Outer products&quot;: C = MULTIPROD(A, B, [DA1 0], [0 DB1])</span>
+0336         <span class="keyword">elseif</span> idA1&gt;0 &amp;&amp; idA2==0 &amp;&amp; idB1==0 &amp;&amp; idB2&gt;0
+0337             declared_outer = true;
+0338             idA2 = idA1;
+0339             idB1 = idB2;
+0340         <span class="keyword">else</span>
+0341             error(<span class="string">'MULTIPROD:InvalidDimensionArgument'</span>, <span class="keyword">...</span>
+0342             [<span class="string">'Misused zeros in the internal-dimension arguments\n'</span>, <span class="keyword">...</span>
+0343             <span class="string">'(see help heads 4b and 4c)'</span>]);
+0344         <span class="keyword">end</span>
+0345         NidA = 1; 
+0346         NidB = 1;
+0347         idA = idA1;
+0348         idB = idB1;
+0349 
+0350     <span class="keyword">elseif</span> (NidA==2 &amp;&amp; idA2~=idA1+1) || <span class="keyword">...</span><span class="comment">  % Non-adjacent IDs</span>
+0351            (NidB==2 &amp;&amp; idB2~=idB1+1)
+0352         error(<span class="string">'MULTIPROD:InvalidDimensionArgument'</span>, <span class="keyword">...</span>
+0353         [<span class="string">'If an array contains 2-D blocks, its two internal dimensions'</span>, <span class="keyword">...</span><span class="comment"> </span>
+0354         <span class="string">'must be adjacent (e.g. IDA2 == IDA1+1)'</span>]);
+0355     <span class="keyword">end</span>
+0356 
+0357 <span class="comment">% ESC - Case for which no reshaping is needed (both A and B are scalars)</span>
+0358 
+0359     scalarA = isequal(sizeA0, [1 1]);
+0360     scalarB = isequal(sizeB0, [1 1]);
+0361     <span class="keyword">if</span> scalarA &amp;&amp; scalarB
+0362         sizeA = sizeA0;
+0363         sizeB = sizeB0;
+0364         sizeisnew = [false false];
+0365         timesOK = true; <span class="keyword">return</span>
+0366     <span class="keyword">end</span>
+0367 
+0368 <span class="comment">% Computing and checking adjusted sizes</span>
+0369 <span class="comment">% The lengths of ADJSIZEA and ADJSIZEB must be &gt;= IDA(END) and IDB(END)</span>
+0370 
+0371     NsA = idA2 - length(sizeA0); <span class="comment">% Number of added trailing singletons</span>
+0372     NsB = idB2 - length(sizeB0);
+0373     adjsizeA = [sizeA0 ones(1,NsA)];
+0374     adjsizeB = [sizeB0 ones(1,NsB)];
+0375     extsizeA = adjsizeA([1:idA1-1, idA2+1:end]); <span class="comment">% Size of EDs</span>
+0376     extsizeB = adjsizeB([1:idB1-1, idB2+1:end]);
+0377     p = adjsizeA(idA1);
+0378     q = adjsizeA(idA2);
+0379     r = adjsizeB(idB1);
+0380     s = adjsizeB(idB2);    
+0381     scalarsinA = (p==1 &amp;&amp; q==1);
+0382     scalarsinB = (r==1 &amp;&amp; s==1);
+0383     singleA = all(extsizeA==1);
+0384     singleB = all(extsizeB==1);
+0385     <span class="keyword">if</span> q~=r &amp;&amp; ~scalarsinA &amp;&amp; ~scalarsinB &amp;&amp; ~declared_outer
+0386        error(<span class="string">'MULTIPROD:InnerDimensionsMismatch'</span>, <span class="keyword">...</span>
+0387              <span class="string">'Inner matrix dimensions must agree.'</span>);
+0388     <span class="keyword">end</span>
+0389 
+0390 <span class="comment">% STEP 1/3 - DIMENSION SHIFTING (FIRST STEP OF AX)</span>
+0391 <span class="comment">%   Pipeline 1 (using TIMES) never needs left, and may need right shifting.</span>
+0392 <span class="comment">%   Pipeline 2 (using MTIMES) may need left shifting of A and right of B.</span>
+0393 
+0394     shiftA = 0;
+0395     shiftB = 0;
+0396     diffBA = idB1 - idA1;    
+0397     <span class="keyword">if</span> scalarA <span class="comment">% Do nothing</span>
+0398     <span class="keyword">elseif</span> singleA &amp;&amp; ~scalarsinB, shiftA = -idA1 + 1; <span class="comment">%  Left shifting A</span>
+0399     <span class="keyword">elseif</span> idB1 &gt; idA1,            shiftA = diffBA;    <span class="comment">% Right shifting A</span>
+0400     <span class="keyword">end</span>    
+0401     <span class="keyword">if</span> scalarB <span class="comment">% Do nothing</span>
+0402     <span class="keyword">elseif</span> singleB &amp;&amp; ~scalarsinA, shiftB = -idB1 + 1; <span class="comment">%  Left shifting B</span>
+0403     <span class="keyword">elseif</span> idA1 &gt; idB1,            shiftB = -diffBA;   <span class="comment">% Right shifting B</span>
+0404     <span class="keyword">end</span>
+0405 
+0406 <span class="comment">% STEP 2/3 - SELECTION OF PROPER ENGINE AND BLOCK SIZE ADJUSTMENTS</span>
+0407 
+0408     addA  = 0; addB  = 0;
+0409     delA  = 0; delB  = 0;
+0410     swapA = 0; swapB = 0;
+0411     idC1 = max(idA1, idB1);
+0412     idC2 = idC1 + 1;
+0413     checktimes = false;
+0414 
+0415     <span class="keyword">if</span> (singleA||singleB) &amp;&amp;~scalarsinA &amp;&amp;~scalarsinB <span class="comment">% Engine using MTIMES</span>
+0416 
+0417         <span class="keyword">if</span> singleA &amp;&amp; singleB 
+0418             mtimesOK = true;
+0419             shiftC=idC1-1; <span class="comment">% Right shifting C</span>
+0420             idC1=1; idC2=2;
+0421         <span class="keyword">elseif</span> singleA
+0422             squashOK = 2;
+0423             idB = [idB1, idB1+1] + shiftB;
+0424         <span class="keyword">else</span> <span class="comment">% singleB</span>
+0425             squashOK = 1;
+0426             idA = [idA1, idA1+1] + shiftA;
+0427         <span class="keyword">end</span>
+0428 
+0429         <span class="keyword">if</span> NidA==2 &amp;&amp; NidB==2 <span class="comment">% 1) 2-D BLOCKS BY 2-D BLOCKS</span>
+0430             <span class="comment">% OK</span>
+0431         <span class="keyword">elseif</span> NidA==2        <span class="comment">% 2) 2-D BLOCKS BY 1-D BLOCKS</span>
+0432             addB=idB1+1; delC=idC2;
+0433         <span class="keyword">elseif</span> NidB==2        <span class="comment">% 3) 1-D BLOCKS BY 2-D BLOCKS</span>
+0434             addA=idA1; delC=idC1;
+0435         <span class="keyword">else</span>                  <span class="comment">% 4) 1-D BLOCKS BY 1-D BLOCKS</span>
+0436             <span class="keyword">if</span> declared_outer
+0437                 addA=idA1+1; addB=idB1;
+0438             <span class="keyword">else</span>
+0439                 addA=idA1; addB=idB1+1; delC=idC2;
+0440             <span class="keyword">end</span>
+0441         <span class="keyword">end</span>    
+0442 
+0443     <span class="keyword">else</span> <span class="comment">% Engine using TIMES (also used if SCALARA || SCALARB)</span>
+0444         
+0445         sxtimesOK = true;
+0446 
+0447         <span class="keyword">if</span> NidA==2 &amp;&amp; NidB==2 <span class="comment">% 1) 2-D BLOCKS BY 2-D BLOCKS</span>
+0448 
+0449             <span class="keyword">if</span> scalarA || scalarB
+0450                 timesOK=true;                
+0451             <span class="keyword">elseif</span> scalarsinA &amp;&amp; scalarsinB <span class="comment">% scal-by-scal</span>
+0452                 checktimes=true;
+0453             <span class="keyword">elseif</span> scalarsinA || scalarsinB || <span class="keyword">...</span><span class="comment"> % scal-by-mat</span>
+0454                 (q==1 &amp;&amp; r==1)  <span class="comment">% vec-by-vec (&quot;outer&quot;)</span>
+0455             <span class="keyword">elseif</span> p==1 &amp;&amp; s==1 <span class="comment">% vec-by-vec (&quot;inner&quot;)</span>
+0456                 swapA=idA1; sumOK=idC1; checktimes=true;
+0457             <span class="keyword">elseif</span> s==1 <span class="comment">% mat-by-vec</span>
+0458                 swapB=idB1; sumOK=idC2;
+0459             <span class="keyword">elseif</span> p==1 <span class="comment">% vec-by-mat</span>
+0460                 swapA=idA1; sumOK=idC1;
+0461             <span class="keyword">else</span> <span class="comment">% mat-by-mat</span>
+0462                 addA=idA2+1; addB=idB1; sumOK=idC2; delC=idC2;
+0463             <span class="keyword">end</span>
+0464 
+0465         <span class="keyword">elseif</span> NidA==2 <span class="comment">% 2) 2-D BLOCKS BY 1-D BLOCKS</span>
+0466 
+0467             <span class="keyword">if</span> scalarA || scalarB
+0468                 timesOK=true;                
+0469             <span class="keyword">elseif</span> scalarsinA &amp;&amp; scalarsinB <span class="comment">% scal-by-scal</span>
+0470                 addB=idB1; checktimes=true;
+0471             <span class="keyword">elseif</span> scalarsinA <span class="comment">% scal-by-vec</span>
+0472                 delA=idA1;
+0473             <span class="keyword">elseif</span> scalarsinB <span class="comment">% mat-by-scal</span>
+0474                 addB=idB1;
+0475             <span class="keyword">elseif</span> p==1 <span class="comment">% vec-by-vec (&quot;inner&quot;)</span>
+0476                 delA=idA1; sumOK=idC1; checktimes=true;
+0477             <span class="keyword">else</span> <span class="comment">% mat-by-vec</span>
+0478                 addB=idB1; sumOK=idC2; delC=idC2;
+0479             <span class="keyword">end</span>
+0480 
+0481         <span class="keyword">elseif</span> NidB==2 <span class="comment">% 3) 1-D BLOCKS BY 2-D BLOCKS</span>
+0482 
+0483             <span class="keyword">if</span> scalarA || scalarB
+0484                 timesOK=true;                
+0485             <span class="keyword">elseif</span> scalarsinA &amp;&amp; scalarsinB <span class="comment">% scal-by-scal</span>
+0486                 addA=idA1+1; checktimes=true;
+0487             <span class="keyword">elseif</span> scalarsinB <span class="comment">% vec-by-scal</span>
+0488                 delB=idB2;
+0489             <span class="keyword">elseif</span> scalarsinA <span class="comment">% scal-by-mat</span>
+0490                 addA=idA1+1;
+0491             <span class="keyword">elseif</span> s==1 <span class="comment">% vec-by-vec (&quot;inner&quot;)</span>
+0492                 delB=idB2; sumOK=idC1; checktimes=true;
+0493             <span class="keyword">else</span> <span class="comment">% vec-by-mat</span>
+0494                 addA=idA1+1; sumOK=idC1; delC=idC1;
+0495             <span class="keyword">end</span>
+0496 
+0497         <span class="keyword">else</span> <span class="comment">% 4) 1-D BLOCKS BY 1-D BLOCKS</span>
+0498 
+0499             <span class="keyword">if</span> scalarA || scalarB
+0500                 timesOK=true;                
+0501             <span class="keyword">elseif</span> declared_outer <span class="comment">% vec-by-vec (&quot;outer&quot;)</span>
+0502                 addA=idA1+1; addB=idB1;
+0503             <span class="keyword">elseif</span> scalarsinA &amp;&amp; scalarsinB <span class="comment">% scal-by-scal</span>
+0504                 checktimes=true;
+0505             <span class="keyword">elseif</span> scalarsinA || scalarsinB <span class="comment">% vec-by-scal</span>
+0506             <span class="keyword">else</span> <span class="comment">% vec-by-vec</span>
+0507                 sumOK=idC1; checktimes=true;
+0508             <span class="keyword">end</span>
+0509         <span class="keyword">end</span>
+0510     <span class="keyword">end</span>
+0511 
+0512 <span class="comment">% STEP 3/3 - Adjusting the size of A and B. The size of C is adjusted</span>
+0513 <span class="comment">%            later, because it is not known yet.</span>
+0514 
+0515     [sizeA, sizeisnew(1)] = <a href="#_sub3" class="code" title="subfunction [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)">adjustsize</a>(sizeA0, shiftA, addA, delA, swapA);
+0516     [sizeB, sizeisnew(2)] = <a href="#_sub3" class="code" title="subfunction [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)">adjustsize</a>(sizeB0, shiftB, addB, delB, swapB);
+0517 
+0518     <span class="keyword">if</span> checktimes <span class="comment">% Faster than calling BBXFUN</span>
+0519         diff = length(sizeB) - length(sizeA);
+0520         <span class="keyword">if</span> isequal([sizeA ones(1,diff)], [sizeB ones(1,-diff)])
+0521             timesOK = true;
+0522         <span class="keyword">end</span>
+0523     <span class="keyword">end</span>
+0524 
+0525 
+0526 <a name="_sub3" href="#_subfunctions" class="code">function [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)</a>
+0527 <span class="comment">% ADJUSTSIZE  Adjusting size of a block array.</span>
+0528 
+0529     <span class="comment">% Dimension shifting (by adding or deleting trailing singleton dim.)</span>
+0530     <span class="keyword">if</span>     shiftA&gt;0, [sizeA,newA1] = <a href="#_sub4" class="code" title="subfunction [newsize, flag] = addsing(size0, dim, ns)">addsing</a>(sizeA0, 1, shiftA);
+0531     <span class="keyword">elseif</span> shiftA&lt;0, [sizeA,newA1] = <a href="#_sub5" class="code" title="subfunction [newsize, flag] = delsing(size0, dim, ns)">delsing</a>(sizeA0, 1,-shiftA); 
+0532     <span class="keyword">else</span>   sizeA = sizeA0;  newA1  = false;
+0533     <span class="keyword">end</span>
+0534     <span class="comment">% Modifying block size (by adding, deleting, or moving singleton dim.)</span>
+0535     <span class="keyword">if</span>      addA, [sizeA,newA2] = <a href="#_sub4" class="code" title="subfunction [newsize, flag] = addsing(size0, dim, ns)">addsing</a>(sizeA, addA+shiftA, 1); <span class="comment">% 1D--&gt;2D</span>
+0536     <span class="keyword">elseif</span>  delA, [sizeA,newA2] = <a href="#_sub5" class="code" title="subfunction [newsize, flag] = delsing(size0, dim, ns)">delsing</a>(sizeA, delA+shiftA, 1); <span class="comment">% 2D--&gt;1D</span>
+0537     <span class="keyword">elseif</span> swapA, [sizeA,newA2] = <a href="#_sub6" class="code" title="subfunction [newsize, flag] = swapdim(size0, dim)">swapdim</a>(sizeA,swapA+shiftA); <span class="comment">% ID Swapping</span>
+0538     <span class="keyword">else</span>                 newA2  = false;
+0539     <span class="keyword">end</span>
+0540     sizeisnew = newA1 || newA2;
+0541 
+0542 
+0543 <a name="_sub4" href="#_subfunctions" class="code">function [newsize, flag] = addsing(size0, dim, ns)</a>
+0544 <span class="comment">%ADDSING   Adding NS singleton dimensions to the size of an array.</span>
+0545 <span class="comment">%   Warning: NS is assumed to be a positive integer.</span>
+0546 <span class="comment">%   Example: If the size of A is ..... SIZE0 = [5 9 3]</span>
+0547 <span class="comment">%            NEWSIZE = ADDSING(SIZE0, 3, 2) is [5 9 1 1 3]</span>
+0548 
+0549     <span class="keyword">if</span> dim &gt; length(size0)
+0550         newsize = size0;
+0551         flag = false;
+0552     <span class="keyword">else</span> 
+0553         newsize = [size0(1:dim-1), ones(1,ns), size0(dim:end)];
+0554         flag = true;
+0555     <span class="keyword">end</span>
+0556 
+0557 
+0558 <a name="_sub5" href="#_subfunctions" class="code">function [newsize, flag] = delsing(size0, dim, ns)</a>
+0559 <span class="comment">%DELSING   Removing NS singleton dimensions from the size of an array.</span>
+0560 <span class="comment">%   Warning: Trailing singletons are not removed</span>
+0561 <span class="comment">%   Example: If the size of A is SIZE0 = [1 1 1 5 9 3]</span>
+0562 <span class="comment">%            NEWSIZE = DELSING(SIZE, 1, 3) is  [5 9 3]</span>
+0563 
+0564     <span class="keyword">if</span> dim &gt; length(size0)-ns <span class="comment">% Trailing singletons are not removed</span>
+0565         newsize = size0;
+0566         flag = false;
+0567     <span class="keyword">else</span> <span class="comment">% Trailing singl. added, so NEWSIZE is guaranteed to be 2D or more</span>
+0568         newsize = size0([1:dim-1, dim+ns:<span class="keyword">end</span>, dim]);
+0569         flag = true;
+0570     <span class="keyword">end</span>
+0571 
+0572 
+0573 <a name="_sub6" href="#_subfunctions" class="code">function [newsize, flag] = swapdim(size0, dim)</a>
+0574 <span class="comment">%SWAPDIM   Swapping two adjacent dimensions of an array (DIM and DIM+1).</span>
+0575 <span class="comment">%   Used only when both A and B are multi-block arrays with 2-D blocks.</span>
+0576 <span class="comment">%   Example: If the size of A is .......... 5×(6×3)</span>
+0577 <span class="comment">%            NEWSIZE = SWAPIDS(SIZE0, 2) is 5×(3×6)</span>
+0578 
+0579     newsize = [size0 1]; <span class="comment">% Guarantees that dimension DIM+1 exists.</span>
+0580     newsize = newsize([1:dim-1, dim+1, dim, dim+2:end]);
+0581     flag = true;</pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

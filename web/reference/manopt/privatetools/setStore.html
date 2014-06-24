@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of setStore</title>
+  <meta name="keywords" content="setStore">
+  <meta name="description" content="Updates the store struct. pertaining to a point in the storedb database.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">privatetools</a> &gt; setStore.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\privatetools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>setStore
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Updates the store struct. pertaining to a point in the storedb database.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function storedb = setStore(problem, x, storedb, store) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Updates the store struct. pertaining to a point in the storedb database.
+
+ function storedb = setStore(problem, x, storedb, store)
+
+ Updates the storedb database of structures such that the structure
+ corresponding to the point x will be replaced by store. If there was no
+ record for the point x, it is created and set to store. The updated
+ storedb database is returned. The lastset__ field of the store structure
+ keeps track of which stores were updated latest.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getApproxHessian.html" class="code" title="function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)">getApproxHessian</a>	Computes an approximation of the Hessian of the cost fun. at x along d.</li><li><a href="getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="getEuclideanGradient.html" class="code" title="function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)">getEuclideanGradient</a>	Computes the Euclidean gradient of the cost function at x.</li><li><a href="getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function storedb = setStore(problem, x, storedb, store)</a>
+0002 <span class="comment">% Updates the store struct. pertaining to a point in the storedb database.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function storedb = setStore(problem, x, storedb, store)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Updates the storedb database of structures such that the structure</span>
+0007 <span class="comment">% corresponding to the point x will be replaced by store. If there was no</span>
+0008 <span class="comment">% record for the point x, it is created and set to store. The updated</span>
+0009 <span class="comment">% storedb database is returned. The lastset__ field of the store structure</span>
+0010 <span class="comment">% keeps track of which stores were updated latest.</span>
+0011 
+0012 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0013 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0014 <span class="comment">% Contributors:</span>
+0015 <span class="comment">% Change log:</span>
+0016 <span class="comment">%   Dec. 6, 2013, NB:</span>
+0017 <span class="comment">%       Now using a persistent uint32 counter instead of cputime to track</span>
+0018 <span class="comment">%       the most recently modified stores.</span>
+0019 
+0020     <span class="comment">% This persistent counter is used to keep track of the order in which</span>
+0021     <span class="comment">% store structures are updated. This is used by purgeStoredb to erase</span>
+0022     <span class="comment">% the least recently useful store structures first when garbage</span>
+0023     <span class="comment">% collecting.</span>
+0024     <span class="keyword">persistent</span> counter;
+0025     <span class="keyword">if</span> isempty(counter)
+0026         counter = uint32(0);
+0027     <span class="keyword">end</span>
+0028 
+0029     assert(nargout == 1, <span class="keyword">...</span>
+0030            <span class="string">'The output of setStore should replace your storedb.'</span>);
+0031    
+0032     <span class="comment">% Construct the fieldname (key) associated to the current point x.</span>
+0033     key = problem.M.hash(x);
+0034     
+0035     <span class="comment">% Set the value associated to that key to store.</span>
+0036     storedb.(key) = store;
+0037     
+0038     <span class="comment">% Add / update a last-set flag.</span>
+0039     storedb.(key).lastset__ = counter;
+0040     counter = counter + 1;
+0041 
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

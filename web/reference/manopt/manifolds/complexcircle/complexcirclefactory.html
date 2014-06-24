@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of complexcirclefactory</title>
+  <meta name="keywords" content="complexcirclefactory">
+  <meta name="description" content="Returns a manifold struct to optimize over unit-modulus complex numbers.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">complexcircle</a> &gt; complexcirclefactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\complexcircle&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>complexcirclefactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over unit-modulus complex numbers.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = complexcirclefactory(n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-modulus complex numbers.
+
+ function M = complexcirclefactory()
+ function M = complexcirclefactory(n)
+
+ Description of vectors z in C^n (complex) such that each component z(i)
+ has unit modulus. The manifold structure is the Riemannian submanifold
+ structure from the embedding space R^2 x ... x R^2, i.e., the complex
+ circle is identified with the unit circle in the real plane.
+
+ By default, n = 1.
+
+ See also spherecomplexfactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exponential(z, v, t)</a></li><li><a href="#_sub2" class="code">function y = retraction(z, v, t)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function z = random()</a></li><li><a href="#_sub5" class="code">function v = randomvec(z)</a></li><li><a href="#_sub6" class="code">function z = pairmean(z1, z2)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = complexcirclefactory(n)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over unit-modulus complex numbers.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = complexcirclefactory()</span>
+0005 <span class="comment">% function M = complexcirclefactory(n)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Description of vectors z in C^n (complex) such that each component z(i)</span>
+0008 <span class="comment">% has unit modulus. The manifold structure is the Riemannian submanifold</span>
+0009 <span class="comment">% structure from the embedding space R^2 x ... x R^2, i.e., the complex</span>
+0010 <span class="comment">% circle is identified with the unit circle in the real plane.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% By default, n = 1.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% See also spherecomplexfactory</span>
+0015 
+0016 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0017 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0018 <span class="comment">% Contributors:</span>
+0019 <span class="comment">% Change log:</span>
+0020     
+0021     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>)
+0022         n = 1;
+0023     <span class="keyword">end</span>
+0024 
+0025     M.name = @() sprintf(<span class="string">'Complex circle (S^1)^%d'</span>, n);
+0026     
+0027     M.dim = @() n;
+0028     
+0029     M.inner = @(z, v, w) real(v'*w);
+0030     
+0031     M.norm = @(x, v) norm(v);
+0032     
+0033     M.dist = @(x, y) norm(acos(conj(x) .* y));
+0034     
+0035     M.typicaldist = @() pi*sqrt(n);
+0036     
+0037     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;    
+0038     
+0039     M.tangent = M.proj;
+0040     
+0041     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0042     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0043     M.egrad2rgrad = M.proj;
+0044     
+0045     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exponential(z, v, t)">exponential</a>;
+0046     <a name="_sub1" href="#_subfunctions" class="code">function y = exponential(z, v, t)</a>
+0047         <span class="keyword">if</span> nargin &lt;= 2
+0048             t = 1.0;
+0049         <span class="keyword">end</span>
+0050 
+0051         y = zeros(n, 1);        
+0052         tv = t*v;
+0053 
+0054         nrm_tv = abs(tv);
+0055         
+0056         <span class="comment">% We need to distinguish between very small steps and the others.</span>
+0057         <span class="comment">% For very small steps, we use a a limit version of the exponential</span>
+0058         <span class="comment">% (which actually coincides with the retraction), so as to not</span>
+0059         <span class="comment">% divide by very small numbers.</span>
+0060         mask = nrm_tv &gt; 1e-6;
+0061         y(mask) = z(mask).*cos(nrm_tv(mask)) + <span class="keyword">...</span>
+0062                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
+0063         y(~mask) = z(~mask) + tv(~mask);
+0064         y(~mask) = y(~mask) ./ abs(y(~mask));
+0065         
+0066     <span class="keyword">end</span>
+0067     
+0068     M.retr = @<a href="#_sub2" class="code" title="subfunction y = retraction(z, v, t)">retraction</a>;
+0069     <a name="_sub2" href="#_subfunctions" class="code">function y = retraction(z, v, t)</a>
+0070         <span class="keyword">if</span> nargin &lt;= 2
+0071             t = 1.0;
+0072         <span class="keyword">end</span>
+0073         y = z+t*v;
+0074         y = y ./ abs(y);
+0075     <span class="keyword">end</span>
+0076 
+0077     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0078     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0079         v = M.proj(x1, x2 - x1);
+0080         di = M.dist(x1, x2);
+0081         nv = norm(v);
+0082         v = v * (di / nv);
+0083     <span class="keyword">end</span>
+0084     
+0085     M.hash = @(z) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>( [real(z(:)) ; imag(z(:))] ) ];
+0086     
+0087     M.rand = @<a href="#_sub4" class="code" title="subfunction z = random()">random</a>;
+0088     <a name="_sub4" href="#_subfunctions" class="code">function z = random()</a>
+0089         z = randn(n, 1) + 1i*randn(n, 1);
+0090         z = z ./ abs(z);
+0091     <span class="keyword">end</span>
+0092     
+0093     M.randvec = @<a href="#_sub5" class="code" title="subfunction v = randomvec(z)">randomvec</a>;
+0094     <a name="_sub5" href="#_subfunctions" class="code">function v = randomvec(z)</a>
+0095         <span class="comment">% i*z(k) is a basis vector of the tangent vector to the k-th circle</span>
+0096         v = randn(n, 1) .* (1i*z);
+0097         v = v / norm(v);
+0098     <span class="keyword">end</span>
+0099     
+0100     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0101     
+0102     M.zerovec = @(x) zeros(n, 1);
+0103     
+0104     M.transp = @(x1, x2, d) M.proj(x2, d);
+0105     
+0106     M.pairmean = @<a href="#_sub6" class="code" title="subfunction z = pairmean(z1, z2)">pairmean</a>;
+0107     <a name="_sub6" href="#_subfunctions" class="code">function z = pairmean(z1, z2)</a>
+0108         z = z1+z2;
+0109         z = z ./ abs(z);
+0110     <span class="keyword">end</span>
+0111 
+0112     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
+0113     M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
+0114     M.vecmatareisometries = @() true;
+0115 
+0116 <span class="keyword">end</span>
+0117 
+0118 
+0119 <span class="comment">% Linear combination of tangent vectors</span>
+0120 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0121 
+0122     <span class="keyword">if</span> nargin == 3
+0123         d = a1*d1;
+0124     <span class="keyword">elseif</span> nargin == 5
+0125         d = a1*d1 + a2*d2;
+0126     <span class="keyword">else</span>
+0127         error(<span class="string">'Bad use of sphere.lincomb.'</span>);
+0128     <span class="keyword">end</span>
+0129 
+0130 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

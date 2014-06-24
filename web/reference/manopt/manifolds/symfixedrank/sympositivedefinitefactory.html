@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of sympositivedefinitefactory</title>
+  <meta name="keywords" content="sympositivedefinitefactory">
+  <meta name="description" content="Manifold of n-by-n symmetric positive definite matrices with">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">symfixedrank</a> &gt; sympositivedefinitefactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\symfixedrank&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>sympositivedefinitefactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of n-by-n symmetric positive definite matrices with</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = sympositivedefinitefactory(n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of n-by-n symmetric positive definite matrices with
+ the bi-invariant geometry.
+
+ function M = sympositivedefinitefactory(n)
+
+ A point X on the manifold is represented as a symmetric positive definite
+ matrix X (nxn).
+
+ The following material is referenced from Chapter 6 of the book:
+ Rajendra Bhatia, &quot;Positive definite matrices&quot;,
+ Princeton University Press, 2007.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/positive_definite_karcher_mean.html" class="code" title="function X = positive_definite_karcher_mean(A)">positive_definite_karcher_mean</a>	Computes a Karcher mean of a collection of positive definite matrices.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function d = dist(X, Y)</a></li><li><a href="#_sub2" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub3" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub5" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub6" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub7" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub8" class="code">function X = random()</a></li><li><a href="#_sub9" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub10" class="code">function d = lincomb(X, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = sympositivedefinitefactory(n)</a>
+0002 <span class="comment">% Manifold of n-by-n symmetric positive definite matrices with</span>
+0003 <span class="comment">% the bi-invariant geometry.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% function M = sympositivedefinitefactory(n)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% A point X on the manifold is represented as a symmetric positive definite</span>
+0008 <span class="comment">% matrix X (nxn).</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% The following material is referenced from Chapter 6 of the book:</span>
+0011 <span class="comment">% Rajendra Bhatia, &quot;Positive definite matrices&quot;,</span>
+0012 <span class="comment">% Princeton University Press, 2007.</span>
+0013 
+0014 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0015 <span class="comment">% Original author: Bamdev Mishra, August 29, 2013.</span>
+0016 <span class="comment">% Contributors:</span>
+0017 <span class="comment">% Change log:</span>
+0018     
+0019     M.name = @() sprintf(<span class="string">'Symmetric positive definite geometry of %dx%d matrices'</span>, n, n);
+0020     
+0021     M.dim = @() n*(n-1)/2;
+0022     
+0023     <span class="comment">% Choice of the metric on the orthnormal space is motivated by the</span>
+0024     <span class="comment">% symmetry present in the space. The metric on the positive definite</span>
+0025     <span class="comment">% cone is its natural bi-invariant metric.</span>
+0026     M.inner = @(X, eta, zeta) trace( (X\eta) * (X\zeta) );
+0027     
+0028     M.norm = @(X, eta) norm(X\eta, <span class="string">'fro'</span>);
+0029     
+0030     M.dist = @<a href="#_sub1" class="code" title="subfunction d = dist(X, Y)">dist</a>;
+0031     <a name="_sub1" href="#_subfunctions" class="code">function d = dist(X, Y)</a>
+0032         d = norm(logm(X\Y), <span class="string">'fro'</span>);
+0033     <span class="keyword">end</span>
+0034     
+0035     
+0036     M.typicaldist = @() sqrt(n*(n-1)/2);
+0037     
+0038     symm = @(X) .5*(X+X');
+0039     
+0040     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction eta = egrad2rgrad(X, eta)">egrad2rgrad</a>;
+0041     <a name="_sub2" href="#_subfunctions" class="code">function eta = egrad2rgrad(X, eta)</a>
+0042         eta = X*symm(eta)*X;
+0043     <span class="keyword">end</span>
+0044     
+0045     
+0046     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0047     <a name="_sub3" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0048         <span class="comment">% Directional derivatives of the Riemannian gradient</span>
+0049         Hess = X*symm(ehess)*X + 2*symm(eta*symm(egrad)*X);
+0050         
+0051         <span class="comment">% Correction factor for the non-constant metric</span>
+0052         Hess = Hess - symm(eta*symm(egrad)*X);
+0053     <span class="keyword">end</span>
+0054     
+0055     
+0056     M.proj = @<a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0057     <a name="_sub4" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0058         <span class="comment">% Projection onto the tangent space of the total sapce</span>
+0059         etaproj = symm(eta);
+0060     <span class="keyword">end</span>
+0061     
+0062     M.tangent = M.proj;
+0063     M.tangent2ambient = @(X, eta) eta;
+0064     
+0065     M.retr = @<a href="#_sub5" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0066     <a name="_sub5" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0067         <span class="keyword">if</span> nargin &lt; 3
+0068             t = 1.0;
+0069         <span class="keyword">end</span>
+0070         
+0071         Y = <a href="#_sub6" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>(X, eta, t);
+0072     <span class="keyword">end</span>
+0073     
+0074     M.exp = @<a href="#_sub6" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0075     <a name="_sub6" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0076         <span class="keyword">if</span> nargin &lt; 3
+0077             t = 1.0;
+0078         <span class="keyword">end</span>
+0079         
+0080         L = chol(X);
+0081         Y = real(L'*expm(L'\(t*eta)/L)*L);
+0082     <span class="keyword">end</span>
+0083     
+0084     M.log = @<a href="#_sub7" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
+0085     <a name="_sub7" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
+0086         L = chol(X);
+0087         U = real(L'*logm(L'\Y/L)*L);
+0088     <span class="keyword">end</span>
+0089     
+0090     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0091     
+0092     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
+0093     
+0094     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
+0095         D = diag(1+rand(n, 1));
+0096         [Q R] = qr(randn(n)); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0097         X = Q*D*Q';
+0098     <span class="keyword">end</span>
+0099     
+0100     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0101     <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0102         <span class="comment">% A random vector on the tangent space</span>
+0103         eta = randn(n, n);
+0104         eta = <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0105         nrm = M.norm(X, eta);
+0106         eta = eta / nrm;
+0107     <span class="keyword">end</span>
+0108     
+0109     M.lincomb = @<a href="#_sub10" class="code" title="subfunction d = lincomb(X, a1, d1, a2, d2) ">lincomb</a>;
+0110     
+0111     M.zerovec = @(X) zeros(n, n);
+0112     
+0113     M.transp = @(X1, X2, d) <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X2, d);
+0114     
+0115     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0116     M.vec = @(X, U) U(:);
+0117     M.mat = @(X, u) reshape(u, n, n);
+0118     M.vecmatareisometries = @() false;
+0119     
+0120 <span class="keyword">end</span>
+0121 
+0122 <span class="comment">% Linear combination of tangent vectors</span>
+0123 <a name="_sub10" href="#_subfunctions" class="code">function d = lincomb(X, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0124     <span class="keyword">if</span> nargin == 3
+0125         d = a1*d1;
+0126     <span class="keyword">elseif</span> nargin == 5
+0127         d = a1*d1 + a2*d2;
+0128     <span class="keyword">else</span>
+0129         error(<span class="string">'Bad use of sympositivedefinitefactory.lincomb.'</span>);
+0130     <span class="keyword">end</span> 
+0131 <span class="keyword">end</span>
+0132</pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

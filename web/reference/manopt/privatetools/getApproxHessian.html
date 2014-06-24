@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getApproxHessian</title>
+  <meta name="keywords" content="getApproxHessian">
+  <meta name="description" content="Computes an approximation of the Hessian of the cost fun. at x along d.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">privatetools</a> &gt; getApproxHessian.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\privatetools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getApproxHessian
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes an approximation of the Hessian of the cost fun. at x along d.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes an approximation of the Hessian of the cost fun. at x along d.
+
+ function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
+
+ Returns an approximation of the Hessian at x along d of the cost function
+ described in the problem structure. The cache database storedb is passed
+ along, possibly modified and returned in the process.
+
+ If no approximate Hessian was furnished, this call is redirected to
+ getHessianFD.
+
+ See also: <a href="getHessianFD.html" class="code" title="function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)">getHessianFD</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getHessianFD.html" class="code" title="function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)">getHessianFD</a>	Computes an approx. of the Hessian w/ finite differences of the gradient.</li><li><a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>	Extracts a store struct. pertaining to a point from the storedb database.</li><li><a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>	Updates the store struct. pertaining to a point in the storedb database.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)</a>
+0002 <span class="comment">% Computes an approximation of the Hessian of the cost fun. at x along d.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns an approximation of the Hessian at x along d of the cost function</span>
+0007 <span class="comment">% described in the problem structure. The cache database storedb is passed</span>
+0008 <span class="comment">% along, possibly modified and returned in the process.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% If no approximate Hessian was furnished, this call is redirected to</span>
+0011 <span class="comment">% getHessianFD.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also: getHessianFD</span>
+0014 
+0015 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0016 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0017 <span class="comment">% Contributors:</span>
+0018 <span class="comment">% Change log:</span>
+0019 
+0020 
+0021     <span class="keyword">if</span> isfield(problem, <span class="string">'approxhess'</span>)
+0022     <span class="comment">%% Compute the approximate Hessian using approxhess.</span>
+0023         
+0024         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
+0025         <span class="keyword">if</span> ~is_octave
+0026             narg = nargin(problem.approxhess);
+0027         <span class="keyword">else</span>
+0028             narg = 3;
+0029         <span class="keyword">end</span>
+0030         
+0031         <span class="comment">% Check whether the approximate Hessian function wants to deal with</span>
+0032         <span class="comment">% the store structure or not.</span>
+0033         <span class="keyword">switch</span> narg
+0034             <span class="keyword">case</span> 2
+0035                 approxhess = problem.approxhess(x, d);
+0036             <span class="keyword">case</span> 3
+0037                 <span class="comment">% Obtain, pass along, and save the store structure</span>
+0038                 <span class="comment">% associated to this point.</span>
+0039                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
+0040                 [approxhess store] = problem.approxhess(x, d, store);
+0041                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
+0042             <span class="keyword">otherwise</span>
+0043                 up = MException(<span class="string">'manopt:getApproxHessian:badapproxhess'</span>, <span class="keyword">...</span>
+0044                     <span class="string">'approxhess should accept 2 or 3 inputs.'</span>);
+0045                 throw(up);
+0046         <span class="keyword">end</span>
+0047         
+0048     <span class="keyword">else</span>
+0049     <span class="comment">%% Try to fall back to a standard FD approximation.</span>
+0050     
+0051         [approxhess, storedb] = <a href="getHessianFD.html" class="code" title="function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)">getHessianFD</a>(problem, x, d, storedb);
+0052         
+0053     <span class="keyword">end</span>
+0054     
+0055 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of tCG</title>
+  <meta name="keywords" content="tCG">
+  <meta name="description" content="tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">trustregions</a> &gt; tCG.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\trustregions&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>tCG
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [eta Heta inner_it stop_tCG storedb]= tCG(problem, x, grad, eta, Delta, options, storedb) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
+ minimize &lt;eta,grad&gt; + .5*&lt;eta,Hess(eta)&gt;
+ subject to &lt;eta,eta&gt; &lt;= Delta^2</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [eta Heta inner_it stop_tCG storedb] </a><span class="keyword">...</span>
+0002                       = tCG(problem, x, grad, eta, Delta, options, storedb)
+0003 <span class="comment">% tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</span>
+0004 <span class="comment">% minimize &lt;eta,grad&gt; + .5*&lt;eta,Hess(eta)&gt;</span>
+0005 <span class="comment">% subject to &lt;eta,eta&gt; &lt;= Delta^2</span>
+0006 
+0007 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0008 <span class="comment">% This code is an adaptation to Manopt of the original GenRTR code:</span>
+0009 <span class="comment">% RTR - Riemannian Trust-Region</span>
+0010 <span class="comment">% (c) 2004-2007, P.-A. Absil, C. G. Baker, K. A. Gallivan</span>
+0011 <span class="comment">% Florida State University</span>
+0012 <span class="comment">% School of Computational Science</span>
+0013 <span class="comment">% (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)</span>
+0014 <span class="comment">% See accompanying license file.</span>
+0015 <span class="comment">% The adaptation was executed by Nicolas Boumal.</span>
+0016 <span class="comment">% Change log:</span>
+0017 <span class="comment">%   NB Feb. 12, 2013:</span>
+0018 <span class="comment">%       We do not project r back to the tangent space anymore: it was not</span>
+0019 <span class="comment">%       necessary, and as of Manopt 1.0.1, the proj operator does not</span>
+0020 <span class="comment">%       coincide with this notion anymore.</span>
+0021 <span class="comment">%   NB April 3, 2013:</span>
+0022 <span class="comment">%       tCG now also returns Heta, the Hessian at x along eta. Additional</span>
+0023 <span class="comment">%       esthetic modifications.</span>
+0024 <span class="comment">%   NB Dec. 2, 2013:</span>
+0025 <span class="comment">%       If options.useRand is activated, we now make sure the preconditio-</span>
+0026 <span class="comment">%       ner is not used, as was originally intended in GenRTR. In time, we</span>
+0027 <span class="comment">%       may want to investigate whether useRand can be modifed to work well</span>
+0028 <span class="comment">%       with preconditioning too.</span>
+0029 
+0030 
+0031 <span class="comment">% All terms involving the trust-region radius will use an inner product</span>
+0032 <span class="comment">% w.r.t. the preconditioner; this is because the iterates grow in</span>
+0033 <span class="comment">% length w.r.t. the preconditioner, guaranteeing that we will not</span>
+0034 <span class="comment">% re-enter the trust-region.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% The following recurrences for Prec-based norms and inner</span>
+0037 <span class="comment">% products come from CGT2000, pg. 205, first edition</span>
+0038 <span class="comment">% below, P is the preconditioner</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">% &lt;eta_k,P*delta_k&gt; =</span>
+0041 <span class="comment">%          beta_k-1 * ( &lt;eta_k-1,P*delta_k-1&gt; + alpha_k-1 |delta_k-1|^2_P )</span>
+0042 <span class="comment">% |delta_k|^2_P = &lt;r_k,z_k&gt; + beta_k-1^2 |delta_k-1|^2_P</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">% therefore, we need to keep track of</span>
+0045 <span class="comment">% 1)   |delta_k|^2_P</span>
+0046 <span class="comment">% 2)   &lt;eta_k,P*delta_k&gt; = &lt;eta_k,delta_k&gt;_P</span>
+0047 <span class="comment">% 3)   |eta_k  |^2_P</span>
+0048 <span class="comment">%</span>
+0049 <span class="comment">% initial values are given by:</span>
+0050 <span class="comment">%    |delta_0|_P = &lt;r,z&gt;</span>
+0051 <span class="comment">%    |eta_0|_P   = 0</span>
+0052 <span class="comment">%    &lt;eta_0,delta_0&gt;_P = 0</span>
+0053 <span class="comment">% because we take eta_0 = 0</span>
+0054 
+0055 
+0056 theta = options.theta;
+0057 kappa = options.kappa;
+0058 
+0059 <span class="keyword">if</span> options.useRand, <span class="comment">% and therefore, no preconditioner</span>
+0060     <span class="comment">% eta (presumably) ~= 0 was provided by the caller</span>
+0061     [Heta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, eta, storedb);
+0062     r = problem.M.lincomb(x, 1, grad, 1, Heta);
+0063     e_Pe = problem.M.inner(x, eta, eta);
+0064 <span class="keyword">else</span> <span class="comment">% and therefore, eta == 0</span>
+0065     Heta = problem.M.zerovec(x);
+0066     r = grad;
+0067     e_Pe = 0;
+0068 <span class="keyword">end</span>
+0069 r_r = problem.M.inner(x, r, r);
+0070 norm_r = sqrt(r_r);
+0071 norm_r0 = norm_r;
+0072 
+0073 <span class="comment">% precondition the residual</span>
+0074 <span class="keyword">if</span> ~options.useRand
+0075     [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
+0076 <span class="keyword">else</span>
+0077     z = r;
+0078 <span class="keyword">end</span>
+0079 
+0080 <span class="comment">% compute z'*r</span>
+0081 z_r = problem.M.inner(x, z, r);
+0082 d_Pd = z_r;
+0083 
+0084 <span class="comment">% Initial search direction</span>
+0085 delta  = problem.M.lincomb(x, -1, z);
+0086 <span class="keyword">if</span> options.useRand, <span class="comment">% and therefore, no preconditioner</span>
+0087     e_Pd = problem.M.inner(x, eta, delta);
+0088 <span class="keyword">else</span> <span class="comment">% and therefore, eta == 0</span>
+0089     e_Pd = 0;
+0090 <span class="keyword">end</span>
+0091 
+0092 <span class="comment">% Pre-assume termination b/c j == end</span>
+0093 stop_tCG = 5;
+0094 
+0095 <span class="comment">% Begin inner/tCG loop</span>
+0096 j = 0;
+0097 <span class="keyword">for</span> j = 1 : options.maxinner
+0098     
+0099     [Hdelta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, delta, storedb);
+0100     
+0101     <span class="comment">% Compute curvature</span>
+0102     d_Hd = problem.M.inner(x, delta, Hdelta);
+0103     
+0104     
+0105     alpha = z_r/d_Hd;
+0106     <span class="comment">% &lt;neweta,neweta&gt;_P =</span>
+0107     <span class="comment">% &lt;eta,eta&gt;_P + 2*alpha*&lt;eta,delta&gt;_P + alpha*alpha*&lt;delta,delta&gt;_P</span>
+0108     e_Pe_new = e_Pe + 2.0*alpha*e_Pd + alpha*alpha*d_Pd;
+0109     
+0110     <span class="keyword">if</span> options.debug &gt; 2,
+0111         fprintf(<span class="string">'DBG:   (r,r)  : %e\n'</span>,r_r);
+0112         fprintf(<span class="string">'DBG:   (d,Hd) : %e\n'</span>,d_Hd);
+0113         fprintf(<span class="string">'DBG:   alpha  : %e\n'</span>,alpha);
+0114     <span class="keyword">end</span>
+0115     
+0116     <span class="comment">% Check against negative curvature and trust-region radius violation.</span>
+0117     <span class="comment">% If either condition triggers, we bail out.</span>
+0118     <span class="keyword">if</span> d_Hd &lt;= 0 || e_Pe_new &gt;= Delta^2,
+0119         <span class="comment">% want</span>
+0120         <span class="comment">%  ee = &lt;eta,eta&gt;_prec,x</span>
+0121         <span class="comment">%  ed = &lt;eta,delta&gt;_prec,x</span>
+0122         <span class="comment">%  dd = &lt;delta,delta&gt;_prec,x</span>
+0123         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
+0124         <span class="keyword">if</span> options.debug &gt; 2,
+0125             fprintf(<span class="string">'DBG:     tau  : %e\n'</span>, tau);
+0126         <span class="keyword">end</span>
+0127         eta  = problem.M.lincomb(x, 1,  eta, tau,  delta);
+0128         Heta = problem.M.lincomb(x, 1, Heta, tau, Hdelta);
+0129         <span class="keyword">if</span> d_Hd &lt;= 0,
+0130             stop_tCG = 1;     <span class="comment">% negative curvature</span>
+0131         <span class="keyword">else</span>
+0132             stop_tCG = 2;     <span class="comment">% exceeded trust region</span>
+0133         <span class="keyword">end</span>
+0134         <span class="keyword">break</span>;
+0135     <span class="keyword">end</span>
+0136     
+0137     <span class="comment">% No negative curvature and eta_prop inside TR: accept it</span>
+0138     e_Pe = e_Pe_new;
+0139     eta  = problem.M.lincomb(x, 1,  eta, alpha,  delta);
+0140     Heta = problem.M.lincomb(x, 1, Heta, alpha, Hdelta);
+0141     
+0142     <span class="comment">% Update the residual</span>
+0143     r = problem.M.lincomb(x, 1, r, alpha, Hdelta);
+0144     
+0145     <span class="comment">% Compute new norm of r</span>
+0146     r_r = problem.M.inner(x, r, r);
+0147     norm_r = sqrt(r_r);
+0148     
+0149     <span class="comment">% Check kappa/theta stopping criterion</span>
+0150     <span class="keyword">if</span> j &gt;= options.mininner &amp;&amp; norm_r &lt;= norm_r0*min(norm_r0^theta, kappa)
+0151         <span class="comment">% Residual is small enough to quit</span>
+0152         <span class="keyword">if</span> kappa &lt; norm_r0^theta,
+0153             stop_tCG = 3;  <span class="comment">% linear convergence</span>
+0154         <span class="keyword">else</span>
+0155             stop_tCG = 4;  <span class="comment">% superlinear convergence</span>
+0156         <span class="keyword">end</span>
+0157         <span class="keyword">break</span>;
+0158     <span class="keyword">end</span>
+0159     
+0160     <span class="comment">% Precondition the residual</span>
+0161     <span class="keyword">if</span> ~options.useRand
+0162         [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
+0163     <span class="keyword">else</span>
+0164         z = r;
+0165     <span class="keyword">end</span>
+0166     
+0167     <span class="comment">% Save the old z'*r</span>
+0168     zold_rold = z_r;
+0169     <span class="comment">% Compute new z'*r</span>
+0170     z_r = problem.M.inner(x, z, r);
+0171     
+0172     <span class="comment">% Compute new search direction</span>
+0173     beta = z_r/zold_rold;
+0174     delta = problem.M.lincomb(x, -1, z, beta, delta);
+0175     
+0176     <span class="comment">% Update new P-norms and P-dots</span>
+0177     e_Pd = beta*(e_Pd + alpha*d_Pd);
+0178     d_Pd = z_r + beta*beta*d_Pd;
+0179     
+0180 <span class="keyword">end</span>  <span class="comment">% of tCG loop</span>
+0181 inner_it = j;
+0182 
+0183 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

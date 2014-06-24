@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of dominant_invariant_subspace</title>
+  <meta name="keywords" content="dominant_invariant_subspace">
+  <meta name="description" content="Returns an orthonormal basis of the dominant invariant p-subspace of A.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; dominant_invariant_subspace.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>dominant_invariant_subspace
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Returns an orthonormal basis of the dominant invariant p-subspace of A.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [X, info] = dominant_invariant_subspace(A, p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns an orthonormal basis of the dominant invariant p-subspace of A.
+
+ function X = dominant_invariant_subspace(A, p)
+
+ Input: A real, symmetric matrix A of size nxn and an integer p &lt; n.
+ Output: A real, orthonormal matrix X of size nxp such that trace(X'*A*X)
+         is maximized. That is, the columns of X form an orthonormal basis
+         of a dominant subspace of dimension p of A. These are thus
+         eigenvectors associated with the largest eigenvalues of A (in no
+         particular order). Sign is important: 2 is deemed a larger
+         eigenvalue than -5.
+
+ The optimization is performed on the Grassmann manifold, since only the
+ space spanned by the columns of X matters. The implementation is short to
+ show how Manopt can be used to quickly obtain a prototype. To make the
+ implementation more efficient, one might first try to use the caching
+ system, that is, use the optional 'store' arguments in the cost, grad and
+ hess functions. Furthermore, using egrad2rgrad and ehess2rhess is quick
+ and easy, but not always efficient. Having a look at the formulas
+ implemented in these functions can help rewrite the code without them,
+ possibly more efficiently.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [X, info] = dominant_invariant_subspace(A, p)</a>
+0002 <span class="comment">% Returns an orthonormal basis of the dominant invariant p-subspace of A.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function X = dominant_invariant_subspace(A, p)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input: A real, symmetric matrix A of size nxn and an integer p &lt; n.</span>
+0007 <span class="comment">% Output: A real, orthonormal matrix X of size nxp such that trace(X'*A*X)</span>
+0008 <span class="comment">%         is maximized. That is, the columns of X form an orthonormal basis</span>
+0009 <span class="comment">%         of a dominant subspace of dimension p of A. These are thus</span>
+0010 <span class="comment">%         eigenvectors associated with the largest eigenvalues of A (in no</span>
+0011 <span class="comment">%         particular order). Sign is important: 2 is deemed a larger</span>
+0012 <span class="comment">%         eigenvalue than -5.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% The optimization is performed on the Grassmann manifold, since only the</span>
+0015 <span class="comment">% space spanned by the columns of X matters. The implementation is short to</span>
+0016 <span class="comment">% show how Manopt can be used to quickly obtain a prototype. To make the</span>
+0017 <span class="comment">% implementation more efficient, one might first try to use the caching</span>
+0018 <span class="comment">% system, that is, use the optional 'store' arguments in the cost, grad and</span>
+0019 <span class="comment">% hess functions. Furthermore, using egrad2rgrad and ehess2rhess is quick</span>
+0020 <span class="comment">% and easy, but not always efficient. Having a look at the formulas</span>
+0021 <span class="comment">% implemented in these functions can help rewrite the code without them,</span>
+0022 <span class="comment">% possibly more efficiently.</span>
+0023 
+0024 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% Main author: Nicolas Boumal, July 5, 2013</span>
+0027 <span class="comment">% Contributors:</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Change log:</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   NB Dec. 6, 2013:</span>
+0032 <span class="comment">%       We specify a max and initial trust region radius in the options.</span>
+0033     
+0034     <span class="comment">% Generate some random data to test the function</span>
+0035     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0036         A = randn(128);
+0037         A = (A+A')/2;
+0038     <span class="keyword">end</span>
+0039     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0040         p = 3;
+0041     <span class="keyword">end</span>
+0042     
+0043     <span class="comment">% Make sure the input matrix is square and symmetric</span>
+0044     n = size(A, 1);
+0045     assert(isreal(A), <span class="string">'A must be real.'</span>)
+0046     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0047     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
+0048     assert(p&lt;=n, <span class="string">'p must be smaller than n.'</span>);
+0049     
+0050     <span class="comment">% Define the cost and its derivatives on the Grassmann manifold</span>
+0051     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, p);
+0052     problem.M = Gr;
+0053     problem.cost = @(X)    -trace(X'*A*X);
+0054     problem.grad = @(X)    -2*Gr.egrad2rgrad(X, A*X);
+0055     problem.hess = @(X, H) -2*Gr.ehess2rhess(X, A*X, A*H, H);
+0056     
+0057     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0058     <span class="comment">% These things can be commented out of course.</span>
+0059     <span class="comment">% checkgradient(problem);</span>
+0060     <span class="comment">% pause;</span>
+0061     <span class="comment">% checkhessian(problem);</span>
+0062     <span class="comment">% pause;</span>
+0063     
+0064     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0065     <span class="comment">% default options are selected except for the ones we specify here.</span>
+0066     options.Delta_bar = 8*sqrt(p);
+0067     [X costX info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0068     
+0069     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
+0070     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
+0071     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
+0072     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
+0073     <span class="comment">% Hessian, this would also inform us on its performance.</span>
+0074     <span class="comment">%</span>
+0075     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
+0076     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
+0077     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
+0078     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
+0079     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
+0080     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
+0081     <span class="comment">% the optimizer not isolated anymore.</span>
+0082     <span class="keyword">if</span> Gr.dim() &lt; 512
+0083         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
+0084         stairs(sort(evs));
+0085         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
+0086                <span class="string">'at the solution'</span>]);
+0087         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
+0088         ylabel(<span class="string">'Value of the eigenvalue'</span>);
+0089     <span class="keyword">end</span>
+0090 
+0091 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

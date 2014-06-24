@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fixedrankembeddedfactory</title>
+  <meta name="keywords" content="fixedrankembeddedfactory">
+  <meta name="description" content="Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">fixedrank</a> &gt; fixedrankembeddedfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\fixedrank&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>fixedrankembeddedfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = fixedrankembeddedfactory(m, n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.
+
+ function M = fixedrankembeddedfactory(m, n, k)
+
+ Warning: this code was little tested and should be used with care.
+
+ Manifold of m-by-n matrices of fixed rank k. This follows the geometry
+ described in the following paper (which for now is the documentation):
+ B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;, 2011.
+
+ Paper link: http://arxiv.org/pdf/1209.3834.pdf
+
+ A point X on the manifold is represented as a structure with three
+ fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,
+ while the matrix S (kxk) is any full rank matrix.
+
+ Tangent vectors are represented as a structure with three fields: Up, M
+ and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.
+ The matrix M (kxk) is arbitrary.
+
+ The chosen geometry yields a Riemannian submanifold of the embedding
+ space R^(mxn) equipped with the usual trace inner product.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function Zproj = projection(X, Z)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, Z, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, Z, t)</a></li><li><a href="#_sub4" class="code">function X = random()</a></li><li><a href="#_sub5" class="code">function Z = randomvec(X)</a></li><li><a href="#_sub6" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankembeddedfactory(m, n, k)</a>
+0002 <span class="comment">% Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = fixedrankembeddedfactory(m, n, k)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Warning: this code was little tested and should be used with care.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Manifold of m-by-n matrices of fixed rank k. This follows the geometry</span>
+0009 <span class="comment">% described in the following paper (which for now is the documentation):</span>
+0010 <span class="comment">% B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;, 2011.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Paper link: http://arxiv.org/pdf/1209.3834.pdf</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% A point X on the manifold is represented as a structure with three</span>
+0015 <span class="comment">% fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,</span>
+0016 <span class="comment">% while the matrix S (kxk) is any full rank matrix.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Tangent vectors are represented as a structure with three fields: Up, M</span>
+0019 <span class="comment">% and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.</span>
+0020 <span class="comment">% The matrix M (kxk) is arbitrary.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% The chosen geometry yields a Riemannian submanifold of the embedding</span>
+0023 <span class="comment">% space R^(mxn) equipped with the usual trace inner product.</span>
+0024 
+0025 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0026 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0027 <span class="comment">% Contributors:</span>
+0028 <span class="comment">% Change log:</span>
+0029 
+0030 
+0031 <span class="comment">% TODO: For the documentation, specify how vectors in the embedding space are</span>
+0032 <span class="comment">% represented, since more than one representation are allowed.</span>
+0033 
+0034     M.name = @() sprintf(<span class="string">'Manifold of %dx%d matrices of rank %d'</span>, m, n, k);
+0035     
+0036     M.dim = @() (m+n-k)*k;
+0037     
+0038     M.inner = @(x, d1, d2) d1.M(:).'*d2.M(:) + d1.Up(:).'*d2.Up(:) <span class="keyword">...</span>
+0039                                              + d1.Vp(:).'*d2.Vp(:);
+0040     
+0041     M.norm = @(x, d) sqrt(M.inner(x, d, d));
+0042     
+0043     M.dist = @(x, y) error(<span class="string">'fixedrank.dist not implemented yet.'</span>);
+0044     
+0045     M.typicaldist = @() 10*k;
+0046     
+0047     M.proj = @<a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>;
+0048     <a name="_sub1" href="#_subfunctions" class="code">function Zproj = projection(X, Z)</a>
+0049         
+0050         <span class="keyword">if</span> isstruct(Z)
+0051         
+0052             <span class="comment">% Projection for Z a vector in R^(mxn) represented as a</span>
+0053             <span class="comment">% structure with the same format as that of points X on the</span>
+0054             <span class="comment">% manifold. This is useful if Z is a low-rank matrix. The rank</span>
+0055             <span class="comment">% of Z need not coincide with that of X.</span>
+0056             <span class="keyword">if</span> isfield(Z, <span class="string">'S'</span>)
+0057                 UtUz = X.U' * Z.U;
+0058                 VtVz = X.V' * Z.V;
+0059 
+0060                 SzVztV = Z.S * VtVz';
+0061                 UtZV = UtUz * SzVztV;
+0062 
+0063                 Zproj.M = UtZV;
+0064                 Zproj.Up = Z.U * SzVztV - X.U*UtZV;
+0065                 Zproj.Vp = Z.V * (UtUz*Z.S)' - X.V*UtZV';
+0066                 
+0067             <span class="comment">% Projection for Z a vector in R^(mxn) represented as a</span>
+0068             <span class="comment">% structure with the same format as that of tangent vectors.</span>
+0069             <span class="keyword">elseif</span> isfield(Z, <span class="string">'M'</span>)
+0070                 
+0071                 Zproj.M = Z.M;
+0072                 Zproj.Up = Z.Up - X.U*(X.U'*Z.Up);
+0073                 Zproj.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
+0074                 
+0075             <span class="keyword">else</span>
+0076                 error(<span class="string">'fixedrank.proj: Bad ambient vector representation.'</span>);
+0077             <span class="keyword">end</span>
+0078             
+0079         <span class="comment">% Projection for Z a vector in R^(mxn) represented as an mxn matrix</span>
+0080         <span class="keyword">else</span>
+0081             
+0082             ZV = Z*X.V;
+0083             UtZV = X.U'*ZV;
+0084             ZtU = Z'*X.U;
+0085             
+0086             Zproj.M = UtZV;
+0087             Zproj.Up = ZV  - X.U*UtZV;
+0088             Zproj.Vp = ZtU - X.V*UtZV';
+0089             
+0090         <span class="keyword">end</span>
+0091 
+0092     <span class="keyword">end</span>
+0093 
+0094     M.egrad2rgrad = M.proj;
+0095     
+0096     M.retr = @<a href="#_sub2" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>;
+0097     <a name="_sub2" href="#_subfunctions" class="code">function Y = retraction(X, Z, t)</a>
+0098         <span class="keyword">if</span> nargin &lt; 3
+0099             t = 1.0;
+0100         <span class="keyword">end</span>
+0101 
+0102         <span class="comment">% See personal notes June 28, 2012 (NB)</span>
+0103         [Qu Ru] = qr(Z.Up, 0);
+0104         [Qv Rv] = qr(Z.Vp, 0);
+0105         
+0106         <span class="comment">% Calling svds or svd should yield the same result, but BV</span>
+0107         <span class="comment">% advocated svd is more robust, and it doesn't change the</span>
+0108         <span class="comment">% asymptotic complexity to call svd then trim rather than call</span>
+0109         <span class="comment">% svds. Also, apparently Matlab calls ARPACK in a suboptimal way</span>
+0110         <span class="comment">% for svds in this scenario.</span>
+0111         <span class="comment">% [Ut St Vt] = svds([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)], k);</span>
+0112         [Ut St Vt] = svd([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)]);
+0113         
+0114         Y.U = [X.U Qu]*Ut(:, 1:k);
+0115         Y.V = [X.V Qv]*Vt(:, 1:k);
+0116         Y.S = St(1:k, 1:k);
+0117         
+0118         <span class="comment">% equivalent but very slow code</span>
+0119         <span class="comment">% [U S V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);</span>
+0120         <span class="comment">% Y.U = U; Y.V = V; Y.S = S;</span>
+0121         
+0122     <span class="keyword">end</span>
+0123     
+0124     M.exp = @<a href="#_sub3" class="code" title="subfunction Y = exponential(X, Z, t)">exponential</a>;
+0125     <a name="_sub3" href="#_subfunctions" class="code">function Y = exponential(X, Z, t)</a>
+0126         <span class="keyword">if</span> nargin &lt; 3
+0127             t = 1.0;
+0128         <span class="keyword">end</span>
+0129         Y = <a href="#_sub2" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>(X, Z, t);
+0130         warning(<span class="string">'manopt:fixedrank:exp'</span>, [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0131                 <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0132     <span class="keyword">end</span>
+0133 
+0134     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.U(:) ; X.S(:) ; X.V(:)])];
+0135     
+0136     M.rand = @<a href="#_sub4" class="code" title="subfunction X = random()">random</a>;
+0137     <span class="comment">% Factors U and V live on Stiefel manifolds, hence we will reuse</span>
+0138     <span class="comment">% their random generator.</span>
+0139     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
+0140     stiefeln = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(n, k);
+0141     <a name="_sub4" href="#_subfunctions" class="code">function X = random()</a>
+0142         X.U = stiefelm.rand();
+0143         X.V = stiefeln.rand();
+0144         X.S = randn(k);
+0145     <span class="keyword">end</span>
+0146     
+0147     M.randvec = @<a href="#_sub5" class="code" title="subfunction Z = randomvec(X)">randomvec</a>;
+0148     <a name="_sub5" href="#_subfunctions" class="code">function Z = randomvec(X)</a>
+0149         Z.Up = randn(m, k);
+0150         Z.Vp = randn(n, k);
+0151         Z.M  = randn(k, k);
+0152         Z = <a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(X, Z);
+0153         nrm = M.norm(X, Z);
+0154         Z.Up = Z.Up / nrm;
+0155         Z.Vp = Z.Vp / nrm;
+0156         Z.M  = Z.M  / nrm;
+0157     <span class="keyword">end</span>
+0158     
+0159     M.lincomb = @<a href="#_sub6" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0160     
+0161     M.zerovec = @(X) struct(<span class="string">'Up'</span>, zeros(m, k), <span class="string">'M'</span>, zeros(k, k), <span class="keyword">...</span>
+0162                                                         <span class="string">'Vp'</span>, zeros(n, k));
+0163     
+0164     M.transp = @(x1, x2, d) <a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(x2, d);
+0165 
+0166 <span class="keyword">end</span>
+0167 
+0168 <span class="comment">% Linear combination of tangent vectors</span>
+0169 <a name="_sub6" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0170 
+0171     <span class="keyword">if</span> nargin == 3
+0172         d.Up = a1*d1.Up;
+0173         d.Vp = a1*d1.Vp;
+0174         d.M  = a1*d1.M;
+0175     <span class="keyword">elseif</span> nargin == 5
+0176         d.Up = a1*d1.Up + a2*d2.Up;
+0177         d.Vp = a1*d1.Vp + a2*d2.Vp;
+0178         d.M  = a1*d1.M  + a2*d2.M;
+0179     <span class="keyword">else</span>
+0180         error(<span class="string">'fixedrank.lincomb takes either 3 or 5 inputs.'</span>);
+0181     <span class="keyword">end</span>
+0182 
+0183 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

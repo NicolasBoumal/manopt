@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spherecomplexfactory</title>
+  <meta name="keywords" content="spherecomplexfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over unit-norm complex matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">sphere</a> &gt; spherecomplexfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\sphere&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>spherecomplexfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over unit-norm complex matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = spherecomplexfactory(n, m) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-norm complex matrices.
+
+ function M = spherecomplexfactory(n)
+ function M = spherecomplexfactory(n, m)
+
+ Manifold of n-by-m complex matrices of unit Frobenius norm.
+ By default, m = 1, which corresponds to the unit sphere in C^n. The
+ metric is such that the sphere is a Riemannian submanifold of the space
+ of 2nx2m real matrices with the usual trace inner product, i.e., the
+ usual metric.
+ 
+ See also: <a href="spherefactory.html" class="code" title="function M = spherefactory(n, m)">spherefactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub2" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub3" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub4" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub5" class="code">function x = random(n, m)</a></li><li><a href="#_sub6" class="code">function d = randomvec(n, m, x)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spherecomplexfactory(n, m)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over unit-norm complex matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = spherecomplexfactory(n)</span>
+0005 <span class="comment">% function M = spherecomplexfactory(n, m)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Manifold of n-by-m complex matrices of unit Frobenius norm.</span>
+0008 <span class="comment">% By default, m = 1, which corresponds to the unit sphere in C^n. The</span>
+0009 <span class="comment">% metric is such that the sphere is a Riemannian submanifold of the space</span>
+0010 <span class="comment">% of 2nx2m real matrices with the usual trace inner product, i.e., the</span>
+0011 <span class="comment">% usual metric.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also: spherefactory</span>
+0014 
+0015 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0016 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0017 <span class="comment">% Contributors:</span>
+0018 <span class="comment">% Change log:</span>
+0019 
+0020     
+0021     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>)
+0022         m = 1;
+0023     <span class="keyword">end</span>
+0024 
+0025     <span class="keyword">if</span> m == 1
+0026         M.name = @() sprintf(<span class="string">'Complex sphere S^%d'</span>, n-1);
+0027     <span class="keyword">else</span>
+0028         M.name = @() sprintf(<span class="string">'Unit F-norm %dx%d complex matrices'</span>, n, m);
+0029     <span class="keyword">end</span>
+0030     
+0031     M.dim = @() 2*(n*m)-1;
+0032     
+0033     M.inner = @(x, d1, d2) real(d1(:)'*d2(:));
+0034     
+0035     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0036     
+0037     M.dist = @(x, y) acos(real(x(:)'*y(:)));
+0038     
+0039     M.typicaldist = @() pi;
+0040     
+0041     M.proj = @(x, d) reshape(d(:) - x(:)*(real(x(:)'*d(:))), n, m);
+0042     
+0043     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0044     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0045     M.egrad2rgrad = M.proj;
+0046     
+0047     M.tangent = M.proj;
+0048     
+0049     M.exp = @<a href="#_sub3" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
+0050     
+0051     M.retr = @<a href="#_sub4" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
+0052 
+0053     M.log = @<a href="#_sub1" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0054     <a name="_sub1" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0055         error(<span class="string">'The logarithmic map is not yet implemented for this manifold.'</span>);
+0056     <span class="keyword">end</span>
+0057     
+0058     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([real(x(:)) ; imag(x(:))])];
+0059     
+0060     M.rand = @() <a href="#_sub5" class="code" title="subfunction x = random(n, m)">random</a>(n, m);
+0061     
+0062     M.randvec = @(x) <a href="#_sub6" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, x);
+0063     
+0064     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0065     
+0066     M.zerovec = @(x) zeros(n, m);
+0067     
+0068     M.transp = @(x1, x2, d) M.proj(x2, d);
+0069     
+0070     M.pairmean = @<a href="#_sub2" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0071     <a name="_sub2" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0072         y = x1+x2;
+0073         y = y / norm(y, <span class="string">'fro'</span>);
+0074     <span class="keyword">end</span>
+0075 
+0076 <span class="keyword">end</span>
+0077 
+0078 <span class="comment">% Exponential on the sphere</span>
+0079 <a name="_sub3" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
+0080 
+0081     <span class="keyword">if</span> nargin == 2
+0082         t = 1;
+0083     <span class="keyword">end</span>
+0084     
+0085     td = t*d;
+0086     
+0087     nrm_td = norm(td, <span class="string">'fro'</span>);
+0088     
+0089     <span class="keyword">if</span> nrm_td &gt; 1e-6
+0090         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
+0091     <span class="keyword">else</span>
+0092         <span class="comment">% If the step is too small, to avoid dividing by nrm_td, we choose</span>
+0093         <span class="comment">% to approximate with this retraction-like step.</span>
+0094         y = x + td;
+0095         y = y / norm(y, <span class="string">'fro'</span>);
+0096     <span class="keyword">end</span>
+0097 
+0098 <span class="keyword">end</span>
+0099 
+0100 <span class="comment">% Retraction on the sphere</span>
+0101 <a name="_sub4" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0102 
+0103     <span class="keyword">if</span> nargin == 2
+0104         t = 1;
+0105     <span class="keyword">end</span>
+0106     
+0107     y = x+t*d;
+0108     y = y/norm(y, <span class="string">'fro'</span>);
+0109 
+0110 <span class="keyword">end</span>
+0111 
+0112 <span class="comment">% Uniform random sampling on the sphere.</span>
+0113 <a name="_sub5" href="#_subfunctions" class="code">function x = random(n, m)</a>
+0114 
+0115     x = randn(n, m) + 1i*randn(n, m);
+0116     x = x/norm(x, <span class="string">'fro'</span>);
+0117 
+0118 <span class="keyword">end</span>
+0119 
+0120 <span class="comment">% Random normalized tangent vector at x.</span>
+0121 <a name="_sub6" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
+0122 
+0123     d = randn(n, m) + 1i*randn(n, m);
+0124     d = reshape(d(:) - x(:)*(real(x(:)'*d(:))), n, m);
+0125     d = d / norm(d, <span class="string">'fro'</span>);
+0126 
+0127 <span class="keyword">end</span>
+0128 
+0129 <span class="comment">% Linear combination of tangent vectors</span>
+0130 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0131 
+0132     <span class="keyword">if</span> nargin == 3
+0133         d = a1*d1;
+0134     <span class="keyword">elseif</span> nargin == 5
+0135         d = a1*d1 + a2*d2;
+0136     <span class="keyword">else</span>
+0137         error(<span class="string">'Bad use of spherecomplex.lincomb.'</span>);
+0138     <span class="keyword">end</span>
+0139 
+0140 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

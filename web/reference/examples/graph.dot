@@ -1,0 +1,12 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+
+  dominant_invariant_subspace [URL="dominant_invariant_subspace.html"];
+  generalized_procrustes [URL="generalized_procrustes.html"];
+  maxcut [URL="maxcut.html"];
+  maxcut_octave [URL="maxcut_octave.html"];
+  packing_on_the_sphere [URL="packing_on_the_sphere.html"];
+  positive_definite_karcher_mean [URL="positive_definite_karcher_mean.html"];
+  sparse_pca [URL="sparse_pca.html"];
+  truncated_svd [URL="truncated_svd.html"];
+}

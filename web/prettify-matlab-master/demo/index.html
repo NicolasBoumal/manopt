@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>test MATLAB prettify.js</title>
+
+		<link type="text/css" rel="stylesheet" href="css/prettify.css" />
+		<link type="text/css" rel="stylesheet" href="../css/lang-matlab.css" />
+		<link type="text/css" rel="stylesheet" href="../css/switch_lang.css" />
+		<style type="text/css">
+		body { width: 80%;}
+		pre.prettyprint {
+			padding-left: 1em;
+			border: 1px solid #888;
+			width: 50em;
+			background-color: #EEEEEE;
+		}
+		</style>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/prettify.js"></script>
+		<script type="text/javascript" src="../js/lang-matlab.js"></script>
+		<script type="text/javascript" src="../src/_switch_lang.js"></script>
+		<script type="text/javascript">
+		jQuery(document).ready(function () {
+			// apply syntax highlighting
+			prettyPrint();
+
+			// add language selection menus (after a small delay)
+			setTimeout(function () {
+				add_language_selection_menu();
+			}, 300);
+		});
+		</script>
+	</head>
+
+	<body>
+
+<pre class="prettyprint lang-matlab">
+<code>
+%%%%%%%%%%%%%%%%%% DATA TYPES %%%%%%%%%%%%%%%%%%
+
+v = [1,2,3;4,5,6];
+v(v>4) = 0;
+
+s = struct('key',1, 'key2','string');
+s.key = 2;
+
+C = cell(1,2);
+C{1,1} = 0:9;
+
+double(1)
+single(1)
+uint8(1)
+int8(1)
+
+%%%%%%%%%%%%%%%%%% STRINGS &amp; TRANSPOSE %%%%%%%%%%%%%%%%%%
+
+plot(data');
+legend(labels)
+
+str = 'asdasd';     % this is a string
+str = 'asdas';
+str = 'sdasd''sdasd';
+
+str = ['one' 'two' 'three'];
+str = strcat('one', 'two', 'three');
+
+% matrix transpose
+M = rand(3,3)';
+x = M.';
+x = [10 20; 30, 40]';
+disp(x')
+fprintf('%d\n', x(:)')      % with comment
+{1,2}'                      % another comment
+
+%%%%%%%%%%%%%%%%%% LINE CONTINUATION %%%%%%%%%%%%%%%%%%
+
+[1 20; ...
+30 4]
+
+['gdgsd'...
+'sdfs']
+
+{...
+'sdasd' ;
+'asdsad'}
+
+%%%%%%%%%%%%%%%%%% SYSTEM COMMANDS %%%%%%%%%%%%%%%%%%
+
+!touch file.txt
+
+%%%%%%%%%%%%%%%%%% COMMAND OUTPUT %%%%%%%%%%%%%%%%%%
+
+>> 1+1
+ans =
+     2
+
+>> 1+1
+
+ans =
+
+     2
+
+%%%%%%%%%%%%%%%%%% KEYWORDS %%%%%%%%%%%%%%%%%%
+
+function ret = fcn(in)
+	ret = sum(in.^2);
+end
+
+classdef CC &lt; handle
+	properties (SetAccess = public)
+		x = 0;
+	end
+	methods
+		function this = CC(varargin)
+			this.x = 9;
+		end
+	end
+end
+
+x = [];
+parfor i=1:10
+	x[i] = i;
+end
+
+true ~= false
+
+if x==1
+	true
+elseif
+	false
+else
+	return
+end
+
+while true
+	continue
+	break
+end
+
+try
+	error('aa:aa', 'asdasd')
+catch ME
+	warning(ME)
+end
+
+switch x
+	case 1
+		disp(1)
+	otherwise
+		0
+end
+
+%%%%%%%%%%%%%%%%%% NUM LITERALS %%%%%%%%%%%%%%%%%%
+
+1
+1.
+.1
+1.0
+-1
+-1.
+-.1
+-1.0
++10
++01.
++.1
++1.0
+1e1
+1e-1
+1.e1
+1.e-1
+1.0e1
+1.0e-1
+.1e1
+.1e-1
+-.1e+1
++1.e-1
+
+1i
+.10j
+-1.001i
++1e-100j
+-.10e-01i
+
+% unary vs binary operators
+1+1
+1+ 1
+1 +1
+1 + 1
++1+1
++1+ 1
++1 +1
++1 + 1
+
+%%%%%%%%%%%%%%%%%% COMMENTS %%%%%%%%%%%%%%%%%%
+
+% % comment % %
+   % comment
+% comment
+%# comment
+%% comment
+%#x = sum(x);
+
+%{
+block comment
+%}
+
+%{
+%}
+
+%{
+
+%}
+
+%{
+1
+2
+%}
+
+%{
+% sdf {}
+sdf
+%asda{}
+sfds
+%}
+
+    %{
+dsf
+        %}
+
+%{%}
+
+%{ zzz=10; %}
+
+%{%x=10;%}
+
+%{  x
+a=10;
+%}
+
+%{
+%a=10;
+%}   x
+
+% nested block comments fail
+%{
+dfsdf
+%{
+xxx
+%}
+dfsdf
+%}
+
+% fails here!
+%{
+x=10;
+%%{
+%%}
+y=20;
+%}
+</code>
+</pre>
+
+<pre class="prettyprint lang-matlab">
+<code>
+NET.addAssembly
+NET.addAssembly'
+
+a = struct();
+a.disp = [1,1,1];
+a.disp'
+(a.disp)'
+
+function aaa(varargin)
+	disp(varargin')
+end
+</code>
+</pre>
+
+<pre class="prettyprint lang-matlab">
+<code>
+% MATLAB R2011a
+>> dontexist(1)
+??? Undefined function or method 'dontexist' for input arguments of type 'double'.
+
+>> diag(1,1,1)
+??? Error using ==> diag
+Too many input arguments.
+ 
+>> error('a:a','a')
+??? a
+ 
+>> warning('a:a','a')
+Warning: a 
+
+% MATLAB R2011b
+>> dontexist(1)
+Undefined function 'dontexist' for input arguments of type 'double'.
+
+>> diag(1,1,1)
+Error using diag
+Too many input arguments.
+
+>> error('a:a','a')
+a
+ 
+>> warning('a:a','a')
+Warning: a 
+</code>
+</pre>
+
+<pre class="prettyprint lang-c">
+<code>
+#include "stdio.h"
+#include "stdlib.h"
+
+/* main function */
+int main() {
+	// comment
+	int x = 10;
+	fprintf("x = %d\n", x);
+	return 0;
+}
+</code>
+</pre>
+
+<pre class="prettyprint lang-python">
+<code>
+import numpy as np
+
+def fcn(x):
+	"""
+	some function
+	"""
+   return "hello"
+
+# call function
+print fcn(1)
+</code>
+</pre>
+
+	</body>
+</html>

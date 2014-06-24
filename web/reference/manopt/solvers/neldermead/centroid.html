@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of centroid</title>
+  <meta name="keywords" content="centroid">
+  <meta name="description" content="Attempts the computation of a centroid of a set of points on amanifold.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">neldermead</a> &gt; centroid.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\neldermead&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>centroid
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Attempts the computation of a centroid of a set of points on amanifold.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function y = centroid(M, x) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Attempts the computation of a centroid of a set of points on amanifold.
+ 
+ function y = centroid(M, x)
+
+ M is a structure representing a manifold. x is a cell of points on that
+ manifold.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="neldermead.html" class="code" title="function [x cost info] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function val = cost(y)</a></li><li><a href="#_sub2" class="code">function g = grad(y)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function y = centroid(M, x)</a>
+0002 <span class="comment">% Attempts the computation of a centroid of a set of points on amanifold.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function y = centroid(M, x)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% M is a structure representing a manifold. x is a cell of points on that</span>
+0007 <span class="comment">% manifold.</span>
+0008 
+0009 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0010 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0011 <span class="comment">% Contributors:</span>
+0012 <span class="comment">% Change log:</span>
+0013 
+0014 
+0015     <span class="comment">% For now, just apply a few steps of gradient descent for Karcher means</span>
+0016     
+0017     n = numel(x);
+0018     
+0019     problem.M = M;
+0020     
+0021     problem.cost = @<a href="#_sub1" class="code" title="subfunction val = cost(y)">cost</a>;
+0022     <a name="_sub1" href="#_subfunctions" class="code">function val = cost(y)</a>
+0023         val = 0;
+0024         <span class="keyword">for</span> i = 1 : n
+0025             val = val + M.dist(y, x{i})^2;
+0026         <span class="keyword">end</span>
+0027         val = val/2;
+0028     <span class="keyword">end</span>
+0029 
+0030     problem.grad = @<a href="#_sub2" class="code" title="subfunction g = grad(y)">grad</a>;
+0031     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(y)</a>
+0032         g = M.zerovec(y);
+0033         <span class="keyword">for</span> i = 1 : n
+0034             g = M.lincomb(y, 1, g, -1, M.log(y, x{i}));
+0035         <span class="keyword">end</span>
+0036     <span class="keyword">end</span>
+0037 
+0038     <span class="comment">% This line can be uncommented to check that the gradient is indeed</span>
+0039     <span class="comment">% correct. This should always be the case if the dist and the log</span>
+0040     <span class="comment">% functions in the manifold are correct.</span>
+0041     <span class="comment">% checkgradient(problem);</span>
+0042     
+0043     query = warning(<span class="string">'query'</span>, <span class="string">'manopt:getHessian:approx'</span>);
+0044     warning(<span class="string">'off'</span>, <span class="string">'manopt:getHessian:approx'</span>)
+0045     options.verbosity = 0;
+0046     options.maxiter = 15;
+0047     y = <a href="../../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, x{randi(n)}, options);
+0048     warning(query.state, <span class="string">'manopt:getHessian:approx'</span>)
+0049 
+0050 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

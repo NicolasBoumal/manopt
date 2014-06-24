@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fixedrankMNquotientfactory</title>
+  <meta name="keywords" content="fixedrankMNquotientfactory">
+  <meta name="description" content="Manifold of m-by-n matrices of rank k with quotient geometry.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">fixedrank</a> &gt; fixedrankMNquotientfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\fixedrank&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>fixedrankMNquotientfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of m-by-n matrices of rank k with quotient geometry.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = fixedrankMNquotientfactory(m, n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of m-by-n matrices of rank k with quotient geometry.
+
+ function M = fixedrankMNquotientfactory(m, n, k)
+
+ This follows the quotient geometry described in the following paper:
+ P.-A. Absil, L. Amodei and G. Meyer,
+ &quot;Two Newton methods on the manifold of fixed-rank matrices endowed
+  with Riemannian quotient geometries&quot;, arXiv, 2012.
+
+ Paper link: http://arxiv.org/abs/1209.0068
+
+ A point X on the manifold is represented as a structure with two
+ fields: M and N. The matrix M (mxk) is orthonormal, while the matrix N
+ (nxk) is full-rank.
+
+ Tangent vectors are represented as a structure with two fields (M, N).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub2" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub3" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub5" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub6" class="code">function X = random()</a></li><li><a href="#_sub7" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub8" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li><li><a href="#_sub9" class="code">function A = uf(A)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankMNquotientfactory(m, n, k)</a>
+0002 <span class="comment">% Manifold of m-by-n matrices of rank k with quotient geometry.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = fixedrankMNquotientfactory(m, n, k)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This follows the quotient geometry described in the following paper:</span>
+0007 <span class="comment">% P.-A. Absil, L. Amodei and G. Meyer,</span>
+0008 <span class="comment">% &quot;Two Newton methods on the manifold of fixed-rank matrices endowed</span>
+0009 <span class="comment">%  with Riemannian quotient geometries&quot;, arXiv, 2012.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Paper link: http://arxiv.org/abs/1209.0068</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% A point X on the manifold is represented as a structure with two</span>
+0014 <span class="comment">% fields: M and N. The matrix M (mxk) is orthonormal, while the matrix N</span>
+0015 <span class="comment">% (nxk) is full-rank.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Tangent vectors are represented as a structure with two fields (M, N).</span>
+0018 
+0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0020 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0021 <span class="comment">% Contributors:</span>
+0022 <span class="comment">% Change log:</span>
+0023 
+0024 
+0025 M.name = @() sprintf(<span class="string">'MN'' quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
+0026 
+0027 M.dim = @() (m+n-k)*k;
+0028 
+0029 <span class="comment">% Choice of the metric is motivated by the symmetry present in the</span>
+0030 <span class="comment">% space</span>
+0031 M.inner = @(X, eta, zeta) eta.M(:).'*zeta.M(:) + eta.N(:).'*zeta.N(:);
+0032 
+0033 M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0034 
+0035 M.dist = @(x, y) error(<span class="string">'fixedrankMNquotientfactory.dist not implemented yet.'</span>);
+0036 
+0037 M.typicaldist = @() 10*k;
+0038 
+0039 symm = @(X) .5*(X+X');
+0040 stiefel_proj = @(M, H) H - M*symm(M'*H);
+0041 
+0042 M.egrad2rgrad = @<a href="#_sub1" class="code" title="subfunction eta = egrad2rgrad(X, eta)">egrad2rgrad</a>;
+0043     <a name="_sub1" href="#_subfunctions" class="code">function eta = egrad2rgrad(X, eta)</a>
+0044         eta.M = stiefel_proj(X.M, eta.M);
+0045     <span class="keyword">end</span>
+0046 
+0047 M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0048     <a name="_sub2" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0049         
+0050         <span class="comment">% Directional derivative of the Riemannian gradient</span>
+0051         Hess.M = ehess.M - eta.M*symm(X.M'*egrad.M);
+0052         Hess.M = stiefel_proj(X.M, Hess.M);
+0053         
+0054         Hess.N = ehess.N;
+0055         
+0056         <span class="comment">% Projection onto the horizontal space</span>
+0057         Hess = M.proj(X, Hess);
+0058     <span class="keyword">end</span>
+0059 
+0060 
+0061 M.proj = @<a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0062     <a name="_sub3" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0063         
+0064         <span class="comment">% Start by projecting the vector from Rmp x Rnp to the tangent</span>
+0065         <span class="comment">% space to the total space, that is, eta.M should be in the</span>
+0066         <span class="comment">% tangent space to Stiefel at X.M and eta.N is arbitrary.</span>
+0067         eta.M = stiefel_proj(X.M, eta.M);
+0068         
+0069         <span class="comment">% Now project from the tangent space to the horizontal space, that</span>
+0070         <span class="comment">% is, take care of the quotient.</span>
+0071         
+0072         <span class="comment">% First solve a Sylvester equation (A symm., B skew-symm.)</span>
+0073         A = X.N'*X.N + eye(k);
+0074         B = eta.M'*X.M + eta.N'*X.N;
+0075         B = B-B';
+0076         omega = lyap(A, -B);
+0077         
+0078         <span class="comment">% And project along the vertical space to the horizontal space.</span>
+0079         etaproj.M = eta.M + X.M*omega;
+0080         etaproj.N = eta.N + X.N*omega;
+0081         
+0082     <span class="keyword">end</span>
+0083 
+0084 M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0085     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0086         <span class="keyword">if</span> nargin &lt; 3
+0087             t = 1.0;
+0088         <span class="keyword">end</span>
+0089         
+0090         A = t*X.M'*eta.M;
+0091         S = t^2*eta.M'*eta.M;
+0092         Y.M = [X.M t*eta.M]*expm([A -S ; eye(k) A])*eye(2*k, k)*expm(-A);
+0093         
+0094         <span class="comment">% re-orthonormalize (seems necessary from time to time)</span>
+0095         [Q R] = qr(Y.M, 0);
+0096         Y.M = Q * diag(sign(diag(R)));
+0097         
+0098         Y.N = X.N + t*eta.N;
+0099         
+0100     <span class="keyword">end</span>
+0101 
+0102 <span class="comment">% Factor M lives on the Stiefel manifold, hence we will reuse its</span>
+0103 <span class="comment">% random generator.</span>
+0104 stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
+0105 
+0106 M.retr = @<a href="#_sub5" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0107     <a name="_sub5" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0108         <span class="keyword">if</span> nargin &lt; 3
+0109             t = 1.0;
+0110         <span class="keyword">end</span>
+0111         
+0112         Y.M = <a href="#_sub9" class="code" title="subfunction A = uf(A)">uf</a>(X.M + t*eta.M); <span class="comment">% This is a valid retraction</span>
+0113         Y.N = X.N + t*eta.N;   
+0114     <span class="keyword">end</span>
+0115 
+0116 M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.M(:) ; X.N(:)])];
+0117 
+0118 M.rand = @<a href="#_sub6" class="code" title="subfunction X = random()">random</a>;
+0119     <a name="_sub6" href="#_subfunctions" class="code">function X = random()</a>
+0120         X.M = stiefelm.rand();
+0121         X.N = randn(n, k);
+0122     <span class="keyword">end</span>
+0123 
+0124 M.randvec = @<a href="#_sub7" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0125     <a name="_sub7" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0126         eta.M = randn(m, k);
+0127         eta.N = randn(n, k);
+0128         eta = <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0129         nrm = M.norm(X, eta);
+0130         eta.M = eta.M / nrm;
+0131         eta.N = eta.N / nrm;
+0132     <span class="keyword">end</span>
+0133 
+0134 M.lincomb = @<a href="#_sub8" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0135 
+0136 M.zerovec = @(X) struct(<span class="string">'M'</span>, zeros(m, k), <span class="string">'N'</span>, zeros(n, k));
+0137 
+0138 M.transp = @(x1, x2, d) <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
+0139 
+0140 <span class="keyword">end</span>
+0141 
+0142 
+0143 <span class="comment">% Linear combination of tangent vectors</span>
+0144 <a name="_sub8" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INMSL&gt;</span>
+0145 
+0146 <span class="keyword">if</span> nargin == 3
+0147     d.M = a1*d1.M;
+0148     d.N = a1*d1.N;
+0149 <span class="keyword">elseif</span> nargin == 5
+0150     d.M = a1*d1.M + a2*d2.M;
+0151     d.N = a1*d1.N + a2*d2.N;
+0152 <span class="keyword">else</span>
+0153     error(<span class="string">'Bad use of fixedrankMNquotientfactory.lincomb.'</span>);
+0154 <span class="keyword">end</span>
+0155 
+0156 <span class="keyword">end</span>
+0157 
+0158 
+0159 <a name="_sub9" href="#_subfunctions" class="code">function A = uf(A)</a>
+0160 [L, unused, R] = svd(A, 0);
+0161 A = L*R';
+0162 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

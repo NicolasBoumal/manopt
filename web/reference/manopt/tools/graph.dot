@@ -1,0 +1,25 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  checkdiff -> identify_linear_piece;
+  checkgradient -> checkdiff;
+  checkhessian -> identify_linear_piece;
+  multiskew -> multitransp;
+  multisym -> multitransp;
+  multitrace -> diagsum;
+
+  checkdiff [URL="checkdiff.html"];
+  checkgradient [URL="checkgradient.html"];
+  checkhessian [URL="checkhessian.html"];
+  diagsum [URL="diagsum.html"];
+  hessianspectrum [URL="hessianspectrum.html"];
+  identify_linear_piece [URL="identify_linear_piece.html"];
+  multiprod [URL="multiprod.html"];
+  multiscale [URL="multiscale.html"];
+  multiskew [URL="multiskew.html"];
+  multisym [URL="multisym.html"];
+  multitrace [URL="multitrace.html"];
+  multitransp [URL="multitransp.html"];
+  plotprofile [URL="plotprofile.html"];
+  powermanifold [URL="powermanifold.html"];
+  productmanifold [URL="productmanifold.html"];
+}

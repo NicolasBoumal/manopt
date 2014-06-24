@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of applyStatsfun</title>
+  <meta name="keywords" content="applyStatsfun">
+  <meta name="description" content="Apply the statsfun function to a stats structure (for solvers).">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">privatetools</a> &gt; applyStatsfun.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\privatetools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>applyStatsfun
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Apply the statsfun function to a stats structure (for solvers).</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function stats = applyStatsfun(problem, x, storedb, options, stats) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Apply the statsfun function to a stats structure (for solvers).
+
+ function stats = applyStatsfun(problem, x, storedb, options, stats)
+
+ Applies the options.statsfun user supplied function to the stats
+ structure, if it was provided, with the appropriate inputs, and returns
+ the (possibly) modified stats structure.
+
+ See also:</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>	Extracts a store struct. pertaining to a point from the storedb database.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x cost info] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest fbest info] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x cost info] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function stats = applyStatsfun(problem, x, storedb, options, stats)</a>
+0002 <span class="comment">% Apply the statsfun function to a stats structure (for solvers).</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function stats = applyStatsfun(problem, x, storedb, options, stats)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Applies the options.statsfun user supplied function to the stats</span>
+0007 <span class="comment">% structure, if it was provided, with the appropriate inputs, and returns</span>
+0008 <span class="comment">% the (possibly) modified stats structure.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% See also:</span>
+0011 
+0012 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0013 <span class="comment">% Original author: Nicolas Boumal, April 3, 2013.</span>
+0014 <span class="comment">% Contributors:</span>
+0015 <span class="comment">% Change log:</span>
+0016 
+0017     <span class="keyword">if</span> isfield(options, <span class="string">'statsfun'</span>)
+0018 
+0019         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
+0020         <span class="keyword">if</span> ~is_octave
+0021             narg = nargin(options.statsfun);
+0022         <span class="keyword">else</span>
+0023             narg = 4;
+0024         <span class="keyword">end</span>
+0025         
+0026         <span class="keyword">switch</span> narg
+0027             <span class="keyword">case</span> 3
+0028                 stats = options.statsfun(problem, x, stats);
+0029             <span class="keyword">case</span> 4
+0030                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
+0031                 stats = options.statsfun(problem, x, stats, store);
+0032             <span class="keyword">otherwise</span>
+0033                 warning(<span class="string">'manopt:statsfun'</span>, <span class="keyword">...</span>
+0034                         <span class="string">'statsfun unused: wrong number of inputs'</span>);
+0035         <span class="keyword">end</span>
+0036     <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

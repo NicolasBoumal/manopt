@@ -1,0 +1,7 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  trustregions -> tCG;
+
+  tCG [URL="tCG.html"];
+  trustregions [URL="trustregions.html"];
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of randskew</title>
+  <meta name="keywords" content="randskew">
+  <meta name="description" content="Generates random skew symmetric matrices with normal entries.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">rotations</a> &gt; randskew.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\rotations&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>randskew
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Generates random skew symmetric matrices with normal entries.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function S = randskew(n, N) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Generates random skew symmetric matrices with normal entries.
+ 
+ function S = randskew(n, N)
+
+ S is an n-by-n-by-N matrix where each slice S(:, :, i) for i = 1..N is a
+ random skew-symmetric matrix with upper triangular entries distributed
+ independently following a normal distribution (Gaussian, zero mean, unit
+ variance).
+
+ See also: <a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>	Returns a manifold structure to optimize over rotation matrices.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function S = randskew(n, N)</a>
+0002 <span class="comment">% Generates random skew symmetric matrices with normal entries.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function S = randskew(n, N)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% S is an n-by-n-by-N matrix where each slice S(:, :, i) for i = 1..N is a</span>
+0007 <span class="comment">% random skew-symmetric matrix with upper triangular entries distributed</span>
+0008 <span class="comment">% independently following a normal distribution (Gaussian, zero mean, unit</span>
+0009 <span class="comment">% variance).</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% See also: randrot</span>
+0012 
+0013 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0014 <span class="comment">% Original author: Nicolas Boumal, Sept. 25, 2012.</span>
+0015 <span class="comment">% Contributors:</span>
+0016 <span class="comment">% Change log:</span>
+0017 
+0018 
+0019     <span class="keyword">if</span> nargin &lt; 2
+0020         N = 1;
+0021     <span class="keyword">end</span>
+0022 
+0023     <span class="comment">% Subindices of the (strictly) upper triangular entries of an n-by-n</span>
+0024     <span class="comment">% matrix</span>
+0025     [I J] = find(triu(ones(n), 1));
+0026     
+0027     K = repmat(1:N, n*(n-1)/2, 1);
+0028     
+0029     <span class="comment">% Indices of the strictly upper triangular entries of all N slices of</span>
+0030     <span class="comment">% an n-by-n-by-N matrix</span>
+0031     L = sub2ind([n n N], repmat(I, N, 1), repmat(J, N, 1), K(:));
+0032     
+0033     <span class="comment">% Allocate memory for N random skew matrices of size n-by-n and</span>
+0034     <span class="comment">% populate each upper triangular entry with a random number following a</span>
+0035     <span class="comment">% normal distribution and copy them with opposite sign on the</span>
+0036     <span class="comment">% corresponding lower triangular side.</span>
+0037     S = zeros(n, n, N);
+0038     S(L) = randn(size(L));
+0039     S = S-<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(S);
+0040 
+0041 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
