@@ -116,8 +116,8 @@ function y = retraction(x, d, t)
         t = 1;
     end
     
-    y = x+t*d;
-    y = y/norm(y, 'fro');
+    y = x + t*d;
+    y = y / norm(y, 'fro');
 
 end
 
