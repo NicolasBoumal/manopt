@@ -318,7 +318,7 @@ for i=1:2:length(paramlist)
 				error(sprintf(msgInvalidPair,pname));
 			end
 		otherwise
-			error(['Invalid parameter: ''' pname '''.']);
+			warning(['Invalid parameter: ''' pname '''.']);
 	end
 end
 
@@ -764,7 +764,9 @@ for i=1:length(mdir)
 		tpl = set(tpl,'var','OTHERFILE',w{j});
 		tpl = parse(tpl,'rows-other','row-other',1);
 	end
-	if ~isempty(w)
+	% Disabled manually by NB, June 24, 2014.
+	% This was generating a spurious list of .mat files in the examples section.
+	if ~isempty(w) && false
 		tpl = parse(tpl,'other','othermatlab');
 	end
 	
