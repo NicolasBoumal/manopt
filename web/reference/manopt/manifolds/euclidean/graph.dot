@@ -2,4 +2,5 @@
 digraph m2html {
 
   euclideanfactory [URL="euclideanfactory.html"];
+  symmetricfactory [URL="symmetricfactory.html"];
 }

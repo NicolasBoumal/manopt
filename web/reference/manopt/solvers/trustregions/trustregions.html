@@ -152,7 +152,7 @@
        numerically challenging. Meanwhile, close to convergence, the
        quadratic model should be a good fit and the steps should be
        accepted. Regularization lets rho go to 1 as the model decrease and
-       actual decrease go to zero. Set this option to zero to disable
+       the actual decrease go to zero. Set this option to zero to disable
        regularization (not recommended). See in-code for the specifics.
    statsfun (none)
        Function handle to a function that will be called after each
@@ -206,7 +206,7 @@ This function calls:
 <li><a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/privatetools/getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>	Makes sure the storedb database does not exceed some maximum size.</li><li><a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="tCG.html" class="code" title="function [eta Heta inner_it stop_tCG storedb]= tCG(problem, x, grad, eta, Delta, options, storedb)">tCG</a>	tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationaly align clouds of points (generalized Procrustes problem)</li><li><a href="../../../examples/maxcut.html" class="code" title="function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)">maxcut</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/maxcut_octave.html" class="code" title="function [x cutvalue cutvalue_upperbound Y] = maxcut_octave(L, r)">maxcut_octave</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/positive_definite_karcher_mean.html" class="code" title="function X = positive_definite_karcher_mean(A)">positive_definite_karcher_mean</a>	Computes a Karcher mean of a collection of positive definite matrices.</li><li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U S V info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li><li><a href="../../../manopt/solvers/neldermead/centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on amanifold.</li></ul>
+<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../examples/maxcut.html" class="code" title="function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)">maxcut</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/maxcut_octave.html" class="code" title="function [x cutvalue cutvalue_upperbound Y] = maxcut_octave(L, r)">maxcut_octave</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/positive_definite_karcher_mean.html" class="code" title="function X = positive_definite_karcher_mean(A)">positive_definite_karcher_mean</a>	Computes a Karcher mean of a collection of positive definite matrices.</li><li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U S V info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li><li><a href="../../../manopt/solvers/neldermead/centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on amanifold.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -340,7 +340,7 @@ This function is called by:
 0124 <span class="comment">%       numerically challenging. Meanwhile, close to convergence, the</span>
 0125 <span class="comment">%       quadratic model should be a good fit and the steps should be</span>
 0126 <span class="comment">%       accepted. Regularization lets rho go to 1 as the model decrease and</span>
-0127 <span class="comment">%       actual decrease go to zero. Set this option to zero to disable</span>
+0127 <span class="comment">%       the actual decrease go to zero. Set this option to zero to disable</span>
 0128 <span class="comment">%       regularization (not recommended). See in-code for the specifics.</span>
 0129 <span class="comment">%   statsfun (none)</span>
 0130 <span class="comment">%       Function handle to a function that will be called after each</span>
@@ -460,399 +460,400 @@ This function is called by:
 0244                    <span class="string">'exceeded trust region'</span>,<span class="keyword">...</span>
 0245                    <span class="string">'reached target residual-kappa'</span>,<span class="keyword">...</span>
 0246                    <span class="string">'reached target residual-theta'</span>,<span class="keyword">...</span>
-0247                    <span class="string">'dimension exceeded'</span>};
-0248 
-0249 <span class="comment">% Set local defaults here</span>
-0250 localdefaults.verbosity = 2;
-0251 localdefaults.maxtime = inf;
-0252 localdefaults.miniter = 3;
-0253 localdefaults.maxiter = 1000;
-0254 localdefaults.mininner = 1;
-0255 localdefaults.maxinner = problem.M.dim();
-0256 localdefaults.tolgradnorm = 1e-6;
-0257 localdefaults.kappa = 0.1;
-0258 localdefaults.theta = 1.0;
-0259 localdefaults.rho_prime = 0.1;
-0260 localdefaults.useRand = false;
-0261 localdefaults.rho_regularization = 1e3;
-0262 
-0263 <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0264 localdefaults = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
-0265 <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0266     options = struct();
-0267 <span class="keyword">end</span>
-0268 options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
-0269 
-0270 <span class="comment">% Set default Delta_bar and Delta0 separately to deal with additional</span>
-0271 <span class="comment">% logic: if Delta_bar is provided but not Delta0, let Delta0 automatically</span>
-0272 <span class="comment">% be some fraction of the provided Delta_bar.</span>
-0273 <span class="keyword">if</span> ~isfield(options, <span class="string">'Delta_bar'</span>)
-0274     <span class="keyword">if</span> isfield(problem.M, <span class="string">'typicaldist'</span>)
-0275         options.Delta_bar = problem.M.typicaldist();
-0276     <span class="keyword">else</span>
-0277         options.Delta_bar = sqrt(problem.M.dim());
-0278     <span class="keyword">end</span> 
-0279 <span class="keyword">end</span>
-0280 <span class="keyword">if</span> ~isfield(options,<span class="string">'Delta0'</span>)
-0281     options.Delta0 = options.Delta_bar / 8;
-0282 <span class="keyword">end</span>
-0283 
-0284 <span class="comment">% Check some option values</span>
-0285 assert(options.rho_prime &lt; 1/4, <span class="keyword">...</span>
-0286         <span class="string">'options.rho_prime must be strictly smaller than 1/4.'</span>);
-0287 assert(options.Delta_bar &gt; 0, <span class="keyword">...</span>
-0288         <span class="string">'options.Delta_bar must be positive.'</span>);
-0289 assert(options.Delta0 &gt; 0 &amp;&amp; options.Delta0 &lt; options.Delta_bar, <span class="keyword">...</span>
-0290         <span class="string">'options.Delta0 must be positive and smaller than Delta_bar.'</span>);
-0291 
-0292 <span class="comment">% It is sometimes useful to check what the actual option values are.</span>
-0293 <span class="keyword">if</span> options.verbosity &gt;= 3
-0294     disp(options);
-0295 <span class="keyword">end</span>
-0296 
-0297 <span class="comment">% Create a store database</span>
-0298 storedb = struct();
-0299 
-0300 tic();
-0301 
-0302 <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
-0303 <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0304     x = problem.M.rand();
-0305 <span class="keyword">end</span>
-0306 
-0307 <span class="comment">%% Initializations</span>
-0308 
-0309 <span class="comment">% k counts the outer (TR) iterations. The semantic is that k counts the</span>
-0310 <span class="comment">% number of iterations fully executed so far.</span>
-0311 k = 0;
-0312 
-0313 <span class="comment">% initialize solution and companion measures: f(x), fgrad(x)</span>
-0314 [fx fgradx storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, storedb);
-0315 norm_grad = problem.M.norm(x, fgradx);
-0316 
-0317 <span class="comment">% initialize trust-region radius</span>
-0318 Delta = options.Delta0;
-0319 
-0320 <span class="comment">% Save stats in a struct array info, and preallocate</span>
-0321 <span class="comment">% (see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941)</span>
-0322 <span class="keyword">if</span> ~exist(<span class="string">'used_cauchy'</span>, <span class="string">'var'</span>)
-0323     used_cauchy = [];
-0324 <span class="keyword">end</span>
-0325 stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, options, k, fx, ">savestats</a>(problem, x, storedb, options, k, fx, norm_grad, Delta);
-0326 info(1) = stats;
-0327 info(min(10000, options.maxiter+1)).iter = [];
-0328 
-0329 <span class="comment">% ** Display:</span>
-0330 <span class="keyword">if</span> options.verbosity == 2
-0331    fprintf([<span class="string">'%3s %3s      %5s                %5s     '</span>,<span class="keyword">...</span>
-0332             <span class="string">'f: %e   |grad|: %e\n'</span>],<span class="keyword">...</span>
-0333            <span class="string">'   '</span>,<span class="string">'   '</span>,<span class="string">'     '</span>,<span class="string">'     '</span>, fx, norm_grad);
-0334 <span class="keyword">elseif</span> options.verbosity &gt; 2
-0335    fprintf(<span class="string">'************************************************************************\n'</span>);
-0336    fprintf(<span class="string">'%3s %3s    k: %5s     num_inner: %5s     %s\n'</span>,<span class="keyword">...</span>
-0337            <span class="string">''</span>,<span class="string">''</span>,<span class="string">'______'</span>,<span class="string">'______'</span>,<span class="string">''</span>);
-0338    fprintf(<span class="string">'       f(x) : %e       |grad| : %e\n'</span>, fx, norm_grad);
-0339    fprintf(<span class="string">'      Delta : %f\n'</span>, Delta);
-0340 <span class="keyword">end</span>
-0341 
+0247                    <span class="string">'dimension exceeded'</span>,<span class="keyword">...</span>
+0248                    <span class="string">'model increased'</span>};
+0249 
+0250 <span class="comment">% Set local defaults here</span>
+0251 localdefaults.verbosity = 2;
+0252 localdefaults.maxtime = inf;
+0253 localdefaults.miniter = 3;
+0254 localdefaults.maxiter = 1000;
+0255 localdefaults.mininner = 1;
+0256 localdefaults.maxinner = problem.M.dim();
+0257 localdefaults.tolgradnorm = 1e-6;
+0258 localdefaults.kappa = 0.1;
+0259 localdefaults.theta = 1.0;
+0260 localdefaults.rho_prime = 0.1;
+0261 localdefaults.useRand = false;
+0262 localdefaults.rho_regularization = 1e3;
+0263 
+0264 <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
+0265 localdefaults = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0266 <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0267     options = struct();
+0268 <span class="keyword">end</span>
+0269 options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
+0270 
+0271 <span class="comment">% Set default Delta_bar and Delta0 separately to deal with additional</span>
+0272 <span class="comment">% logic: if Delta_bar is provided but not Delta0, let Delta0 automatically</span>
+0273 <span class="comment">% be some fraction of the provided Delta_bar.</span>
+0274 <span class="keyword">if</span> ~isfield(options, <span class="string">'Delta_bar'</span>)
+0275     <span class="keyword">if</span> isfield(problem.M, <span class="string">'typicaldist'</span>)
+0276         options.Delta_bar = problem.M.typicaldist();
+0277     <span class="keyword">else</span>
+0278         options.Delta_bar = sqrt(problem.M.dim());
+0279     <span class="keyword">end</span> 
+0280 <span class="keyword">end</span>
+0281 <span class="keyword">if</span> ~isfield(options,<span class="string">'Delta0'</span>)
+0282     options.Delta0 = options.Delta_bar / 8;
+0283 <span class="keyword">end</span>
+0284 
+0285 <span class="comment">% Check some option values</span>
+0286 assert(options.rho_prime &lt; 1/4, <span class="keyword">...</span>
+0287         <span class="string">'options.rho_prime must be strictly smaller than 1/4.'</span>);
+0288 assert(options.Delta_bar &gt; 0, <span class="keyword">...</span>
+0289         <span class="string">'options.Delta_bar must be positive.'</span>);
+0290 assert(options.Delta0 &gt; 0 &amp;&amp; options.Delta0 &lt; options.Delta_bar, <span class="keyword">...</span>
+0291         <span class="string">'options.Delta0 must be positive and smaller than Delta_bar.'</span>);
+0292 
+0293 <span class="comment">% It is sometimes useful to check what the actual option values are.</span>
+0294 <span class="keyword">if</span> options.verbosity &gt;= 3
+0295     disp(options);
+0296 <span class="keyword">end</span>
+0297 
+0298 <span class="comment">% Create a store database</span>
+0299 storedb = struct();
+0300 
+0301 tic();
+0302 
+0303 <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
+0304 <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0305     x = problem.M.rand();
+0306 <span class="keyword">end</span>
+0307 
+0308 <span class="comment">%% Initializations</span>
+0309 
+0310 <span class="comment">% k counts the outer (TR) iterations. The semantic is that k counts the</span>
+0311 <span class="comment">% number of iterations fully executed so far.</span>
+0312 k = 0;
+0313 
+0314 <span class="comment">% initialize solution and companion measures: f(x), fgrad(x)</span>
+0315 [fx fgradx storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, storedb);
+0316 norm_grad = problem.M.norm(x, fgradx);
+0317 
+0318 <span class="comment">% initialize trust-region radius</span>
+0319 Delta = options.Delta0;
+0320 
+0321 <span class="comment">% Save stats in a struct array info, and preallocate</span>
+0322 <span class="comment">% (see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941)</span>
+0323 <span class="keyword">if</span> ~exist(<span class="string">'used_cauchy'</span>, <span class="string">'var'</span>)
+0324     used_cauchy = [];
+0325 <span class="keyword">end</span>
+0326 stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, options, k, fx, ">savestats</a>(problem, x, storedb, options, k, fx, norm_grad, Delta);
+0327 info(1) = stats;
+0328 info(min(10000, options.maxiter+1)).iter = [];
+0329 
+0330 <span class="comment">% ** Display:</span>
+0331 <span class="keyword">if</span> options.verbosity == 2
+0332    fprintf([<span class="string">'%3s %3s      %5s                %5s     '</span>,<span class="keyword">...</span>
+0333             <span class="string">'f: %e   |grad|: %e\n'</span>],<span class="keyword">...</span>
+0334            <span class="string">'   '</span>,<span class="string">'   '</span>,<span class="string">'     '</span>,<span class="string">'     '</span>, fx, norm_grad);
+0335 <span class="keyword">elseif</span> options.verbosity &gt; 2
+0336    fprintf(<span class="string">'************************************************************************\n'</span>);
+0337    fprintf(<span class="string">'%3s %3s    k: %5s     num_inner: %5s     %s\n'</span>,<span class="keyword">...</span>
+0338            <span class="string">''</span>,<span class="string">''</span>,<span class="string">'______'</span>,<span class="string">'______'</span>,<span class="string">''</span>);
+0339    fprintf(<span class="string">'       f(x) : %e       |grad| : %e\n'</span>, fx, norm_grad);
+0340    fprintf(<span class="string">'      Delta : %f\n'</span>, Delta);
+0341 <span class="keyword">end</span>
 0342 
-0343 <span class="comment">% **********************</span>
-0344 <span class="comment">% ** Start of TR loop **</span>
-0345 <span class="comment">% **********************</span>
-0346 <span class="keyword">while</span> true
-0347     
-0348     <span class="comment">% Start clock for this outer iteration</span>
-0349     tic();
-0350 
-0351     <span class="comment">% Run standard stopping criterion checks</span>
-0352     [stop reason] = <a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, k+1);
-0353     
-0354     <span class="comment">% If the stopping criterion that triggered is the tolerance on the</span>
-0355     <span class="comment">% gradient norm but we are using randomization, make sure we make at</span>
-0356     <span class="comment">% least miniter iterations to give randomization a chance at escaping</span>
-0357     <span class="comment">% saddle points.</span>
-0358     <span class="keyword">if</span> stop == 2 &amp;&amp; options.useRand &amp;&amp; k &lt; options.miniter
-0359         stop = 0;
-0360     <span class="keyword">end</span>
-0361     
-0362     <span class="keyword">if</span> stop
-0363         <span class="keyword">if</span> options.verbosity &gt;= 1
-0364             fprintf([reason <span class="string">'\n'</span>]);
-0365         <span class="keyword">end</span>
-0366         <span class="keyword">break</span>;
-0367     <span class="keyword">end</span>
-0368 
-0369     <span class="keyword">if</span> options.verbosity &gt; 2 || options.debug &gt; 0
-0370         fprintf(<span class="string">'************************************************************************\n'</span>);
-0371     <span class="keyword">end</span>
-0372 
-0373     <span class="comment">% *************************</span>
-0374     <span class="comment">% ** Begin TR Subproblem **</span>
-0375     <span class="comment">% *************************</span>
-0376   
-0377     <span class="comment">% Determine eta0</span>
-0378     <span class="keyword">if</span> ~options.useRand
-0379         <span class="comment">% Pick the zero vector</span>
-0380         eta = problem.M.zerovec(x);
-0381     <span class="keyword">else</span>
-0382         <span class="comment">% Random vector in T_x M (this has to be very small)</span>
-0383         eta = problem.M.lincomb(x, 1e-6, problem.M.randvec(x));
-0384         <span class="comment">% Must be inside trust-region</span>
-0385         <span class="keyword">while</span> problem.M.norm(x, eta) &gt; Delta
-0386             eta = problem.M.lincomb(x, sqrt(sqrt(eps)), eta);
-0387         <span class="keyword">end</span>
-0388     <span class="keyword">end</span>
-0389 
-0390     <span class="comment">% solve TR subproblem</span>
-0391     [eta Heta numit stop_inner storedb] = <span class="keyword">...</span>
-0392                      <a href="tCG.html" class="code" title="function [eta Heta inner_it stop_tCG storedb]= tCG(problem, x, grad, eta, Delta, options, storedb)">tCG</a>(problem, x, fgradx, eta, Delta, options, storedb);
-0393     srstr = tcg_stop_reason{stop_inner};
-0394     
-0395     <span class="comment">% This is only computed for logging purposes, because it may be useful</span>
-0396     <span class="comment">% for some user-defined stopping criteria. If this is not cheap for</span>
-0397     <span class="comment">% specific application (compared to evaluating the cost), we should</span>
-0398     <span class="comment">% reconsider this.</span>
-0399     norm_eta = problem.M.norm(x, eta);
-0400     
-0401     <span class="keyword">if</span> options.debug &gt; 0
-0402         testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
-0403     <span class="keyword">end</span>
-0404 
-0405     <span class="comment">% If using randomized approach, compare result with the Cauchy point.</span>
-0406     <span class="comment">% Convergence proofs assume that we achieve at least the reduction of</span>
-0407     <span class="comment">% the Cauchy point. After this if-block, either all eta-related</span>
-0408     <span class="comment">% quantities have been changed consistently, or none of them have</span>
-0409     <span class="comment">% changed.</span>
-0410     <span class="keyword">if</span> options.useRand
-0411         used_cauchy = false;
-0412         <span class="comment">% Check the curvature,</span>
-0413         [Hg storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, fgradx, storedb);
-0414         g_Hg = problem.M.inner(x, fgradx, Hg);
-0415         <span class="keyword">if</span> g_Hg &lt;= 0
-0416             tau_c = 1;
-0417         <span class="keyword">else</span>
-0418             tau_c = min( norm_grad^3/(Delta*g_Hg) , 1);
-0419         <span class="keyword">end</span>
-0420         <span class="comment">% and generate the Cauchy point.</span>
-0421         eta_c  = problem.M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
-0422         Heta_c = problem.M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
-0423 
-0424         <span class="comment">% Now that we have computed the Cauchy point in addition to the</span>
-0425         <span class="comment">% returned eta, we might as well keep the best of them.</span>
-0426         mdle  = fx + problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
-0427                    + .5*problem.M.inner(x, Heta,   eta);
-0428         mdlec = fx + problem.M.inner(x, fgradx, eta_c) <span class="keyword">...</span>
-0429                    + .5*problem.M.inner(x, Heta_c, eta_c);
-0430         <span class="keyword">if</span> mdle &gt; mdlec
-0431             eta = eta_c;
-0432             Heta = Heta_c; <span class="comment">% added April 11, 2012</span>
-0433             used_cauchy = true;
-0434         <span class="keyword">end</span>
-0435     <span class="keyword">end</span> 
-0436 
-0437     <span class="comment">% Compute the retraction of the proposal</span>
-0438     x_prop  = problem.M.retr(x, eta);
-0439 
-0440     <span class="comment">% Compute the function value of the proposal</span>
-0441     [fx_prop storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x_prop, storedb);
-0442 
-0443     <span class="comment">% Will we accept the proposed solution or not?</span>
-0444     <span class="comment">% Check the performance of the quadratic model against the actual cost.</span>
-0445     rhonum = fx - fx_prop;
-0446     rhoden = -problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
-0447              -.5*problem.M.inner(x, eta, Heta);
-0448     
-0449     <span class="comment">% Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.</span>
-0450     <span class="comment">% This heuristic is documented in the book by Conn Gould and Toint on</span>
-0451     <span class="comment">% trust-region methods, section 17.4.2.</span>
-0452     <span class="comment">% rhonum measures the difference between two numbers. Close to</span>
-0453     <span class="comment">% convergence, these two numbers are very close to each other, so</span>
-0454     <span class="comment">% that computing their difference is numerically challenging: there may</span>
-0455     <span class="comment">% be a significant loss in accuracy. Since the acceptance or rejection</span>
-0456     <span class="comment">% of the step is conditioned on the ratio between rhonum and rhoden,</span>
-0457     <span class="comment">% large errors in rhonum result in a large error in rho, hence in</span>
-0458     <span class="comment">% erratic acceptance / rejection. Meanwhile, close to convergence,</span>
-0459     <span class="comment">% steps are usually trustworthy and we should transition to a Newton-</span>
-0460     <span class="comment">% like method, with rho=1 consistently. The heuristic thus shifts both</span>
-0461     <span class="comment">% rhonum and rhoden by a small amount such that far from convergence,</span>
-0462     <span class="comment">% the shift is irrelevant and close to convergence, the ratio rho goes</span>
-0463     <span class="comment">% to 1, effectively promoting acceptance of the step.</span>
-0464     <span class="comment">% The rationale is that close to convergence, both rhonum and rhoden</span>
-0465     <span class="comment">% are quadratic in the distance between x and x_prop. Thus, when this</span>
-0466     <span class="comment">% distance is on the order of sqrt(eps), the value of rhonum and rhoden</span>
-0467     <span class="comment">% is on the order of eps, which is indistinguishable from the numerical</span>
-0468     <span class="comment">% error, resulting in badly estimated rho's.</span>
-0469     <span class="comment">% For abs(fx) &lt; 1, this heuristic is invariant under offsets of f but</span>
-0470     <span class="comment">% not under scaling of f. For abs(fx) &gt; 1, the opposite holds. This</span>
-0471     <span class="comment">% should not alarm us, as this heuristic only triggers at the very last</span>
-0472     <span class="comment">% iterations if very fine convergence is demanded.</span>
-0473     rho_reg = max(1, abs(fx)) * eps * options.rho_regularization;
-0474     rhonum = rhonum + rho_reg;
-0475     rhoden = rhoden + rho_reg;
-0476    
-0477     <span class="keyword">if</span> options.debug &gt; 0
-0478         fprintf(<span class="string">'DBG:     rhonum : %e\n'</span>, rhonum);
-0479         fprintf(<span class="string">'DBG:     rhoden : %e\n'</span>, rhoden);
-0480     <span class="keyword">end</span>
-0481     
-0482     <span class="comment">% This is always true if a linear, symmetric operator is used for the</span>
-0483     <span class="comment">% Hessian (approximation) and if we had infinite numerical precision.</span>
-0484     <span class="comment">% In practice, nonlinear approximations of the Hessian such as the</span>
-0485     <span class="comment">% built-in finite difference approximation and finite numerical</span>
-0486     <span class="comment">% accuracy can cause the model to increase. In such scenarios, we</span>
-0487     <span class="comment">% decide to force a rejection of the step and a reduction of the</span>
-0488     <span class="comment">% trust-region radius. We test the sign of the regularized rhoden since</span>
-0489     <span class="comment">% the regularization is supposed to capture the accuracy to which</span>
-0490     <span class="comment">% rhoden is computed: if rhoden were negative before regularization but</span>
-0491     <span class="comment">% not after, that should not be (and is not) detected as a failure.</span>
-0492     model_decreased = (rhoden &gt;= 0);
-0493     
-0494     <span class="keyword">if</span> ~model_decreased 
-0495         srstr = [srstr <span class="string">', model did not decrease'</span>]; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0496     <span class="keyword">end</span>
-0497    
-0498     rho = rhonum / rhoden;
-0499    
-0500     <span class="keyword">if</span> options.debug &gt; 0
-0501         m = @(x, eta) <span class="keyword">...</span>
-0502           <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x, storedb) + <span class="keyword">...</span>
-0503           <a href="../../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>(problem, x, eta, storedb) + <span class="keyword">...</span>
-0504           .5*problem.M.inner(x, <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, eta, storedb), eta);
-0505         zerovec = problem.M.zerovec(x);
-0506         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
-0507         fprintf(<span class="string">'DBG:   new f(x) : %e\n'</span>, fx_prop);
-0508         fprintf(<span class="string">'DBG: actual rho : %e\n'</span>, actrho);
-0509         fprintf(<span class="string">'DBG:   used rho : %e\n'</span>, rho);
-0510     <span class="keyword">end</span>
-0511 
-0512     <span class="comment">% Choose the new TR radius based on the model performance</span>
-0513     trstr = <span class="string">'   '</span>;
-0514     <span class="comment">% If the actual decrease is smaller than 1/4 of the predicted decrease,</span>
-0515     <span class="comment">% then reduce the TR radius.</span>
-0516     <span class="keyword">if</span> rho &lt; 1/4 || ~model_decreased
-0517         trstr = <span class="string">'TR-'</span>;
-0518         Delta = Delta/4;
-0519     <span class="comment">% If the actual decrease is at least 3/4 of the precicted decrease and</span>
-0520     <span class="comment">% the tCG (inner solve) hit the TR boundary, increase the TR radius.</span>
-0521     <span class="keyword">elseif</span> rho &gt; 3/4 &amp;&amp; (stop_inner == 2 || stop_inner == 1),
-0522         trstr = <span class="string">'TR+'</span>;
-0523         Delta = min(2*Delta, options.Delta_bar);
-0524     <span class="keyword">end</span>
-0525     <span class="comment">% Otherwise, keep the TR radius constant.</span>
-0526 
-0527     <span class="comment">% Choose to accept or reject the proposed step based on the model</span>
-0528     <span class="comment">% performance.</span>
-0529     <span class="keyword">if</span> model_decreased &amp;&amp; rho &gt; options.rho_prime
-0530         accept = true;
-0531         accstr = <span class="string">'acc'</span>;
-0532         x = x_prop;
-0533         fx = fx_prop;
-0534         [fgradx storedb] = <a href="../../../manopt/privatetools/getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>(problem, x, storedb);
-0535         norm_grad = problem.M.norm(x, fgradx);
-0536     <span class="keyword">else</span>
-0537         accept = false;
-0538         accstr = <span class="string">'REJ'</span>;
-0539     <span class="keyword">end</span>
-0540     
+0343 
+0344 <span class="comment">% **********************</span>
+0345 <span class="comment">% ** Start of TR loop **</span>
+0346 <span class="comment">% **********************</span>
+0347 <span class="keyword">while</span> true
+0348     
+0349     <span class="comment">% Start clock for this outer iteration</span>
+0350     tic();
+0351 
+0352     <span class="comment">% Run standard stopping criterion checks</span>
+0353     [stop reason] = <a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, k+1);
+0354     
+0355     <span class="comment">% If the stopping criterion that triggered is the tolerance on the</span>
+0356     <span class="comment">% gradient norm but we are using randomization, make sure we make at</span>
+0357     <span class="comment">% least miniter iterations to give randomization a chance at escaping</span>
+0358     <span class="comment">% saddle points.</span>
+0359     <span class="keyword">if</span> stop == 2 &amp;&amp; options.useRand &amp;&amp; k &lt; options.miniter
+0360         stop = 0;
+0361     <span class="keyword">end</span>
+0362     
+0363     <span class="keyword">if</span> stop
+0364         <span class="keyword">if</span> options.verbosity &gt;= 1
+0365             fprintf([reason <span class="string">'\n'</span>]);
+0366         <span class="keyword">end</span>
+0367         <span class="keyword">break</span>;
+0368     <span class="keyword">end</span>
+0369 
+0370     <span class="keyword">if</span> options.verbosity &gt; 2 || options.debug &gt; 0
+0371         fprintf(<span class="string">'************************************************************************\n'</span>);
+0372     <span class="keyword">end</span>
+0373 
+0374     <span class="comment">% *************************</span>
+0375     <span class="comment">% ** Begin TR Subproblem **</span>
+0376     <span class="comment">% *************************</span>
+0377   
+0378     <span class="comment">% Determine eta0</span>
+0379     <span class="keyword">if</span> ~options.useRand
+0380         <span class="comment">% Pick the zero vector</span>
+0381         eta = problem.M.zerovec(x);
+0382     <span class="keyword">else</span>
+0383         <span class="comment">% Random vector in T_x M (this has to be very small)</span>
+0384         eta = problem.M.lincomb(x, 1e-6, problem.M.randvec(x));
+0385         <span class="comment">% Must be inside trust-region</span>
+0386         <span class="keyword">while</span> problem.M.norm(x, eta) &gt; Delta
+0387             eta = problem.M.lincomb(x, sqrt(sqrt(eps)), eta);
+0388         <span class="keyword">end</span>
+0389     <span class="keyword">end</span>
+0390 
+0391     <span class="comment">% solve TR subproblem</span>
+0392     [eta Heta numit stop_inner storedb] = <span class="keyword">...</span>
+0393                      <a href="tCG.html" class="code" title="function [eta Heta inner_it stop_tCG storedb]= tCG(problem, x, grad, eta, Delta, options, storedb)">tCG</a>(problem, x, fgradx, eta, Delta, options, storedb);
+0394     srstr = tcg_stop_reason{stop_inner};
+0395     
+0396     <span class="comment">% This is only computed for logging purposes, because it may be useful</span>
+0397     <span class="comment">% for some user-defined stopping criteria. If this is not cheap for</span>
+0398     <span class="comment">% specific application (compared to evaluating the cost), we should</span>
+0399     <span class="comment">% reconsider this.</span>
+0400     norm_eta = problem.M.norm(x, eta);
+0401     
+0402     <span class="keyword">if</span> options.debug &gt; 0
+0403         testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
+0404     <span class="keyword">end</span>
+0405 
+0406     <span class="comment">% If using randomized approach, compare result with the Cauchy point.</span>
+0407     <span class="comment">% Convergence proofs assume that we achieve at least the reduction of</span>
+0408     <span class="comment">% the Cauchy point. After this if-block, either all eta-related</span>
+0409     <span class="comment">% quantities have been changed consistently, or none of them have</span>
+0410     <span class="comment">% changed.</span>
+0411     <span class="keyword">if</span> options.useRand
+0412         used_cauchy = false;
+0413         <span class="comment">% Check the curvature,</span>
+0414         [Hg storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, fgradx, storedb);
+0415         g_Hg = problem.M.inner(x, fgradx, Hg);
+0416         <span class="keyword">if</span> g_Hg &lt;= 0
+0417             tau_c = 1;
+0418         <span class="keyword">else</span>
+0419             tau_c = min( norm_grad^3/(Delta*g_Hg) , 1);
+0420         <span class="keyword">end</span>
+0421         <span class="comment">% and generate the Cauchy point.</span>
+0422         eta_c  = problem.M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
+0423         Heta_c = problem.M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
+0424 
+0425         <span class="comment">% Now that we have computed the Cauchy point in addition to the</span>
+0426         <span class="comment">% returned eta, we might as well keep the best of them.</span>
+0427         mdle  = fx + problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
+0428                    + .5*problem.M.inner(x, Heta,   eta);
+0429         mdlec = fx + problem.M.inner(x, fgradx, eta_c) <span class="keyword">...</span>
+0430                    + .5*problem.M.inner(x, Heta_c, eta_c);
+0431         <span class="keyword">if</span> mdle &gt; mdlec
+0432             eta = eta_c;
+0433             Heta = Heta_c; <span class="comment">% added April 11, 2012</span>
+0434             used_cauchy = true;
+0435         <span class="keyword">end</span>
+0436     <span class="keyword">end</span> 
+0437 
+0438     <span class="comment">% Compute the retraction of the proposal</span>
+0439     x_prop  = problem.M.retr(x, eta);
+0440 
+0441     <span class="comment">% Compute the function value of the proposal</span>
+0442     [fx_prop storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x_prop, storedb);
+0443 
+0444     <span class="comment">% Will we accept the proposed solution or not?</span>
+0445     <span class="comment">% Check the performance of the quadratic model against the actual cost.</span>
+0446     rhonum = fx - fx_prop;
+0447     rhoden = -problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
+0448              -.5*problem.M.inner(x, eta, Heta);
+0449     
+0450     <span class="comment">% Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.</span>
+0451     <span class="comment">% This heuristic is documented in the book by Conn Gould and Toint on</span>
+0452     <span class="comment">% trust-region methods, section 17.4.2.</span>
+0453     <span class="comment">% rhonum measures the difference between two numbers. Close to</span>
+0454     <span class="comment">% convergence, these two numbers are very close to each other, so</span>
+0455     <span class="comment">% that computing their difference is numerically challenging: there may</span>
+0456     <span class="comment">% be a significant loss in accuracy. Since the acceptance or rejection</span>
+0457     <span class="comment">% of the step is conditioned on the ratio between rhonum and rhoden,</span>
+0458     <span class="comment">% large errors in rhonum result in a large error in rho, hence in</span>
+0459     <span class="comment">% erratic acceptance / rejection. Meanwhile, close to convergence,</span>
+0460     <span class="comment">% steps are usually trustworthy and we should transition to a Newton-</span>
+0461     <span class="comment">% like method, with rho=1 consistently. The heuristic thus shifts both</span>
+0462     <span class="comment">% rhonum and rhoden by a small amount such that far from convergence,</span>
+0463     <span class="comment">% the shift is irrelevant and close to convergence, the ratio rho goes</span>
+0464     <span class="comment">% to 1, effectively promoting acceptance of the step.</span>
+0465     <span class="comment">% The rationale is that close to convergence, both rhonum and rhoden</span>
+0466     <span class="comment">% are quadratic in the distance between x and x_prop. Thus, when this</span>
+0467     <span class="comment">% distance is on the order of sqrt(eps), the value of rhonum and rhoden</span>
+0468     <span class="comment">% is on the order of eps, which is indistinguishable from the numerical</span>
+0469     <span class="comment">% error, resulting in badly estimated rho's.</span>
+0470     <span class="comment">% For abs(fx) &lt; 1, this heuristic is invariant under offsets of f but</span>
+0471     <span class="comment">% not under scaling of f. For abs(fx) &gt; 1, the opposite holds. This</span>
+0472     <span class="comment">% should not alarm us, as this heuristic only triggers at the very last</span>
+0473     <span class="comment">% iterations if very fine convergence is demanded.</span>
+0474     rho_reg = max(1, abs(fx)) * eps * options.rho_regularization;
+0475     rhonum = rhonum + rho_reg;
+0476     rhoden = rhoden + rho_reg;
+0477    
+0478     <span class="keyword">if</span> options.debug &gt; 0
+0479         fprintf(<span class="string">'DBG:     rhonum : %e\n'</span>, rhonum);
+0480         fprintf(<span class="string">'DBG:     rhoden : %e\n'</span>, rhoden);
+0481     <span class="keyword">end</span>
+0482     
+0483     <span class="comment">% This is always true if a linear, symmetric operator is used for the</span>
+0484     <span class="comment">% Hessian (approximation) and if we had infinite numerical precision.</span>
+0485     <span class="comment">% In practice, nonlinear approximations of the Hessian such as the</span>
+0486     <span class="comment">% built-in finite difference approximation and finite numerical</span>
+0487     <span class="comment">% accuracy can cause the model to increase. In such scenarios, we</span>
+0488     <span class="comment">% decide to force a rejection of the step and a reduction of the</span>
+0489     <span class="comment">% trust-region radius. We test the sign of the regularized rhoden since</span>
+0490     <span class="comment">% the regularization is supposed to capture the accuracy to which</span>
+0491     <span class="comment">% rhoden is computed: if rhoden were negative before regularization but</span>
+0492     <span class="comment">% not after, that should not be (and is not) detected as a failure.</span>
+0493     model_decreased = (rhoden &gt;= 0);
+0494     
+0495     <span class="keyword">if</span> ~model_decreased 
+0496         srstr = [srstr <span class="string">', model did not decrease'</span>]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0497     <span class="keyword">end</span>
+0498     
+0499     rho = rhonum / rhoden;
+0500    
+0501     <span class="keyword">if</span> options.debug &gt; 0
+0502         m = @(x, eta) <span class="keyword">...</span>
+0503           <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x, storedb) + <span class="keyword">...</span>
+0504           <a href="../../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>(problem, x, eta, storedb) + <span class="keyword">...</span>
+0505           .5*problem.M.inner(x, <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, eta, storedb), eta);
+0506         zerovec = problem.M.zerovec(x);
+0507         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
+0508         fprintf(<span class="string">'DBG:   new f(x) : %e\n'</span>, fx_prop);
+0509         fprintf(<span class="string">'DBG: actual rho : %e\n'</span>, actrho);
+0510         fprintf(<span class="string">'DBG:   used rho : %e\n'</span>, rho);
+0511     <span class="keyword">end</span>
+0512 
+0513     <span class="comment">% Choose the new TR radius based on the model performance</span>
+0514     trstr = <span class="string">'   '</span>;
+0515     <span class="comment">% If the actual decrease is smaller than 1/4 of the predicted decrease,</span>
+0516     <span class="comment">% then reduce the TR radius.</span>
+0517     <span class="keyword">if</span> rho &lt; 1/4 || ~model_decreased
+0518         trstr = <span class="string">'TR-'</span>;
+0519         Delta = Delta/4;
+0520     <span class="comment">% If the actual decrease is at least 3/4 of the precicted decrease and</span>
+0521     <span class="comment">% the tCG (inner solve) hit the TR boundary, increase the TR radius.</span>
+0522     <span class="keyword">elseif</span> rho &gt; 3/4 &amp;&amp; (stop_inner == 1 || stop_inner == 2)
+0523         trstr = <span class="string">'TR+'</span>;
+0524         Delta = min(2*Delta, options.Delta_bar);
+0525     <span class="keyword">end</span>
+0526     <span class="comment">% Otherwise, keep the TR radius constant.</span>
+0527 
+0528     <span class="comment">% Choose to accept or reject the proposed step based on the model</span>
+0529     <span class="comment">% performance.</span>
+0530     <span class="keyword">if</span> model_decreased &amp;&amp; rho &gt; options.rho_prime
+0531         accept = true;
+0532         accstr = <span class="string">'acc'</span>;
+0533         x = x_prop;
+0534         fx = fx_prop;
+0535         [fgradx storedb] = <a href="../../../manopt/privatetools/getGradient.html" class="code" title="function [grad, storedb] = getGradient(problem, x, storedb)">getGradient</a>(problem, x, storedb);
+0536         norm_grad = problem.M.norm(x, fgradx);
+0537     <span class="keyword">else</span>
+0538         accept = false;
+0539         accstr = <span class="string">'REJ'</span>;
+0540     <span class="keyword">end</span>
 0541     
-0542     <span class="comment">% Make sure we don't use too much memory for the store database</span>
-0543     storedb = <a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>(storedb, options.storedepth);
-0544     
-0545     <span class="comment">% k is the number of iterations we have accomplished.</span>
-0546     k = k + 1;
-0547 
-0548     <span class="comment">% Log statistics for freshly executed iteration.</span>
-0549     <span class="comment">% Everything after this in the loop is not accounted for in the timing.</span>
-0550     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, options, k, fx, ">savestats</a>(problem, x, storedb, options, k, fx, norm_grad, <span class="keyword">...</span>
-0551                       Delta, info, rho, rhonum, rhoden, accept, numit, <span class="keyword">...</span>
-0552                       norm_eta, used_cauchy);
-0553     info(k+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0554 
-0555     
-0556     <span class="comment">% ** Display:</span>
-0557     <span class="keyword">if</span> options.verbosity == 2,
-0558         fprintf([<span class="string">'%3s %3s   k: %5d     num_inner: %5d     '</span>, <span class="keyword">...</span>
-0559         <span class="string">'f: %e   |grad|: %e   %s\n'</span>], <span class="keyword">...</span>
-0560         accstr,trstr,k,numit,fx,norm_grad,srstr);
-0561     <span class="keyword">elseif</span> options.verbosity &gt; 2,
-0562         <span class="keyword">if</span> options.useRand &amp;&amp; used_cauchy,
-0563             fprintf(<span class="string">'USED CAUCHY POINT\n'</span>);
-0564         <span class="keyword">end</span>
-0565         fprintf(<span class="string">'%3s %3s    k: %5d     num_inner: %5d     %s\n'</span>, <span class="keyword">...</span>
-0566                 accstr, trstr, k, numit, srstr);
-0567         fprintf(<span class="string">'       f(x) : %e     |grad| : %e\n'</span>,fx,norm_grad);
-0568         <span class="keyword">if</span> options.debug &gt; 0
-0569             fprintf(<span class="string">'      Delta : %f          |eta| : %e\n'</span>,Delta,norm_eta);
-0570         <span class="keyword">end</span>
-0571         fprintf(<span class="string">'        rho : %e\n'</span>,rho);
-0572     <span class="keyword">end</span>
-0573     <span class="keyword">if</span> options.debug &gt; 0,
-0574         fprintf(<span class="string">'DBG: cos ang(eta,gradf): %d\n'</span>,testangle);
-0575         <span class="keyword">if</span> rho == 0
-0576             fprintf(<span class="string">'DBG: rho = 0, this will likely hinder further convergence.\n'</span>);
-0577         <span class="keyword">end</span>
-0578     <span class="keyword">end</span>
-0579 
-0580 <span class="keyword">end</span>  <span class="comment">% of TR loop (counter: k)</span>
-0581 
-0582 <span class="comment">% Restrict info struct-array to useful part</span>
-0583 info = info(1:k+1);
-0584 
+0542     
+0543     <span class="comment">% Make sure we don't use too much memory for the store database</span>
+0544     storedb = <a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>(storedb, options.storedepth);
+0545     
+0546     <span class="comment">% k is the number of iterations we have accomplished.</span>
+0547     k = k + 1;
+0548 
+0549     <span class="comment">% Log statistics for freshly executed iteration.</span>
+0550     <span class="comment">% Everything after this in the loop is not accounted for in the timing.</span>
+0551     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, options, k, fx, ">savestats</a>(problem, x, storedb, options, k, fx, norm_grad, <span class="keyword">...</span>
+0552                       Delta, info, rho, rhonum, rhoden, accept, numit, <span class="keyword">...</span>
+0553                       norm_eta, used_cauchy);
+0554     info(k+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0555 
+0556     
+0557     <span class="comment">% ** Display:</span>
+0558     <span class="keyword">if</span> options.verbosity == 2,
+0559         fprintf([<span class="string">'%3s %3s   k: %5d     num_inner: %5d     '</span>, <span class="keyword">...</span>
+0560         <span class="string">'f: %e   |grad|: %e   %s\n'</span>], <span class="keyword">...</span>
+0561         accstr,trstr,k,numit,fx,norm_grad,srstr);
+0562     <span class="keyword">elseif</span> options.verbosity &gt; 2,
+0563         <span class="keyword">if</span> options.useRand &amp;&amp; used_cauchy,
+0564             fprintf(<span class="string">'USED CAUCHY POINT\n'</span>);
+0565         <span class="keyword">end</span>
+0566         fprintf(<span class="string">'%3s %3s    k: %5d     num_inner: %5d     %s\n'</span>, <span class="keyword">...</span>
+0567                 accstr, trstr, k, numit, srstr);
+0568         fprintf(<span class="string">'       f(x) : %e     |grad| : %e\n'</span>,fx,norm_grad);
+0569         <span class="keyword">if</span> options.debug &gt; 0
+0570             fprintf(<span class="string">'      Delta : %f          |eta| : %e\n'</span>,Delta,norm_eta);
+0571         <span class="keyword">end</span>
+0572         fprintf(<span class="string">'        rho : %e\n'</span>,rho);
+0573     <span class="keyword">end</span>
+0574     <span class="keyword">if</span> options.debug &gt; 0,
+0575         fprintf(<span class="string">'DBG: cos ang(eta,gradf): %d\n'</span>,testangle);
+0576         <span class="keyword">if</span> rho == 0
+0577             fprintf(<span class="string">'DBG: rho = 0, this will likely hinder further convergence.\n'</span>);
+0578         <span class="keyword">end</span>
+0579     <span class="keyword">end</span>
+0580 
+0581 <span class="keyword">end</span>  <span class="comment">% of TR loop (counter: k)</span>
+0582 
+0583 <span class="comment">% Restrict info struct-array to useful part</span>
+0584 info = info(1:k+1);
 0585 
-0586 <span class="keyword">if</span> (options.verbosity &gt; 2) || (options.debug &gt; 0),
-0587    fprintf(<span class="string">'************************************************************************\n'</span>);
-0588 <span class="keyword">end</span>
-0589 <span class="keyword">if</span> (options.verbosity &gt; 0) || (options.debug &gt; 0)
-0590     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
-0591 <span class="keyword">end</span>
-0592 
-0593 <span class="comment">% Return the best cost reached</span>
-0594 cost = fx;
-0595 
-0596 <span class="keyword">end</span>
-0597 
+0586 
+0587 <span class="keyword">if</span> (options.verbosity &gt; 2) || (options.debug &gt; 0),
+0588    fprintf(<span class="string">'************************************************************************\n'</span>);
+0589 <span class="keyword">end</span>
+0590 <span class="keyword">if</span> (options.verbosity &gt; 0) || (options.debug &gt; 0)
+0591     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
+0592 <span class="keyword">end</span>
+0593 
+0594 <span class="comment">% Return the best cost reached</span>
+0595 cost = fx;
+0596 
+0597 <span class="keyword">end</span>
 0598 
 0599 
-0600     
-0601 
-0602 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
-0603 <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats(problem, x, storedb, options, k, fx, </a><span class="keyword">...</span>
-0604                            norm_grad, Delta, info, rho, rhonum, <span class="keyword">...</span>
-0605                            rhoden, accept, numit, norm_eta, used_cauchy)
-0606     stats.iter = k;
-0607     stats.cost = fx;
-0608     stats.gradnorm = norm_grad;
-0609     stats.Delta = Delta;
-0610     <span class="keyword">if</span> k == 0
-0611         stats.time = toc();
-0612         stats.rho = inf;
-0613         stats.rhonum = NaN;
-0614         stats.rhoden = NaN;
-0615         stats.accepted = true;
-0616         stats.numinner = NaN;
-0617         stats.stepsize = NaN;
-0618         <span class="keyword">if</span> options.useRand
-0619             stats.cauchy = false;
-0620         <span class="keyword">end</span>
-0621     <span class="keyword">else</span>
-0622         stats.time = info(k).time + toc();
-0623         stats.rho = rho;
-0624         stats.rhonum = rhonum;
-0625         stats.rhoden = rhoden;
-0626         stats.accepted = accept;
-0627         stats.numinner = numit;
-0628         stats.stepsize = norm_eta;
-0629         <span class="keyword">if</span> options.useRand,
-0630           stats.cauchy = used_cauchy;
-0631         <span class="keyword">end</span>
-0632     <span class="keyword">end</span>
-0633     
-0634     <span class="comment">% See comment about statsfun above: the x and store passed to statsfun</span>
-0635     <span class="comment">% are that of the most recently accepted point after the iteration</span>
-0636     <span class="comment">% fully executed.</span>
-0637     stats = <a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>(problem, x, storedb, options, stats);
-0638     
-0639 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0600 
+0601     
+0602 
+0603 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
+0604 <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats(problem, x, storedb, options, k, fx, </a><span class="keyword">...</span>
+0605                            norm_grad, Delta, info, rho, rhonum, <span class="keyword">...</span>
+0606                            rhoden, accept, numit, norm_eta, used_cauchy)
+0607     stats.iter = k;
+0608     stats.cost = fx;
+0609     stats.gradnorm = norm_grad;
+0610     stats.Delta = Delta;
+0611     <span class="keyword">if</span> k == 0
+0612         stats.time = toc();
+0613         stats.rho = inf;
+0614         stats.rhonum = NaN;
+0615         stats.rhoden = NaN;
+0616         stats.accepted = true;
+0617         stats.numinner = NaN;
+0618         stats.stepsize = NaN;
+0619         <span class="keyword">if</span> options.useRand
+0620             stats.cauchy = false;
+0621         <span class="keyword">end</span>
+0622     <span class="keyword">else</span>
+0623         stats.time = info(k).time + toc();
+0624         stats.rho = rho;
+0625         stats.rhonum = rhonum;
+0626         stats.rhoden = rhoden;
+0627         stats.accepted = accept;
+0628         stats.numinner = numit;
+0629         stats.stepsize = norm_eta;
+0630         <span class="keyword">if</span> options.useRand,
+0631           stats.cauchy = used_cauchy;
+0632         <span class="keyword">end</span>
+0633     <span class="keyword">end</span>
+0634     
+0635     <span class="comment">% See comment about statsfun above: the x and store passed to statsfun</span>
+0636     <span class="comment">% are that of the most recently accepted point after the iteration</span>
+0637     <span class="comment">% fully executed.</span>
+0638     stats = <a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>(problem, x, storedb, options, stats);
+0639     
+0640 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

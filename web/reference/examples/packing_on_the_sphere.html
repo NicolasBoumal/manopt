@@ -24,12 +24,12 @@
 <div class="box"><strong>Return a set of points spread out on the sphere.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function X = packing_on_the_sphere(d, n, epsilon, X0) </strong></div>
+<div class="box"><strong>function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Return a set of points spread out on the sphere.
 
- function X = packing_on_the_sphere(d, n, epsilon, X0)
+ function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 
  Using optimization on the oblique manifold, that is, the product of
  spheres, this function returns a set of n points with unit norm in R^d in
@@ -46,6 +46,10 @@
  function (under some assumptions), but the cost function becomes stiffer
  and hence harder to optimize.
 
+ The second output, maxdot, is the maximum inner product between any two
+ points in the returned X. This number is the one we truly are trying to
+ minimize.
+
  Notice that this cost function is invariant under rotation of X:
  f(X) = f(XQ) for all orthogonal Q in O(d).
  This calls for optimization over the set of symmetric positive
@@ -54,7 +58,9 @@
  See elliptopefactory.
 
  This is known as the Thomson or, more specifically, the Tammes problem:
- http://en.wikipedia.org/wiki/Tammes_problem</pre></div>
+ http://en.wikipedia.org/wiki/Tammes_problem
+ An interesting page by Neil Sloane collecting best known packings is
+ available here http://neilsloane.com/packings/</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -71,10 +77,10 @@ This function is called by:
 <li><a href="#_sub1" class="code">function [f store] = cost(X, store)</a></li><li><a href="#_sub2" class="code">function [g store] = grad(X, store)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function X = packing_on_the_sphere(d, n, epsilon, X0)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</a>
 0002 <span class="comment">% Return a set of points spread out on the sphere.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function X = packing_on_the_sphere(d, n, epsilon, X0)</span>
+0004 <span class="comment">% function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</span>
 0005 <span class="comment">%</span>
 0006 <span class="comment">% Using optimization on the oblique manifold, that is, the product of</span>
 0007 <span class="comment">% spheres, this function returns a set of n points with unit norm in R^d in</span>
@@ -91,192 +97,214 @@ This function is called by:
 0018 <span class="comment">% function (under some assumptions), but the cost function becomes stiffer</span>
 0019 <span class="comment">% and hence harder to optimize.</span>
 0020 <span class="comment">%</span>
-0021 <span class="comment">% Notice that this cost function is invariant under rotation of X:</span>
-0022 <span class="comment">% f(X) = f(XQ) for all orthogonal Q in O(d).</span>
-0023 <span class="comment">% This calls for optimization over the set of symmetric positive</span>
-0024 <span class="comment">% semidefinite matrices of size n and rank d with unit diagonal, which can</span>
-0025 <span class="comment">% be thought of as the quotient of the oblique manifold OB(d, n) by O(d):</span>
-0026 <span class="comment">% See elliptopefactory.</span>
-0027 <span class="comment">%</span>
-0028 <span class="comment">% This is known as the Thomson or, more specifically, the Tammes problem:</span>
-0029 <span class="comment">% http://en.wikipedia.org/wiki/Tammes_problem</span>
-0030 
-0031 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
-0032 <span class="comment">%</span>
-0033 <span class="comment">% Main author: Nicolas Boumal, July 2, 2013</span>
-0034 <span class="comment">% Contributors:</span>
-0035 <span class="comment">%</span>
-0036 <span class="comment">% Change log:</span>
-0037 <span class="comment">%   Aug. 14, 2013 (NB) : Code now compatible to experiment with both the</span>
-0038 <span class="comment">%                        obliquefactory and the elliptopefactory.</span>
-0039 <span class="comment">%</span>
-0040     
-0041     <span class="keyword">if</span> ~exist(<span class="string">'d'</span>, <span class="string">'var'</span>) || isempty(d)
-0042         <span class="comment">% Dimension of the embedding space: R^d</span>
-0043         d = 3;
-0044     <span class="keyword">end</span>
-0045     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
-0046         <span class="comment">% Number n of points to place of the sphere in R^d.</span>
-0047         <span class="comment">% For example, n=12 yields an icosahedron:</span>
-0048         <span class="comment">% https://en.wikipedia.org/wiki/Icosahedron</span>
-0049         <span class="comment">% Notice though that platonic solids are not always optimal.</span>
-0050         <span class="comment">% Try for example n = 8: you don't get a cube.</span>
-0051         n = 24;
-0052     <span class="keyword">end</span>
-0053     <span class="keyword">if</span> ~exist(<span class="string">'epsilon'</span>, <span class="string">'var'</span>) || isempty(epsilon)
-0054         <span class="comment">% This value should be as close to 0 as affordable.</span>
-0055         <span class="comment">% If it is too close to zero, optimization first becomes much</span>
-0056         <span class="comment">% slower, than simply doesn't work anymore becomes of floating</span>
-0057         <span class="comment">% point overflow errors (NaN's and Inf's start to appear).</span>
-0058         <span class="comment">% If it is too large, then log-sum-exp is a poor approximation of</span>
-0059         <span class="comment">% the max function, and the spread will be less uniform.</span>
-0060         <span class="comment">% An okay value seems to be 0.01 or 0.001 for example.</span>
-0061         epsilon = 0.0015;
-0062     <span class="keyword">end</span>
-0063     
-0064     <span class="comment">% Pick your manifold (the elliptope factory quotients out the global</span>
-0065     <span class="comment">% rotation invariance of the problem, which is more natural but</span>
-0066     <span class="comment">% conceptually a bit more complicated --- for usage with the toolbox it</span>
-0067     <span class="comment">% is the same though: just uncomment the appropriate line).</span>
-0068     manifold = <a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>(d, n, true);
-0069     <span class="comment">% manifold = elliptopefactory(n, d);</span>
-0070     
-0071     <span class="comment">% Generate a random initial guess if none was given.</span>
-0072     <span class="keyword">if</span> ~exist(<span class="string">'X0'</span>, <span class="string">'var'</span>) || isempty(X0)
-0073         X0 = manifold.rand();
-0074     <span class="keyword">end</span>
-0075 
-0076     <span class="comment">% Define the cost function with caching system used: the store</span>
-0077     <span class="comment">% structure we receive as input is tied to the input point X. Everytime</span>
-0078     <span class="comment">% this cost function is called at this point X, we will receive the</span>
-0079     <span class="comment">% same store structure back. We may modify the store structure inside</span>
-0080     <span class="comment">% the function and return it: the changes will be remembered for next</span>
-0081     <span class="comment">% time.</span>
-0082     <a name="_sub1" href="#_subfunctions" class="code">function [f store] = cost(X, store)</a>
-0083         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
-0084             XXt = X*X';
-0085             expXXt = exp(XXt/epsilon);
-0086             <span class="comment">% Zero out the diagonal</span>
-0087             expXXt(1:(n+1):end) = 0;
-0088             u = sum(sum(triu(expXXt, 1)));
-0089             store.XXt = XXt;
-0090             store.expXXt = expXXt;
-0091             store.u = u;
-0092             store.ready = true;
-0093         <span class="keyword">end</span>
-0094         u = store.u;
-0095         f = epsilon*log(u);
-0096     <span class="keyword">end</span>
-0097 
-0098     <span class="comment">% Define the gradient of the cost. When the gradient is called at a</span>
-0099     <span class="comment">% point X for which the cost was already called, the store structure we</span>
-0100     <span class="comment">% receive remember everything that the cost function stored in it, so</span>
-0101     <span class="comment">% we can reuse previously computed elements.</span>
-0102     <a name="_sub2" href="#_subfunctions" class="code">function [g store] = grad(X, store)</a>
-0103         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
-0104             [~, store] = <a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>(X, store);
-0105         <span class="keyword">end</span>
-0106         <span class="comment">% Compute the Euclidean gradient</span>
-0107         eg = store.expXXt*X / store.u;
-0108         <span class="comment">% Convert to the Riemannian gradient (by projection)</span>
-0109         g = manifold.egrad2rgrad(X, eg);
-0110     <span class="keyword">end</span>
-0111 
-0112     <span class="comment">% Setup the problem structure with its manifold M and cost+grad</span>
-0113     <span class="comment">% functions.</span>
-0114     problem.M = manifold;
-0115     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>;
-0116     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g store] = grad(X, store)">grad</a>;
-0117 
-0118     <span class="comment">% For debugging, it's always nice to check the gradient a few times.</span>
-0119     <span class="comment">% checkgradient(problem);</span>
-0120     <span class="comment">% pause;</span>
-0121     
-0122     <span class="comment">% Call a solver on our problem with a few options defined. We did not</span>
-0123     <span class="comment">% specify the Hessian but it is still okay to call trustregion: Manopt</span>
-0124     <span class="comment">% will approximate the Hessian with finite differences of the gradient.</span>
-0125     opts.tolgradnorm = 1e-8;
-0126     opts.maxtime = 1200;
-0127     opts.maxiter = 1e5;
-0128     <span class="comment">% X = trustregions(problem, X0, opts);</span>
-0129     X = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0, opts);
-0130     
-0131     
-0132     <span class="comment">% Similarly, even though we did not specify the Hessian, we may still</span>
-0133     <span class="comment">% estimate its spectrum at the solution. It should reflect the</span>
-0134     <span class="comment">% invariance of the cost function under a global rotatioon of the</span>
-0135     <span class="comment">% sphere, which is an invariance under the group O(d) of dimension</span>
-0136     <span class="comment">% d(d-1)/2 : this translates into d(d-1)/2 zero eigenvalues in the</span>
-0137     <span class="comment">% spectrum of the Hessian.</span>
-0138     <span class="comment">% The approximate Hessian is not a linear operator, and is it a</span>
-0139     <span class="comment">% fortiori not symmetric. The result of this computation is thus not</span>
-0140     <span class="comment">% reliable. It does display the zero eigenvalues as expected though.</span>
-0141     <span class="keyword">if</span> manifold.dim() &lt; 300
-0142         evs = real(<a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X));
-0143         figure;
-0144         stem(1:length(evs), sort(evs), <span class="string">'.'</span>);
-0145         title([<span class="string">'Eigenvalues of the approximate Hessian of the cost '</span> <span class="keyword">...</span>
-0146                <span class="string">'function at the solution'</span>]);
-0147     <span class="keyword">end</span>
-0148     
-0149     
-0150     <span class="comment">% Show how the inner products X(:, i)'*X(:, j) are distributed.</span>
-0151     figure;
-0152     XX = X*X';
-0153     x = XXt(find(triu(ones(n), 1))); <span class="comment">%#ok&lt;FNDSB&gt;</span>
-0154     hist(real(acos(x)), 20);
-0155     title(<span class="string">'Histogram of the geodesic distances'</span>);
+0021 <span class="comment">% The second output, maxdot, is the maximum inner product between any two</span>
+0022 <span class="comment">% points in the returned X. This number is the one we truly are trying to</span>
+0023 <span class="comment">% minimize.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% Notice that this cost function is invariant under rotation of X:</span>
+0026 <span class="comment">% f(X) = f(XQ) for all orthogonal Q in O(d).</span>
+0027 <span class="comment">% This calls for optimization over the set of symmetric positive</span>
+0028 <span class="comment">% semidefinite matrices of size n and rank d with unit diagonal, which can</span>
+0029 <span class="comment">% be thought of as the quotient of the oblique manifold OB(d, n) by O(d):</span>
+0030 <span class="comment">% See elliptopefactory.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% This is known as the Thomson or, more specifically, the Tammes problem:</span>
+0033 <span class="comment">% http://en.wikipedia.org/wiki/Tammes_problem</span>
+0034 <span class="comment">% An interesting page by Neil Sloane collecting best known packings is</span>
+0035 <span class="comment">% available here http://neilsloane.com/packings/</span>
+0036 
+0037 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% Main author: Nicolas Boumal, July 2, 2013</span>
+0040 <span class="comment">% Contributors:</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% Change log:</span>
+0043 <span class="comment">%   Aug. 14, 2013 (NB) : Code now compatible to experiment with both the</span>
+0044 <span class="comment">%                        obliquefactory and the elliptopefactory.</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">%   Jan.  7, 2014 (NB) : Added reference to Neil Sloane's page and the</span>
+0047 <span class="comment">%                        maxdot output.</span>
+0048 <span class="comment">%</span>
+0049 <span class="comment">%   June 24, 2014 (NB) : Now shifting exponentials to alleviate numerical</span>
+0050 <span class="comment">%                        trouble when epsilon is too small.</span>
+0051 <span class="comment">%</span>
+0052     
+0053     <span class="keyword">if</span> ~exist(<span class="string">'d'</span>, <span class="string">'var'</span>) || isempty(d)
+0054         <span class="comment">% Dimension of the embedding space: R^d</span>
+0055         d = 3;
+0056     <span class="keyword">end</span>
+0057     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0058         <span class="comment">% Number n of points to place of the sphere in R^d.</span>
+0059         <span class="comment">% For example, n=12 yields an icosahedron:</span>
+0060         <span class="comment">% https://en.wikipedia.org/wiki/Icosahedron</span>
+0061         <span class="comment">% Notice though that platonic solids are not always optimal.</span>
+0062         <span class="comment">% Try for example n = 8: you don't get a cube.</span>
+0063         n = 24;
+0064     <span class="keyword">end</span>
+0065     <span class="keyword">if</span> ~exist(<span class="string">'epsilon'</span>, <span class="string">'var'</span>) || isempty(epsilon)
+0066         <span class="comment">% This value should be as close to 0 as affordable.</span>
+0067         <span class="comment">% If it is too close to zero, optimization first becomes much</span>
+0068         <span class="comment">% slower, than simply doesn't work anymore becomes of floating</span>
+0069         <span class="comment">% point overflow errors (NaN's and Inf's start to appear).</span>
+0070         <span class="comment">% If it is too large, then log-sum-exp is a poor approximation of</span>
+0071         <span class="comment">% the max function, and the spread will be less uniform.</span>
+0072         <span class="comment">% An okay value seems to be 0.01 or 0.001 for example. Note that a</span>
+0073         <span class="comment">% better strategy than using a small epsilon straightaway is to</span>
+0074         <span class="comment">% reduce epsilon bit by bit and to warm-start subsequent</span>
+0075         <span class="comment">% optimization in that way. Trustregions will be more appropriate</span>
+0076         <span class="comment">% for these fine tunings.</span>
+0077         epsilon = 0.0015;
+0078     <span class="keyword">end</span>
+0079     
+0080     <span class="comment">% Pick your manifold (the elliptope factory quotients out the global</span>
+0081     <span class="comment">% rotation invariance of the problem, which is more natural but</span>
+0082     <span class="comment">% conceptually a bit more complicated --- for usage with the toolbox it</span>
+0083     <span class="comment">% is the same though: just uncomment the appropriate line).</span>
+0084     manifold = <a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>(d, n, true);
+0085     <span class="comment">% manifold = elliptopefactory(n, d);</span>
+0086     
+0087     <span class="comment">% Generate a random initial guess if none was given.</span>
+0088     <span class="keyword">if</span> ~exist(<span class="string">'X0'</span>, <span class="string">'var'</span>) || isempty(X0)
+0089         X0 = manifold.rand();
+0090     <span class="keyword">end</span>
+0091 
+0092     <span class="comment">% Define the cost function with caching system used: the store</span>
+0093     <span class="comment">% structure we receive as input is tied to the input point X. Everytime</span>
+0094     <span class="comment">% this cost function is called at this point X, we will receive the</span>
+0095     <span class="comment">% same store structure back. We may modify the store structure inside</span>
+0096     <span class="comment">% the function and return it: the changes will be remembered for next</span>
+0097     <span class="comment">% time.</span>
+0098     <a name="_sub1" href="#_subfunctions" class="code">function [f store] = cost(X, store)</a>
+0099         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
+0100             XXt = X*X';
+0101             <span class="comment">% Shift the exponentials by the maximum value to reduce</span>
+0102             <span class="comment">% numerical trouble due to possible overflows.</span>
+0103             s = max(max(triu(XXt, 1)));
+0104             expXXt = exp((XXt-s)/epsilon);
+0105             <span class="comment">% Zero out the diagonal</span>
+0106             expXXt(1:(n+1):end) = 0;
+0107             u = sum(sum(triu(expXXt, 1)));
+0108             store.XXt = XXt;
+0109             store.s = s;
+0110             store.expXXt = expXXt;
+0111             store.u = u;
+0112             store.ready = true;
+0113         <span class="keyword">end</span>
+0114         u = store.u;
+0115         s = store.s;
+0116         f = s + epsilon*log(u);
+0117     <span class="keyword">end</span>
+0118 
+0119     <span class="comment">% Define the gradient of the cost. When the gradient is called at a</span>
+0120     <span class="comment">% point X for which the cost was already called, the store structure we</span>
+0121     <span class="comment">% receive remember everything that the cost function stored in it, so</span>
+0122     <span class="comment">% we can reuse previously computed elements.</span>
+0123     <a name="_sub2" href="#_subfunctions" class="code">function [g store] = grad(X, store)</a>
+0124         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
+0125             [~, store] = <a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>(X, store);
+0126         <span class="keyword">end</span>
+0127         <span class="comment">% Compute the Euclidean gradient</span>
+0128         eg = store.expXXt*X / store.u;
+0129         <span class="comment">% Convert to the Riemannian gradient (by projection)</span>
+0130         g = manifold.egrad2rgrad(X, eg);
+0131     <span class="keyword">end</span>
+0132 
+0133     <span class="comment">% Setup the problem structure with its manifold M and cost+grad</span>
+0134     <span class="comment">% functions.</span>
+0135     problem.M = manifold;
+0136     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>;
+0137     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g store] = grad(X, store)">grad</a>;
+0138 
+0139     <span class="comment">% For debugging, it's always nice to check the gradient a few times.</span>
+0140     <span class="comment">% checkgradient(problem);</span>
+0141     <span class="comment">% pause;</span>
+0142     
+0143     <span class="comment">% Call a solver on our problem with a few options defined. We did not</span>
+0144     <span class="comment">% specify the Hessian but it is still okay to call trustregion: Manopt</span>
+0145     <span class="comment">% will approximate the Hessian with finite differences of the gradient.</span>
+0146     opts.tolgradnorm = 1e-8;
+0147     opts.maxtime = 1200;
+0148     opts.maxiter = 1e5;
+0149     <span class="comment">% X = trustregions(problem, X0, opts);</span>
+0150     X = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0, opts);
+0151     
+0152     <span class="comment">% Evaluate the maximum inner product between any two points of X.</span>
+0153     XXt = X*X';
+0154     dots = XXt(find(triu(ones(n), 1))); <span class="comment">%#ok&lt;FNDSB&gt;</span>
+0155     maxdot = max(dots);
 0156     
-0157     <span class="comment">% This is the quantity we actually want to minimize.</span>
-0158     fprintf(<span class="string">'Maximum inner product between two points: %g\n'</span>, max(x));
-0159     
-0160     
-0161     <span class="comment">% Give some visualization if the dimension allows</span>
-0162     <span class="keyword">if</span> d == 2
-0163         <span class="comment">% For the circle, the optimal solution consists in spreading the</span>
-0164         <span class="comment">% points with angles uniformly sampled in (0, 2pi). This</span>
-0165         <span class="comment">% corresponds to the following value for the max inner product:</span>
-0166         fprintf(<span class="string">'Optimal value for the max inner product: %g\n'</span>, cos(2*pi/n));
-0167         figure;
-0168         t = linspace(-pi, pi, 201);
-0169         plot(cos(t), sin(t), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3, <span class="string">'Color'</span>, [152,186,220]/255);
-0170         daspect([1 1 1]);
-0171         box off;
-0172         axis off;
-0173         hold on;
-0174         plot(X(:, 1), X(:, 2), <span class="string">'r.'</span>, <span class="string">'MarkerSize'</span>, 25);
-0175         hold off;
-0176     <span class="keyword">end</span>
-0177     <span class="keyword">if</span> d == 3
-0178         figure;
-0179         <span class="comment">% Plot the sphere</span>
-0180         [sphere_x sphere_y sphere_z] = sphere(50);
-0181         handle = surf(sphere_x, sphere_y, sphere_z);
-0182         set(handle, <span class="string">'FaceColor'</span>, [152,186,220]/255);
-0183         set(handle, <span class="string">'FaceAlpha'</span>, .5);
-0184         set(handle, <span class="string">'EdgeColor'</span>, [152,186,220]/255);
-0185         set(handle, <span class="string">'EdgeAlpha'</span>, .5);
-0186         daspect([1 1 1]);
-0187         box off;
-0188         axis off;
-0189         hold on;
-0190         <span class="comment">% Add the chosen points</span>
-0191         Y = 1.02*X';
-0192         plot3(Y(1, :), Y(2, :), Y(3, :), <span class="string">'r.'</span>, <span class="string">'MarkerSize'</span>, 25);
-0193         <span class="comment">% And connect the points which are at minimal distance,</span>
-0194         <span class="comment">% within some tolerance.</span>
-0195         max_inner = max(x);
-0196         min_distance = real(acos(max_inner));
-0197         connected = real(acos(XXt)) &lt;= 1.20*min_distance;
-0198         [Ic Jc] = find(triu(connected, 1));
-0199         <span class="keyword">for</span> k = 1 : length(Ic)
-0200             i = Ic(k); j = Jc(k);
-0201             plot3(Y(1, [i j]), Y(2, [i j]), Y(3, [i j]), <span class="string">'k-'</span>);
-0202         <span class="keyword">end</span>
-0203         hold off;
-0204     <span class="keyword">end</span>
-0205 
-0206 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0157     <span class="comment">% Similarly, even though we did not specify the Hessian, we may still</span>
+0158     <span class="comment">% estimate its spectrum at the solution. It should reflect the</span>
+0159     <span class="comment">% invariance of the cost function under a global rotatioon of the</span>
+0160     <span class="comment">% sphere, which is an invariance under the group O(d) of dimension</span>
+0161     <span class="comment">% d(d-1)/2 : this translates into d(d-1)/2 zero eigenvalues in the</span>
+0162     <span class="comment">% spectrum of the Hessian.</span>
+0163     <span class="comment">% The approximate Hessian is not a linear operator, and is it a</span>
+0164     <span class="comment">% fortiori not symmetric. The result of this computation is thus not</span>
+0165     <span class="comment">% reliable. It does display the zero eigenvalues as expected though.</span>
+0166     <span class="keyword">if</span> manifold.dim() &lt; 300
+0167         evs = real(<a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X));
+0168         figure;
+0169         stem(1:length(evs), sort(evs), <span class="string">'.'</span>);
+0170         title([<span class="string">'Eigenvalues of the approximate Hessian of the cost '</span> <span class="keyword">...</span>
+0171                <span class="string">'function at the solution'</span>]);
+0172     <span class="keyword">end</span>
+0173     
+0174     
+0175     <span class="comment">% Show how the inner products X(:, i)'*X(:, j) are distributed.</span>
+0176     figure;
+0177     hist(real(acos(dots)), 20);
+0178     title(<span class="string">'Histogram of the geodesic distances'</span>);
+0179     
+0180     <span class="comment">% This is the quantity we actually want to minimize.</span>
+0181     fprintf(<span class="string">'Maximum inner product between two points: %g\n'</span>, maxdot);
+0182     
+0183     
+0184     <span class="comment">% Give some visualization if the dimension allows</span>
+0185     <span class="keyword">if</span> d == 2
+0186         <span class="comment">% For the circle, the optimal solution consists in spreading the</span>
+0187         <span class="comment">% points with angles uniformly sampled in (0, 2pi). This</span>
+0188         <span class="comment">% corresponds to the following value for the max inner product:</span>
+0189         fprintf(<span class="string">'Optimal value for the max inner product: %g\n'</span>, cos(2*pi/n));
+0190         figure;
+0191         t = linspace(-pi, pi, 201);
+0192         plot(cos(t), sin(t), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3, <span class="string">'Color'</span>, [152,186,220]/255);
+0193         daspect([1 1 1]);
+0194         box off;
+0195         axis off;
+0196         hold on;
+0197         plot(X(:, 1), X(:, 2), <span class="string">'r.'</span>, <span class="string">'MarkerSize'</span>, 25);
+0198         hold off;
+0199     <span class="keyword">end</span>
+0200     <span class="keyword">if</span> d == 3
+0201         figure;
+0202         <span class="comment">% Plot the sphere</span>
+0203         [sphere_x sphere_y sphere_z] = sphere(50);
+0204         handle = surf(sphere_x, sphere_y, sphere_z);
+0205         set(handle, <span class="string">'FaceColor'</span>, [152,186,220]/255);
+0206         set(handle, <span class="string">'FaceAlpha'</span>, .5);
+0207         set(handle, <span class="string">'EdgeColor'</span>, [152,186,220]/255);
+0208         set(handle, <span class="string">'EdgeAlpha'</span>, .5);
+0209         daspect([1 1 1]);
+0210         box off;
+0211         axis off;
+0212         hold on;
+0213         <span class="comment">% Add the chosen points</span>
+0214         Y = 1.02*X';
+0215         plot3(Y(1, :), Y(2, :), Y(3, :), <span class="string">'r.'</span>, <span class="string">'MarkerSize'</span>, 25);
+0216         <span class="comment">% And connect the points which are at minimal distance,</span>
+0217         <span class="comment">% within some tolerance.</span>
+0218         min_distance = real(acos(maxdot));
+0219         connected = real(acos(XXt)) &lt;= 1.20*min_distance;
+0220         [Ic Jc] = find(triu(connected, 1));
+0221         <span class="keyword">for</span> k = 1 : length(Ic)
+0222             i = Ic(k); j = Jc(k);
+0223             plot3(Y(1, [i j]), Y(2, [i j]), Y(3, [i j]), <span class="string">'k-'</span>);
+0224         <span class="keyword">end</span>
+0225         hold off;
+0226     <span class="keyword">end</span>
+0227 
+0228 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

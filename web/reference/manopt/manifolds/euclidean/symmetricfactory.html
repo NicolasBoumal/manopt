@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of symmetricfactory</title>
+  <meta name="keywords" content="symmetricfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over k symmetric matrices of size n">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; symmetricfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>symmetricfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over k symmetric matrices of size n</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = symmetricfactory(n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over k symmetric matrices of size n
+
+ function M = symmetricfactory(n)
+ function M = symmetricfactory(n, k)
+
+ Returns M, a structure describing the Euclidean space of n-by-n symmetric
+ matrices equipped with the standard Frobenius distance and associated
+ trace inner product, as a manifold for Manopt.
+ By default, k = 1. If k &gt; 1, points and vectors are stored in 3D matrices
+ X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is
+ symmetric.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li><li><a href="#_sub3" class="code">function v = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = symmetricfactory(n, k)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over k symmetric matrices of size n</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = symmetricfactory(n)</span>
+0005 <span class="comment">% function M = symmetricfactory(n, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Returns M, a structure describing the Euclidean space of n-by-n symmetric</span>
+0008 <span class="comment">% matrices equipped with the standard Frobenius distance and associated</span>
+0009 <span class="comment">% trace inner product, as a manifold for Manopt.</span>
+0010 <span class="comment">% By default, k = 1. If k &gt; 1, points and vectors are stored in 3D matrices</span>
+0011 <span class="comment">% X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is</span>
+0012 <span class="comment">% symmetric.</span>
+0013 
+0014 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0015 <span class="comment">% Original author: Nicolas Boumal, Jan. 22, 2014.</span>
+0016 <span class="comment">% Contributors:</span>
+0017 <span class="comment">% Change log:</span>
+0018     
+0019     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0020         k = 1;
+0021     <span class="keyword">end</span>
+0022 
+0023     M.name = @() sprintf(<span class="string">'(Symmetric matrices of size %d)^%d'</span>, n, k);
+0024     
+0025     M.dim = @() k*n*(n+1)/2;
+0026     
+0027     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0028     
+0029     M.norm = @(x, d) norm(d(:), <span class="string">'fro'</span>);
+0030     
+0031     M.dist = @(x, y) norm(x(:)-y(:), <span class="string">'fro'</span>);
+0032     
+0033     M.typicaldist = @() sqrt(k)*n;
+0034     
+0035     M.proj = @(x, d) <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(d);
+0036     
+0037     M.egrad2rgrad = M.proj;
+0038     
+0039     <span class="comment">%M.ehess2rhess = @(x, eg, eh, d) eh;</span>
+0040     
+0041     M.tangent = @(x, d) d;
+0042     
+0043     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0044     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0045         <span class="keyword">if</span> nargin == 3
+0046             y = x + t*d;
+0047         <span class="keyword">else</span>
+0048             y = x + d;
+0049         <span class="keyword">end</span>
+0050     <span class="keyword">end</span>
+0051     
+0052     M.retr = M.exp;
+0053     
+0054     M.log = @(x, y) y-x;
+0055 
+0056     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0057     
+0058     M.rand = @() <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(randn(n, n, k));
+0059     
+0060     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
+0061     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0062         u = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(randn(n, n, k));
+0063         u = u / norm(u(:), <span class="string">'fro'</span>);
+0064     <span class="keyword">end</span>
+0065     
+0066     M.lincomb = @<a href="#_sub3" class="code" title="subfunction v = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0067     <a name="_sub3" href="#_subfunctions" class="code">function v = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0068         <span class="keyword">if</span> nargin == 3
+0069             v = a1*d1;
+0070         <span class="keyword">elseif</span> nargin == 5
+0071             v = a1*d1 + a2*d2;
+0072         <span class="keyword">else</span>
+0073             error(<span class="string">'Bad usage of euclidean.lincomb'</span>);
+0074         <span class="keyword">end</span>
+0075     <span class="keyword">end</span>
+0076     
+0077     M.zerovec = @(x) zeros(n, n, k);
+0078     
+0079     M.transp = @(x1, x2, d) d;
+0080     
+0081     M.pairmean = @(x1, x2) .5*(x1+x2);
+0082     
+0083     M.vec = @(x, u_mat) u_mat(:);
+0084     M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
+0085     M.vecmatareisometries = @() true;
+0086 
+0087 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

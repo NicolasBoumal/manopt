@@ -72,161 +72,201 @@ This function is called by:
 0026 <span class="comment">%       ner is not used, as was originally intended in GenRTR. In time, we</span>
 0027 <span class="comment">%       may want to investigate whether useRand can be modifed to work well</span>
 0028 <span class="comment">%       with preconditioning too.</span>
-0029 
-0030 
-0031 <span class="comment">% All terms involving the trust-region radius will use an inner product</span>
-0032 <span class="comment">% w.r.t. the preconditioner; this is because the iterates grow in</span>
-0033 <span class="comment">% length w.r.t. the preconditioner, guaranteeing that we will not</span>
-0034 <span class="comment">% re-enter the trust-region.</span>
-0035 <span class="comment">%</span>
-0036 <span class="comment">% The following recurrences for Prec-based norms and inner</span>
-0037 <span class="comment">% products come from CGT2000, pg. 205, first edition</span>
-0038 <span class="comment">% below, P is the preconditioner</span>
-0039 <span class="comment">%</span>
-0040 <span class="comment">% &lt;eta_k,P*delta_k&gt; =</span>
-0041 <span class="comment">%          beta_k-1 * ( &lt;eta_k-1,P*delta_k-1&gt; + alpha_k-1 |delta_k-1|^2_P )</span>
-0042 <span class="comment">% |delta_k|^2_P = &lt;r_k,z_k&gt; + beta_k-1^2 |delta_k-1|^2_P</span>
+0029 <span class="comment">%   NB Jan. 9, 2014:</span>
+0030 <span class="comment">%       Now checking explicitly for model decrease at each iteration. The</span>
+0031 <span class="comment">%       first iteration is a Cauchy point, which necessarily realizes a</span>
+0032 <span class="comment">%       decrease of the model cost. If a model increase is witnessed</span>
+0033 <span class="comment">%       (which is theoretically impossible if a linear operator is used for</span>
+0034 <span class="comment">%       the Hessian approximation), then we return the previous eta. This</span>
+0035 <span class="comment">%       ensures we always achieve at least the Cauchy decrease, which</span>
+0036 <span class="comment">%       should be sufficient for convergence.</span>
+0037 
+0038 
+0039 <span class="comment">% All terms involving the trust-region radius will use an inner product</span>
+0040 <span class="comment">% w.r.t. the preconditioner; this is because the iterates grow in</span>
+0041 <span class="comment">% length w.r.t. the preconditioner, guaranteeing that we will not</span>
+0042 <span class="comment">% re-enter the trust-region.</span>
 0043 <span class="comment">%</span>
-0044 <span class="comment">% therefore, we need to keep track of</span>
-0045 <span class="comment">% 1)   |delta_k|^2_P</span>
-0046 <span class="comment">% 2)   &lt;eta_k,P*delta_k&gt; = &lt;eta_k,delta_k&gt;_P</span>
-0047 <span class="comment">% 3)   |eta_k  |^2_P</span>
-0048 <span class="comment">%</span>
-0049 <span class="comment">% initial values are given by:</span>
-0050 <span class="comment">%    |delta_0|_P = &lt;r,z&gt;</span>
-0051 <span class="comment">%    |eta_0|_P   = 0</span>
-0052 <span class="comment">%    &lt;eta_0,delta_0&gt;_P = 0</span>
-0053 <span class="comment">% because we take eta_0 = 0</span>
-0054 
-0055 
-0056 theta = options.theta;
-0057 kappa = options.kappa;
-0058 
-0059 <span class="keyword">if</span> options.useRand, <span class="comment">% and therefore, no preconditioner</span>
-0060     <span class="comment">% eta (presumably) ~= 0 was provided by the caller</span>
-0061     [Heta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, eta, storedb);
-0062     r = problem.M.lincomb(x, 1, grad, 1, Heta);
-0063     e_Pe = problem.M.inner(x, eta, eta);
-0064 <span class="keyword">else</span> <span class="comment">% and therefore, eta == 0</span>
-0065     Heta = problem.M.zerovec(x);
-0066     r = grad;
-0067     e_Pe = 0;
-0068 <span class="keyword">end</span>
-0069 r_r = problem.M.inner(x, r, r);
-0070 norm_r = sqrt(r_r);
-0071 norm_r0 = norm_r;
-0072 
-0073 <span class="comment">% precondition the residual</span>
-0074 <span class="keyword">if</span> ~options.useRand
-0075     [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
-0076 <span class="keyword">else</span>
-0077     z = r;
-0078 <span class="keyword">end</span>
-0079 
-0080 <span class="comment">% compute z'*r</span>
-0081 z_r = problem.M.inner(x, z, r);
-0082 d_Pd = z_r;
+0044 <span class="comment">% The following recurrences for Prec-based norms and inner</span>
+0045 <span class="comment">% products come from [CGT2000], pg. 205, first edition.</span>
+0046 <span class="comment">% Below, P is the preconditioner.</span>
+0047 <span class="comment">%</span>
+0048 <span class="comment">% &lt;eta_k,P*delta_k&gt; =</span>
+0049 <span class="comment">%          beta_k-1 * ( &lt;eta_k-1,P*delta_k-1&gt; + alpha_k-1 |delta_k-1|^2_P )</span>
+0050 <span class="comment">% |delta_k|^2_P = &lt;r_k,z_k&gt; + beta_k-1^2 |delta_k-1|^2_P</span>
+0051 <span class="comment">%</span>
+0052 <span class="comment">% therefore, we need to keep track of</span>
+0053 <span class="comment">% 1)   |delta_k|^2_P</span>
+0054 <span class="comment">% 2)   &lt;eta_k,P*delta_k&gt; = &lt;eta_k,delta_k&gt;_P</span>
+0055 <span class="comment">% 3)   |eta_k  |^2_P</span>
+0056 <span class="comment">%</span>
+0057 <span class="comment">% initial values are given by:</span>
+0058 <span class="comment">%    |delta_0|_P = &lt;r,z&gt;</span>
+0059 <span class="comment">%    |eta_0|_P   = 0</span>
+0060 <span class="comment">%    &lt;eta_0,delta_0&gt;_P = 0</span>
+0061 <span class="comment">% because we take eta_0 = 0 (if useRand = false).</span>
+0062 <span class="comment">%</span>
+0063 <span class="comment">% [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.</span>
+0064 
+0065 inner = problem.M.inner;
+0066 
+0067 theta = options.theta;
+0068 kappa = options.kappa;
+0069 
+0070 <span class="keyword">if</span> ~options.useRand <span class="comment">% and therefore, eta == 0</span>
+0071     Heta = problem.M.zerovec(x);
+0072     r = grad;
+0073     e_Pe = 0;
+0074 <span class="keyword">else</span> <span class="comment">% and therefore, no preconditioner</span>
+0075     <span class="comment">% eta (presumably) ~= 0 was provided by the caller</span>
+0076     [Heta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, eta, storedb);
+0077     r = problem.M.lincomb(x, 1, grad, 1, Heta);
+0078     e_Pe = inner(x, eta, eta);
+0079 <span class="keyword">end</span>
+0080 r_r = inner(x, r, r);
+0081 norm_r = sqrt(r_r);
+0082 norm_r0 = norm_r;
 0083 
-0084 <span class="comment">% Initial search direction</span>
-0085 delta  = problem.M.lincomb(x, -1, z);
-0086 <span class="keyword">if</span> options.useRand, <span class="comment">% and therefore, no preconditioner</span>
-0087     e_Pd = problem.M.inner(x, eta, delta);
-0088 <span class="keyword">else</span> <span class="comment">% and therefore, eta == 0</span>
-0089     e_Pd = 0;
-0090 <span class="keyword">end</span>
-0091 
-0092 <span class="comment">% Pre-assume termination b/c j == end</span>
-0093 stop_tCG = 5;
+0084 <span class="comment">% precondition the residual</span>
+0085 <span class="keyword">if</span> ~options.useRand
+0086     [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
+0087 <span class="keyword">else</span>
+0088     z = r;
+0089 <span class="keyword">end</span>
+0090 
+0091 <span class="comment">% compute z'*r</span>
+0092 z_r = inner(x, z, r);
+0093 d_Pd = z_r;
 0094 
-0095 <span class="comment">% Begin inner/tCG loop</span>
-0096 j = 0;
-0097 <span class="keyword">for</span> j = 1 : options.maxinner
-0098     
-0099     [Hdelta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, delta, storedb);
-0100     
-0101     <span class="comment">% Compute curvature</span>
-0102     d_Hd = problem.M.inner(x, delta, Hdelta);
-0103     
-0104     
-0105     alpha = z_r/d_Hd;
-0106     <span class="comment">% &lt;neweta,neweta&gt;_P =</span>
-0107     <span class="comment">% &lt;eta,eta&gt;_P + 2*alpha*&lt;eta,delta&gt;_P + alpha*alpha*&lt;delta,delta&gt;_P</span>
-0108     e_Pe_new = e_Pe + 2.0*alpha*e_Pd + alpha*alpha*d_Pd;
-0109     
-0110     <span class="keyword">if</span> options.debug &gt; 2,
-0111         fprintf(<span class="string">'DBG:   (r,r)  : %e\n'</span>,r_r);
-0112         fprintf(<span class="string">'DBG:   (d,Hd) : %e\n'</span>,d_Hd);
-0113         fprintf(<span class="string">'DBG:   alpha  : %e\n'</span>,alpha);
-0114     <span class="keyword">end</span>
-0115     
-0116     <span class="comment">% Check against negative curvature and trust-region radius violation.</span>
-0117     <span class="comment">% If either condition triggers, we bail out.</span>
-0118     <span class="keyword">if</span> d_Hd &lt;= 0 || e_Pe_new &gt;= Delta^2,
-0119         <span class="comment">% want</span>
-0120         <span class="comment">%  ee = &lt;eta,eta&gt;_prec,x</span>
-0121         <span class="comment">%  ed = &lt;eta,delta&gt;_prec,x</span>
-0122         <span class="comment">%  dd = &lt;delta,delta&gt;_prec,x</span>
-0123         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
-0124         <span class="keyword">if</span> options.debug &gt; 2,
-0125             fprintf(<span class="string">'DBG:     tau  : %e\n'</span>, tau);
-0126         <span class="keyword">end</span>
-0127         eta  = problem.M.lincomb(x, 1,  eta, tau,  delta);
-0128         Heta = problem.M.lincomb(x, 1, Heta, tau, Hdelta);
-0129         <span class="keyword">if</span> d_Hd &lt;= 0,
-0130             stop_tCG = 1;     <span class="comment">% negative curvature</span>
-0131         <span class="keyword">else</span>
-0132             stop_tCG = 2;     <span class="comment">% exceeded trust region</span>
-0133         <span class="keyword">end</span>
-0134         <span class="keyword">break</span>;
-0135     <span class="keyword">end</span>
-0136     
-0137     <span class="comment">% No negative curvature and eta_prop inside TR: accept it</span>
-0138     e_Pe = e_Pe_new;
-0139     eta  = problem.M.lincomb(x, 1,  eta, alpha,  delta);
-0140     Heta = problem.M.lincomb(x, 1, Heta, alpha, Hdelta);
+0095 <span class="comment">% Initial search direction</span>
+0096 delta  = problem.M.lincomb(x, -1, z);
+0097 <span class="keyword">if</span> ~options.useRand <span class="comment">% and therefore, eta == 0</span>
+0098     e_Pd = 0;
+0099 <span class="keyword">else</span> <span class="comment">% and therefore, no preconditioner</span>
+0100     e_Pd = inner(x, eta, delta);
+0101 <span class="keyword">end</span>
+0102 
+0103 <span class="comment">% If the Hessian or a linear Hessian approximation is in use, it is</span>
+0104 <span class="comment">% theoretically guaranteed that the model value decreases monotonically</span>
+0105 <span class="comment">% with each iteration of tCG. Hence, there is no need to monitor the model</span>
+0106 <span class="comment">% value. But, when a nonlinear Hessian approximation is used (such as the</span>
+0107 <span class="comment">% built-in finite-difference approximation for example), the model may</span>
+0108 <span class="comment">% increase. It is then important to terminate the tCG iterations and return</span>
+0109 <span class="comment">% the previous (the best-so-far) iterate. The variable below will hold the</span>
+0110 <span class="comment">% model value.</span>
+0111 model_fun = @(eta, Heta) inner(x, grad, eta) + .5*inner(x, eta, Heta);
+0112 <span class="keyword">if</span> ~options.useRand
+0113     model_value = 0;
+0114 <span class="keyword">else</span>
+0115     model_value = model_fun(eta, Heta);
+0116 <span class="keyword">end</span>
+0117 
+0118 <span class="comment">% Pre-assume termination b/c j == end</span>
+0119 stop_tCG = 5;
+0120 
+0121 <span class="comment">% Begin inner/tCG loop</span>
+0122 j = 0;
+0123 <span class="keyword">for</span> j = 1 : options.maxinner
+0124     
+0125     [Hdelta storedb] = <a href="../../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, delta, storedb);
+0126     
+0127     <span class="comment">% Compute curvature</span>
+0128     d_Hd = inner(x, delta, Hdelta);
+0129     
+0130     
+0131     alpha = z_r/d_Hd;
+0132     <span class="comment">% &lt;neweta,neweta&gt;_P =</span>
+0133     <span class="comment">% &lt;eta,eta&gt;_P + 2*alpha*&lt;eta,delta&gt;_P + alpha*alpha*&lt;delta,delta&gt;_P</span>
+0134     e_Pe_new = e_Pe + 2.0*alpha*e_Pd + alpha*alpha*d_Pd;
+0135     
+0136     <span class="keyword">if</span> options.debug &gt; 2,
+0137         fprintf(<span class="string">'DBG:   (r,r)  : %e\n'</span>,r_r);
+0138         fprintf(<span class="string">'DBG:   (d,Hd) : %e\n'</span>,d_Hd);
+0139         fprintf(<span class="string">'DBG:   alpha  : %e\n'</span>,alpha);
+0140     <span class="keyword">end</span>
 0141     
-0142     <span class="comment">% Update the residual</span>
-0143     r = problem.M.lincomb(x, 1, r, alpha, Hdelta);
-0144     
-0145     <span class="comment">% Compute new norm of r</span>
-0146     r_r = problem.M.inner(x, r, r);
-0147     norm_r = sqrt(r_r);
-0148     
-0149     <span class="comment">% Check kappa/theta stopping criterion</span>
-0150     <span class="keyword">if</span> j &gt;= options.mininner &amp;&amp; norm_r &lt;= norm_r0*min(norm_r0^theta, kappa)
-0151         <span class="comment">% Residual is small enough to quit</span>
-0152         <span class="keyword">if</span> kappa &lt; norm_r0^theta,
-0153             stop_tCG = 3;  <span class="comment">% linear convergence</span>
-0154         <span class="keyword">else</span>
-0155             stop_tCG = 4;  <span class="comment">% superlinear convergence</span>
-0156         <span class="keyword">end</span>
-0157         <span class="keyword">break</span>;
-0158     <span class="keyword">end</span>
-0159     
-0160     <span class="comment">% Precondition the residual</span>
-0161     <span class="keyword">if</span> ~options.useRand
-0162         [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
-0163     <span class="keyword">else</span>
-0164         z = r;
-0165     <span class="keyword">end</span>
-0166     
-0167     <span class="comment">% Save the old z'*r</span>
-0168     zold_rold = z_r;
-0169     <span class="comment">% Compute new z'*r</span>
-0170     z_r = problem.M.inner(x, z, r);
-0171     
-0172     <span class="comment">% Compute new search direction</span>
-0173     beta = z_r/zold_rold;
-0174     delta = problem.M.lincomb(x, -1, z, beta, delta);
-0175     
-0176     <span class="comment">% Update new P-norms and P-dots</span>
-0177     e_Pd = beta*(e_Pd + alpha*d_Pd);
-0178     d_Pd = z_r + beta*beta*d_Pd;
-0179     
-0180 <span class="keyword">end</span>  <span class="comment">% of tCG loop</span>
-0181 inner_it = j;
-0182 
-0183 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0142     <span class="comment">% Check against negative curvature and trust-region radius violation.</span>
+0143     <span class="comment">% If either condition triggers, we bail out.</span>
+0144     <span class="keyword">if</span> d_Hd &lt;= 0 || e_Pe_new &gt;= Delta^2,
+0145         <span class="comment">% want</span>
+0146         <span class="comment">%  ee = &lt;eta,eta&gt;_prec,x</span>
+0147         <span class="comment">%  ed = &lt;eta,delta&gt;_prec,x</span>
+0148         <span class="comment">%  dd = &lt;delta,delta&gt;_prec,x</span>
+0149         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
+0150         <span class="keyword">if</span> options.debug &gt; 2,
+0151             fprintf(<span class="string">'DBG:     tau  : %e\n'</span>, tau);
+0152         <span class="keyword">end</span>
+0153         eta  = problem.M.lincomb(x, 1,  eta, tau,  delta);
+0154         Heta = problem.M.lincomb(x, 1, Heta, tau, Hdelta);
+0155         <span class="keyword">if</span> d_Hd &lt;= 0,
+0156             stop_tCG = 1;     <span class="comment">% negative curvature</span>
+0157         <span class="keyword">else</span>
+0158             stop_tCG = 2;     <span class="comment">% exceeded trust region</span>
+0159         <span class="keyword">end</span>
+0160         <span class="keyword">break</span>;
+0161     <span class="keyword">end</span>
+0162     
+0163     <span class="comment">% No negative curvature and eta_prop inside TR: accept it</span>
+0164     e_Pe = e_Pe_new;
+0165     new_eta  = problem.M.lincomb(x, 1,  eta, alpha,  delta);
+0166     new_Heta = problem.M.lincomb(x, 1, Heta, alpha, Hdelta);
+0167     
+0168     <span class="comment">% Verify that the model cost decreased in going from eta to new_eta. If</span>
+0169     <span class="comment">% the cost increased (which can only occur if the Hessian approximation</span>
+0170     <span class="comment">% is nonlinear), then we return the previous eta (which necessarily is</span>
+0171     <span class="comment">% the best reached so far, according to the model cost). Otherwise, we</span>
+0172     <span class="comment">% accept the new eta and go on.</span>
+0173     new_model_value = model_fun(new_eta, new_Heta);
+0174     <span class="keyword">if</span> new_model_value &gt; model_value
+0175         stop_tCG = 6;
+0176         <span class="keyword">break</span>;
+0177     <span class="keyword">end</span>
+0178     
+0179     eta = new_eta;
+0180     Heta = new_Heta;
+0181     
+0182     <span class="comment">% Update the residual</span>
+0183     r = problem.M.lincomb(x, 1, r, alpha, Hdelta);
+0184     
+0185     <span class="comment">% Compute new norm of r</span>
+0186     r_r = inner(x, r, r);
+0187     norm_r = sqrt(r_r);
+0188     
+0189     <span class="comment">% Check kappa/theta stopping criterion</span>
+0190     <span class="keyword">if</span> j &gt;= options.mininner &amp;&amp; norm_r &lt;= norm_r0*min(norm_r0^theta, kappa)
+0191         <span class="comment">% Residual is small enough to quit</span>
+0192         <span class="keyword">if</span> kappa &lt; norm_r0^theta,
+0193             stop_tCG = 3;  <span class="comment">% linear convergence</span>
+0194         <span class="keyword">else</span>
+0195             stop_tCG = 4;  <span class="comment">% superlinear convergence</span>
+0196         <span class="keyword">end</span>
+0197         <span class="keyword">break</span>;
+0198     <span class="keyword">end</span>
+0199     
+0200     <span class="comment">% Precondition the residual</span>
+0201     <span class="keyword">if</span> ~options.useRand
+0202         [z storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, r, storedb);
+0203     <span class="keyword">else</span>
+0204         z = r;
+0205     <span class="keyword">end</span>
+0206     
+0207     <span class="comment">% Save the old z'*r</span>
+0208     zold_rold = z_r;
+0209     <span class="comment">% Compute new z'*r</span>
+0210     z_r = inner(x, z, r);
+0211     
+0212     <span class="comment">% Compute new search direction</span>
+0213     beta = z_r/zold_rold;
+0214     delta = problem.M.lincomb(x, -1, z, beta, delta);
+0215     
+0216     <span class="comment">% Update new P-norms and P-dots [CGT2000, eq. 7.5.6 &amp; 7.5.7]</span>
+0217     e_Pd = beta*(e_Pd + alpha*d_Pd);
+0218     d_Pd = z_r + beta*beta*d_Pd;
+0219     
+0220 <span class="keyword">end</span>  <span class="comment">% of tCG loop</span>
+0221 inner_it = j;
+0222 
+0223 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -24,7 +24,7 @@
 <div class="box"><strong>Identify a segment of the curve (x, y) that appears to be linear.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="box"><strong>function [range poly] = identify_linear_piece(x, y, window_length) </strong></div>
+<div class="box"><strong>function [range, poly] = identify_linear_piece(x, y, window_length) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Identify a segment of the curve (x, y) that appears to be linear.
@@ -55,7 +55,7 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [range poly] = identify_linear_piece(x, y, window_length)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [range, poly] = identify_linear_piece(x, y, window_length)</a>
 0002 <span class="comment">% Identify a segment of the curve (x, y) that appears to be linear.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function [range poly] = identify_linear_piece(x, y, window_length)</span>
@@ -89,6 +89,6 @@ This function is called by:
 0032     poly = polys(:, best)';
 0033 
 0034 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

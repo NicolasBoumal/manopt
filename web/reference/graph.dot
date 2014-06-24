@@ -30,6 +30,8 @@ digraph m2html {
   truncated_svd -> productmanifold;
   complexcirclefactory -> hashmd5;
   euclideanfactory -> hashmd5;
+  symmetricfactory -> hashmd5;
+  symmetricfactory -> multisym;
   fixedrankMNquotientfactory -> stiefelfactory;
   fixedrankMNquotientfactory -> hashmd5;
   fixedrankembeddedfactory -> stiefelfactory;
@@ -192,6 +194,7 @@ digraph m2html {
   truncated_svd [URL="examples/truncated_svd.html"];
   complexcirclefactory [URL="manopt/manifolds/complexcircle/complexcirclefactory.html"];
   euclideanfactory [URL="manopt/manifolds/euclidean/euclideanfactory.html"];
+  symmetricfactory [URL="manopt/manifolds/euclidean/symmetricfactory.html"];
   fixedrankMNquotientfactory [URL="manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html"];
   fixedrankembeddedfactory [URL="manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"];
   fixedrankfactory_2factors [URL="manopt/manifolds/fixedrank/fixedrankfactory_2factors.html"];

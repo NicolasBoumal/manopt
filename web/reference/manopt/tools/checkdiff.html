@@ -46,7 +46,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>	Checks whether dir. derivatives can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="identify_linear_piece.html" class="code" title="function [range poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
+<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>	Checks whether dir. derivatives can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 <li><a href="checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li></ul>
@@ -141,7 +141,7 @@ This function is called by:
 0084     <span class="comment">% as the square of the stepsize, i.e., in loglog scale, the error</span>
 0085     <span class="comment">% should have a slope of 2.</span>
 0086     window_len = 10;
-0087     [range poly] = <a href="identify_linear_piece.html" class="code" title="function [range poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
+0087     [range poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
 0088     hold on;
 0089         loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="keyword">...</span>
 0090                <span class="string">'r-'</span>, <span class="string">'LineWidth'</span>, 3);
@@ -152,6 +152,6 @@ This function is called by:
 0095              <span class="string">'might be erroneous.\n'</span>]);
 0096     
 0097 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

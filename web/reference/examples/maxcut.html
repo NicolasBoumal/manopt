@@ -208,7 +208,7 @@ This function is called by:
 0114             [v, s] = eigs(Sy, 1, <span class="string">'SA'</span>);
 0115             <span class="comment">% If there is no negative eigenvalue for Sy, than we are not at</span>
 0116             <span class="comment">% a saddle point: we're actually done!</span>
-0117             <span class="keyword">if</span> s &gt;= -1e-10
+0117             <span class="keyword">if</span> s &gt;= -1e-8
 0118                 <span class="comment">% We can stop here: we found the global optimum of the SDP,</span>
 0119                 <span class="comment">% and hence the reached cost is a valid upper bound on the</span>
 0120                 <span class="comment">% maximum cut value.</span>
@@ -220,175 +220,177 @@ This function is called by:
 0126             Z = manifold.proj(Y0, [zeros(n, rr-1) v]);
 0127             
 0128             <span class="comment">% % These instructions can be uncommented to see what the cost</span>
-0129             <span class="comment">% % function looks like at a saddle point.</span>
-0130             <span class="comment">% plotprofile(problem, Y0, Z, linspace(-1, 1, 101));</span>
-0131             <span class="comment">% drawnow; pause;</span>
-0132             
-0133             <span class="comment">% Now make a step in the Z direction to escape from the saddle.</span>
-0134             <span class="comment">% It is not obvious that it is ok to do a unit step ... perhaps</span>
-0135             <span class="comment">% need to be cautious here with the stepsize. It's not too</span>
-0136             <span class="comment">% critical though: the important point is to leave the saddle</span>
-0137             <span class="comment">% point. But it's nice to guarantee monotone decrease of the</span>
-0138             <span class="comment">% cost, and we can't do that with a constant step (at least,</span>
-0139             <span class="comment">% not without a proper argument to back it up).</span>
-0140             stepsize = 1.0;
-0141             Y0 = manifold.retr(Y0, Z, stepsize);
-0142             
-0143         <span class="keyword">end</span>
-0144         
-0145         <span class="comment">% Use the Riemannian optimization based algorithm lower in this</span>
-0146         <span class="comment">% file to reach a critical point (typically a local optimizer) of</span>
-0147         <span class="comment">% the max cut cost with fixed rank, starting from Y0.</span>
-0148         [Y info] = <a href="#_sub1" class="code" title="subfunction [Y info] = maxcut_fixedrank(L, Y)">maxcut_fixedrank</a>(L, Y0);
-0149         
-0150         <span class="comment">% Some info logging.</span>
-0151         thistime = [info.time];
-0152         <span class="keyword">if</span> ~isempty(time)
-0153             thistime = time(end) + thistime;
-0154         <span class="keyword">end</span>
-0155         time = [time thistime]; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0156         <a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> = [<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> [info.cost]]; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0157 
-0158         <span class="comment">% Time to turn the matrix Y into a cut.</span>
-0159         <span class="comment">% We can either do the random rounding as follows:</span>
-0160         <span class="comment">% x = sign(Y*randn(rr, 1));</span>
-0161         <span class="comment">% or extract the &quot;PCA direction&quot; of the points in Y and cut</span>
-0162         <span class="comment">% orthogonally to that direction, as follows:</span>
-0163         [u, ~, ~] = svds(Y, 1);
-0164         x = sign(u);
-0165 
-0166         cutvalue = (x'*L*x)/4;
-0167         <span class="keyword">if</span> cutvalue &gt; best_cutvalue
-0168             best_x = x;
-0169             best_cutvalue = cutvalue;
-0170         <span class="keyword">end</span>
-0171         
-0172     <span class="keyword">end</span>
-0173     
-0174     x = best_x;
-0175     cutvalue = best_cutvalue;
-0176     
-0177     plot(time, -<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>, <span class="string">'.-'</span>);
-0178     xlabel(<span class="string">'Time [s]'</span>);
-0179     ylabel(<span class="string">'Relaxed cut value'</span>);
-0180     title(<span class="string">'The relaxed cut value is an upper bound on the optimal cut value.'</span>);
-0181 
-0182 <span class="keyword">end</span>
+0129             <span class="comment">% % function looks like at a saddle point. But will require the</span>
+0130             <span class="comment">% % problem structure which is not defined here: see the helper</span>
+0131             <span class="comment">% % function.</span>
+0132             <span class="comment">% plotprofile(problem, Y0, Z, linspace(-1, 1, 101));</span>
+0133             <span class="comment">% drawnow; pause;</span>
+0134             
+0135             <span class="comment">% Now make a step in the Z direction to escape from the saddle.</span>
+0136             <span class="comment">% It is not obvious that it is ok to do a unit step ... perhaps</span>
+0137             <span class="comment">% need to be cautious here with the stepsize. It's not too</span>
+0138             <span class="comment">% critical though: the important point is to leave the saddle</span>
+0139             <span class="comment">% point. But it's nice to guarantee monotone decrease of the</span>
+0140             <span class="comment">% cost, and we can't do that with a constant step (at least,</span>
+0141             <span class="comment">% not without a proper argument to back it up).</span>
+0142             stepsize = 1;
+0143             Y0 = manifold.retr(Y0, Z, stepsize);
+0144             
+0145         <span class="keyword">end</span>
+0146         
+0147         <span class="comment">% Use the Riemannian optimization based algorithm lower in this</span>
+0148         <span class="comment">% file to reach a critical point (typically a local optimizer) of</span>
+0149         <span class="comment">% the max cut cost with fixed rank, starting from Y0.</span>
+0150         [Y info] = <a href="#_sub1" class="code" title="subfunction [Y info] = maxcut_fixedrank(L, Y)">maxcut_fixedrank</a>(L, Y0);
+0151         
+0152         <span class="comment">% Some info logging.</span>
+0153         thistime = [info.time];
+0154         <span class="keyword">if</span> ~isempty(time)
+0155             thistime = time(end) + thistime;
+0156         <span class="keyword">end</span>
+0157         time = [time thistime]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0158         <a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> = [<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a> [info.cost]]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0159 
+0160         <span class="comment">% Time to turn the matrix Y into a cut.</span>
+0161         <span class="comment">% We can either do the random rounding as follows:</span>
+0162         <span class="comment">% x = sign(Y*randn(rr, 1));</span>
+0163         <span class="comment">% or extract the &quot;PCA direction&quot; of the points in Y and cut</span>
+0164         <span class="comment">% orthogonally to that direction, as follows:</span>
+0165         [u, ~, ~] = svds(Y, 1);
+0166         x = sign(u);
+0167 
+0168         cutvalue = (x'*L*x)/4;
+0169         <span class="keyword">if</span> cutvalue &gt; best_cutvalue
+0170             best_x = x;
+0171             best_cutvalue = cutvalue;
+0172         <span class="keyword">end</span>
+0173         
+0174     <span class="keyword">end</span>
+0175     
+0176     x = best_x;
+0177     cutvalue = best_cutvalue;
+0178     
+0179     plot(time, -<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>, <span class="string">'.-'</span>);
+0180     xlabel(<span class="string">'Time [s]'</span>);
+0181     ylabel(<span class="string">'Relaxed cut value'</span>);
+0182     title(<span class="string">'The relaxed cut value is an upper bound on the optimal cut value.'</span>);
 0183 
-0184 
-0185 <a name="_sub1" href="#_subfunctions" class="code">function [Y info] = maxcut_fixedrank(L, Y)</a>
-0186 <span class="comment">% Try to solve the (fixed) rank r relaxed max cut program, based on the</span>
-0187 <span class="comment">% Laplacian of the graph L and an initial guess Y. L is nxn and Y is nxr.</span>
-0188 
-0189     [n r] = size(Y);
-0190     assert(all(size(L) == n));
-0191     
-0192     <span class="comment">% The fixed rank elliptope geometry describes symmetric, positive</span>
-0193     <span class="comment">% semidefinite matrices of size n with rank r and all diagonal entries</span>
-0194     <span class="comment">% are 1.</span>
-0195     manifold = <a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>(n, r);
-0196     
-0197     <span class="comment">% % If you want to compare the performance of the elliptope geometry</span>
-0198     <span class="comment">% % against the (conceptually simpler) oblique manifold geometry,</span>
-0199     <span class="comment">% % uncomment this line.</span>
-0200     <span class="comment">% manifold = obliquefactory(r, n, true);</span>
-0201     
-0202     problem.M = manifold;
+0184 <span class="keyword">end</span>
+0185 
+0186 
+0187 <a name="_sub1" href="#_subfunctions" class="code">function [Y info] = maxcut_fixedrank(L, Y)</a>
+0188 <span class="comment">% Try to solve the (fixed) rank r relaxed max cut program, based on the</span>
+0189 <span class="comment">% Laplacian of the graph L and an initial guess Y. L is nxn and Y is nxr.</span>
+0190 
+0191     [n r] = size(Y);
+0192     assert(all(size(L) == n));
+0193     
+0194     <span class="comment">% The fixed rank elliptope geometry describes symmetric, positive</span>
+0195     <span class="comment">% semidefinite matrices of size n with rank r and all diagonal entries</span>
+0196     <span class="comment">% are 1.</span>
+0197     manifold = <a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>(n, r);
+0198     
+0199     <span class="comment">% % If you want to compare the performance of the elliptope geometry</span>
+0200     <span class="comment">% % against the (conceptually simpler) oblique manifold geometry,</span>
+0201     <span class="comment">% % uncomment this line.</span>
+0202     <span class="comment">% manifold = obliquefactory(r, n, true);</span>
 0203     
-0204     <span class="comment">% % For rapid prototyping, these lines suffice to describe the cost</span>
-0205     <span class="comment">% % function and its gradient and Hessian (here expressed using the</span>
-0206     <span class="comment">% % Euclidean gradient and Hessian).</span>
-0207     <span class="comment">% problem.cost = @(Y)  -trace(Y'*L*Y)/4;</span>
-0208     <span class="comment">% problem.egrad = @(Y) -(L*Y)/2;</span>
-0209     <span class="comment">% problem.ehess = @(Y, U) -(L*U)/2;</span>
-0210     
-0211     <span class="comment">% Instead of the prototyping version, the functions below describe the</span>
-0212     <span class="comment">% cost, gradient and Hessian using the caching system (the store</span>
-0213     <span class="comment">% structure). This alows to execute exactly the required number of</span>
-0214     <span class="comment">% multiplications with the matrix L. These multiplications are counted</span>
-0215     <span class="comment">% using the Lproducts_counter and registered for each iteration in the</span>
-0216     <span class="comment">% info structure outputted by solvers, via the statsfun function.</span>
-0217     <span class="comment">% Notice that we do not use the store structure to count: this does not</span>
-0218     <span class="comment">% behave well in general and is not advised.</span>
-0219     
-0220     Lproducts_counter = 0;
-0221 
-0222     <span class="comment">% For every visited point Y, we will need L*Y. This function makes sure</span>
-0223     <span class="comment">% the quantity L*Y is available, but only computes it if it wasn't</span>
-0224     <span class="comment">% already computed.</span>
-0225     <a name="_sub2" href="#_subfunctions" class="code">function store = prepare(Y, store)</a>
-0226         <span class="keyword">if</span> ~isfield(store, <span class="string">'LY'</span>)
-0227             store.LY = L*Y;
-0228             Lproducts_counter = Lproducts_counter + 1;
-0229         <span class="keyword">end</span>
-0230     <span class="keyword">end</span>
-0231 
-0232     problem.cost = @<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>;
-0233     <a name="_sub3" href="#_subfunctions" class="code">function [f store] = cost(Y, store)</a>
-0234         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
-0235         LY = store.LY;
-0236         f = -(Y(:)'*LY(:))/4; <span class="comment">% = -trace(Y'*LY)/4;</span>
-0237     <span class="keyword">end</span>
-0238 
-0239     problem.grad = @<a href="#_sub4" class="code" title="subfunction [g store] = grad(Y, store)">grad</a>;
-0240     <a name="_sub4" href="#_subfunctions" class="code">function [g store] = grad(Y, store)</a>
-0241         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
-0242         LY = store.LY;
-0243         g = manifold.egrad2rgrad(Y, -LY/2);
-0244     <span class="keyword">end</span>
-0245 
-0246     problem.hess = @<a href="#_sub5" class="code" title="subfunction [h store] = hess(Y, U, store)">hess</a>;
-0247     <a name="_sub5" href="#_subfunctions" class="code">function [h store] = hess(Y, U, store)</a>
-0248         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
-0249         LY = store.LY;
-0250         LU = L*U;
-0251         Lproducts_counter = Lproducts_counter + 1;
-0252         h = manifold.ehess2rhess(Y, -LY/2, -LU/2, U);
-0253     <span class="keyword">end</span>
-0254 
-0255     <span class="comment">% statsfun is called exactly once after each iteration (including after</span>
-0256     <span class="comment">% the evaluation of the cost at the initial guess). We then register</span>
-0257     <span class="comment">% the value of the Lproducts counter (which counts how many product</span>
-0258     <span class="comment">% were needed since the last iteration), and reset it to zero.</span>
-0259     options.statsfun = @<a href="#_sub6" class="code" title="subfunction stats = statsfun(problem, Y, stats, store) ">statsfun</a>;
-0260     <a name="_sub6" href="#_subfunctions" class="code">function stats = statsfun(problem, Y, stats, store) </a><span class="comment">%#ok</span>
-0261         stats.Lproducts = Lproducts_counter;
-0262         Lproducts_counter = 0;
-0263     <span class="keyword">end</span>
-0264     
-0265 
-0266     <span class="comment">% % Diagnostics tools: to make sure the gradient and Hessian are</span>
-0267     <span class="comment">% % correct during the prototyping stage.</span>
-0268     <span class="comment">% checkgradient(problem); pause;</span>
-0269     <span class="comment">% checkhessian(problem); pause;</span>
-0270     
-0271     <span class="comment">% % To investigate the effect of the rotational invariance when using</span>
-0272     <span class="comment">% % the oblique or the elliptope geometry, or to study the saddle point</span>
-0273     <span class="comment">% % issue mentioned above, it is sometimes interesting to look at the</span>
-0274     <span class="comment">% % spectrum of the Hessian. For large dimensions, this is slow!</span>
-0275     <span class="comment">% stairs(sort(hessianspectrum(problem, Y)));</span>
-0276     <span class="comment">% drawnow; pause;</span>
-0277     
-0278     
-0279     <span class="comment">% % When facing a saddle point issue as described in the master</span>
-0280     <span class="comment">% % function, and when no sure mechanism exists to find an escape</span>
-0281     <span class="comment">% % direction, it may be helpful to set useRand to true and raise</span>
-0282     <span class="comment">% % miniter to more than 1, when using trustregions. This will tell the</span>
-0283     <span class="comment">% % solver to not stop before at least miniter iterations were</span>
-0284     <span class="comment">% % accomplished (thus disregarding the zero gradient at the saddle</span>
-0285     <span class="comment">% % point) and to use random search directions to kick start the inner</span>
-0286     <span class="comment">% % solve (tCG) step. It is not as efficient as finding a sure escape</span>
-0287     <span class="comment">% % direction, but sometimes it's the best we have.</span>
-0288     <span class="comment">% options.useRand = true;</span>
-0289     <span class="comment">% options.miniter = 5;</span>
-0290     
-0291     options.verbosity = 2;
-0292     Lproducts_counter = 0;
-0293     [Y Ycost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, Y, options); <span class="comment">%#ok</span>
-0294     
-0295     <span class="comment">% fprintf('Products with L: %d\n', sum([info.Lproducts]));</span>
-0296 
-0297 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jan-2014 18:07:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0204     problem.M = manifold;
+0205     
+0206     <span class="comment">% % For rapid prototyping, these lines suffice to describe the cost</span>
+0207     <span class="comment">% % function and its gradient and Hessian (here expressed using the</span>
+0208     <span class="comment">% % Euclidean gradient and Hessian).</span>
+0209     <span class="comment">% problem.cost = @(Y)  -trace(Y'*L*Y)/4;</span>
+0210     <span class="comment">% problem.egrad = @(Y) -(L*Y)/2;</span>
+0211     <span class="comment">% problem.ehess = @(Y, U) -(L*U)/2;</span>
+0212     
+0213     <span class="comment">% Instead of the prototyping version, the functions below describe the</span>
+0214     <span class="comment">% cost, gradient and Hessian using the caching system (the store</span>
+0215     <span class="comment">% structure). This alows to execute exactly the required number of</span>
+0216     <span class="comment">% multiplications with the matrix L. These multiplications are counted</span>
+0217     <span class="comment">% using the Lproducts_counter and registered for each iteration in the</span>
+0218     <span class="comment">% info structure outputted by solvers, via the statsfun function.</span>
+0219     <span class="comment">% Notice that we do not use the store structure to count: this does not</span>
+0220     <span class="comment">% behave well in general and is not advised.</span>
+0221     
+0222     Lproducts_counter = 0;
+0223 
+0224     <span class="comment">% For every visited point Y, we will need L*Y. This function makes sure</span>
+0225     <span class="comment">% the quantity L*Y is available, but only computes it if it wasn't</span>
+0226     <span class="comment">% already computed.</span>
+0227     <a name="_sub2" href="#_subfunctions" class="code">function store = prepare(Y, store)</a>
+0228         <span class="keyword">if</span> ~isfield(store, <span class="string">'LY'</span>)
+0229             store.LY = L*Y;
+0230             Lproducts_counter = Lproducts_counter + 1;
+0231         <span class="keyword">end</span>
+0232     <span class="keyword">end</span>
+0233 
+0234     problem.cost = @<a href="#_sub3" class="code" title="subfunction [f store] = cost(Y, store)">cost</a>;
+0235     <a name="_sub3" href="#_subfunctions" class="code">function [f store] = cost(Y, store)</a>
+0236         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0237         LY = store.LY;
+0238         f = -(Y(:)'*LY(:))/4; <span class="comment">% = -trace(Y'*LY)/4;</span>
+0239     <span class="keyword">end</span>
+0240 
+0241     problem.grad = @<a href="#_sub4" class="code" title="subfunction [g store] = grad(Y, store)">grad</a>;
+0242     <a name="_sub4" href="#_subfunctions" class="code">function [g store] = grad(Y, store)</a>
+0243         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0244         LY = store.LY;
+0245         g = manifold.egrad2rgrad(Y, -LY/2);
+0246     <span class="keyword">end</span>
+0247 
+0248     problem.hess = @<a href="#_sub5" class="code" title="subfunction [h store] = hess(Y, U, store)">hess</a>;
+0249     <a name="_sub5" href="#_subfunctions" class="code">function [h store] = hess(Y, U, store)</a>
+0250         store = <a href="#_sub2" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0251         LY = store.LY;
+0252         LU = L*U;
+0253         Lproducts_counter = Lproducts_counter + 1;
+0254         h = manifold.ehess2rhess(Y, -LY/2, -LU/2, U);
+0255     <span class="keyword">end</span>
+0256 
+0257     <span class="comment">% statsfun is called exactly once after each iteration (including after</span>
+0258     <span class="comment">% the evaluation of the cost at the initial guess). We then register</span>
+0259     <span class="comment">% the value of the Lproducts counter (which counts how many product</span>
+0260     <span class="comment">% were needed since the last iteration), and reset it to zero.</span>
+0261     options.statsfun = @<a href="#_sub6" class="code" title="subfunction stats = statsfun(problem, Y, stats, store) ">statsfun</a>;
+0262     <a name="_sub6" href="#_subfunctions" class="code">function stats = statsfun(problem, Y, stats, store) </a><span class="comment">%#ok</span>
+0263         stats.Lproducts = Lproducts_counter;
+0264         Lproducts_counter = 0;
+0265     <span class="keyword">end</span>
+0266     
+0267 
+0268     <span class="comment">% % Diagnostics tools: to make sure the gradient and Hessian are</span>
+0269     <span class="comment">% % correct during the prototyping stage.</span>
+0270     <span class="comment">% checkgradient(problem); pause;</span>
+0271     <span class="comment">% checkhessian(problem); pause;</span>
+0272     
+0273     <span class="comment">% % To investigate the effect of the rotational invariance when using</span>
+0274     <span class="comment">% % the oblique or the elliptope geometry, or to study the saddle point</span>
+0275     <span class="comment">% % issue mentioned above, it is sometimes interesting to look at the</span>
+0276     <span class="comment">% % spectrum of the Hessian. For large dimensions, this is slow!</span>
+0277     <span class="comment">% stairs(sort(hessianspectrum(problem, Y)));</span>
+0278     <span class="comment">% drawnow; pause;</span>
+0279     
+0280     
+0281     <span class="comment">% % When facing a saddle point issue as described in the master</span>
+0282     <span class="comment">% % function, and when no sure mechanism exists to find an escape</span>
+0283     <span class="comment">% % direction, it may be helpful to set useRand to true and raise</span>
+0284     <span class="comment">% % miniter to more than 1, when using trustregions. This will tell the</span>
+0285     <span class="comment">% % solver to not stop before at least miniter iterations were</span>
+0286     <span class="comment">% % accomplished (thus disregarding the zero gradient at the saddle</span>
+0287     <span class="comment">% % point) and to use random search directions to kick start the inner</span>
+0288     <span class="comment">% % solve (tCG) step. It is not as efficient as finding a sure escape</span>
+0289     <span class="comment">% % direction, but sometimes it's the best we have.</span>
+0290     <span class="comment">% options.useRand = true;</span>
+0291     <span class="comment">% options.miniter = 5;</span>
+0292     
+0293     options.verbosity = 2;
+0294     Lproducts_counter = 0;
+0295     [Y Ycost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, Y, options); <span class="comment">%#ok</span>
+0296     
+0297     <span class="comment">% fprintf('Products with L: %d\n', sum([info.Lproducts]));</span>
+0298 
+0299 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 24-Jun-2014 22:57:43 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
