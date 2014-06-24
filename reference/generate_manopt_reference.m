@@ -2,9 +2,6 @@ clear all;
 close all;
 clc;
 
-% MAKE SURE SEDUMI IS NOT ON THE PATH WHEN EXECUTING THIS
-% SeDuMi has an 'examples' directory that interferes.
-
 % Add m2html tool to the Matlab path
 cd m2html/;
 addpath(pwd);
@@ -33,8 +30,7 @@ options.helptocxml = 'off';
 options.indexFile = 'index';
 options.extension = '.html';
 options.template = 'blue';
-% options.rootdir = '';
-options.ignoredDir = {'.svn'  'cvs'};
+options.ignoredDir = {'.svn', 'cvs', '.git'};
 options.language = 'english';
 
 % Call the magician
