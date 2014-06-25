@@ -12,7 +12,7 @@ function Test_trace_ratio()
     % Change log:
     %
  
-    n = 300;
+    n = 200;
     p = 5;
     A = randn(n, n);
     A = A + A'; % Symmetric matrix
