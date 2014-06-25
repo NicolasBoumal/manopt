@@ -165,12 +165,12 @@ problem.M = manifold;
             <pre class="prettyprint lang-matlab linenumsoffset linenums:11">problem.cost = @(x) -x'*(A*x);
 problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
 </pre>
-            <p>An alternative to the definition of the gradient is to specify the Euclidean gradient directly, and let Manopt figure out the conversion:</p>
+            <p>The cost function and its derivatives are specified as <a
+                href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) = -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code> which is an implementation of the orthogonal projector $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is particularly useful when one is working with a more complicated manifold.</p>
+            <p>An alternative to the definition of the gradient is to specify the Euclidean gradient directly, and let Manopt call <code>egrad2rgrad</code> itself:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:12">problem.egrad = @(x) -2*A*x;
 </pre>
             <p>Mind the names: <code>problem.grad</code> is to specify the <em>Riemannian</em> gradient. If you want to specify the <em>Euclidean</em> gradient, the correct name is <code>problem.egrad</code>, with an "e". For day to day use, this is the often the preferred way to go.</p>
-            <p>The cost function and its derivatives are specified as <a
-                href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) = -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code> which is an implementation of the orthogonal projector $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is particularly useful when one is working with a more complicated manifold.</p>
             <div class="alert alert-info"><strong>Tip!</strong> Notice that the functions <code>cost</code> <emph>and</emph> <code>grad</code> <emph>both</emph> compute the product $Ax$, which is likely to be the most expensive operation for large scale problems. This is perfectly fine for prototyping, but not for a final version of the implementation. See the many ways of <a
                 href="#costdescription">describing the cost function</a> for alternatives that alleviate redundant computations.</div>
             <p>The next instruction is not needed to solve the problem but often helps at the prototyping stage:</p>
@@ -870,6 +870,5 @@ MathJax.Hub.Config({
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>
