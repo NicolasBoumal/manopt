@@ -47,7 +47,7 @@ cd ..;
 
 cd releases;
 cd(rep);
-zip(rep, '*');
+zip(['../../web/downloads/', rep, '.zip'], '*');
 cd ..;
 cd ..;
 
@@ -59,3 +59,7 @@ generate_manopt_reference;
 cd ..;
 
 fprintf('Now: update the website !\n');
+fprintf('Files concerned: download.html, downloads.html and tutorial.html\n');
+edit web/download.html;
+edit web/downloads.html;
+edit web/tutorial.html;

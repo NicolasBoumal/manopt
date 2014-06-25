@@ -34,147 +34,148 @@ body {
               <li><a href="index.html"><i class="icon-home"></i> Home</a></li>
               <li><a href="tutorial.html"><i class="icon-road"></i> Tutorial</a></li>
               <li><a href="downloads.html"><i class="icon-download-alt"></i> Downloads</a></li>
-            <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
-            <li class="active"><a href="about.html"><i class="icon-user"></i> About</a></li>
-            <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i> Contact</a></li>
-          </ul>
-        </div>
-        <!--/.nav-collapse --> </div>
-    </div>
-  </div>
-  <!-- Contact modal Begin -->
-  <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog"
-    aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-        aria-hidden="true">&#215;</button>
-      <h3 id="myModalLabel">To contact us</h3>
-    </div>
-    <div class="modal-body">
-      <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
-      <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
-      <p>We are happy to receive feedback and bug reports or requests for more features, to discuss the toolbox in general as well as its documentation and to help you use it.</p>
-      <p>We would also love to know how you use the toolbox, and if you built nice manifold factories, solvers or tools that could benefit others.</p>
-    </div>
-    <div class="modal-footer"> <button class="btn" data-dismiss="modal"
-        aria-hidden="true">Close</button> </div>
-  </div>
-  <!-- Contact modal End -->
-  <div class="container">
-    <div class="row">
-      <div class="span12">
-        <!--Body content-->
-        <section id="about">
-          <div class="page-header">
-            <h1>About</h1>
+              <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
+              <li class="active"><a href="about.html"><i class="icon-user"></i> About</a></li>
+              <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i> Contact</a></li>
+            </ul>
           </div>
-          <p>Manopt is developed by <a href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas Boumal</a> and <a
-              href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a>. The toolbox originated as a project of <a
-              href="RANSO.html">the RANSO group</a>, led by <a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine Absil</a>, <a
-              href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii Nesterov</a> and <a
-              href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe Sepulchre</a>. The purpose of Manopt is to facilitate experimentation with optimization on manifolds as well as sharing geometries and algorithms.</p>
-          <p>A reference book in the field of optimization on manifolds is <a
-              target="_blank" href="http://press.princeton.edu/titles/8586.html">Optimization Algorithms on Matrix Manifolds</a>, which is <a
-              target="_blank" href="http://press.princeton.edu/chapters/absil/">available online</a> for free.</p>
-          <p>This toolbox is work in progress. We welcome contributions, bug reports and feedback. <a
-              href="#contactmodal" data-toggle="modal">Let us know</a> what you think! </p>
-          <p>If you use the toolbox in work you publish, please cite <a
-              href="http://jmlr.org/papers/v15/boumal14a.html">the Manopt paper</a> published in the Journal of Machine Learning Research:</p>
-          <p><samp>@article{manopt,<br>
-              &#160; author&#160; = {Nicolas Boumal and Bamdev Mishra and P.-A. Absil and Rodolphe Sepulchre},<br>
-              &#160; title&#160;&#160; = {{M}anopt, a {M}atlab Toolbox for Optimization on Manifolds},<br>
-              &#160; journal = {Journal of Machine Learning Research},<br>
-              &#160; year&#160;&#160;&#160; = {2014},<br>
-              &#160; volume&#160; = {15},<br>
-              &#160; pages&#160;&#160; = {1455--1459},<br>
-              &#160; url&#160;&#160;&#160;&#160; = {http://www.manopt.org}<br>
-              }</samp></p>
-          <p>Manopt won the <a target="_blank" href="http://www.n-side.com/wolsey-award/winners.html">ORBEL Wolsey Award 2014</a> for best operational research implementation.&#160;&#160;&#160; <br>
-            <samp></samp><samp></samp><samp></samp></p>
-        </section>
-        <section id="contributors">
-          <div class="page-header">
-            <h1>Authorship, contributors and third-party code </h1>
-        </div>
-        <p>The core design, code and documentation of the toolbox is due to <a
-            href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas Boumal</a>. The design of the toolbox was imagined with <a
-            href="http://www.inma.ucl.ac.be/%7Eborckmans/">Pierre Borckmans</a><a
-            href="http://perso.uclouvain.be/pa.absil/"></a>, who also contributed the <abbr
-            title="Particle swarm optimization">PSO</abbr> solver. <a href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a> is an active contributor of the project. He contributed most fixed-rank manifold factories, the conjugate-gradient solver, the adaptive line search algorithm and many ideas and bug reports. The RANSO group (<a
-            href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine Absil</a>, <a
-            href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii Nesterov</a> and <a
-            href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe Sepulchre</a>) provides helpful support and guidance. </p>
-      <p>Though not technically a contribution, the <a target="_blank"
-          href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a> code by <a
-          href="http://www.csm.ornl.gov/%7Ecbaker/index.php">Chris Baker</a>, Pierre-Antoine Absil and <a
-          href="http://www.math.fsu.edu/%7Egallivan/">Kyle Gallivan</a>, which was modified to become the <code>trustregions</code> solver, is arguably the most important solver in the toolbox so far and merits special credits.</p>
-      <p>Here is a list of open-source code that proved useful to develop the toolbox:</p>
-      <ul>
-        <li>The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
-            target="_blank" href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ;</li>
-        <li><code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
-            target="_blank" href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a> ;</li>
-        <li>The <code>hashmd5</code> private tool is a stripped version of more general hashing code by Michael Kleder (not available anymore). </li>
-    </ul>
-  </section>
-  <section id="contributing">
-    <div class="page-header">
-      <h1>How to contribute?</h1>
+          <!--/.nav-collapse --> </div>
+      </div>
     </div>
-    <p>Manopt is meant to ease the sharing of geometries and solvers. If you developed a Riemannian geometry or a solver for optimization on manifolds and would like it to be featured in Manopt, <a
-        href="#contactmodal" data-toggle="modal">contact us</a>.</p>
-    <p>We will ask for an implementation of your manifold / solver in the Manopt format, a documentation page for it (template to come) and an example script to illustrate its features. The documentation page as well as the code will, of course, visibly reflect the authors of the contribution. The documentation will feature links to their personal pages and relevant publications. We will gladly help.</p>
-    <p>Contributors will be asked to agree to the terms of the <a href="CLA.txt">Contributor License Agreement</a>. This agreement protects you as a contributor by making it clear that you retain your right to use your own contributions for any other purpose (you retain the copyrights). This agreement protects us as maintainers by authorizing us to distribute the toolbox under a unified license. </p>
-</section>
-<section id="license">
-  <div class="page-header">
-    <h1>License</h1>
+    <!-- Contact modal Begin -->
+    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog"
+      aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
+          aria-hidden="true">&#215;</button>
+        <h3 id="myModalLabel">To contact us</h3>
+      </div>
+      <div class="modal-body">
+        <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
+        <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
+        <p>We are happy to receive feedback and bug reports or requests for more features, to discuss the toolbox in general as well as its documentation and to help you use it.</p>
+        <p>We would also love to know how you use the toolbox, and if you built nice manifold factories, solvers or tools that could benefit others.</p>
+      </div>
+      <div class="modal-footer"> <button class="btn" data-dismiss="modal"
+          aria-hidden="true">Close</button> </div>
+    </div>
+    <!-- Contact modal End -->
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <!--Body content-->
+          <section id="about">
+            <div class="page-header">
+              <h1>About</h1>
+            </div>
+            <p>Manopt is developed by <a href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas Boumal</a> and <a
+                href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a>. The toolbox originated as a project of <a
+                href="RANSO.html">the RANSO group</a>, led by <a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine Absil</a>, <a
+                href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii Nesterov</a> and <a
+                href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe Sepulchre</a>. The purpose of Manopt is to facilitate experimentation with optimization on manifolds as well as sharing geometries and algorithms.</p>
+            <p>A reference book in the field of optimization on manifolds is <a
+                target="_blank" href="http://press.princeton.edu/titles/8586.html">Optimization Algorithms on Matrix Manifolds</a>, which is <a
+                target="_blank" href="http://press.princeton.edu/chapters/absil/">available online</a> for free.</p>
+            <p>This toolbox is work in progress. We welcome contributions, bug reports and feedback. <a
+                href="#contactmodal" data-toggle="modal">Let us know</a> what you think! </p>
+            <p>If you use the toolbox in work you publish, please cite <a
+                href="http://jmlr.org/papers/v15/boumal14a.html">the Manopt paper</a> published in the Journal of Machine Learning Research:</p>
+            <p><samp>@article{manopt,<br>
+                &#160; author&#160; = {Nicolas Boumal and Bamdev Mishra and P.-A. Absil and Rodolphe Sepulchre},<br>
+                &#160; title&#160;&#160; = {{M}anopt, a {M}atlab Toolbox for Optimization on Manifolds},<br>
+                &#160; journal = {Journal of Machine Learning Research},<br>
+                &#160; year&#160;&#160;&#160; = {2014},<br>
+                &#160; volume&#160; = {15},<br>
+                &#160; pages&#160;&#160; = {1455--1459},<br>
+                &#160; url&#160;&#160;&#160;&#160; = {http://www.manopt.org}<br>
+                }</samp></p>
+            <p>Manopt won the <a target="_blank" href="http://www.n-side.com/wolsey-award/winners.html">ORBEL Wolsey Award 2014</a> for best operational research implementation.&#160;&#160;&#160; <br>
+              <samp></samp><samp></samp><samp></samp></p>
+          </section>
+          <section id="contributors">
+            <div class="page-header">
+              <h1>Authorship, contributors and third-party code </h1>
+            </div>
+            <p>The core design, code and documentation of the toolbox is due to <a
+                href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas Boumal</a>. The design of the toolbox was imagined with <a
+                href="http://www.inma.ucl.ac.be/%7Eborckmans/">Pierre Borckmans</a><a
+                href="http://perso.uclouvain.be/pa.absil/"></a>, who also contributed the <abbr
+                title="Particle swarm optimization">PSO</abbr> solver. <a
+                href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a> is an active contributor of the project. He contributed most fixed-rank manifold factories, the conjugate-gradient solver, the adaptive line search algorithm and many ideas and bug reports. The RANSO group (<a
+                href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine Absil</a>, <a
+                href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii Nesterov</a> and <a
+                href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe Sepulchre</a>) provides helpful support and guidance. </p>
+            <p>Though not technically a contribution, the <a target="_blank"
+                href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a> code by <a
+                href="http://www.csm.ornl.gov/%7Ecbaker/index.php">Chris Baker</a>, Pierre-Antoine Absil and <a
+                href="http://www.math.fsu.edu/%7Egallivan/">Kyle Gallivan</a>, which was modified to become the <code>trustregions</code> solver, is arguably the most important solver in the toolbox so far and merits special credits.</p>
+            <p>Here is a list of open-source code that proved useful to develop the toolbox:</p>
+            <ul>
+              <li>The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
+                  target="_blank" href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ;</li>
+              <li><code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
+                  target="_blank" href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a> ;</li>
+              <li>The <code>hashmd5</code> private tool is a stripped version of more general hashing code by Michael Kleder (not available anymore). </li>
+            </ul>
+          </section>
+          <section id="contributing">
+            <div class="page-header">
+              <h1>How to contribute?</h1>
+            </div>
+            <p>Manopt is meant to ease the sharing of geometries and solvers. If you developed a Riemannian geometry or a solver for optimization on manifolds and would like it to be featured in Manopt, <a
+                href="#contactmodal" data-toggle="modal">contact us</a>.</p>
+            <p>We will ask for an implementation of your manifold / solver in the Manopt format, a documentation page for it (template to come) and an example script to illustrate its features. The documentation page as well as the code will, of course, visibly reflect the authors of the contribution. The documentation will feature links to their personal pages and relevant publications. We will gladly help.</p>
+            <p>Contributors will be asked to agree to the terms of the <a
+                href="CLA.txt">Contributor License Agreement</a>. This agreement protects you as a contributor by making it clear that you retain your right to use your own contributions for any other purpose (you retain the copyrights). This agreement protects us as maintainers by authorizing us to distribute the toolbox under a unified license. </p>
+          </section>
+          <section id="license">
+            <div class="page-header">
+              <h1>License</h1>
+            </div>
+            <p>Manopt, a Matlab toolbox for optimization on manifolds, is copyright &#169; 2014 by Nicolas Boumal and is distributed under the terms of the <a
+                target="_blank" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a> (GPL) version 3 (or later). Contributed and third-party code is copyrighted by their respective authors, but is distributed under a unified license for the whole Manopt toolbox. </p>
+            <p>In short, this means that everyone is free to use Manopt, to modify it and to redistribute it on a free basis. Manopt is not in the public domain; it is copyrighted and there are restrictions on its distribution (see the license and the related <a
+                target="_blank" href="http://www.gnu.org/copyleft/gpl-faq.html">frequently asked questions</a>). For example, you cannot integrate this version of Manopt (in full or in parts) in any closed-source software you plan to distribute (commercially or not). Please <a
+                href="#contactmodal" data-toggle="modal">contact us</a> for more information. </p>
+            <p>The documentation of Manopt (this website) is copyright &#169; 2014 by Nicolas Boumal, all rights reserved.</p>
+          </section>
+          <section id="related">
+            <div class="page-header">
+              <h1>Related software</h1>
+            </div>
+            <ul>
+              <li><a target="_blank" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a> is the Generic Riemannian Trust-Region package for Matlab (it is included in a slightly modified form in Manopt) ;</li>
+              <li><a target="_blank" href="http://www.cs.ucdavis.edu/%7Ebai/ET/other_methods/overview_SGMIN.html">SGMIN</a> performs Stiefel-Grassmann optimization ;</li>
+              <li><a target="_blank" href="http://www.math.umbc.edu/%7Ekofi/GrassmannOptim/">GrassmannOptim</a> is an R-package for optimization on the Grassmann manifold ;</li>
+              <li><a href="http://optman.blogs.rice.edu/">Optman</a> hosts a collection of algorithms from Rice University for optimization with orthogonality constraints ;</li>
+              <li><a href="http://signal.hut.fi/%7Etabrudan/unitary_optimization/index.html">Traian Abrudan</a> has code for optimization under unitary matrix constraints. </li>
+            <li>Your code? <a href="#contactmodal" data-toggle="modal">Let us know!</a> </li>
+          </ul>
+        </section>
+        <section id="website">
+          <div class="page-header">
+            <h1>About the website</h1>
+          </div>
+          <p>A number of tools have proven invaluable for putting together this website and, most importantly, the documentation:</p>
+          <ul>
+            <li><a target="_blank" href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> for the core CSS-JS of the website ;</li>
+            <li><a target="_blank" href="http://www.mathjax.org/">MathJax</a> to display LaTeX equations beautifully and seamlessly on the web ;</li>
+            <li><a target="_blank" href="http://code.google.com/p/google-code-prettify/">Google-code-prettify</a> to display code, together with a <a
+                target="_blank" href="https://github.com/amroamroamro/prettify-matlab">Matlab plugin</a> and <a
+                target="_blank" href="http://jewei.blogspot.be/2012/08/how-to-prettify-your-code-on-google.html">nicer CSS</a> ;</li>
+            <li><a target="_blank" href="http://www.bluegriffon.org/">BlueGriffon</a> for the occasional wysiwyg needs ; </li>
+            <li><a target="_blank" href="http://www.artefact.tk/software/matlab/m2html/">m2html</a> for the automatically generated <a
+                target="_blank" href="reference/index.html">reference</a>. </li>
+          </ul>
+        </section>
+      </div>
+    </div>
   </div>
-  <p>Manopt, a Matlab toolbox for optimization on manifolds, is copyright &#169; 2013 by Nicolas Boumal and is distributed under the terms of the <a
-      target="_blank" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a> (GPL) version 3 (or later). Contributed and third-party code is copyrighted by their respective authors, but is distributed under a unified license for the whole Manopt toolbox. </p>
-<p>In short, this means that everyone is free to use Manopt, to modify it and to redistribute it on a free basis. Manopt is not in the public domain; it is copyrighted and there are restrictions on its distribution (see the license and the related <a
-    target="_blank" href="http://www.gnu.org/copyleft/gpl-faq.html">frequently asked questions</a>). For example, you cannot integrate this version of Manopt (in full or in parts) in any closed-source software you plan to distribute (commercially or not). Please <a
-    href="#contactmodal" data-toggle="modal">contact us</a> for more information. </p>
-<p>The documentation of Manopt (this website) is copyright &#169; 2013 by Nicolas Boumal, all rights reserved.</p>
-</section>
-<section id="related">
-  <div class="page-header">
-    <h1>Related software</h1>
-  </div>
-  <ul>
-    <li><a target="_blank" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a> is the Generic Riemannian Trust-Region package for Matlab (it is included in a slightly modified form in Manopt) ;</li>
-    <li><a target="_blank" href="http://www.cs.ucdavis.edu/%7Ebai/ET/other_methods/overview_SGMIN.html">SGMIN</a> performs Stiefel-Grassmann optimization ;</li>
-    <li><a target="_blank" href="http://www.math.umbc.edu/%7Ekofi/GrassmannOptim/">GrassmannOptim</a> is an R-package for optimization on the Grassmann manifold ;</li>
-    <li><a href="http://optman.blogs.rice.edu/">Optman</a> hosts a collection of algorithms from Rice University for optimization with orthogonality constraints ;</li>
-    <li><a href="http://signal.hut.fi/%7Etabrudan/unitary_optimization/index.html">Traian Abrudan</a> has code for optimization under unitary matrix constraints.<br>
-  </li>
-  <li>Your code? <a href="#contactmodal" data-toggle="modal">Let us know!</a> </li>
-</ul>
-</section>
-<section id="website">
-  <div class="page-header">
-    <h1>About the website</h1>
-  </div>
-  <p>A number of tools have proven invaluable for putting together this website and, most importantly, the documentation:</p>
-  <ul>
-    <li><a target="_blank" href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> for the core CSS-JS of the website ;</li>
-    <li><a target="_blank" href="http://www.mathjax.org/">MathJax</a> to display LaTeX equations beautifully and seamlessly on the web ;</li>
-    <li><a target="_blank" href="http://code.google.com/p/google-code-prettify/">Google-code-prettify</a> to display code, together with a <a
-        target="_blank" href="https://github.com/amroamroamro/prettify-matlab">Matlab plugin</a> and <a
-        target="_blank" href="http://jewei.blogspot.be/2012/08/how-to-prettify-your-code-on-google.html">nicer CSS</a> ;</li>
-    <li><a target="_blank" href="http://www.bluegriffon.org/">BlueGriffon</a> for the occasional wysiwyg needs ; </li>
-  <li><a target="_blank" href="http://www.artefact.tk/software/matlab/m2html/">m2html</a> for the automatically generated <a
-      target="_blank" href="reference/index.html">reference</a>. </li>
-</ul>
-</section>
-</div>
-</div>
-</div>
-<!-- /container --><!-- Le javascript ================================================== -->
-<script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-<script type="text/javascript" src="bootstrap/js/prettify.js"></script>
-<script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
-<script type="text/javascript">
+  <!-- /container --><!-- Le javascript ================================================== -->
+  <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
+  <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
+  <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
+  <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-37402854-1']);
