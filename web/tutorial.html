@@ -165,6 +165,10 @@ problem.M = manifold;
             <pre class="prettyprint lang-matlab linenumsoffset linenums:11">problem.cost = @(x) -x'*(A*x);
 problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
 </pre>
+            <p>An alternative to the definition of the gradient is to specify the Euclidean gradient directly, and let Manopt figure out the conversion:</p>
+            <pre class="prettyprint lang-matlab linenumsoffset linenums:12">problem.egrad = @(x) -2*A*x;
+</pre>
+            <p>Mind the names: <code>problem.grad</code> is to specify the <em>Riemannian</em> gradient. If you want to specify the <em>Euclidean</em> gradient, the correct name is <code>problem.egrad</code>, with an "e". For day to day use, this is the often the preferred way to go.</p>
             <p>The cost function and its derivatives are specified as <a
                 href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) = -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code> which is an implementation of the orthogonal projector $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is particularly useful when one is working with a more complicated manifold.</p>
             <div class="alert alert-info"><strong>Tip!</strong> Notice that the functions <code>cost</code> <emph>and</emph> <code>grad</code> <emph>both</emph> compute the product $Ax$, which is likely to be the most expensive operation for large scale problems. This is perfectly fine for prototyping, but not for a final version of the implementation. See the many ways of <a
@@ -749,113 +753,112 @@ end
             </div>
             <p>A number of generically useful tools in the context of using Manopt are available in /<tt>manopt/tools</tt>. The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
                 href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
-                href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a>.
-          </p>
-          <table style="width: 100%;" class="table table-striped table-bordered">
-            <thead>
-              <tr>
-                <td>Call </td>
-                <td>Description </td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
-              </tr>
-              <tr>
-                <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
-                <td>Numerical check of the directional derivatives of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a slope of 2. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 2 everywhere even if directional derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
-                <td>Numerical check of the gradient of the cost function. Based on the statement that if the gradient exists, than it is the only tangent vector field that satisfies $$\langle \operatorname{grad} f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code> and it verifies that the gradient is indeed a tangent vector, by computing the norm of the difference between the gradient and its projection to the tangent space (if a projector is available). Of course, this should be zero. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
-                <td>
-                  <p>Numerical check of the Hessian of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] = \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of 3. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 3 everywhere even if the derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. The tool also verifies that the Hessian indeed returns a tangent vector, by computing the norm of the difference between $\operatorname{Hess} f(x)[u]$ and its projection to the tangent space (if a projector is available). Of course, this should be zero.</p>
-                  <p>The Hessian is a linear, symmetric operator from the tangent space at $x$ to itself. To verify symmetry, this tool generates two random tangent vectors $u_1$ and $u_2$ and computes the difference $$\langle \operatorname{Hess} f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160; \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be zero.</p>
-                </td>
-              </tr>
-              <tr>
-                <td><code>plotprofile(problem, x, d, t)</code></td>
-                <td>Plots the cost function along a geodesic or a retraction path starting at $x$, along direction $d$. See <span
-                    style="font-family: monospace;">help plotprofile</span> for more information.</td>
-              </tr>
-              <tr>
-                <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
-                <td>
-                  <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
-                  <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
-                      href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
-                  <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
-              </tr>
-              <tr>
-                <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
-                <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a vector <code>scale</code> of length <tt>N</tt>, returns <code>B</code>, a 3D matrix of the same size as <code>A</code> such that <nobr><code>B(:, :, k) = scale(k) * A(:, :, k)</code></nobr> for each <code>k</code>. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
-                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a column vector <code>tr</code> of length <tt>N</tt> such that <nobr><code>tr(k) = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>B = multitransp(A)</code></nobr> </td>
-                <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>, a 3D matrix of size <tt>mxnxN</tt> such that <nobr><code>B(:, :, k) = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
-                <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of size <tt>pxmxN</tt>, returns <code>C</code>, a 3D matrix of size <tt>nxmxN</tt> such that <nobr><code>C(:, :, k) = A(:, :, k) * B(:, :, k)</code></nobr> for each <code>k</code>. </td>
-              </tr>
-              <tr>
-                <td><code>B = multiskew(A)</code></td>
-                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the skew-symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)-A(:, :, i)')/2</code>.</td>
-              </tr>
-              <tr>
-                <td><code>B = multisym(A)</code></td>
-                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)+A(:, :, i)')/2</code>.</td>
-              </tr>
-              <tr>
-                <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
-              </tr>
-              <tr>
-                <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
-                <td>Given <code>M</code>, a structure representing a manifold $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>, a structure representing the manifold $\mathcal{M}^n$. The geometry is obtained by element-wise extension. Points and vectors on <code>Mn</code> are represented as cells of length <code>n</code>. </td>
-              </tr>
-              <tr>
-                <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
-                <td>Given <code>elements</code>, a structure with fields <code>A, B, C...</code> containing structures <code>Ma, Mb, Mc...</code> such that <code>Ma</code> is a structure representing a manifold $\mathcal{M}_A$ etc., returns <code>M</code>, a structure representing the manifold $\mathcal{M}_A \times \mathcal{M}_B \times \mathcal{M}_C \times \cdots$. The geometry is obtained by element-wise extension. Points and vectors are represented as structures with the same field names as <code>elements</code>. </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="alert alert-info"><strong>Heads up!</strong> When using the <code>checkhessian</code> tool, it is important to obtain <em>both</em> a slope of 3 <em>and</em> to pass the symmetry test. Indeed, the slope test ignores the skew-symmetric part of the Hessian, since $x^T A x = x^T \frac{A+A^T}{2} x$. As a result, if your code for the Hessian has a spurious skew-symmetric part, the slope test will be oblivious to it. </div>
-        </section>
-        <section id="reference">
-          <div class="page-header">
-            <h1>Reference</h1>
-          </div>
-          <p><a target="_blank" href="reference/index.html">A reference is available here</a>, to help navigate the source code of the toolbox. It was generated with <a
-              href="http://www.artefact.tk/software/matlab/m2html/">m2html</a>. </p>
-        </section>
+                href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a>. </p>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td>Call </td>
+                  <td>Description </td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
+                  <td>Numerical check of the directional derivatives of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a slope of 2. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 2 everywhere even if directional derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
+                  <td>Numerical check of the gradient of the cost function. Based on the statement that if the gradient exists, than it is the only tangent vector field that satisfies $$\langle \operatorname{grad} f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code> and it verifies that the gradient is indeed a tangent vector, by computing the norm of the difference between the gradient and its projection to the tangent space (if a projector is available). Of course, this should be zero. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
+                  <td>
+                    <p>Numerical check of the Hessian of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] = \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of 3. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 3 everywhere even if the derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. The tool also verifies that the Hessian indeed returns a tangent vector, by computing the norm of the difference between $\operatorname{Hess} f(x)[u]$ and its projection to the tangent space (if a projector is available). Of course, this should be zero.</p>
+                    <p>The Hessian is a linear, symmetric operator from the tangent space at $x$ to itself. To verify symmetry, this tool generates two random tangent vectors $u_1$ and $u_2$ and computes the difference $$\langle \operatorname{Hess} f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160; \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be zero.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>plotprofile(problem, x, d, t)</code></td>
+                  <td>Plots the cost function along a geodesic or a retraction path starting at $x$, along direction $d$. See <span
+                      style="font-family: monospace;">help plotprofile</span> for more information.</td>
+                </tr>
+                <tr>
+                  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+                  <td>
+                    <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
+                    <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
+                        href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
+                    <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
+                  <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a vector <code>scale</code> of length <tt>N</tt>, returns <code>B</code>, a 3D matrix of the same size as <code>A</code> such that <nobr><code>B(:, :, k) = scale(k) * A(:, :, k)</code></nobr> for each <code>k</code>. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
+                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a column vector <code>tr</code> of length <tt>N</tt> such that <nobr><code>tr(k) = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>B = multitransp(A)</code></nobr> </td>
+                  <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>, a 3D matrix of size <tt>mxnxN</tt> such that <nobr><code>B(:, :, k) = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
+                  <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of size <tt>pxmxN</tt>, returns <code>C</code>, a 3D matrix of size <tt>nxmxN</tt> such that <nobr><code>C(:, :, k) = A(:, :, k) * B(:, :, k)</code></nobr> for each <code>k</code>. </td>
+                </tr>
+                <tr>
+                  <td><code>B = multiskew(A)</code></td>
+                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the skew-symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)-A(:, :, i)')/2</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>B = multisym(A)</code></td>
+                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)+A(:, :, i)')/2</code>.</td>
+                </tr>
+                <tr>
+                  <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
+                  <td>Given <code>M</code>, a structure representing a manifold $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>, a structure representing the manifold $\mathcal{M}^n$. The geometry is obtained by element-wise extension. Points and vectors on <code>Mn</code> are represented as cells of length <code>n</code>. </td>
+                </tr>
+                <tr>
+                  <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
+                  <td>Given <code>elements</code>, a structure with fields <code>A, B, C...</code> containing structures <code>Ma, Mb, Mc...</code> such that <code>Ma</code> is a structure representing a manifold $\mathcal{M}_A$ etc., returns <code>M</code>, a structure representing the manifold $\mathcal{M}_A \times \mathcal{M}_B \times \mathcal{M}_C \times \cdots$. The geometry is obtained by element-wise extension. Points and vectors are represented as structures with the same field names as <code>elements</code>. </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="alert alert-info"><strong>Heads up!</strong> When using the <code>checkhessian</code> tool, it is important to obtain <em>both</em> a slope of 3 <em>and</em> to pass the symmetry test. Indeed, the slope test ignores the skew-symmetric part of the Hessian, since $x^T A x = x^T \frac{A+A^T}{2} x$. As a result, if your code for the Hessian has a spurious skew-symmetric part, the slope test will be oblivious to it. </div>
+          </section>
+          <section id="reference">
+            <div class="page-header">
+              <h1>Reference</h1>
+            </div>
+            <p><a target="_blank" href="reference/index.html">A reference is available here</a>, to help navigate the source code of the toolbox. It was generated with <a
+                href="http://www.artefact.tk/software/matlab/m2html/">m2html</a>. </p>
+          </section>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- /container --><!-- Le javascript ================================================== --><!-- Placed at the end of the document so the pages load faster -->
-  <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
-  <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-  <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
-  <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
-  <!--
+    <!-- /container --><!-- Le javascript ================================================== --><!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
+    <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
+    <!--
     <script type="text/javascript" src="http://mathcache.s3.amazonaws.com/replacemath.js"> </script>    <script type="text/javascript">replaceMath( document.body ); </script>    -->
-  <script type="text/x-mathjax-config">
+    <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
 });
 </script> <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  <script type="text/javascript">
+    <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-37402854-1']);
@@ -868,5 +871,5 @@ MathJax.Hub.Config({
   })();
 
 </script>
-</body>
+  </body>
 </html>
