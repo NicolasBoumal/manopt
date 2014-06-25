@@ -10,7 +10,7 @@ version_str = input('What version is this? (between quotes. example: ''1.0.42'')
 fprintf('You must now manually edit these files for version names and date:\n');
 fprintf('README.txt and manopt_version.m.\n');
 fprintf('Today is: %s\n', date());
-fprintf('Press any key AFTER you are done.');
+fprintf('Press any key AFTER you are done.\n');
 edit auxiliaries/manopt_version.m;
 edit auxiliaries/README.txt;
 pause();
@@ -56,7 +56,6 @@ fprintf('About to generate the reference for the website. Press any key.\n');
 pause();
 cd reference;
 generate_manopt_reference;
-cd ..;
 
 fprintf('Now: update the website !\n');
 fprintf('Files concerned: download.html, downloads.html and tutorial.html\n');
