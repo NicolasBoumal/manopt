@@ -28,42 +28,37 @@ body {
   <body onload="prettyPrint()" data-spy="scroll" data-target=".sidebar">
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
-          data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span>
-          <span class="icon-bar"></span> </a>
+          data-target=".nav-collapse"> <span class="icon-bar"></span> <span
+            class="icon-bar"></span> <span class="icon-bar"></span> </a>
         <div class="container"> <a class="brand" href="index.html">Manopt</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="index.html"><i class="icon-home"></i> Home</a></li>
-              <li class="active"><a href="tutorial.html"><i class="icon-road"></i>
-                  Tutorial<br>
-                </a></li>
+              <li class="active"><a href="tutorial.html"><i class="icon-road"></i> Tutorial</a></li>
+              <li><a href="downloads.html"><i class="icon-download-alt"></i> Downloads</a></li>
               <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
               <li><a href="about.html"><i class="icon-user"></i> About</a></li>
-              <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i>
-                  Contact</a></li>
+              <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i> Contact</a></li>
             </ul>
           </div>
           <!--/.nav-collapse --> </div>
       </div>
     </div>
     <!-- Contact modal Begin -->
-    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-      aria-hidden="true">
+    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog"
+      aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-          aria-hidden="true">×</button>
+          aria-hidden="true">&#215;</button>
         <h3 id="myModalLabel">To contact us</h3>
       </div>
       <div class="modal-body">
         <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
         <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
-        <p>We are happy to receive feedback and bug reports or requests for more
-          features, to discuss the toolbox in general as well as its
-          documentation and to help you use it.</p>
-        <p>We would also love to know how you use the toolbox, and if you built
-          nice manifold factories, solvers or tools that could benefit others.</p>
+        <p>We are happy to receive feedback and bug reports or requests for more features, to discuss the toolbox in general as well as its documentation and to help you use it.</p>
+        <p>We would also love to know how you use the toolbox, and if you built nice manifold factories, solvers or tools that could benefit others.</p>
       </div>
-      <div class="modal-footer"> <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-      </div>
+      <div class="modal-footer"> <button class="btn" data-dismiss="modal"
+          aria-hidden="true">Close</button> </div>
     </div>
     <!-- Contact modal End -->
     <div class="container">
@@ -86,254 +81,56 @@ body {
           <!--Body content-->
           <section id="gettingstarted">
             <div class="page-header">
-              <h1>Getting started with Manopt<br>
-              </h1>
+              <h1>Getting started with Manopt </h1>
             </div>
             <h3>Foreword</h3>
-            <p><strong>With Manopt, you can solve optimization problems on
-                manifolds</strong> using state-of-the-art algorithms, with
-              minimal effort. The toolbox targets great flexibility in the
-              problem description and comes with advanced features, such as
-              caching.</p>
-            <p>The toolbox architecture is based on a <strong>separation of the
-                manifolds, the solvers and the problem descriptions</strong>.
-              For basic use, one only needs to pick a manifold from the library,
-              describe the cost function (and possible derivatives) on this
-              manifold and pass it on to a solver. Accompanying tools help the
-              user in common tasks such as numerically checking whether the cost
-              function agrees with its derivatives up to the appropriate order
-              etc.</p>
-            <p><strong>This is a </strong><strong>prototyping toolbox</strong>,
-              designed based on the idea that the costly part of solving an
-              optimization problem is querying the cost function, and not the
-              inner machinery of the solver. It is also work in progress: <strong>
-                feedback and contributions are welcome</strong>!</p>
-            <p><a href="reference/examples/index.html">Examples are available in
-                the reference</a>.<br>
-            </p>
-            <h3>Download<br>
-            </h3>
-            <p><a target="_blank" class="btn btn-primary" href="download.html">Download
-                <i class="icon-download-alt icon-white"></i></a>&nbsp;&nbsp; The
-              current version is 1.0.5 and was packaged on January 2<sup>nd</sup>,
-              2014. The file is less than 200 Kb.</p>
-            <p>Previous versions:</p>
-            <ul>
-            </ul>
-            <ul>
-              <li>Manopt 1.0.6</li>
-              <ul>
-                <li>For uses of the <a style="font-family: monospace;" href="solver_documentation_trustregions.html">trustregions</a>
-                  solver with a nonlinear approximation of the Hessian (such as,
-                  for example, the default one if you do not specify a Hessian
-                  at all), the truncated-CG algorithm now explicitly checks that
-                  the model cost decreases with (inner) iterations. If an
-                  increase is witnessed (which is bad), tCG now returns the best
-                  step so far, which is always at least the Cauchy step.</li>
-                <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-                      style="font-family: monospace;">sympositivedefinitefactory</span></a>
-                  geometry for positive definite matrices was revised. It had a
-                  number of mistakes in it due to an incorrect assumption. You
-                  can access the file before 1.0.6 is released on <a target="_blank"
-                    href="https://groups.google.com/forum/embed/?place=forum%2Fmanopttoolbox&amp;showsearch=true&amp;showtabs=false&amp;theme=default#%21topic/manopttoolbox/nyX2rhKB9x4">the
-                    forum</a>.</li>
-                <li>Small bug fix in <a style="font-family: monospace;" href="reference/examples/packing_on_the_sphere.html">packing_on_the_sphere</a>
-                  example, along an improvement of how the smoothing term is
-                  computed numerically.</li>
-                <li>Added a Riemannian Hessian conversion tool for the <a href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel
-                    manifold</a>, ehess2rhess.</li>
-                <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
-                    href="reference/manopt/manifolds/euclidean/symmetricfactory.html">symmetricfactory</a>,
-                  to deal with symmetric matrices.</li>
-                <li>Multiple enhancements and bug fixes for the embedded
-                  geometry of fixed rank matrices <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
-                      style="font-family: monospace;">fixedrankembeddedfactory</span></a>:
-                  now works with <a style="font-family: monospace;" href="reference/manopt/tools/checkgradient.html">checkgradient</a>,
-                  changed hash and typical dist, and the vector transport is now
-                  correct (it was wrong before, leading to failure of CG and
-                  RTR-FD). Thanks to Bart Vandereycken for the correct code.</li>
-                <li>Random vector generation in Stiefel and Grassmann now make
-                  more sense.</li>
-                <li><a href="file:///D:/manopt/web/reference/manopt/solvers/pso/pso.html">PSO</a>
-                  (Particle Swarm Optimization) solver debugged to work with
-                  product and power manifolds too.</li>
-                <li>Bug fix in <a style="font-family: monospace;" href="reference/manopt/manifolds/grassmann/grassmannfactory.html">grassmannfactory</a>'s
-                  retraction for k &gt; 1, and added final re-orthonormalization
-                  at the end of exponential map following forum discussions.</li>
-                <li>The functions in <a style="font-family: monospace;" href="reference/manopt/manifolds/symfixedrank/elliptopefactory.html">elliptopefactory</a>
-                  are now a tad faster, using bsxfun.</li>
-              </ul>
-              <li><a target="_blank" href="download.html">Manopt 1.0.5</a>,
-                packaged January 2<sup>nd</sup>, 2014.</li>
-              <ul>
-                <li>Many files are now better commented and documented. In
-                  particular, the solvers now have quite complete documentation
-                  in code, available using Matlab's help command.</li>
-                <li>The trust region solver was modified substantially. The
-                  algorithm is now slightly different from the previous
-                  versions, but is cleaner in its handling of errors, and
-                  behaves almost the same as before for normal operations. In
-                  particular, the fine-convergence heuristic has been changed to
-                  match a standard heuristic from the literature (see in code
-                  for references and the relevant option). The <a href="solver_documentation_trustregions.html">online
-                    documentation</a> was extended as well. The original trust
-                  region radius (Delta0 and Delta_bar) are now interpreted
-                  correctly. Their values are different from earlier Manopt
-                  versions as a result. if you get a lot of TR+ or TR- for the
-                  first few iterations, you may want to tweak those options.</li>
-                <li>New geometry: <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-                      style="font-family: monospace;">sympositivedefinitefactory</span></a>,
-                  for symmetric, positive definite matrices. Related example
-                  script: <a href="reference/examples/positive_definite_karcher_mean.html"><span
-                      style="font-family: monospace;">positive_definite_karcher_mean.m</span></a>.</li>
-                <li>Line search algorithms have been heavily modified. The basic
-                  line search for example is now invariant under shifting and
-                  rescaling of the cost function, and the built-in line search
-                  algorithms now accept options too. Line searches now do not
-                  expect to be given a normalized search direction anymore, and
-                  they can decide whether to use the norm as supplemental
-                  information or to be unaffected by it. For example, the
-                  default line search for the conjugate gradient solver (the
-                  adaptive line search) is not invariant to the norm of the
-                  search direction.</li>
-                <li>New example for <a href="reference/examples/sparse_pca.html">sparse
-                    PCA</a> via optimization on the Stiefel manifold.</li>
-                <li>Potential bug (that never triggered) with <a style="font-family: monospace;"
-                    href="reference/manopt/privatetools/purgeStoredb.html">purgeStoredb</a>
-                  corrected.</li>
-              </ul>
-              <li><a target="_blank" href="downloads/Manopt_1.0.4.zip">Manopt
-                  1.0.4</a>, packaged August 22<sup>nd</sup>, 2013.</li>
-              <ul>
-                <li>This release is a first step toward compatibility with <strong>Octave</strong>.
-                  We're not there yet, but in the <span style="font-family: monospace;">examples</span>
-                  folder, you will find <a href="reference/examples/maxcut_octave.html"><span
-                      style="font-family: monospace;">maxcut_octave.m</span></a>,
-                  which should run in Octave 3.6.4. In there, more info about
-                  compatibility issues and limitations are provided.</li>
-                <li>Manopt is not organized in a Matlab package anymore (so
-                  folders are called <span style="font-family: monospace;">folder</span>
-                  and not <span style="font-family: monospace;">+folder</span>):
-                  <strong>no <code>import</code>'s anymore</strong>. Simply
-                  call <code>importmanopt</code> to add all Manopt functions to
-                  the path, once.</li>
-                <li>Sign error in right hand side of Lyapunov equation in <code>
-                    elliptopefactory.projection</code> corrected.</li>
-              </ul>
-              <li><a target="_blank" href="downloads/Manopt_1.0.3.zip">Manopt
-                  1.0.3</a>, packaged July 26, 2013.</li>
-              <ul>
-                <li>The new <span style="font-family: monospace;">/manopt/examples</span>
-                  directory now contains documented examples.</li>
-                <li>Added manifolds spectrahedron and elliptope, for symmetric
-                  positive semidefinite fixed-rank matrices with constraints on
-                  the diagonal or the trace. Notably useful for max-cut like SDP
-                  relaxations (see examples) and correlation matrix
-                  approximation / completion etc.</li>
-                <li>The Riemannian gradient and Hessian may be given via their
-                  Euclidean counterparts, using <code>problem.egrad</code> and
-                  <code>problem.ehess</code>.</li>
-                <li>Improved <code>checkgradient</code> and <code>checkhessian</code>
-                  tools.</li>
-                <li>Added Riemannian log map for the Grassmann manifold.</li>
-                <li>Made <code>egrad2rgrad</code> and <code>ehess2rhess</code>
-                  available in more geometries.</li>
-                <li>Added the tool <code>hessianspectrum</code> to compute the
-                  eigenvalues of the Hessian (w/ or w/o preconditioner).</li>
-                <li>Added notions of <code>tangent</code> and <code>tangent2ambient</code>
-                  to manifolds.</li>
-                <li>Added notions of <code>vec</code> and <code>mat</code> for
-                  manifolds, to represent tangent vectors as column vectors.</li>
-              </ul>
-              <li><a target="_blank" href="downloads/Manopt_1.0.2.zip">Manopt
-                  1.0.2</a>, packaged June 11<sup></sup>, 2013.&nbsp;</li>
-              <ul>
-                <li>Improved trustregions solver (e.g., avoids a redundant
-                  Hessian computation).</li>
-                <li>Improved conjugategradient solver: now admits
-                  preconditioning.</li>
-                <li>Reorganized fixedrank geometries (not backward compatible).</li>
-                <li>Many small improvements and bug fixes.</li>
-              </ul>
-              <li><a target="_blank" href="downloads/Manopt_1.0.1.zip">Manopt
-                  1.0.1</a>, packaged February 7<sup></sup>, 2013. <br>
-                <a href="downloads/Manopt_1.0.zip"></a></li>
-              <li><a target="_blank" href="downloads/Manopt_1.0.zip">Manopt 1.0</a>,
-                packaged January 3<sup>rd</sup>, 2013. </li>
-            </ul>
+            <p><strong>With Manopt, you can solve optimization problems on manifolds</strong> using state-of-the-art algorithms, with minimal effort. The toolbox targets great flexibility in the problem description and comes with advanced features, such as caching.</p>
+            <p>The toolbox architecture is based on a <strong>separation of the manifolds, the solvers and the problem descriptions</strong>. For basic use, one only needs to pick a manifold from the library, describe the cost function (and possible derivatives) on this manifold and pass it on to a solver. Accompanying tools help the user in common tasks such as numerically checking whether the cost function agrees with its derivatives up to the appropriate order etc.</p>
+            <p><strong>This is a </strong><strong>prototyping toolbox</strong>, designed based on the idea that the costly part of solving an optimization problem is querying the cost function, and not the inner machinery of the solver. It is also work in progress: <strong> feedback and contributions are welcome</strong>!</p>
+            <p><a href="reference/examples/index.html">Examples are available in the reference</a>. </p>
+            <h3>Download </h3>
+            <p><a target="_blank" class="btn btn-primary" href="download.html">Download <i
+                  class="icon-download-alt icon-white"></i></a>&#160;&#160; The current version is 1.0.5 and was packaged on January 2<sup>nd</sup>, 2014. The file is less than 200 Kb.</p>
             <h3>Install</h3>
             <blockquote>
               <ol>
-                <li>Unzip and copy the whole <tt>manopt</tt> directory you just
-                  downloaded in a location of your choice on disk, say, in <tt>/my/directory/</tt>.</li>
-                <li>Go to <tt>/my/directory/manopt/</tt> at the command prompt
-                  and execute <code>importmanopt</code>. You may save this path
-                  for your next Matlab sessions: follow the menu <tt>File » Set
-                    Path...</tt> and <span style="font-family: monospace;">save</span>.<br>
-                </li>
+                <li>Unzip and copy the whole <tt>manopt</tt> directory you just downloaded in a location of your choice on disk, say, in <tt>/my/directory/</tt>.</li>
+                <li>Go to <tt>/my/directory/manopt/</tt> at the command prompt and execute <code>importmanopt</code>. You may save this path for your next Matlab sessions: follow the menu <tt>File &#187; Set Path...</tt> and <span
+                    style="font-family: monospace;">save</span>. </li>
               </ol>
             </blockquote>
             <h3>Check</h3>
-            <p> Go to <tt>/my/directory/manopt/checkinstall/</tt> and run the
-              script <tt>basicexample.m</tt>. If there are no errors, you are
-              done! Otherwise, feel free to contact us.<br>
-            </p>
+            <p> Go to <tt>/my/directory/manopt/checkinstall/</tt> and run the script <tt>basicexample.m</tt>. If there are no errors, you are done! Otherwise, feel free to contact us. </p>
           </section>
           <section id="firstexample">
             <div class="page-header">
               <h1>A first example</h1>
             </div>
             <h3>The mathematics</h3>
-            <p>In this first example, we will compute a dominant eigenvector of
-              a symmetric matrix $A \in \mathbb{R}^{n\times n}$. Let $\lambda_1
-              \geq \cdots \geq \lambda_n$ be its eigenvalues. The largest
-              eigenvalue, $\lambda_1$, <a href="http://en.wikipedia.org/wiki/Rayleigh_quotient"
-                rel="tooltip" title="Search for 'Rayleigh quotient' if need be.">is
-                known to be</a> the optimal value for the following optimization
-              problem:</p>
-            <p>$$\max\limits_{x\in\mathbb{R}^n, x \neq 0} \frac{x^T A x}{x^T
-              x}.$$</p>
+            <p>In this first example, we will compute a dominant eigenvector of a symmetric matrix $A \in \mathbb{R}^{n\times n}$. Let $\lambda_1 \geq \cdots \geq \lambda_n$ be its eigenvalues. The largest eigenvalue, $\lambda_1$, <a
+                href="http://en.wikipedia.org/wiki/Rayleigh_quotient" rel="tooltip"
+                title="Search for 'Rayleigh quotient' if need be.">is known to be</a> the optimal value for the following optimization problem:</p>
+            <p>$$\max\limits_{x\in\mathbb{R}^n, x \neq 0} \frac{x^T A x}{x^T x}.$$</p>
             <p>This can be rewritten as follows:</p>
             <p>$$\min\limits_{x\in\mathbb{R}^n, \|x\| = 1} -x^T A x.$$</p>
             <p>The cost function and its gradient in $\mathbb{R}^n$ read:</p>
             <p>$$<br>
               \begin{align}<br>
-              &nbsp;&nbsp;&nbsp; f(x) &amp; = -x^T A x,\\<br>
-              &nbsp;&nbsp;&nbsp; \nabla f(x) &amp; = -2Ax.<br>
+              &#160;&#160;&#160; f(x) &amp; = -x^T A x,\\<br>
+              &#160;&#160;&#160; \nabla f(x) &amp; = -2Ax.<br>
               \end{align}<br>
               $$</p>
-            <p>The constraint on the vector $x$ requires that $x$ be of unit
-              2-norm, that is, $x$ is a point on the sphere</p>
+            <p>The constraint on the vector $x$ requires that $x$ be of unit 2-norm, that is, $x$ is a point on the sphere</p>
             <p>$$\mathbb{S}^{n-1} = \{x \in \mathbb{R}^n : x^Tx = 1\}.$$</p>
-            <p>This is all the information we need to apply Manopt to our
-              problem.</p>
-            <p>Users interested in how optimization on manifolds works will be
-              interested in the following too: the cost function is smooth on
-              $\mathbb{S}^{n-1}$. Its Riemannian gradient on $\mathbb{S}^{n-1}$
-              at $x$ is a tangent vector to the sphere at $x$. It can be
-              computed as the projection from the usual gradient $\nabla f(x)$
-              to that tangent space using the orthogonal projector
-              $\mathrm{Proj}_x u = (I-xx^T)u$:</p>
-            <p>$$\mathrm{grad}\,f(x) = \mathrm{Proj}_x \nabla f(x) =
-              -2(I-xx^T)Ax.$$</p>
-            <p>This is an example of a mathematical relationship between the
-              Euclidean gradient $\nabla f$, which we often already know how to
-              compute from introductory calculus courses, and the Riemannian
-              gradient $\mathrm{grad}\,f$, which is needed for the optimization.
-              Fortunately, for most manifolds in Manopt the conversion happens
-              behind the scenes via a function called <code>egrad2rgrad</code>
-              and we only need to compute $\nabla f$.</p>
-            <p>We will solve this simple optimization problem using Manopt to
-              illustrate the most basic usage of the toolbox. For additional
-              theory, see [AMS08], section 4.6.</p>
+            <p>This is all the information we need to apply Manopt to our problem.</p>
+            <p>Users interested in how optimization on manifolds works will be interested in the following too: the cost function is smooth on $\mathbb{S}^{n-1}$. Its Riemannian gradient on $\mathbb{S}^{n-1}$ at $x$ is a tangent vector to the sphere at $x$. It can be computed as the projection from the usual gradient $\nabla f(x)$ to that tangent space using the orthogonal projector $\mathrm{Proj}_x u = (I-xx^T)u$:</p>
+            <p>$$\mathrm{grad}\,f(x) = \mathrm{Proj}_x \nabla f(x) = -2(I-xx^T)Ax.$$</p>
+            <p>This is an example of a mathematical relationship between the Euclidean gradient $\nabla f$, which we often already know how to compute from introductory calculus courses, and the Riemannian gradient $\mathrm{grad}\,f$, which is needed for the optimization. Fortunately, for most manifolds in Manopt the conversion happens behind the scenes via a function called <code>egrad2rgrad</code> and we only need to compute $\nabla f$.</p>
+            <p>We will solve this simple optimization problem using Manopt to illustrate the most basic usage of the toolbox. For additional theory, see [AMS08], section 4.6.</p>
             <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
-                href="http://press.princeton.edu/chapters/absil/">Optimization
-                Algorithms on Matrix Manifolds</a>, Princeton University Press,
-              2008.</p>
+                href="http://press.princeton.edu/chapters/absil/">Optimization Algorithms on Matrix Manifolds</a>, Princeton University Press, 2008.</p>
             <h3>The code</h3>
-            <p>Solving this optimization problem using Manopt requires little
-              code:<br>
-            </p>
+            <p>Solving this optimization problem using Manopt requires little code: </p>
             <!--  pre-scrollable -->
             <pre class="prettyprint lang-matlab linenums">% Generate the problem data.
 n = 1000;
@@ -359,838 +156,459 @@ figure;
 semilogy([info.iter], [info.gradnorm], '.-');<br>xlabel('Iteration number');<br>ylabel('Norm of the gradient of f');</pre>
             <p>Let us look at the code bit by bit.
               <!--The first thing
-              to do is to tell Matlab to import some of Manopt's tools in the              current namespace, using the <code>import</code> command:</p>            <pre class="prettyprint lang-matlab linenumsoffset linenums:1">import manopt.solvers.trustregions.*;import manopt.manifolds.sphere.*;import manopt.tools.*;</pre>            <p>Thanks to the first import for example, we can access the              function <code>trustregions(...)</code> which is defined in <tt>(manopt-directory)/+manopt/+solvers/+trustregions/trustregions.m</tt>.              Alternatively, if we do not issue the import commands, we can              access that function using <code>manopt.solvers.trustregions.trustregions(...)</code>.</p>            <div class="alert alert-info"><strong>Heads up!</strong> The import              command only works if the directory containing the directory              +manopt has been added to the path <em><emph>before</emph> </em>the              import command is issued. If the import command is issued in a              function rather than in a script, the file containing that              function needs to be reloaded by Matlab after the path is updated.              To force Matlab to reload a file <tt>myfunction.m</tt>, type the              command <code>clear myfunction</code> in the command prompt.</div>            <p>Next,-->First,
-              we generate some data for our problem and execute these two lines:</p>
+              to do is to tell Matlab to import some of Manopt's tools in the              current namespace, using the <code>import</code> command:</p>            <pre class="prettyprint lang-matlab linenumsoffset linenums:1">import manopt.solvers.trustregions.*;import manopt.manifolds.sphere.*;import manopt.tools.*;</pre>            <p>Thanks to the first import for example, we can access the              function <code>trustregions(...)</code> which is defined in <tt>(manopt-directory)/+manopt/+solvers/+trustregions/trustregions.m</tt>.              Alternatively, if we do not issue the import commands, we can              access that function using <code>manopt.solvers.trustregions.trustregions(...)</code>.</p>            <div class="alert alert-info"><strong>Heads up!</strong> The import              command only works if the directory containing the directory              +manopt has been added to the path <em><emph>before</emph> </em>the              import command is issued. If the import command is issued in a              function rather than in a script, the file containing that              function needs to be reloaded by Matlab after the path is updated.              To force Matlab to reload a file <tt>myfunction.m</tt>, type the              command <code>clear myfunction</code> in the command prompt.</div>            <p>Next,-->First, we generate some data for our problem and execute these two lines:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:7">manifold = spherefactory(n);
 problem.M = manifold;
 </pre>
-            <p>The call to <code>spherefactory(n)</code> returns a structure
-              describing the manifold $\mathbb{S}^{n-1}$, i.e., the sphere. This
-              manifold corresponds to the constraint appearing in our
-              optimization problem. For other constraints, take a look at the <a
-                href="#manifolds">various supported manifolds</a>. The second
-              instruction creates a structure named <code>problem</code> and
-              sets the field <code>problem.M</code> to contain the manifold
-              structure. The problem structure will be populated with everything
-              a solver could need to know about the problem in order to solve
-              it, such as the cost function and its gradient:</p>
+            <p>The call to <code>spherefactory(n)</code> returns a structure describing the manifold $\mathbb{S}^{n-1}$, i.e., the sphere. This manifold corresponds to the constraint appearing in our optimization problem. For other constraints, take a look at the <a
+                href="#manifolds">various supported manifolds</a>. The second instruction creates a structure named <code>problem</code> and sets the field <code>problem.M</code> to contain the manifold structure. The problem structure will be populated with everything a solver could need to know about the problem in order to solve it, such as the cost function and its gradient:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:11">problem.cost = @(x) -x'*(A*x);
 problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
 </pre>
-            <p>The cost function and its derivatives are specified as <a href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function
-                handles</a>. Notice how the gradient was specified as the
-              projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) =
-              -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code>
-              which is an implementation of the orthogonal projector
-              $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is
-              particularly useful when one is working with a more complicated
-              manifold.</p>
-            <div class="alert alert-info"><strong>Tip!</strong> Notice that the
-              functions <code>cost</code> <emph>and</emph> <code>grad</code>
-              <emph>both</emph> compute the product $Ax$, which is likely to be
-              the most expensive operation for large scale problems. This is
-              perfectly fine for prototyping, but not for a final version of the
-              implementation. See the many ways of <a href="#costdescription">describing
-                the cost function</a> for alternatives that alleviate redundant
-              computations.</div>
-            <p>The next instruction is not needed to solve the problem but often
-              helps at the prototyping stage:</p>
+            <p>The cost function and its derivatives are specified as <a
+                href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) = -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code> which is an implementation of the orthogonal projector $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is particularly useful when one is working with a more complicated manifold.</p>
+            <div class="alert alert-info"><strong>Tip!</strong> Notice that the functions <code>cost</code> <emph>and</emph> <code>grad</code> <emph>both</emph> compute the product $Ax$, which is likely to be the most expensive operation for large scale problems. This is perfectly fine for prototyping, but not for a final version of the implementation. See the many ways of <a
+                href="#costdescription">describing the cost function</a> for alternatives that alleviate redundant computations.</div>
+            <p>The next instruction is not needed to solve the problem but often helps at the prototyping stage:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:15">checkgradient(problem);
 </pre>
-            <p>The <code>checkgradient(...)</code> tool verifies numerically
-              that the cost function and its gradient agree up to the
-              appropriate order. See the <a href="#tools">tools section</a> for
-              more details and more helpful tools offered by Manopt. This tool
-              generates the following figure:</p>
-            <p><img title="checkgradient figure" alt="checkgradient figure" src="tutorial-gradientcheck.png"></p>
-            <p>The blue curve seems to have the same slope as the dashed line
-              over a decent segment: that's what we want to see. We now call a
-              solver for our problem:</p>
+            <p>The <code>checkgradient(...)</code> tool verifies numerically that the cost function and its gradient agree up to the appropriate order. See the <a
+                href="#tools">tools section</a> for more details and more helpful tools offered by Manopt. This tool generates the following figure:</p>
+            <p><img title="checkgradient figure" alt="checkgradient figure"
+                src="tutorial-gradientcheck.png"></p>
+            <p>The blue curve seems to have the same slope as the dashed line over a decent segment: that's what we want to see. We now call a solver for our problem:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:18">[x xcost info] = trustregions(problem);
 </pre>
-            <p>This instruction calls <code>trustregions(...)</code> on our
-              problem, without initial guess and without options structure. As a
-              result, the solver will generate a random initial guess
-              automatically and resort to the default values for all options. As
-              a general feature in Manopt, all options are, well, optional. The
-              returned values are <code>x</code> (usually a local minimizer of
-              the cost function), <code>xcost</code> (the cost value attained
-              by <code>x</code>) and <code>info</code> (a struct-array
-              containing information about the successive iterations performed
-              by the solver). For more details and more solvers, see the <a href="#solvers">solvers</a>
-              section.</p>
-            <div class="alert alert-info">This call will issue a warning because
-              the trust-regions algorithm normally requires the Hessian of the
-              cost function, or an approximation of it, to be provided in the
-              problem structure. When the Hessian is not provided, Manopt will
-              approximate it using a finite differencing scheme on the gradient
-              function and warn you about it. You may disable this warning by
-              calling <code>warning('off', 'manopt:getHessian:approx');</code>.<br>
-            </div>
-            <p>Finally, we access the contents of the struct-array <code>info</code>
-              to display the convergence plot of our solver:<br>
-            </p>
+            <p>This instruction calls <code>trustregions(...)</code> on our problem, without initial guess and without options structure. As a result, the solver will generate a random initial guess automatically and resort to the default values for all options. As a general feature in Manopt, all options are, well, optional. The returned values are <code>x</code> (usually a local minimizer of the cost function), <code>xcost</code> (the cost value attained by <code>x</code>) and <code>info</code> (a struct-array containing information about the successive iterations performed by the solver). For more details and more solvers, see the <a
+                href="#solvers">solvers</a> section.</p>
+            <div class="alert alert-info">This call will issue a warning because the trust-regions algorithm normally requires the Hessian of the cost function, or an approximation of it, to be provided in the problem structure. When the Hessian is not provided, Manopt will approximate it using a finite differencing scheme on the gradient function and warn you about it. You may disable this warning by calling <code>warning('off', 'manopt:getHessian:approx');</code>. </div>
+            <p>Finally, we access the contents of the struct-array <code>info</code> to display the convergence plot of our solver: </p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:22">semilogy([info.iter], [info.gradnorm], '.-');<br>xlabel('Iteration number');<br>ylabel('Norm of the gradient of f');
 </pre>
             <p>This generates the following figure:</p>
             <p><img title="Gradient norm converging to zero" alt="Gradient norm converging to zero"
                 src="tutorial-gradientnorm.png"></p>
-            <p>For more information on what data is stored in <code>info</code>,
-              see the <a href="#solvers">solvers</a> section.</p>
-            <div class="alert alert-info"><strong>Heads up!</strong> Notice that
-              we write <code>[info.xxx]</code> and not simply <code>info.xxx</code>,
-              because <code>info</code> is a <emph>struct-array</emph>. Read
-              this <a href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/">MathWorks
-                blog post</a> for further information.</div>
+            <p>For more information on what data is stored in <code>info</code>, see the <a
+                href="#solvers">solvers</a> section.</p>
+            <div class="alert alert-info"><strong>Heads up!</strong> Notice that we write <code>[info.xxx]</code> and not simply <code>info.xxx</code>, because <code>info</code> is a <emph>struct-array</emph>. Read this <a
+                href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/">MathWorks blog post</a> for further information.</div>
           </section>
           <section id="manifolds">
             <div class="page-header">
-              <h1>Manifolds<br>
-              </h1>
+              <h1>Manifolds </h1>
             </div>
             <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
-                width="26"><br>
-            </h3>
-            <p>Manifolds in Manopt are represented as structures and are
-              obtained by calling a factory. Built-in factories are located in <tt>/manopt/manifolds</tt>.
-              Picking a manifold corresponds to specifying a search space for
-              the decision variables. For the special (but common) case of a
-              submanifold, the manifold represents a constraint on the decision
-              variables (such as the sphere, which constrains vectors to have
-              unit norm). In the case of a quotient manifold, the manifold
-              captures an invariance in the cost function (such as the Grassmann
-              manifold). Typically, points on the manifold as well as tangent
-              vectors are represented by matrices.</p>
-            <h3 id="manifoldslibrary">Available manifolds<br>
-            </h3>
-            <p>Manopt comes with a number of implementations for generically
-              useful manifolds. Of course, manifolds can also be user-defined.
-              The best way to build your own is probably to read the code of
-              some of the standard factories and to adapt what needs to be
-              changed. If you develop an interesting manifold factory and would
-              like to share it, be sure to let us know: we would love to add it
-              to Manopt if it can be of interest to other users!</p>
-            <p><em>In the future, there will be a documentation page for each
-                manifold.</em> </p>
+                width="26"> </h3>
+            <p>Manifolds in Manopt are represented as structures and are obtained by calling a factory. Built-in factories are located in <tt>/manopt/manifolds</tt>. Picking a manifold corresponds to specifying a search space for the decision variables. For the special (but common) case of a submanifold, the manifold represents a constraint on the decision variables (such as the sphere, which constrains vectors to have unit norm). In the case of a quotient manifold, the manifold captures an invariance in the cost function (such as the Grassmann manifold). Typically, points on the manifold as well as tangent vectors are represented by matrices.</p>
+            <h3 id="manifoldslibrary">Available manifolds </h3>
+            <p>Manopt comes with a number of implementations for generically useful manifolds. Of course, manifolds can also be user-defined. The best way to build your own is probably to read the code of some of the standard factories and to adapt what needs to be changed. If you develop an interesting manifold factory and would like to share it, be sure to let us know: we would love to add it to Manopt if it can be of interest to other users!</p>
+            <p><em>In the future, there will be a documentation page for each manifold.</em> </p>
             <!-- table-bordered table-condensed -->
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <td>Name<br>
-                  </td>
-                  <td>Set<br>
-                  </td>
+                  <td>Name </td>
+                  <td>Set </td>
                   <td>Factory</td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Euclidean space<br>
-                  </td>
-                  <td>$\mathbb{R}^{m\times n}$<br>
-                  </td>
-                  <td><code>euclideanfactory(m, n)</code><br>
-                  </td>
+                  <td>Euclidean space </td>
+                  <td>$\mathbb{R}^{m\times n}$ </td>
+                  <td><code>euclideanfactory(m, n)</code> </td>
                 </tr>
                 <tr>
-                  <td><a href="manifold_documentation_sphere.html">Sphere</a><br>
-                  </td>
-                  <td>$\{X\in\mathbb{R}^{n\times m} : \|X\|_\mathrm{F} = 1\}$<br>
-                  </td>
-                  <td><code>spherefactory(n, m)</code><br>
-                  </td>
+                  <td><a href="manifold_documentation_sphere.html">Sphere</a> </td>
+                  <td>$\{X\in\mathbb{R}^{n\times m} : \|X\|_\mathrm{F} = 1\}$ </td>
+                  <td><code>spherefactory(n, m)</code> </td>
                 </tr>
                 <tr>
-                  <td>Complex sphere<br>
-                  </td>
-                  <td>$\{X\in\mathbb{C}^{n\times m} : \|X\|_\mathrm{F} = 1\}$<br>
-                  </td>
-                  <td><code>spherecomplexfactory(n, m)</code><br>
-                  </td>
+                  <td>Complex sphere </td>
+                  <td>$\{X\in\mathbb{C}^{n\times m} : \|X\|_\mathrm{F} = 1\}$ </td>
+                  <td><code>spherecomplexfactory(n, m)</code> </td>
                 </tr>
                 <tr>
-                  <td><a href="manifold_documentation_oblique.html">Oblique
-                      manifold</a><br>
-                  </td>
-                  <td>$\{X\in\mathbb{R}^{n\times m} : \|X_{:1}\| = \cdots =
-                    \|X_{:m}\| = 1\}$ </td>
+                  <td><a href="manifold_documentation_oblique.html">Oblique manifold</a> </td>
+                  <td>$\{X\in\mathbb{R}^{n\times m} : \|X_{:1}\| = \cdots = \|X_{:m}\| = 1\}$ </td>
                   <td><code>obliquefactory(n, m)</code> </td>
                 </tr>
                 <tr>
-                  <td>Complex circle<br>
-                  </td>
+                  <td>Complex circle </td>
                   <td>$\{z\in\mathbb{C}^n : |z_1| = \cdots = |z_n| = 1\}$ </td>
                   <td><code>complexcirclefactory(n)</code> </td>
                 </tr>
                 <tr>
-                  <td>Stiefel manifold<br>
-                  </td>
-                  <td>$\{X \in \mathbb{R}^{n \times p} : X^TX = I_p\}^k$<br>
-                  </td>
-                  <td><code>stiefelfactory(n, p, k)</code><br>
-                  </td>
+                  <td>Stiefel manifold </td>
+                  <td>$\{X \in \mathbb{R}^{n \times p} : X^TX = I_p\}^k$ </td>
+                  <td><code>stiefelfactory(n, p, k)</code> </td>
                 </tr>
                 <tr>
-                  <td>Grassmann manifold<br>
-                  </td>
-                  <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
-                    X^TX = I_p\}^k$<br>
-                  </td>
-                  <td><code>grassmannfactory(n, p, k)</code><br>
-                  </td>
+                  <td>Grassmann manifold </td>
+                  <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p}, X^TX = I_p\}^k$ </td>
+                  <td><code>grassmannfactory(n, p, k)</code> </td>
                 </tr>
                 <tr>
-                  <td><a href="manifold_documentation_rotations.html">Rotation
-                      group</a><br>
-                  </td>
-                  <td>$\{R \in \mathbb{R}^{n \times n} : R^TR = I_n, \det(R) =
-                    1\}^k$<br>
-                  </td>
-                  <td><code>rotationsfactory(n, k)</code><br>
-                  </td>
+                  <td><a href="manifold_documentation_rotations.html">Rotation group</a> </td>
+                  <td>$\{R \in \mathbb{R}^{n \times n} : R^TR = I_n, \det(R) = 1\}^k$ </td>
+                  <td><code>rotationsfactory(n, k)</code> </td>
                 </tr>
                 <tr>
-                  <td>Fixed-rank<br>
-                  </td>
-                  <td>$\{X \in \mathbb{R}^{m \times n} : \operatorname{rank}(X)
-                    = k\}$<br>
-                  </td>
-                  <td> <code>fixedrankfactory_2factors(m, n, k)</code> <a href="manifold_documentation_fixedrank_2factors.html">(doc)</a><br>
+                  <td>Fixed-rank </td>
+                  <td>$\{X \in \mathbb{R}^{m \times n} : \operatorname{rank}(X) = k\}$ </td>
+                  <td> <code>fixedrankfactory_2factors(m, n, k)</code> <a
+                      href="manifold_documentation_fixedrank_2factors.html">(doc)</a><br>
                     <code>fixedrankfactory_2factors_preconditioned(m, n, k)</code><br>
                     <code>fixedrankfactory_2factors_subspace_projection(m, n, k)</code><br>
                     <code>fixedrankfactory_3factors(m, n, k)</code><br>
                     <code>fixedrankembeddedfactory(m, n, k)</code><br>
-                    <code>fixedrankMNquotientfactory(m, n, k) </code><br>
-                  </td>
+                    <code>fixedrankMNquotientfactory(m, n, k) </code> </td>
                 </tr>
                 <tr>
-                  <td><a href="manifold_documentation_symfixedrank.html">Symmetric
-                      positive semidefinite, fixed-rank</a><br>
-                  </td>
-                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0,
-                    \operatorname{rank}(X) = k\}$<br>
-                  </td>
-                  <td><code>symfixedrankYYfactory(n, k)</code><br>
-                  </td>
+                  <td><a href="manifold_documentation_symfixedrank.html">Symmetric positive semidefinite, fixed-rank</a> </td>
+                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0, \operatorname{rank}(X) = k\}$ </td>
+                  <td><code>symfixedrankYYfactory(n, k)</code> </td>
                 </tr>
                 <tr>
-                  <td>Symmetric positive semidefinite, fixed-rank with unit
-                    diagonal</td>
-                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0,
-                    \operatorname{rank}(X) = k, \operatorname{diag}(X) = 1\}$</td>
+                  <td>Symmetric positive semidefinite, fixed-rank with unit diagonal</td>
+                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0, \operatorname{rank}(X) = k, \operatorname{diag}(X) = 1\}$</td>
                   <td><code>elliptopefactory(n, k)</code></td>
                 </tr>
                 <tr>
-                  <td>Symmetric positive semidefinite, fixed-rank with unit
-                    trace</td>
-                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0,
-                    \operatorname{rank}(X) = k, \operatorname{trace}(X) = 1\}$</td>
+                  <td>Symmetric positive semidefinite, fixed-rank with unit trace</td>
+                  <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0, \operatorname{rank}(X) = k, \operatorname{trace}(X) = 1\}$</td>
                   <td><code>spectrahedronfactory(n, k)</code></td>
                 </tr>
               </tbody>
             </table>
-            <p>Bear in mind that a set can often be turned into a Riemannian
-              manifold in many different ways by choosing one or another metric.
-              Which is best for you will depend on your application. This is
-              particularly true for the geometries of the fixed-rank matrices.
-              The latter is a hot topic of research right now and there is no
-              better method yet than experimenting with various geometries.</p>
-            <div class="alert alert-info"><strong>Good to know!</strong> Need to
-              work on a <emph>product</emph> of manifolds? For example, are you
-              minimizing a function $f(X, Y)$ where $X$ has unit norm and $Y$ is
-              orthonormal? Then make sure to check out <code>productmanifold</code>
-              and <code>powermanifold</code> in the <a href="#tools">tools
-                section</a>. </div>
+            <p>Bear in mind that a set can often be turned into a Riemannian manifold in many different ways by choosing one or another metric. Which is best for you will depend on your application. This is particularly true for the geometries of the fixed-rank matrices. The latter is a hot topic of research right now and there is no better method yet than experimenting with various geometries.</p>
+            <div class="alert alert-info"><strong>Good to know!</strong> Need to work on a <emph>product</emph> of manifolds? For example, are you minimizing a function $f(X, Y)$ where $X$ has unit norm and $Y$ is orthonormal? Then make sure to check out <code>productmanifold</code> and <code>powermanifold</code> in the <a
+                href="#tools">tools section</a>. </div>
             <h3>Manifold structure fields</h3>
             <p></p>
-            <p>A manifold structure has a number of fields, most of which
-              contain function handles. Here is a list of things you might find
-              in a structure <code>M</code> returned by a manifold factory:</p>
+            <p>A manifold structure has a number of fields, most of which contain function handles. Here is a list of things you might find in a structure <code>M</code> returned by a manifold factory:</p>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <td>Name<br>
-                  </td>
-                  <td>Field usage<br>
-                  </td>
-                  <td>Functionality<br>
-                  </td>
+                  <td>Name </td>
+                  <td>Field usage </td>
+                  <td>Functionality </td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Name<br>
-                  </td>
-                  <td><code>M.name()</code><br>
-                  </td>
-                  <td>Returns a name for the manifold as a string.<br>
-                  </td>
+                  <td>Name </td>
+                  <td><code>M.name()</code> </td>
+                  <td>Returns a name for the manifold as a string. </td>
                 </tr>
                 <tr>
-                  <td>Dimension<br>
-                  </td>
+                  <td>Dimension </td>
                   <td><code>M.dim() </code></td>
-                  <td>Returns the dimension of the manifold.<br>
-                  </td>
+                  <td>Returns the dimension of the manifold. </td>
                 </tr>
                 <tr>
-                  <td>Metric<br>
-                  </td>
+                  <td>Metric </td>
                   <td><code>M.inner(x, u, v) </code></td>
-                  <td>Computes $\langle u, v \rangle_x$.<br>
-                  </td>
+                  <td>Computes $\langle u, v \rangle_x$. </td>
                 </tr>
                 <tr>
-                  <td>Norm<br>
-                  </td>
+                  <td>Norm </td>
                   <td><code>M.norm(x, u) </code></td>
                   <td>Computes $\|u\|_x = \sqrt{\langle u, u \rangle_x}$</td>
                 </tr>
                 <tr>
-                  <td>Distance<br>
-                  </td>
+                  <td>Distance </td>
                   <td><code>M.dist(x, y) </code></td>
-                  <td>Computes $\operatorname{dist}(x, y)$, the Riemannian
-                    distance.<br>
-                  </td>
+                  <td>Computes $\operatorname{dist}(x, y)$, the Riemannian distance. </td>
                 </tr>
                 <tr>
-                  <td>Typical distance<br>
-                  </td>
+                  <td>Typical distance </td>
                   <td><code>M.typicaldist() </code></td>
-                  <td>Returns the "scale" of the manifold.<br>
-                  </td>
+                  <td>Returns the "scale" of the manifold. </td>
                 </tr>
                 <tr>
-                  <td>Tangent space projector<br>
-                  </td>
+                  <td>Tangent space projector </td>
                   <td><code>M.proj(x, u) </code></td>
-                  <td>Computes $P_x u$, the orthogonal projection of the vector
-                    $u$ from the ambient or total space to the tangent space at
-                    $x$ or to the horizontal space at $x$.<br>
-                  </td>
+                  <td>Computes $P_x u$, the orthogonal projection of the vector $u$ from the ambient or total space to the tangent space at $x$ or to the horizontal space at $x$. </td>
                 </tr>
                 <tr>
                   <td>Euclidean to Riemannian gradient</td>
                   <td><nobr><code>M.egrad2rgrad(x, egrad)</code></nobr></td>
-                  <td>For manifolds embedded in a Euclidean space, converts the
-                    gradient of $f$ at $x$ seen as a function in that Euclidean
-                    space to the Riemannian gradient of $f$ on the manifold.</td>
+                  <td>For manifolds embedded in a Euclidean space, converts the gradient of $f$ at $x$ seen as a function in that Euclidean space to the Riemannian gradient of $f$ on the manifold.</td>
                 </tr>
                 <tr>
                   <td>Euclidean to Riemannian Hessian</td>
-                  <td><code>M.ehess2rhess(x, egrad, ehess, u)</code><br>
-                  </td>
-                  <td>Similarly to <code>egrad2rgrad</code>, converts the
-                    Euclidean gradient and Hessian of $f$ at $x$ along a tangent
-                    vector $u$ to the Riemannian Hessian of $f$ at $x$ along $u$
-                    on the manifold.<br>
-                  </td>
+                  <td><code>M.ehess2rhess(x, egrad, ehess, u)</code> </td>
+                  <td>Similarly to <code>egrad2rgrad</code>, converts the Euclidean gradient and Hessian of $f$ at $x$ along a tangent vector $u$ to the Riemannian Hessian of $f$ at $x$ along $u$ on the manifold. </td>
                 </tr>
                 <tr>
                   <td>Tangentialize</td>
                   <td><code>M.tangent(x, u)</code></td>
-                  <td>Re-tangentializes a vector. The input is a vector in the
-                    tangent vector representation, which possibly (for example
-                    because of error accumulations) is not tangent anymore. The
-                    output will be the "closest" tangent vector to the input. If
-                    tangent vectors are represented in the ambient space, this
-                    is equivalent to <code>proj</code>.</td>
+                  <td>Re-tangentializes a vector. The input is a vector in the tangent vector representation, which possibly (for example because of error accumulations) is not tangent anymore. The output will be the "closest" tangent vector to the input. If tangent vectors are represented in the ambient space, this is equivalent to <code>proj</code>.</td>
                 </tr>
                 <tr>
                   <td>Tangent to ambient representation</td>
                   <td><code>M.tangent2ambient(x, u)</code></td>
-                  <td>Tangent vectors are sometimes described differently from
-                    their counterpart in the ambient space. This will return the
-                    ambient space representation of a tangent vector $u$. Useful
-                    when defining the Euclidean Hessian for example.<br>
-                  </td>
+                  <td>Tangent vectors are sometimes described differently from their counterpart in the ambient space. This will return the ambient space representation of a tangent vector $u$. Useful when defining the Euclidean Hessian for example. </td>
                 </tr>
                 <tr>
-                  <td>Exponential map<br>
-                  </td>
+                  <td>Exponential map </td>
                   <td><code>M.exp(x, u, t) </code></td>
-                  <td>Computes $\operatorname{Exp}_x(tu)$, the point you reach
-                    by following the vector $tu$ starting at $x$.<br>
-                  </td>
+                  <td>Computes $\operatorname{Exp}_x(tu)$, the point you reach by following the vector $tu$ starting at $x$. </td>
                 </tr>
                 <tr>
-                  <td>Retraction<br>
-                  </td>
+                  <td>Retraction </td>
                   <td><code>M.retr(x, u, t) </code></td>
-                  <td>Computes $\operatorname{Retr}_x(tu)$, where
-                    $\operatorname{Retr}$ is a retraction: a cheaper proxy for
-                    the exponential map.<br>
-                  </td>
+                  <td>Computes $\operatorname{Retr}_x(tu)$, where $\operatorname{Retr}$ is a retraction: a cheaper proxy for the exponential map. </td>
                 </tr>
                 <tr>
-                  <td>Logarithmic map<br>
-                  </td>
+                  <td>Logarithmic map </td>
                   <td><code>M.log(x, y) </code></td>
-                  <td>Computes $\operatorname{Log}_x(y)$, a tangent vector at
-                    $x$ pointing toward $y$.<br>
-                  </td>
+                  <td>Computes $\operatorname{Log}_x(y)$, a tangent vector at $x$ pointing toward $y$. </td>
                 </tr>
                 <tr>
-                  <td>Random point<br>
-                  </td>
+                  <td>Random point </td>
                   <td><code>M.rand() </code></td>
-                  <td>Computes a random point on the manifold.<br>
-                  </td>
+                  <td>Computes a random point on the manifold. </td>
                 </tr>
                 <tr>
-                  <td>Random vector<br>
-                  </td>
+                  <td>Random vector </td>
                   <td><code>M.randvec(x) </code></td>
-                  <td>Computes a random, unit-norm tangent vector in the tangent
-                    space at $x$.<br>
-                  </td>
+                  <td>Computes a random, unit-norm tangent vector in the tangent space at $x$. </td>
                 </tr>
                 <tr>
-                  <td>Zero vector<br>
-                  </td>
+                  <td>Zero vector </td>
                   <td><code>M.zerovec(x) </code></td>
-                  <td>Returns the zero tangent vector at $x$.<br>
-                  </td>
+                  <td>Returns the zero tangent vector at $x$. </td>
                 </tr>
                 <tr>
-                  <td>Linear combination<br>
-                  </td>
+                  <td>Linear combination </td>
                   <td><code>M.lincomb(x, a1, u1, a2, u2) </code></td>
-                  <td>Computes the tangent vector at $x$: $v = a_1 u_1 + a_2
-                    u_2$, where $a_1, a_2$ are scalars and $u_1, u_2$ are
-                    tangent vectors at $x$. The inputs $a_2, u_2$ are optional.<br>
-                  </td>
+                  <td>Computes the tangent vector at $x$: $v = a_1 u_1 + a_2 u_2$, where $a_1, a_2$ are scalars and $u_1, u_2$ are tangent vectors at $x$. The inputs $a_2, u_2$ are optional. </td>
                 </tr>
                 <tr>
-                  <td>Vector transport<br>
-                  </td>
+                  <td>Vector transport </td>
                   <td><code>M.transp(x, y, u) </code></td>
-                  <td>Computes a tangent vector at $y$ that "looks like" the
-                    tangent vector $u$ at $x$.<br>
-                  </td>
+                  <td>Computes a tangent vector at $y$ that "looks like" the tangent vector $u$ at $x$. </td>
                 </tr>
                 <tr>
-                  <td>Pair mean<br>
-                  </td>
+                  <td>Pair mean </td>
                   <td><code>M.pairmean(x, y) </code></td>
-                  <td>Computes the intrinsic mean of $x$ and $y$, that is, a
-                    point that lies mid-way between $x$ and $y$ on the geodesic
-                    arc joining them.<br>
-                  </td>
+                  <td>Computes the intrinsic mean of $x$ and $y$, that is, a point that lies mid-way between $x$ and $y$ on the geodesic arc joining them. </td>
                 </tr>
                 <tr>
-                  <td>Hashing function<br>
-                  </td>
+                  <td>Hashing function </td>
                   <td><code>M.hash(x) </code></td>
-                  <td>Computes a string that (almost) uniquely identifies the
-                    point $x$ and that can serve as a field name for a
-                    structure.<br>
-                  </td>
+                  <td>Computes a string that (almost) uniquely identifies the point $x$ and that can serve as a field name for a structure. </td>
                 </tr>
                 <tr>
                   <td>Vector representation</td>
                   <td><code>M.vec(x, u)</code></td>
-                  <td>Returns a <em>real </em>column-vector representation of
-                    the tangent vector $u$. The length of the output is always
-                    the same and at least <code>M.dim()</code>. This function
-                    is linear and invertible on the tangent space at $x$.</td>
+                  <td>Returns a <em>real </em>column-vector representation of the tangent vector $u$. The length of the output is always the same and at least <code>M.dim()</code>. This function is linear and invertible on the tangent space at $x$.</td>
                 </tr>
                 <tr>
                   <td>Normal representation</td>
                   <td><code>M.mat(x, u_vec)</code></td>
-                  <td>The inverse of the <code>vec</code> function: will return
-                    a tangent vector representation from a column vector such
-                    that <code>M.mat(x, M.vec(x, u)) = u</code>.<br>
-                  </td>
+                  <td>The inverse of the <code>vec</code> function: will return a tangent vector representation from a column vector such that <code>M.mat(x, M.vec(x, u)) = u</code>. </td>
                 </tr>
                 <tr>
                   <td>vec and mat isometry check</td>
                   <td><code>M.vecmatareisometries()</code></td>
-                  <td>Returns true if <code>M.vec</code> is a linear isometry,
-                    i.e., if for all tangent vectors $u,v$, <code>M.inner(x, u,
-                      v) == M.vec(x, u).'*M.vec(x, v)</code>. Then, <code>M.mat</code>
-                    is both the adjoint and the inverse of <code>M.vec</code>.</td>
+                  <td>Returns true if <code>M.vec</code> is a linear isometry, i.e., if for all tangent vectors $u,v$, <code>M.inner(x, u, v) == M.vec(x, u).'*M.vec(x, v)</code>. Then, <code>M.mat</code> is both the adjoint and the inverse of <code>M.vec</code>.</td>
                 </tr>
               </tbody>
             </table>
-            <p>Not all manifold factories populate all of these fields, but
-              that's okay: for many purposes, only a subset of these functions
-              are necessary. Notice that it is also very easy to add or replace
-              fields in a manifold structure returned by a factory, which can be
-              desirable to experiment with various retractions, vector
-              transports, etc. If you find ways to improve the built-in
-              geometries, let us know.</p>
+            <p>Not all manifold factories populate all of these fields, but that's okay: for many purposes, only a subset of these functions are necessary. Notice that it is also very easy to add or replace fields in a manifold structure returned by a factory, which can be desirable to experiment with various retractions, vector transports, etc. If you find ways to improve the built-in geometries, let us know.</p>
           </section>
           <section id="solvers">
             <div class="page-header">
-              <h1>Solvers<br>
-              </h1>
+              <h1>Solvers </h1>
             </div>
             <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
-                width="26"><br>
-            </h3>
-            <p>Solvers, or optimization algorithms, are functions in Manopt.
-              Built-in solvers are located in <span style="font-family: monospace;">/manopt/solvers</span>.
-              In principle, all solvers admit the basic call format <code>x =
-                mysolver(problem)</code>. The returned value <code>x</code>
-              will be a point on the manifold <code>problem.M</code>. Depending
-              on the properties of your problem and on the guarantees of the
-              solver, <code>x</code> will be more or less close to a good
-              minimizer of the cost function described in the <code>problem</code>
-              structure. Bear in mind that we are dealing with usually
-              nonconvex, and possibly nonsmooth or derivative-free optimization,
-              so that it is in general not guaranteed that <code>x</code> will
-              be a global minimizer of the cost. For smooth problems with
-              gradient information though, most decent algorithms guarantee that
-              <code>x</code> will be a critical point (typically a local
-              minimizer).<br>
-            </p>
-            <div class="alert alert-info"><strong>Heads up!</strong> All
-              provided solvers are <em>minimization</em> algorithms. If you
-              want to <em>maximize </em>your objective function, multiply it
-              by -1 (and accordingly for the derivatives of the objective
-              function if needed), as we did in the <a href="#firstexample">first
-                example</a>.<br>
-            </div>
-            <p>In principle, all solvers also admit a more complete call format:
-              <code>[x xcost info] = mysolver(problem, x0, options)</code>. The
-              output <code>xcost</code> is the value of the cost function at
-              the returned point <code>x</code>. The <code>info</code>
-              struct-array is described below, and contains information
-              collected at each iteration of the solver's progress. The input <code>x0</code>
-              is an initial guess, or initial iterate, for the solver. It is
-              typically a point on the manifold <code>problem.M</code>, but may
-              be something else depending on the solver. It can be omitted by
-              passing the empty matrix <code>[]</code> instead. The <code>options</code>
-              structure is used to fine tune the behavior of the optimization
-              algorithm. On top of hosting the algorithmic parameters, it
-              manages the stopping criteria as well as what information needs to
-              be displayed and / or logged during execution.<br>
-            </p>
-            <h3>Available solvers<br>
-            </h3>
-            <p>The toolbox is fairly young and comes with only a handful of
-              solvers, the most trust-worthy being the trust-regions algorithm
-              as it is a modification of the code of <a title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan"
-                href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>. The
-              toolbox was designed to accommodate many more solvers though, and
-              we expect to propose BFGS-style solvers, stochastic gradient
-              descents and many more in the future. In particular, we look
-              forward to proposing algorithms for nonsmooth cost functions
-              (which notably but not only arise when L1 penalties are at play).</p>
-            <p><em>In the future, there will be a documentation page for each
-                solver.</em><br>
-            </p>
+                width="26"> </h3>
+            <p>Solvers, or optimization algorithms, are functions in Manopt. Built-in solvers are located in <span
+                style="font-family: monospace;">/manopt/solvers</span>. In principle, all solvers admit the basic call format <code>x = mysolver(problem)</code>. The returned value <code>x</code> will be a point on the manifold <code>problem.M</code>. Depending on the properties of your problem and on the guarantees of the solver, <code>x</code> will be more or less close to a good minimizer of the cost function described in the <code>problem</code> structure. Bear in mind that we are dealing with usually nonconvex, and possibly nonsmooth or derivative-free optimization, so that it is in general not guaranteed that <code>x</code> will be a global minimizer of the cost. For smooth problems with gradient information though, most decent algorithms guarantee that <code>x</code> will be a critical point (typically a local minimizer). </p>
+            <div class="alert alert-info"><strong>Heads up!</strong> All provided solvers are <em>minimization</em> algorithms. If you want to <em>maximize </em>your objective function, multiply it by -1 (and accordingly for the derivatives of the objective function if needed), as we did in the <a
+                href="#firstexample">first example</a>. </div>
+            <p>In principle, all solvers also admit a more complete call format: <code>[x xcost info] = mysolver(problem, x0, options)</code>. The output <code>xcost</code> is the value of the cost function at the returned point <code>x</code>. The <code>info</code> struct-array is described below, and contains information collected at each iteration of the solver's progress. The input <code>x0</code> is an initial guess, or initial iterate, for the solver. It is typically a point on the manifold <code>problem.M</code>, but may be something else depending on the solver. It can be omitted by passing the empty matrix <code>[]</code> instead. The <code>options</code> structure is used to fine tune the behavior of the optimization algorithm. On top of hosting the algorithmic parameters, it manages the stopping criteria as well as what information needs to be displayed and / or logged during execution. </p>
+            <h3>Available solvers </h3>
+            <p>The toolbox is fairly young and comes with only a handful of solvers, the most trust-worthy being the trust-regions algorithm as it is a modification of the code of <a
+                title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan"
+                href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>. The toolbox was designed to accommodate many more solvers though, and we expect to propose BFGS-style solvers, stochastic gradient descents and many more in the future. In particular, we look forward to proposing algorithms for nonsmooth cost functions (which notably but not only arise when L1 penalties are at play).</p>
+            <p><em>In the future, there will be a documentation page for each solver.</em> </p>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <td>Name<br>
-                  </td>
-                  <td>Requires (benefits of)<br>
-                  </td>
-                  <td>Comment<br>
-                  </td>
+                  <td>Name </td>
+                  <td>Requires (benefits of) </td>
+                  <td>Comment </td>
                   <td>Call</td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><a href="solver_documentation_trustregions.html">Trust-regions</a><br>
-                  </td>
-                  <td>Cost, gradient (Hessian, approximate Hessian,
-                    preconditioner) </td>
+                  <td><a href="solver_documentation_trustregions.html">Trust-regions</a> </td>
+                  <td>Cost, gradient (Hessian, approximate Hessian, preconditioner) </td>
                   <td>#1 choice for smooth optimization; uses <abbr title="Finite differences"
-                      class="initialism">FD</abbr> of the gradient in the
-                    absence of Hessian.<br>
-                  </td>
-                  <td><code>trustregions(...)</code><br>
-                  </td>
+                      class="initialism">FD</abbr> of the gradient in the absence of Hessian. </td>
+                  <td><code>trustregions(...)</code> </td>
                 </tr>
                 <tr>
-                  <td>Steepest-descent<br>
-                  </td>
-                  <td>Cost, gradient<br>
-                  </td>
-                  <td>Simple implementation of <abbr title="Gradient descent" class="initialism">GD</abbr>
-                    ; the built-in line-search is backtracking based.<br>
-                  </td>
-                  <td><code>steepestdescent(...)</code><br>
-                  </td>
+                  <td>Steepest-descent </td>
+                  <td>Cost, gradient </td>
+                  <td>Simple implementation of <abbr title="Gradient descent"
+                      class="initialism">GD</abbr> ; the built-in line-search is backtracking based. </td>
+                  <td><code>steepestdescent(...)</code> </td>
                 </tr>
                 <tr>
-                  <td>Conjugate-gradient<br>
-                  </td>
-                  <td>Cost, gradient (preconditioner)<br>
-                  </td>
-                  <td>Often performs better than steepest-descent.<br>
-                  </td>
-                  <td><code>conjugategradient(...)</code><br>
-                  </td>
+                  <td>Conjugate-gradient </td>
+                  <td>Cost, gradient (preconditioner) </td>
+                  <td>Often performs better than steepest-descent. </td>
+                  <td><code>conjugategradient(...)</code> </td>
                 </tr>
                 <tr>
-                  <td>Particle swarm (PSO)<br>
-                  </td>
-                  <td>Cost<br>
-                  </td>
-                  <td><abbr title="Derivative-free optimization" class="initialism">DFO</abbr>
-                    based on a population of points. </td>
-                  <td><code>pso(...)</code><br>
-                  </td>
+                  <td>Particle swarm (PSO) </td>
+                  <td>Cost </td>
+                  <td><abbr title="Derivative-free optimization" class="initialism">DFO</abbr> based on a population of points. </td>
+                  <td><code>pso(...)</code> </td>
                 </tr>
                 <tr>
-                  <td>Nelder-Mead<br>
-                  </td>
-                  <td>Cost<br>
-                  </td>
-                  <td><abbr title="Derivative-free optimization" class="initialism">DFO</abbr>
-                    based on a simplex; requires <code>M.pairmean</code>; usage
-                    not advised.<br>
-                  </td>
-                  <td><code>neldermead(...)</code><br>
-                  </td>
+                  <td>Nelder-Mead </td>
+                  <td>Cost </td>
+                  <td><abbr title="Derivative-free optimization" class="initialism">DFO</abbr> based on a simplex; requires <code>M.pairmean</code>; usage not advised. </td>
+                  <td><code>neldermead(...)</code> </td>
                 </tr>
               </tbody>
             </table>
-            <h3>The options structure<br>
-            </h3>
-            <p>In Manopt, <em>all</em> options are optional. Standard options
-              are assigned a default value at the toolbox level in <tt>/manopt/privatetools/getGlobalDefaults.m</tt>
-              (it's a private tool, so you really shouldn't use or edit it).
-              Solvers then override and complement these options with
-              solver-specific fields. These options are in turn overridden by
-              the user-specified options, if any. Here is a list of commonly
-              used options (see each solver's documentation for specific
-              information):</p>
+            <h3>The options structure </h3>
+            <p>In Manopt, <em>all</em> options are optional. Standard options are assigned a default value at the toolbox level in <tt>/manopt/privatetools/getGlobalDefaults.m</tt> (it's a private tool, so you really shouldn't use or edit it). Solvers then override and complement these options with solver-specific fields. These options are in turn overridden by the user-specified options, if any. Here is a list of commonly used options (see each solver's documentation for specific information):</p>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <td>Field name (<code>options."..."</code>)<br>
-                  </td>
-                  <td>Value type<br>
-                  </td>
-                  <td>Description<br>
-                  </td>
+                  <td>Field name (<code>options."..."</code>) </td>
+                  <td>Value type </td>
+                  <td>Description </td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="3" rowspan="1"><strong>Output and information
-                      logging</strong><br>
-                  </td>
+                  <td colspan="3" rowspan="1"><strong>Output and information logging</strong> </td>
                 </tr>
                 <tr>
                   <td><code>verbosity</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>Controls how much information a solver outputs during
-                    execution ; 0: no output; 1 : output at init and at exit; 2:
-                    light output at each iteration; more: all you can read.<br>
-                  </td>
+                  <td>integer </td>
+                  <td>Controls how much information a solver outputs during execution ; 0: no output; 1 : output at init and at exit; 2: light output at each iteration; more: all you can read. </td>
                 </tr>
                 <tr>
                   <td><code>debug</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>If larger than 0, the solver may perform additional
-                    computations for debugging purposes.<br>
-                  </td>
+                  <td>integer </td>
+                  <td>If larger than 0, the solver may perform additional computations for debugging purposes. </td>
                 </tr>
                 <tr>
-                  <td><code>statsfun</code><br>
-                  </td>
-                  <td>fun. handle<br>
-                  </td>
+                  <td><code>statsfun</code> </td>
+                  <td>fun. handle </td>
                   <td>
-                    <p>If you specify a function handle with prototype <code>stats
-                        = statsfun(problem, x, stats)</code>, it will be called
-                      after each iteration completes with the <code>problem</code>
-                      structure, the current point <code>x</code> and the
-                      statistics structure <code>stats</code> that will be
-                      logged in the <code>info</code> struct-array at the
-                      corresponding iteration number. This function gives you a
-                      chance to modify the <code>stats</code> structure, hence
-                      to add fields if you want to. Bear in mind that structures
-                      in a struct-array must <em>all </em>have the same
-                      fields, so that if the <code>statsfun</code> adds a field
-                      to a <code>stats</code> structure, it must do so for <em>all
-                        </em>iterations.</p>
+                    <p>If you specify a function handle with prototype <code>stats = statsfun(problem, x, stats)</code>, it will be called after each iteration completes with the <code>problem</code> structure, the current point <code>x</code> and the statistics structure <code>stats</code> that will be logged in the <code>info</code> struct-array at the corresponding iteration number. This function gives you a chance to modify the <code>stats</code> structure, hence to add fields if you want to. Bear in mind that structures in a struct-array must <em>all </em>have the same fields, so that if the <code>statsfun</code> adds a field to a <code>stats</code> structure, it must do so for <em>all </em>iterations.</p>
                     <p>Example:</p>
                     <pre class="prettyprint lang-matlab linenums">options.statsfun = @mystatsfun;
 function stats = mystatsfun(problem, x, stats)
     stats.x = x;
 end</pre>
-                    <p> This will log all the points visited during the
-                      optimization process in the info struct-array returned by
-                      the solver.</p>
-                    <p>You may also provide a function handle with this calling
-                      pattern: <code>stats = statsfun(problem, x, stats, store)</code>.
-                      This additionally lets you access the data stored for that
-                      particular iterate in the store structure.<br>
-                    </p>
+                    <p> This will log all the points visited during the optimization process in the info struct-array returned by the solver.</p>
+                    <p>You may also provide a function handle with this calling pattern: <code>stats = statsfun(problem, x, stats, store)</code>. This additionally lets you access the data stored for that particular iterate in the store structure. </p>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="3" rowspan="1"><strong>Stopping criteria</strong><br>
-                  </td>
+                  <td colspan="3" rowspan="1"><strong>Stopping criteria</strong> </td>
                 </tr>
                 <tr>
                   <td><code>maxiter</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>Limits the number of iterations of the solver.<br>
-                  </td>
+                  <td>integer </td>
+                  <td>Limits the number of iterations of the solver. </td>
                 </tr>
                 <tr>
                   <td><code>maxtime</code></td>
-                  <td>double<br>
-                  </td>
-                  <td>Limits the <abbr title="Not taking into account time spent in statsfun.">execution
-                      time</abbr> of the solver, in seconds.<br>
-                  </td>
+                  <td>double </td>
+                  <td>Limits the <abbr title="Not taking into account time spent in statsfun.">execution time</abbr> of the solver, in seconds. </td>
                 </tr>
                 <tr>
                   <td><code>maxcostevals</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>Limits the number of evaluations of the cost function.<br>
-                  </td>
+                  <td>integer </td>
+                  <td>Limits the number of evaluations of the cost function. </td>
                 </tr>
                 <tr>
                   <td><code>tolcost</code></td>
-                  <td>double<br>
-                  </td>
-                  <td>Stop as soon as the cost drops below this tolerance.<br>
-                  </td>
+                  <td>double </td>
+                  <td>Stop as soon as the cost drops below this tolerance. </td>
                 </tr>
                 <tr>
                   <td><code>tolgradnorm</code></td>
-                  <td>double<br>
-                  </td>
-                  <td>Stop as soon as the norm of the gradient drops below this
-                    tolerance.<br>
-                  </td>
+                  <td>double </td>
+                  <td>Stop as soon as the norm of the gradient drops below this tolerance. </td>
                 </tr>
                 <tr>
-                  <td><code>stopfun</code><br>
-                  </td>
-                  <td>fun. handle<br>
-                  </td>
+                  <td><code>stopfun</code> </td>
+                  <td>fun. handle </td>
                   <td>
-                    <p>If you specify a function handle with prototype <code>stopnow
-                        = stopfun(problem, x, info, last)</code>, it will be
-                      called after each iteration completes with the <code>problem</code>
-                      structure, the current point <code>x</code> , the whole <code>info</code>
-                      struct-array built so far and an index <code>last</code>
-                      such that <code>info(last)</code> is the structure
-                      pertaining to the current iteration (this is because <code>info</code>
-                      is pre-allocated, so that <code>info(end)</code>
-                      typically does <em>not</em> refer to the current
-                      iteration). The return value is a boolean. If <code>stopnow</code>
-                      is returned as <tt>true</tt>, the solver will terminate.</p>
+                    <p>If you specify a function handle with prototype <code>stopnow = stopfun(problem, x, info, last)</code>, it will be called after each iteration completes with the <code>problem</code> structure, the current point <code>x</code> , the whole <code>info</code> struct-array built so far and an index <code>last</code> such that <code>info(last)</code> is the structure pertaining to the current iteration (this is because <code>info</code> is pre-allocated, so that <code>info(end)</code> typically does <em>not</em> refer to the current iteration). The return value is a boolean. If <code>stopnow</code> is returned as <tt>true</tt>, the solver will terminate.</p>
                     <p>Example:</p>
                     <pre class="prettyprint lang-matlab linenums">options.stopfun = @mystopfun;
 function stopnow = mystopfun(problem, x, info, last)
     stopnow = (last &gt;= 3 &amp;&amp; info(last-2).cost - info(last).cost &lt; 1e-3);
 end</pre>
-                    <p> This will tell the solver to exit as soon as two
-                      successive iterations combined have decreased the cost by
-                      less than 10<sup>-3</sup>.</p>
+                    <p> This will tell the solver to exit as soon as two successive iterations combined have decreased the cost by less than 10<sup>-3</sup>.</p>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="3" rowspan="1"><strong>Miscellaneous</strong><br>
-                  </td>
+                  <td colspan="3" rowspan="1"><strong>Miscellaneous</strong> </td>
                 </tr>
                 <tr>
                   <td><code>storedepth</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>Maximum number of <code>store</code> structures that may
-                    be kept in memory (see the <a href="#costdescription">cost
-                      description</a> section).<br>
-                  </td>
+                  <td>integer </td>
+                  <td>Maximum number of <code>store</code> structures that may be kept in memory (see the <a
+                      href="#costdescription">cost description</a> section). </td>
                 </tr>
               </tbody>
             </table>
-            <p>Keep in mind that a specific solver may not use all of these
-              options and may use additional options, which would then be
-              described on the solver's documentation page.<br>
-            </p>
-            <div class="alert alert-info"><strong>Good to know!</strong> Need a
-              problem-specific stopping criterion? Include a <code>stopfun</code>
-              in your <code>options</code> structure.<br>
-            </div>
-            <h3>The info struct-array<br>
-            </h3>
-            <p>The various solvers will log information at each iteration about
-              their progress. This information is returned in the output <code>info</code>,
-              a struct-array, a.k.a., an array of structures. Read this <a href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/">MathWorks
-                blog post</a> for help on dealing with this data container in
-              Matlab. Here are the typical indicators that might be present in
-              the <code>info</code> output:</p>
+            <p>Keep in mind that a specific solver may not use all of these options and may use additional options, which would then be described on the solver's documentation page. </p>
+            <div class="alert alert-info"><strong>Good to know!</strong> Need a problem-specific stopping criterion? Include a <code>stopfun</code> in your <code>options</code> structure. </div>
+            <h3>The info struct-array </h3>
+            <p>The various solvers will log information at each iteration about their progress. This information is returned in the output <code>info</code>, a struct-array, a.k.a., an array of structures. Read this <a
+                href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/">MathWorks blog post</a> for help on dealing with this data container in Matlab. Here are the typical indicators that might be present in the <code>info</code> output:</p>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
-                  <td>Field name (<code>[info."..."]</code>)<br>
-                  </td>
-                  <td>Value type<br>
-                  </td>
-                  <td>Description<br>
-                  </td>
+                  <td>Field name (<code>[info."..."]</code>) </td>
+                  <td>Value type </td>
+                  <td>Description </td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><code>iter</code></td>
-                  <td>integer<br>
-                  </td>
-                  <td>Iteration number (0 corresponds to the initial guess).<br>
-                  </td>
+                  <td>integer </td>
+                  <td>Iteration number (0 corresponds to the initial guess). </td>
                 </tr>
                 <tr>
-                  <td><code>time</code><br>
-                  </td>
-                  <td>double<br>
-                  </td>
-                  <td>Elapsed <abbr title="Not taking into account time spent in statsfun.">execution
-                      time</abbr> until completion of the iterate, in seconds.<br>
-                  </td>
+                  <td><code>time</code> </td>
+                  <td>double </td>
+                  <td>Elapsed <abbr title="Not taking into account time spent in statsfun.">execution time</abbr> until completion of the iterate, in seconds. </td>
                 </tr>
                 <tr>
-                  <td><code>cost</code><br>
-                  </td>
-                  <td>double<br>
-                  </td>
-                  <td>Attained value of the cost function.<br>
-                  </td>
+                  <td><code>cost</code> </td>
+                  <td>double </td>
+                  <td>Attained value of the cost function. </td>
                 </tr>
                 <tr>
-                  <td><code>gradnorm</code><br>
-                  </td>
-                  <td>double<br>
-                  </td>
-                  <td>Attained value for the norm of the gradient.<br>
-                  </td>
+                  <td><code>gradnorm</code> </td>
+                  <td>double </td>
+                  <td>Attained value for the norm of the gradient. </td>
                 </tr>
               </tbody>
             </table>
-            <p>A specific solver may not populate all of these fields and may
-              provide additional fields, which would then be described on the
-              solver's documentation page. </p>
-            <div class="alert alert-info"><strong>Good to know!</strong> Need to
-              log problem-specific information at each iteration? Include a <code>statsfun</code>
-              in your <code>options</code> structure.</div>
-            <div class="alert alert-info"><strong>Heads up!</strong> The
-              execution time is logged <em>without</em> incorporating time
-              spent in <code>statsfun</code>, as it usually performs
-              computations that are not needed to solve the optimization
-              problem. If, however, you use information logged by <code>statsfun</code>
-              for your <code>stopfun</code> criterion, and if this is important
-              for your method (i.e., it is not just for convenience during
-              prototyping), you should time the execution time of <code>statsfun</code>
-              and add it to the <code>stats.time</code> field.<br>
-            </div>
+            <p>A specific solver may not populate all of these fields and may provide additional fields, which would then be described on the solver's documentation page. </p>
+            <div class="alert alert-info"><strong>Good to know!</strong> Need to log problem-specific information at each iteration? Include a <code>statsfun</code> in your <code>options</code> structure.</div>
+            <div class="alert alert-info"><strong>Heads up!</strong> The execution time is logged <em>without</em> incorporating time spent in <code>statsfun</code>, as it usually performs computations that are not needed to solve the optimization problem. If, however, you use information logged by <code>statsfun</code> for your <code>stopfun</code> criterion, and if this is important for your method (i.e., it is not just for convenience during prototyping), you should time the execution time of <code>statsfun</code> and add it to the <code>stats.time</code> field. </div>
           </section>
           <section id="costdescription">
             <div class="page-header">
@@ -1199,162 +617,81 @@ end</pre>
             <h3>General philosophy <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
                 width="26"></h3>
             <h3> </h3>
-            <p>An optimization problem in Manopt is represented as a <code>problem</code>
-              structure. The latter must include a field <code>problem.M</code>
-              which contains a structure describing a manifold, as obtained from
-              <a href="#manifolds">a factory</a>. On top of this, the problem
-              structure must include some fields that describe the cost function
-              $f$ and, possibly, its derivatives.<br>
-            </p>
-            <p>The solvers will <em>not </em>query these function handles
-              directly. Instead, they call private tools such as <code>getCost</code>,
-              <code>getGradient</code>, <code>getHessian</code>, etc. (These
-              are private tools, so you really shouldn't use or edit them,
-              unless you are writing your own solver or factory.) These tools
-              will consider the available fields in the problem structure and
-              "do their best" to return the required object.<br>
-            </p>
-            <p>As a result, we gain great flexibility in the cost function
-              description. Indeed, as the needs grow during the life-cycle of
-              the toolbox and new ways of describing the cost function become
-              necessary, it suffices to update the private <code>get*</code>
-              tools to take these new ways into account. We never have to modify
-              the solvers.</p>
-            <p>For now, there are only a few ways to describe the cost and its
-              derivatives, but there will be more as the needs grow.<br>
-            </p>
-            <h3>Cost describing fields<br>
-            </h3>
-            <p> You may specify as many of the following fields as you wish in
-              the <code>problem</code> structure. If you specify some function
-              more than once (for example, if you define <code>diff</code> <em>and</em>
-              <code>grad</code>, which both could be used to compute directional
-              derivatives), the toolbox does not specify which will be called.
-              In the example, it will assume that the code for <code>diff</code>
-              is more efficient than the code for <code>grad</code> when only a
-              directional derivative is needed, but there is no guarantee.
-              Bottom line: they should be consistent.</p>
-            <div class="alert alert-info"><strong>Good to know!</strong> All
-              function handles admit a store structure as extra argument for
-              caching purposes, as explained in the next section. This is an
-              optional feature. For prototyping, it is often easier to write a
-              first version of the code without caching.<br>
-            </div>
+            <p>An optimization problem in Manopt is represented as a <code>problem</code> structure. The latter must include a field <code>problem.M</code> which contains a structure describing a manifold, as obtained from <a
+                href="#manifolds">a factory</a>. On top of this, the problem structure must include some fields that describe the cost function $f$ and, possibly, its derivatives. </p>
+            <p>The solvers will <em>not </em>query these function handles directly. Instead, they call private tools such as <code>getCost</code>, <code>getGradient</code>, <code>getHessian</code>, etc. (These are private tools, so you really shouldn't use or edit them, unless you are writing your own solver or factory.) These tools will consider the available fields in the problem structure and "do their best" to return the required object. </p>
+            <p>As a result, we gain great flexibility in the cost function description. Indeed, as the needs grow during the life-cycle of the toolbox and new ways of describing the cost function become necessary, it suffices to update the private <code>get*</code> tools to take these new ways into account. We never have to modify the solvers.</p>
+            <p>For now, there are only a few ways to describe the cost and its derivatives, but there will be more as the needs grow. </p>
+            <h3>Cost describing fields </h3>
+            <p> You may specify as many of the following fields as you wish in the <code>problem</code> structure. If you specify some function more than once (for example, if you define <code>diff</code> <em>and</em> <code>grad</code>, which both could be used to compute directional derivatives), the toolbox does not specify which will be called. In the example, it will assume that the code for <code>diff</code> is more efficient than the code for <code>grad</code> when only a directional derivative is needed, but there is no guarantee. Bottom line: they should be consistent.</p>
+            <div class="alert alert-info"><strong>Good to know!</strong> All function handles admit a store structure as extra argument for caching purposes, as explained in the next section. This is an optional feature. For prototyping, it is often easier to write a first version of the code without caching. </div>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
                 <tr>
                   <td>Field name (<code>problem."..."</code>)</td>
-                  <td>Prototype<br>
-                  </td>
-                  <td>Description<br>
-                  </td>
+                  <td>Prototype </td>
+                  <td>Description </td>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><code>cost</code><br>
-                  </td>
+                  <td><code>cost</code> </td>
                   <td><code>f = cost(x)</code><br>
                     <nobr><code>[f store] = cost(x, store)</code></nobr></td>
-                  <td>$f = f(x)$<br>
-                  </td>
+                  <td>$f = f(x)$ </td>
                 </tr>
                 <tr>
-                  <td><code>grad</code><br>
-                  </td>
+                  <td><code>grad</code> </td>
                   <td><code>g = grad(x)</code><br>
                     <nobr><code>[g store] = grad(x, store)</code></nobr></td>
-                  <td>$g = \operatorname{grad} f(x)$<br>
-                  </td>
+                  <td>$g = \operatorname{grad} f(x)$ </td>
                 </tr>
                 <tr>
-                  <td><code>costgrad</code><br>
-                  </td>
+                  <td><code>costgrad</code> </td>
                   <td><code>[f g] = costgrad(x)</code><br>
-                    <nobr><code>[f g store] = costgrad(x, store)</code></nobr><br>
-                  </td>
-                  <td>Computes both $f = f(x)$ and $g = \operatorname{grad}
-                    f(x)$.</td>
+                    <nobr><code>[f g store] = costgrad(x, store)</code></nobr> </td>
+                  <td>Computes both $f = f(x)$ and $g = \operatorname{grad} f(x)$.</td>
                 </tr>
                 <tr>
-                  <td><code>egrad</code><br>
-                  </td>
+                  <td><code>egrad</code> </td>
                   <td><code>eg = egrad(x)</code><br>
-                    <nobr><code>[eg store] = egrad(x, store)</code></nobr><br>
-                  </td>
-                  <td>For submanifolds of a Euclidean space or quotient spaces
-                    with a Euclidean total space, computes $eg = \nabla f(x)$,
-                    the gradient of $f$ "as if" it were defined in that
-                    Euclidean space. This will be passed to <code>M.egrad2rgrad</code>.</td>
+                    <nobr><code>[eg store] = egrad(x, store)</code></nobr> </td>
+                  <td>For submanifolds of a Euclidean space or quotient spaces with a Euclidean total space, computes $eg = \nabla f(x)$, the gradient of $f$ "as if" it were defined in that Euclidean space. This will be passed to <code>M.egrad2rgrad</code>.</td>
                 </tr>
                 <tr>
-                  <td><code>hess</code><br>
-                  </td>
+                  <td><code>hess</code> </td>
                   <td><code>h = hess(x, u)</code><br>
                     <nobr><code>[h store] = hess(x, u, store)</code></nobr></td>
-                  <td>$h = \operatorname{Hess} f(x)[u]$<br>
-                  </td>
+                  <td>$h = \operatorname{Hess} f(x)[u]$ </td>
                 </tr>
                 <tr>
-                  <td><code>ehess</code><br>
-                  </td>
+                  <td><code>ehess</code> </td>
                   <td><code>eh = ehess(x, u)</code><br>
                     <nobr><code>[eh store] = ehess(x, u, store)</code></nobr></td>
-                  <td>For submanifolds of a Euclidean space or quotient spaces
-                    with a Euclidean total space, computes $eh = \nabla^2
-                    f(x)[u]$, the Hessian of $f$ along $u$ "as if" it were
-                    defined in that Euclidean space. This will be passed to <code>M.ehess2rhess</code>
-                    and thus requires the Euclidean gradient to be accessible (<code>egrad</code>).</td>
+                  <td>For submanifolds of a Euclidean space or quotient spaces with a Euclidean total space, computes $eh = \nabla^2 f(x)[u]$, the Hessian of $f$ along $u$ "as if" it were defined in that Euclidean space. This will be passed to <code>M.ehess2rhess</code> and thus requires the Euclidean gradient to be accessible (<code>egrad</code>).</td>
                 </tr>
                 <tr>
-                  <td><code>diff</code><br>
-                  </td>
+                  <td><code>diff</code> </td>
                   <td><code>d = diff(x, u)</code><br>
                     <nobr><code>[d store] = diff(x, u, store)</code></nobr></td>
-                  <td>$d = \operatorname{D}\! f(x)[u]$<br>
-                  </td>
+                  <td>$d = \operatorname{D}\! f(x)[u]$ </td>
                 </tr>
                 <tr>
-                  <td><code>approxhess</code><br>
-                  </td>
+                  <td><code>approxhess</code> </td>
                   <td><code>h = approxhess(x, u)</code><br>
-                    <nobr><code>[h store] = approxhess(x, u, store)</code></nobr><br>
-                  </td>
-                  <td>This can be any mapping from the tangent space at $x$ to
-                    itself. Often, one would like it to be a linear, symmetric
-                    operator. Solvers asking for the Hessian when one is not
-                    provided will automatically fall back on this approximate
-                    Hessian. If it is not provided either, a standard
-                    finite-difference approximation of the Hessian based on the
-                    gradient is built-in.<br>
-                  </td>
+                    <nobr><code>[h store] = approxhess(x, u, store)</code></nobr> </td>
+                  <td>This can be any mapping from the tangent space at $x$ to itself. Often, one would like it to be a linear, symmetric operator. Solvers asking for the Hessian when one is not provided will automatically fall back on this approximate Hessian. If it is not provided either, a standard finite-difference approximation of the Hessian based on the gradient is built-in. </td>
                 </tr>
                 <tr>
-                  <td><code>precon</code><br>
-                  </td>
+                  <td><code>precon</code> </td>
                   <td><code>v = precon(x, u)</code><br>
-                    <nobr><code>[v store] = precon(x, u, store)</code></nobr><br>
-                  </td>
-                  <td>$v = \operatorname{Prec}(x)[u]$, where
-                    $\operatorname{Prec}(x)$ is a preconditioner for the Hessian
-                    $\operatorname{Hess} f(x)$, that is,
-                    $\operatorname{Prec}(x)$ is a symmetric, positive-definite
-                    linear operator (w.r.t. the Riemannian metric) on the
-                    tangent space at $x$. Ideally, it is cheap to compute and
-                    such that solving a linear system in
-                    $\operatorname{Prec}^{1/2}(x) \circ \operatorname{Hess} f(x)
-                    \circ \operatorname{Prec}^{1/2}(x)$ is easier than without
-                    the preconditioner, i.e., it should approximate the inverse
-                    of the Hessian.<br>
-                  </td>
+                    <nobr><code>[v store] = precon(x, u, store)</code></nobr> </td>
+                  <td>$v = \operatorname{Prec}(x)[u]$, where $\operatorname{Prec}(x)$ is a preconditioner for the Hessian $\operatorname{Hess} f(x)$, that is, $\operatorname{Prec}(x)$ is a symmetric, positive-definite linear operator (w.r.t. the Riemannian metric) on the tangent space at $x$. Ideally, it is cheap to compute and such that solving a linear system in $\operatorname{Prec}^{1/2}(x) \circ \operatorname{Hess} f(x) \circ \operatorname{Prec}^{1/2}(x)$ is easier than without the preconditioner, i.e., it should approximate the inverse of the Hessian. </td>
                 </tr>
               </tbody>
             </table>
-            <p> Here is one way to address the redundant computation of $Ax$
-              that appeared in the <a href="file:///C:/Users/nicolas/manopt/web/tutorial.html#firstexample">first
-                example</a>. Replace the cost and gradient description (code
-              lines 11-12) with the following code (we chose to spell out the
-              gradient projection, but that is not necessary):</p>
+            <p> Here is one way to address the redundant computation of $Ax$ that appeared in the <a
+                href="file:///C:/Users/nicolas/manopt/web/tutorial.html#firstexample">first example</a>. Replace the cost and gradient description (code lines 11-12) with the following code (we chose to spell out the gradient projection, but that is not necessary):</p>
             <pre class="prettyprint lang-matlab linenums">problem.costgrad = @(x) mycostgrad(A, x);
 function [f g] = mycostgrad(A, x)
     Ax = A*x;
@@ -1364,57 +701,14 @@ function [f g] = mycostgrad(A, x)
     end
 end
 </pre>
-            <p>Solvers that call subsequently for the cost and the gradient at
-              the same point will be able to escape most redundant computations
-              (e.g., <code>steepestdescent</code> and <code>conjugategradient</code>
-              are good at this). This is not perfect though: when the Hessian is
-              requested for example, we can't access our hard work (<code>trustregions</code>
-              would not gain much for example). In the next section, we cover a
-              more sophisticated way of sharing data between components of the
-              cost description.<br>
-            </p>
-            <h3>Caching: how to use the store structure<br>
-            </h3>
-            <p>As demonstrated in the <a href="#firstexample">first example</a>,
-              it is often the case that computing $f(x)$ produces intermediate
-              results (such as the product $Ax$) that can be reused in order to
-              compute $\operatorname{grad} f(x)$. More generally, computing
-              anything at a point $x$ may produce intermediate results that
-              could be reused for other computations at $x$. Furthermore, it may
-              happen that a solver will call your cost-related functions more
-              than once at the same point $x$. For those cases, it may be
-              beneficial to cache (to store) some of the previously computed
-              objects.</p>
-            <p>For that purpose, Manopt manages a database of <code>store</code>
-              structures. For each visited point $x$, a <code>store</code>
-              structure is stored in the database. Only the structures
-              pertaining to the most recently used points are kept in memory
-              (see the <code>options.storedepth</code> <a href="#solvers">option</a>).
-              The database is indexed thanks to a hash of the point $x$, as
-              provided by the <a href="#manifolds">manifold structure</a> in <code>M.hash</code>,
-              so that a look-up in the database is quick to do.</p>
-            <p>Whenever a solver calls, say, the <code>cost</code> function at
-              some point $x$, the toolbox will search for a <code>store</code>
-              structure pertaining to that $x$ in the database. If there is one
-              and if the <code>cost</code> function admits <code>store</code>
-              as an input and as an output, the <code>store</code> is passed to
-              the <code>cost</code> function. The <code>cost</code> function
-              then performs its duty and gets to modify the <code>store</code>
-              structure at will: it is <em>your </em>structure, do whatever
-              you fancy with it. Next time a function is called at the <em>same</em>
-              point $x$ (say, the <code>grad</code> function), the <em>same</em>
-              <code>store</code> structure will be passed along, modified, and
-              stored again. As soon as the solver goes on to explore a new point
-              $x'$, a <em>different</em> <code>store</code> structure is
-              created and maintained in the same way. If the solver then decides
-              to return to the previous $x$ and <code>options.storedepth</code>
-              is larger than 2, we will still benefit from the previously stored
-              work as the previous <code>store</code> structure will still be
-              available.<br>
-            </p>
-            <p>Here is an example of how we can modify the <a href="#firstexample">first
-                example</a> to avoid redundant computations, using the caching
-              mechanism:</p>
+            <p>Solvers that call subsequently for the cost and the gradient at the same point will be able to escape most redundant computations (e.g., <code>steepestdescent</code> and <code>conjugategradient</code> are good at this). This is not perfect though: when the Hessian is requested for example, we can't access our hard work (<code>trustregions</code> would not gain much for example). In the next section, we cover a more sophisticated way of sharing data between components of the cost description. </p>
+            <h3>Caching: how to use the store structure </h3>
+            <p>As demonstrated in the <a href="#firstexample">first example</a>, it is often the case that computing $f(x)$ produces intermediate results (such as the product $Ax$) that can be reused in order to compute $\operatorname{grad} f(x)$. More generally, computing anything at a point $x$ may produce intermediate results that could be reused for other computations at $x$. Furthermore, it may happen that a solver will call your cost-related functions more than once at the same point $x$. For those cases, it may be beneficial to cache (to store) some of the previously computed objects.</p>
+            <p>For that purpose, Manopt manages a database of <code>store</code> structures. For each visited point $x$, a <code>store</code> structure is stored in the database. Only the structures pertaining to the most recently used points are kept in memory (see the <code>options.storedepth</code> <a
+                href="#solvers">option</a>). The database is indexed thanks to a hash of the point $x$, as provided by the <a
+                href="#manifolds">manifold structure</a> in <code>M.hash</code>, so that a look-up in the database is quick to do.</p>
+            <p>Whenever a solver calls, say, the <code>cost</code> function at some point $x$, the toolbox will search for a <code>store</code> structure pertaining to that $x$ in the database. If there is one and if the <code>cost</code> function admits <code>store</code> as an input and as an output, the <code>store</code> is passed to the <code>cost</code> function. The <code>cost</code> function then performs its duty and gets to modify the <code>store</code> structure at will: it is <em>your </em>structure, do whatever you fancy with it. Next time a function is called at the <em>same</em> point $x$ (say, the <code>grad</code> function), the <em>same</em> <code>store</code> structure will be passed along, modified, and stored again. As soon as the solver goes on to explore a new point $x'$, a <em>different</em> <code>store</code> structure is created and maintained in the same way. If the solver then decides to return to the previous $x$ and <code>options.storedepth</code> is larger than 2, we will still benefit from the previously stored work as the previous <code>store</code> structure will still be available. </p>
+            <p>Here is an example of how we can modify the <a href="#firstexample">first example</a> to avoid redundant computations, using the caching mechanism:</p>
             <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;
 function [f store] = mycost(x, store)
 
@@ -1445,278 +739,123 @@ function [g store] = mygrad(x, store)
     
 end
 </pre>
-            <p>It is instructive to execute such code with <a href="http://blogs.mathworks.com/community/2010/02/01/speeding-up-your-program-through-profiling/">the
-                profiler</a> activated and to look at how many times each
-              instruction gets executed. You should find that line 5 in the
-              code, which is where all the work happens, is executed exactly as
-              often as it should be, and not more.</p>
-            <div class="alert alert-info"><strong>Heads up!</strong> You should
-              never assume that the gradient function, for example, will be
-              called <em>after</em> the cost function (even though this is
-              usually the case). Always check that the fields you will use in
-              the <code>store</code> structure are populated; and if they are
-              not, call the appropriate functions to make up for it, as in the
-              example above. </div>
-            <div class="alert alert-info"><strong>Good to know!</strong> Which
-              variables should I store? As a rule of thumb, store the
-              intermediate computation results which constitute the bottleneck
-              in your computation. This can usually be determined by considering
-              the asymptotic time complexity of each operation. Typically,
-              matrix products of large size are involved in the slowest parts.
-              If in doubt, the Matlab profiler is a tremendous tool to identify
-              the bits of your code that need special attention. </div>
+            <p>It is instructive to execute such code with <a href="http://blogs.mathworks.com/community/2010/02/01/speeding-up-your-program-through-profiling/">the profiler</a> activated and to look at how many times each instruction gets executed. You should find that line 5 in the code, which is where all the work happens, is executed exactly as often as it should be, and not more.</p>
+            <div class="alert alert-info"><strong>Heads up!</strong> You should never assume that the gradient function, for example, will be called <em>after</em> the cost function (even though this is usually the case). Always check that the fields you will use in the <code>store</code> structure are populated; and if they are not, call the appropriate functions to make up for it, as in the example above. </div>
+            <div class="alert alert-info"><strong>Good to know!</strong> Which variables should I store? As a rule of thumb, store the intermediate computation results which constitute the bottleneck in your computation. This can usually be determined by considering the asymptotic time complexity of each operation. Typically, matrix products of large size are involved in the slowest parts. If in doubt, the Matlab profiler is a tremendous tool to identify the bits of your code that need special attention. </div>
           </section>
           <section id="tools">
             <div class="page-header">
               <h1>Helpful tools</h1>
             </div>
-            <p>A number of generically useful tools in the context of using
-              Manopt are available in /<tt>manopt/tools</tt>. The <code>multitransp</code>
-              / <code>multiprod</code> pair is code by <a href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo
-                de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>,
-              which is code by <a href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton
-                Moore</a>.<br>
-              <br>
-            </p>
-            <table style="width: 100%;" class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <td>Call<br>
-                  </td>
-                  <td>Description<br>
-                  </td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong><br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>checkdiff(problem, x, u)</code></nobr><br>
-                  </td>
-                  <td>Numerical check of the directional derivatives of the cost
-                    function. From a truncated Taylor expansion, we know that
-                    the following holds: $$f(\operatorname{Exp}_x(tu)) -
-                    \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] =
-                    \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$
-                    on the abscissa, the error should behave as $\log(t^2) =
-                    2\log(t)$, i.e., we should observe a slope of 2. This tool
-                    produces such a plot and tries to compute the slope of it (<em>tries</em>
-                    to, because numerical errors prevent the curve to have a
-                    slope of 2 everywhere even if directional derivatives are
-                    correct; so you should really just inspect the plot
-                    visually). If <code>x</code> and <code>u</code> are
-                    omitted, they are picked at random.<br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>checkgradient(problem, x, u)</code></nobr><br>
-                  </td>
-                  <td>Numerical check of the gradient of the cost function.
-                    Based on the statement that if the gradient exists, than it
-                    is the only tangent vector field that satisfies $$\langle
-                    \operatorname{grad} f(x), u\rangle_x =
-                    \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code>
-                    and it verifies that the gradient is indeed a tangent
-                    vector, by computing the norm of the difference between the
-                    gradient and its projection to the tangent space (if a
-                    projector is available). Of course, this should be zero.<br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>checkhessian(problem, x, u)</code></nobr><br>
-                  </td>
-                  <td>
-                    <p>Numerical check of the Hessian of the cost function. From
-                      a truncated Taylor expansion, we know that the following
-                      holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) +
-                      t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot
-                      \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] =
-                      \mathcal{O}(t^3).$$ Hence, in a log-log plot with
-                      $\log(t)$ on the abscissa, the error should behave as
-                      $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of
-                      3. This tool produces such a plot and tries to compute the
-                      slope of it (<em>tries</em> to, because numerical errors
-                      prevent the curve to have a slope of 3 everywhere even if
-                      the derivatives are correct; so you should really just
-                      inspect the plot visually). If <code>x</code> and <code>u</code>
-                      are omitted, they are picked at random. The tool also
-                      verifies that the Hessian indeed returns a tangent vector,
-                      by computing the norm of the difference between
-                      $\operatorname{Hess} f(x)[u]$ and its projection to the
-                      tangent space (if a projector is available). Of course,
-                      this should be zero.</p>
-                    <p>The Hessian is a linear, symmetric operator from the
-                      tangent space at $x$ to itself. To verify symmetry, this
-                      tool generates two random tangent vectors $u_1$ and $u_2$
-                      and computes the difference $$\langle \operatorname{Hess}
-                      f(x)[u_1], u_2 \rangle_x - \langle u_1,&nbsp;
-                      \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be
-                      zero.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>plotprofile(problem, x, d, t)</code></td>
-                  <td>Plots the cost function along a geodesic or a retraction
-                    path starting at $x$, along direction $d$. See <span style="font-family: monospace;">help
-                      plotprofile</span> for more information.</td>
-                </tr>
-                <tr>
-                  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
-                  <td>
-                    <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a
-                      preconditioner $P$ is specified in the problem structure,
-                      the eigenvalues of the preconditioned Hessian $HP$ are
-                      computed.</p>
-                    <p>This function relies on <code>M.vec</code> and <code>M.mat</code>
-                      to pass the computation to the built-in <code>eigs</code>
-                      function. For the eigenvalue problem to remain symmetric
-                      in the column-vector representation domain, we need <code>M.vec</code>
-                      and <code>M.mat</code> to be orthonormal, i.e.,
-                      isometries (see <code>matvecareisometries</code> in the <a
-                        href="#manifolds">manifod section</a>). If they are not
-                      isometries, computations may take longer. Indeed, let $G$
-                      denote the <code>M.vec</code> operator and $G^{-1}$
-                      represents the <code>M.mat</code> operator (on the
-                      appropriate domain). Then, <code>eigs</code> will compute
-                      the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are
-                      identical to, respectively, the spectra of $H$ and $HP$.
-                      This is only symmetric if there is no preconditioner and
-                      $G^T = G^{-1}$.</p>
-                    <p>If a preconditioner is used, the symmetry of the
-                      eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code>
-                      are isometries and the dimension of the manifold is large,
-                      it may be useful to restore symmetry by giving this tool a
-                      function handle for the square root of the preconditioner,
-                      $P^{1/2}$ (optional). Then, <code>eigs</code> is given
-                      the problem of computing the spectrum of
-                      $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the
-                      spectrum of $HP$. If <code>sqrtprec</code> is provided,
-                      the preconditioner given in the problem structure is
-                      ignored.</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2" rowspan="1"><strong>Matrix utilities</strong><br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>B = multiscale(scale, A)</code></nobr><br>
-                  </td>
-                  <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>
-                    and a vector <code>scale</code> of length <tt>N</tt>,
-                    returns <code>B</code>, a 3D matrix of the same size as <code>A</code>
-                    such that <nobr><code>B(:, :, k) = scale(k) * A(:, :, k)</code></nobr>
-                    for each <code>k</code>.<br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>tr = multitrace(A)</code></nobr><br>
-                  </td>
-                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>,
-                    returns a column vector <code>tr</code> of length <tt>N</tt>
-                    such that <nobr><code>tr(k) = trace(A(:, :, k))</code></nobr>
-                    for each <code>k</code>.<br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>B = multitransp(A)</code></nobr><br>
-                  </td>
-                  <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>,
-                    returns <code>B</code>, a 3D matrix of size <tt>mxnxN</tt>
-                    such that <nobr><code>B(:, :, k) = A(:, :, k).'</code></nobr>
-                    for each <code>k</code>. </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>C = multiprod(A, B)</code></nobr><br>
-                  </td>
-                  <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt>
-                    and B of size <tt>pxmxN</tt>, returns <code>C</code>, a 3D
-                    matrix of size <tt>nxmxN</tt> such that <nobr><code>C(:,
-                        :, k) = A(:, :, k) * B(:, :, k)</code></nobr> for each <code>k</code>.
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>B = multiskew(A)</code></td>
-                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>,
-                    returns a 3D matrix <code>B</code> the same size as <code>A</code>
-                    such that each slice <code>B(:, :, i)</code> is the
-                    skew-symmetric part of the slice <code>A(:, :, i)</code>,
-                    that is, <code>(A(:, :, i)-A(:, :, i)')/2</code>.</td>
-                </tr>
-                <tr>
-                  <td><code>B = multisym(A)</code></td>
-                  <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>,
-                    returns a 3D matrix <code>B</code> the same size as <code>A</code>
-                    such that each slice <code>B(:, :, i)</code> is the
-                    symmetric part of the slice <code>A(:, :, i)</code>, that
-                    is, <code>(A(:, :, i)+A(:, :, i)')/2</code>.</td>
-                </tr>
-                <tr>
-                  <td colspan="2" rowspan="1"><strong>Manifold utilities</strong><br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>Mn = powermanifold(M, n)</code></nobr><br>
-                  </td>
-                  <td>Given <code>M</code>, a structure representing a manifold
-                    $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>,
-                    a structure representing the manifold $\mathcal{M}^n$. The
-                    geometry is obtained by element-wise extension. Points and
-                    vectors on <code>Mn</code> are represented as cells of
-                    length <code>n</code>.<br>
-                  </td>
-                </tr>
-                <tr>
-                  <td><nobr><code>M = productmanifold(elements)</code></nobr><br>
-                  </td>
-                  <td>Given <code>elements</code>, a structure with fields <code>A,
-                      B, C...</code> containing structures <code>Ma, Mb, Mc...</code>
-                    such that <code>Ma</code> is a structure representing a
-                    manifold $\mathcal{M}_A$ etc., returns <code>M</code>, a
-                    structure representing the manifold $\mathcal{M}_A \times
-                    \mathcal{M}_B \times \mathcal{M}_C \times \cdots$. The
-                    geometry is obtained by element-wise extension. Points and
-                    vectors are represented as structures with the same field
-                    names as <code>elements</code>. </td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="alert alert-info"><strong>Heads up!</strong> When using
-              the <code>checkhessian</code> tool, it is important to obtain <em>both</em>
-              a slope of 3 <em>and</em> to pass the symmetry test. Indeed, the
-              slope test ignores the skew-symmetric part of the Hessian, since
-              $x^T A x = x^T \frac{A+A^T}{2} x$. As a result, if your code for
-              the Hessian has a spurious skew-symmetric part, the slope test
-              will be oblivious to it.<br>
-            </div>
-          </section>
-          <section id="reference">
-            <div class="page-header">
-              <h1>Reference</h1>
-            </div>
-            <p><a target="_blank" href="reference/index.html">A reference is
-                available here</a>, to help navigate the source code of the
-              toolbox. It was generated with <a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a>.<br>
-            </p>
-          </section>
-        </div>
+            <p>A number of generically useful tools in the context of using Manopt are available in /<tt>manopt/tools</tt>. The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
+                href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
+                href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a>.
+          </p>
+          <table style="width: 100%;" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <td>Call </td>
+                <td>Description </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
+              </tr>
+              <tr>
+                <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
+                <td>Numerical check of the directional derivatives of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a slope of 2. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 2 everywhere even if directional derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
+                <td>Numerical check of the gradient of the cost function. Based on the statement that if the gradient exists, than it is the only tangent vector field that satisfies $$\langle \operatorname{grad} f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code> and it verifies that the gradient is indeed a tangent vector, by computing the norm of the difference between the gradient and its projection to the tangent space (if a projector is available). Of course, this should be zero. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
+                <td>
+                  <p>Numerical check of the Hessian of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] = \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of 3. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 3 everywhere even if the derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. The tool also verifies that the Hessian indeed returns a tangent vector, by computing the norm of the difference between $\operatorname{Hess} f(x)[u]$ and its projection to the tangent space (if a projector is available). Of course, this should be zero.</p>
+                  <p>The Hessian is a linear, symmetric operator from the tangent space at $x$ to itself. To verify symmetry, this tool generates two random tangent vectors $u_1$ and $u_2$ and computes the difference $$\langle \operatorname{Hess} f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160; \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be zero.</p>
+                </td>
+              </tr>
+              <tr>
+                <td><code>plotprofile(problem, x, d, t)</code></td>
+                <td>Plots the cost function along a geodesic or a retraction path starting at $x$, along direction $d$. See <span
+                    style="font-family: monospace;">help plotprofile</span> for more information.</td>
+              </tr>
+              <tr>
+                <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+                <td>
+                  <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
+                  <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
+                      href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
+                  <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
+              </tr>
+              <tr>
+                <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
+                <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a vector <code>scale</code> of length <tt>N</tt>, returns <code>B</code>, a 3D matrix of the same size as <code>A</code> such that <nobr><code>B(:, :, k) = scale(k) * A(:, :, k)</code></nobr> for each <code>k</code>. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
+                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a column vector <code>tr</code> of length <tt>N</tt> such that <nobr><code>tr(k) = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>B = multitransp(A)</code></nobr> </td>
+                <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>, a 3D matrix of size <tt>mxnxN</tt> such that <nobr><code>B(:, :, k) = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
+                <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of size <tt>pxmxN</tt>, returns <code>C</code>, a 3D matrix of size <tt>nxmxN</tt> such that <nobr><code>C(:, :, k) = A(:, :, k) * B(:, :, k)</code></nobr> for each <code>k</code>. </td>
+              </tr>
+              <tr>
+                <td><code>B = multiskew(A)</code></td>
+                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the skew-symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)-A(:, :, i)')/2</code>.</td>
+              </tr>
+              <tr>
+                <td><code>B = multisym(A)</code></td>
+                <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a 3D matrix <code>B</code> the same size as <code>A</code> such that each slice <code>B(:, :, i)</code> is the symmetric part of the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)+A(:, :, i)')/2</code>.</td>
+              </tr>
+              <tr>
+                <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
+              </tr>
+              <tr>
+                <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
+                <td>Given <code>M</code>, a structure representing a manifold $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>, a structure representing the manifold $\mathcal{M}^n$. The geometry is obtained by element-wise extension. Points and vectors on <code>Mn</code> are represented as cells of length <code>n</code>. </td>
+              </tr>
+              <tr>
+                <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
+                <td>Given <code>elements</code>, a structure with fields <code>A, B, C...</code> containing structures <code>Ma, Mb, Mc...</code> such that <code>Ma</code> is a structure representing a manifold $\mathcal{M}_A$ etc., returns <code>M</code>, a structure representing the manifold $\mathcal{M}_A \times \mathcal{M}_B \times \mathcal{M}_C \times \cdots$. The geometry is obtained by element-wise extension. Points and vectors are represented as structures with the same field names as <code>elements</code>. </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="alert alert-info"><strong>Heads up!</strong> When using the <code>checkhessian</code> tool, it is important to obtain <em>both</em> a slope of 3 <em>and</em> to pass the symmetry test. Indeed, the slope test ignores the skew-symmetric part of the Hessian, since $x^T A x = x^T \frac{A+A^T}{2} x$. As a result, if your code for the Hessian has a spurious skew-symmetric part, the slope test will be oblivious to it. </div>
+        </section>
+        <section id="reference">
+          <div class="page-header">
+            <h1>Reference</h1>
+          </div>
+          <p><a target="_blank" href="reference/index.html">A reference is available here</a>, to help navigate the source code of the toolbox. It was generated with <a
+              href="http://www.artefact.tk/software/matlab/m2html/">m2html</a>. </p>
+        </section>
       </div>
     </div>
-    <!-- /container --><!-- Le javascript ================================================== --><!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
-    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
-    <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
-    <!--
+  </div>
+  <!-- /container --><!-- Le javascript ================================================== --><!-- Placed at the end of the document so the pages load faster -->
+  <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
+  <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
+  <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
+  <!--
     <script type="text/javascript" src="http://mathcache.s3.amazonaws.com/replacemath.js"> </script>    <script type="text/javascript">replaceMath( document.body ); </script>    -->
-    <script type="text/x-mathjax-config">
+  <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
 });
 </script> <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript">
+  <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-37402854-1']);
@@ -1728,5 +867,6 @@ MathJax.Hub.Config({
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script> </body>
+</script>
+</body>
 </html>
