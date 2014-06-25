@@ -35,7 +35,7 @@ function [cost, x, A, info] = test01(n, usestore)
     % Define the problem data
 %     A = randn(n);
     A = magic(n)/n^3;
-    A = .5*(A+A');
+    A = (A+A')/2;
     
     % Create the problem structure
     problem.M = spherefactory(n);
