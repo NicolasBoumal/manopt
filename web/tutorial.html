@@ -123,13 +123,13 @@ body {
             <ul>
               <li>Manopt 1.0.6</li>
               <ul>
-                <li>For uses of the trustregions solver with a nonlinear
-                  approximation of the Hessian (such as, for example, the
-                  default one if you do not specify a Hessian at all), the
-                  truncated-CG algorithm now explicitly checks that the model
-                  cost decreases with (inner) iterations. If an increase is
-                  witnessed (which is bad), tCG now returns the best step so
-                  far, which is always at least the Cauchy step.</li>
+                <li>For uses of the <a style="font-family: monospace;" href="solver_documentation_trustregions.html">trustregions</a>
+                  solver with a nonlinear approximation of the Hessian (such as,
+                  for example, the default one if you do not specify a Hessian
+                  at all), the truncated-CG algorithm now explicitly checks that
+                  the model cost decreases with (inner) iterations. If an
+                  increase is witnessed (which is bad), tCG now returns the best
+                  step so far, which is always at least the Cauchy step.</li>
                 <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
                       style="font-family: monospace;">sympositivedefinitefactory</span></a>
                   geometry for positive definite matrices was revised. It had a
@@ -137,6 +137,31 @@ body {
                   can access the file before 1.0.6 is released on <a target="_blank"
                     href="https://groups.google.com/forum/embed/?place=forum%2Fmanopttoolbox&amp;showsearch=true&amp;showtabs=false&amp;theme=default#%21topic/manopttoolbox/nyX2rhKB9x4">the
                     forum</a>.</li>
+                <li>Small bug fix in <a style="font-family: monospace;" href="reference/examples/packing_on_the_sphere.html">packing_on_the_sphere</a>
+                  example, along an improvement of how the smoothing term is
+                  computed numerically.</li>
+                <li>Added a Riemannian Hessian conversion tool for the <a href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel
+                    manifold</a>, ehess2rhess.</li>
+                <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
+                    href="reference/manopt/manifolds/euclidean/symmetricfactory.html">symmetricfactory</a>,
+                  to deal with symmetric matrices.</li>
+                <li>Multiple enhancements and bug fixes for the embedded
+                  geometry of fixed rank matrices <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
+                      style="font-family: monospace;">fixedrankembeddedfactory</span></a>:
+                  now works with <a style="font-family: monospace;" href="reference/manopt/tools/checkgradient.html">checkgradient</a>,
+                  changed hash and typical dist, and the vector transport is now
+                  correct (it was wrong before, leading to failure of CG and
+                  RTR-FD). Thanks to Bart Vandereycken for the correct code.</li>
+                <li>Random vector generation in Stiefel and Grassmann now make
+                  more sense.</li>
+                <li><a href="file:///D:/manopt/web/reference/manopt/solvers/pso/pso.html">PSO</a>
+                  (Particle Swarm Optimization) solver debugged to work with
+                  product and power manifolds too.</li>
+                <li>Bug fix in <a style="font-family: monospace;" href="reference/manopt/manifolds/grassmann/grassmannfactory.html">grassmannfactory</a>'s
+                  retraction for k &gt; 1, and added final re-orthonormalization
+                  at the end of exponential map following forum discussions.</li>
+                <li>The functions in <a style="font-family: monospace;" href="reference/manopt/manifolds/symfixedrank/elliptopefactory.html">elliptopefactory</a>
+                  are now a tad faster, using bsxfun.</li>
               </ul>
               <li><a target="_blank" href="download.html">Manopt 1.0.5</a>,
                 packaged January 2<sup>nd</sup>, 2014.</li>
