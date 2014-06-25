@@ -16,6 +16,27 @@ Quick installation guide
 
 * Go to /my/directory/manopt/checkinstall/ and run the script basicexample.m. If there are no errors, you are done! Otherwise, feel free to contact us.
 
+
+Feedback
+--------
+
+Please let us know how you use Manopt: it helps us develop a better toolbox.
+
+Please cite the Manopt paper in your work:
+http://jmlr.org/papers/v15/boumal14a.html
+
+@article{manopt,
+  author  = {Nicolas Boumal and Bamdev Mishra and P.-A. Absil and Rodolphe Sepulchre},
+  title   = {{M}anopt, a {M}atlab Toolbox for Optimization on Manifolds},
+  journal = {Journal of Machine Learning Research},
+  year    = {2014},
+  volume  = {15},
+  pages   = {1455--1459},
+  url     = {http://www.manopt.org}
+}
+
+
+
 For more info or help: http://www.manopt.org
 
 This version:
