@@ -17,6 +17,9 @@ function M = complexcirclefactory(n)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   July 7, 2014 (NB): Added ehess2rhess function.
+%
     
     if ~exist('n', 'var')
         n = 1;
@@ -41,6 +44,11 @@ function M = complexcirclefactory(n)
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
 	M.egrad2rgrad = M.proj;
+    
+    M.ehess2rhess = @ehess2rhess;
+    function rhess = ehess2rhess(z, egrad, ehess, zdot)
+        rhess = M.proj(z, ehess - real(z.*conj(egrad)).*zdot);
+    end
     
     M.exp = @exponential;
     function y = exponential(z, v, t)
