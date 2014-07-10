@@ -73,14 +73,7 @@ function M = sympositivedefinitefactory(n)
     M.tangent = M.proj;
     M.tangent2ambient = @(X, eta) eta;
     
-    M.retr = @retraction;
-    function Y = retraction(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        
-        Y = exponential(X, eta, t);
-    end
+    M.retr = @exponential;
     
     M.exp = @exponential;
     function Y = exponential(X, eta, t)
