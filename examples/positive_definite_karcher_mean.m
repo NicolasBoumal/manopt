@@ -95,7 +95,6 @@ function X = positive_definite_karcher_mean(A)
     
     % Issue a call to a solver. Default options are selected.
     % Our initial guess is the first data point.
-    options.maxiter = 10;
-    X = trustregions(problem, A(:, :, 1), options);
+    X = trustregions(problem, A(:, :, 1));
 
 end
