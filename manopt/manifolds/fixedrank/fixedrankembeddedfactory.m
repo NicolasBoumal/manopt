@@ -3,24 +3,34 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % function M = fixedrankembeddedfactory(m, n, k)
 %
-% Warning: this code was little tested and should be used with care.
-%
-% Manifold of m-by-n matrices of fixed rank k. This follows the geometry
-% described in the following paper (which for now is the documentation):
-% B. Vandereycken, "Low-rank matrix completion by Riemannian optimization", 2011.
+% Manifold of m-by-n real matrices of fixed rank k. This follows the
+% geometry described in this paper (which for now is the documentation):
+% B. Vandereycken, "Low-rank matrix completion by Riemannian optimization",
+% 2011.
 %
 % Paper link: http://arxiv.org/pdf/1209.3834.pdf
 %
 % A point X on the manifold is represented as a structure with three
 % fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,
-% while the matrix S (kxk) is any full rank matrix.
+% while the matrix S (kxk) is any /diagonal/, full rank matrix.
+% Following the SVD formalism, X = U*S*V'.
 %
 % Tangent vectors are represented as a structure with three fields: Up, M
 % and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.
-% The matrix M (kxk) is arbitrary.
+% The matrix M (kxk) is arbitrary. Such a structure corresponds to the
+% following tangent vector in the ambient space of mxn matrices:
+%   U*M*V' + Up*V' + U*Vp'
+% where (U, S, V) is the current point and (Up, M, Vp) is the tangent
+% vector at that point.
+%
+% Vectors in the ambient space are best represented as mxn matrices. If
+% these are low-rank, they may also be represented as structures with
+% U, S, V fields, such that Z = U*S*V'. Their are no resitrictions on what
+% U, S and V are, as long as their product as indicated yields a real, mxn
+% matrix.
 %
 % The chosen geometry yields a Riemannian submanifold of the embedding
-% space R^(mxn) equipped with the usual trace inner product.
+% space R^(mxn) equipped with the usual trace (Frobenius) inner product.
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -41,10 +51,14 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       radius, but that should be tested for different cost functions too.
 %    July 11, 2014 (NB):
 %       Added ehess2rhess and tangent2ambient, supplied by Bart.
-
-
-% TODO: For the documentation, specify how vectors in the embedding space are
-% represented, since more than one representation are allowed.
+%    July 14, 2014 (NB):
+%       Added vec, mat and vecmatareisometries so that hessianspectrum now
+%       works with this geometry. Implemented the tangent function.
+%       Made it clearer in the code and in the documentation in what format
+%       ambient vectors may be supplied, and generalized some functions so
+%       that they should now work with both accepted formats.
+%       It is now clearly stated that for a point X represented as a
+%       triplet (U, S, V), the matrix S needs to be diagonal.
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -59,52 +73,49 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     M.typicaldist = @() M.dim();
     
-    M.tangent = @(X, Z) Z;
+    % Given Z in tangent vector format, projects the components Up and Vp
+    % such that they satisfy the tangent space constraints up to numerical
+    % errors.
+    M.tangent = @tangent;
+    function Z = tangent(X, Z)
+        Z.Up = Z.Up - X.U*(X.U'*Z.Up);
+        Z.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
+    end
+
+    % For a given ambient vector Z, applies it to a matrix W. If Z is given
+    % as a matrix, this is straightfoward. If Z is given as a structure
+    % with fields U, S, V such that Z = U*S*V', the product is executed
+    % efficiently.
+    function ZW = apply_ambient(Z, W)
+        if ~isstruct(Z)
+            ZW = Z*W;
+        else
+            ZW = Z.U*(Z.S*(Z.V'*W));
+        end
+    end
+
+    % Same as apply_ambient, but applies Z' to W.
+    function ZtW = apply_ambient_transpose(Z, W)
+        if ~isstruct(Z)
+            ZtW = Z'*W;
+        else
+            ZtW = Z.V*(Z.S'*(Z.U'*W));
+        end
+    end
     
+    % Orthogonal projection of an ambient vector Z represented as an mxn
+    % matrix or as a structure with fields U, S, V to the tangent space at
+    % X, in a tangent vector structure format.
     M.proj = @projection;
     function Zproj = projection(X, Z)
-        
-        if isstruct(Z)
-        
-            % Projection for Z a vector in R^(mxn) represented as a
-            % structure with the same format as that of points X on the
-            % manifold. This is useful if Z is a low-rank matrix. The rank
-            % of Z need not coincide with that of X.
-            if isfield(Z, 'S')
-                UtUz = X.U' * Z.U;
-                VtVz = X.V' * Z.V;
+            
+        ZV = apply_ambient(Z, X.V);
+        UtZV = X.U'*ZV;
+        ZtU = apply_ambient_transpose(Z, X.U);
 
-                SzVztV = Z.S * VtVz';
-                UtZV = UtUz * SzVztV;
-
-                Zproj.M = UtZV;
-                Zproj.Up = Z.U * SzVztV - X.U*UtZV;
-                Zproj.Vp = Z.V * (UtUz*Z.S)' - X.V*UtZV';
-                
-            % Projection for Z a vector in R^(mxn) represented as a
-            % structure with the same format as that of tangent vectors.
-            elseif isfield(Z, 'M')
-                
-                Zproj.M = Z.M;
-                Zproj.Up = Z.Up - X.U*(X.U'*Z.Up);
-                Zproj.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
-                
-            else
-                error('fixedrank.proj: Bad ambient vector representation.');
-            end
-            
-        % Projection for Z a vector in R^(mxn) represented as an mxn matrix
-        else
-            
-            ZV = Z*X.V;
-            UtZV = X.U'*ZV;
-            ZtU = Z'*X.U;
-            
-            Zproj.M = UtZV;
-            Zproj.Up = ZV  - X.U*UtZV;
-            Zproj.Vp = ZtU - X.V*UtZV';
-            
-        end
+        Zproj.M = UtZV;
+        Zproj.Up = ZV  - X.U*UtZV;
+        Zproj.Vp = ZtU - X.V*UtZV';
 
     end
 
@@ -120,30 +131,24 @@ function M = fixedrankembeddedfactory(m, n, k)
         rhess = projection(X, ehess);
 
         % Curvature part            
-        T = (egrad*H.Vp)/X.S;
+        T = apply_ambient(egrad, H.Vp)/X.S;
         rhess.Up = rhess.Up + (T - X.U*(X.U'*T));
 
-        T = (egrad'*H.Up)/X.S;
+        T = apply_ambient_transpose(egrad, H.Up)/X.S;
         rhess.Vp = rhess.Vp + (T - X.V*(X.V'*T));
     end
 
     % Transforms a tangent vector Z represented as a structure (Up, M, Vp)
-    % into a matrix Xdot that corresponds to the same tangent vector, but
-    % represented in the ambient space of matrices of size mxn.
-    % Be careful though: the output is a full matrix of size mxn, which
-    % could be prohibitively large in some applications. If that is so,
-    % consider using the formulation with two outputs. The product of the
-    % two outputs equals Xdot, but it is represented with smaller matrices.
+    % into a structure with fields (U, S, V) that represents that same
+    % tangent vector in the ambient space of mxn matrices, as U*S*V'.
+    % This matrix is equal to X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'.
+    % It is not returned in that way because mxn matrices could be
+    % prohibitively large.
     M.tangent2ambient = @tangent2ambient;
-    function [O1, O2] = tangent2ambient(X, Z)
-        if nargout == 1
-            O1 = X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp';
-        elseif nargout == 2
-            O1 = [X.U*Z.M + Z.Up, X.U];
-            O2 = [X.V' ; Z.Vp'];
-        else
-            error('fixedrankembeddedfactory.tangent2ambient can have either 1 or 2 outputs.');
-        end
+    function Zambient = tangent2ambient(X, Z)
+        Zambient.U = [X.U*Z.M + Z.Up, X.U];
+        Zambient.S = eye(2*k);
+        Zambient.V = [X.V, Z.Vp];
     end
     
     M.retr = @retraction;
@@ -200,12 +205,15 @@ function M = fixedrankembeddedfactory(m, n, k)
         X.S = diag(randn(k, 1));
     end
     
+    % Generate a random tangent vector at X.
+    % TODO: consider a possible imbalance between the three components Up,
+    % Vp and M, when m, n and k are wildly different (which is typical).
     M.randvec = @randomvec;
     function Z = randomvec(X)
         Z.Up = randn(m, k);
         Z.Vp = randn(n, k);
-        Z.M  = diag(randn(k, 1));
-        Z = projection(X, Z);
+        Z.M  = randn(k);
+        Z = tangent(X, Z);
         nrm = M.norm(X, Z);
         Z.Up = Z.Up / nrm;
         Z.Vp = Z.Vp / nrm;
@@ -217,14 +225,21 @@ function M = fixedrankembeddedfactory(m, n, k)
     M.zerovec = @(X) struct('Up', zeros(m, k), 'M', zeros(k, k), ...
                                                         'Vp', zeros(n, k));
     
-    % New vector transport on June 24, 2014 (by Bart)
+    % New vector transport on June 24, 2014 (as indicated by Bart)
     M.transp = @project_tangent;
-    function Zproj = project_tangent(x1, x2, d)
-        Z.U = [x1.U*d.M+d.Up, x1.U]; 
-        Z.S = eye(size(Z.U, 2));
-        Z.V = [x1.V, d.Vp];
-        Zproj = projection(x2, Z);
+    function Z1 = project_tangent(X1, X2, Z2)
+        Z1 = projection(X1, tangent2ambient(X2, Z2));
     end
+
+
+    M.vec = @vec;
+    function Zvec = vec(X, Z)
+        Zamb = tangent2ambient(X, Z);
+        Zamb_mat = Zamb.U*Zamb.S*Zamb.V';
+        Zvec = Zamb_mat(:);
+    end
+    M.mat = @(X, Zvec) projection(X, reshape(Zvec, [m, n]));
+    M.vecmatareisometries = @() true;
 
 end
 
