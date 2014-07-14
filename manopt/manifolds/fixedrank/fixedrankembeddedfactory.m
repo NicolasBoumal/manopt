@@ -27,8 +27,10 @@ function M = fixedrankembeddedfactory(m, n, k)
 % Contributors: 
 % Change log: 
 %
-%    Feb. 20, 2014 (NB): added function tangent to work with checkgradient.
-%    June 24, 2014 (NB): a couple modifications following
+%	Feb. 20, 2014 (NB):
+%       Added function tangent to work with checkgradient.
+%   June 24, 2014 (NB):
+%       A couple modifications following
 %       Bart Vandereycken's feedback:
 %       - The checksum (hash) was replaced for a faster alternative: it's a
 %         bit less "safe" in that collisions could arise with higher
@@ -37,6 +39,8 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       The typical distance was also modified, hopefully giving the
 %       trustregions method a better initial guess for the trust region
 %       radius, but that should be tested for different cost functions too.
+%    July 11, 2014 (NB):
+%       Added ehess2rhess and tangent2ambient, supplied by Bart.
 
 
 % TODO: For the documentation, specify how vectors in the embedding space are
@@ -51,7 +55,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     M.norm = @(x, d) sqrt(M.inner(x, d, d));
     
-    M.dist = @(x, y) error('fixedrank.dist not implemented yet.');
+    M.dist = @(x, y) error('fixedrankembeddedfactory.dist not implemented yet.');
     
     M.typicaldist = @() M.dim();
     
@@ -104,7 +108,43 @@ function M = fixedrankembeddedfactory(m, n, k)
 
     end
 
-    M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = @projection;
+    
+    % Code supplied by Bart.
+    M.ehess2rhess = @ehess2rhess;
+    function rhess = ehess2rhess(X, egrad, ehess, H)
+        % egrad is a possibly sparse matrix of the same matrix size as X
+        % ehess is the matvec of Euclidean Hessian with H, is also a matrix
+        % of the same matrix size as X
+
+        rhess = projection(X, ehess);
+
+        % Curvature part            
+        T = (egrad*H.Vp)/X.S;
+        rhess.Up = rhess.Up + (T - X.U*(X.U'*T));
+
+        T = (egrad'*H.Up)/X.S;
+        rhess.Vp = rhess.Vp + (T - X.V*(X.V'*T));
+    end
+
+    % Transforms a tangent vector Z represented as a structure (Up, M, Vp)
+    % into a matrix Xdot that corresponds to the same tangent vector, but
+    % represented in the ambient space of matrices of size mxn.
+    % Be careful though: the output is a full matrix of size mxn, which
+    % could be prohibitively large in some applications. If that is so,
+    % consider using the formulation with two outputs. The product of the
+    % two outputs equals Xdot, but it is represented with smaller matrices.
+    M.tangent2ambient = @tangent2ambient;
+    function [O1, O2] = tangent2ambient(X, Z)
+        if nargout == 1
+            O1 = X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp';
+        elseif nargout == 2
+            O1 = [X.U*Z.M + Z.Up, X.U];
+            O2 = [X.V' ; Z.Vp'];
+        else
+            error('fixedrankembeddedfactory.tangent2ambient can have either 1 or 2 outputs.');
+        end
+    end
     
     M.retr = @retraction;
     function Y = retraction(X, Z, t)
@@ -157,14 +197,14 @@ function M = fixedrankembeddedfactory(m, n, k)
     function X = random()
         X.U = stiefelm.rand();
         X.V = stiefeln.rand();
-        X.S = randn(k);
+        X.S = diag(randn(k, 1));
     end
     
     M.randvec = @randomvec;
     function Z = randomvec(X)
         Z.Up = randn(m, k);
         Z.Vp = randn(n, k);
-        Z.M  = randn(k, k);
+        Z.M  = diag(randn(k, 1));
         Z = projection(X, Z);
         nrm = M.norm(X, Z);
         Z.Up = Z.Up / nrm;
@@ -177,7 +217,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     M.zerovec = @(X) struct('Up', zeros(m, k), 'M', zeros(k, k), ...
                                                         'Vp', zeros(n, k));
     
-    % New vector transport on June 24, 2014.
+    % New vector transport on June 24, 2014 (by Bart)
     M.transp = @project_tangent;
     function Zproj = project_tangent(x1, x2, d)
         Z.U = [x1.U*d.M+d.Up, x1.U]; 
