@@ -1,5 +1,5 @@
-function [] = test10()
-% function test10()
+function s = Test_fixedrankembeddedfactory()
+% function Test_fixedrankembeddedfactory()
 %
 % Test the fixed rank geometry with a quick and dirty low rank matrix
 % completion problem.
@@ -19,17 +19,19 @@ function [] = test10()
 %     end
     
     % Generate the data
-    m = 500;
-    n = 400;
-    k = 10;
+    m = 100;
+    n = 50;
+    k = 3;
     L = randn(m, k);          % generate a random mxn matrix of rank k
     R = randn(n, k);
     A = L*R';
     % generate a random mask for observed entries
-    P = sparse(round(.75*rand(m, n)));
+    P = sparse(round(.7*rand(m, n)));
     
     % Pick the manifold
     problem.M = fixedrankembeddedfactory(m, n, k);
+    
+%     problem.M.dim()
 
     % Define the problem cost function
     problem.cost = @(X) .5*norm(P.*(X.U*X.S*X.V'-A), 'fro')^2;
@@ -38,31 +40,36 @@ function [] = test10()
     problem.egrad = @(X) P.*(X.U*X.S*X.V'-A);
 
     % And its Hessian
-    problem.ehess = @(X, H) P.*problem.M.tangent2ambient(X, H);
+    problem.ehess = @euclidean_hessian;
+    function ehess = euclidean_hessian(X, H)
+        ambient_H = problem.M.tangent2ambient(X, H);
+        ehess = P.*(ambient_H.U*ambient_H.S*ambient_H.V');
+    end
     
 
     % Check differentials consistency.
-    warning('off', 'manopt:fixedrank:exp');
+%     warning('off', 'manopt:fixedrank:exp');
     checkgradient(problem); pause;
     checkhessian(problem); pause;
     
     
-    problem.hess = @Riemannian_Hessian;
-    function Z = Riemannian_Hessian(X, D)
-        G = P.*(X.U*X.S*X.V'-A);
-        H1_D = P.*problem.M.tangent2ambient(X, D);
-        Z = problem.M.proj(X, H1_D);
-        
-        T = (G*D.Vp)/X.S;
-        Z.Up = Z.Up + (T - X.U*(X.U'*T));
-        
-        T = (G'*D.Up)/X.S;
-        Z.Vp = Z.Vp + (T - X.V*(X.V'*T));
-    end
+%     problem.hess = @Riemannian_Hessian;
+%     function Z = Riemannian_Hessian(X, D)
+%         G = P.*(X.U*X.S*X.V'-A);
+%         H1_D = P.*problem.M.tangent2ambient(X, D);
+%         Z = problem.M.proj(X, H1_D);
+%         
+%         T = (G*D.Vp)/X.S;
+%         Z.Up = Z.Up + (T - X.U*(X.U'*T));
+%         
+%         T = (G'*D.Up)/X.S;
+%         Z.Vp = Z.Vp + (T - X.V*(X.V'*T));
+%     end
 
     % Check differentials consistency for supplied Hessian.
-    checkhessian(problem); pause;
-    
+%     checkhessian(problem); pause;
+%     
+
     
 
     % Solve with trust-regions and FD approximation of the Hessian
@@ -85,6 +92,10 @@ function [] = test10()
     
 %     keyboard;
 
-%     hist(hessianspectrum(problem, X));
+    if problem.M.dim() < 100
+        fprintf('Computing the spectrum of the Hessian...');
+        s = hessianspectrum(problem, X);
+        hist(s);
+    end
     
 end
