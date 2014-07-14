@@ -14,7 +14,7 @@ function M = symfixedrankYYfactory(n, k)
 % size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal 
 % directly with Y.
 
-% This file is part of Manopt: www.nanopt.org.
+% This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
@@ -68,8 +68,8 @@ M.exp = @exponential;
         
         Ynew = retraction(Y, eta, t);
         warning('manopt:symfixedrankYYfactory:exp', ...
-            ['Exponential for fixed rank ' ...
-            'manifold not implenented yet. Used retraction instead.']);
+            ['Exponential for symmetric, fixed-rank ' ...
+            'manifold not implemented yet. Used retraction instead.']);
     end
 
 % Notice that the hash of two equivalent points will be different...
