@@ -1,4 +1,4 @@
-function low_rank_matrix_completion()
+function Test_fixedrankembeddedfactory()
 % Given partial observation of a low rank matrix, attempts to complete it.
 %
 % function low_rank_matrix_completion()
