@@ -196,7 +196,8 @@ function M = fixedrankembeddedfactory(m, n, k)
             t = 1.0;
         end
         Y = retraction(X, Z, t);
-        warning('manopt:fixedrank:exp', ['Exponential for fixed rank ' ...
+        warning('manopt:fixedrankembeddedfactory:exp', ...
+               ['Exponential for fixed rank ' ...
                 'manifold not implemented yet. Used retraction instead.']);
     end
 
