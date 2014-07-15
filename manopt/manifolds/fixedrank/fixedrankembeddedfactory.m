@@ -179,7 +179,7 @@ function M = fixedrankembeddedfactory(m, n, k)
         
         Y.U = [X.U Qu]*Ut(:, 1:k);
         Y.V = [X.V Qv]*Vt(:, 1:k);
-        Y.S = St(1:k, 1:k);
+        Y.S = St(1:k, 1:k) + eps*eye(k);
         
         % equivalent but very slow code
         % [U S V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);
@@ -210,7 +210,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     function X = random()
         X.U = stiefelm.rand();
         X.V = stiefeln.rand();
-        X.S = diag(randn(k, 1));
+        X.S = diag(sort(rand(k, 1), 1, 'descend'));
     end
     
     % Generate a random tangent vector at X.
