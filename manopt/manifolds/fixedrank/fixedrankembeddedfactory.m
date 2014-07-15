@@ -13,13 +13,14 @@ function M = fixedrankembeddedfactory(m, n, k)
 % A point X on the manifold is represented as a structure with three
 % fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,
 % while the matrix S (kxk) is any /diagonal/, full rank matrix.
-% Following the SVD formalism, X = U*S*V'.
+% Following the SVD formalism, X = U*S*V'. Note that the diagonal entries
+% of S are not constrained to be nonnegative.
 %
 % Tangent vectors are represented as a structure with three fields: Up, M
 % and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.
 % The matrix M (kxk) is arbitrary. Such a structure corresponds to the
 % following tangent vector in the ambient space of mxn matrices:
-%   U*M*V' + Up*V' + U*Vp'
+%   Z = U*M*V' + Up*V' + U*Vp'
 % where (U, S, V) is the current point and (Up, M, Vp) is the tangent
 % vector at that point.
 %
@@ -75,7 +76,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     % Given Z in tangent vector format, projects the components Up and Vp
     % such that they satisfy the tangent space constraints up to numerical
-    % errors.
+    % errors. If Z was indeed a tangent vector at X, this should barely
+    % affect Z (it would not at all if we had infinite numerical accuracy).
     M.tangent = @tangent;
     function Z = tangent(X, Z)
         Z.Up = Z.Up - X.U*(X.U'*Z.Up);
@@ -122,28 +124,34 @@ function M = fixedrankembeddedfactory(m, n, k)
     M.egrad2rgrad = @projection;
     
     % Code supplied by Bart.
+    % Given the Euclidean gradient at X and the Euclidean Hessian at X
+    % along H, where egrad and ehess are vectors in the ambient space and H
+    % is a tangent vector at X, returns the Riemannian Hessian at X along
+    % H, which is a tangent vector.
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
-        % egrad is a possibly sparse matrix of the same matrix size as X
-        % ehess is the matvec of Euclidean Hessian with H, is also a matrix
-        % of the same matrix size as X
-
+        
+        % Euclidean part
         rhess = projection(X, ehess);
-
-        % Curvature part            
+        
+        % Curvature part
         T = apply_ambient(egrad, H.Vp)/X.S;
         rhess.Up = rhess.Up + (T - X.U*(X.U'*T));
-
         T = apply_ambient_transpose(egrad, H.Up)/X.S;
         rhess.Vp = rhess.Vp + (T - X.V*(X.V'*T));
+        
     end
 
     % Transforms a tangent vector Z represented as a structure (Up, M, Vp)
     % into a structure with fields (U, S, V) that represents that same
     % tangent vector in the ambient space of mxn matrices, as U*S*V'.
-    % This matrix is equal to X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'.
-    % It is not returned in that way because mxn matrices could be
-    % prohibitively large.
+    % This matrix is equal to X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'. The
+    % latter is an mxn matrix, which could be too large to build
+    % explicitly, and this is why we return a low-rank representation
+    % instead. Note that there are no guarantees on U, S and V other than
+    % that USV' is the desired matrix. In particular, U and V are not (in
+    % general) orthonormal and S is not (in general) diagonal.
+    % (In this implementation, S is identity, but this might change.)
     M.tangent2ambient = @tangent2ambient;
     function Zambient = tangent2ambient(X, Z)
         Zambient.U = [X.U*Z.M + Z.Up, X.U];
@@ -207,7 +215,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     % Generate a random tangent vector at X.
     % TODO: consider a possible imbalance between the three components Up,
-    % Vp and M, when m, n and k are wildly different (which is typical).
+    % Vp and M, when m, n and k are widely different (which is typical).
     M.randvec = @randomvec;
     function Z = randomvec(X)
         Z.Up = randn(m, k);
@@ -226,9 +234,13 @@ function M = fixedrankembeddedfactory(m, n, k)
                                                         'Vp', zeros(n, k));
     
     % New vector transport on June 24, 2014 (as indicated by Bart)
+    % Reference: Absil, Mahony, Sepulchre 2008 section 8.1.3:
+    % For Riemannian submanifolds of a Euclidean space, it is acceptable to
+    % transport simply by orthogonal projection of the tangent vector
+    % translated in the ambient space.
     M.transp = @project_tangent;
-    function Z1 = project_tangent(X1, X2, Z2)
-        Z1 = projection(X1, tangent2ambient(X2, Z2));
+    function Z2 = project_tangent(X1, X2, Z1)
+        Z2 = projection(X2, tangent2ambient(X1, Z1));
     end
 
 
