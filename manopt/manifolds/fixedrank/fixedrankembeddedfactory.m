@@ -159,6 +159,9 @@ function M = fixedrankembeddedfactory(m, n, k)
         Zambient.V = [X.V, Z.Vp];
     end
     
+    % This retraction is second order, following general results from
+    % Absil, Malick, "Projection-like retractions on matrix manifolds",
+    % SIAM J. Optim., 22 (2012), pp. 135-158.
     M.retr = @retraction;
     function Y = retraction(X, Z, t)
         if nargin < 3
