@@ -1,10 +1,10 @@
-function [x cost info] = neldermead(problem, x, options)
+function [x, cost, info, options] = neldermead(problem, x, options)
 % Nelder Mead optimization algorithm for derivative-free minimization.
 %
-% function [x cost info] = neldermead(problem)
-% function [x cost info] = neldermead(problem, x0)
-% function [x cost info] = neldermead(problem, x0, options)
-% function [x cost info] = neldermead(problem, [], options)
+% function [x, cost, info, options] = neldermead(problem)
+% function [x, cost, info, options] = neldermead(problem, x0)
+% function [x, cost, info, options] = neldermead(problem, x0, options)
+% function [x, cost, info, options] = neldermead(problem, [], options)
 %
 % Apply the Nelder-Mead minimization algorithm to the problem defined in
 % the problem structure, starting with the population x0 if it is provided

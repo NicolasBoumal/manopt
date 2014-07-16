@@ -1,10 +1,10 @@
-function [xbest fbest info] = pso(problem, x, options)
+function [xbest, fbest, info, options] = pso(problem, x, options)
 % Particle swarm optimization (PSO) for derivative-free minimization.
 %
-% function [x cost info] = pso(problem)
-% function [x cost info] = pso(problem, x0)
-% function [x cost info] = pso(problem, x0, options)
-% function [x cost info] = pso(problem, [], options)
+% function [x, cost, info, options] = pso(problem)
+% function [x, cost, info, options] = pso(problem, x0)
+% function [x, cost, info, options] = pso(problem, x0, options)
+% function [x, cost, info, options] = pso(problem, [], options)
 %
 % Apply the Particle Swarm Optimization minimization algorithm to
 % the problem defined in the problem structure, starting with the
