@@ -1,10 +1,10 @@
-function [x cost info] = trustregions(problem, x, options)
+function [x, cost, info, options] = trustregions(problem, x, options)
 % Riemannian trust-regions solver for optimization on manifolds.
 %
-% function [x cost info] = trustregions(problem)
-% function [x cost info] = trustregions(problem, x0)
-% function [x cost info] = trustregions(problem, x0, options)
-% function [x cost info] = trustregions(problem, [], options)
+% function [x, cost, info, options] = trustregions(problem)
+% function [x, cost, info, options] = trustregions(problem, x0)
+% function [x, cost, info, options] = trustregions(problem, x0, options)
+% function [x, cost, info, options] = trustregions(problem, [], options)
 %
 % This is the Riemannian Trust-Region solver (with tCG inner solve), named
 % RTR. This solver will attempt to minimize the cost function described in

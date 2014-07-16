@@ -1,10 +1,10 @@
-function [x cost info] = conjugategradient(problem, x, options)
+function [x, cost, info, options] = conjugategradient(problem, x, options)
 % Conjugate gradient minimization algorithm for Manopt.
 %
-% function [x cost info] = conjugategradient(problem)
-% function [x cost info] = conjugategradient(problem, x0)
-% function [x cost info] = conjugategradient(problem, x0, options)
-% function [x cost info] = conjugategradient(problem, [], options)
+% function [x, cost, info, options] = conjugategradient(problem)
+% function [x, cost, info, options] = conjugategradient(problem, x0)
+% function [x, cost, info, options] = conjugategradient(problem, x0, options)
+% function [x, cost, info, options] = conjugategradient(problem, [], options)
 %
 % Apply the conjugate gradient minimization algorithm to the problem
 % defined in the problem structure, starting at x0 if it is provided
@@ -187,7 +187,7 @@ lsmem = [];
 
 
 if options.verbosity >= 2
-    fprintf(' iter\t    cost val\t grad. norm\n');
+    fprintf(' iter\t                cost val\t     grad. norm\n');
 end
 
 % Compute a first descent direction (not normalized)
@@ -199,7 +199,7 @@ while true
     
     % Display iteration information
     if options.verbosity >= 2
-        fprintf('%5d\t%+.4e\t%.4e\n', iter, cost, gradnorm);
+        fprintf('%5d\t%+.16e\t%.8e\n', iter, cost, gradnorm);
     end
     
     % Start timing this iteration

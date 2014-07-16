@@ -267,7 +267,9 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
                 <tr>
                   <td>Fixed-rank </td>
                   <td>$\{X \in \mathbb{R}^{m \times n} : \operatorname{rank}(X) = k\}$ </td>
-                  <td> <code>fixedrankfactory_2factors(m, n, k)</code> <a
+                  <td> <code>fixedrankembeddedfactory(m, n, k)</code> <a
+                      href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html">(ref)</a><br>
+                    <code>fixedrankfactory_2factors(m, n, k)</code> <a
                       href="manifold_documentation_fixedrank_2factors.html">(doc)</a><br>
                     <code>fixedrankfactory_2factors_preconditioned(m, n, k)</code> <a
                       href="reference/manopt/manifolds/fixedrank/fixedrankfactory_2factors_preconditioned.html">(ref)</a><br>
@@ -275,7 +277,6 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
                       href="reference/manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html">(ref)</a><br>
                     <code>fixedrankfactory_3factors(m, n, k)</code> <a
                       href="reference/manopt/manifolds/fixedrank/fixedrankfactory_3factors.html">(ref)</a><br>
-                    <code>fixedrankembeddedfactory(m, n, k)</code> <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html">(ref)</a><br>
                     <code>fixedrankMNquotientfactory(m, n, k)</code> <a
                       href="reference/manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html">(ref)</a></td>
                 </tr>
@@ -339,7 +340,7 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
                 <tr>
                   <td>Typical distance </td>
                   <td><code>M.typicaldist() </code></td>
-                  <td>Returns the "scale" of the manifold. </td>
+                  <td>Returns the "scale" of the manifold. This is used by the trust-regions solver for example, to determine default initial and maximal trust-region radii.</td>
                 </tr>
                 <tr>
                   <td>Tangent space projector </td>
@@ -445,7 +446,7 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
                 style="font-family: monospace;">/manopt/solvers</span>. In principle, all solvers admit the basic call format <code>x = mysolver(problem)</code>. The returned value <code>x</code> will be a point on the manifold <code>problem.M</code>. Depending on the properties of your problem and on the guarantees of the solver, <code>x</code> will be more or less close to a good minimizer of the cost function described in the <code>problem</code> structure. Bear in mind that we are dealing with usually nonconvex, and possibly nonsmooth or derivative-free optimization, so that it is in general not guaranteed that <code>x</code> will be a global minimizer of the cost. For smooth problems with gradient information though, most decent algorithms guarantee that <code>x</code> will be a critical point (typically a local minimizer). </p>
             <div class="alert alert-info"><strong>Heads up!</strong> All provided solvers are <em>minimization</em> algorithms. If you want to <em>maximize </em>your objective function, multiply it by -1 (and accordingly for the derivatives of the objective function if needed), as we did in the <a
                 href="#firstexample">first example</a>. </div>
-            <p>In principle, all solvers also admit a more complete call format: <code>[x xcost info] = mysolver(problem, x0, options)</code>. The output <code>xcost</code> is the value of the cost function at the returned point <code>x</code>. The <code>info</code> struct-array is described below, and contains information collected at each iteration of the solver's progress. The input <code>x0</code> is an initial guess, or initial iterate, for the solver. It is typically a point on the manifold <code>problem.M</code>, but may be something else depending on the solver. It can be omitted by passing the empty matrix <code>[]</code> instead. The <code>options</code> structure is used to fine tune the behavior of the optimization algorithm. On top of hosting the algorithmic parameters, it manages the stopping criteria as well as what information needs to be displayed and / or logged during execution. </p>
+            <p>In principle, all solvers also admit a more complete call format: <code>[x, xcost, info, options] = mysolver(problem, x0, options)</code>. The output <code>xcost</code> is the value of the cost function at the returned point <code>x</code>. The <code>info</code> struct-array is described below, and contains information collected at each iteration of the solver's progress. The <code>options</code> structure is returned too, so you can see what default values the solver used on top of the options you (possibly) specified. The input <code>x0</code> is an initial guess, or initial iterate, for the solver. It is typically a point on the manifold <code>problem.M</code>, but may be something else depending on the solver. It can be omitted by passing the empty matrix <code>[]</code> instead. The <code>options</code> structure is used to fine tune the behavior of the optimization algorithm. On top of hosting the algorithmic parameters, it manages the stopping criteria as well as what information needs to be displayed and / or logged during execution. </p>
             <h3>Available solvers </h3>
             <p>The toolbox is fairly young and comes with only a handful of solvers, the most trust-worthy being the trust-regions algorithm as it is a modification of the code of <a
                 title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan"
