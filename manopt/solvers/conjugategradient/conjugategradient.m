@@ -211,7 +211,7 @@ while true
     % Run specific stopping criterion check
     if ~stop && abs(stats.stepsize) < options.minstepsize
         stop = true;
-        reason = 'Last stepsize smaller than minimum allowed.';
+        reason = 'Last stepsize smaller than minimum allowed. See options.minstepsize.';
     end
     
     if stop
