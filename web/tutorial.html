@@ -725,7 +725,9 @@ end</pre>
                 <td>Given a point $x$ and a tangent vector $u$ at $x$, assume $u$ is a descent direction. This means that there exists $t &gt; 0$ such that $\phi(t) &lt; \phi(0)$ with<br>
                   $$\phi(t) = f(\operatorname{Retr}_x(td)).$$<br>
                   Line-search algorithms, which are used by some solvers such as <code>steepestdescent</code> and <code>conjugategradient</code>, are designed to (approximately) minimize this function at each iteration. There are built-in, generic ways of doing this. But if you have additional structure in your problem that enables you to take a good guess at what $t$ should be, than you can specify it here, in this function handle. This (very much optional) function should return a positive $t &gt; 0$ such that $t$ is a good guess of where to look for a minimizer of $\phi$. The line-search algorithm (if it decides to use this information) will start by looking at the step $td$, and decide to accept it or not based on its internal rules. See the <code>linesearch</code> <a
-                    href="#linesearchoptions">option in the solver section</a> (options table) for details on available line-search algorithms and how to pick one.</td>
+                    href="#linesearchoptions">option in the solver section</a> (options table) for details on available line-search algorithms and how to pick one.<br>
+                  <br>
+                  See <a href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion.m</a> for an example from the literature.</td>
               </tr>
             </tbody>
           </table>
@@ -749,7 +751,7 @@ end
           <p>Whenever a solver calls, say, the <code>cost</code> function at some point $x$, the toolbox will search for a <code>store</code> structure pertaining to that $x$ in the database. If there is one and if the <code>cost</code> function admits <code>store</code> as an input and as an output, the <code>store</code> is passed to the <code>cost</code> function. The <code>cost</code> function then performs its duty and gets to modify the <code>store</code> structure at will: it is <em>your </em>structure, do whatever you fancy with it. Next time a function is called at the <em>same</em> point $x$ (say, the <code>grad</code> function), the <em>same</em> <code>store</code> structure will be passed along, modified, and stored again. As soon as the solver goes on to explore a new point $x'$, a <em>different</em> <code>store</code> structure is created and maintained in the same way. If the solver then decides to return to the previous $x$ and <code>options.storedepth</code> is larger than 2, we will still benefit from the previously stored work as the previous <code>store</code> structure will still be available. </p>
           <p>Here is an example of how we can modify the <a href="#firstexample">first example</a> to avoid redundant computations, using the caching mechanism:</p>
           <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;
-function [f store] = mycost(x, store)
+function [f, store] = mycost(x, store)
 
     if ~isfield(store, 'Ax')
         store.Ax = A*x;
@@ -764,7 +766,7 @@ function [f store] = mycost(x, store)
 end
 
 problem.grad = @mygrad;
-function [g store] = mygrad(x, store)
+function [g, store] = mygrad(x, store)
 
     if ~isfield(store, 'Ax')
         [~, store] = mycost(x, store);
