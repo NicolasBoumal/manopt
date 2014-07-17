@@ -136,7 +136,6 @@ end
 localdefaults.minstepsize = 1e-10;
 localdefaults.maxiter = 1000;
 localdefaults.tolgradnorm = 1e-6;
-localdefaults.linesearch = @linesearch_adaptive;
 localdefaults.storedepth = 2;
 % Changed by NB : H-S has the "auto restart" property.
 % See Hager-Zhang 2005/2006 survey about CG methods.
@@ -144,6 +143,16 @@ localdefaults.storedepth = 2;
 % reason stated in Hager-Zhang I believe. P-R also has auto restart.
 localdefaults.beta_type = 'H-S';
 localdefaults.orth_value = Inf; % by BM as suggested in Nocedal and Wright
+
+    
+% Depending on whether the problem structure specifies a hint for
+% line-search algorithms, choose a default line-search that works on
+% its own (typical) or that uses the hint.
+if ~canGetLinesearch(problem)
+    localdefaults.linesearch = @linesearch_adaptive;
+else
+    localdefaults.linesearch = @linesearch_hint;
+end
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);

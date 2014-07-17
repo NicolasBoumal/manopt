@@ -90,7 +90,15 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     localdefaults.minstepsize = 1e-10;
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
-    localdefaults.linesearch = @linesearch;
+    
+    % Depending on whether the problem structure specifies a hint for
+    % line-search algorithms, choose a default line-search that works on
+    % its own (typical) or that uses the hint.
+    if ~canGetLinesearch(problem)
+        localdefaults.linesearch = @linesearch;
+    else
+        localdefaults.linesearch = @linesearch_hint;
+    end
     
     % Merge global and local defaults, then merge w/ user options, if any.
     localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
