@@ -64,7 +64,10 @@ function [X, info] = dominant_invariant_subspace(A, p)
     % Issue a call to a solver. A random initial guess will be chosen and
     % default options are selected except for the ones we specify here.
     options.Delta_bar = 8*sqrt(p);
-    [X costX info] = trustregions(problem, [], options); %#ok<ASGLU>
+    [X, costX, info, options] = trustregions(problem, [], options); %#ok<ASGLU>
+    
+    fprintf('Options used:\n');
+    disp(options);
     
     % For our information, Manopt can also compute the spectrum of the
     % Riemannian Hessian on the tangent space at (any) X. Computing the
