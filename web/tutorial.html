@@ -151,7 +151,7 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
 checkgradient(problem);
 
 % Solve.
-[x xcost info] = trustregions(problem);
+[x, xcost, info, options] = trustregions(problem);
 
 % Display some statistics.
 figure;
@@ -183,9 +183,9 @@ problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
             <p><img title="checkgradient figure" alt="checkgradient figure"
                 src="tutorial-gradientcheck.png"></p>
             <p>The blue curve seems to have the same slope as the dashed line over a decent segment: that's what we want to see. We now call a solver for our problem:</p>
-            <pre class="prettyprint lang-matlab linenumsoffset linenums:18">[x xcost info] = trustregions(problem);
+            <pre class="prettyprint lang-matlab linenumsoffset linenums:18">[x, xcost, info, options] = trustregions(problem);
 </pre>
-            <p>This instruction calls <code>trustregions(...)</code> on our problem, without initial guess and without options structure. As a result, the solver will generate a random initial guess automatically and resort to the default values for all options. As a general feature in Manopt, all options are, well, optional. The returned values are <code>x</code> (usually a local minimizer of the cost function), <code>xcost</code> (the cost value attained by <code>x</code>) and <code>info</code> (a struct-array containing information about the successive iterations performed by the solver). For more details and more solvers, see the <a
+            <p>This instruction calls <code>trustregions(...)</code> on our problem, without initial guess and without options structure. As a result, the solver will generate a random initial guess automatically and resort to the default values for all options. As a general feature in Manopt, all options are, well, optional. The returned values are <code>x</code> (usually a local minimizer of the cost function), <code>xcost</code> (the cost value attained by <code>x</code>), <code>info</code> (a struct-array containing information about the successive iterations performed by the solver) and <code>options</code> (a structure containing all options used and their values: take a peek to find out what you can parameterize). For more details and more solvers, see the <a
                 href="#solvers">solvers</a> section.</p>
             <div class="alert alert-info">This call will issue a warning because the trust-regions algorithm normally requires the Hessian of the cost function, or an approximation of it, to be provided in the problem structure. When the Hessian is not provided, Manopt will approximate it using a finite differencing scheme on the gradient function and warn you about it. You may disable this warning by calling <code>warning('off', 'manopt:getHessian:approx');</code>. </div>
             <p>Finally, we access the contents of the struct-array <code>info</code> to display the convergence plot of our solver: </p>
