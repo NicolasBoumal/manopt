@@ -41,12 +41,14 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %   minstepsize (1e-10)
 %       The algorithm terminates if the linesearch returns a displacement
 %       vector (to be retracted) smaller in norm than this value.
-%   linesearch (@linesearch)
+%   linesearch (@linesearch or @linesearch_hint)
 %       Function handle to a line search function. The options structure is
 %       passed to the line search too, so you can pass it parameters. See
 %       each line search's documentation for info. Another available line
 %       search in manopt is @linesearch_adaptive, in
 %       /manopt/linesearch/linesearch_adaptive.m
+%       If the problem structure includes a line search hint, then the
+%       default line search used in @linesearch_hint.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
