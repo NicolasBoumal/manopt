@@ -54,7 +54,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x cost info] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest fbest info] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x cost info] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 <!-- crossreference -->
 
 
@@ -95,7 +95,7 @@ This function is called by:
 0033     <span class="comment">% Target cost attained</span>
 0034     <span class="keyword">if</span> isfield(stats, <span class="string">'cost'</span>) &amp;&amp; isfield(options, <span class="string">'tolcost'</span>) &amp;&amp; <span class="keyword">...</span>
 0035        stats.cost &lt;= options.tolcost
-0036         reason = <span class="string">'Cost tolerance reached.'</span>;
+0036         reason = <span class="string">'Cost tolerance reached. See options.tolcost.'</span>;
 0037         stop = 1;
 0038         <span class="keyword">return</span>;
 0039     <span class="keyword">end</span>
@@ -103,7 +103,7 @@ This function is called by:
 0041     <span class="comment">% Target gradient norm attained</span>
 0042     <span class="keyword">if</span> isfield(stats, <span class="string">'gradnorm'</span>) &amp;&amp; isfield(options, <span class="string">'tolgradnorm'</span>) &amp;&amp; <span class="keyword">...</span>
 0043        stats.gradnorm &lt; options.tolgradnorm
-0044         reason = <span class="string">'Gradient norm tolerance reached.'</span>;
+0044         reason = <span class="string">'Gradient norm tolerance reached. See options.tolgradnorm.'</span>;
 0045         stop = 2;
 0046         <span class="keyword">return</span>;
 0047     <span class="keyword">end</span>
@@ -111,7 +111,7 @@ This function is called by:
 0049     <span class="comment">% Alloted time exceeded</span>
 0050     <span class="keyword">if</span> isfield(stats, <span class="string">'time'</span>) &amp;&amp; isfield(options, <span class="string">'maxtime'</span>) &amp;&amp; <span class="keyword">...</span>
 0051        stats.time &gt;= options.maxtime
-0052         reason = <span class="string">'Max time exceeded.'</span>;
+0052         reason = <span class="string">'Max time exceeded. See options.maxtime.'</span>;
 0053         stop = 3;
 0054         <span class="keyword">return</span>;
 0055     <span class="keyword">end</span>
@@ -119,7 +119,7 @@ This function is called by:
 0057     <span class="comment">% Alloted iteration count exceeded</span>
 0058     <span class="keyword">if</span> isfield(stats, <span class="string">'iter'</span>) &amp;&amp; isfield(options, <span class="string">'maxiter'</span>) &amp;&amp; <span class="keyword">...</span>
 0059        stats.iter &gt;= options.maxiter
-0060         reason = <span class="string">'Max iteration count reached.'</span>;
+0060         reason = <span class="string">'Max iteration count reached. See options.maxiter.'</span>;
 0061         stop = 4;
 0062         <span class="keyword">return</span>;
 0063     <span class="keyword">end</span>
@@ -127,7 +127,7 @@ This function is called by:
 0065     <span class="comment">% Alloted function evaluation count exceeded</span>
 0066     <span class="keyword">if</span> isfield(stats, <span class="string">'costevals'</span>) &amp;&amp; isfield(options, <span class="string">'maxcostevals'</span>) &amp;&amp; <span class="keyword">...</span>
 0067        stats.costevals &gt;= options.maxcostevals
-0068         reason = <span class="string">'Maximum number of cost evaluations reached.'</span>;
+0068         reason = <span class="string">'Maximum number of cost evaluations reached. See options.maxcostevals.'</span>;
 0069         stop = 5;
 0070     <span class="keyword">end</span>
 0071 
@@ -136,13 +136,13 @@ This function is called by:
 0074     <span class="keyword">if</span> isfield(options, <span class="string">'stopfun'</span>)
 0075         userstop = options.stopfun(problem, x, info, last);
 0076         <span class="keyword">if</span> userstop
-0077             reason = <span class="string">'User defined stopfun criterion triggered.'</span>;
+0077             reason = <span class="string">'User defined stopfun criterion triggered. See options.stopfun.'</span>;
 0078             stop = 6;
 0079             <span class="keyword">return</span>;
 0080         <span class="keyword">end</span>
 0081     <span class="keyword">end</span>
 0082 
 0083 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

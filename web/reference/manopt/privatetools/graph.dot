@@ -30,6 +30,8 @@ digraph m2html {
   getHessian -> setStore;
   getHessianFD -> canGetGradient;
   getHessianFD -> getGradient;
+  getLinesearch -> getStore;
+  getLinesearch -> setStore;
   getPrecon -> getStore;
   getPrecon -> setStore;
 
@@ -39,6 +41,7 @@ digraph m2html {
   canGetEuclideanGradient [URL="canGetEuclideanGradient.html"];
   canGetGradient [URL="canGetGradient.html"];
   canGetHessian [URL="canGetHessian.html"];
+  canGetLinesearch [URL="canGetLinesearch.html"];
   canGetPrecon [URL="canGetPrecon.html"];
   getApproxHessian [URL="getApproxHessian.html"];
   getCost [URL="getCost.html"];
@@ -49,6 +52,7 @@ digraph m2html {
   getGradient [URL="getGradient.html"];
   getHessian [URL="getHessian.html"];
   getHessianFD [URL="getHessianFD.html"];
+  getLinesearch [URL="getLinesearch.html"];
   getPrecon [URL="getPrecon.html"];
   getStore [URL="getStore.html"];
   hashmd5 [URL="hashmd5.html"];

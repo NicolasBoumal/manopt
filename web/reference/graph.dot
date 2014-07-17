@@ -11,6 +11,10 @@ digraph m2html {
   generalized_procrustes -> multiprod;
   generalized_procrustes -> multitransp;
   generalized_procrustes -> productmanifold;
+  low_rank_matrix_completion -> fixedrankembeddedfactory;
+  low_rank_matrix_completion -> conjugategradient;
+  low_rank_matrix_completion -> trustregions;
+  low_rank_matrix_completion -> hessianspectrum;
   maxcut -> elliptopefactory;
   maxcut -> trustregions;
   maxcut_octave -> elliptopefactory;
@@ -96,11 +100,14 @@ digraph m2html {
   getHessian -> setStore;
   getHessianFD -> canGetGradient;
   getHessianFD -> getGradient;
+  getLinesearch -> getStore;
+  getLinesearch -> setStore;
   getPrecon -> getStore;
   getPrecon -> setStore;
   conjugategradient -> applyStatsfun;
   conjugategradient -> canGetCost;
   conjugategradient -> canGetGradient;
+  conjugategradient -> canGetLinesearch;
   conjugategradient -> getCostGrad;
   conjugategradient -> getGlobalDefaults;
   conjugategradient -> getPrecon;
@@ -108,10 +115,14 @@ digraph m2html {
   conjugategradient -> purgeStoredb;
   conjugategradient -> stoppingcriterion;
   conjugategradient -> linesearch_adaptive;
+  conjugategradient -> linesearch_hint;
   linesearch -> getCost;
   linesearch -> mergeOptions;
   linesearch_adaptive -> getCost;
   linesearch_adaptive -> mergeOptions;
+  linesearch_hint -> getCost;
+  linesearch_hint -> getLinesearch;
+  linesearch_hint -> mergeOptions;
   centroid -> trustregions;
   neldermead -> applyStatsfun;
   neldermead -> canGetCost;
@@ -131,12 +142,14 @@ digraph m2html {
   steepestdescent -> applyStatsfun;
   steepestdescent -> canGetCost;
   steepestdescent -> canGetGradient;
+  steepestdescent -> canGetLinesearch;
   steepestdescent -> getCostGrad;
   steepestdescent -> getGlobalDefaults;
   steepestdescent -> mergeOptions;
   steepestdescent -> purgeStoredb;
   steepestdescent -> stoppingcriterion;
   steepestdescent -> linesearch;
+  steepestdescent -> linesearch_hint;
   tCG -> getHessian;
   tCG -> getPrecon;
   trustregions -> applyStatsfun;
@@ -186,6 +199,7 @@ digraph m2html {
 
   dominant_invariant_subspace [URL="examples/dominant_invariant_subspace.html"];
   generalized_procrustes [URL="examples/generalized_procrustes.html"];
+  low_rank_matrix_completion [URL="examples/low_rank_matrix_completion.html"];
   maxcut [URL="examples/maxcut.html"];
   maxcut_octave [URL="examples/maxcut_octave.html"];
   packing_on_the_sphere [URL="examples/packing_on_the_sphere.html"];
@@ -220,6 +234,7 @@ digraph m2html {
   canGetEuclideanGradient [URL="manopt/privatetools/canGetEuclideanGradient.html"];
   canGetGradient [URL="manopt/privatetools/canGetGradient.html"];
   canGetHessian [URL="manopt/privatetools/canGetHessian.html"];
+  canGetLinesearch [URL="manopt/privatetools/canGetLinesearch.html"];
   canGetPrecon [URL="manopt/privatetools/canGetPrecon.html"];
   getApproxHessian [URL="manopt/privatetools/getApproxHessian.html"];
   getCost [URL="manopt/privatetools/getCost.html"];
@@ -230,6 +245,7 @@ digraph m2html {
   getGradient [URL="manopt/privatetools/getGradient.html"];
   getHessian [URL="manopt/privatetools/getHessian.html"];
   getHessianFD [URL="manopt/privatetools/getHessianFD.html"];
+  getLinesearch [URL="manopt/privatetools/getLinesearch.html"];
   getPrecon [URL="manopt/privatetools/getPrecon.html"];
   getStore [URL="manopt/privatetools/getStore.html"];
   hashmd5 [URL="manopt/privatetools/hashmd5.html"];
@@ -240,6 +256,7 @@ digraph m2html {
   conjugategradient [URL="manopt/solvers/conjugategradient/conjugategradient.html"];
   linesearch [URL="manopt/solvers/linesearch/linesearch.html"];
   linesearch_adaptive [URL="manopt/solvers/linesearch/linesearch_adaptive.html"];
+  linesearch_hint [URL="manopt/solvers/linesearch/linesearch_hint.html"];
   centroid [URL="manopt/solvers/neldermead/centroid.html"];
   neldermead [URL="manopt/solvers/neldermead/neldermead.html"];
   pso [URL="manopt/solvers/pso/pso.html"];

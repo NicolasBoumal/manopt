@@ -53,7 +53,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -128,31 +128,34 @@ This function is called by:
 0064     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
 0065     <span class="comment">% default options are selected except for the ones we specify here.</span>
 0066     options.Delta_bar = 8*sqrt(p);
-0067     [X costX info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0067     [X, costX, info, options] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
 0068     
-0069     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
-0070     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
-0071     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
-0072     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
-0073     <span class="comment">% Hessian, this would also inform us on its performance.</span>
-0074     <span class="comment">%</span>
-0075     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
-0076     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
-0077     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
-0078     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
-0079     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
-0080     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
-0081     <span class="comment">% the optimizer not isolated anymore.</span>
-0082     <span class="keyword">if</span> Gr.dim() &lt; 512
-0083         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
-0084         stairs(sort(evs));
-0085         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
-0086                <span class="string">'at the solution'</span>]);
-0087         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
-0088         ylabel(<span class="string">'Value of the eigenvalue'</span>);
-0089     <span class="keyword">end</span>
-0090 
-0091 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0069     fprintf(<span class="string">'Options used:\n'</span>);
+0070     disp(options);
+0071     
+0072     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
+0073     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
+0074     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
+0075     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
+0076     <span class="comment">% Hessian, this would also inform us on its performance.</span>
+0077     <span class="comment">%</span>
+0078     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
+0079     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
+0080     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
+0081     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
+0082     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
+0083     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
+0084     <span class="comment">% the optimizer not isolated anymore.</span>
+0085     <span class="keyword">if</span> Gr.dim() &lt; 512
+0086         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
+0087         stairs(sort(evs));
+0088         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
+0089                <span class="string">'at the solution'</span>]);
+0090         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
+0091         ylabel(<span class="string">'Value of the eigenvalue'</span>);
+0092     <span class="keyword">end</span>
+0093 
+0094 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

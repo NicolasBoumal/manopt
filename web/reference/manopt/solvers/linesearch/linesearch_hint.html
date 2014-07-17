@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of linesearch_hint</title>
+  <meta name="keywords" content="linesearch_hint">
+  <meta name="description" content="Armijo line-search based on the line-search hint in the problem structure.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">linesearch</a> &gt; linesearch_hint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\linesearch&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>linesearch_hint
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Armijo line-search based on the line-search hint in the problem structure.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [stepsize, newx, storedb, lsmem, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Armijo line-search based on the line-search hint in the problem structure.
+
+ function [stepsize, newx, storedb, lsmem, lsstats] = 
+          linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)
+
+ Base line-search algorithm for descent methods, based on a simple
+ backtracking method. The search direction provided has to be a descent
+ direction, as indicated by a negative df0 = directional derivative of f
+ at x along d.
+
+ The algorithm obtains an initial step size candidate from the problem
+ structure, typically through the problem.linesearch function. If that
+ step does not fulfill the Armijo sufficient decrease criterion, that step
+ size is reduced geometrically until a satisfactory step size is obtained
+ or until a failure criterion triggers.
+ 
+ Below, the step will be constructed as alpha*d, and the step size is the
+ norm of that vector, thus: stepsize = alpha*norm_d. The step is executed
+ by retracting the vector alpha*d from the current point x, giving newx.
+
+ Inputs
+
+  problem : structure holding the description of the optimization problem
+  x : current point on the manifold problem.M
+  d : tangent vector at x (descent direction)
+  f0 : cost value at x
+  df0 : directional derivative at x along d
+  options : options structure (see in code for usage)
+  storedb : store database structure for caching purposes
+  lsmem : not used
+
+ Outputs
+
+  stepsize : norm of the vector retracted to reach newx from x.
+  newx : next iterate suggested by the line-search algorithm, such that
+         the retraction at x of the vector alpha*d reaches newx.
+  storedb : the (possibly updated) store database structure.
+  lsmem : not used.
+  lsstats : statistics about the line-search procedure (stepsize, number
+            of trials etc).
+
+ See also: steepestdescent conjugategradients <a href="linesearch.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/getLinesearch.html" class="code" title="function [t, storedb] = getLinesearch(problem, x, d, storedb)">getLinesearch</a>	Returns a hint for line-search algorithms.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize, newx, storedb, lsmem, lsstats] = </a><span class="keyword">...</span>
+0002            linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)
+0003 <span class="comment">% Armijo line-search based on the line-search hint in the problem structure.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% function [stepsize, newx, storedb, lsmem, lsstats] =</span>
+0006 <span class="comment">%          linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Base line-search algorithm for descent methods, based on a simple</span>
+0009 <span class="comment">% backtracking method. The search direction provided has to be a descent</span>
+0010 <span class="comment">% direction, as indicated by a negative df0 = directional derivative of f</span>
+0011 <span class="comment">% at x along d.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% The algorithm obtains an initial step size candidate from the problem</span>
+0014 <span class="comment">% structure, typically through the problem.linesearch function. If that</span>
+0015 <span class="comment">% step does not fulfill the Armijo sufficient decrease criterion, that step</span>
+0016 <span class="comment">% size is reduced geometrically until a satisfactory step size is obtained</span>
+0017 <span class="comment">% or until a failure criterion triggers.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% Below, the step will be constructed as alpha*d, and the step size is the</span>
+0020 <span class="comment">% norm of that vector, thus: stepsize = alpha*norm_d. The step is executed</span>
+0021 <span class="comment">% by retracting the vector alpha*d from the current point x, giving newx.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Inputs</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%  problem : structure holding the description of the optimization problem</span>
+0026 <span class="comment">%  x : current point on the manifold problem.M</span>
+0027 <span class="comment">%  d : tangent vector at x (descent direction)</span>
+0028 <span class="comment">%  f0 : cost value at x</span>
+0029 <span class="comment">%  df0 : directional derivative at x along d</span>
+0030 <span class="comment">%  options : options structure (see in code for usage)</span>
+0031 <span class="comment">%  storedb : store database structure for caching purposes</span>
+0032 <span class="comment">%  lsmem : not used</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">% Outputs</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">%  stepsize : norm of the vector retracted to reach newx from x.</span>
+0037 <span class="comment">%  newx : next iterate suggested by the line-search algorithm, such that</span>
+0038 <span class="comment">%         the retraction at x of the vector alpha*d reaches newx.</span>
+0039 <span class="comment">%  storedb : the (possibly updated) store database structure.</span>
+0040 <span class="comment">%  lsmem : not used.</span>
+0041 <span class="comment">%  lsstats : statistics about the line-search procedure (stepsize, number</span>
+0042 <span class="comment">%            of trials etc).</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">% See also: steepestdescent conjugategradients linesearch</span>
+0045 
+0046 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0047 <span class="comment">% Original author: Nicolas Boumal, July 17, 2014.</span>
+0048 <span class="comment">% Contributors:</span>
+0049 <span class="comment">% Change log:</span>
+0050 <span class="comment">%</span>
+0051 
+0052 
+0053     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0054     <span class="comment">% options structure which is passed to the solver.</span>
+0055     default_options.ls_contraction_factor = .5;
+0056     default_options.ls_suff_decr = 1e-4;
+0057     default_options.ls_max_steps = 25;
+0058     
+0059     options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
+0060     
+0061     contraction_factor = options.ls_contraction_factor;
+0062     suff_decr = options.ls_suff_decr;
+0063     max_ls_steps = options.ls_max_steps;
+0064     
+0065     <span class="comment">% Obtain an initial guess at alpha from the problem structure. It is</span>
+0066     <span class="comment">% assumed that the present line-search is only called when the problem</span>
+0067     <span class="comment">% structure provides enough information for the call here to work.</span>
+0068     [alpha, storedb] = <a href="../../../manopt/privatetools/getLinesearch.html" class="code" title="function [t, storedb] = getLinesearch(problem, x, d, storedb)">getLinesearch</a>(problem, x, d, storedb);
+0069     
+0070     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0071     newx = problem.M.retr(x, d, alpha);
+0072     [newf, storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
+0073     cost_evaluations = 1;
+0074     
+0075     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
+0076     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
+0077         
+0078         <span class="comment">% Reduce the step size,</span>
+0079         alpha = contraction_factor * alpha;
+0080         
+0081         <span class="comment">% and look closer down the line</span>
+0082         newx = problem.M.retr(x, d, alpha);
+0083         [newf, storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
+0084         cost_evaluations = cost_evaluations + 1;
+0085         
+0086         <span class="comment">% Make sure we don't run out of budget</span>
+0087         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0088             <span class="keyword">break</span>;
+0089         <span class="keyword">end</span>
+0090         
+0091     <span class="keyword">end</span>
+0092     
+0093     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0094     <span class="keyword">if</span> newf &gt; f0
+0095         alpha = 0;
+0096         newx = x;
+0097         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0098     <span class="keyword">end</span>
+0099     
+0100     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0101     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0102     norm_d = problem.M.norm(x, d);
+0103     stepsize = alpha * norm_d;
+0104     
+0105     <span class="comment">% Save some statistics also, for possible analysis.</span>
+0106     lsstats.costevals = cost_evaluations;
+0107     lsstats.stepsize = stepsize;
+0108     lsstats.alpha = alpha;
+0109     
+0110 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

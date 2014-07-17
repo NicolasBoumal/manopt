@@ -24,15 +24,15 @@
 <div class="box"><strong>Nelder Mead optimization algorithm for derivative-free minimization.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function [x cost info] = neldermead(problem, x, options) </strong></div>
+<div class="box"><strong>function [x, cost, info, options] = neldermead(problem, x, options) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Nelder Mead optimization algorithm for derivative-free minimization.
 
- function [x cost info] = neldermead(problem)
- function [x cost info] = neldermead(problem, x0)
- function [x cost info] = neldermead(problem, x0, options)
- function [x cost info] = neldermead(problem, [], options)
+ function [x, cost, info, options] = neldermead(problem)
+ function [x, cost, info, options] = neldermead(problem, x0)
+ function [x, cost, info, options] = neldermead(problem, x0, options)
+ function [x, cost, info, options] = neldermead(problem, [], options)
 
  Apply the Nelder-Mead minimization algorithm to the problem defined in
  the problem structure, starting with the population x0 if it is provided
@@ -74,13 +74,13 @@ This function is called by:
 <li><a href="#_sub1" class="code">function stats = savestats()</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [x cost info] = neldermead(problem, x, options)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [x, cost, info, options] = neldermead(problem, x, options)</a>
 0002 <span class="comment">% Nelder Mead optimization algorithm for derivative-free minimization.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function [x cost info] = neldermead(problem)</span>
-0005 <span class="comment">% function [x cost info] = neldermead(problem, x0)</span>
-0006 <span class="comment">% function [x cost info] = neldermead(problem, x0, options)</span>
-0007 <span class="comment">% function [x cost info] = neldermead(problem, [], options)</span>
+0004 <span class="comment">% function [x, cost, info, options] = neldermead(problem)</span>
+0005 <span class="comment">% function [x, cost, info, options] = neldermead(problem, x0)</span>
+0006 <span class="comment">% function [x, cost, info, options] = neldermead(problem, x0, options)</span>
+0007 <span class="comment">% function [x, cost, info, options] = neldermead(problem, [], options)</span>
 0008 <span class="comment">%</span>
 0009 <span class="comment">% Apply the Nelder-Mead minimization algorithm to the problem defined in</span>
 0010 <span class="comment">% the problem structure, starting with the population x0 if it is provided</span>
@@ -309,6 +309,6 @@ This function is called by:
 0233     <span class="keyword">end</span>
 0234     
 0235 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

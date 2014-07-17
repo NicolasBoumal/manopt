@@ -3,6 +3,7 @@ digraph m2html {
 
   dominant_invariant_subspace [URL="dominant_invariant_subspace.html"];
   generalized_procrustes [URL="generalized_procrustes.html"];
+  low_rank_matrix_completion [URL="low_rank_matrix_completion.html"];
   maxcut [URL="maxcut.html"];
   maxcut_octave [URL="maxcut_octave.html"];
   packing_on_the_sphere [URL="packing_on_the_sphere.html"];

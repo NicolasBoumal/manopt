@@ -24,15 +24,15 @@
 <div class="box"><strong>Steepest descent (gradient descent) minimization algorithm for Manopt.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function [x cost info] = steepestdescent(problem, x, options) </strong></div>
+<div class="box"><strong>function [x, cost, info, options] = steepestdescent(problem, x, options) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Steepest descent (gradient descent) minimization algorithm for Manopt.
 
- function [x cost info] = steepestdescent(problem)
- function [x cost info] = steepestdescent(problem, x0)
- function [x cost info] = steepestdescent(problem, x0, options)
- function [x cost info] = steepestdescent(problem, [], options)
+ function [x, cost, info, options] = steepestdescent(problem)
+ function [x, cost, info, options] = steepestdescent(problem, x0)
+ function [x, cost, info, options] = steepestdescent(problem, x0, options)
+ function [x, cost, info, options] = steepestdescent(problem, [], options)
 
  Apply the steepest descent minimization algorithm to the problem defined
  in the problem structure, starting at x0 if it is provided (otherwise, at
@@ -69,12 +69,14 @@
    minstepsize (1e-10)
        The algorithm terminates if the linesearch returns a displacement
        vector (to be retracted) smaller in norm than this value.
-   linesearch (@linesearch)
+   linesearch (@linesearch or @linesearch_hint)
        Function handle to a line search function. The options structure is
        passed to the line search too, so you can pass it parameters. See
        each line search's documentation for info. Another available line
        search in manopt is @linesearch_adaptive, in
        /manopt/linesearch/linesearch_adaptive.m
+       If the problem structure includes a line search hint, then the
+       default line search used in @linesearch_hint.
    statsfun (none)
        Function handle to a function that will be called after each
        iteration to provide the opportunity to log additional statistics.
@@ -102,7 +104,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>	Makes sure the storedb database does not exceed some maximum size.</li><li><a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/linesearch/linesearch.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a>	Standard line search algorithm (step size selection) for descent methods.</li></ul>
+<li><a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>	Makes sure the storedb database does not exceed some maximum size.</li><li><a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/linesearch/linesearch.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a>	Standard line-search algorithm (step size selection) for descent methods.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -113,13 +115,13 @@ This function is called by:
 <li><a href="#_sub1" class="code">function stats = savestats()</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [x cost info] = steepestdescent(problem, x, options)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [x, cost, info, options] = steepestdescent(problem, x, options)</a>
 0002 <span class="comment">% Steepest descent (gradient descent) minimization algorithm for Manopt.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function [x cost info] = steepestdescent(problem)</span>
-0005 <span class="comment">% function [x cost info] = steepestdescent(problem, x0)</span>
-0006 <span class="comment">% function [x cost info] = steepestdescent(problem, x0, options)</span>
-0007 <span class="comment">% function [x cost info] = steepestdescent(problem, [], options)</span>
+0004 <span class="comment">% function [x, cost, info, options] = steepestdescent(problem)</span>
+0005 <span class="comment">% function [x, cost, info, options] = steepestdescent(problem, x0)</span>
+0006 <span class="comment">% function [x, cost, info, options] = steepestdescent(problem, x0, options)</span>
+0007 <span class="comment">% function [x, cost, info, options] = steepestdescent(problem, [], options)</span>
 0008 <span class="comment">%</span>
 0009 <span class="comment">% Apply the steepest descent minimization algorithm to the problem defined</span>
 0010 <span class="comment">% in the problem structure, starting at x0 if it is provided (otherwise, at</span>
@@ -156,181 +158,191 @@ This function is called by:
 0041 <span class="comment">%   minstepsize (1e-10)</span>
 0042 <span class="comment">%       The algorithm terminates if the linesearch returns a displacement</span>
 0043 <span class="comment">%       vector (to be retracted) smaller in norm than this value.</span>
-0044 <span class="comment">%   linesearch (@linesearch)</span>
+0044 <span class="comment">%   linesearch (@linesearch or @linesearch_hint)</span>
 0045 <span class="comment">%       Function handle to a line search function. The options structure is</span>
 0046 <span class="comment">%       passed to the line search too, so you can pass it parameters. See</span>
 0047 <span class="comment">%       each line search's documentation for info. Another available line</span>
 0048 <span class="comment">%       search in manopt is @linesearch_adaptive, in</span>
 0049 <span class="comment">%       /manopt/linesearch/linesearch_adaptive.m</span>
-0050 <span class="comment">%   statsfun (none)</span>
-0051 <span class="comment">%       Function handle to a function that will be called after each</span>
-0052 <span class="comment">%       iteration to provide the opportunity to log additional statistics.</span>
-0053 <span class="comment">%       They will be returned in the info struct. See the generic Manopt</span>
-0054 <span class="comment">%       documentation about solvers for further information.</span>
-0055 <span class="comment">%   stopfun (none)</span>
-0056 <span class="comment">%       Function handle to a function that will be called at each iteration</span>
-0057 <span class="comment">%       to provide the opportunity to specify additional stopping criteria.</span>
-0058 <span class="comment">%       See the generic Manopt documentation about solvers for further</span>
-0059 <span class="comment">%       information.</span>
-0060 <span class="comment">%   verbosity (3)</span>
-0061 <span class="comment">%       Integer number used to tune the amount of output the algorithm</span>
-0062 <span class="comment">%       generates during execution (mostly as text in the command window).</span>
-0063 <span class="comment">%       The higher, the more output. 0 means silent.</span>
-0064 <span class="comment">%   storedepth (2)</span>
-0065 <span class="comment">%       Maximum number of different points x of the manifold for which a</span>
-0066 <span class="comment">%       store structure will be kept in memory in the storedb. If the</span>
-0067 <span class="comment">%       caching features of Manopt are not used, this is irrelevant. For</span>
-0068 <span class="comment">%       the SD algorithm, a store depth of 2 should always be sufficient.</span>
-0069 <span class="comment">%</span>
-0070 <span class="comment">%</span>
-0071 <span class="comment">% See also: conjugategradient trustregions manopt/solvers/linesearch manopt/examples</span>
-0072 
-0073 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0074 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0075 <span class="comment">% Contributors:</span>
-0076 <span class="comment">% Change log:</span>
-0077 
-0078     
-0079     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
-0080     <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0081         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
-0082                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
-0083     <span class="keyword">end</span>
-0084     <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0085         warning(<span class="string">'manopt:getGradient'</span>, <span class="keyword">...</span>
-0086                 <span class="string">'No gradient provided. The algorithm will likely abort.'</span>);    
-0087     <span class="keyword">end</span>
-0088 
-0089     <span class="comment">% Set local defaults here</span>
-0090     localdefaults.minstepsize = 1e-10;
-0091     localdefaults.maxiter = 1000;
-0092     localdefaults.tolgradnorm = 1e-6;
-0093     localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a>;
-0094     
-0095     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0096     localdefaults = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
-0097     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0098         options = struct();
-0099     <span class="keyword">end</span>
-0100     options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
-0101     
-0102     <span class="comment">% Create a store database</span>
-0103     storedb = struct();
+0050 <span class="comment">%       If the problem structure includes a line search hint, then the</span>
+0051 <span class="comment">%       default line search used in @linesearch_hint.</span>
+0052 <span class="comment">%   statsfun (none)</span>
+0053 <span class="comment">%       Function handle to a function that will be called after each</span>
+0054 <span class="comment">%       iteration to provide the opportunity to log additional statistics.</span>
+0055 <span class="comment">%       They will be returned in the info struct. See the generic Manopt</span>
+0056 <span class="comment">%       documentation about solvers for further information.</span>
+0057 <span class="comment">%   stopfun (none)</span>
+0058 <span class="comment">%       Function handle to a function that will be called at each iteration</span>
+0059 <span class="comment">%       to provide the opportunity to specify additional stopping criteria.</span>
+0060 <span class="comment">%       See the generic Manopt documentation about solvers for further</span>
+0061 <span class="comment">%       information.</span>
+0062 <span class="comment">%   verbosity (3)</span>
+0063 <span class="comment">%       Integer number used to tune the amount of output the algorithm</span>
+0064 <span class="comment">%       generates during execution (mostly as text in the command window).</span>
+0065 <span class="comment">%       The higher, the more output. 0 means silent.</span>
+0066 <span class="comment">%   storedepth (2)</span>
+0067 <span class="comment">%       Maximum number of different points x of the manifold for which a</span>
+0068 <span class="comment">%       store structure will be kept in memory in the storedb. If the</span>
+0069 <span class="comment">%       caching features of Manopt are not used, this is irrelevant. For</span>
+0070 <span class="comment">%       the SD algorithm, a store depth of 2 should always be sufficient.</span>
+0071 <span class="comment">%</span>
+0072 <span class="comment">%</span>
+0073 <span class="comment">% See also: conjugategradient trustregions manopt/solvers/linesearch manopt/examples</span>
+0074 
+0075 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0076 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0077 <span class="comment">% Contributors:</span>
+0078 <span class="comment">% Change log:</span>
+0079 
+0080     
+0081     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
+0082     <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0083         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
+0084                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
+0085     <span class="keyword">end</span>
+0086     <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0087         warning(<span class="string">'manopt:getGradient'</span>, <span class="keyword">...</span>
+0088                 <span class="string">'No gradient provided. The algorithm will likely abort.'</span>);    
+0089     <span class="keyword">end</span>
+0090 
+0091     <span class="comment">% Set local defaults here</span>
+0092     localdefaults.minstepsize = 1e-10;
+0093     localdefaults.maxiter = 1000;
+0094     localdefaults.tolgradnorm = 1e-6;
+0095     
+0096     <span class="comment">% Depending on whether the problem structure specifies a hint for</span>
+0097     <span class="comment">% line-search algorithms, choose a default line-search that works on</span>
+0098     <span class="comment">% its own (typical) or that uses the hint.</span>
+0099     <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem)
+0100         localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a>;
+0101     <span class="keyword">else</span>
+0102         localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_hint</a>;
+0103     <span class="keyword">end</span>
 0104     
-0105     timetic = tic();
-0106     
-0107     <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
-0108     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0109         x = problem.M.rand();
-0110     <span class="keyword">end</span>
+0105     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
+0106     localdefaults = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0107     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0108         options = struct();
+0109     <span class="keyword">end</span>
+0110     options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
 0111     
-0112     <span class="comment">% Compute objective-related quantities for x</span>
-0113     [cost grad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, storedb);
-0114     gradnorm = problem.M.norm(x, grad);
-0115     
-0116     <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
-0117     <span class="comment">% iterations so far)</span>
-0118     iter = 0;
-0119     
-0120     <span class="comment">% Save stats in a struct array info, and preallocate; see:</span>
-0121     <span class="comment">% http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941</span>
-0122     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0123     info(1) = stats;
-0124     info(min(10000, options.maxiter+1)).iter = [];
+0112     <span class="comment">% Create a store database</span>
+0113     storedb = struct();
+0114     
+0115     timetic = tic();
+0116     
+0117     <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
+0118     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0119         x = problem.M.rand();
+0120     <span class="keyword">end</span>
+0121     
+0122     <span class="comment">% Compute objective-related quantities for x</span>
+0123     [cost grad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, storedb);
+0124     gradnorm = problem.M.norm(x, grad);
 0125     
-0126     <span class="comment">% Initial line search memory</span>
-0127     lsmem = [];
-0128     
-0129     <span class="keyword">if</span> options.verbosity &gt;= 2
-0130         fprintf(<span class="string">' iter\t    cost val\t grad. norm\n'</span>);
-0131     <span class="keyword">end</span>
-0132     
-0133     <span class="comment">% Start iterating until stopping criterion triggers</span>
-0134     <span class="keyword">while</span> true
-0135 
-0136         <span class="comment">% Display iteration information</span>
-0137         <span class="keyword">if</span> options.verbosity &gt;= 2
-0138             fprintf(<span class="string">'%5d\t%+.4e\t%.4e\n'</span>, iter, cost, gradnorm);
-0139         <span class="keyword">end</span>
-0140         
-0141         <span class="comment">% Start timing this iteration</span>
-0142         timetic = tic();
-0143         
-0144         <span class="comment">% Run standard stopping criterion checks</span>
-0145         [stop reason] = <a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, <span class="keyword">...</span>
-0146                                                              info, iter+1);
-0147         
-0148         <span class="comment">% If none triggered, run specific stopping criterion check</span>
-0149         <span class="keyword">if</span> ~stop &amp;&amp; stats.stepsize &lt; options.minstepsize
-0150             stop = true;
-0151             reason = <span class="string">'Last stepsize smaller than minimum allowed.'</span>;
-0152         <span class="keyword">end</span>
-0153     
-0154         <span class="keyword">if</span> stop
-0155             <span class="keyword">if</span> options.verbosity &gt;= 1
-0156                 fprintf([reason <span class="string">'\n'</span>]);
-0157             <span class="keyword">end</span>
-0158             <span class="keyword">break</span>;
-0159         <span class="keyword">end</span>
-0160 
-0161         <span class="comment">% Pick the descent direction as minus the gradient</span>
-0162         desc_dir = problem.M.lincomb(x, -1, grad);
-0163         
-0164         <span class="comment">% Execute the line search</span>
-0165         [stepsize newx storedb lsmem lsstats] = options.linesearch( <span class="keyword">...</span>
-0166                       problem, x, desc_dir, cost, -gradnorm^2, <span class="keyword">...</span>
-0167                       options, storedb, lsmem);
-0168         
-0169         <span class="comment">% Compute the new cost-related quantities for x</span>
-0170         [newcost newgrad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, newx, storedb);
-0171         newgradnorm = problem.M.norm(newx, newgrad);
-0172         
-0173         <span class="comment">% Make sure we don't use too much memory for the store database</span>
-0174         storedb = <a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>(storedb, options.storedepth);
-0175         
-0176         <span class="comment">% Update iterate info</span>
-0177         x = newx;
-0178         cost = newcost;
-0179         grad = newgrad;
-0180         gradnorm = newgradnorm;
-0181         
-0182         <span class="comment">% iter is the number of iterations we have accomplished.</span>
-0183         iter = iter + 1;
-0184         
-0185         <span class="comment">% Log statistics for freshly executed iteration</span>
-0186         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0187         info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0188         
-0189     <span class="keyword">end</span>
-0190     
-0191     
-0192     info = info(1:iter+1);
-0193 
-0194     <span class="keyword">if</span> options.verbosity &gt;= 1
-0195         fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, <span class="keyword">...</span>
-0196                 info(end).time);
-0197     <span class="keyword">end</span>
-0198     
-0199     
+0126     <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
+0127     <span class="comment">% iterations so far)</span>
+0128     iter = 0;
+0129     
+0130     <span class="comment">% Save stats in a struct array info, and preallocate; see:</span>
+0131     <span class="comment">% http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941</span>
+0132     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0133     info(1) = stats;
+0134     info(min(10000, options.maxiter+1)).iter = [];
+0135     
+0136     <span class="comment">% Initial line search memory</span>
+0137     lsmem = [];
+0138     
+0139     <span class="keyword">if</span> options.verbosity &gt;= 2
+0140         fprintf(<span class="string">' iter\t                cost val\t     grad. norm\n'</span>);
+0141     <span class="keyword">end</span>
+0142     
+0143     <span class="comment">% Start iterating until stopping criterion triggers</span>
+0144     <span class="keyword">while</span> true
+0145 
+0146         <span class="comment">% Display iteration information</span>
+0147         <span class="keyword">if</span> options.verbosity &gt;= 2
+0148             fprintf(<span class="string">'%5d\t%+.16e\t%.8e\n'</span>, iter, cost, gradnorm);
+0149         <span class="keyword">end</span>
+0150         
+0151         <span class="comment">% Start timing this iteration</span>
+0152         timetic = tic();
+0153         
+0154         <span class="comment">% Run standard stopping criterion checks</span>
+0155         [stop reason] = <a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, <span class="keyword">...</span>
+0156                                                              info, iter+1);
+0157         
+0158         <span class="comment">% If none triggered, run specific stopping criterion check</span>
+0159         <span class="keyword">if</span> ~stop &amp;&amp; stats.stepsize &lt; options.minstepsize
+0160             stop = true;
+0161             reason = <span class="string">'Last stepsize smaller than minimum allowed. See options.minstepsize.'</span>;
+0162         <span class="keyword">end</span>
+0163     
+0164         <span class="keyword">if</span> stop
+0165             <span class="keyword">if</span> options.verbosity &gt;= 1
+0166                 fprintf([reason <span class="string">'\n'</span>]);
+0167             <span class="keyword">end</span>
+0168             <span class="keyword">break</span>;
+0169         <span class="keyword">end</span>
+0170 
+0171         <span class="comment">% Pick the descent direction as minus the gradient</span>
+0172         desc_dir = problem.M.lincomb(x, -1, grad);
+0173         
+0174         <span class="comment">% Execute the line search</span>
+0175         [stepsize newx storedb lsmem lsstats] = options.linesearch( <span class="keyword">...</span>
+0176                       problem, x, desc_dir, cost, -gradnorm^2, <span class="keyword">...</span>
+0177                       options, storedb, lsmem);
+0178         
+0179         <span class="comment">% Compute the new cost-related quantities for x</span>
+0180         [newcost newgrad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, newx, storedb);
+0181         newgradnorm = problem.M.norm(newx, newgrad);
+0182         
+0183         <span class="comment">% Make sure we don't use too much memory for the store database</span>
+0184         storedb = <a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>(storedb, options.storedepth);
+0185         
+0186         <span class="comment">% Update iterate info</span>
+0187         x = newx;
+0188         cost = newcost;
+0189         grad = newgrad;
+0190         gradnorm = newgradnorm;
+0191         
+0192         <span class="comment">% iter is the number of iterations we have accomplished.</span>
+0193         iter = iter + 1;
+0194         
+0195         <span class="comment">% Log statistics for freshly executed iteration</span>
+0196         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0197         info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0198         
+0199     <span class="keyword">end</span>
 0200     
-0201     <span class="comment">% Routine in charge of collecting the current iteration stats</span>
-0202     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
-0203         stats.iter = iter;
-0204         stats.cost = cost;
-0205         stats.gradnorm = gradnorm;
-0206         <span class="keyword">if</span> iter == 0
-0207             stats.stepsize = NaN;
-0208             stats.time = toc(timetic);
-0209             stats.linesearch = [];
-0210         <span class="keyword">else</span>
-0211             stats.stepsize = stepsize;
-0212             stats.time = info(iter).time + toc(timetic);
-0213             stats.linesearch = lsstats;
-0214         <span class="keyword">end</span>
-0215         stats = <a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>(problem, x, storedb, options, stats);
-0216     <span class="keyword">end</span>
-0217     
-0218 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0201     
+0202     info = info(1:iter+1);
+0203 
+0204     <span class="keyword">if</span> options.verbosity &gt;= 1
+0205         fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, <span class="keyword">...</span>
+0206                 info(end).time);
+0207     <span class="keyword">end</span>
+0208     
+0209     
+0210     
+0211     <span class="comment">% Routine in charge of collecting the current iteration stats</span>
+0212     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
+0213         stats.iter = iter;
+0214         stats.cost = cost;
+0215         stats.gradnorm = gradnorm;
+0216         <span class="keyword">if</span> iter == 0
+0217             stats.stepsize = NaN;
+0218             stats.time = toc(timetic);
+0219             stats.linesearch = [];
+0220         <span class="keyword">else</span>
+0221             stats.stepsize = stepsize;
+0222             stats.time = info(iter).time + toc(timetic);
+0223             stats.linesearch = lsstats;
+0224         <span class="keyword">end</span>
+0225         stats = <a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>(problem, x, storedb, options, stats);
+0226     <span class="keyword">end</span>
+0227     
+0228 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

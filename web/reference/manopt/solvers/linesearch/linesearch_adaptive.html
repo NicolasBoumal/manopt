@@ -41,7 +41,7 @@
 
  Inputs/Outputs : see help for linesearch
 
- See also: steepestdescent conjugategradients <a href="linesearch.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a></pre></div>
+ See also: steepestdescent conjugategradients <a href="linesearch.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -50,7 +50,7 @@ This function calls:
 <li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li></ul>
+<li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li></ul>
 <!-- crossreference -->
 
 
@@ -177,6 +177,6 @@ This function is called by:
 0119     lsstats.alpha = alpha;
 0120     
 0121 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

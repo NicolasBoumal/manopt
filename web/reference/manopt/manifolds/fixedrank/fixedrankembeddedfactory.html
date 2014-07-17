@@ -31,24 +31,35 @@
 
  function M = fixedrankembeddedfactory(m, n, k)
 
- Warning: this code was little tested and should be used with care.
-
- Manifold of m-by-n matrices of fixed rank k. This follows the geometry
- described in the following paper (which for now is the documentation):
- B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;, 2011.
+ Manifold of m-by-n real matrices of fixed rank k. This follows the
+ geometry described in this paper (which for now is the documentation):
+ B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;,
+ 2011.
 
  Paper link: http://arxiv.org/pdf/1209.3834.pdf
 
  A point X on the manifold is represented as a structure with three
  fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,
- while the matrix S (kxk) is any full rank matrix.
+ while the matrix S (kxk) is any /diagonal/, full rank matrix.
+ Following the SVD formalism, X = U*S*V'. Note that the diagonal entries
+ of S are not constrained to be nonnegative.
 
  Tangent vectors are represented as a structure with three fields: Up, M
  and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.
- The matrix M (kxk) is arbitrary.
+ The matrix M (kxk) is arbitrary. Such a structure corresponds to the
+ following tangent vector in the ambient space of mxn matrices:
+   Z = U*M*V' + Up*V' + U*Vp'
+ where (U, S, V) is the current point and (Up, M, Vp) is the tangent
+ vector at that point.
+
+ Vectors in the ambient space are best represented as mxn matrices. If
+ these are low-rank, they may also be represented as structures with
+ U, S, V fields, such that Z = U*S*V'. Their are no resitrictions on what
+ U, S and V are, as long as their product as indicated yields a real, mxn
+ matrix.
 
  The chosen geometry yields a Riemannian submanifold of the embedding
- space R^(mxn) equipped with the usual trace inner product.</pre></div>
+ space R^(mxn) equipped with the usual trace (Frobenius) inner product.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -57,12 +68,12 @@ This function calls:
 <li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-</ul>
+<li><a href="../../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function Zproj = projection(X, Z)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, Z, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, Z, t)</a></li><li><a href="#_sub4" class="code">function X = random()</a></li><li><a href="#_sub5" class="code">function Z = randomvec(X)</a></li><li><a href="#_sub6" class="code">function Zproj = project_tangent(x1, x2, d)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function Z = tangent(X, Z)</a></li><li><a href="#_sub2" class="code">function ZW = apply_ambient(Z, W)</a></li><li><a href="#_sub3" class="code">function ZtW = apply_ambient_transpose(Z, W)</a></li><li><a href="#_sub4" class="code">function Zproj = projection(X, Z)</a></li><li><a href="#_sub5" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub6" class="code">function Zambient = tangent2ambient(X, Z)</a></li><li><a href="#_sub7" class="code">function Y = retraction(X, Z, t)</a></li><li><a href="#_sub8" class="code">function Y = exponential(X, Z, t)</a></li><li><a href="#_sub9" class="code">function X = random()</a></li><li><a href="#_sub10" class="code">function Z = randomvec(X)</a></li><li><a href="#_sub11" class="code">function Z2 = project_tangent(X1, X2, Z1)</a></li><li><a href="#_sub12" class="code">function Zvec = vec(X, Z)</a></li><li><a href="#_sub13" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankembeddedfactory(m, n, k)</a>
@@ -70,207 +81,278 @@ This function is called by:
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function M = fixedrankembeddedfactory(m, n, k)</span>
 0005 <span class="comment">%</span>
-0006 <span class="comment">% Warning: this code was little tested and should be used with care.</span>
-0007 <span class="comment">%</span>
-0008 <span class="comment">% Manifold of m-by-n matrices of fixed rank k. This follows the geometry</span>
-0009 <span class="comment">% described in the following paper (which for now is the documentation):</span>
-0010 <span class="comment">% B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;, 2011.</span>
-0011 <span class="comment">%</span>
-0012 <span class="comment">% Paper link: http://arxiv.org/pdf/1209.3834.pdf</span>
-0013 <span class="comment">%</span>
-0014 <span class="comment">% A point X on the manifold is represented as a structure with three</span>
-0015 <span class="comment">% fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,</span>
-0016 <span class="comment">% while the matrix S (kxk) is any full rank matrix.</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">% Tangent vectors are represented as a structure with three fields: Up, M</span>
-0019 <span class="comment">% and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.</span>
-0020 <span class="comment">% The matrix M (kxk) is arbitrary.</span>
-0021 <span class="comment">%</span>
-0022 <span class="comment">% The chosen geometry yields a Riemannian submanifold of the embedding</span>
-0023 <span class="comment">% space R^(mxn) equipped with the usual trace inner product.</span>
-0024 
-0025 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0026 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0027 <span class="comment">% Contributors:</span>
-0028 <span class="comment">% Change log:</span>
-0029 <span class="comment">%</span>
-0030 <span class="comment">%    Feb. 20, 2014 (NB): added function tangent to work with checkgradient.</span>
-0031 <span class="comment">%    June 24, 2014 (NB): a couple modifications following</span>
-0032 <span class="comment">%       Bart Vandereycken's feedback:</span>
-0033 <span class="comment">%       - The checksum (hash) was replaced for a faster alternative: it's a</span>
-0034 <span class="comment">%         bit less &quot;safe&quot; in that collisions could arise with higher</span>
-0035 <span class="comment">%         probability, but they're still very unlikely.</span>
-0036 <span class="comment">%       - The vector transport was changed.</span>
-0037 <span class="comment">%       The typical distance was also modified, hopefully giving the</span>
-0038 <span class="comment">%       trustregions method a better initial guess for the trust region</span>
-0039 <span class="comment">%       radius, but that should be tested for different cost functions too.</span>
-0040 
-0041 
-0042 <span class="comment">% TODO: For the documentation, specify how vectors in the embedding space are</span>
-0043 <span class="comment">% represented, since more than one representation are allowed.</span>
-0044 
-0045     M.name = @() sprintf(<span class="string">'Manifold of %dx%d matrices of rank %d'</span>, m, n, k);
-0046     
-0047     M.dim = @() (m+n-k)*k;
-0048     
-0049     M.inner = @(x, d1, d2) d1.M(:).'*d2.M(:) + d1.Up(:).'*d2.Up(:) <span class="keyword">...</span>
-0050                                              + d1.Vp(:).'*d2.Vp(:);
-0051     
-0052     M.norm = @(x, d) sqrt(M.inner(x, d, d));
-0053     
-0054     M.dist = @(x, y) error(<span class="string">'fixedrank.dist not implemented yet.'</span>);
-0055     
-0056     M.typicaldist = @() M.dim();
-0057     
-0058     M.tangent = @(X, Z) Z;
-0059     
-0060     M.proj = @<a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>;
-0061     <a name="_sub1" href="#_subfunctions" class="code">function Zproj = projection(X, Z)</a>
-0062         
-0063         <span class="keyword">if</span> isstruct(Z)
-0064         
-0065             <span class="comment">% Projection for Z a vector in R^(mxn) represented as a</span>
-0066             <span class="comment">% structure with the same format as that of points X on the</span>
-0067             <span class="comment">% manifold. This is useful if Z is a low-rank matrix. The rank</span>
-0068             <span class="comment">% of Z need not coincide with that of X.</span>
-0069             <span class="keyword">if</span> isfield(Z, <span class="string">'S'</span>)
-0070                 UtUz = X.U' * Z.U;
-0071                 VtVz = X.V' * Z.V;
-0072 
-0073                 SzVztV = Z.S * VtVz';
-0074                 UtZV = UtUz * SzVztV;
-0075 
-0076                 Zproj.M = UtZV;
-0077                 Zproj.Up = Z.U * SzVztV - X.U*UtZV;
-0078                 Zproj.Vp = Z.V * (UtUz*Z.S)' - X.V*UtZV';
-0079                 
-0080             <span class="comment">% Projection for Z a vector in R^(mxn) represented as a</span>
-0081             <span class="comment">% structure with the same format as that of tangent vectors.</span>
-0082             <span class="keyword">elseif</span> isfield(Z, <span class="string">'M'</span>)
-0083                 
-0084                 Zproj.M = Z.M;
-0085                 Zproj.Up = Z.Up - X.U*(X.U'*Z.Up);
-0086                 Zproj.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
-0087                 
-0088             <span class="keyword">else</span>
-0089                 error(<span class="string">'fixedrank.proj: Bad ambient vector representation.'</span>);
-0090             <span class="keyword">end</span>
-0091             
-0092         <span class="comment">% Projection for Z a vector in R^(mxn) represented as an mxn matrix</span>
-0093         <span class="keyword">else</span>
-0094             
-0095             ZV = Z*X.V;
-0096             UtZV = X.U'*ZV;
-0097             ZtU = Z'*X.U;
-0098             
-0099             Zproj.M = UtZV;
-0100             Zproj.Up = ZV  - X.U*UtZV;
-0101             Zproj.Vp = ZtU - X.V*UtZV';
-0102             
-0103         <span class="keyword">end</span>
-0104 
-0105     <span class="keyword">end</span>
-0106 
-0107     M.egrad2rgrad = M.proj;
-0108     
-0109     M.retr = @<a href="#_sub2" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>;
-0110     <a name="_sub2" href="#_subfunctions" class="code">function Y = retraction(X, Z, t)</a>
-0111         <span class="keyword">if</span> nargin &lt; 3
-0112             t = 1.0;
-0113         <span class="keyword">end</span>
-0114 
-0115         <span class="comment">% See personal notes June 28, 2012 (NB)</span>
-0116         [Qu, Ru] = qr(Z.Up, 0);
-0117         [Qv, Rv] = qr(Z.Vp, 0);
-0118         
-0119         <span class="comment">% Calling svds or svd should yield the same result, but BV</span>
-0120         <span class="comment">% advocated svd is more robust, and it doesn't change the</span>
-0121         <span class="comment">% asymptotic complexity to call svd then trim rather than call</span>
-0122         <span class="comment">% svds. Also, apparently Matlab calls ARPACK in a suboptimal way</span>
-0123         <span class="comment">% for svds in this scenario.</span>
-0124         <span class="comment">% [Ut St Vt] = svds([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)], k);</span>
-0125         [Ut, St, Vt] = svd([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)]);
-0126         
-0127         Y.U = [X.U Qu]*Ut(:, 1:k);
-0128         Y.V = [X.V Qv]*Vt(:, 1:k);
-0129         Y.S = St(1:k, 1:k);
-0130         
-0131         <span class="comment">% equivalent but very slow code</span>
-0132         <span class="comment">% [U S V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);</span>
-0133         <span class="comment">% Y.U = U; Y.V = V; Y.S = S;</span>
-0134         
-0135     <span class="keyword">end</span>
-0136     
-0137     M.exp = @<a href="#_sub3" class="code" title="subfunction Y = exponential(X, Z, t)">exponential</a>;
-0138     <a name="_sub3" href="#_subfunctions" class="code">function Y = exponential(X, Z, t)</a>
-0139         <span class="keyword">if</span> nargin &lt; 3
-0140             t = 1.0;
-0141         <span class="keyword">end</span>
-0142         Y = <a href="#_sub2" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>(X, Z, t);
-0143         warning(<span class="string">'manopt:fixedrank:exp'</span>, [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
-0144                 <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
-0145     <span class="keyword">end</span>
-0146 
-0147     <span class="comment">% Less safe but much faster checksum, June 24, 2014.</span>
-0148     <span class="comment">% Older version right below.</span>
-0149     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([sum(X.U(:)) ; sum(X.S(:)); sum(X.V(:)) ])];
-0150     <span class="comment">%M.hash = @(X) ['z' hashmd5([X.U(:) ; X.S(:) ; X.V(:)])];</span>
-0151     
-0152     M.rand = @<a href="#_sub4" class="code" title="subfunction X = random()">random</a>;
-0153     <span class="comment">% Factors U and V live on Stiefel manifolds, hence we will reuse</span>
-0154     <span class="comment">% their random generator.</span>
-0155     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
-0156     stiefeln = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(n, k);
-0157     <a name="_sub4" href="#_subfunctions" class="code">function X = random()</a>
-0158         X.U = stiefelm.rand();
-0159         X.V = stiefeln.rand();
-0160         X.S = randn(k);
-0161     <span class="keyword">end</span>
-0162     
-0163     M.randvec = @<a href="#_sub5" class="code" title="subfunction Z = randomvec(X)">randomvec</a>;
-0164     <a name="_sub5" href="#_subfunctions" class="code">function Z = randomvec(X)</a>
-0165         Z.Up = randn(m, k);
-0166         Z.Vp = randn(n, k);
-0167         Z.M  = randn(k, k);
-0168         Z = <a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(X, Z);
-0169         nrm = M.norm(X, Z);
-0170         Z.Up = Z.Up / nrm;
-0171         Z.Vp = Z.Vp / nrm;
-0172         Z.M  = Z.M  / nrm;
-0173     <span class="keyword">end</span>
-0174     
-0175     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
-0176     
-0177     M.zerovec = @(X) struct(<span class="string">'Up'</span>, zeros(m, k), <span class="string">'M'</span>, zeros(k, k), <span class="keyword">...</span>
-0178                                                         <span class="string">'Vp'</span>, zeros(n, k));
-0179     
-0180     <span class="comment">% New vector transport on June 24, 2014.</span>
-0181     M.transp = @<a href="#_sub6" class="code" title="subfunction Zproj = project_tangent(x1, x2, d)">project_tangent</a>;
-0182     <a name="_sub6" href="#_subfunctions" class="code">function Zproj = project_tangent(x1, x2, d)</a>
-0183         Z.U = [x1.U*d.M+d.Up, x1.U]; 
-0184         Z.S = eye(size(Z.U, 2));
-0185         Z.V = [x1.V, d.Vp];
-0186         Zproj = <a href="#_sub1" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(x2, Z);
-0187     <span class="keyword">end</span>
-0188 
-0189 <span class="keyword">end</span>
-0190 
-0191 <span class="comment">% Linear combination of tangent vectors</span>
-0192 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0193 
-0194     <span class="keyword">if</span> nargin == 3
-0195         d.Up = a1*d1.Up;
-0196         d.Vp = a1*d1.Vp;
-0197         d.M  = a1*d1.M;
-0198     <span class="keyword">elseif</span> nargin == 5
-0199         d.Up = a1*d1.Up + a2*d2.Up;
-0200         d.Vp = a1*d1.Vp + a2*d2.Vp;
-0201         d.M  = a1*d1.M  + a2*d2.M;
-0202     <span class="keyword">else</span>
-0203         error(<span class="string">'fixedrank.lincomb takes either 3 or 5 inputs.'</span>);
-0204     <span class="keyword">end</span>
-0205 
-0206 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0006 <span class="comment">% Manifold of m-by-n real matrices of fixed rank k. This follows the</span>
+0007 <span class="comment">% geometry described in this paper (which for now is the documentation):</span>
+0008 <span class="comment">% B. Vandereycken, &quot;Low-rank matrix completion by Riemannian optimization&quot;,</span>
+0009 <span class="comment">% 2011.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Paper link: http://arxiv.org/pdf/1209.3834.pdf</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% A point X on the manifold is represented as a structure with three</span>
+0014 <span class="comment">% fields: U, S and V. The matrices U (mxk) and V (nxk) are orthonormal,</span>
+0015 <span class="comment">% while the matrix S (kxk) is any /diagonal/, full rank matrix.</span>
+0016 <span class="comment">% Following the SVD formalism, X = U*S*V'. Note that the diagonal entries</span>
+0017 <span class="comment">% of S are not constrained to be nonnegative.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% Tangent vectors are represented as a structure with three fields: Up, M</span>
+0020 <span class="comment">% and Vp. The matrices Up (mxk) and Vp (mxk) obey Up'*U = 0 and Vp'*V = 0.</span>
+0021 <span class="comment">% The matrix M (kxk) is arbitrary. Such a structure corresponds to the</span>
+0022 <span class="comment">% following tangent vector in the ambient space of mxn matrices:</span>
+0023 <span class="comment">%   Z = U*M*V' + Up*V' + U*Vp'</span>
+0024 <span class="comment">% where (U, S, V) is the current point and (Up, M, Vp) is the tangent</span>
+0025 <span class="comment">% vector at that point.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Vectors in the ambient space are best represented as mxn matrices. If</span>
+0028 <span class="comment">% these are low-rank, they may also be represented as structures with</span>
+0029 <span class="comment">% U, S, V fields, such that Z = U*S*V'. Their are no resitrictions on what</span>
+0030 <span class="comment">% U, S and V are, as long as their product as indicated yields a real, mxn</span>
+0031 <span class="comment">% matrix.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% The chosen geometry yields a Riemannian submanifold of the embedding</span>
+0034 <span class="comment">% space R^(mxn) equipped with the usual trace (Frobenius) inner product.</span>
+0035 
+0036 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0037 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0038 <span class="comment">% Contributors:</span>
+0039 <span class="comment">% Change log:</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">%    Feb. 20, 2014 (NB):</span>
+0042 <span class="comment">%       Added function tangent to work with checkgradient.</span>
+0043 <span class="comment">%   June 24, 2014 (NB):</span>
+0044 <span class="comment">%       A couple modifications following</span>
+0045 <span class="comment">%       Bart Vandereycken's feedback:</span>
+0046 <span class="comment">%       - The checksum (hash) was replaced for a faster alternative: it's a</span>
+0047 <span class="comment">%         bit less &quot;safe&quot; in that collisions could arise with higher</span>
+0048 <span class="comment">%         probability, but they're still very unlikely.</span>
+0049 <span class="comment">%       - The vector transport was changed.</span>
+0050 <span class="comment">%       The typical distance was also modified, hopefully giving the</span>
+0051 <span class="comment">%       trustregions method a better initial guess for the trust region</span>
+0052 <span class="comment">%       radius, but that should be tested for different cost functions too.</span>
+0053 <span class="comment">%    July 11, 2014 (NB):</span>
+0054 <span class="comment">%       Added ehess2rhess and tangent2ambient, supplied by Bart.</span>
+0055 <span class="comment">%    July 14, 2014 (NB):</span>
+0056 <span class="comment">%       Added vec, mat and vecmatareisometries so that hessianspectrum now</span>
+0057 <span class="comment">%       works with this geometry. Implemented the tangent function.</span>
+0058 <span class="comment">%       Made it clearer in the code and in the documentation in what format</span>
+0059 <span class="comment">%       ambient vectors may be supplied, and generalized some functions so</span>
+0060 <span class="comment">%       that they should now work with both accepted formats.</span>
+0061 <span class="comment">%       It is now clearly stated that for a point X represented as a</span>
+0062 <span class="comment">%       triplet (U, S, V), the matrix S needs to be diagonal.</span>
+0063 
+0064     M.name = @() sprintf(<span class="string">'Manifold of %dx%d matrices of rank %d'</span>, m, n, k);
+0065     
+0066     M.dim = @() (m+n-k)*k;
+0067     
+0068     M.inner = @(x, d1, d2) d1.M(:).'*d2.M(:) + d1.Up(:).'*d2.Up(:) <span class="keyword">...</span>
+0069                                              + d1.Vp(:).'*d2.Vp(:);
+0070     
+0071     M.norm = @(x, d) sqrt(M.inner(x, d, d));
+0072     
+0073     M.dist = @(x, y) error(<span class="string">'fixedrankembeddedfactory.dist not implemented yet.'</span>);
+0074     
+0075     M.typicaldist = @() M.dim();
+0076     
+0077     <span class="comment">% Given Z in tangent vector format, projects the components Up and Vp</span>
+0078     <span class="comment">% such that they satisfy the tangent space constraints up to numerical</span>
+0079     <span class="comment">% errors. If Z was indeed a tangent vector at X, this should barely</span>
+0080     <span class="comment">% affect Z (it would not at all if we had infinite numerical accuracy).</span>
+0081     M.tangent = @<a href="#_sub1" class="code" title="subfunction Z = tangent(X, Z)">tangent</a>;
+0082     <a name="_sub1" href="#_subfunctions" class="code">function Z = tangent(X, Z)</a>
+0083         Z.Up = Z.Up - X.U*(X.U'*Z.Up);
+0084         Z.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
+0085     <span class="keyword">end</span>
+0086 
+0087     <span class="comment">% For a given ambient vector Z, applies it to a matrix W. If Z is given</span>
+0088     <span class="comment">% as a matrix, this is straightfoward. If Z is given as a structure</span>
+0089     <span class="comment">% with fields U, S, V such that Z = U*S*V', the product is executed</span>
+0090     <span class="comment">% efficiently.</span>
+0091     <a name="_sub2" href="#_subfunctions" class="code">function ZW = apply_ambient(Z, W)</a>
+0092         <span class="keyword">if</span> ~isstruct(Z)
+0093             ZW = Z*W;
+0094         <span class="keyword">else</span>
+0095             ZW = Z.U*(Z.S*(Z.V'*W));
+0096         <span class="keyword">end</span>
+0097     <span class="keyword">end</span>
+0098 
+0099     <span class="comment">% Same as apply_ambient, but applies Z' to W.</span>
+0100     <a name="_sub3" href="#_subfunctions" class="code">function ZtW = apply_ambient_transpose(Z, W)</a>
+0101         <span class="keyword">if</span> ~isstruct(Z)
+0102             ZtW = Z'*W;
+0103         <span class="keyword">else</span>
+0104             ZtW = Z.V*(Z.S'*(Z.U'*W));
+0105         <span class="keyword">end</span>
+0106     <span class="keyword">end</span>
+0107     
+0108     <span class="comment">% Orthogonal projection of an ambient vector Z represented as an mxn</span>
+0109     <span class="comment">% matrix or as a structure with fields U, S, V to the tangent space at</span>
+0110     <span class="comment">% X, in a tangent vector structure format.</span>
+0111     M.proj = @<a href="#_sub4" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>;
+0112     <a name="_sub4" href="#_subfunctions" class="code">function Zproj = projection(X, Z)</a>
+0113             
+0114         ZV = <a href="#_sub2" class="code" title="subfunction ZW = apply_ambient(Z, W)">apply_ambient</a>(Z, X.V);
+0115         UtZV = X.U'*ZV;
+0116         ZtU = <a href="#_sub3" class="code" title="subfunction ZtW = apply_ambient_transpose(Z, W)">apply_ambient_transpose</a>(Z, X.U);
+0117 
+0118         Zproj.M = UtZV;
+0119         Zproj.Up = ZV  - X.U*UtZV;
+0120         Zproj.Vp = ZtU - X.V*UtZV';
+0121 
+0122     <span class="keyword">end</span>
+0123 
+0124     M.egrad2rgrad = @<a href="#_sub4" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>;
+0125     
+0126     <span class="comment">% Code supplied by Bart.</span>
+0127     <span class="comment">% Given the Euclidean gradient at X and the Euclidean Hessian at X</span>
+0128     <span class="comment">% along H, where egrad and ehess are vectors in the ambient space and H</span>
+0129     <span class="comment">% is a tangent vector at X, returns the Riemannian Hessian at X along</span>
+0130     <span class="comment">% H, which is a tangent vector.</span>
+0131     M.ehess2rhess = @<a href="#_sub5" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0132     <a name="_sub5" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0133         
+0134         <span class="comment">% Euclidean part</span>
+0135         rhess = <a href="#_sub4" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(X, ehess);
+0136         
+0137         <span class="comment">% Curvature part</span>
+0138         T = <a href="#_sub2" class="code" title="subfunction ZW = apply_ambient(Z, W)">apply_ambient</a>(egrad, H.Vp)/X.S;
+0139         rhess.Up = rhess.Up + (T - X.U*(X.U'*T));
+0140         T = <a href="#_sub3" class="code" title="subfunction ZtW = apply_ambient_transpose(Z, W)">apply_ambient_transpose</a>(egrad, H.Up)/X.S;
+0141         rhess.Vp = rhess.Vp + (T - X.V*(X.V'*T));
+0142         
+0143     <span class="keyword">end</span>
+0144 
+0145     <span class="comment">% Transforms a tangent vector Z represented as a structure (Up, M, Vp)</span>
+0146     <span class="comment">% into a structure with fields (U, S, V) that represents that same</span>
+0147     <span class="comment">% tangent vector in the ambient space of mxn matrices, as U*S*V'.</span>
+0148     <span class="comment">% This matrix is equal to X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'. The</span>
+0149     <span class="comment">% latter is an mxn matrix, which could be too large to build</span>
+0150     <span class="comment">% explicitly, and this is why we return a low-rank representation</span>
+0151     <span class="comment">% instead. Note that there are no guarantees on U, S and V other than</span>
+0152     <span class="comment">% that USV' is the desired matrix. In particular, U and V are not (in</span>
+0153     <span class="comment">% general) orthonormal and S is not (in general) diagonal.</span>
+0154     <span class="comment">% (In this implementation, S is identity, but this might change.)</span>
+0155     M.tangent2ambient = @<a href="#_sub6" class="code" title="subfunction Zambient = tangent2ambient(X, Z)">tangent2ambient</a>;
+0156     <a name="_sub6" href="#_subfunctions" class="code">function Zambient = tangent2ambient(X, Z)</a>
+0157         Zambient.U = [X.U*Z.M + Z.Up, X.U];
+0158         Zambient.S = eye(2*k);
+0159         Zambient.V = [X.V, Z.Vp];
+0160     <span class="keyword">end</span>
+0161     
+0162     <span class="comment">% This retraction is second order, following general results from</span>
+0163     <span class="comment">% Absil, Malick, &quot;Projection-like retractions on matrix manifolds&quot;,</span>
+0164     <span class="comment">% SIAM J. Optim., 22 (2012), pp. 135-158.</span>
+0165     M.retr = @<a href="#_sub7" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>;
+0166     <a name="_sub7" href="#_subfunctions" class="code">function Y = retraction(X, Z, t)</a>
+0167         <span class="keyword">if</span> nargin &lt; 3
+0168             t = 1.0;
+0169         <span class="keyword">end</span>
+0170 
+0171         <span class="comment">% See personal notes June 28, 2012 (NB)</span>
+0172         [Qu, Ru] = qr(Z.Up, 0);
+0173         [Qv, Rv] = qr(Z.Vp, 0);
+0174         
+0175         <span class="comment">% Calling svds or svd should yield the same result, but BV</span>
+0176         <span class="comment">% advocated svd is more robust, and it doesn't change the</span>
+0177         <span class="comment">% asymptotic complexity to call svd then trim rather than call</span>
+0178         <span class="comment">% svds. Also, apparently Matlab calls ARPACK in a suboptimal way</span>
+0179         <span class="comment">% for svds in this scenario.</span>
+0180         <span class="comment">% [Ut St Vt] = svds([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)], k);</span>
+0181         [Ut, St, Vt] = svd([X.S+t*Z.M , t*Rv' ; t*Ru , zeros(k)]);
+0182         
+0183         Y.U = [X.U Qu]*Ut(:, 1:k);
+0184         Y.V = [X.V Qv]*Vt(:, 1:k);
+0185         Y.S = St(1:k, 1:k) + eps*eye(k);
+0186         
+0187         <span class="comment">% equivalent but very slow code</span>
+0188         <span class="comment">% [U S V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);</span>
+0189         <span class="comment">% Y.U = U; Y.V = V; Y.S = S;</span>
+0190         
+0191     <span class="keyword">end</span>
+0192     
+0193     M.exp = @<a href="#_sub8" class="code" title="subfunction Y = exponential(X, Z, t)">exponential</a>;
+0194     <a name="_sub8" href="#_subfunctions" class="code">function Y = exponential(X, Z, t)</a>
+0195         <span class="keyword">if</span> nargin &lt; 3
+0196             t = 1.0;
+0197         <span class="keyword">end</span>
+0198         Y = <a href="#_sub7" class="code" title="subfunction Y = retraction(X, Z, t)">retraction</a>(X, Z, t);
+0199         warning(<span class="string">'manopt:fixedrankembeddedfactory:exp'</span>, <span class="keyword">...</span>
+0200                [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0201                 <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0202     <span class="keyword">end</span>
+0203 
+0204     <span class="comment">% Less safe but much faster checksum, June 24, 2014.</span>
+0205     <span class="comment">% Older version right below.</span>
+0206     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([sum(X.U(:)) ; sum(X.S(:)); sum(X.V(:)) ])];
+0207     <span class="comment">%M.hash = @(X) ['z' hashmd5([X.U(:) ; X.S(:) ; X.V(:)])];</span>
+0208     
+0209     M.rand = @<a href="#_sub9" class="code" title="subfunction X = random()">random</a>;
+0210     <span class="comment">% Factors U and V live on Stiefel manifolds, hence we will reuse</span>
+0211     <span class="comment">% their random generator.</span>
+0212     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
+0213     stiefeln = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(n, k);
+0214     <a name="_sub9" href="#_subfunctions" class="code">function X = random()</a>
+0215         X.U = stiefelm.rand();
+0216         X.V = stiefeln.rand();
+0217         X.S = diag(sort(rand(k, 1), 1, <span class="string">'descend'</span>));
+0218     <span class="keyword">end</span>
+0219     
+0220     <span class="comment">% Generate a random tangent vector at X.</span>
+0221     <span class="comment">% TODO: consider a possible imbalance between the three components Up,</span>
+0222     <span class="comment">% Vp and M, when m, n and k are widely different (which is typical).</span>
+0223     M.randvec = @<a href="#_sub10" class="code" title="subfunction Z = randomvec(X)">randomvec</a>;
+0224     <a name="_sub10" href="#_subfunctions" class="code">function Z = randomvec(X)</a>
+0225         Z.Up = randn(m, k);
+0226         Z.Vp = randn(n, k);
+0227         Z.M  = randn(k);
+0228         Z = <a href="#_sub1" class="code" title="subfunction Z = tangent(X, Z)">tangent</a>(X, Z);
+0229         nrm = M.norm(X, Z);
+0230         Z.Up = Z.Up / nrm;
+0231         Z.Vp = Z.Vp / nrm;
+0232         Z.M  = Z.M  / nrm;
+0233     <span class="keyword">end</span>
+0234     
+0235     M.lincomb = @<a href="#_sub13" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0236     
+0237     M.zerovec = @(X) struct(<span class="string">'Up'</span>, zeros(m, k), <span class="string">'M'</span>, zeros(k, k), <span class="keyword">...</span>
+0238                                                         <span class="string">'Vp'</span>, zeros(n, k));
+0239     
+0240     <span class="comment">% New vector transport on June 24, 2014 (as indicated by Bart)</span>
+0241     <span class="comment">% Reference: Absil, Mahony, Sepulchre 2008 section 8.1.3:</span>
+0242     <span class="comment">% For Riemannian submanifolds of a Euclidean space, it is acceptable to</span>
+0243     <span class="comment">% transport simply by orthogonal projection of the tangent vector</span>
+0244     <span class="comment">% translated in the ambient space.</span>
+0245     M.transp = @<a href="#_sub11" class="code" title="subfunction Z2 = project_tangent(X1, X2, Z1)">project_tangent</a>;
+0246     <a name="_sub11" href="#_subfunctions" class="code">function Z2 = project_tangent(X1, X2, Z1)</a>
+0247         Z2 = <a href="#_sub4" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(X2, <a href="#_sub6" class="code" title="subfunction Zambient = tangent2ambient(X, Z)">tangent2ambient</a>(X1, Z1));
+0248     <span class="keyword">end</span>
+0249 
+0250 
+0251     M.vec = @<a href="#_sub12" class="code" title="subfunction Zvec = vec(X, Z)">vec</a>;
+0252     <a name="_sub12" href="#_subfunctions" class="code">function Zvec = vec(X, Z)</a>
+0253         Zamb = <a href="#_sub6" class="code" title="subfunction Zambient = tangent2ambient(X, Z)">tangent2ambient</a>(X, Z);
+0254         Zamb_mat = Zamb.U*Zamb.S*Zamb.V';
+0255         Zvec = Zamb_mat(:);
+0256     <span class="keyword">end</span>
+0257     M.mat = @(X, Zvec) <a href="#_sub4" class="code" title="subfunction Zproj = projection(X, Z)">projection</a>(X, reshape(Zvec, [m, n]));
+0258     M.vecmatareisometries = @() true;
+0259 
+0260 <span class="keyword">end</span>
+0261 
+0262 <span class="comment">% Linear combination of tangent vectors</span>
+0263 <a name="_sub13" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0264 
+0265     <span class="keyword">if</span> nargin == 3
+0266         d.Up = a1*d1.Up;
+0267         d.Vp = a1*d1.Vp;
+0268         d.M  = a1*d1.M;
+0269     <span class="keyword">elseif</span> nargin == 5
+0270         d.Up = a1*d1.Up + a2*d2.Up;
+0271         d.Vp = a1*d1.Vp + a2*d2.Vp;
+0272         d.M  = a1*d1.M  + a2*d2.M;
+0273     <span class="keyword">else</span>
+0274         error(<span class="string">'fixedrank.lincomb takes either 3 or 5 inputs.'</span>);
+0275     <span class="keyword">end</span>
+0276 
+0277 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

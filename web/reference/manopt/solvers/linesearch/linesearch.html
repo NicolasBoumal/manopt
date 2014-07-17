@@ -4,7 +4,7 @@
 <head>
   <title>Description of linesearch</title>
   <meta name="keywords" content="linesearch">
-  <meta name="description" content="Standard line search algorithm (step size selection) for descent methods.">
+  <meta name="description" content="Standard line-search algorithm (step size selection) for descent methods.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,18 +21,18 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Standard line search algorithm (step size selection) for descent methods.</strong></div>
+<div class="box"><strong>Standard line-search algorithm (step size selection) for descent methods.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function [stepsize newx storedb lsmem lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem) </strong></div>
+<div class="box"><strong>function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Standard line search algorithm (step size selection) for descent methods.
+<div class="fragment"><pre class="comment"> Standard line-search algorithm (step size selection) for descent methods.
 
- function [stepsize newx storedb lsmem lsstats] = 
+ function [stepsize, newx, storedb, lsmem, lsstats] = 
                linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
 
- Base linesearch algorithm for descent methods, based on a simple
+ Base line-search algorithm for descent methods, based on a simple
  backtracking method. The search direction provided has to be a descent
  direction, as indicated by a negative df0 = directional derivative of f
  at x along d.
@@ -62,19 +62,19 @@
  Outputs
 
   stepsize : norm of the vector retracted to reach newx from x.
-  newx : next iterate suggested by the line search algorithm, such that
+  newx : next iterate suggested by the line-search algorithm, such that
          the retraction at x of the vector alpha*d reaches newx.
   storedb : the (possibly updated) store database structure.
   lsmem : the (possibly updated) lsmem memory holder.
-  lsstats : statistics about the line search procedure (stepsize, number
+  lsstats : statistics about the line-search procedure (stepsize, number
             of trials etc).
  
  About lsmem : It can be anything, and will typically be a matrix or a
-               structure. When first calling the line search, it should be
+               structure. When first calling the line-search, it should be
                passed as the empty matrix []. For subsequent calls
                (pertaining to the same solver call), the previously
                returned lsmem should be passed as input. This memory
-               holder gives the line search a chance to exploit knowledge
+               holder gives the line-search a chance to exploit knowledge
                of previous decisions to make new decisions.
 
  See also: steepestdescent conjugategradients <a href="linesearch_adaptive.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_adaptive</a></pre></div>
@@ -86,20 +86,20 @@ This function calls:
 <li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x cost info] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
+<li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
 <!-- crossreference -->
 
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize newx storedb lsmem lsstats] = </a><span class="keyword">...</span>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize, newx, storedb, lsmem, lsstats] = </a><span class="keyword">...</span>
 0002                 linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
-0003 <span class="comment">% Standard line search algorithm (step size selection) for descent methods.</span>
+0003 <span class="comment">% Standard line-search algorithm (step size selection) for descent methods.</span>
 0004 <span class="comment">%</span>
-0005 <span class="comment">% function [stepsize newx storedb lsmem lsstats] =</span>
+0005 <span class="comment">% function [stepsize, newx, storedb, lsmem, lsstats] =</span>
 0006 <span class="comment">%               linesearch(problem, x, d, f0, df0, options, storedb, lsmem)</span>
 0007 <span class="comment">%</span>
-0008 <span class="comment">% Base linesearch algorithm for descent methods, based on a simple</span>
+0008 <span class="comment">% Base line-search algorithm for descent methods, based on a simple</span>
 0009 <span class="comment">% backtracking method. The search direction provided has to be a descent</span>
 0010 <span class="comment">% direction, as indicated by a negative df0 = directional derivative of f</span>
 0011 <span class="comment">% at x along d.</span>
@@ -129,19 +129,19 @@ This function is called by:
 0035 <span class="comment">% Outputs</span>
 0036 <span class="comment">%</span>
 0037 <span class="comment">%  stepsize : norm of the vector retracted to reach newx from x.</span>
-0038 <span class="comment">%  newx : next iterate suggested by the line search algorithm, such that</span>
+0038 <span class="comment">%  newx : next iterate suggested by the line-search algorithm, such that</span>
 0039 <span class="comment">%         the retraction at x of the vector alpha*d reaches newx.</span>
 0040 <span class="comment">%  storedb : the (possibly updated) store database structure.</span>
 0041 <span class="comment">%  lsmem : the (possibly updated) lsmem memory holder.</span>
-0042 <span class="comment">%  lsstats : statistics about the line search procedure (stepsize, number</span>
+0042 <span class="comment">%  lsstats : statistics about the line-search procedure (stepsize, number</span>
 0043 <span class="comment">%            of trials etc).</span>
 0044 <span class="comment">%</span>
 0045 <span class="comment">% About lsmem : It can be anything, and will typically be a matrix or a</span>
-0046 <span class="comment">%               structure. When first calling the line search, it should be</span>
+0046 <span class="comment">%               structure. When first calling the line-search, it should be</span>
 0047 <span class="comment">%               passed as the empty matrix []. For subsequent calls</span>
 0048 <span class="comment">%               (pertaining to the same solver call), the previously</span>
 0049 <span class="comment">%               returned lsmem should be passed as input. This memory</span>
-0050 <span class="comment">%               holder gives the line search a chance to exploit knowledge</span>
+0050 <span class="comment">%               holder gives the line-search a chance to exploit knowledge</span>
 0051 <span class="comment">%               of previous decisions to make new decisions.</span>
 0052 <span class="comment">%</span>
 0053 <span class="comment">% See also: steepestdescent conjugategradients linesearch_adaptive</span>
@@ -267,6 +267,6 @@ This function is called by:
 0173     lsstats.alpha = alpha;
 0174     
 0175 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

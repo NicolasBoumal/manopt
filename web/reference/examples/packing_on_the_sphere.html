@@ -66,7 +66,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -226,7 +226,7 @@ This function is called by:
 0147     opts.maxtime = 1200;
 0148     opts.maxiter = 1e5;
 0149     <span class="comment">% X = trustregions(problem, X0, opts);</span>
-0150     X = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x cost info] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0, opts);
+0150     X = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0, opts);
 0151     
 0152     <span class="comment">% Evaluate the maximum inner product between any two points of X.</span>
 0153     XXt = X*X';
@@ -305,6 +305,6 @@ This function is called by:
 0226     <span class="keyword">end</span>
 0227 
 0228 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -51,7 +51,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub2" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub3" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub4" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub5" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub6" class="code">function H = logarithm(X, Y)</a></li><li><a href="#_sub7" class="code">function X = random()</a></li><li><a href="#_sub8" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub9" class="code">function d = lincomb(X, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub2" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub3" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub5" class="code">function H = logarithm(X, Y)</a></li><li><a href="#_sub6" class="code">function X = random()</a></li><li><a href="#_sub7" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub8" class="code">function d = lincomb(X, a1, d1, a2, d2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = sympositivedefinitefactory(n)</a>
@@ -129,74 +129,67 @@ This function is called by:
 0073     M.tangent = M.proj;
 0074     M.tangent2ambient = @(X, eta) eta;
 0075     
-0076     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
-0077     <a name="_sub4" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
-0078         <span class="keyword">if</span> nargin &lt; 3
-0079             t = 1.0;
-0080         <span class="keyword">end</span>
-0081         
-0082         Y = <a href="#_sub5" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>(X, eta, t);
-0083     <span class="keyword">end</span>
-0084     
-0085     M.exp = @<a href="#_sub5" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
-0086     <a name="_sub5" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
-0087         <span class="keyword">if</span> nargin &lt; 3
-0088             t = 1.0;
-0089         <span class="keyword">end</span>
-0090         Y = X*real(expm(X\(t*eta)));
-0091     <span class="keyword">end</span>
+0076     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0077     
+0078     M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0079     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0080         <span class="keyword">if</span> nargin &lt; 3
+0081             t = 1.0;
+0082         <span class="keyword">end</span>
+0083         Y = X*real(expm(X\(t*eta)));
+0084     <span class="keyword">end</span>
+0085     
+0086     M.log = @<a href="#_sub5" class="code" title="subfunction H = logarithm(X, Y)">logarithm</a>;
+0087     <a name="_sub5" href="#_subfunctions" class="code">function H = logarithm(X, Y)</a>
+0088         H = X*real(logm(X\Y));
+0089     <span class="keyword">end</span>
+0090     
+0091     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
 0092     
-0093     M.log = @<a href="#_sub6" class="code" title="subfunction H = logarithm(X, Y)">logarithm</a>;
-0094     <a name="_sub6" href="#_subfunctions" class="code">function H = logarithm(X, Y)</a>
-0095         H = X*real(logm(X\Y));
-0096     <span class="keyword">end</span>
-0097     
-0098     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
-0099     
-0100     <span class="comment">% Generate a random symmetric positive definite matrix following a</span>
-0101     <span class="comment">% certain distribution. The particular choice of a distribution is of</span>
-0102     <span class="comment">% course arbitrary, and specific applications might require different</span>
-0103     <span class="comment">% ones.</span>
-0104     M.rand = @<a href="#_sub7" class="code" title="subfunction X = random()">random</a>;
-0105     <a name="_sub7" href="#_subfunctions" class="code">function X = random()</a>
-0106         D = diag(1+rand(n, 1));
-0107         [Q R] = qr(randn(n)); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0108         X = Q*D*Q';
-0109     <span class="keyword">end</span>
-0110     
-0111     <span class="comment">% Generate a uniformly random unit-norm tangent vector at X.</span>
-0112     M.randvec = @<a href="#_sub8" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
-0113     <a name="_sub8" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
-0114         eta = randn(n, n);
-0115         eta = <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>(X, eta);
-0116         nrm = M.norm(X, eta);
-0117         eta = eta / nrm;
-0118     <span class="keyword">end</span>
-0119     
-0120     M.lincomb = @<a href="#_sub9" class="code" title="subfunction d = lincomb(X, a1, d1, a2, d2) ">lincomb</a>;
-0121     
-0122     M.zerovec = @(X) zeros(n, n);
+0093     <span class="comment">% Generate a random symmetric positive definite matrix following a</span>
+0094     <span class="comment">% certain distribution. The particular choice of a distribution is of</span>
+0095     <span class="comment">% course arbitrary, and specific applications might require different</span>
+0096     <span class="comment">% ones.</span>
+0097     M.rand = @<a href="#_sub6" class="code" title="subfunction X = random()">random</a>;
+0098     <a name="_sub6" href="#_subfunctions" class="code">function X = random()</a>
+0099         D = diag(1+rand(n, 1));
+0100         [Q R] = qr(randn(n)); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0101         X = Q*D*Q';
+0102     <span class="keyword">end</span>
+0103     
+0104     <span class="comment">% Generate a uniformly random unit-norm tangent vector at X.</span>
+0105     M.randvec = @<a href="#_sub7" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0106     <a name="_sub7" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0107         eta = randn(n, n);
+0108         eta = <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>(X, eta);
+0109         nrm = M.norm(X, eta);
+0110         eta = eta / nrm;
+0111     <span class="keyword">end</span>
+0112     
+0113     M.lincomb = @<a href="#_sub8" class="code" title="subfunction d = lincomb(X, a1, d1, a2, d2) ">lincomb</a>;
+0114     
+0115     M.zerovec = @(X) zeros(n, n);
+0116     
+0117     M.transp = @(X1, X2, d) <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>(X2, d);
+0118     
+0119     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0120     M.vec = @(X, U) U(:);
+0121     M.mat = @(X, u) reshape(u, n, n);
+0122     M.vecmatareisometries = @() false;
 0123     
-0124     M.transp = @(X1, X2, d) <a href="#_sub3" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>(X2, d);
-0125     
-0126     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
-0127     M.vec = @(X, U) U(:);
-0128     M.mat = @(X, u) reshape(u, n, n);
-0129     M.vecmatareisometries = @() false;
-0130     
-0131 <span class="keyword">end</span>
-0132 
-0133 <span class="comment">% Linear combination of tangent vectors</span>
-0134 <a name="_sub9" href="#_subfunctions" class="code">function d = lincomb(X, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0135     <span class="keyword">if</span> nargin == 3
-0136         d = a1*d1;
-0137     <span class="keyword">elseif</span> nargin == 5
-0138         d = a1*d1 + a2*d2;
-0139     <span class="keyword">else</span>
-0140         error(<span class="string">'Bad use of sympositivedefinitefactory.lincomb.'</span>);
-0141     <span class="keyword">end</span> 
-0142 <span class="keyword">end</span>
-0143</pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0124 <span class="keyword">end</span>
+0125 
+0126 <span class="comment">% Linear combination of tangent vectors</span>
+0127 <a name="_sub8" href="#_subfunctions" class="code">function d = lincomb(X, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0128     <span class="keyword">if</span> nargin == 3
+0129         d = a1*d1;
+0130     <span class="keyword">elseif</span> nargin == 5
+0131         d = a1*d1 + a2*d2;
+0132     <span class="keyword">else</span>
+0133         error(<span class="string">'Bad use of sympositivedefinitefactory.lincomb.'</span>);
+0134     <span class="keyword">end</span> 
+0135 <span class="keyword">end</span>
+0136</pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

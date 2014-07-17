@@ -51,7 +51,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -159,10 +159,9 @@ This function is called by:
 0095     
 0096     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
 0097     <span class="comment">% Our initial guess is the first data point.</span>
-0098     options.maxiter = 10;
-0099     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1), options);
-0100 
-0101 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0098     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1));
+0099 
+0100 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

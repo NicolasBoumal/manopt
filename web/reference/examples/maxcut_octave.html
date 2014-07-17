@@ -72,7 +72,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>	Manifold of n-by-n PSD matrices of rank k with unit diagonal elements.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>	Manifold of n-by-n PSD matrices of rank k with unit diagonal elements.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -321,7 +321,7 @@ This function is called by:
 0236     
 0237     options.verbosity = 2;
 0238     <span class="comment">% profile clear; profile on;</span>
-0239     [Y Ycost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x cost info] = trustregions(problem, x, options)">trustregions</a>(problem, Y, options); <span class="comment">%#ok</span>
+0239     [Y Ycost info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, Y, options); <span class="comment">%#ok</span>
 0240     <span class="comment">% profile off; profile report;</span>
 0241 
 0242 <span class="keyword">end</span>
@@ -351,6 +351,6 @@ This function is called by:
 0266     LU = L*U;
 0267     h = manifold.ehess2rhess(Y, -LY/2, -LU/2, U);
 0268 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 25-Jun-2014 12:17:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
