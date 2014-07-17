@@ -33,7 +33,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Target cost attained
     if isfield(stats, 'cost') && isfield(options, 'tolcost') && ...
        stats.cost <= options.tolcost
-        reason = 'Cost tolerance reached.';
+        reason = 'Cost tolerance reached. See options.tolcost.';
         stop = 1;
         return;
     end
@@ -41,7 +41,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Target gradient norm attained
     if isfield(stats, 'gradnorm') && isfield(options, 'tolgradnorm') && ...
        stats.gradnorm < options.tolgradnorm
-        reason = 'Gradient norm tolerance reached.';
+        reason = 'Gradient norm tolerance reached. See options.tolgradnorm.';
         stop = 2;
         return;
     end
@@ -49,7 +49,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Alloted time exceeded
     if isfield(stats, 'time') && isfield(options, 'maxtime') && ...
        stats.time >= options.maxtime
-        reason = 'Max time exceeded.';
+        reason = 'Max time exceeded. See options.maxtime.';
         stop = 3;
         return;
     end
@@ -57,7 +57,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Alloted iteration count exceeded
     if isfield(stats, 'iter') && isfield(options, 'maxiter') && ...
        stats.iter >= options.maxiter
-        reason = 'Max iteration count reached.';
+        reason = 'Max iteration count reached. See options.maxiter.';
         stop = 4;
         return;
     end
@@ -65,7 +65,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Alloted function evaluation count exceeded
     if isfield(stats, 'costevals') && isfield(options, 'maxcostevals') && ...
        stats.costevals >= options.maxcostevals
-        reason = 'Maximum number of cost evaluations reached.';
+        reason = 'Maximum number of cost evaluations reached. See options.maxcostevals.';
         stop = 5;
     end
 
@@ -74,7 +74,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     if isfield(options, 'stopfun')
         userstop = options.stopfun(problem, x, info, last);
         if userstop
-            reason = 'User defined stopfun criterion triggered.';
+            reason = 'User defined stopfun criterion triggered. See options.stopfun.';
             stop = 6;
             return;
         end
