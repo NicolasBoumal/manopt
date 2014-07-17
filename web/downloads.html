@@ -73,88 +73,106 @@ body {
             Go to the <a href="tutorial.html">tutorial page</a> for the simple installation instructions and a first example.<br>
             <br>
             It helps us to know our users: please <a target="_blank" href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow this link to introduce yourself</a>. Thanks! </section>
-        <section id="previousandlogs">
-          <div class="page-header">
-            <h1>Previous releases and change logs</h1>
-          </div>
-          <ul>
-            <li><a href="download.html">Manopt 1.0.6</a>, packaged June 25, 2014.</li>
+          <section id="previousandlogs">
+            <div class="page-header">
+              <h1>Previous releases and change logs</h1>
+            </div>
             <ul>
-              <li>For uses of the <a style="font-family: monospace;" href="solver_documentation_trustregions.html">trustregions</a> solver with a nonlinear approximation of the Hessian (such as, for example, the default one if you do not specify a Hessian at all), the truncated-CG algorithm now explicitly checks that the model cost decreases with (inner) iterations. If an increase is witnessed (which is bad), tCG now returns the best step so far, which is always at least the Cauchy step.</li>
-              <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-                    style="font-family: monospace;">sympositivedefinitefactory</span></a> geometry for positive definite matrices was revised. It had a number of mistakes in it due to an incorrect assumption. You can access the file before 1.0.6 is released on <a
-                  target="_blank" href="https://groups.google.com/forum/embed/?place=forum%2Fmanopttoolbox&amp;showsearch=true&amp;showtabs=false&amp;theme=default#%21topic/manopttoolbox/nyX2rhKB9x4">the forum</a>.</li>
-              <li>Small bug fix in <a style="font-family: monospace;" href="reference/examples/packing_on_the_sphere.html">packing_on_the_sphere</a> example, along an improvement of how the smoothing term is computed numerically.</li>
-              <li>Added a Riemannian Hessian conversion tool for the <a
-                  href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel manifold</a>, ehess2rhess.</li>
-              <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
-                  href="reference/manopt/manifolds/euclidean/symmetricfactory.html">symmetricfactory</a>, to deal with symmetric matrices.</li>
-              <li>Multiple enhancements and bug fixes for the embedded geometry of fixed rank matrices <a
-                  href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
-                    style="font-family: monospace;">fixedrankembeddedfactory</span></a>: now works with <a
-                  style="font-family: monospace;" href="reference/manopt/tools/checkgradient.html">checkgradient</a>, changed hash and typical dist, and the vector transport is now correct (it was wrong before, leading to failure of CG and RTR-FD). Thanks to Bart Vandereycken for the correct code.</li>
-              <li>Random vector generation in Stiefel and Grassmann now make more sense.</li>
-              <li><a href="reference/manopt/solvers/pso/pso.html">PSO</a> (Particle Swarm Optimization) solver debugged to work with product and power manifolds too.</li>
-              <li>Bug fix in <a style="font-family: monospace;" href="reference/manopt/manifolds/grassmann/grassmannfactory.html">grassmannfactory</a>'s retraction for k &gt; 1, and added final re-orthonormalization at the end of exponential map following forum discussions.</li>
-              <li>The functions in <a style="font-family: monospace;" href="reference/manopt/manifolds/symfixedrank/elliptopefactory.html">elliptopefactory</a> are now a tad faster, using bsxfun.</li>
+              <li>Manopt 1.0.7</li>
+              <ul>
+                <li>Added the <code>ehess2rhess</code> function to <a
+                    style="font-family: monospace;" href="reference/manopt/manifolds/complexcircle/complexcirclefactory.html">complexcirclefactory</a>.</li>
+                <li>Major revision of <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
+                      style="font-family: monospace;">fixedrankembeddedfactory</span></a> for support of optimization over fixed-rank matrices. It is now better documented, comes with an example called <a
+                    style="font-family: monospace;" href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion</a>, and has now support for <code>ehess2rhess</code> and <code>tangent2ambient</code>, a proper vector transport, works with the <a
+                    style="font-family: monospace;" href="reference/manopt/tools/hessianspectrum.html">hessianspectrum</a> tool, ... This revision was executed with the precious and frequent help of Bart Vandereycken, who first described this geometry in a <a
+                    target="_blank" href="http://epubs.siam.org/doi/abs/10.1137/110845768">paper</a>.</li>
+                <li>All solvers now also return the <code>options</code> structure, to make it easier to investigate what options a solver uses and what their default values are.</li>
+                <li>It is now possible to specify a line-search hint function in the <code>problem</code> structure; the result of that function will be used as a first guess in an Armijo backtracking line-search procedure, <a
+                    style="font-family: monospace;" href="reference/manopt/solvers/linesearch/linesearch_hint.html">linesearch_hint</a>. This is very useful if, for a given problem, you are able to make a good guess at how far along the search line one should look. It is much easier this way than with the previous way, which required implementing a whole new line-search algorithm.</li>
+                <li>Generally improved textual outputs (warnings, iteration information, stopping reasons...).</li>
+                <li>The documentation (tutorial, reference) was updated to reflect all of these changes.</li>
+              </ul>
+              <li><a href="download.html">Manopt 1.0.6</a>, packaged June 25, 2014.</li>
+              <ul>
+                <li>For uses of the <a style="font-family: monospace;"
+                    href="solver_documentation_trustregions.html">trustregions</a> solver with a nonlinear approximation of the Hessian (such as, for example, the default one if you do not specify a Hessian at all), the truncated-CG algorithm now explicitly checks that the model cost decreases with (inner) iterations. If an increase is witnessed (which is bad), tCG now returns the best step so far, which is always at least the Cauchy step.</li>
+                <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
+                      style="font-family: monospace;">sympositivedefinitefactory</span></a> geometry for positive definite matrices was revised. It had a number of mistakes in it due to an incorrect assumption. You can access the file before 1.0.6 is released on <a
+                    target="_blank" href="https://groups.google.com/forum/embed/?place=forum%2Fmanopttoolbox&amp;showsearch=true&amp;showtabs=false&amp;theme=default#%21topic/manopttoolbox/nyX2rhKB9x4">the forum</a>.</li>
+                <li>Small bug fix in <a style="font-family: monospace;"
+                    href="reference/examples/packing_on_the_sphere.html">packing_on_the_sphere</a> example, along an improvement of how the smoothing term is computed numerically.</li>
+                <li>Added a Riemannian Hessian conversion tool for the <a
+                    href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel manifold</a>, ehess2rhess.</li>
+                <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
+                    href="reference/manopt/manifolds/euclidean/symmetricfactory.html">symmetricfactory</a>, to deal with symmetric matrices.</li>
+                <li>Multiple enhancements and bug fixes for the embedded geometry of fixed rank matrices <a
+                    href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
+                      style="font-family: monospace;">fixedrankembeddedfactory</span></a>: now works with <a
+                    style="font-family: monospace;" href="reference/manopt/tools/checkgradient.html">checkgradient</a>, changed hash and typical dist, and the vector transport is now correct (it was wrong before, leading to failure of CG and RTR-FD). Thanks to Bart Vandereycken for the correct code.</li>
+                <li>Random vector generation in Stiefel and Grassmann now make more sense.</li>
+                <li><a href="reference/manopt/solvers/pso/pso.html">PSO</a> (Particle Swarm Optimization) solver debugged to work with product and power manifolds too.</li>
+                <li>Bug fix in <a style="font-family: monospace;" href="reference/manopt/manifolds/grassmann/grassmannfactory.html">grassmannfactory</a>'s retraction for k &gt; 1, and added final re-orthonormalization at the end of exponential map following forum discussions.</li>
+                <li>The functions in <a style="font-family: monospace;"
+                    href="reference/manopt/manifolds/symfixedrank/elliptopefactory.html">elliptopefactory</a> are now a tad faster, using bsxfun.</li>
+              </ul>
+              <li><a target="_blank" href="downloads/Manopt_1.0.5.zip">Manopt 1.0.5</a>, packaged January 2<sup>nd</sup>, 2014.</li>
+              <ul>
+                <li>Many files are now better commented and documented. In particular, the solvers now have quite complete documentation in code, available using Matlab's help command.</li>
+                <li>The trust region solver was modified substantially. The algorithm is now slightly different from the previous versions, but is cleaner in its handling of errors, and behaves almost the same as before for normal operations. In particular, the fine-convergence heuristic has been changed to match a standard heuristic from the literature (see in code for references and the relevant option). The <a
+                    href="solver_documentation_trustregions.html">online documentation</a> was extended as well. The original trust region radius (Delta0 and Delta_bar) are now interpreted correctly. Their values are different from earlier Manopt versions as a result. if you get a lot of TR+ or TR- for the first few iterations, you may want to tweak those options.</li>
+                <li>New geometry: <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
+                      style="font-family: monospace;">sympositivedefinitefactory</span></a>, for symmetric, positive definite matrices. Related example script: <a
+                    href="reference/examples/positive_definite_karcher_mean.html"><span
+                      style="font-family: monospace;">positive_definite_karcher_mean.m</span></a>.</li>
+                <li>Line search algorithms have been heavily modified. The basic line search for example is now invariant under shifting and rescaling of the cost function, and the built-in line search algorithms now accept options too. Line searches now do not expect to be given a normalized search direction anymore, and they can decide whether to use the norm as supplemental information or to be unaffected by it. For example, the default line search for the conjugate gradient solver (the adaptive line search) is not invariant to the norm of the search direction.</li>
+                <li>New example for <a href="reference/examples/sparse_pca.html">sparse PCA</a> via optimization on the Stiefel manifold.</li>
+                <li>Potential bug (that never triggered) with <a style="font-family: monospace;"
+                    href="reference/manopt/privatetools/purgeStoredb.html">purgeStoredb</a> corrected.</li>
+              </ul>
+              <li><a target="_blank" href="downloads/Manopt_1.0.4.zip">Manopt 1.0.4</a>, packaged August 22<sup>nd</sup>, 2013.</li>
+              <ul>
+                <li>This release is a first step toward compatibility with <strong>Octave</strong>. We're not there yet, but in the <span
+                    style="font-family: monospace;">examples</span> folder, you will find <a
+                    href="reference/examples/maxcut_octave.html"><span style="font-family: monospace;">maxcut_octave.m</span></a>, which should run in Octave 3.6.4. In there, more info about compatibility issues and limitations are provided.</li>
+                <li>Manopt is not organized in a Matlab package anymore (so folders are called <span
+                    style="font-family: monospace;">folder</span> and not <span
+                    style="font-family: monospace;">+folder</span>): <strong>no <code>import</code>'s anymore</strong>. Simply call <code>importmanopt</code> to add all Manopt functions to the path, once.</li>
+                <li>Sign error in right hand side of Lyapunov equation in <code> elliptopefactory.projection</code> corrected.</li>
+              </ul>
+              <li><a target="_blank" href="downloads/Manopt_1.0.3.zip">Manopt 1.0.3</a>, packaged July 26, 2013.</li>
+              <ul>
+                <li>The new <span style="font-family: monospace;">/manopt/examples</span> directory now contains documented examples.</li>
+                <li>Added manifolds spectrahedron and elliptope, for symmetric positive semidefinite fixed-rank matrices with constraints on the diagonal or the trace. Notably useful for max-cut like SDP relaxations (see examples) and correlation matrix approximation / completion etc.</li>
+                <li>The Riemannian gradient and Hessian may be given via their Euclidean counterparts, using <code>problem.egrad</code> and <code>problem.ehess</code>.</li>
+                <li>Improved <code>checkgradient</code> and <code>checkhessian</code> tools.</li>
+                <li>Added Riemannian log map for the Grassmann manifold.</li>
+                <li>Made <code>egrad2rgrad</code> and <code>ehess2rhess</code> available in more geometries.</li>
+                <li>Added the tool <code>hessianspectrum</code> to compute the eigenvalues of the Hessian (w/ or w/o preconditioner).</li>
+                <li>Added notions of <code>tangent</code> and <code>tangent2ambient</code> to manifolds.</li>
+                <li>Added notions of <code>vec</code> and <code>mat</code> for manifolds, to represent tangent vectors as column vectors.</li>
+              </ul>
+              <li><a target="_blank" href="downloads/Manopt_1.0.2.zip">Manopt 1.0.2</a>, packaged June 11<sup></sup>, 2013.&#160;</li>
+              <ul>
+                <li>Improved trustregions solver (e.g., avoids a redundant Hessian computation).</li>
+                <li>Improved conjugategradient solver: now admits preconditioning.</li>
+                <li>Reorganized fixedrank geometries (not backward compatible).</li>
+                <li>Many small improvements and bug fixes.</li>
+              </ul>
+              <li><a target="_blank" href="downloads/Manopt_1.0.1.zip">Manopt 1.0.1</a>, packaged February 7<sup></sup>, 2013. <br>
+                <a href="downloads/Manopt_1.0.zip"></a></li>
+              <li><a target="_blank" href="downloads/Manopt_1.0.zip">Manopt 1.0</a>, packaged January 3<sup>rd</sup>, 2013. </li>
             </ul>
-            <li><a target="_blank" href="downloads/Manopt_1.0.5.zip">Manopt 1.0.5</a>, packaged January 2<sup>nd</sup>, 2014.</li>
-            <ul>
-              <li>Many files are now better commented and documented. In particular, the solvers now have quite complete documentation in code, available using Matlab's help command.</li>
-              <li>The trust region solver was modified substantially. The algorithm is now slightly different from the previous versions, but is cleaner in its handling of errors, and behaves almost the same as before for normal operations. In particular, the fine-convergence heuristic has been changed to match a standard heuristic from the literature (see in code for references and the relevant option). The <a
-                  href="solver_documentation_trustregions.html">online documentation</a> was extended as well. The original trust region radius (Delta0 and Delta_bar) are now interpreted correctly. Their values are different from earlier Manopt versions as a result. if you get a lot of TR+ or TR- for the first few iterations, you may want to tweak those options.</li>
-              <li>New geometry: <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-                    style="font-family: monospace;">sympositivedefinitefactory</span></a>, for symmetric, positive definite matrices. Related example script: <a
-                  href="reference/examples/positive_definite_karcher_mean.html"><span
-                    style="font-family: monospace;">positive_definite_karcher_mean.m</span></a>.</li>
-              <li>Line search algorithms have been heavily modified. The basic line search for example is now invariant under shifting and rescaling of the cost function, and the built-in line search algorithms now accept options too. Line searches now do not expect to be given a normalized search direction anymore, and they can decide whether to use the norm as supplemental information or to be unaffected by it. For example, the default line search for the conjugate gradient solver (the adaptive line search) is not invariant to the norm of the search direction.</li>
-              <li>New example for <a href="reference/examples/sparse_pca.html">sparse PCA</a> via optimization on the Stiefel manifold.</li>
-              <li>Potential bug (that never triggered) with <a style="font-family: monospace;"
-                  href="reference/manopt/privatetools/purgeStoredb.html">purgeStoredb</a> corrected.</li>
-            </ul>
-            <li><a target="_blank" href="downloads/Manopt_1.0.4.zip">Manopt 1.0.4</a>, packaged August 22<sup>nd</sup>, 2013.</li>
-            <ul>
-              <li>This release is a first step toward compatibility with <strong>Octave</strong>. We're not there yet, but in the <span
-                  style="font-family: monospace;">examples</span> folder, you will find <a
-                  href="reference/examples/maxcut_octave.html"><span style="font-family: monospace;">maxcut_octave.m</span></a>, which should run in Octave 3.6.4. In there, more info about compatibility issues and limitations are provided.</li>
-              <li>Manopt is not organized in a Matlab package anymore (so folders are called <span
-                  style="font-family: monospace;">folder</span> and not <span
-                  style="font-family: monospace;">+folder</span>): <strong>no <code>import</code>'s anymore</strong>. Simply call <code>importmanopt</code> to add all Manopt functions to the path, once.</li>
-              <li>Sign error in right hand side of Lyapunov equation in <code> elliptopefactory.projection</code> corrected.</li>
-            </ul>
-            <li><a target="_blank" href="downloads/Manopt_1.0.3.zip">Manopt 1.0.3</a>, packaged July 26, 2013.</li>
-            <ul>
-              <li>The new <span style="font-family: monospace;">/manopt/examples</span> directory now contains documented examples.</li>
-              <li>Added manifolds spectrahedron and elliptope, for symmetric positive semidefinite fixed-rank matrices with constraints on the diagonal or the trace. Notably useful for max-cut like SDP relaxations (see examples) and correlation matrix approximation / completion etc.</li>
-              <li>The Riemannian gradient and Hessian may be given via their Euclidean counterparts, using <code>problem.egrad</code> and <code>problem.ehess</code>.</li>
-              <li>Improved <code>checkgradient</code> and <code>checkhessian</code> tools.</li>
-              <li>Added Riemannian log map for the Grassmann manifold.</li>
-              <li>Made <code>egrad2rgrad</code> and <code>ehess2rhess</code> available in more geometries.</li>
-              <li>Added the tool <code>hessianspectrum</code> to compute the eigenvalues of the Hessian (w/ or w/o preconditioner).</li>
-              <li>Added notions of <code>tangent</code> and <code>tangent2ambient</code> to manifolds.</li>
-              <li>Added notions of <code>vec</code> and <code>mat</code> for manifolds, to represent tangent vectors as column vectors.</li>
-            </ul>
-            <li><a target="_blank" href="downloads/Manopt_1.0.2.zip">Manopt 1.0.2</a>, packaged June 11<sup></sup>, 2013.&#160;</li>
-            <ul>
-              <li>Improved trustregions solver (e.g., avoids a redundant Hessian computation).</li>
-              <li>Improved conjugategradient solver: now admits preconditioning.</li>
-              <li>Reorganized fixedrank geometries (not backward compatible).</li>
-              <li>Many small improvements and bug fixes.</li>
-            </ul>
-            <li><a target="_blank" href="downloads/Manopt_1.0.1.zip">Manopt 1.0.1</a>, packaged February 7<sup></sup>, 2013. <br>
-              <a href="downloads/Manopt_1.0.zip"></a></li>
-            <li><a target="_blank" href="downloads/Manopt_1.0.zip">Manopt 1.0</a>, packaged January 3<sup>rd</sup>, 2013. </li>
-          </ul>
-        </section>
+          </section>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- /container --><!-- Le javascript ================================================== -->
-  <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
-  <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-  <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
-  <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
-  <script type="text/javascript">
+    <!-- /container --><!-- Le javascript ================================================== -->
+    <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
+    <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
+    <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-37402854-1']);
@@ -167,5 +185,5 @@ body {
   })();
 
 </script>
-</body>
+  </body>
 </html>
