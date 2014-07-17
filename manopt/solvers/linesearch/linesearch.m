@@ -1,11 +1,11 @@
-function [stepsize newx storedb lsmem lsstats] = ...
+function [stepsize, newx, storedb, lsmem, lsstats] = ...
                 linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
-% Standard line search algorithm (step size selection) for descent methods.
+% Standard line-search algorithm (step size selection) for descent methods.
 %
-% function [stepsize newx storedb lsmem lsstats] = 
+% function [stepsize, newx, storedb, lsmem, lsstats] = 
 %               linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
 %
-% Base linesearch algorithm for descent methods, based on a simple
+% Base line-search algorithm for descent methods, based on a simple
 % backtracking method. The search direction provided has to be a descent
 % direction, as indicated by a negative df0 = directional derivative of f
 % at x along d.
@@ -35,19 +35,19 @@ function [stepsize newx storedb lsmem lsstats] = ...
 % Outputs
 %
 %  stepsize : norm of the vector retracted to reach newx from x.
-%  newx : next iterate suggested by the line search algorithm, such that
+%  newx : next iterate suggested by the line-search algorithm, such that
 %         the retraction at x of the vector alpha*d reaches newx.
 %  storedb : the (possibly updated) store database structure.
 %  lsmem : the (possibly updated) lsmem memory holder.
-%  lsstats : statistics about the line search procedure (stepsize, number
+%  lsstats : statistics about the line-search procedure (stepsize, number
 %            of trials etc).
 % 
 % About lsmem : It can be anything, and will typically be a matrix or a
-%               structure. When first calling the line search, it should be
+%               structure. When first calling the line-search, it should be
 %               passed as the empty matrix []. For subsequent calls
 %               (pertaining to the same solver call), the previously
 %               returned lsmem should be passed as input. This memory
-%               holder gives the line search a chance to exploit knowledge
+%               holder gives the line-search a chance to exploit knowledge
 %               of previous decisions to make new decisions.
 %
 % See also: steepestdescent conjugategradients linesearch_adaptive
