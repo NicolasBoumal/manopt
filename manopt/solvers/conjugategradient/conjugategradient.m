@@ -66,11 +66,13 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       Hager and Zhang 2006, "A survey of nonlinear conjugate gradient
 %       methods", page 12. An infinite value disables this strategy. See in
 %       code formula for the specific criterion used.
-%   linesearch (@linesearch_adaptive)
+%   linesearch (@linesearch_adaptive or @linesearch_hint)
 %       Function handle to a line search function. The options structure is
 %       passed to the line search too, so you can pass it parameters. See
 %       each line search's documentation for info. Another available line
 %       search in manopt is @linesearch, in /manopt/linesearch/linesearch.m
+%       If the problem structure includes a line search hint, then the
+%       default line search used in @linesearch_hint.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
