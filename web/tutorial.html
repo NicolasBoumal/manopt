@@ -88,8 +88,8 @@ body {
             <p>The toolbox architecture is based on a <strong>separation of the manifolds, the solvers and the problem descriptions</strong>. For basic use, one only needs to pick a manifold from the library, describe the cost function (and possible derivatives) on this manifold and pass it on to a solver. Accompanying tools help the user in common tasks such as numerically checking whether the cost function agrees with its derivatives up to the appropriate order etc.</p>
             <p><strong>This is a </strong><strong>prototyping toolbox</strong>, designed based on the idea that the costly part of solving an optimization problem is querying the cost function, and not the inner machinery of the solver. It is also work in progress: <strong> feedback and contributions are welcome</strong>!</p>
             <p><a href="reference/examples/index.html">Examples are available in the reference</a>. </p>
-            <p>It helps us to know our users: please <a target="_blank"
-                href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow this link to introduce yourself</a>. Thanks!</p>
+            <p>It helps us to know our users. If you'd like, please <a
+                target="_blank" href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow this link to introduce yourself</a>. Thanks!</p>
             <h3>Download </h3>
             <p><a target="_blank" class="btn btn-primary" href="download.html">Download <i
                   class="icon-download-alt icon-white"></i></a>&#160;&#160; The current version is 1.0.6 and was packaged on June 25<sup></sup>, 2014. The file is less than 200 Kb.</p>
@@ -720,20 +720,20 @@ end</pre>
                 </tr>
                 <tr>
                   <td><code>linesearch</code><a id="linesearchproblem"> </a></td>
-                <td><code>t = linesearch(x, u)</code><br>
-                  <code>[t, store] = linesearch(x, u, store)</code></td>
-                <td>Given a point $x$ and a tangent vector $u$ at $x$, assume $u$ is a descent direction. This means that there exists $t &gt; 0$ such that $\phi(t) &lt; \phi(0)$ with<br>
-                  $$\phi(t) = f(\operatorname{Retr}_x(td)).$$<br>
-                  Line-search algorithms, which are used by some solvers such as <code>steepestdescent</code> and <code>conjugategradient</code>, are designed to (approximately) minimize this function at each iteration. There are built-in, generic ways of doing this. But if you have additional structure in your problem that enables you to take a good guess at what $t$ should be, than you can specify it here, in this function handle. This (very much optional) function should return a positive $t &gt; 0$ such that $t$ is a good guess of where to look for a minimizer of $\phi$. The line-search algorithm (if it decides to use this information) will start by looking at the step $td$, and decide to accept it or not based on its internal rules. See the <code>linesearch</code> <a
-                    href="#linesearchoptions">option in the solver section</a> (options table) for details on available line-search algorithms and how to pick one.<br>
-                  <br>
-                  See <a href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion.m</a> for an example from the literature.</td>
-              </tr>
-            </tbody>
-          </table>
-          <p> Here is one way to address the redundant computation of $Ax$ that appeared in the <a
-              href="file:///C:/Users/nicolas/manopt/web/tutorial.html#firstexample">first example</a>. Replace the cost and gradient description (code lines 11-12) with the following code (we chose to spell out the gradient projection, but that is not necessary):</p>
-          <pre class="prettyprint lang-matlab linenums">problem.costgrad = @(x) mycostgrad(A, x);
+                  <td><code>t = linesearch(x, u)</code><br>
+                    <code>[t, store] = linesearch(x, u, store)</code></td>
+                  <td>Given a point $x$ and a tangent vector $u$ at $x$, assume $u$ is a descent direction. This means that there exists $t &gt; 0$ such that $\phi(t) &lt; \phi(0)$ with<br>
+                    $$\phi(t) = f(\operatorname{Retr}_x(td)).$$<br>
+                    Line-search algorithms, which are used by some solvers such as <code>steepestdescent</code> and <code>conjugategradient</code>, are designed to (approximately) minimize this function at each iteration. There are built-in, generic ways of doing this. But if you have additional structure in your problem that enables you to take a good guess at what $t$ should be, than you can specify it here, in this function handle. This (very much optional) function should return a positive $t &gt; 0$ such that $t$ is a good guess of where to look for a minimizer of $\phi$. The line-search algorithm (if it decides to use this information) will start by looking at the step $td$, and decide to accept it or not based on its internal rules. See the <code>linesearch</code> <a
+                      href="#linesearchoptions">option in the solver section</a> (options table) for details on available line-search algorithms and how to pick one.<br>
+                    <br>
+                    See <span style="font-family: monospace;"><a href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion.m</a></span> for an example from the literature.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p> Here is one way to address the redundant computation of $Ax$ that appeared in the <a
+                href="file:///C:/Users/nicolas/manopt/web/tutorial.html#firstexample">first example</a>. Replace the cost and gradient description (code lines 11-12) with the following code (we chose to spell out the gradient projection, but that is not necessary):</p>
+            <pre class="prettyprint lang-matlab linenums">problem.costgrad = @(x) mycostgrad(A, x);
 function [f g] = mycostgrad(A, x)
     Ax = A*x;
     f = -x'*Ax;
@@ -742,15 +742,15 @@ function [f g] = mycostgrad(A, x)
     end
 end
 </pre>
-          <p>Solvers that call subsequently for the cost and the gradient at the same point will be able to escape most redundant computations (e.g., <code>steepestdescent</code> and <code>conjugategradient</code> are good at this). This is not perfect though: when the Hessian is requested for example, we can't access our hard work (<code>trustregions</code> would not gain much for example). In the next section, we cover a more sophisticated way of sharing data between components of the cost description. </p>
-          <h3>Caching: how to use the store structure </h3>
-          <p>As demonstrated in the <a href="#firstexample">first example</a>, it is often the case that computing $f(x)$ produces intermediate results (such as the product $Ax$) that can be reused in order to compute $\operatorname{grad} f(x)$. More generally, computing anything at a point $x$ may produce intermediate results that could be reused for other computations at $x$. Furthermore, it may happen that a solver will call your cost-related functions more than once at the same point $x$. For those cases, it may be beneficial to cache (to store) some of the previously computed objects.</p>
-          <p>For that purpose, Manopt manages a database of <code>store</code> structures. For each visited point $x$, a <code>store</code> structure is stored in the database. Only the structures pertaining to the most recently used points are kept in memory (see the <code>options.storedepth</code> <a
-              href="#solvers">option</a>). The database is indexed thanks to a hash of the point $x$, as provided by the <a
-              href="#manifolds">manifold structure</a> in <code>M.hash</code>, so that a look-up in the database is quick to do.</p>
-          <p>Whenever a solver calls, say, the <code>cost</code> function at some point $x$, the toolbox will search for a <code>store</code> structure pertaining to that $x$ in the database. If there is one and if the <code>cost</code> function admits <code>store</code> as an input and as an output, the <code>store</code> is passed to the <code>cost</code> function. The <code>cost</code> function then performs its duty and gets to modify the <code>store</code> structure at will: it is <em>your </em>structure, do whatever you fancy with it. Next time a function is called at the <em>same</em> point $x$ (say, the <code>grad</code> function), the <em>same</em> <code>store</code> structure will be passed along, modified, and stored again. As soon as the solver goes on to explore a new point $x'$, a <em>different</em> <code>store</code> structure is created and maintained in the same way. If the solver then decides to return to the previous $x$ and <code>options.storedepth</code> is larger than 2, we will still benefit from the previously stored work as the previous <code>store</code> structure will still be available. </p>
-          <p>Here is an example of how we can modify the <a href="#firstexample">first example</a> to avoid redundant computations, using the caching mechanism:</p>
-          <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;
+            <p>Solvers that call subsequently for the cost and the gradient at the same point will be able to escape most redundant computations (e.g., <code>steepestdescent</code> and <code>conjugategradient</code> are good at this). This is not perfect though: when the Hessian is requested for example, we can't access our hard work (<code>trustregions</code> would not gain much for example). In the next section, we cover a more sophisticated way of sharing data between components of the cost description. </p>
+            <h3>Caching: how to use the store structure </h3>
+            <p>As demonstrated in the <a href="#firstexample">first example</a>, it is often the case that computing $f(x)$ produces intermediate results (such as the product $Ax$) that can be reused in order to compute $\operatorname{grad} f(x)$. More generally, computing anything at a point $x$ may produce intermediate results that could be reused for other computations at $x$. Furthermore, it may happen that a solver will call your cost-related functions more than once at the same point $x$. For those cases, it may be beneficial to cache (to store) some of the previously computed objects.</p>
+            <p>For that purpose, Manopt manages a database of <code>store</code> structures. For each visited point $x$, a <code>store</code> structure is stored in the database. Only the structures pertaining to the most recently used points are kept in memory (see the <code>options.storedepth</code> <a
+                href="#solvers">option</a>). The database is indexed thanks to a hash of the point $x$, as provided by the <a
+                href="#manifolds">manifold structure</a> in <code>M.hash</code>, so that a look-up in the database is quick to do.</p>
+            <p>Whenever a solver calls, say, the <code>cost</code> function at some point $x$, the toolbox will search for a <code>store</code> structure pertaining to that $x$ in the database. If there is one and if the <code>cost</code> function admits <code>store</code> as an input and as an output, the <code>store</code> is passed to the <code>cost</code> function. The <code>cost</code> function then performs its duty and gets to modify the <code>store</code> structure at will: it is <em>your </em>structure, do whatever you fancy with it. Next time a function is called at the <em>same</em> point $x$ (say, the <code>grad</code> function), the <em>same</em> <code>store</code> structure will be passed along, modified, and stored again. As soon as the solver goes on to explore a new point $x'$, a <em>different</em> <code>store</code> structure is created and maintained in the same way. If the solver then decides to return to the previous $x$ and <code>options.storedepth</code> is larger than 2, we will still benefit from the previously stored work as the previous <code>store</code> structure will still be available. </p>
+            <p>Here is an example of how we can modify the <a href="#firstexample">first example</a> to avoid redundant computations, using the caching mechanism:</p>
+            <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;
 function [f, store] = mycost(x, store)
 
     if ~isfield(store, 'Ax')
@@ -780,67 +780,67 @@ function [g, store] = mygrad(x, store)
     
 end
 </pre>
-          <p>It is instructive to execute such code with <a href="http://blogs.mathworks.com/community/2010/02/01/speeding-up-your-program-through-profiling/">the profiler</a> activated and to look at how many times each instruction gets executed. You should find that line 5 in the code, which is where all the work happens, is executed exactly as often as it should be, and not more.</p>
-          <div class="alert alert-info"><strong>Heads up!</strong> You should never assume that the gradient function, for example, will be called <em>after</em> the cost function (even though this is usually the case). Always check that the fields you will use in the <code>store</code> structure are populated; and if they are not, call the appropriate functions to make up for it, as in the example above. </div>
-          <div class="alert alert-info"><strong>Good to know!</strong> Which variables should I store? As a rule of thumb, store the intermediate computation results which constitute the bottleneck in your computation. This can usually be determined by considering the asymptotic time complexity of each operation. Typically, matrix products of large size are involved in the slowest parts. If in doubt, the Matlab profiler is a tremendous tool to identify the bits of your code that need special attention. </div>
-        </section>
-        <section id="tools">
-          <div class="page-header">
-            <h1>Helpful tools</h1>
-          </div>
-          <p>A number of generically useful tools in the context of using Manopt are available in /<tt>manopt/tools</tt>. The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
-              href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
-              href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a>. </p>
-          <table style="width: 100%;" class="table table-striped table-bordered">
-            <thead>
+            <p>It is instructive to execute such code with <a href="http://blogs.mathworks.com/community/2010/02/01/speeding-up-your-program-through-profiling/">the profiler</a> activated and to look at how many times each instruction gets executed. You should find that line 5 in the code, which is where all the work happens, is executed exactly as often as it should be, and not more.</p>
+            <div class="alert alert-info"><strong>Heads up!</strong> You should never assume that the gradient function, for example, will be called <em>after</em> the cost function (even though this is usually the case). Always check that the fields you will use in the <code>store</code> structure are populated; and if they are not, call the appropriate functions to make up for it, as in the example above. </div>
+            <div class="alert alert-info"><strong>Good to know!</strong> Which variables should I store? As a rule of thumb, store the intermediate computation results which constitute the bottleneck in your computation. This can usually be determined by considering the asymptotic time complexity of each operation. Typically, matrix products of large size are involved in the slowest parts. If in doubt, the Matlab profiler is a tremendous tool to identify the bits of your code that need special attention. </div>
+          </section>
+          <section id="tools">
+            <div class="page-header">
+              <h1>Helpful tools</h1>
+            </div>
+            <p>A number of generically useful tools in the context of using Manopt are available in /<tt>manopt/tools</tt>. The <code>multitransp</code> / <code>multiprod</code> pair is code by <a
+                href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>, which is code by <a
+                href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton Moore</a>. </p>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td></td>
+                <td>Call </td>
+                <td>Description </td>
+              </tr>
+            </thead>
+            <tbody>
               <tr>
                 <td></td>
-              <td>Call </td>
-              <td>Description </td>
+              <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
             </tr>
-          </thead>
-          <tbody>
             <tr>
-              <td></td>
-            <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
+              <td><a href="reference/manopt/tools/checkdiff.html"><i class="icon-book"></i></a></td>
+            <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
+            <td>Numerical check of the directional derivatives of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a slope of 2. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 2 everywhere even if directional derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. </td>
           </tr>
           <tr>
-            <td><a href="reference/manopt/tools/checkdiff.html"><i class="icon-book"></i></a></td>
-          <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
-          <td>Numerical check of the directional derivatives of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a slope of 2. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 2 everywhere even if directional derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. </td>
+            <td><a href="reference/manopt/tools/checkgradient.html"><i class="icon-book"></i></a></td>
+          <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
+          <td>Numerical check of the gradient of the cost function. Based on the statement that if the gradient exists, than it is the only tangent vector field that satisfies $$\langle \operatorname{grad} f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code> and it verifies that the gradient is indeed a tangent vector, by computing the norm of the difference between the gradient and its projection to the tangent space (if a projector is available). Of course, this should be zero. </td>
         </tr>
         <tr>
-          <td><a href="reference/manopt/tools/checkgradient.html"><i class="icon-book"></i></a></td>
-        <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
-        <td>Numerical check of the gradient of the cost function. Based on the statement that if the gradient exists, than it is the only tangent vector field that satisfies $$\langle \operatorname{grad} f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code> and it verifies that the gradient is indeed a tangent vector, by computing the norm of the difference between the gradient and its projection to the tangent space (if a projector is available). Of course, this should be zero. </td>
+          <td><a href="reference/manopt/tools/checkhessian.html"><i class="icon-book"></i></a></td>
+        <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
+        <td>
+          <p>Numerical check of the Hessian of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] = \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of 3. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 3 everywhere even if the derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. The tool also verifies that the Hessian indeed returns a tangent vector, by computing the norm of the difference between $\operatorname{Hess} f(x)[u]$ and its projection to the tangent space (if a projector is available). Of course, this should be zero.</p>
+          <p>The Hessian is a linear, symmetric operator from the tangent space at $x$ to itself. To verify symmetry, this tool generates two random tangent vectors $u_1$ and $u_2$ and computes the difference $$\langle \operatorname{Hess} f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160; \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be zero.</p>
+        </td>
       </tr>
       <tr>
-        <td><a href="reference/manopt/tools/checkhessian.html"><i class="icon-book"></i></a></td>
-      <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
-      <td>
-        <p>Numerical check of the Hessian of the cost function. From a truncated Taylor expansion, we know that the following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) + t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle \operatorname{Hess} f(x)[u], u \rangle_x\right] = \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on the abscissa, the error should behave as $\log(t^3) = 3\log(t)$, i.e., we should observe a slope of 3. This tool produces such a plot and tries to compute the slope of it (<em>tries</em> to, because numerical errors prevent the curve to have a slope of 3 everywhere even if the derivatives are correct; so you should really just inspect the plot visually). If <code>x</code> and <code>u</code> are omitted, they are picked at random. The tool also verifies that the Hessian indeed returns a tangent vector, by computing the norm of the difference between $\operatorname{Hess} f(x)[u]$ and its projection to the tangent space (if a projector is available). Of course, this should be zero.</p>
-        <p>The Hessian is a linear, symmetric operator from the tangent space at $x$ to itself. To verify symmetry, this tool generates two random tangent vectors $u_1$ and $u_2$ and computes the difference $$\langle \operatorname{Hess} f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160; \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be zero.</p>
-      </td>
+        <td><a href="reference/manopt/tools/plotprofile.html"><i class="icon-book"></i></a></td>
+      <td><code>plotprofile(problem, x, d, t)</code></td>
+      <td>Plots the cost function along a geodesic or a retraction path starting at $x$, along direction $d$. See <span
+          style="font-family: monospace;">help plotprofile</span> for more information.</td>
     </tr>
     <tr>
-      <td><a href="reference/manopt/tools/plotprofile.html"><i class="icon-book"></i></a></td>
-    <td><code>plotprofile(problem, x, d, t)</code></td>
-    <td>Plots the cost function along a geodesic or a retraction path starting at $x$, along direction $d$. See <span
-        style="font-family: monospace;">help plotprofile</span> for more information.</td>
+      <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
+    <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+    <td>
+      <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
+      <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
+          href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
+      <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
+    </td>
   </tr>
   <tr>
-    <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
-  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
-  <td>
-    <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
-    <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
-        href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
-    <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
-  </td>
-</tr>
-<tr>
-  <td></td>
-<td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
+    <td></td>
+  <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
 </tr>
 <tr>
   <td><a href="reference/manopt/tools/multiscale.html"><i class="icon-book"></i></a></td>
