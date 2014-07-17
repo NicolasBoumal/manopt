@@ -148,7 +148,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         % If none triggered, run specific stopping criterion check
         if ~stop && stats.stepsize < options.minstepsize
             stop = true;
-            reason = 'Last stepsize smaller than minimum allowed.';
+            reason = 'Last stepsize smaller than minimum allowed. See options.minstepsize.';
         end
     
         if stop
