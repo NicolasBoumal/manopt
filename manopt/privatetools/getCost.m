@@ -34,7 +34,7 @@ function [cost, storedb] = getCost(problem, x, storedb)
                 % Obtain, pass along, and save the store structure
                 % associated to this point.
                 store = getStore(problem, x, storedb);
-                [cost store] = problem.cost(x, store);
+                [cost, store] = problem.cost(x, store);
                 storedb = setStore(problem, x, storedb, store);
             otherwise
                 up = MException('manopt:getCost:badcost', ...
