@@ -25,12 +25,17 @@ function M = sympositivedefinitefactory(n)
 %       inversion (as well as matrix log or matrix exp), not matrix square
 %       roots or their inverse.
 % 
+%   July 28, 2014 (NB)
+%       The dim() function returned n*(n-1)/2 instead of n*(n+1)/2.
+%       Implemented proper parallel transport from Sra and Hosseini (not
+%       used by default).
+%       Also added symmetrization in exp and log (to be sure).
     
     symm = @(X) .5*(X+X');
     
     M.name = @() sprintf('Symmetric positive definite geometry of %dx%d matrices', n, n);
     
-    M.dim = @() n*(n-1)/2;
+    M.dim = @() n*(n+1)/2;
     
     % Choice of the metric on the orthnormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
@@ -46,7 +51,8 @@ function M = sympositivedefinitefactory(n)
     M.dist = @(X, Y) sqrt(real(trace((logm(X\Y))^2)));
     
     
-    M.typicaldist = @() sqrt(n*(n-1)/2);
+    M.typicaldist = @() sqrt(n*(n+1)/2);
+    
     
     M.egrad2rgrad = @egrad2rgrad;
     function eta = egrad2rgrad(X, eta)
@@ -64,11 +70,7 @@ function M = sympositivedefinitefactory(n)
     end
     
     
-    M.proj = @projection;
-    function etaproj = projection(X, eta) %#ok<INUSL>
-        % Projection onto the tangent space of the total space
-        etaproj = symm(eta);
-    end
+    M.proj = @(X, eta) symm(eta);
     
     M.tangent = M.proj;
     M.tangent2ambient = @(X, eta) eta;
@@ -80,12 +82,15 @@ function M = sympositivedefinitefactory(n)
         if nargin < 3
             t = 1.0;
         end
-        Y = X*real(expm(X\(t*eta)));
+        % The symm() and real() calls are mathematically not necessary but
+        % are numerically necessary.
+        Y = symm(X*real(expm(X\(t*eta))));
     end
     
     M.log = @logarithm;
     function H = logarithm(X, Y)
-        H = X*real(logm(X\Y));
+        % Same remark regarding the calls to symm() and real().
+        H = symm(X*real(logm(X\Y)));
     end
     
     M.hash = @(X) ['z' hashmd5(X(:))];
@@ -97,24 +102,41 @@ function M = sympositivedefinitefactory(n)
     M.rand = @random;
     function X = random()
         D = diag(1+rand(n, 1));
-        [Q R] = qr(randn(n)); %#ok<NASGU>
+        [Q, R] = qr(randn(n)); %#ok<NASGU>
         X = Q*D*Q';
     end
     
     % Generate a uniformly random unit-norm tangent vector at X.
     M.randvec = @randomvec;
     function eta = randomvec(X)
-        eta = randn(n, n);
-        eta = projection(X, eta);
+        eta = symm(randn(n));
         nrm = M.norm(X, eta);
         eta = eta / nrm;
     end
     
     M.lincomb = @lincomb;
     
-    M.zerovec = @(X) zeros(n, n);
+    M.zerovec = @(X) zeros(n);
     
-    M.transp = @(X1, X2, d) projection(X2, d);
+    % Poor man's vector transport: exploit the fact that all tangent spaces
+    % are the set of symmetric matrices, so that the identity is a sort of
+    % vector transport. It may perform poorly if the origin and target (X1
+    % and X2) are far apart though. This should not be the case for typical
+    % optimization algorithms, which perform small steps.
+    M.transp = @(X1, X2, eta) eta;
+    
+    % For reference, a proper vector transport is given here, following
+    % work by Sra and Hosseini (2014), "Conic geometric optimisation on the
+    % manifold of positive definite matrices",
+    % http://arxiv.org/abs/1312.1039
+    % This will not be used by default. To force the use of this transport,
+    % call "M.transp = M.paralleltransp;" on your M returned by the present
+    % factory.
+    M.paralleltransp = @parallel_transport;
+    function zeta = parallel_transport(X, Y, eta)
+        E = sqrtm((Y/X));
+        zeta = E*eta*E';
+    end
     
     % vec and mat are not isometries, because of the unusual inner metric.
     M.vec = @(X, U) U(:);
