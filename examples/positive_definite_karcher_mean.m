@@ -53,7 +53,8 @@ function X = positive_definite_karcher_mean(A)
     % Notice that this is the only place we specify on which manifold we
     % wish to compute Karcher means. Replacing this factory for another
     % geometry will yield code to compute Karcher means on that other
-    % manifold, provided that manifold is equipped with a logarithmic map.
+    % manifold, provided that manifold is equipped with a dist function and
+    % a logarithmic map log.
     M = sympositivedefinitefactory(n);
     
     % Define a problem structure, specifying the manifold M, the cost
@@ -92,6 +93,12 @@ function X = positive_definite_karcher_mean(A)
     % call, but it is indeed correct.
     % checkgradient(problem);
     % pause;
+    
+    % Execute this if you want to force using a proper parallel vector
+    % transport. This is not necessary. If you omit this, the default
+    % vector transport is the identity map, which is (of course) cheaper
+    % and seems to perform well in practice.
+    % M.transp = M.paralleltransp;
     
     % Issue a call to a solver. Default options are selected.
     % Our initial guess is the first data point.
