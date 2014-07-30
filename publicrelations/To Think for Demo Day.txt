@@ -1,0 +1,4 @@
+* Have flyers / business cards? Something to remind people of Manopt?
+* Have a bowl and pen/paper for people to give us their e-mail address if they'd like.
+* Make a screencast tutorial video?
+* Make a tutorial video on how to compute gradients of matrix functions?
