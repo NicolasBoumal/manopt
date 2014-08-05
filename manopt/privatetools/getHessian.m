@@ -38,7 +38,7 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
                 % Obtain, pass along, and save the store structure
                 % associated to this point.
                 store = getStore(problem, x, storedb);
-                [hess store] = problem.hess(x, d, store);
+                [hess, store] = problem.hess(x, d, store);
                 storedb = setStore(problem, x, storedb, store);
             otherwise
                 up = MException('manopt:getHessian:badhess', ...
@@ -69,7 +69,7 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
                 % Obtain, pass along, and save the store structure
                 % associated to this point.
                 store = getStore(problem, x, storedb);
-                [ehess store] = problem.ehess(x, d, store);
+                [ehess, store] = problem.ehess(x, d, store);
                 storedb = setStore(problem, x, storedb, store);
             otherwise
                 up = MException('manopt:getHessian:badehess', ...
