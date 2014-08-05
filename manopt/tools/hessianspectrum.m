@@ -45,6 +45,10 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 %       Subtracts from the tangent vector u_mat any component that would
 %       make it "not really tangent", by projection.
 %
+%   answer = vecmatareisometries() :
+%       Returns true if the linear maps encoded by vec and mat are
+%       isometries, false otherwise. It is better if the answer is yes.
+%
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 3, 2013.
