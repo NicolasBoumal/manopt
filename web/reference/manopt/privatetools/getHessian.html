@@ -95,7 +95,7 @@ This function is called by:
 0038                 <span class="comment">% Obtain, pass along, and save the store structure</span>
 0039                 <span class="comment">% associated to this point.</span>
 0040                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
-0041                 [hess store] = problem.hess(x, d, store);
+0041                 [hess, store] = problem.hess(x, d, store);
 0042                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
 0043             <span class="keyword">otherwise</span>
 0044                 up = MException(<span class="string">'manopt:getHessian:badhess'</span>, <span class="keyword">...</span>
@@ -126,7 +126,7 @@ This function is called by:
 0069                 <span class="comment">% Obtain, pass along, and save the store structure</span>
 0070                 <span class="comment">% associated to this point.</span>
 0071                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
-0072                 [ehess store] = problem.ehess(x, d, store);
+0072                 [ehess, store] = problem.ehess(x, d, store);
 0073                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
 0074             <span class="keyword">otherwise</span>
 0075                 up = MException(<span class="string">'manopt:getHessian:badehess'</span>, <span class="keyword">...</span>
@@ -145,6 +145,6 @@ This function is called by:
 0088     <span class="keyword">end</span>
 0089     
 0090 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

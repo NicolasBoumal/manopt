@@ -86,7 +86,7 @@ This function is called by:
 0034                 <span class="comment">% Obtain, pass along, and save the store structure</span>
 0035                 <span class="comment">% associated to this point.</span>
 0036                 store = <a href="getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
-0037                 [cost store] = problem.cost(x, store);
+0037                 [cost, store] = problem.cost(x, store);
 0038                 storedb = <a href="setStore.html" class="code" title="function storedb = setStore(problem, x, storedb, store)">setStore</a>(problem, x, storedb, store);
 0039             <span class="keyword">otherwise</span>
 0040                 up = MException(<span class="string">'manopt:getCost:badcost'</span>, <span class="keyword">...</span>
@@ -132,6 +132,6 @@ This function is called by:
 0080     <span class="keyword">end</span>
 0081     
 0082 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

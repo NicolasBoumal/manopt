@@ -33,14 +33,24 @@
 
  The geometry is based on the paper,
  M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
- &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,
- SIOPT, 2010.
+ &quot;Low-Rank Optimization on the Cone of Positive Semidefinite Matrices&quot;,
+ SIAM Journal on Optimization, 2010.
 
  Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
 
  A point X on the manifold is parameterized as YY^T where Y is a matrix of
  size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal 
- directly with Y.</pre></div>
+ directly with Y.
+
+ Notice that this manifold is not complete: if optimization leads Y to be
+ rank-deficient, the geometry will break down. Hence, this geometry should
+ only be used if it is expected that the points of interest will have rank
+ exactly k. Reduce k if that is not the case.
+ 
+ An alternative, complete, geometry for positive semidefinite matrices of
+ rank k is described in Bonnabel and Sepulchre 2009, &quot;Riemannian Metric
+ and Geometric Mean for Positive Semidefinite Matrices of Fixed Rank&quot;,
+ SIAM Journal on Matrix Analysis and Applications.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -64,120 +74,131 @@ This function is called by:
 0005 <span class="comment">%</span>
 0006 <span class="comment">% The geometry is based on the paper,</span>
 0007 <span class="comment">% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,</span>
-0008 <span class="comment">% &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,</span>
-0009 <span class="comment">% SIOPT, 2010.</span>
+0008 <span class="comment">% &quot;Low-Rank Optimization on the Cone of Positive Semidefinite Matrices&quot;,</span>
+0009 <span class="comment">% SIAM Journal on Optimization, 2010.</span>
 0010 <span class="comment">%</span>
 0011 <span class="comment">% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf</span>
 0012 <span class="comment">%</span>
 0013 <span class="comment">% A point X on the manifold is parameterized as YY^T where Y is a matrix of</span>
 0014 <span class="comment">% size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal</span>
 0015 <span class="comment">% directly with Y.</span>
-0016 
-0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0018 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
-0019 <span class="comment">% Contributors:</span>
-0020 <span class="comment">% Change log:</span>
-0021 <span class="comment">%  July 10, 2013 (NB) : added vec, mat, tangent, tangent2ambient ;</span>
-0022 <span class="comment">%                       correction for the dimension of the manifold.</span>
-0023 
-0024 
-0025 M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d PSD matrices of rank %d'</span>, n, k);
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Notice that this manifold is not complete: if optimization leads Y to be</span>
+0018 <span class="comment">% rank-deficient, the geometry will break down. Hence, this geometry should</span>
+0019 <span class="comment">% only be used if it is expected that the points of interest will have rank</span>
+0020 <span class="comment">% exactly k. Reduce k if that is not the case.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% An alternative, complete, geometry for positive semidefinite matrices of</span>
+0023 <span class="comment">% rank k is described in Bonnabel and Sepulchre 2009, &quot;Riemannian Metric</span>
+0024 <span class="comment">% and Geometric Mean for Positive Semidefinite Matrices of Fixed Rank&quot;,</span>
+0025 <span class="comment">% SIAM Journal on Matrix Analysis and Applications.</span>
 0026 
-0027 M.dim = @() k*n - k*(k-1)/2;
-0028 
-0029 <span class="comment">% Euclidean metric on the total space</span>
-0030 M.inner = @(Y, eta, zeta) trace(eta'*zeta);
-0031 
-0032 M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
-0033 
-0034 M.dist = @(Y, Z) error(<span class="string">'symfixedrankYYfactory.dist not implenented yet.'</span>);
+0027 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0028 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0029 <span class="comment">% Contributors:</span>
+0030 <span class="comment">% Change log:</span>
+0031 <span class="comment">%  July 10, 2013 (NB)</span>
+0032 <span class="comment">%       Added vec, mat, tangent, tangent2ambient ;</span>
+0033 <span class="comment">%       Correction for the dimension of the manifold.</span>
+0034 
 0035 
-0036 M.typicaldist = @() 10*k;
+0036 M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d PSD matrices of rank %d'</span>, n, k);
 0037 
-0038 M.proj = @<a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
-0039     <a name="_sub1" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
-0040         <span class="comment">% Projection onto the horizontal space</span>
-0041         YtY = Y'*Y;
-0042         SS = YtY;
-0043         AS = Y'*eta - eta'*Y;
-0044         Omega = lyap(SS, -AS);
-0045         etaproj = eta - Y*Omega;
-0046     <span class="keyword">end</span>
-0047 
-0048 M.tangent = M.proj;
-0049 M.tangent2ambient = @(Y, eta) eta;
-0050 
-0051 M.retr = @<a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
-0052     <a name="_sub2" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
-0053         <span class="keyword">if</span> nargin &lt; 3
-0054             t = 1.0;
-0055         <span class="keyword">end</span>
-0056         Ynew = Y + t*eta;
+0038 M.dim = @() k*n - k*(k-1)/2;
+0039 
+0040 <span class="comment">% Euclidean metric on the total space</span>
+0041 M.inner = @(Y, eta, zeta) trace(eta'*zeta);
+0042 
+0043 M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
+0044 
+0045 M.dist = @(Y, Z) error(<span class="string">'symfixedrankYYfactory.dist not implemented yet.'</span>);
+0046 
+0047 M.typicaldist = @() 10*k;
+0048 
+0049 M.proj = @<a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
+0050     <a name="_sub1" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
+0051         <span class="comment">% Projection onto the horizontal space</span>
+0052         YtY = Y'*Y;
+0053         SS = YtY;
+0054         AS = Y'*eta - eta'*Y;
+0055         Omega = lyap(SS, -AS);
+0056         etaproj = eta - Y*Omega;
 0057     <span class="keyword">end</span>
 0058 
-0059 
-0060 M.egrad2rgrad = @(Y, eta) eta;
-0061 M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
-0062 
-0063 M.exp = @<a href="#_sub3" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
-0064     <a name="_sub3" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
-0065         <span class="keyword">if</span> nargin &lt; 3
-0066             t = 1.0;
-0067         <span class="keyword">end</span>
-0068         
-0069         Ynew = <a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
-0070         warning(<span class="string">'manopt:symfixedrankYYfactory:exp'</span>, <span class="keyword">...</span>
-0071             [<span class="string">'Exponential for symmetric, fixed-rank '</span> <span class="keyword">...</span>
-0072             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
-0073     <span class="keyword">end</span>
-0074 
-0075 <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
-0076 M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
-0077 
-0078 M.rand = @<a href="#_sub4" class="code" title="subfunction Y = random()">random</a>;
-0079 
-0080     <a name="_sub4" href="#_subfunctions" class="code">function Y = random()</a>
-0081         Y = randn(n, k);
-0082     <span class="keyword">end</span>
-0083 
-0084 M.randvec = @<a href="#_sub5" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
-0085     <a name="_sub5" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
-0086         eta = randn(n, k);
-0087         eta = <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
-0088         nrm = M.norm(Y, eta);
-0089         eta = eta / nrm;
-0090     <span class="keyword">end</span>
-0091 
-0092 M.lincomb = @<a href="#_sub6" class="code" title="subfunction d = lincomb(Y, a1, d1, a2, d2) ">lincomb</a>;
-0093 
-0094 M.zerovec = @(Y) zeros(n, k);
-0095 
-0096 M.transp = @(Y1, Y2, d) <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
-0097     
-0098 M.vec = @(Y, u_mat) u_mat(:);
-0099 M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
-0100 M.vecmatareisometries = @() true;
-0101 
-0102 <span class="keyword">end</span>
-0103 
+0059 M.tangent = M.proj;
+0060 M.tangent2ambient = @(Y, eta) eta;
+0061 
+0062 M.retr = @<a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
+0063     <a name="_sub2" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
+0064         <span class="keyword">if</span> nargin &lt; 3
+0065             t = 1.0;
+0066         <span class="keyword">end</span>
+0067         Ynew = Y + t*eta;
+0068     <span class="keyword">end</span>
+0069 
+0070 
+0071 M.egrad2rgrad = @(Y, eta) eta;
+0072 M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
+0073 
+0074 M.exp = @<a href="#_sub3" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
+0075     <a name="_sub3" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
+0076         <span class="keyword">if</span> nargin &lt; 3
+0077             t = 1.0;
+0078         <span class="keyword">end</span>
+0079         
+0080         Ynew = <a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
+0081         warning(<span class="string">'manopt:symfixedrankYYfactory:exp'</span>, <span class="keyword">...</span>
+0082             [<span class="string">'Exponential for symmetric, fixed-rank '</span> <span class="keyword">...</span>
+0083             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0084     <span class="keyword">end</span>
+0085 
+0086 <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
+0087 M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
+0088 
+0089 M.rand = @<a href="#_sub4" class="code" title="subfunction Y = random()">random</a>;
+0090 
+0091     <a name="_sub4" href="#_subfunctions" class="code">function Y = random()</a>
+0092         Y = randn(n, k);
+0093     <span class="keyword">end</span>
+0094 
+0095 M.randvec = @<a href="#_sub5" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
+0096     <a name="_sub5" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
+0097         eta = randn(n, k);
+0098         eta = <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
+0099         nrm = M.norm(Y, eta);
+0100         eta = eta / nrm;
+0101     <span class="keyword">end</span>
+0102 
+0103 M.lincomb = @<a href="#_sub6" class="code" title="subfunction d = lincomb(Y, a1, d1, a2, d2) ">lincomb</a>;
 0104 
-0105 <span class="comment">% Linear conbination of tangent vectors</span>
-0106 <a name="_sub6" href="#_subfunctions" class="code">function d = lincomb(Y, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0107 
-0108 <span class="keyword">if</span> nargin == 3
-0109     d  = a1*d1;
-0110 <span class="keyword">elseif</span> nargin == 5
-0111     d = a1*d1 + a2*d2;
-0112 <span class="keyword">else</span>
-0113     error(<span class="string">'Bad use of symfixedrankYYfactory.lincomb.'</span>);
-0114 <span class="keyword">end</span>
+0105 M.zerovec = @(Y) zeros(n, k);
+0106 
+0107 M.transp = @(Y1, Y2, d) <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
+0108     
+0109 M.vec = @(Y, u_mat) u_mat(:);
+0110 M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
+0111 M.vecmatareisometries = @() true;
+0112 
+0113 <span class="keyword">end</span>
+0114 
 0115 
-0116 <span class="keyword">end</span>
-0117 
+0116 <span class="comment">% Linear conbination of tangent vectors</span>
+0117 <a name="_sub6" href="#_subfunctions" class="code">function d = lincomb(Y, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
 0118 
-0119 
-0120 
-0121</pre></div>
-<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0119 <span class="keyword">if</span> nargin == 3
+0120     d  = a1*d1;
+0121 <span class="keyword">elseif</span> nargin == 5
+0122     d = a1*d1 + a2*d2;
+0123 <span class="keyword">else</span>
+0124     error(<span class="string">'Bad use of symfixedrankYYfactory.lincomb.'</span>);
+0125 <span class="keyword">end</span>
+0126 
+0127 <span class="keyword">end</span>
+0128 
+0129 
+0130 
+0131 
+0132</pre></div>
+<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

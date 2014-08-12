@@ -71,7 +71,11 @@
 
    u_mat_clean = tangent(x, u_mat) :
        Subtracts from the tangent vector u_mat any component that would
-       make it &quot;not really tangent&quot;, by projection.</pre></div>
+       make it &quot;not really tangent&quot;, by projection.
+
+   answer = vecmatareisometries() :
+       Returns true if the linear maps encoded by vec and mat are
+       isometries, false otherwise. It is better if the answer is yes.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -133,112 +137,116 @@ This function is called by:
 0045 <span class="comment">%       Subtracts from the tangent vector u_mat any component that would</span>
 0046 <span class="comment">%       make it &quot;not really tangent&quot;, by projection.</span>
 0047 <span class="comment">%</span>
-0048 
-0049 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0050 <span class="comment">% Original author: Nicolas Boumal, July 3, 2013.</span>
-0051 <span class="comment">% Contributors:</span>
-0052 <span class="comment">% Change log:</span>
-0053 
-0054 
-0055     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
-0056         warning(<span class="string">'manopt:hessianspectrum:nohessian'</span>, <span class="keyword">...</span>
-0057                 [<span class="string">'The Hessian appears to be unavailable.\n'</span> <span class="keyword">...</span>
-0058                  <span class="string">'Will try to use an approximate Hessian instead.\n'</span><span class="keyword">...</span>
-0059                  <span class="string">'Since this approximation may not be linear or '</span><span class="keyword">...</span>
-0060                  <span class="string">'symmetric,\nthe computation might fail and the '</span><span class="keyword">...</span>
-0061                  <span class="string">'results (if any)\nmight make no sense.'</span>]);
-0062     <span class="keyword">end</span>
-0063 
-0064     vec = @(u_mat) problem.M.vec(x, u_mat);
-0065     mat = @(u_vec) problem.M.mat(x, u_vec);
-0066     tgt = @(u_mat) problem.M.tangent(x, u_mat);
-0067     
-0068     <span class="comment">% n: size of a vectorized tangent vector</span>
-0069     <span class="comment">% dim: dimension of the tangent space</span>
-0070     <span class="comment">% necessarily, n &gt;= dim.</span>
-0071     <span class="comment">% The vectorized operators we build below will have at least n - dim</span>
-0072     <span class="comment">% zero eigenvalues.</span>
-0073     n = length(vec(problem.M.zerovec(x)));
-0074     dim = problem.M.dim();
-0075     
-0076     <span class="comment">% The store structure is not updated by the getHessian call because the</span>
-0077     <span class="comment">% eigs function will not take care of it. This might be worked around,</span>
-0078     <span class="comment">% but for now we simply obtain the store structure built from calling</span>
-0079     <span class="comment">% the cost and gradient at x and pass that one for every Hessian call.</span>
-0080     <span class="comment">% This will typically be enough, seen as the Hessian is not supposed to</span>
-0081     <span class="comment">% store anything new.</span>
-0082     storedb = struct();
-0083     <span class="keyword">if</span> <a href="../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0084         [unused1, unused2, storedb] = <a href="../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, struct()); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0085     <span class="keyword">end</span>
-0086     
-0087     hess = @(u_mat) tgt(<a href="../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, tgt(u_mat), storedb));
-0088     hess_vec = @(u_vec) vec(hess(mat(u_vec)));
-0089     
-0090     <span class="comment">% Regardless of preconditioning, we can only have a symmetric</span>
-0091     <span class="comment">% eigenvalue problem if the vec/mat pair of the manifold is an</span>
-0092     <span class="comment">% isometry:</span>
-0093     vec_mat_are_isometries = problem.M.vecmatareisometries();
-0094     
-0095     <span class="keyword">if</span> ~exist(<span class="string">'sqrtprec'</span>, <span class="string">'var'</span>) || isempty(sqrtprec)
-0096     
-0097         <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>(problem)
-0098             
-0099             <span class="comment">% There is no preconditinoer : just deal with the (symmetric)</span>
-0100             <span class="comment">% Hessian.</span>
-0101             
-0102             eigs_opts.issym = vec_mat_are_isometries;
-0103             eigs_opts.isreal = true;
-0104             lambdas = eigs(hess_vec, n, dim, <span class="string">'LM'</span>, eigs_opts);
+0048 <span class="comment">%   answer = vecmatareisometries() :</span>
+0049 <span class="comment">%       Returns true if the linear maps encoded by vec and mat are</span>
+0050 <span class="comment">%       isometries, false otherwise. It is better if the answer is yes.</span>
+0051 <span class="comment">%</span>
+0052 
+0053 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0054 <span class="comment">% Original author: Nicolas Boumal, July 3, 2013.</span>
+0055 <span class="comment">% Contributors:</span>
+0056 <span class="comment">% Change log:</span>
+0057 
+0058 
+0059     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
+0060         warning(<span class="string">'manopt:hessianspectrum:nohessian'</span>, <span class="keyword">...</span>
+0061                 [<span class="string">'The Hessian appears to be unavailable.\n'</span> <span class="keyword">...</span>
+0062                  <span class="string">'Will try to use an approximate Hessian instead.\n'</span><span class="keyword">...</span>
+0063                  <span class="string">'Since this approximation may not be linear or '</span><span class="keyword">...</span>
+0064                  <span class="string">'symmetric,\nthe computation might fail and the '</span><span class="keyword">...</span>
+0065                  <span class="string">'results (if any)\nmight make no sense.'</span>]);
+0066     <span class="keyword">end</span>
+0067 
+0068     vec = @(u_mat) problem.M.vec(x, u_mat);
+0069     mat = @(u_vec) problem.M.mat(x, u_vec);
+0070     tgt = @(u_mat) problem.M.tangent(x, u_mat);
+0071     
+0072     <span class="comment">% n: size of a vectorized tangent vector</span>
+0073     <span class="comment">% dim: dimension of the tangent space</span>
+0074     <span class="comment">% necessarily, n &gt;= dim.</span>
+0075     <span class="comment">% The vectorized operators we build below will have at least n - dim</span>
+0076     <span class="comment">% zero eigenvalues.</span>
+0077     n = length(vec(problem.M.zerovec(x)));
+0078     dim = problem.M.dim();
+0079     
+0080     <span class="comment">% The store structure is not updated by the getHessian call because the</span>
+0081     <span class="comment">% eigs function will not take care of it. This might be worked around,</span>
+0082     <span class="comment">% but for now we simply obtain the store structure built from calling</span>
+0083     <span class="comment">% the cost and gradient at x and pass that one for every Hessian call.</span>
+0084     <span class="comment">% This will typically be enough, seen as the Hessian is not supposed to</span>
+0085     <span class="comment">% store anything new.</span>
+0086     storedb = struct();
+0087     <span class="keyword">if</span> <a href="../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0088         [unused1, unused2, storedb] = <a href="../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, struct()); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0089     <span class="keyword">end</span>
+0090     
+0091     hess = @(u_mat) tgt(<a href="../../manopt/privatetools/getHessian.html" class="code" title="function [hess, storedb] = getHessian(problem, x, d, storedb)">getHessian</a>(problem, x, tgt(u_mat), storedb));
+0092     hess_vec = @(u_vec) vec(hess(mat(u_vec)));
+0093     
+0094     <span class="comment">% Regardless of preconditioning, we can only have a symmetric</span>
+0095     <span class="comment">% eigenvalue problem if the vec/mat pair of the manifold is an</span>
+0096     <span class="comment">% isometry:</span>
+0097     vec_mat_are_isometries = problem.M.vecmatareisometries();
+0098     
+0099     <span class="keyword">if</span> ~exist(<span class="string">'sqrtprec'</span>, <span class="string">'var'</span>) || isempty(sqrtprec)
+0100     
+0101         <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>(problem)
+0102             
+0103             <span class="comment">% There is no preconditinoer : just deal with the (symmetric)</span>
+0104             <span class="comment">% Hessian.</span>
 0105             
-0106         <span class="keyword">else</span>
-0107             
-0108             <span class="comment">% There is a preconditioner, but we don't have its square root:</span>
-0109             <span class="comment">% deal with the non-symmetric composition prec o hess.</span>
-0110             
-0111             prec = @(u_mat) tgt(<a href="../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, tgt(u_mat), storedb));
-0112             prec_vec = @(u_vec) vec(prec(mat(u_vec)));
-0113             <span class="comment">% prec_inv_vec = @(u_vec) pcg(prec_vec, u_vec);</span>
-0114 
-0115             eigs_opts.issym = false;
-0116             eigs_opts.isreal = true;
-0117             lambdas = eigs(@(u_vec) prec_vec(hess_vec(u_vec)), <span class="keyword">...</span>
-0118                            n, dim, <span class="string">'LM'</span>, eigs_opts);
-0119             
-0120         <span class="keyword">end</span>
-0121         
-0122     <span class="keyword">else</span>
-0123         
-0124         <span class="comment">% There is a preconditioner, and we have its square root: deal with</span>
-0125         <span class="comment">% the symmetric composition sqrtprec o hess o sqrtprec.</span>
-0126         <span class="comment">% Need to check also whether sqrtprec uses the store cache or not.</span>
-0127 
-0128         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
-0129         <span class="keyword">if</span> ~is_octave
-0130             narg = nargin(sqrtprec);
-0131         <span class="keyword">else</span>
-0132             narg = 3;
-0133         <span class="keyword">end</span>
-0134         
-0135         <span class="keyword">switch</span> narg
-0136             <span class="keyword">case</span> 2
-0137                 sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)))));
-0138             <span class="keyword">case</span> 3
-0139                 store = <a href="../../manopt/privatetools/getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
-0140                 sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)), store)));
-0141             <span class="keyword">otherwise</span>
-0142                 error(<span class="string">'sqrtprec must accept 2 or 3 inputs: x, u, (optional: store)'</span>);
-0143         <span class="keyword">end</span>
-0144         
-0145         eigs_opts.issym = vec_mat_are_isometries;
-0146         eigs_opts.isreal = true;
-0147         lambdas = eigs(@(u_vec) <span class="keyword">...</span>
-0148                       sqrtprec_vec(hess_vec(sqrtprec_vec(u_vec))), <span class="keyword">...</span>
-0149                       n, dim, <span class="string">'LM'</span>, eigs_opts);
-0150         
-0151     <span class="keyword">end</span>
-0152 
-0153 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Jul-2014 16:10:40 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0106             eigs_opts.issym = vec_mat_are_isometries;
+0107             eigs_opts.isreal = true;
+0108             lambdas = eigs(hess_vec, n, dim, <span class="string">'LM'</span>, eigs_opts);
+0109             
+0110         <span class="keyword">else</span>
+0111             
+0112             <span class="comment">% There is a preconditioner, but we don't have its square root:</span>
+0113             <span class="comment">% deal with the non-symmetric composition prec o hess.</span>
+0114             
+0115             prec = @(u_mat) tgt(<a href="../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, tgt(u_mat), storedb));
+0116             prec_vec = @(u_vec) vec(prec(mat(u_vec)));
+0117             <span class="comment">% prec_inv_vec = @(u_vec) pcg(prec_vec, u_vec);</span>
+0118 
+0119             eigs_opts.issym = false;
+0120             eigs_opts.isreal = true;
+0121             lambdas = eigs(@(u_vec) prec_vec(hess_vec(u_vec)), <span class="keyword">...</span>
+0122                            n, dim, <span class="string">'LM'</span>, eigs_opts);
+0123             
+0124         <span class="keyword">end</span>
+0125         
+0126     <span class="keyword">else</span>
+0127         
+0128         <span class="comment">% There is a preconditioner, and we have its square root: deal with</span>
+0129         <span class="comment">% the symmetric composition sqrtprec o hess o sqrtprec.</span>
+0130         <span class="comment">% Need to check also whether sqrtprec uses the store cache or not.</span>
+0131 
+0132         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
+0133         <span class="keyword">if</span> ~is_octave
+0134             narg = nargin(sqrtprec);
+0135         <span class="keyword">else</span>
+0136             narg = 3;
+0137         <span class="keyword">end</span>
+0138         
+0139         <span class="keyword">switch</span> narg
+0140             <span class="keyword">case</span> 2
+0141                 sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)))));
+0142             <span class="keyword">case</span> 3
+0143                 store = <a href="../../manopt/privatetools/getStore.html" class="code" title="function store = getStore(problem, x, storedb)">getStore</a>(problem, x, storedb);
+0144                 sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)), store)));
+0145             <span class="keyword">otherwise</span>
+0146                 error(<span class="string">'sqrtprec must accept 2 or 3 inputs: x, u, (optional: store)'</span>);
+0147         <span class="keyword">end</span>
+0148         
+0149         eigs_opts.issym = vec_mat_are_isometries;
+0150         eigs_opts.isreal = true;
+0151         lambdas = eigs(@(u_vec) <span class="keyword">...</span>
+0152                       sqrtprec_vec(hess_vec(sqrtprec_vec(u_vec))), <span class="keyword">...</span>
+0153                       n, dim, <span class="string">'LM'</span>, eigs_opts);
+0154         
+0155     <span class="keyword">end</span>
+0156 
+0157 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
