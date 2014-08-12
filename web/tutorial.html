@@ -143,11 +143,11 @@ A = .5*(A+A');
 manifold = spherefactory(n);
 problem.M = manifold;
 
-% Define the problem cost function and its gradient.
-problem.cost = @(x) -x'*(A*x);
-problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
+% Define the problem cost function and its Euclidean gradient.
+problem.cost  = @(x) -x'*(A*x);
+problem.egrad = @(x) -2*A*x;
 
-% Numerically check gradient consistency.
+% Numerically check gradient consistency (optional).
 checkgradient(problem);
 
 % Solve.
@@ -165,15 +165,15 @@ problem.M = manifold;
             <p>The call to <code>spherefactory(n)</code> returns a structure describing the manifold $\mathbb{S}^{n-1}$, i.e., the sphere. This manifold corresponds to the constraint appearing in our optimization problem. For other constraints, take a look at the <a
                 href="#manifolds">various supported manifolds</a>. The second instruction creates a structure named <code>problem</code> and sets the field <code>problem.M</code> to contain the manifold structure. The problem structure will be populated with everything a solver could need to know about the problem in order to solve it, such as the cost function and its gradient:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:11">problem.cost = @(x) -x'*(A*x);
-problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
+problem.egrad = @(x) -2*A*x;
 </pre>
-            <p>The cost function and its derivatives are specified as <a
-                href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the projection of the Euclidean gradient of $f$, i.e., $\nabla f(x) = -2Ax$, with a simple call of <code>manifold.egrad2rgrad(x, u)</code> which is an implementation of the orthogonal projector $\mathrm{Proj}_x u$ mentioned in the problem introduction. This is particularly useful when one is working with a more complicated manifold.</p>
-            <p>An alternative to the definition of the gradient is to specify the Euclidean gradient directly, and let Manopt call <code>egrad2rgrad</code> itself:</p>
-            <pre class="prettyprint lang-matlab linenumsoffset linenums:12">problem.egrad = @(x) -2*A*x;
+            <p>The cost function (to be <em>minimized</em>: Manopt always minimizes) and its derivatives are specified as <a
+                href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function handles</a>. Notice how the gradient was specified as the <em>Euclidean</em> gradient of $f$, i.e., $\nabla f(x) = -2Ax$ in the function <code>egrad</code> (mind the "e"). The conversion to the Riemannian gradient happens behind the scene. This is particularly useful when one is working with a more complicated manifold.</p>
+            <p>An alternative to the definition of the gradient is to specify the Riemannian gradient directly, and call Manopt's <code>egrad2rgrad</code> conversion tool explicitly:</p>
+            <pre class="prettyprint lang-matlab linenumsoffset linenums:12">problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
 </pre>
-            <p>Mind the names: <code>problem.grad</code> is to specify the <em>Riemannian</em> gradient. If you want to specify the <em>Euclidean</em> gradient, the correct name is <code>problem.egrad</code>, with an "e". For day to day use, this is the often the preferred way to go.</p>
-            <div class="alert alert-info"><strong>Tip!</strong> Notice that the functions <code>cost</code> <emph>and</emph> <code>grad</code> <emph>both</emph> compute the product $Ax$, which is likely to be the most expensive operation for large scale problems. This is perfectly fine for prototyping, but not for a final version of the implementation. See the many ways of <a
+            <p>This is useful if an expression for the Riemannian gradient is known for example, and it is natural to use that explicitly. Mind the names: <code>problem.grad</code> is to specify the <em>Riemannian</em> gradient. If you want to specify the <em>Euclidean</em> gradient, the correct name is <code>problem.egrad</code>, with an "e". For day to day use, <code>egrad</code> is the often the preferred way to go.</p>
+            <div class="alert alert-info"><strong>Tip!</strong> Notice that the functions <code>cost</code> <emph>and</emph> <code>egrad</code> <emph>both</emph> compute the product $Ax$, which is likely to be the most expensive operation for large scale problems. This is perfectly fine for prototyping, but not for a final version of the implementation. See the many ways of <a
                 href="#costdescription">describing the cost function</a> for alternatives that alleviate redundant computations.</div>
             <p>The next instruction is not needed to solve the problem but often helps at the prototyping stage:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:15">checkgradient(problem);
