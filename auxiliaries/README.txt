@@ -40,4 +40,4 @@ http://jmlr.org/papers/v15/boumal14a.html
 For more info or help: http://www.manopt.org
 
 This version:
-Manopt 1.0.6b, released July 17, 2014.
+Manopt 1.0.7, released August 12, 2014.
