@@ -68,7 +68,7 @@ body {
               <h1>Get the latest release</h1>
             </div>
             &#160; <a target="_blank" class="btn btn-primary" href="download.html">Download <i
-                class="icon-download-alt icon-white"></i></a>&#160;&#160; The current version is 1.0.6 and was packaged on June 25<sup></sup>, 2014. The file is less than 200 Kb.<br>
+                class="icon-download-alt icon-white"></i></a>&#160;&#160; The current version is 1.0.7 and was packaged on August 12<sup></sup>, 2014. The file is less than 200 Kb.<br>
             <br>
             Go to the <a href="tutorial.html">tutorial page</a> for the simple installation instructions and a first example.<br>
             <br>
@@ -78,13 +78,13 @@ body {
               <h1>Previous releases and change logs</h1>
             </div>
             <ul>
-              <li>Manopt 1.0.7</li>
+              <li><a href="download.html">Manopt 1.0.7</a>, packaged August 12, 2014.</li>
               <ul>
                 <li>Added the <code>ehess2rhess</code> function to <a
                     style="font-family: monospace;" href="reference/manopt/manifolds/complexcircle/complexcirclefactory.html">complexcirclefactory</a>.</li>
                 <li>Major revision of <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
                       style="font-family: monospace;">fixedrankembeddedfactory</span></a> for support of optimization over fixed-rank matrices. It is now better documented, comes with an example called <a
-                    style="font-family: monospace;" href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion</a>, and has now support for <code>ehess2rhess</code> and <code>tangent2ambient</code>, a proper vector transport, works with the <a
+                    style="font-family: monospace;" href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion</a>, and now has support for <code>ehess2rhess</code> and <code>tangent2ambient</code>, a proper vector transport, works with the <a
                     style="font-family: monospace;" href="reference/manopt/tools/hessianspectrum.html">hessianspectrum</a> tool, ... This revision was executed with the precious and frequent help of Bart Vandereycken, who first described this geometry in a <a
                     target="_blank" href="http://epubs.siam.org/doi/abs/10.1137/110845768">paper</a>.</li>
                 <li>All solvers now also return the <code>options</code> structure, to make it easier to investigate what options a solver uses and what their default values are.</li>
@@ -92,8 +92,10 @@ body {
                     style="font-family: monospace;" href="reference/manopt/solvers/linesearch/linesearch_hint.html">linesearch_hint</a>. This is very useful if, for a given problem, you are able to make a good guess at how far along the search line one should look. It is much easier this way than with the previous way, which required implementing a whole new line-search algorithm.</li>
                 <li>Generally improved textual outputs (warnings, iteration information, stopping reasons...).</li>
                 <li>The documentation (tutorial, reference) was updated to reflect all of these changes.</li>
+                <li>The <a style="font-family: monospace;" href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html">sympositivedefinitefactory</a> now has the correct dim() function and implements a new vector transport as explained in the <a
+                    href="reference/examples/positive_definite_karcher_mean.html">example</a>.</li>
               </ul>
-              <li><a href="download.html">Manopt 1.0.6</a>, packaged June 25, 2014.</li>
+              <li><a href="downloads/Manopt_1.0.6.zip">Manopt 1.0.6</a>, packaged June 25, 2014.</li>
               <ul>
                 <li>For uses of the <a style="font-family: monospace;"
                     href="solver_documentation_trustregions.html">trustregions</a> solver with a nonlinear approximation of the Hessian (such as, for example, the default one if you do not specify a Hessian at all), the truncated-CG algorithm now explicitly checks that the model cost decreases with (inner) iterations. If an increase is witnessed (which is bad), tCG now returns the best step so far, which is always at least the Cauchy step.</li>
@@ -184,6 +186,5 @@ body {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>
