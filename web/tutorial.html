@@ -829,18 +829,27 @@ end
           style="font-family: monospace;">help plotprofile</span> for more information.</td>
     </tr>
     <tr>
-      <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
-    <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
-    <td>
-      <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
-      <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
-          href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
-      <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
-    </td>
+      <td></td>
+    <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
   </tr>
   <tr>
-    <td></td>
-  <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
+    <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
+  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+  <td>
+    <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
+    <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
+        href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
+    <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
+  </td>
+</tr>
+<tr>
+  <td></td>
+<td><code>[u, lambda] = hessianextreme(problem, x, side, u0, options)</code></td>
+<td>Computes either an eigenvector / eigenvalue pair associated to a largest or to a smallest eigenvalue of the Hessian of the cost at <code>x</code>, for the cost as described in the <code>problem</code> structure. Choose an extreme side of the spectrum by setting <code>side</code> either to the <code>'min'</code> or to the <code>'max'</code> string. The parameters <code>u0</code> (initial guess for <code>u</code>) and <code>options</code> will be passed on to <code>manoptsolve</code>, then on to the Manopt solver that ultimately computes the eigenpair, by means of Rayleigh quotient optimization over the sphere in the tangent space at <code>x</code>.</td>
+</tr>
+<tr>
+  <td></td>
+<td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
 </tr>
 <tr>
   <td><a href="reference/manopt/tools/multiscale.html"><i class="icon-book"></i></a></td>
@@ -885,6 +894,15 @@ end
   <td><a href="reference/manopt/tools/productmanifold.html"><i class="icon-book"></i></a></td>
 <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
 <td>Given <code>elements</code>, a structure with fields <code>A, B, C...</code> containing structures <code>Ma, Mb, Mc...</code> such that <code>Ma</code> is a structure representing a manifold $\mathcal{M}_A$ etc., returns <code>M</code>, a structure representing the manifold $\mathcal{M}_A \times \mathcal{M}_B \times \mathcal{M}_C \times \cdots$. The geometry is obtained by element-wise extension. Points and vectors are represented as structures with the same field names as <code>elements</code>. </td>
+</tr>
+<tr>
+  <td></td>
+<td colspan="2" rowspan="1"><strong>Solver utilities</strong></td>
+</tr>
+<tr>
+  <td></td>
+<td><code>[x, cost, info, options] = manoptsolve(problem, x0, options)</code></td>
+<td>Gateway function to call a Manopt solver. You may specify which solver to call by setting options.solver to a function handle corresponding to a solver. Otherwise, a solver will be picked automatically. This is mainly useful when programming meta algorithms which need to solve a Manopt problem at some point, but one wants to leave the decision of which solver to use up to the final user.</td>
 </tr>
 </tbody>
 </table>
