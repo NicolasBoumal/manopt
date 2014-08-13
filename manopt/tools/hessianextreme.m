@@ -1,21 +1,23 @@
-function [y, lambda] = hessianescape(problem, x, y0, options)
+function [y, lambda] = hessianextreme(problem, x, side, y0, options)
 % Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.
 %
-% [u, lambda] = hessianescape(problem, x)
-% [u, lambda] = hessianescape(problem, x, u0)
-% [u, lambda] = hessianescape(problem, x, u0, options)
-% [u, lambda] = hessianescape(problem, x, [], options)
+% [u, lambda] = hessianextreme(problem, x, side)
+% [u, lambda] = hessianextreme(problem, x, side, u0)
+% [u, lambda] = hessianextreme(problem, x, side, u0, options)
+% [u, lambda] = hessianextreme(problem, x, side, [], options)
 %
 % Given a Manopt problem structure and a point x on the manifold problem.M,
 % this function computes a tangent vector u at x of unit norm such that the
-% Hessian quadratic form is minimized:
+% Hessian quadratic form is minimized or maximized:
 %
-%    minimize <u, Hess f(x)[u]> such that <u, u> = 1,
+%    minimize or maximize <u, Hess f(x)[u]> such that <u, u> = 1,
 %
-% where <.,.> is the Riemannian metric on the tangent space at x. The value
-% attained is returned as lambda, and is the minimal eigenvalue of the
-% Hessian (actually, the minimal value attained when the sovler stopped).
-% Note that this is a real number as the Hessian is a symmetric operator.
+% where <.,.> is the Riemannian metric on the tangent space at x. Choose
+% between minimizing and maximizing by setting side = 'min' or 'max', the
+% former being the default. The value attained is returned as lambda, and
+% is the minimal or maximal eigenvalue of the Hessian (actually, the last
+% value attained when the solver stopped). Note that this is a real number
+% as the Hessian is a symmetric operator.
 %
 % The options structure, if provided, will be passed along to manoptsolve.
 % As such, you may choose which solver to use to solve the above
@@ -28,8 +30,8 @@ function [y, lambda] = hessianescape(problem, x, y0, options)
 % Often times, it is only necessary to compute a vector u such that the
 % quadratic form is negative, if that is at all possible. To do so, you may
 % set the following stopping criterion: options.tolcost = -1e-10; (for
-% example). The solver will return as soon as the quadratic cost above
-% drops below the set value.
+% example) and side = 'min'. The solver will return as soon as the
+% quadratic cost above drops below the set value.
 %
 % See also: hessianspectrum manoptsolve
 
@@ -46,6 +48,21 @@ function [y, lambda] = hessianescape(problem, x, y0, options)
     % If no options are specified, prepare the empty structure.
     if ~exist('options', 'var') || isempty(options)
         options = struct();
+    end
+    
+    % By default, minimize
+    if ~exist('side', 'var') || isempty(side)
+        side = 'min';
+    end
+    
+    % Convert the side into a sign
+    switch lower(side)
+        case 'min'
+            sign = +1;
+        case 'max'
+            sign = -1;
+        otherwise
+            error('The side should be either ''min'' or ''max''.');
     end
 
     % We define a manifold that is actually the unit sphere on the tangent
@@ -124,20 +141,20 @@ function [y, lambda] = hessianescape(problem, x, y0, options)
     new_problem.cost = @cost;
     function [f, store] = cost(y, store)
         store = prepare(y, store);
-        f = store.f;
+        f = sign*store.f;
     end
 
     new_problem.grad = @grad;
     function [g, store] = grad(y, store)
         store = prepare(y, store);
-        g = N.lincomb(y, 2, store.Hy, -2*store.f, y);
+        g = N.lincomb(y, sign*2, store.Hy, sign*(-2)*store.f, y);
     end
 
     new_problem.hess = @hess;
     function [h, store] = hess(y, ydot, store)
         store = prepare(y, store);
         Hydot = hessian(ydot);
-        h = N.lincomb(y, 2, Hydot, -2*store.f, ydot);
+        h = N.lincomb(y, sign*2, Hydot, sign*(-2)*store.f, ydot);
         h = N.proj(y, h);
     end
 
@@ -154,5 +171,6 @@ function [y, lambda] = hessianescape(problem, x, y0, options)
     % Call a Manopt solver to solve the quadratic optimization problem on
     % the abstract sphere N.
     [y, lambda] = manoptsolve(new_problem, y0, options);
+    lambda = sign*lambda;
 
 end
