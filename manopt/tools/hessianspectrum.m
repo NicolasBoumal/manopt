@@ -49,6 +49,7 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 %       Returns true if the linear maps encoded by vec and mat are
 %       isometries, false otherwise. It is better if the answer is yes.
 %
+% See also: hessianextreme
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 3, 2013.
