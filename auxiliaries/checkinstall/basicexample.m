@@ -1,4 +1,4 @@
-function basicexample
+function basicexample()
     
     % Verify that Manopt was indeed added to the Matlab path.
     if isempty(which('spherefactory'))
@@ -16,18 +16,18 @@ function basicexample
     problem.M = manifold;
     
     % Define the problem cost function and its gradient.
-    problem.cost = @(x) -x'*(A*x);
-    problem.grad = @(x) manifold.egrad2rgrad(x, -2*A*x);
+    problem.cost  = @(x) -x'*(A*x);
+    problem.egrad = @(x) -2*A*x;
+    problem.ehess = @(x, xdot) -2*A*xdot;
     
-    % Numerically check gradient consistency.
+    % Numerically check gradient and Hessian consistency.
+    figure;
     checkgradient(problem);
+    figure;
+    checkhessian(problem);
  
     % Solve.
-    % The trust-regions algorithm requires the Hessian. Since we do not
-    % provide it, it will go for a standard approximation of it. The first
-    % instruction tells Manopt not to issue a warning when this happens.
-    warning('off', 'manopt:getHessian:approx');
-    [x xcost info] = trustregions(problem); %#ok<ASGLU>
+    [x, xcost, info] = trustregions(problem);          %#ok<ASGLU>
     
     % Display some statistics.
     figure;
