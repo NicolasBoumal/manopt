@@ -258,30 +258,6 @@
 						
 						return elem;
 						
-						// if(exprICode(index) === "." && exprICode(index+1) === "'")
-						// {
-							// index += 2;
-							// return {
-								// type: UNARY_EXP,
-								// operator: ".'",
-								// argument: elem,
-								// prefix: false
-							// };
-						// }
-						// else if(exprICode(index) === "'")
-						// {
-							// index += 1;
-							// return {
-								// type: UNARY_EXP,
-								// operator: "'",
-								// argument: elem,
-								// prefix: false
-							// };
-						// }
-						// else
-						// {
-							// return elem;
-						// }
 						
 					} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
 					
