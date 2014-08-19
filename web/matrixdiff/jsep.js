@@ -2,6 +2,9 @@
 //     JSEP may be freely distributed under the MIT License
 //     http://jsep.from.so/
 
+// Adapted to my needs (Nicolas Boumal, Aug. 19, 2014).
+// Many thanks to the original author!
+
 /*global module: true, exports: true, console: true */
 (function (root) {
 	'use strict';
@@ -25,7 +28,6 @@
 		PERIOD_CODE = 46, // '.'
 		COMMA_CODE  = 44, // ','
 		SQUOTE_CODE = 39, // single quote
-		DQUOTE_CODE = 34, // double quotes
 		OPAREN_CODE = 40, // (
 		CPAREN_CODE = 41, // )
 		OBRACK_CODE = 91, // [
@@ -46,21 +48,24 @@
 	
 	// Set `t` to `true` to save space (when minified, not gzipped)
 		t = true,
-	// Use a quickly-accessible map to store all of the unary operators
+	// Use a quickly-accessible map to store all of the prefix unary operators
 	// Values are set to `true` (it really doesn't matter)
 		unary_ops = {'-': t, '!': t, '~': t, '+': t},
+	// Use a quickly-accessible map to store all of the postfix unary operators
+		unary_ops_post = {"'": t, ".'": t},
 	// Also use a map for the binary operations but set their values to their
 	// binary precedence for quick reference:
 	// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
 		binary_ops = {
-			'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
-			'==': 6, '!=': 6, '===': 6, '!==': 6,
-			'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
-			'<<':8,  '>>': 8, '>>>': 8,
+			//'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
+			//'==': 6, '!=': 6, '===': 6, '!==': 6,
+			//'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
+			//'<<':8,  '>>': 8, '>>>': 8,
 			'+': 9, '-': 9,
-			'*': 10, '/': 10, '%': 10
+			'*': 10, '/': 10, '\\': 10, '.*': 10, './': 10, '.\\': 10, //'%': 10,
+			'^': 11, '.^': 11,
 		},
-	// Get return the longest key length of any object
+	// Get the longest key length of any object
 		getMaxKeyLen = function(obj) {
 			var max_len = 0, len;
 			for(var key in obj) {
@@ -71,17 +76,17 @@
 			return max_len;
 		},
 		max_unop_len = getMaxKeyLen(unary_ops),
+		max_unop_post_len = getMaxKeyLen(unary_ops_post),
 		max_binop_len = getMaxKeyLen(binary_ops),
 	// Literals
 	// ----------
 	// Store the values to return for the various literals we may encounter
 		literals = {
-			'true': true,
-			'false': false,
-			'null': null
+			//'true': true,
+			//'false': false,
+			//'null': null
 		},
-	// Except for `this`, which is special. This could be changed to something like `'self'` as well
-		this_str = 'this',
+		
 	// Returns the precedence of a binary operator or `0` if it isn't a binary operator
 		binaryPrecedence = function(op_val) {
 			return binary_ops[op_val] || 0;
@@ -102,15 +107,15 @@
 			return (ch >= 48 && ch <= 57); // 0...9
 		},
 		isIdentifierStart = function(ch) {
-			return (ch === 36) || (ch === 95) || // `$` and `_`
+			return ((ch === 95) || // `_`
 					(ch >= 65 && ch <= 90) || // A...Z
-					(ch >= 97 && ch <= 122); // a...z
+					(ch >= 97 && ch <= 122)); // a...z
 		},
 		isIdentifierPart = function(ch) {
-			return (ch === 36) || (ch === 95) || // `$` and `_`
+			return ((ch === 95) || // `_`
 					(ch >= 65 && ch <= 90) || // A...Z
 					(ch >= 97 && ch <= 122) || // a...z
-					(ch >= 48 && ch <= 57); // 0...9
+					(ch >= 48 && ch <= 57)); // 0...9
 		},
 
 		// Parsing
@@ -135,38 +140,11 @@
 					}
 				},
 				
-				// The main parsing function. Much of this code is dedicated to ternary expressions
+				// The main parsing function. Much of this code was dedicated to ternary expressions
 				gobbleExpression = function() {
-					var test = gobbleBinaryExpression(),
-						consequent, alternate;
-					
+					var test = gobbleBinaryExpression();
 					gobbleSpaces();
-					// Ternary expression: test ? consequent : alternate
-					if(exprICode(index) === QUMARK_CODE) {
-						index++;
-						consequent = gobbleExpression();
-						if(!consequent) {
-							throwError('Expected expression', index);
-						}
-						gobbleSpaces();
-						if(exprICode(index) === COLON_CODE) {
-							index++;
-							alternate = gobbleExpression();
-							if(!alternate) {
-								throwError('Expected expression', index);
-							}
-							return {
-								type: CONDITIONAL_EXP,
-								test: test,
-								consequent: consequent,
-								alternate: alternate
-							};
-						} else {
-							throwError('Expected :', index);
-						}
-					} else {
-						return test;
-					}
+					return test;
 				},
 
 				// Search for the operation portion of the string (e.g. `+`, `===`)
@@ -187,7 +165,7 @@
 				},
 
 				// This function is responsible for gobbling an individual expression,
-				// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
+				// e.g. `1`, `1+2`, `a+(b*2)-sqrt(2)`
 				gobbleBinaryExpression = function() {
 					var ch_i, node, biop, prec, stack, biop_info, left, right, i;
 
@@ -246,22 +224,94 @@
 				},
 
 				// An individual part of a binary expression:
-				// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
+				// e.g. `foo(baz)`, `1`, `(a + 2)` (because it's in parenthesis)
+				// or any of those preceded or followed by a unary operator.
 				gobbleToken = function() {
 					var ch, curr_node, unop, to_check, tc_len;
 					
 					gobbleSpaces();
 					ch = exprICode(index);
 
-					if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
+					// TODO: in second part, should check that index+1 is not off-limits.
+					if(isDecimalDigit(ch) || (ch === PERIOD_CODE && isDecimalDigit(exprICode(index+1)))	 ) {
+					
 						// Char code 46 is a dot `.` which can start off a numeric literal
-						return gobbleNumericLiteral();
-					} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
-						// Single or double quotes
-						return gobbleStringLiteral();
+						var elem = gobbleNumericLiteral();
+						
+						// Now check whether the string continues with a unary postfix operator (quick hack)
+						to_check = expr.substr(index, max_unop_post_len);
+						tc_len = to_check.length;
+						while(tc_len > 0)
+						{
+							if(unary_ops_post.hasOwnProperty(to_check))
+							{
+								index += tc_len;
+								return {
+									type: UNARY_EXP,
+									operator: to_check,
+									argument: elem,
+									prefix: false
+								};
+							}
+							to_check = to_check.substr(0, --tc_len);
+						}
+						
+						return elem;
+						
+						// if(exprICode(index) === "." && exprICode(index+1) === "'")
+						// {
+							// index += 2;
+							// return {
+								// type: UNARY_EXP,
+								// operator: ".'",
+								// argument: elem,
+								// prefix: false
+							// };
+						// }
+						// else if(exprICode(index) === "'")
+						// {
+							// index += 1;
+							// return {
+								// type: UNARY_EXP,
+								// operator: "'",
+								// argument: elem,
+								// prefix: false
+							// };
+						// }
+						// else
+						// {
+							// return elem;
+						// }
+						
 					} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
-						// `foo`, `bar.baz`
-						return gobbleVariable();
+					
+					
+						// 'foo', 'foo(bar, baz)', '(expr)'
+						var elem = gobbleVariable();
+						
+						
+						// DUPLICATED CODE
+						// Now check whether the string continues with a unary postfix operator (quick hack)
+						to_check = expr.substr(index, max_unop_post_len);
+						tc_len = to_check.length;
+						while(tc_len > 0)
+						{
+							if(unary_ops_post.hasOwnProperty(to_check))
+							{
+								index += tc_len;
+								return {
+									type: UNARY_EXP,
+									operator: to_check,
+									argument: elem,
+									prefix: false
+								};
+							}
+							to_check = to_check.substr(0, --tc_len);
+						}
+						
+						return elem;
+						
+						
 					} else {
 						to_check = expr.substr(index, max_unop_len);
 						tc_len = to_check.length;
@@ -326,42 +376,6 @@
 					};
 				},
 
-				// Parses a string literal, staring with single or double quotes with basic support for escape codes
-				// e.g. `"hello world"`, `'this is\nJSEP'`
-				gobbleStringLiteral = function() {
-					var str = '', quote = exprI(index++), closed = false, ch;
-
-					while(index < length) {
-						ch = exprI(index++);
-						if(ch === quote) {
-							closed = true;
-							break;
-						} else if(ch === '\\') {
-							// Check for all of the common escape codes
-							ch = exprI(index++);
-							switch(ch) {
-								case 'n': str += '\n'; break;
-								case 'r': str += '\r'; break;
-								case 't': str += '\t'; break;
-								case 'b': str += '\b'; break;
-								case 'f': str += '\f'; break;
-								case 'v': str += '\x0B'; break;
-							}
-						} else {
-							str += ch;
-						}
-					}
-
-					if(!closed) {
-						throwError('Unclosed quote after "'+str+'"', index);
-					}
-
-					return {
-						type: LITERAL,
-						value: str,
-						raw: quote + str + quote
-					};
-				},
 				
 				// Gobbles only identifiers
 				// e.g.: `foo`, `_value`, `$x1`
@@ -392,8 +406,6 @@
 							value: literals[identifier],
 							raw: identifier
 						};
-					} else if(identifier === this_str) {
-						return { type: THIS_EXP };
 					} else {
 						return {
 							type: IDENTIFIER,
@@ -428,10 +440,10 @@
 					return args;
 				},
 
-				// Gobble a non-literal variable name. This variable name may include properties
-				// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+				// Gobble a non-literal variable name. This variable name may not include properties
+				// e.g. `foo`, but not `bar.baz`, `foo['bar'].baz`
 				// It also gobbles function calls:
-				// e.g. `Math.acos(obj.angle)`
+				// e.g. `acos(input)`
 				gobbleVariable = function() {
 					var ch_i, node;
 					ch_i = exprICode(index);
@@ -443,17 +455,9 @@
 					}
 					gobbleSpaces();
 					ch_i = exprICode(index);
-					while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+					while(ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
 						index++;
-						if(ch_i === PERIOD_CODE) {
-							gobbleSpaces();
-							node = {
-								type: MEMBER_EXP,
-								computed: false,
-								object: node,
-								property: gobbleIdentifier()
-							};
-						} else if(ch_i === OBRACK_CODE) {
+						if(ch_i === OBRACK_CODE) {
 							node = {
 								type: MEMBER_EXP,
 								computed: true,
