@@ -13,17 +13,16 @@
 	
 	// This is the full set of types that any JSEP node can be.
 	// Store them here to save space when minified
-	var COMPOUND = 'Compound',
+	var COMPOUND = 'Compound', // ?
 		IDENTIFIER = 'Identifier',
-		MEMBER_EXP = 'MemberExpression',
+		MEMBER_EXP = 'MemberExpression', // remove
 		LITERAL = 'Literal',
-		THIS_EXP = 'ThisExpression',
 		CALL_EXP = 'CallExpression',
 		UNARY_EXP = 'UnaryExpression',
 		BINARY_EXP = 'BinaryExpression',
-		LOGICAL_EXP = 'LogicalExpression',
-		CONDITIONAL_EXP = 'ConditionalExpression',
-		ARRAY_EXP = 'Array',
+		LOGICAL_EXP = 'LogicalExpression', // remove
+		CONDITIONAL_EXP = 'ConditionalExpression', // remove
+		ARRAY_EXP = 'Array', // remove
 
 		PERIOD_CODE = 46, // '.'
 		COMMA_CODE  = 44, // ','
@@ -46,24 +45,18 @@
 	// Operations
 	// ----------
 	
-	// Set `t` to `true` to save space (when minified, not gzipped)
-		t = true,
 	// Use a quickly-accessible map to store all of the prefix unary operators
-	// Values are set to `true` (it really doesn't matter)
-		unary_ops = {'-': t, '!': t, '~': t, '+': t},
+		unary_ops = {'-': 3, '+': 3},
 	// Use a quickly-accessible map to store all of the postfix unary operators
-		unary_ops_post = {"'": t, ".'": t},
+		unary_ops_post = {"'": 4, ".'": 4},
 	// Also use a map for the binary operations but set their values to their
 	// binary precedence for quick reference:
 	// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
+	// This version: see http://www.mathworks.nl/help/matlab/matlab_prog/operator-precedence.html
 		binary_ops = {
-			//'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
-			//'==': 6, '!=': 6, '===': 6, '!==': 6,
-			//'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
-			//'<<':8,  '>>': 8, '>>>': 8,
-			'+': 9, '-': 9,
-			'*': 10, '/': 10, '\\': 10, '.*': 10, './': 10, '.\\': 10, //'%': 10,
-			'^': 11, '.^': 11,
+			'+': 1, '-': 1,
+			'*': 2, '/': 2, '\\': 2, '.*': 2, './': 2, '.\\':2,
+			'^': 4, '.^': 4,
 		},
 	// Get the longest key length of any object
 		getMaxKeyLen = function(obj) {
@@ -99,7 +92,8 @@
 				type: type,
 				operator: operator,
 				left: left,
-				right: right
+				right: right,
+				precedence: binary_ops[operator]
 			};
 		},
 		// `ch` is a character code in the next three functions
@@ -250,7 +244,8 @@
 									type: UNARY_EXP,
 									operator: to_check,
 									argument: elem,
-									prefix: false
+									prefix: false,
+									precedence: unary_ops_post[to_check]
 								};
 							}
 							to_check = to_check.substr(0, --tc_len);
@@ -279,7 +274,8 @@
 									type: UNARY_EXP,
 									operator: to_check,
 									argument: elem,
-									prefix: false
+									prefix: false,
+									precedence: unary_ops_post[to_check]
 								};
 							}
 							to_check = to_check.substr(0, --tc_len);
@@ -298,7 +294,8 @@
 									type: UNARY_EXP,
 									operator: to_check,
 									argument: gobbleToken(),
-									prefix: true
+									prefix: true,
+									precedence: unary_ops[to_check]
 								};
 							}
 							to_check = to_check.substr(0, --tc_len);
