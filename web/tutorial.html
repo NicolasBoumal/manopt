@@ -830,17 +830,23 @@ end
     </tr>
     <tr>
       <td></td>
-    <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
+    <td><code>surfprofile(problem, x, d1, d2, t1, t2)</code></td>
+    <td>Plots the cost function, lifted and restricted to a 2-dimensional subspace of the tangent space at $x$. See <span
+        style="font-family: monospace;">help surfprofile</span> for more information.</td>
   </tr>
   <tr>
-    <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
-  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
-  <td>
-    <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
-    <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
-        href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
-    <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
-  </td>
+    <td></td>
+  <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
+</tr>
+<tr>
+  <td><a href="reference/manopt/tools/hessianspectrum.html"><i class="icon-book"></i></a></td>
+<td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+<td>
+  <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a preconditioner $P$ is specified in the problem structure, the eigenvalues of the preconditioned Hessian $HP$ are computed.</p>
+  <p>This function relies on <code>M.vec</code> and <code>M.mat</code> to pass the computation to the built-in <code>eigs</code> function. For the eigenvalue problem to remain symmetric in the column-vector representation domain, we need <code>M.vec</code> and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code> in the <a
+      href="#manifolds">manifod section</a>). If they are not isometries, computations may take longer. Indeed, let $G$ denote the <code>M.vec</code> operator and $G^{-1}$ represents the <code>M.mat</code> operator (on the appropriate domain). Then, <code>eigs</code> will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are identical to, respectively, the spectra of $H$ and $HP$. This is only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
+  <p>If a preconditioner is used, the symmetry of the eigenvalue problem is lost. If <code>M.vec</code> and <code>M.mat</code> are isometries and the dimension of the manifold is large, it may be useful to restore symmetry by giving this tool a function handle for the square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is given the problem of computing the spectrum of $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum of $HP$. If <code>sqrtprec</code> is provided, the preconditioner given in the problem structure is ignored.</p>
+</td>
 </tr>
 <tr>
   <td></td>
