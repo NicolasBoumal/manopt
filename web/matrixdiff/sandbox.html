@@ -10,6 +10,12 @@
 // Example: D(f^-1) = - f^-1 * Df * f^-1.
 // Could send the rhs to the expression parser and substitute f and Df for their values.
 // This, rather than constructing the tree by hand ...
+//
+// Could then also have a list of simplifying rules, such as the ones already implemented, and also:
+// tr log X = log det X (and log det should be construed as a function, not as two composed functions)
+// sqrt(..^2) = |..|
+// |norm(...)| = norm(...)
+// etc, etc, etc.
 
 // Make a deep copy of an object, using jQuery
 // See http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object
