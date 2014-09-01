@@ -22,7 +22,15 @@ function cost = plotprofile(problem, x, d, t)
         error('It seems no cost was provided.');  
     end
     
-    linesearch_fun = @(t) getCost(problem, problem.M.exp(x, d, t), struct());
+    if isfield(problem.M, 'exp')
+        expo = problem.M.exp;
+        str = 'Exp';
+    else
+        expo = problem.M.retr;
+        str = 'Retr';
+    end
+    
+    linesearch_fun = @(t) getCost(problem, expo(x, d, t), struct());
     
     cost = zeros(size(t));
     for i = 1 : numel(t)
@@ -32,7 +40,7 @@ function cost = plotprofile(problem, x, d, t)
     if nargout == 0
         plot(t, cost);
         xlabel('t');
-        ylabel('f(Exp_x(t*d))');
+        ylabel(['f(' str '_x(t*d))']);
     end
     
 end
