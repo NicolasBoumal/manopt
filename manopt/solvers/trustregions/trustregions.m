@@ -104,7 +104,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Initial trust-region radius. If you observe a long plateau at the
 %       beginning of the convergence plot (gradient norm VS iteration), it
 %       may pay off to try to tune this parameter to shorten the plateau.
-%       You should not set this parameter without setting Delta_bar.
+%       You should not set this parameter without setting Delta_bar too (at
+%       a larger value).
 %	useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
@@ -340,6 +341,10 @@ elseif options.verbosity > 2
    fprintf('      Delta : %f\n', Delta);
 end
 
+% To keep track of consecutive radius increases, so that we can warn the
+% user if it appears necessary.
+consecutive_TRplus = 0;
+
 
 % **********************
 % ** Start of TR loop **
@@ -517,13 +522,26 @@ while true
     if rho < 1/4 || ~model_decreased
         trstr = 'TR-';
         Delta = Delta/4;
+        consecutive_TRplus = 0;
     % If the actual decrease is at least 3/4 of the precicted decrease and
     % the tCG (inner solve) hit the TR boundary, increase the TR radius.
+    % We also keep track of the number of consecutive trust-region radius
+    % increases. If there are many, this may indicate the need to adapt the
+    % initial and maximum radii.
     elseif rho > 3/4 && (stop_inner == 1 || stop_inner == 2)
         trstr = 'TR+';
         Delta = min(2*Delta, options.Delta_bar);
+        consecutive_TRplus = consecutive_TRplus + 1;
+        if consecutive_TRplus >= 5 && options.verbosity >= 1
+            consecutive_TRplus = -inf;
+            fprintf(' +++ Detected many consecutive TR+ (radius increases).\n');
+            fprintf(' +++ Consider increasing options.Delta_bar by an order of magnitude.\n');
+            fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
+        end
+    else
+        % Otherwise, keep the TR radius constant.
+        consecutive_TRplus = 0;
     end
-    % Otherwise, keep the TR radius constant.
 
     % Choose to accept or reject the proposed step based on the model
     % performance.
