@@ -23,7 +23,7 @@ function low_rank_matrix_completion()
 % This file is part of Manopt and is copyrighted. See the license file.
 % 
 % Main author: Nicolas Boumal, July 15, 2014
-% Contributors:
+% Contributors: Bart Vandereycken
 % 
 % Change log:
 % 
