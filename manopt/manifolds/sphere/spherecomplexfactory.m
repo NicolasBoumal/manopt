@@ -16,6 +16,8 @@ function M = spherecomplexfactory(n, m)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   Sep. 4, 2014 (NB): added ehess2rhess.
 
     
     if ~exist('m', 'var')
@@ -43,6 +45,11 @@ function M = spherecomplexfactory(n, m)
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
 	M.egrad2rgrad = M.proj;
+    
+	M.ehess2rhess = @ehess2rhess;
+	function rhess = ehess2rhess(x, egrad, ehess, u)
+        rhess = M.proj(x, ehess) - real((x(:)'*egrad(:)))*u;
+	end
     
 	M.tangent = M.proj;
     

@@ -20,6 +20,8 @@ function M = complexcirclefactory(n)
 %
 %   July 7, 2014 (NB): Added ehess2rhess function.
 %
+%   Sep. 3, 2014 (NB): Correction to the dist function (extract real part).
+%
     
     if ~exist('n', 'var')
         n = 1;
@@ -33,7 +35,7 @@ function M = complexcirclefactory(n)
     
     M.norm = @(x, v) norm(v);
     
-    M.dist = @(x, y) norm(acos(conj(x) .* y));
+    M.dist = @(x, y) norm(acos(real(conj(x) .* y)));
     
     M.typicaldist = @() pi*sqrt(n);
     
