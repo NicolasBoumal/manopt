@@ -27,32 +27,35 @@ function M = grassmannfactory(n, p, k)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%   March 22, 2013 (NB) : Implemented geodesic distance.
-%   April 17, 2013 (NB) : Retraction changed to the polar decomposition, so
-%                         that the vector transport is now correct, in the
-%                         sense that it is compatible with the retraction,
-%                         i.e., transporting a tangent vector G from U to V
-%                         where V = Retr(U, H) will give Z, and
-%                         transporting GQ from UQ to VQ will give ZQ: there
-%                         is no dependence on the representation, which is
-%                         as it should be. Notice that the polar
-%                         factorization requires an SVD whereas the qfactor
-%                         retraction requires a QR decomposition, which is
-%                         cheaper. Hence, if the retraction happens to be a
-%                         bottleneck in your application and you are not
-%                         using vector transports, you may want to replace
-%                         the retraction with a qfactor.
-%   July  4, 2013 (NB)  : Added support for the logarithmic map 'log'.
-%   July  5, 2013 (NB)  : Added support for ehess2rhess.
-%   June 24, 2014 (NB)  : Small bug fix in the retraction, and added final
-%                         re-orthonormalization at the end of the
-%                         exponential map. This follows discussions on the
-%                         forum where it appeared there is a significant
-%                         loss in orthonormality without that extra step.
-%                         Also changed the randvec function so that it now
-%                         returns a globally normalized vector, not a
-%                         vector where each component is normalized (this
-%                         only matters if k>1).
+%   March 22, 2013 (NB) :
+%       Implemented geodesic distance.
+% 
+%   April 17, 2013 (NB) :
+%       Retraction changed to the polar decomposition, so that the vector
+%       transport is now correct, in the sense that it is compatible with
+%       the retraction, i.e., transporting a tangent vector G from U to V
+%       where V = Retr(U, H) will give Z, and transporting GQ from UQ to VQ
+%       will give ZQ: there is no dependence on the representation, which
+%       is as it should be. Notice that the polar factorization requires an
+%       SVD whereas the qfactor retraction requires a QR decomposition,
+%       which is cheaper. Hence, if the retraction happens to be a
+%       bottleneck in your application and you are not using vector
+%       transports, you may want to replace the retraction with a qfactor.
+% 
+%   July  4, 2013 (NB) :
+%       Added support for the logarithmic map 'log'.
+%
+%   July  5, 2013 (NB) :
+%       Added support for ehess2rhess.
+%
+%   June 24, 2014 (NB) :
+%       Small bug fix in the retraction, and added final
+%       re-orthonormalization at the end of the exponential map. This
+%       follows discussions on the forum where it appeared there is a
+%       significant loss in orthonormality without that extra step. Also
+%       changed the randvec function so that it now returns a globally
+%       normalized vector, not a vector where each component is normalized
+%       (this only matters if k>1).
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
