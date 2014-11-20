@@ -1,4 +1,4 @@
-function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
+function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 % Return a set of points spread out on the sphere.
 %
 % function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
@@ -95,7 +95,7 @@ function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     % same store structure back. We may modify the store structure inside
     % the function and return it: the changes will be remembered for next
     % time.
-    function [f store] = cost(X, store)
+    function [f, store] = cost(X, store)
         if ~isfield(store, 'ready')
             XXt = X*X';
             % Shift the exponentials by the maximum value to reduce
@@ -120,7 +120,7 @@ function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     % point X for which the cost was already called, the store structure we
     % receive remember everything that the cost function stored in it, so
     % we can reuse previously computed elements.
-    function [g store] = grad(X, store)
+    function [g, store] = grad(X, store)
         if ~isfield(store, 'ready')
             [~, store] = cost(X, store);
         end
@@ -200,7 +200,7 @@ function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     if d == 3
         figure;
         % Plot the sphere
-        [sphere_x sphere_y sphere_z] = sphere(50);
+        [sphere_x, sphere_y, sphere_z] = sphere(50);
         handle = surf(sphere_x, sphere_y, sphere_z);
         set(handle, 'FaceColor', [152,186,220]/255);
         set(handle, 'FaceAlpha', .5);
@@ -217,7 +217,7 @@ function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
         % within some tolerance.
         min_distance = real(acos(maxdot));
         connected = real(acos(XXt)) <= 1.20*min_distance;
-        [Ic Jc] = find(triu(connected, 1));
+        [Ic, Jc] = find(triu(connected, 1));
         for k = 1 : length(Ic)
             i = Ic(k); j = Jc(k);
             plot3(Y(1, [i j]), Y(2, [i j]), Y(3, [i j]), 'k-');
