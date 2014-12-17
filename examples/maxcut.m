@@ -1,4 +1,4 @@
-function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
+function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.
 % 
 % function x = maxcut(L)
@@ -147,7 +147,7 @@ function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
         % Use the Riemannian optimization based algorithm lower in this
         % file to reach a critical point (typically a local optimizer) of
         % the max cut cost with fixed rank, starting from Y0.
-        [Y info] = maxcut_fixedrank(L, Y0);
+        [Y, info] = maxcut_fixedrank(L, Y0);
         
         % Some info logging.
         thistime = [info.time];
@@ -184,11 +184,11 @@ function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
 end
 
 
-function [Y info] = maxcut_fixedrank(L, Y)
+function [Y, info] = maxcut_fixedrank(L, Y)
 % Try to solve the (fixed) rank r relaxed max cut program, based on the
 % Laplacian of the graph L and an initial guess Y. L is nxn and Y is nxr.
 
-    [n r] = size(Y);
+    [n, r] = size(Y);
     assert(all(size(L) == n));
     
     % The fixed rank elliptope geometry describes symmetric, positive
@@ -232,21 +232,21 @@ function [Y info] = maxcut_fixedrank(L, Y)
     end
 
     problem.cost = @cost;
-    function [f store] = cost(Y, store)
+    function [f, store] = cost(Y, store)
         store = prepare(Y, store);
         LY = store.LY;
         f = -(Y(:)'*LY(:))/4; % = -trace(Y'*LY)/4;
     end
 
     problem.grad = @grad;
-    function [g store] = grad(Y, store)
+    function [g, store] = grad(Y, store)
         store = prepare(Y, store);
         LY = store.LY;
         g = manifold.egrad2rgrad(Y, -LY/2);
     end
 
     problem.hess = @hess;
-    function [h store] = hess(Y, U, store)
+    function [h, store] = hess(Y, U, store)
         store = prepare(Y, store);
         LY = store.LY;
         LU = L*U;
