@@ -120,7 +120,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     end
     
     % Compute objective-related quantities for x
-    [cost grad storedb] = getCostGrad(problem, x, storedb);
+    [cost, grad, storedb] = getCostGrad(problem, x, storedb);
     gradnorm = problem.M.norm(x, grad);
     
     % Iteration counter (at any point, iter is the number of fully executed
@@ -152,7 +152,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         timetic = tic();
         
         % Run standard stopping criterion checks
-        [stop reason] = stoppingcriterion(problem, x, options, ...
+        [stop, reason] = stoppingcriterion(problem, x, options, ...
                                                              info, iter+1);
         
         % If none triggered, run specific stopping criterion check
@@ -172,12 +172,12 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         desc_dir = problem.M.lincomb(x, -1, grad);
         
         % Execute the line search
-        [stepsize newx storedb lsmem lsstats] = options.linesearch( ...
+        [stepsize, newx, storedb, lsmem, lsstats] = options.linesearch( ...
                       problem, x, desc_dir, cost, -gradnorm^2, ...
                       options, storedb, lsmem);
         
         % Compute the new cost-related quantities for x
-        [newcost newgrad storedb] = getCostGrad(problem, newx, storedb);
+        [newcost, newgrad, storedb] = getCostGrad(problem, newx, storedb);
         newgradnorm = problem.M.norm(newx, newgrad);
         
         % Make sure we don't use too much memory for the store database

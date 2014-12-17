@@ -1,7 +1,7 @@
 function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 % Return a set of points spread out on the sphere.
 %
-% function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
+% function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 %
 % Using optimization on the oblique manifold, that is, the product of
 % spheres, this function returns a set of n points with unit norm in R^d in
