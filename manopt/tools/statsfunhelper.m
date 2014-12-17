@@ -44,7 +44,14 @@ function statsfun = statsfunhelper(inp1, inp2)
 % structure will be augmented with stats.field = fun(..), where fun is the
 % function handle stored in S.field, and with the same conventions as
 % above. This version allows to record more than one bit of information at
-% each iteration.
+% each iteration. Example:
+% 
+%  metrics.nameofthefield = fun;
+%  metrics.othername = otherfun;
+%  options.statsfun = statsfunhelper(metrics);
+%
+% The different functions handles (here, fun and otherfun) can take 1 to 4
+% inputs too, and they do not have to take the same number of inputs.
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 17, 2014.
