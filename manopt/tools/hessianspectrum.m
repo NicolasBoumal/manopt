@@ -9,10 +9,10 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 % operator (which needs to be symmetric but not necessarily definite) on
 % the tangent space at x. There are problem.M.dim() eigenvalues.
 %
-% If a preconditioner is defined, the eigenvalues of the composition is
-% computed: precon o Hessian. Remember that the preconditioner has to be
-% symmetric, positive definite, and is supposed to approximate the inverse
-% of the Hessian.
+% If a preconditioner is defined in the problem structure, the eigenvalues
+% of the composition is computed: precon o Hessian. Remember that the
+% preconditioner has to be symmetric, positive definite, and is supposed to
+% approximate the inverse of the Hessian.
 %
 % Even though the Hessian and the preconditioner are both symmetric, their
 % composition is not symmetric, which can slow down the call to 'eigs'
@@ -55,6 +55,8 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 % Original author: Nicolas Boumal, July 3, 2013.
 % Contributors: 
 % Change log:
+%
+%  Dec 18, 2014 (NB): the lambdas are now sorted when they are returned.
 
 
     if ~canGetHessian(problem)
@@ -154,5 +156,7 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
                       n, dim, 'LM', eigs_opts);
         
     end
+    
+    lambdas = sort(lambdas);
 
 end
