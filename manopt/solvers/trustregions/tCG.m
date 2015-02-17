@@ -34,6 +34,13 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
 %       the Hessian approximation), then we return the previous eta. This
 %       ensures we always achieve at least the Cauchy decrease, which
 %       should be sufficient for convergence.
+%   NB Feb. 17, 2015:
+%       The previous update was in effect verifying that the current eta
+%       performed at least as well as the first eta (the Cauchy step) with
+%       respect to the model cost. While this is an acceptable strategy,
+%       the documentation (and the original intent) was to ensure a
+%       monotonic decrease of the model cost at each new eta. This is now
+%       the case, with the added line: "model_value = new_model_value;".
 
 
 % All terms involving the trust-region radius will use an inner product
@@ -115,7 +122,7 @@ else
     model_value = model_fun(eta, Heta);
 end
 
-% Pre-assume termination b/c j == end
+% Pre-assume termination because j == end
 stop_tCG = 5;
 
 % Begin inner/tCG loop
@@ -167,9 +174,9 @@ for j = 1 : options.maxinner
     
     % Verify that the model cost decreased in going from eta to new_eta. If
     % the cost increased (which can only occur if the Hessian approximation
-    % is nonlinear), then we return the previous eta (which necessarily is
-    % the best reached so far, according to the model cost). Otherwise, we
-    % accept the new eta and go on.
+    % is nonlinear or because of numerical errors), then we return the
+    % previous eta (which necessarily is the best reached so far, according
+    % to the model cost). Otherwise, we accept the new eta and go on.
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value > model_value
         stop_tCG = 6;
@@ -178,6 +185,7 @@ for j = 1 : options.maxinner
     
     eta = new_eta;
     Heta = new_Heta;
+    model_value = new_model_value; %% added Feb. 17, 2015
     
     % Update the residual
     r = problem.M.lincomb(x, 1, r, alpha, Hdelta);
