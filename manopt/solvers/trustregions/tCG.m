@@ -1,4 +1,4 @@
-function [eta Heta inner_it stop_tCG storedb] ...
+function [eta, Heta, inner_it, stop_tCG, storedb] ...
                       = tCG(problem, x, grad, eta, Delta, options, storedb)
 % tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
@@ -73,7 +73,7 @@ if ~options.useRand % and therefore, eta == 0
     e_Pe = 0;
 else % and therefore, no preconditioner
     % eta (presumably) ~= 0 was provided by the caller
-    [Heta storedb] = getHessian(problem, x, eta, storedb);
+    [Heta, storedb] = getHessian(problem, x, eta, storedb);
     r = problem.M.lincomb(x, 1, grad, 1, Heta);
     e_Pe = inner(x, eta, eta);
 end
@@ -83,7 +83,7 @@ norm_r0 = norm_r;
 
 % precondition the residual
 if ~options.useRand
-    [z storedb] = getPrecon(problem, x, r, storedb);
+    [z, storedb] = getPrecon(problem, x, r, storedb);
 else
     z = r;
 end
@@ -122,7 +122,7 @@ stop_tCG = 5;
 j = 0;
 for j = 1 : options.maxinner
     
-    [Hdelta storedb] = getHessian(problem, x, delta, storedb);
+    [Hdelta, storedb] = getHessian(problem, x, delta, storedb);
     
     % Compute curvature
     d_Hd = inner(x, delta, Hdelta);
@@ -199,7 +199,7 @@ for j = 1 : options.maxinner
     
     % Precondition the residual
     if ~options.useRand
-        [z storedb] = getPrecon(problem, x, r, storedb);
+        [z, storedb] = getPrecon(problem, x, r, storedb);
     else
         z = r;
     end
