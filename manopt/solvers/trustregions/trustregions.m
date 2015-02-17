@@ -245,7 +245,7 @@ tcg_stop_reason = {'negative curvature',...
                    'exceeded trust region',...
                    'reached target residual-kappa',...
                    'reached target residual-theta',...
-                   'dimension exceeded',...
+                   'maximum inner iterations',...
                    'model increased'};
 
 % Set local defaults here
@@ -313,7 +313,7 @@ end
 k = 0;
 
 % initialize solution and companion measures: f(x), fgrad(x)
-[fx fgradx storedb] = getCostGrad(problem, x, storedb);
+[fx, fgradx, storedb] = getCostGrad(problem, x, storedb);
 norm_grad = problem.M.norm(x, fgradx);
 
 % initialize trust-region radius
@@ -355,7 +355,7 @@ while true
     tic();
 
     % Run standard stopping criterion checks
-    [stop reason] = stoppingcriterion(problem, x, options, info, k+1);
+    [stop, reason] = stoppingcriterion(problem, x, options, info, k+1);
     
     % If the stopping criterion that triggered is the tolerance on the
     % gradient norm but we are using randomization, make sure we make at
@@ -394,7 +394,7 @@ while true
     end
 
     % solve TR subproblem
-    [eta Heta numit stop_inner storedb] = ...
+    [eta, Heta, numit, stop_inner, storedb] = ...
                      tCG(problem, x, fgradx, eta, Delta, options, storedb);
     srstr = tcg_stop_reason{stop_inner};
     
@@ -416,7 +416,7 @@ while true
     if options.useRand
         used_cauchy = false;
         % Check the curvature,
-        [Hg storedb] = getHessian(problem, x, fgradx, storedb);
+        [Hg, storedb] = getHessian(problem, x, fgradx, storedb);
         g_Hg = problem.M.inner(x, fgradx, Hg);
         if g_Hg <= 0
             tau_c = 1;
@@ -444,7 +444,7 @@ while true
 	x_prop  = problem.M.retr(x, eta);
 
 	% Compute the function value of the proposal
-	[fx_prop storedb] = getCost(problem, x_prop, storedb);
+	[fx_prop, storedb] = getCost(problem, x_prop, storedb);
 
 	% Will we accept the proposed solution or not?
     % Check the performance of the quadratic model against the actual cost.
@@ -550,7 +550,7 @@ while true
         accstr = 'acc';
         x = x_prop;
         fx = fx_prop;
-        [fgradx storedb] = getGradient(problem, x, storedb);
+        [fgradx, storedb] = getGradient(problem, x, storedb);
         norm_grad = problem.M.norm(x, fgradx);
     else
         accept = false;
