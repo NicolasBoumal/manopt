@@ -112,14 +112,21 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated.
 %	kappa (0.1)
-%       Inner kappa convergence tolerance.
+%       tCG inner kappa convergence tolerance.
+%       kappa > 0 is the linear convergence target rate: tCG will terminate
+%       early if the residual was reduced by a factor of kappa.
 %	theta (1.0)
-%       Inner theta convergence tolerance.
+%       tCG inner theta convergence tolerance.
+%       1+theta (theta between 0 and 1) is the superlinear convergence
+%       target rate. tCG will terminate early if the residual was reduced
+%       by a power of 1+theta.
 %	rho_prime (0.1)
-%       Accept/reject ratio : if rho is at least rho_prime, the outer
+%       Accept/reject threshold : if rho is at least rho_prime, the outer
 %       iteration is accepted. Otherwise, it is rejected. In case it is
 %       rejected, the trust-region radius will have been decreased.
-%       To ensure this, rho_prime must be strictly smaller than 1/4.
+%       To ensure this, rho_prime >= 0 must be strictly smaller than 1/4.
+%       If rho_prime is negative, the algorithm is not guaranteed to
+%       produce monotonically decreasing cost values.
 %   rho_regularization (1e3)
 %       Close to convergence, evaluating the performance ratio rho is
 %       numerically challenging. Meanwhile, close to convergence, the
@@ -321,11 +328,11 @@ end
 % number of iterations fully executed so far.
 k = 0;
 
-% initialize solution and companion measures: f(x), fgrad(x)
+% Initialize solution and companion measures: f(x), fgrad(x)
 [fx, fgradx, storedb] = getCostGrad(problem, x, storedb);
 norm_grad = problem.M.norm(x, fgradx);
 
-% initialize trust-region radius
+% Initialize trust-region radius
 Delta = options.Delta0;
 
 % Save stats in a struct array info, and preallocate
@@ -402,16 +409,16 @@ while true
         end
     end
 
-    % solve TR subproblem
+    % Solve TR subproblem approximately
     [eta, Heta, numit, stop_inner, storedb] = ...
                      tCG(problem, x, fgradx, eta, Delta, options, storedb);
     srstr = tcg_stop_reason{stop_inner};
 
     % If using randomized approach, compare result with the Cauchy point.
-    % Convergence proofs assume that we achieve at least the reduction of
-    % the Cauchy point. After this if-block, either all eta-related
-    % quantities have been changed consistently, or none of them have
-    % changed.
+    % Convergence proofs assume that we achieve at least (a fraction of)
+    % the reduction of the Cauchy point. After this if-block, either all
+    % eta-related quantities have been changed consistently, or none of
+    % them have changed.
     if options.useRand
         used_cauchy = false;
         % Check the curvature,
@@ -451,17 +458,20 @@ while true
     end
     
 
-	% Compute the retraction of the proposal
+	% Compute the tentative next iterate (the proposal)
 	x_prop  = problem.M.retr(x, eta);
 
 	% Compute the function value of the proposal
 	[fx_prop, storedb] = getCost(problem, x_prop, storedb);
 
-	% Will we accept the proposed solution or not?
+	% Will we accept the proposal or not?
     % Check the performance of the quadratic model against the actual cost.
     rhonum = fx - fx_prop;
     rhoden = -problem.M.inner(x, fgradx, eta) ...
              -.5*problem.M.inner(x, eta, Heta);
+    % rhonum could be anything.
+    % rhoden should be nonnegative, as guaranteed by tCG, baring numerical
+    % errors.
     
     % Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.
     % This heuristic is documented in the book by Conn Gould and Toint on
@@ -471,7 +481,7 @@ while true
     % that computing their difference is numerically challenging: there may
     % be a significant loss in accuracy. Since the acceptance or rejection
     % of the step is conditioned on the ratio between rhonum and rhoden,
-    % large errors in rhonum result in a large error in rho, hence in
+    % large errors in rhonum result in a very large error in rho, hence in
     % erratic acceptance / rejection. Meanwhile, close to convergence,
     % steps are usually trustworthy and we should transition to a Newton-
     % like method, with rho=1 consistently. The heuristic thus shifts both
@@ -506,11 +516,16 @@ while true
     % the regularization is supposed to capture the accuracy to which
     % rhoden is computed: if rhoden were negative before regularization but
     % not after, that should not be (and is not) detected as a failure.
+    % 
     % Note (Feb. 17, 2015, NB): the most recent version of tCG already
     % includes a mechanism to ensure model decrease if the Cauchy step
     % attained a decrease (which is theoretically the case under very lax
     % assumptions). This being said, it is always possible that numerical
     % errors will prevent this, so that it is good to keep a safeguard.
+    %
+    % The current strategy is that, if this should happen, then we reject
+    % the step and reduce the trust region radius. This also ensures that
+    % the actual cost values are monotonically decreasing.
     model_decreased = (rhoden >= 0);
     
     if ~model_decreased 
