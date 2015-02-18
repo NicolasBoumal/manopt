@@ -194,7 +194,11 @@ for j = 1 : options.maxinner
     r_r = inner(x, r, r);
     norm_r = sqrt(r_r);
     
-    % Check kappa/theta stopping criterion
+    % Check kappa/theta stopping criterion.
+    % Note that it is somewhat arbitrary whether to check this stopping
+    % criterion on the r's (the gradients) or on the z's (the
+    % preconditioned gradients). [CGT2000], page 206, mentions both as
+    % acceptable criteria.
     if j >= options.mininner && norm_r <= norm_r0*min(norm_r0^theta, kappa)
         % Residual is small enough to quit
         if kappa < norm_r0^theta,
