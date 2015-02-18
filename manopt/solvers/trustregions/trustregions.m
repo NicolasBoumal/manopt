@@ -216,6 +216,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       operator, which is the case for finite difference approximations).
 %       When such an anomaly is detected, the step is rejected and the
 %       trust region radius is decreased.
+%       Feb. 18, 2015 note: this is less useful now, as tCG now guarantees
+%       model decrease even for the finite difference approximation of the
+%       Hessian. It is still useful in case of numerical errors, but this
+%       is less stringent.
 %
 %   NB Dec. 3, 2013:
 %       The stepsize is now registered at each iteration, at a small
@@ -224,6 +228,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Delta0 accordingly. In Manopt 1.0.4, the defaults for these options
 %       were not treated appropriately because of an incorrect use of the
 %       isfield() built-in function.
+%
+%   NB Feb. 18, 2015:
+%       Added some comments. Also, Octave now supports safe tic/toc usage,
+%       so we reverted the changes to use that again (see Aug. 22, 2013 log
+%       entry).
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -243,8 +252,8 @@ end
 % Define some strings for display
 tcg_stop_reason = {'negative curvature',...
                    'exceeded trust region',...
-                   'reached target residual-kappa',...
-                   'reached target residual-theta',...
+                   'reached target residual-kappa (linear)',...
+                   'reached target residual-theta (superlinear)',...
                    'maximum inner iterations',...
                    'model increased'};
 
@@ -299,7 +308,7 @@ end
 % Create a store database
 storedb = struct();
 
-tic();
+ticstart = tic();
 
 % If no initial point x is given by the user, generate one at random.
 if ~exist('x', 'var') || isempty(x)
@@ -324,7 +333,7 @@ Delta = options.Delta0;
 if ~exist('used_cauchy', 'var')
     used_cauchy = [];
 end
-stats = savestats(problem, x, storedb, options, k, fx, norm_grad, Delta);
+stats = savestats(problem, x, storedb, options, k, fx, norm_grad, Delta, ticstart);
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
 
@@ -352,7 +361,7 @@ consecutive_TRplus = 0;
 while true
     
 	% Start clock for this outer iteration
-    tic();
+    ticstart = tic();
 
     % Run standard stopping criterion checks
     [stop, reason] = stoppingcriterion(problem, x, options, info, k+1);
@@ -397,16 +406,6 @@ while true
     [eta, Heta, numit, stop_inner, storedb] = ...
                      tCG(problem, x, fgradx, eta, Delta, options, storedb);
     srstr = tcg_stop_reason{stop_inner};
-    
-    % This is only computed for logging purposes, because it may be useful
-    % for some user-defined stopping criteria. If this is not cheap for
-    % specific application (compared to evaluating the cost), we should
-    % reconsider this.
-    norm_eta = problem.M.norm(x, eta);
-    
-    if options.debug > 0
-        testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
-    end
 
     % If using randomized approach, compare result with the Cauchy point.
     % Convergence proofs assume that we achieve at least the reduction of
@@ -433,12 +432,24 @@ while true
                    + .5*problem.M.inner(x, Heta,   eta);
         mdlec = fx + problem.M.inner(x, fgradx, eta_c) ...
                    + .5*problem.M.inner(x, Heta_c, eta_c);
-        if mdle > mdlec
+        if mdlec < mdle
             eta = eta_c;
             Heta = Heta_c; % added April 11, 2012
             used_cauchy = true;
         end
-    end 
+    end
+    
+    
+    % This is only computed for logging purposes, because it may be useful
+    % for some user-defined stopping criteria. If this is not cheap for
+    % specific applications (compared to evaluating the cost), we should
+    % reconsider this.
+    norm_eta = problem.M.norm(x, eta);
+    
+    if options.debug > 0
+        testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
+    end
+    
 
 	% Compute the retraction of the proposal
 	x_prop  = problem.M.retr(x, eta);
@@ -495,6 +506,11 @@ while true
     % the regularization is supposed to capture the accuracy to which
     % rhoden is computed: if rhoden were negative before regularization but
     % not after, that should not be (and is not) detected as a failure.
+    % Note (Feb. 17, 2015, NB): the most recent version of tCG already
+    % includes a mechanism to ensure model decrease if the Cauchy step
+    % attained a decrease (which is theoretically the case under very lax
+    % assumptions). This being said, it is always possible that numerical
+    % errors will prevent this, so that it is good to keep a safeguard.
     model_decreased = (rhoden >= 0);
     
     if ~model_decreased 
@@ -567,8 +583,8 @@ while true
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, options, k, fx, norm_grad, ...
-                      Delta, info, rho, rhonum, rhoden, accept, numit, ...
-                      norm_eta, used_cauchy);
+                      Delta, ticstart, info, rho, rhonum, rhoden, ...
+                      accept, numit, norm_eta, used_cauchy);
     info(k+1) = stats; %#ok<AGROW>
 
     
@@ -620,14 +636,14 @@ end
 
 % Routine in charge of collecting the current iteration stats
 function stats = savestats(problem, x, storedb, options, k, fx, ...
-                           norm_grad, Delta, info, rho, rhonum, ...
+                           norm_grad, Delta, ticstart, info, rho, rhonum, ...
                            rhoden, accept, numit, norm_eta, used_cauchy)
     stats.iter = k;
     stats.cost = fx;
     stats.gradnorm = norm_grad;
     stats.Delta = Delta;
     if k == 0
-        stats.time = toc();
+        stats.time = toc(ticstart);
         stats.rho = inf;
         stats.rhonum = NaN;
         stats.rhoden = NaN;
@@ -638,7 +654,7 @@ function stats = savestats(problem, x, storedb, options, k, fx, ...
             stats.cauchy = false;
         end
     else
-        stats.time = info(k).time + toc();
+        stats.time = info(k).time + toc(ticstart);
         stats.rho = rho;
         stats.rhonum = rhonum;
         stats.rhoden = rhoden;
