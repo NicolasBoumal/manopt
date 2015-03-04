@@ -3,7 +3,7 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 %
 % function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 %
-% Return a finite difference approximation of the Hessian at x along d of
+% Returns a finite difference approximation of the Hessian at x along d of
 % the cost function described in the problem structure. The cache database
 % storedb is passed along, possibly modified and returned in the process.
 % The finite difference is based on computations of the gradient. 
@@ -14,6 +14,15 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   Feb. 19, 2015 (NB):
+%       It is sufficient to ensure positive radial linearity to guarantee
+%       (together with other assumptions) that this approximation of the
+%       Hessian will confer global convergence to the trust-regions method.
+%       Formerly, in-code comments refered to the necessity of having
+%       complete radial linearity, and that this was harder to achieve.
+%       This appears not to be necessary after all, which simplifies the
+%       code.
 
     
     if ~canGetGradient(problem)
@@ -32,29 +41,15 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 	% TODO: this parameter should be tunable by the users.
     epsilon = 1e-4;
         
-    % TODO: to make this approximation of the Hessian radially linear, that
-    % is, to have that HessianFD(x, a*d) = a*HessianFD(x, d) for all
-    % points x, tangent vectors d and real scalars a, we need to pay
-    % special attention to the case of a < 0. This requires a notion of
-    % "sign" for vectors d.
-	% If vectors are uniquely represented by a matrix (which is the case
-    % for Riemannian submanifolds of the space of matrices), than this
-    % function is appropriate:
-    % sg = sign(d(find(d(:), 1, 'first')));
-	% But it is more difficult to build such a function in general. For
-    % now, we ignore this difficulty and let the sign always be +1. This
-    % hardly impacts the actual performances, but may be an obstacle for
-    % theoretical analysis.
-    sg = 1;
     norm_d = problem.M.norm(x, d);
-    c = epsilon*sg/norm_d;
+    c = epsilon/norm_d;
     
     % Compute the gradient at the current point.
-    [grad0 storedb] = getGradient(problem, x, storedb);
+    [grad0, storedb] = getGradient(problem, x, storedb);
     
     % Compute a point a little further along d and the gradient there.
     x1 = problem.M.retr(x, d, c);
-    [grad1 storedb] = getGradient(problem, x1, storedb);
+    [grad1, storedb] = getGradient(problem, x1, storedb);
     
     % Transport grad1 back from x1 to x.
     grad1 = problem.M.transp(x1, x, grad1);

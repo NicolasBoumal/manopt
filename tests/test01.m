@@ -91,7 +91,7 @@ function [cost, x, A, info] = test01(n, usestore)
 %     options.ls_max_steps = 10;
 %     [x cost info] = steepestdescent(problem, x0, options);
     [x cost info] = conjugategradient(problem, x0, options);
-%     [x cost info] = trustregions(problem, [], options);
+    [x cost info] = trustregions(problem, [], options);
 %     [x cost info] = pso(problem, [], options);
 %     [x cost info] = neldermead(problem, [], options);
 

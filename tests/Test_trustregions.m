@@ -45,6 +45,7 @@ function Test_trustregions
     problem.M = Gr;
     problem.cost = @cost;
     problem.grad = @grad;
+%     problem.hess = @(x, xdot) Gr.zerovec(x) ;% * Gr.norm(x, xdot); 
     
     % For peace of mind, check that the gradient is correct.
     % checkgradient(problem);
@@ -54,17 +55,19 @@ function Test_trustregions
     x0 = X(:, :, 1);
     
     % Setup some options for the trustregions algorihm
-    options.tolgradnorm = 1e-8;
+    options.tolgradnorm = 1e-10;
     options.maxtime = 30;
+    options.maxiter = 200;
     options.verbosity = 2;
-    options.debug = 0;
+    options.debug = 2;
+    options.rho_regularization = 1;
     
     % We did not specify a Hessian, but use trustregions anyway. Hence, the
     % Hessian will be approximated, and we should be warned about it. To
     % disable the warning, you may execute this command:
     warning('off', 'manopt:getHessian:approx');
     
-    [x cost_x info] = trustregions(problem, x0, options);
+    [x, cost_x, info] = trustregions(problem, x0, options); %#ok<ASGLU>
     
     xdata = [info.time];
     ydata = [info.gradnorm];
