@@ -108,14 +108,14 @@ else % and therefore, no preconditioner
 end
 
 % If the Hessian or a linear Hessian approximation is in use, it is
-% theoretically guaranteed that the model value decreases monotonically
+% theoretically guaranteed that the model value decreases strictly
 % with each iteration of tCG. Hence, there is no need to monitor the model
 % value. But, when a nonlinear Hessian approximation is used (such as the
 % built-in finite-difference approximation for example), the model may
 % increase. It is then important to terminate the tCG iterations and return
 % the previous (the best-so-far) iterate. The variable below will hold the
 % model value.
-model_fun = @(eta, Heta) inner(x, grad, eta) + .5*inner(x, eta, Heta);
+model_fun = @(eta, Heta) inner(x, eta, grad) + .5*inner(x, eta, Heta);
 if ~options.useRand
     model_value = 0;
 else
@@ -131,19 +131,20 @@ for j = 1 : options.maxinner
     
     [Hdelta, storedb] = getHessian(problem, x, delta, storedb);
     
-    % Compute curvature
+    % Compute curvature (often called kappa)
     d_Hd = inner(x, delta, Hdelta);
     
     
+    % Note that if d_Hd == 0, we will exit at the next "if" anyway.
     alpha = z_r/d_Hd;
     % <neweta,neweta>_P =
     % <eta,eta>_P + 2*alpha*<eta,delta>_P + alpha*alpha*<delta,delta>_P
     e_Pe_new = e_Pe + 2.0*alpha*e_Pd + alpha*alpha*d_Pd;
     
     if options.debug > 2,
-        fprintf('DBG:   (r,r)  : %e\n',r_r);
-        fprintf('DBG:   (d,Hd) : %e\n',d_Hd);
-        fprintf('DBG:   alpha  : %e\n',alpha);
+        fprintf('DBG:   (r,r)  : %e\n', r_r);
+        fprintf('DBG:   (d,Hd) : %e\n', d_Hd);
+        fprintf('DBG:   alpha  : %e\n', alpha);
     end
     
     % Check against negative curvature and trust-region radius violation.
@@ -159,6 +160,14 @@ for j = 1 : options.maxinner
         end
         eta  = problem.M.lincomb(x, 1,  eta, tau,  delta);
         Heta = problem.M.lincomb(x, 1, Heta, tau, Hdelta);
+        
+        % Technically, we may want to verify that this new eta is indeed
+        % better than the previous eta before returning it (this is always
+        % the case if the Hessian approximation is linear, but I am unsure
+        % whether it is the case or not for nonlinear approximations.)
+        % At any rate, the impact should be limited, so in the interest of
+        % code conciseness (if we can still hope for that), we omit this.
+        
         if d_Hd <= 0,
             stop_tCG = 1;     % negative curvature
         else
@@ -173,12 +182,12 @@ for j = 1 : options.maxinner
     new_Heta = problem.M.lincomb(x, 1, Heta, alpha, Hdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
-    % the cost increased (which can only occur if the Hessian approximation
-    % is nonlinear or because of numerical errors), then we return the
+    % it did not (which can only occur if the Hessian approximation is
+    % nonlinear or because of numerical errors), then we return the
     % previous eta (which necessarily is the best reached so far, according
     % to the model cost). Otherwise, we accept the new eta and go on.
     new_model_value = model_fun(new_eta, new_Heta);
-    if new_model_value > model_value
+    if new_model_value >= model_value
         stop_tCG = 6;
         break;
     end

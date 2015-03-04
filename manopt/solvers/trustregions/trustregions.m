@@ -126,7 +126,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       rejected, the trust-region radius will have been decreased.
 %       To ensure this, rho_prime >= 0 must be strictly smaller than 1/4.
 %       If rho_prime is negative, the algorithm is not guaranteed to
-%       produce monotonically decreasing cost values.
+%       produce monotonically decreasing cost values. It is strongly
+%       recommended to set rho_prime > 0, to aid convergence.
 %   rho_regularization (1e3)
 %       Close to convergence, evaluating the performance ratio rho is
 %       numerically challenging. Meanwhile, close to convergence, the
@@ -134,6 +135,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       accepted. Regularization lets rho go to 1 as the model decrease and
 %       the actual decrease go to zero. Set this option to zero to disable
 %       regularization (not recommended). See in-code for the specifics.
+%       When this is not zero, it may happen that the iterates produced are
+%       not monotonically improving the cost when very close to
+%       convergence. This is because the corrected cost improvement could
+%       change sign if it is negative but very small.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -575,7 +580,7 @@ while true
     end
 
     % Choose to accept or reject the proposed step based on the model
-    % performance.
+    % performance. Note the strict inequality.
     if model_decreased && rho > options.rho_prime
         accept = true;
         accstr = 'acc';
