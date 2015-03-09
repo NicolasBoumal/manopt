@@ -149,7 +149,7 @@ function M = grassmannfactory(n, p, k)
         end
         Y = zeros(size(X));
         for i = 1 : k
-            [u s v] = svd(tU(:, :, i), 0);
+            [u, s, v] = svd(tU(:, :, i), 0);
             cos_s = diag(cos(diag(s)));
             sin_s = diag(sin(diag(s)));
             Y(:, :, i) = X(:, :, i)*v*cos_s*v' + u*sin_s*v';
