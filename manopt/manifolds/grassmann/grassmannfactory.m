@@ -87,8 +87,8 @@ function M = grassmannfactory(n, p, k)
         for i = 1 : k
             cos_princ_angle = svd(XtY(:, :, i));
             % Two next instructions not necessary: the imaginary parts that
-            % would appear if the cosines are not between -1 and 1 when
-            % passed to the acos function would be very small, and would
+            % would appear if the cosines are not between -1 and 1, when
+            % passed to the acos function, would be very small, and would
             % thus vanish when the norm is taken.
             % cos_princ_angle = min(cos_princ_angle,  1);
             % cos_princ_angle = max(cos_princ_angle, -1);
