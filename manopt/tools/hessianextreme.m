@@ -82,45 +82,7 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options)
     % tangent vector to M at x. This is a typical Riemannian submanifold of
     % a Euclidean space, hence it will be easy to describe in terms of the
     % tools available for M.
-    N = struct();
-    
-    % u, u1 and u2 will be tangent vectors to N at y. The tangent space to
-    % N at y is a subspace of the tangent space to M at x, thus u, u1 and
-    % u2 are also tangent vectors to M at x.
-    
-    N.dim   = @() M.dim() - 1;
-    N.inner = @(y, u1, u2) M.inner(x, u1, u2);
-    N.norm  = @(y, u)      M.norm(y, u);
-    N.proj  = @(y, v) M.lincomb(x, 1, v, -M.inner(x, v, y), y);
-    N.typicaldist = @() 1;
-    N.tangent = N.proj;
-    N.egrad2rgrad = N.proj;
-    N.retr = @retraction;
-    N.exp = N.retr;
-    function yy = retraction(y, u, t)
-        if nargin == 2
-            t = 1;
-        end
-        y_plus_tu = M.lincomb(x, 1, y, t, u);
-        nrm = M.norm(x, y_plus_tu);
-        yy = M.lincomb(x, 1/nrm, y_plus_tu);
-    end
-    N.rand = @random;
-    function y = random()
-        y = M.randvec(x);
-        nrm = M.norm(x, y);
-        y = M.lincomb(x, 1/nrm, y);
-    end
-    N.randvec = @randvec;
-    function u = randvec(y)
-        u = N.proj(y, N.rand());
-        nrm = N.norm(y, u);
-        u = M.lincomb(x, 1/nrm, u);
-    end
-    N.zerovec = M.zerovec;
-    N.lincomb = M.lincomb;
-    N.transp = @(y1, y2, u) N.proj(y2, u);
-    N.hash = @(y) ['z' hashmd5(M.vec(x, y))];
+    N = tangentspherefactory(M, x);
     
     % Precompute the dbstore here by calling costgrad.
     % An alternative would be to ask for it as an input.
