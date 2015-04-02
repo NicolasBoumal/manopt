@@ -84,7 +84,7 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options)
     % tools available for M.
     N = tangentspherefactory(M, x);
     
-    % Precompute the dbstore here by calling costgrad.
+    % Precompute the storedb here by calling costgrad.
     % An alternative would be to ask for it as an input.
     storedb = struct();
     if canGetGradient(problem)
