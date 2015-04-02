@@ -27,11 +27,13 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
 % Original author: Pierre Borckmans, Dec. 30, 2012.
 % Contributors: Bamdev Mishra, June 18, 2014.
 % Change log:
-% June 18, 2014 (BM) :
-%     Modified for handling product manifolds. Still need overall cleanup
-%     to avoid potential issues, in particular wrt logarithms.
-% June 23, 2014 (NB) :
-%     Added some logic for handling of the populationsize option.
+%
+%   June 18, 2014 (BM) :
+%       Modified for handling product manifolds. Still need overall cleanup
+%       to avoid potential issues, in particular wrt logarithms.
+%
+%   June 23, 2014 (NB) :
+%       Added some logic for handling of the populationsize option.
     
     
     % Verify that the problem description is sufficient for the solver.

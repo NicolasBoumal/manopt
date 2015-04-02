@@ -82,12 +82,12 @@ function [x, cost, info, options] = neldermead(problem, x, options)
     % function evaluations counter.
     costs = zeros(dim+1, 1);
     for i = 1 : dim+1
-        [costs(i) storedb] = getCost(problem, x{i}, storedb);
+        [costs(i), storedb] = getCost(problem, x{i}, storedb);
     end
     costevals = dim+1;
     
     % Sort simplex points by cost.
-    [costs order] = sort(costs);
+    [costs, order] = sort(costs);
     x = x(order);
     
     % Iteration counter (at any point, iter is the number of fully executed
@@ -115,7 +115,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         timetic = tic();
         
         % Sort simplex points by cost.
-        [costs order] = sort(costs);
+        [costs, order] = sort(costs);
         x = x(order);
 
         % Log / display iteration information here.
@@ -125,7 +125,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         end
         
         % Run standard stopping criterion checks.
-        [stop reason] = stoppingcriterion(problem, x, options, info, iter);
+        [stop, reason] = stoppingcriterion(problem, x, options, info, iter);
     
         if stop
             if options.verbosity >= 1
@@ -142,7 +142,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         
         % Reflection step
         xr = problem.M.exp(xbar, vec, -options.reflection);
-        [costr storedb] = getCost(problem, xr, storedb);
+        [costr, storedb] = getCost(problem, xr, storedb);
         costevals = costevals + 1;
         
         % If the reflected point is honorable, drop the worst point,
@@ -157,7 +157,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         % If the reflected point is better than our best point, expand.
         if costr < costs(1)
             xe = problem.M.exp(xbar, vec, -options.expansion);
-            [coste storedb] = getCost(problem, xe, storedb);
+            [coste, storedb] = getCost(problem, xe, storedb);
             costevals = costevals + 1;
             if coste < costr
                 fprintf('Expansion\n');
@@ -178,7 +178,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
             if costr < costs(end)
                 % do an outside contraction
                 xoc = problem.M.exp(xbar, vec, -options.contraction);
-                [costoc storedb] = getCost(problem, xoc, storedb);
+                [costoc, storedb] = getCost(problem, xoc, storedb);
                 costevals = costevals + 1;
                 if costoc <= costr
                     fprintf('Outside contraction\n');
@@ -189,7 +189,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
             else
                 % do an inside contraction
                 xic = problem.M.exp(xbar, vec, options.contraction);
-                [costic storedb] = getCost(problem, xic, storedb);
+                [costic, storedb] = getCost(problem, xic, storedb);
                 costevals = costevals + 1;
                 if costic <= costs(end)
                     fprintf('Inside contraction\n');
@@ -204,7 +204,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         fprintf('Shrinkage\n');
         for i = 2 : dim+1
             x{i} = problem.M.pairmean(x{1}, x{i});
-            [costs(i) storedb] = getCost(problem, x{i}, storedb);
+            [costs(i), storedb] = getCost(problem, x{i}, storedb);
         end
         costevals = costevals + dim;
         

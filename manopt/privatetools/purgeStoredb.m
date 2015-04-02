@@ -33,6 +33,7 @@ function storedb = purgeStoredb(storedb, storedepth)
     keys = fieldnames(storedb);
     
     % Remove the 'permanent' field from the list: that one is special.
+    % TODO: this is rather slow.
     keys = setdiff(keys, 'permanent');
     
     nkeys = length(keys);
