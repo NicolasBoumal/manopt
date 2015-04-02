@@ -5,11 +5,12 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 %
 % A point X on the manifold is represented as a structure with three
 % fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,
-% while the matrix S (kxk) is a full rank matrix
-% matrix.
+% while the matrix S (kxk) is a full rank matrix.
 %
 % Tangent vectors are represented as a structure with three fields: L, S
 % and R.
+%
+% See also: fixedrankfactory_3factors
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.

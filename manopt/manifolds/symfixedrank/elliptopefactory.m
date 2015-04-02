@@ -1,36 +1,67 @@
 function M = elliptopefactory(n, k)
-% Manifold of n-by-n PSD matrices of rank k with unit diagonal elements.
+% Manifold of n-by-n psd matrices of rank k with unit diagonal elements.
 %
 % function M = elliptopefactory(n, k)
 %
-% The geometry is based on the paper,
-% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
-% "Low-Rank Optimization on the Cone of Positive Semidefinite Matrices",
-% SIOPT, 2010.
-%
-% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
-%
 % A point X on the manifold is parameterized as YY^T where Y is a matrix of
-% size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal
-% directly with Y. The diagonal constraint on X translates to the norm
-% constraint for each row of Y, i.e., || Y(i, :) || = 1.
+% size nxk. As such, X is symmetric, positive semidefinite. We restrict to
+% full-rank Y's, such that X has rank exactly k. The point X is numerically
+% represented by Y (this is more efficient than working with X, which may
+% be big). Tangent vectors are represented as matrices of the same size as
+% Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y and diag(Xdot) == 0.
+% The metric is the canonical Euclidean metric on Y.
 % 
-% See also: obliquefactory
+% The diagonal constraints on X (X(i, i) == 1 for all i) translate to
+% unit-norm constraints on the rows of Y: norm(Y(i, :)) == 1 for all i.
+% The set of such Y's forms the oblique manifold. But because for any
+% orthogonal Q of size k, it holds that (YQ)(YQ)' = YY', we "group" all
+% matrices of the form YQ in an equivalence class. The set of equivalence
+% classes is a Riemannian quotient manifold, implemented here.
+%
+% Note that this geometry formally breaks down at rank-deficient Y's.
+% This does not appear to be a major issue in practice when optimization
+% algorithms converge to rank-deficient Y's, but convergence theorems no
+% longer hold. As an alternative, you may use the oblique manifold (it has
+% larger dimension, but does not break down at rank drop.)
+%
+% The geometry is taken from the 2010 paper:
+% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
+% "Low-Rank Optimization on the Cone of Positive Semidefinite Matrices".
+% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
+% 
+% 
+% Please cite the Manopt paper as well as the research paper:
+%     @Article{journee2010low,
+%       Title   = {Low-rank optimization on the cone of positive semidefinite matrices},
+%       Author  = {Journ{\'e}e, M. and Bach, F. and Absil, P.-A. and Sepulchre, R.},
+%       Journal = {SIAM Journal on Optimization},
+%       Year    = {2010},
+%       Number  = {5},
+%       Pages   = {2327--2351},
+%       Volume  = {20},
+%       Doi     = {10.1137/080731359}
+%     }
+% 
+%
+% See also: obliquefactory symfixedrankYYfactory spectrahedronfactory
 
 % This file is part of Manopt: www.nanopt.org.
 % Original author: Bamdev Mishra, July 12, 2013.
 % Contributors:
 % Change log:
-%   July 18, 2013 (NB) : Fixed projection operator for rank-deficient Y'Y.
-%   Aug.  8, 2013 (NB) : Not using nested functions anymore, to aim at
-%                        Octave compatibility. Sign error in right hand
-%                        side of the call to minres corrected.
-%   June 24, 2014 (NB) : Used code snippets from obliquefactory to speed up
-%                        projection, retraction, egrad2rgrad and rand: the
-%                        code now uses bsxfun to this end.
+%   July 18, 2013 (NB):
+%       Fixed projection operator for rank-deficient Y'Y.
+% 
+%   Aug.  8, 2013 (NB):
+%       No longer using nested functions, to aim at Octave compatibility.
+%       Sign error in right hand side of the call to minres corrected.
+% 
+%   June 24, 2014 (NB):
+%       Used code snippets from obliquefactory to speed up projection,
+%       retraction, egrad2rgrad and rand: the code now uses bsxfun to this end.
 
-% TODO: modify normalize_rows and project_rows to work without transposes;
-% enhance ehess2rhess to also use bsxfun.
+% TODO: modify normalize_rows and project_rows to work without transposes.
+% TODO: enhance ehess2rhess to also use bsxfun.
     
 	
 	if ~exist('lyap', 'file')
@@ -42,7 +73,7 @@ function M = elliptopefactory(n, k)
 	end
     
     
-    M.name = @() sprintf('YY'' quotient manifold of %dx%d PSD matrices of rank %d with diagonal elements being 1', n, k);
+    M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1', n, k);
     
     M.dim = @() n*(k-1) - k*(k-1)/2; % Extra -1 is because of the diagonal constraint that
     

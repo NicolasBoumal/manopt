@@ -3,7 +3,7 @@ function M = fixedrankfactory_2factors(m, n, k)
 %
 % function M = fixedrankfactory_2factors(m, n, k)
 %
-% This follows the balanced quotient geometry described in the following paper:
+% This follows the balanced quotient geometry described in the paper:
 % G. Meyer, S. Bonnabel and R. Sepulchre,
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
 % ICML 2011.
@@ -14,13 +14,28 @@ function M = fixedrankfactory_2factors(m, n, k)
 % fields: L and R. The matrices L (mxk) and R (nxk) are full column-rank
 % matrices such that X = L*R'.
 %
-% Tangent vectors are represented as a structure with two fields: L, R
+% Tangent vectors are represented as a structure with two fields: L, R.
+%
+% 
+% Please cite the Manopt paper as well as the research paper:
+%     @InProceedings{meyer2011linear,
+%       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
+%       Author       = {Meyer, G. and Bonnabel, S. and Sepulchre, R.},
+%       Booktitle    = {{28th International Conference on Machine Learning}},
+%       Year         = {2011},
+%       Organization = {{ICML}}
+%     }
+%
+%
+% See also fixedrankembeddedfactory fixedrankfactory_3factors fixedrankfactory_2factors_preconditioned
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
-%   July 10, 2013 (NB) : added vec, mat, tangent, tangent2ambient
+%
+%   July 10, 2013 (NB):
+%       Added vec, mat, tangent, tangent2ambient.
     
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);

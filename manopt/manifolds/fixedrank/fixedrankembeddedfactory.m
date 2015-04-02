@@ -4,10 +4,9 @@ function M = fixedrankembeddedfactory(m, n, k)
 % function M = fixedrankembeddedfactory(m, n, k)
 %
 % Manifold of m-by-n real matrices of fixed rank k. This follows the
-% geometry described in this paper (which for now is the documentation):
-% B. Vandereycken, "Low-rank matrix completion by Riemannian optimization",
-% 2011.
-%
+% embedded geometry described in Bart Vandereycken's 2013 paper:
+% "Low-rank matrix completion by Riemannian optimization".
+% 
 % Paper link: http://arxiv.org/pdf/1209.3834.pdf
 %
 % A point X on the manifold is represented as a structure with three
@@ -32,6 +31,21 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % The chosen geometry yields a Riemannian submanifold of the embedding
 % space R^(mxn) equipped with the usual trace (Frobenius) inner product.
+%
+%
+% Please cite the Manopt paper as well as the research paper:
+%     @Article{vandereycken2013lowrank,
+%       Title   = {Low-rank matrix completion by {Riemannian} optimization},
+%       Author  = {Vandereycken, B.},
+%       Journal = {SIAM Journal on Optimization},
+%       Year    = {2013},
+%       Number  = {2},
+%       Pages   = {1214--1236},
+%       Volume  = {23},
+%       Doi     = {10.1137/110845768}
+%     }
+%
+% See also: fixedrankfactory_2factors fixedrankfactory_3factors
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -40,6 +54,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 %	Feb. 20, 2014 (NB):
 %       Added function tangent to work with checkgradient.
+%
 %   June 24, 2014 (NB):
 %       A couple modifications following
 %       Bart Vandereycken's feedback:
@@ -50,8 +65,10 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       The typical distance was also modified, hopefully giving the
 %       trustregions method a better initial guess for the trust region
 %       radius, but that should be tested for different cost functions too.
+%
 %    July 11, 2014 (NB):
 %       Added ehess2rhess and tangent2ambient, supplied by Bart.
+%
 %    July 14, 2014 (NB):
 %       Added vec, mat and vecmatareisometries so that hessianspectrum now
 %       works with this geometry. Implemented the tangent function.
