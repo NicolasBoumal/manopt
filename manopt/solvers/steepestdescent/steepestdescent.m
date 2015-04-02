@@ -81,13 +81,13 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     % Verify that the problem description is sufficient for the solver.
     if ~canGetCost(problem)
         warning('manopt:getCost', ...
-                'No cost provided. The algorithm will likely abort.');  
+                'No cost provided. The algorithm will likely abort.');
     end
     if ~canGetGradient(problem)
         warning('manopt:getGradient', ...
-                'No gradient provided. The algorithm will likely abort.');    
+                'No gradient provided. The algorithm will likely abort.');
     end
-
+    
     % Set local defaults here
     localdefaults.minstepsize = 1e-10;
     localdefaults.maxiter = 1000;
@@ -127,8 +127,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     % iterations so far)
     iter = 0;
     
-    % Save stats in a struct array info, and preallocate; see:
-    % http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941
+    % Save stats in a struct array info, and preallocate.
     stats = savestats();
     info(1) = stats;
     info(min(10000, options.maxiter+1)).iter = [];

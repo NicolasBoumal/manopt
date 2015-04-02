@@ -340,8 +340,7 @@ norm_grad = problem.M.norm(x, fgradx);
 % Initialize trust-region radius
 Delta = options.Delta0;
 
-% Save stats in a struct array info, and preallocate
-% (see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941)
+% Save stats in a struct array info, and preallocate.
 if ~exist('used_cauchy', 'var')
     used_cauchy = [];
 end
