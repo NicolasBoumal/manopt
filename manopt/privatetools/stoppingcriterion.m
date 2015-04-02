@@ -1,7 +1,7 @@
-function [stop reason] = stoppingcriterion(problem, x, options, info, last)
+function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
 % Checks for standard stopping criteria, as a helper to solvers.
 %
-% function [stop reason] = stoppingcriterion(problem, x, options, info, last)
+% function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
 %
 % Executes standard stopping criterion checks, based on what is defined in
 % the info(last) stats structure and in the options structure.
@@ -23,6 +23,9 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 2, 2015 (NB):
+%       'reason' now contains the option name and value that triggered.
 
 
     stop = 0;
@@ -33,7 +36,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Target cost attained
     if isfield(stats, 'cost') && isfield(options, 'tolcost') && ...
        stats.cost <= options.tolcost
-        reason = 'Cost tolerance reached. See options.tolcost.';
+        reason = sprintf('Cost tolerance reached; options.tolcost = %g.', options.tolcost);
         stop = 1;
         return;
     end
@@ -41,31 +44,31 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     % Target gradient norm attained
     if isfield(stats, 'gradnorm') && isfield(options, 'tolgradnorm') && ...
        stats.gradnorm < options.tolgradnorm
-        reason = 'Gradient norm tolerance reached. See options.tolgradnorm.';
+        reason = sprintf('Gradient norm tolerance reached; options.tolgradnorm = %g.', options.tolgradnorm);
         stop = 2;
         return;
     end
 
-    % Alloted time exceeded
+    % Allotted time exceeded
     if isfield(stats, 'time') && isfield(options, 'maxtime') && ...
        stats.time >= options.maxtime
-        reason = 'Max time exceeded. See options.maxtime.';
+        reason = sprintf('Max time exceeded; options.maxtime = %g.', options.maxtime);
         stop = 3;
         return;
     end
 
-    % Alloted iteration count exceeded
+    % Allotted iteration count exceeded
     if isfield(stats, 'iter') && isfield(options, 'maxiter') && ...
        stats.iter >= options.maxiter
-        reason = 'Max iteration count reached. See options.maxiter.';
+        reason = sprintf('Max iteration count reached; options.maxiter = %g.', options.maxiter);
         stop = 4;
         return;
     end
     
-    % Alloted function evaluation count exceeded
+    % Allotted function evaluation count exceeded
     if isfield(stats, 'costevals') && isfield(options, 'maxcostevals') && ...
        stats.costevals >= options.maxcostevals
-        reason = 'Maximum number of cost evaluations reached. See options.maxcostevals.';
+        reason = sprintf('Maximum number of cost evaluations reached; options.maxcostevals = %g.', options.maxcostevals);
         stop = 5;
     end
 
@@ -74,7 +77,7 @@ function [stop reason] = stoppingcriterion(problem, x, options, info, last)
     if isfield(options, 'stopfun')
         userstop = options.stopfun(problem, x, info, last);
         if userstop
-            reason = 'User defined stopfun criterion triggered. See options.stopfun.';
+            reason = 'User defined stopfun criterion triggered; options.stopfun.';
             stop = 6;
             return;
         end
