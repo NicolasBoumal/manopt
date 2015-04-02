@@ -30,7 +30,7 @@ function checkgradient(problem, x, d)
         error('It seems no gradient provided.');    
     end
     
-    dbstore = struct();
+    storedb = struct();
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
     d_isprovided = exist('d', 'var') && ~isempty(d);
@@ -64,7 +64,7 @@ function checkgradient(problem, x, d)
     
     %% Try to check that the gradient is a tangent vector.
     if isfield(problem.M, 'tangent')
-        grad = getGradient(problem, x, dbstore);
+        grad = getGradient(problem, x, storedb);
         pgrad = problem.M.tangent(x, grad);
         residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
         err = problem.M.norm(x, residual);

@@ -36,7 +36,7 @@ function checkhessian(problem, x, d)
         error('It seems no Hessian was provided.');    
     end
     
-    dbstore = struct();
+    storedb = struct();
     
     x_isprovided = exist('x', 'var') && ~isempty(x);
     d_isprovided = exist('d', 'var') && ~isempty(d);
@@ -58,9 +58,9 @@ function checkhessian(problem, x, d)
     
     % Compute the value f0 at f, directional derivative df0 at x along d,
     % and Hessian along [d, d].
-    f0 = getCost(problem, x, dbstore);
-    df0 = getDirectionalDerivative(problem, x, d, dbstore);
-    d2f0 = problem.M.inner(x, d, getHessian(problem, x, d, dbstore));
+    f0 = getCost(problem, x, storedb);
+    df0 = getDirectionalDerivative(problem, x, d, storedb);
+    d2f0 = problem.M.inner(x, d, getHessian(problem, x, d, storedb));
     
     % Compute the value of f at points on the geodesic (or approximation of
     % it) originating from x, along direction d, for stepsizes in a large
@@ -69,7 +69,7 @@ function checkhessian(problem, x, d)
     value = zeros(size(h));
     for i = 1 : length(h)
         y = problem.M.exp(x, d, h(i));
-        value(i) = getCost(problem, y, dbstore);
+        value(i) = getCost(problem, y, storedb);
     end
     
     % Compute the quadratic approximation of the cost function using f0,
@@ -108,7 +108,7 @@ function checkhessian(problem, x, d)
     
     %% Check that the Hessian at x along direction d is a tangent vector.
     if isfield(problem.M, 'tangent')
-        hess = getHessian(problem, x, d, dbstore);
+        hess = getHessian(problem, x, d, storedb);
         phess = problem.M.tangent(x, hess);
         residual = problem.M.lincomb(x, 1, hess, -1, phess);
         err = problem.M.norm(x, residual);
@@ -125,8 +125,8 @@ function checkhessian(problem, x, d)
     %% Check that the Hessian at x is symmetric.
     d1 = problem.M.randvec(x);
     d2 = problem.M.randvec(x);
-    h1 = getHessian(problem, x, d1, dbstore);
-    h2 = getHessian(problem, x, d2, dbstore);
+    h1 = getHessian(problem, x, d1, storedb);
+    h2 = getHessian(problem, x, d2, storedb);
     v1 = problem.M.inner(x, d1, h2);
     v2 = problem.M.inner(x, h1, d2);
     value = v1-v2;

@@ -28,7 +28,7 @@ function checkdiff(problem, x, d)
         error('It seems no directional derivatives were provided.');    
     end
     
-    dbstore = struct();
+    storedb = struct();
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
     d_isprovided = exist('d', 'var') && ~isempty(d);
@@ -46,8 +46,8 @@ function checkdiff(problem, x, d)
     end
 
     % Compute the value f0 at f and directional derivative at x along d.
-    f0 = getCost(problem, x, dbstore);
-    df0 = getDirectionalDerivative(problem, x, d, dbstore);
+    f0 = getCost(problem, x, storedb);
+    df0 = getDirectionalDerivative(problem, x, d, storedb);
     
     % Compute the value of f at points on the geodesic (or approximation of
     % it) originating from x, along direction d, for stepsizes in a large
@@ -56,7 +56,7 @@ function checkdiff(problem, x, d)
     value = zeros(size(h));
     for i = 1 : length(h)
         y = problem.M.exp(x, d, h(i));
-        value(i) = getCost(problem, y, dbstore);
+        value(i) = getCost(problem, y, storedb);
     end
     
     % Compute the linear approximation of the cost function using f0 and
