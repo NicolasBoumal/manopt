@@ -3,16 +3,18 @@ function M = symfixedrankYYfactory(n, k)
 %
 % function M = symfixedrankYYfactory(n, k)
 %
-% The geometry is based on the paper,
-% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
-% "Low-Rank Optimization on the Cone of Positive Semidefinite Matrices",
-% SIAM Journal on Optimization, 2010.
-%
-% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
-%
 % A point X on the manifold is parameterized as YY^T where Y is a matrix of
-% size nxk. The matrix Y (nxk) is a full column-rank matrix. Hence, we deal 
-% directly with Y.
+% size nxk. As such, X is symmetric, positive semidefinite. We restrict to
+% full-rank Y's, such that X has rank exactly k. The point X is numerically
+% represented by Y (this is more efficient than working with X, which may
+% be big). Tangent vectors are represented as matrices of the same size as
+% Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y. The metric is the
+% canonical Euclidean metric on Y.
+% 
+% Since for any orthogonal Q of size k, it holds that (YQ)(YQ)' = YY',
+% we "group" all matrices of the form YQ in an equivalence class. The set
+% of equivalence classes is a Riemannian quotient manifold, implemented
+% here.
 %
 % Notice that this manifold is not complete: if optimization leads Y to be
 % rank-deficient, the geometry will break down. Hence, this geometry should
@@ -23,17 +25,39 @@ function M = symfixedrankYYfactory(n, k)
 % rank k is described in Bonnabel and Sepulchre 2009, "Riemannian Metric
 % and Geometric Mean for Positive Semidefinite Matrices of Fixed Rank",
 % SIAM Journal on Matrix Analysis and Applications.
+%
+%
+% The geometry here implemented is the simplest case of the 2010 paper:
+% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
+% "Low-Rank Optimization on the Cone of Positive Semidefinite Matrices".
+% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
+% 
+% 
+% Please cite the Manopt paper as well as the research paper:
+%     @Article{journee2010low,
+%       Title   = {Low-rank optimization on the cone of positive semidefinite matrices},
+%       Author  = {Journ{\'e}e, M. and Bach, F. and Absil, P.-A. and Sepulchre, R.},
+%       Journal = {SIAM Journal on Optimization},
+%       Year    = {2010},
+%       Number  = {5},
+%       Pages   = {2327--2351},
+%       Volume  = {20},
+%       Doi     = {10.1137/080731359}
+%     }
+%
+% See also: elliptopefactory spectrahedronfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
-%  July 10, 2013 (NB)
+%
+%  July 10, 2013 (NB):
 %       Added vec, mat, tangent, tangent2ambient ;
 %       Correction for the dimension of the manifold.
 
 
-M.name = @() sprintf('YY'' quotient manifold of %dx%d PSD matrices of rank %d', n, k);
+M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
 
 M.dim = @() k*n - k*(k-1)/2;
 

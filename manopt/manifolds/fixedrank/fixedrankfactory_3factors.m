@@ -14,7 +14,7 @@ function M = fixedrankfactory_3factors(m, n, k)
 %
 % B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
-% arXiv, 2012.
+% Computational Statistics, 2014.
 %
 % Paper link: http://arxiv.org/abs/1209.0430
 %
@@ -25,6 +25,19 @@ function M = fixedrankfactory_3factors(m, n, k)
 %
 % Tangent vectors are represented as a structure with three fields: L, S
 % and R.
+%
+% 
+% Please cite the Manopt paper as well as the research paper:
+%     @InProceedings{meyer2011linear,
+%       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
+%       Author       = {Meyer, G. and Bonnabel, S. and Sepulchre, R.},
+%       Booktitle    = {{28th International Conference on Machine Learning}},
+%       Year         = {2011},
+%       Organization = {{ICML}}
+%     }
+%
+%
+% See also fixedrankembeddedfactory fixedrankfactory_2factors fixedrankfactory_3factors_preconditioned
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.

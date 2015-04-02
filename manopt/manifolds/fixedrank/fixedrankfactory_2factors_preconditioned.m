@@ -1,23 +1,34 @@
 function M = fixedrankfactory_2factors_preconditioned(m, n, k)
-% Manifold of m-by-n matrices of rank k with new balanced quotient geometry
+% Manifold of m-by-n matrices of rank k with a balanced quotient geometry
 %
 % function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 %
 % This follows the quotient geometry described in the following paper:
 % B. Mishra, K. Adithya Apuroop and R. Sepulchre,
-% "A Riemannian geometry for low-rank matrix completion",
-% arXiv, 2012.
+% "A Riemannian geometry for low-rank matrix completion", arXiv, 2012.
 %
 % Paper link: http://arxiv.org/abs/1211.1550
 %
-% This geoemtry is tuned to least square problems such as low-rank matrix
-% completion.
+% This geometry is tuned to least squares problems such as low-rank matrix
+% completion with ell-2 loss.
 %
 % A point X on the manifold is represented as a structure with two
 % fields: L and R. The matrices L (mxk) and R (nxk) are full column-rank
 % matrices.
 %
-% Tangent vectors are represented as a structure with two fields: L, R
+% Tangent vectors are represented as a structure with two fields: L, R.
+%
+% 
+% Please cite the Manopt paper as well as the research paper:
+%     @Article{mishra2012optimized,
+%       Title   = {A {R}iemannian geometry for low-rank matrix completion},
+%       Author  = {Mishra, B. and Adithya Apuroop, K. and Sepulchre, R.},
+%       Journal = {Arxiv preprint arXiv:1211.1550},
+%       Year    = {2012}
+%     }
+%
+%
+% See also fixedrankembeddedfactory fixedrankfactory_2factors
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.

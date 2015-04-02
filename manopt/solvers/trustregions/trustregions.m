@@ -182,6 +182,20 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % to use statsfun with the store to compute, for example, alternate merit
 % functions on the point x.
 %
+%
+% Please cite the Manopt paper as well as the research paper:
+%     @Article{genrtr,
+%       Title    = {Trust-region methods on {Riemannian} manifolds},
+%       Author   = {Absil, P.-A. and Baker, C. G. and Gallivan, K. A.},
+%       Journal  = {Foundations of Computational Mathematics},
+%       Year     = {2007},
+%       Number   = {3},
+%       Pages    = {303--330},
+%       Volume   = {7},
+%       Doi      = {10.1007/s10208-005-0179-9}
+%     }
+%
+%
 % See also: steepestdescent conjugategradient manopt/examples
 
 % This file is part of Manopt: www.manopt.org.
@@ -193,6 +207,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)
 % See accompanying license file.
 % The adaptation was executed by Nicolas Boumal.
+%
 %
 % Change log: 
 %
