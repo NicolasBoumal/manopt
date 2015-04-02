@@ -103,8 +103,8 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
     
         if ~canGetPrecon(problem)
             
-            % There is no preconditinoer : just deal with the (symmetric)
-            % Hessian.
+            % There is no preconditioner: just deal with
+			% the (symmetric) Hessian.
             
             eigs_opts.issym = vec_mat_are_isometries;
             eigs_opts.isreal = true;
