@@ -20,17 +20,10 @@ function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
 
     if isfield(problem, 'approxhess')
     %% Compute the approximate Hessian using approxhess.
-        
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.approxhess);
-		else
-			narg = 3;
-		end
 		
         % Check whether the approximate Hessian function wants to deal with
         % the store structure or not.
-        switch narg
+        switch nargin(problem.approxhess);
             case 2
                 approxhess = problem.approxhess(x, d);
             case 3

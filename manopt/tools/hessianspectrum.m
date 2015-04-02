@@ -131,15 +131,8 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
         % There is a preconditioner, and we have its square root: deal with
         % the symmetric composition sqrtprec o hess o sqrtprec.
         % Need to check also whether sqrtprec uses the store cache or not.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-        if ~is_octave
-			narg = nargin(sqrtprec);
-		else
-			narg = 3;
-        end
 		
-        switch narg
+        switch nargin(sqrtprec)
 			case 2
 				sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)))));
 			case 3

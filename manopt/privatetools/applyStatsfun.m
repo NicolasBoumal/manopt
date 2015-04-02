@@ -15,15 +15,8 @@ function stats = applyStatsfun(problem, x, storedb, options, stats)
 % Change log: 
 
 	if isfield(options, 'statsfun')
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(options.statsfun);
-		else
-			narg = 4;
-		end
 		
-        switch narg
+        switch nargin(options.statsfun)
             case 3
                 stats = options.statsfun(problem, x, stats);
             case 4

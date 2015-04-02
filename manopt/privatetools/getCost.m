@@ -17,17 +17,10 @@ function [cost, storedb] = getCost(problem, x, storedb)
 
     if isfield(problem, 'cost')
     %% Compute the cost function using cost.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.cost);
-		else
-			narg = 2;
-		end
 	
         % Check whether the cost function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.cost)
             case 1
                 cost = problem.cost(x);
             case 2
@@ -44,17 +37,10 @@ function [cost, storedb] = getCost(problem, x, storedb)
         
     elseif isfield(problem, 'costgrad')
     %% Compute the cost function using costgrad.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.costgrad);
-		else
-			narg = 2;
-		end
 	
         % Check whether the costgrad function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.costgrad)
             case 1
                 cost = problem.costgrad(x);
             case 2

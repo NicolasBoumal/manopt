@@ -17,17 +17,10 @@ function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)
     
     if isfield(problem, 'diff')
     %% Compute the directional derivative using diff.
-        
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.diff);
-		else
-			narg = 3;
-		end
 		
         % Check whether the diff function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.diff)
             case 2
                 diff = problem.diff(x, d);
             case 3

@@ -32,17 +32,10 @@ function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)
     
     if isfield(problem, 'egrad')
     %% Compute the Euclidean gradient using egrad.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.egrad);
-		else
-			narg = 2;
-		end
 	
         % Check whether the egrad function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.egrad)
             case 1
                 % If it does not want to deal with the store structure,
                 % then we do some caching of our own. There is a small

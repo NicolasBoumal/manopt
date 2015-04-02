@@ -21,17 +21,10 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
     
     if isfield(problem, 'hess')
     %% Compute the Hessian using hess.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.hess);
-		else
-			narg = 3;
-		end
 	
         % Check whether the hess function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.hess)
             case 2
                 hess = problem.hess(x, d);
             case 3
@@ -52,17 +45,10 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
         % We will need the Euclidean gradient for the conversion from the
         % Euclidean Hessian to the Riemannian Hessian.
         [egrad, storedb] = getEuclideanGradient(problem, x, storedb);
-        
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.ehess);
-		else
-			narg = 3;
-		end
 		
         % Check whether the ehess function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.ehess)
             case 2
                 ehess = problem.ehess(x, d);
             case 3

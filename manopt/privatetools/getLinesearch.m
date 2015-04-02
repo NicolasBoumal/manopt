@@ -21,17 +21,10 @@ function [t, storedb] = getLinesearch(problem, x, d, storedb)
 
     if isfield(problem, 'linesearch')
     %% Compute the line-search hint function using linesearch.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.linesearch);
-		else
-			narg = 3;
-		end
 	
         % Check whether the linesearch function wants to deal with the
         % store structure or not.
-        switch narg
+        switch nargin(problem.linesearch)
             case 2
                 t = problem.linesearch(x, d);
             case 3
