@@ -91,8 +91,8 @@ else
     nontracedimensions(d2)=[];
 end
 tracedsize=size(tracedtensor);
-% Next line modified, Nicolas Boumal, April 30, 2012, such that diagsum(A,
-% 1, 2) would compute the trace of A, a 2D matrix.
+% Next line modified, Nicolas Boumal, April 30, 2012, such that
+% diagsum(A, 1, 2) would compute the trace of A, a 2D matrix.
 if length(tracedsize)==2 && tracedsize(2)==1 && ...
    (isempty(nontracedimensions) || tracedsize(1)~=nontracedimensions(1))
 

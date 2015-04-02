@@ -58,7 +58,7 @@ function M = spherecomplexfactory(n, m)
     M.retr = @retraction;
 
     M.log = @logarithm;
-    function v = logarithm(x1, x2)
+    function v = logarithm(x1, x2) %#ok<INUSD,STOUT>
         error('The logarithmic map is not yet implemented for this manifold.');
     end
     

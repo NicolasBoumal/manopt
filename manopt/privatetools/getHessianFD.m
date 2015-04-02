@@ -19,7 +19,7 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 %       It is sufficient to ensure positive radial linearity to guarantee
 %       (together with other assumptions) that this approximation of the
 %       Hessian will confer global convergence to the trust-regions method.
-%       Formerly, in-code comments refered to the necessity of having
+%       Formerly, in-code comments referred to the necessity of having
 %       complete radial linearity, and that this was harder to achieve.
 %       This appears not to be necessary after all, which simplifies the
 %       code.
@@ -30,18 +30,20 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
             'getHessianFD requires the gradient to be computable.');
         throw(up);
     end
+	
+	% Step size
+    norm_d = problem.M.norm(x, d);
     
     % First, check whether the step d is not too small
-    if problem.M.norm(x, d) < eps
+    if norm_d < eps
         hessfd = problem.M.zerovec(x);
         return;
     end
     
     % Parameter: how far do we look?
-	% TODO: this parameter should be tunable by the users.
+	% TODO: this parameter should be tunable by the user.
     epsilon = 1e-4;
         
-    norm_d = problem.M.norm(x, d);
     c = epsilon/norm_d;
     
     % Compute the gradient at the current point.

@@ -7,7 +7,7 @@ function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
 % described in the problem structure. The cache database storedb is passed
 % along, possibly modified and returned in the process.
 %
-% If no approximate Hessian was furnished, this call is redirected to
+% If no approximate Hessian was provided, this call is redirected to
 % getHessianFD.
 %
 % See also: getHessianFD
@@ -30,7 +30,7 @@ function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
                 % Obtain, pass along, and save the store structure
                 % associated to this point.
                 store = getStore(problem, x, storedb);
-                [approxhess store] = problem.approxhess(x, d, store);
+                [approxhess, store] = problem.approxhess(x, d, store);
                 storedb = setStore(problem, x, storedb, store);
             otherwise
                 up = MException('manopt:getApproxHessian:badapproxhess', ...
