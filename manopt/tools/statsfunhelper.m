@@ -50,7 +50,7 @@ function statsfun = statsfunhelper(inp1, inp2)
 %  metrics.othername = otherfun;
 %  options.statsfun = statsfunhelper(metrics);
 %
-% The different functions handles (here, fun and otherfun) can take 1 to 4
+% The different function handles (here, fun and otherfun) can take 1 to 4
 % inputs too, and they do not have to take the same number of inputs.
 
 % This file is part of Manopt: www.manopt.org.
