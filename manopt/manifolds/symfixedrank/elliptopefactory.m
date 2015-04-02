@@ -158,8 +158,7 @@ function etaproj = projection(Y, eta)
         % This is supposed to work and indeed return a skew-symmetric
         % solution Omega.
         Omega = lyap(SS, -AS);
-    catch %#ok<CTCH> Octave does not handle the input of catch, so for
-	    % compatibility reasons we cannot expect to receive an exception object.
+    catch up
         % It can happen though that SS will be rank deficient. The
         % Lyapunov equation we solve still has a unique skew-symmetric
         % solution, but solutions with a symmetric part now also exist,
