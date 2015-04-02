@@ -70,6 +70,7 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
 inner = problem.M.inner;
+lincomb = problem.M.lincomb;
 
 theta = options.theta;
 kappa = options.kappa;
@@ -81,7 +82,7 @@ if ~options.useRand % and therefore, eta == 0
 else % and therefore, no preconditioner
     % eta (presumably) ~= 0 was provided by the caller
     [Heta, storedb] = getHessian(problem, x, eta, storedb);
-    r = problem.M.lincomb(x, 1, grad, 1, Heta);
+    r = lincomb(x, 1, grad, 1, Heta);
     e_Pe = inner(x, eta, eta);
 end
 r_r = inner(x, r, r);
@@ -100,7 +101,7 @@ z_r = inner(x, z, r);
 d_Pd = z_r;
 
 % Initial search direction
-delta  = problem.M.lincomb(x, -1, z);
+delta  = lincomb(x, -1, z);
 if ~options.useRand % and therefore, eta == 0
     e_Pd = 0;
 else % and therefore, no preconditioner
@@ -158,8 +159,8 @@ for j = 1 : options.maxinner
         if options.debug > 2,
             fprintf('DBG:     tau  : %e\n', tau);
         end
-        eta  = problem.M.lincomb(x, 1,  eta, tau,  delta);
-        Heta = problem.M.lincomb(x, 1, Heta, tau, Hdelta);
+        eta  = lincomb(x, 1,  eta, tau,  delta);
+        Heta = lincomb(x, 1, Heta, tau, Hdelta);
         
         % Technically, we may want to verify that this new eta is indeed
         % better than the previous eta before returning it (this is always
@@ -178,8 +179,8 @@ for j = 1 : options.maxinner
     
     % No negative curvature and eta_prop inside TR: accept it
     e_Pe = e_Pe_new;
-    new_eta  = problem.M.lincomb(x, 1,  eta, alpha,  delta);
-    new_Heta = problem.M.lincomb(x, 1, Heta, alpha, Hdelta);
+    new_eta  = lincomb(x, 1,  eta, alpha,  delta);
+    new_Heta = lincomb(x, 1, Heta, alpha, Hdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
     % it did not (which can only occur if the Hessian approximation is
@@ -197,7 +198,7 @@ for j = 1 : options.maxinner
     model_value = new_model_value; %% added Feb. 17, 2015
     
     % Update the residual
-    r = problem.M.lincomb(x, 1, r, alpha, Hdelta);
+    r = lincomb(x, 1, r, alpha, Hdelta);
     
     % Compute new norm of r
     r_r = inner(x, r, r);
@@ -232,7 +233,7 @@ for j = 1 : options.maxinner
     
     % Compute new search direction
     beta = z_r/zold_rold;
-    delta = problem.M.lincomb(x, -1, z, beta, delta);
+    delta = lincomb(x, -1, z, beta, delta);
     
     % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7]
     e_Pd = beta*(e_Pd + alpha*d_Pd);
