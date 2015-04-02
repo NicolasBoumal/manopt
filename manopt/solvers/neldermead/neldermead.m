@@ -94,8 +94,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
     % iterations so far).
     iter = 0;
     
-    % Save stats in a struct array info, and preallocate
-    % (see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941)
+    % Save stats in a struct array info, and preallocate.
     % savestats will be called twice for the initial iterate (number 0),
     % which is unfortunate, but not problematic.
     stats = savestats();

@@ -187,8 +187,7 @@ gradPgrad = inner(x, grad, Pgrad);
 % iterations so far)
 iter = 0;
 
-% Save stats in a struct array info and preallocate,
-% see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941
+% Save stats in a struct array info and preallocate.
 stats = savestats();
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
