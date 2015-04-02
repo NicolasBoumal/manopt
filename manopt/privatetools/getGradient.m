@@ -17,17 +17,10 @@ function [grad, storedb] = getGradient(problem, x, storedb)
     
     if isfield(problem, 'grad')
     %% Compute the gradient using grad.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.cost);
-		else
-			narg = 2;
-		end
 	
         % Check whether the gradient function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.cost)
             case 1
                 grad = problem.grad(x);
             case 2
@@ -44,17 +37,10 @@ function [grad, storedb] = getGradient(problem, x, storedb)
     
     elseif isfield(problem, 'costgrad')
     %% Compute the gradient using costgrad.
-        
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.costgrad);
-		else
-			narg = 2;
-		end
 		
         % Check whether the costgrad function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.costgrad)
             case 1
                 [unused, grad] = problem.costgrad(x); %#ok
             case 2

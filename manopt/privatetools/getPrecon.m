@@ -17,17 +17,10 @@ function [Pd, storedb] = getPrecon(problem, x, d, storedb)
     
     if isfield(problem, 'precon')
     %% Compute the preconditioning using precon.
-
-		is_octave = exist('OCTAVE_VERSION', 'builtin');
-		if ~is_octave
-			narg = nargin(problem.precon);
-		else
-			narg = 3;
-		end
 	
         % Check whether the precon function wants to deal with the store
         % structure or not.
-        switch narg
+        switch nargin(problem.precon)
             case 2
                 Pd = problem.precon(x, d);
             case 3
