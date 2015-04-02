@@ -11,18 +11,30 @@ function storedb = purgeStoredb(storedb, storedepth)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+% 
 %   Dec. 6, 2013, NB:
 %       Now using a persistent uint32 counter instead of cputime to track
 %       the most recently modified stores.
+%
+%   April 2, 2015, NB:
+%       Makes sure we do not erase the permanent memory.
 
-
+    % If no memory is allowed (apart from the permanent one), erase all.
     if storedepth <= 0
-        storedb = struct();
+        if isfield(storedb, 'permanent')
+            storedb = struct('permanent', storedb.permanent);
+        else
+            storedb = struct('permanent', struct());
+        end
         return;
     end
 
     % Get list of field names (keys).
     keys = fieldnames(storedb);
+    
+    % Remove the 'permanent' field from the list: that one is special.
+    keys = setdiff(keys, 'permanent');
+    
     nkeys = length(keys);
     
     % If we need to remove some of the elements in the database.
