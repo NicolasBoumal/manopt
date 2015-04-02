@@ -2,7 +2,9 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
                       = tCG(problem, x, grad, eta, Delta, options, storedb)
 % tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
-% subject to <eta,eta> <= Delta^2
+% subject to <eta,eta>_[inverse precon] <= Delta^2
+%
+% See also: trustregions
 
 % This file is part of Manopt: www.manopt.org.
 % This code is an adaptation to Manopt of the original GenRTR code:
@@ -13,19 +15,24 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
 % (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)
 % See accompanying license file.
 % The adaptation was executed by Nicolas Boumal.
+%
 % Change log:
+%
 %   NB Feb. 12, 2013:
 %       We do not project r back to the tangent space anymore: it was not
 %       necessary, and as of Manopt 1.0.1, the proj operator does not
 %       coincide with this notion anymore.
+%
 %   NB April 3, 2013:
 %       tCG now also returns Heta, the Hessian at x along eta. Additional
 %       esthetic modifications.
+%
 %   NB Dec. 2, 2013:
 %       If options.useRand is activated, we now make sure the preconditio-
 %       ner is not used, as was originally intended in GenRTR. In time, we
 %       may want to investigate whether useRand can be modifed to work well
 %       with preconditioning too.
+%
 %   NB Jan. 9, 2014:
 %       Now checking explicitly for model decrease at each iteration. The
 %       first iteration is a Cauchy point, which necessarily realizes a
@@ -34,6 +41,7 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
 %       the Hessian approximation), then we return the previous eta. This
 %       ensures we always achieve at least the Cauchy decrease, which
 %       should be sufficient for convergence.
+%
 %   NB Feb. 17, 2015:
 %       The previous update was in effect verifying that the current eta
 %       performed at least as well as the first eta (the Cauchy step) with
@@ -80,7 +88,7 @@ if ~options.useRand % and therefore, eta == 0
     r = grad;
     e_Pe = 0;
 else % and therefore, no preconditioner
-    % eta (presumably) ~= 0 was provided by the caller
+    % eta (presumably) ~= 0 was provided by the caller.
     [Heta, storedb] = getHessian(problem, x, eta, storedb);
     r = lincomb(x, 1, grad, 1, Heta);
     e_Pe = inner(x, eta, eta);
@@ -89,18 +97,18 @@ r_r = inner(x, r, r);
 norm_r = sqrt(r_r);
 norm_r0 = norm_r;
 
-% precondition the residual
+% Precondition the residual.
 if ~options.useRand
     [z, storedb] = getPrecon(problem, x, r, storedb);
 else
     z = r;
 end
 
-% compute z'*r
+% Compute z'*r.
 z_r = inner(x, z, r);
 d_Pd = z_r;
 
-% Initial search direction
+% Initial search direction.
 delta  = lincomb(x, -1, z);
 if ~options.useRand % and therefore, eta == 0
     e_Pd = 0;
@@ -123,16 +131,17 @@ else
     model_value = model_fun(eta, Heta);
 end
 
-% Pre-assume termination because j == end
+% Pre-assume termination because j == end.
 stop_tCG = 5;
 
-% Begin inner/tCG loop
+% Begin inner/tCG loop.
 j = 0;
 for j = 1 : options.maxinner
     
+    % This call is the computationally expensive step.
     [Hdelta, storedb] = getHessian(problem, x, delta, storedb);
     
-    % Compute curvature (often called kappa)
+    % Compute curvature (often called kappa).
     d_Hd = inner(x, delta, Hdelta);
     
     
@@ -160,6 +169,9 @@ for j = 1 : options.maxinner
             fprintf('DBG:     tau  : %e\n', tau);
         end
         eta  = lincomb(x, 1,  eta, tau,  delta);
+        
+        % If only a nonlinear Hessian approximation is available, this is
+        % only approximately correct, but saves an additional Hessian call.
         Heta = lincomb(x, 1, Heta, tau, Hdelta);
         
         % Technically, we may want to verify that this new eta is indeed
@@ -177,9 +189,12 @@ for j = 1 : options.maxinner
         break;
     end
     
-    % No negative curvature and eta_prop inside TR: accept it
+    % No negative curvature and eta_prop inside TR: accept it.
     e_Pe = e_Pe_new;
     new_eta  = lincomb(x, 1,  eta, alpha,  delta);
+    
+    % If only a nonlinear Hessian approximation is available, this is
+    % only approximately correct, but saves an additional Hessian call.
     new_Heta = lincomb(x, 1, Heta, alpha, Hdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
@@ -197,10 +212,10 @@ for j = 1 : options.maxinner
     Heta = new_Heta;
     model_value = new_model_value; %% added Feb. 17, 2015
     
-    % Update the residual
+    % Update the residual.
     r = lincomb(x, 1, r, alpha, Hdelta);
     
-    % Compute new norm of r
+    % Compute new norm of r.
     r_r = inner(x, r, r);
     norm_r = sqrt(r_r);
     
@@ -219,23 +234,23 @@ for j = 1 : options.maxinner
         break;
     end
     
-    % Precondition the residual
+    % Precondition the residual.
     if ~options.useRand
         [z, storedb] = getPrecon(problem, x, r, storedb);
     else
         z = r;
     end
     
-    % Save the old z'*r
+    % Save the old z'*r.
     zold_rold = z_r;
-    % Compute new z'*r
+    % Compute new z'*r.
     z_r = inner(x, z, r);
     
-    % Compute new search direction
+    % Compute new search direction.
     beta = z_r/zold_rold;
     delta = lincomb(x, -1, z, beta, delta);
     
-    % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7]
+    % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7].
     e_Pd = beta*(e_Pd + alpha*d_Pd);
     d_Pd = z_r + beta*beta*d_Pd;
     
