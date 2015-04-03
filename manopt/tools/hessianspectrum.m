@@ -103,7 +103,7 @@ function lambdas = hessianspectrum(problem, x, storedb, key)
     % It is usually a good idea to force a gradient computation to make
     % sure precomputable things are precomputed.
     if canGetGradient(problem)
-        [unused1, unused2, storedb] = getCostGrad(problem, x, storedb, key); %#ok<ASGLU>
+        [unused1, unused2] = getCostGrad(problem, x, storedb, key); %#ok
     end
     
     hess = @(u_mat) tgt(getHessian(problem, x, tgt(u_mat), storedb, key));
