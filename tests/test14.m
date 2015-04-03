@@ -8,7 +8,7 @@ function test14()
 % Change log: 
 
     
-    n = 3000;
+    n = 1000;
     z = 2*randi(2, n, 1)-3;
     
     % Exact data matrix
@@ -27,17 +27,17 @@ function test14()
     problem.cost = @(z) -.5*real(z'*H*z);
     problem.grad = @(z) problem.M.proj(z, -H*z);
     
-%     checkgradient(problem);
+    checkgradient(problem); pause;
 
     % Compute eigenvector initial guess
-    [v d] = eigs(H, 1);
+    [v, d] = eigs(H, 1); %#ok<NASGU>
     z0 = sign(v);
     
     % TODO investigate this: z0 seems to be a "point selle"
     z0 = problem.M.retr(z0, problem.M.randvec(z0), .01*n);
     
     options.Delta_bar = 10*pi*n;
-    [zopt costopt info] = trustregions(problem, z0, options);
+    [zopt, costopt, info] = trustregions(problem, z0, options); %#ok<NASGU,ASGLU>
 %     [zopt costopt] = steepestdescent(problem, z0);
     
     % realign zopt (since this is all up to a phase shift)
@@ -62,6 +62,6 @@ function test14()
     zeig = sign(v);
     abs(zeig'*z)
     
-    keyboard;
+%     keyboard;
 
 end
