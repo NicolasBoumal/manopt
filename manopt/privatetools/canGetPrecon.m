@@ -9,13 +9,13 @@ function candoit = canGetPrecon(problem)
 % This check function is mostly useful to tell whether that default
 % preconditioner will be in use or not.
 %
-% See also: canGetDirectionalDerivative canGetGradient canGetHessian
+% See also: getPrecon getSqrtPrecon canGetSqrtPrecon getHessian
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 3, 2013.
 % Contributors: 
 % Change log: 
 
-    candoit = isfield(problem, 'precon');
+    candoit = isfield(problem, 'precon') || canGetSqrtPrecon(problem);
     
 end
