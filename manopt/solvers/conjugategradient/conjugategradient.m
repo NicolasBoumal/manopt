@@ -11,9 +11,6 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 % (otherwise, at a random point on the manifold). To specify options whilst
 % not specifying an initial guess, give x0 as [] (the empty matrix).
 %
-% In most of the examples bundled with the toolbox (see link below), the
-% solver can be replaced by the present one if need be.
-%
 % The outputs x and cost are the best reached point on the manifold and its
 % cost. The struct-array info contains information about the iterations:
 %   iter : the iteration number (0 for the initial guess)
@@ -94,6 +91,9 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       the CG algorithm, a store depth of 2 should always be sufficient.
 %
 %
+% In most of the examples bundled with the toolbox (see link below), the
+% solver can be replaced by the present one if need be.
+%
 % See also: steepestdescent trustregions manopt/solvers/linesearch manopt/examples
 
 % This file is part of Manopt: www.manopt.org.
@@ -122,7 +122,9 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       Documentation improved: options are now explicitly described.
 %       Removed the Daniel rule for beta: it was not appropriate for
 %       preconditioned CG and I could not find a proper reference for it.
-
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
@@ -167,9 +169,6 @@ options = mergeOptions(localdefaults, options);
 inner = problem.M.inner;
 lincomb = problem.M.lincomb;
 
-% Create a store database
-storedb = struct();
-
 timetic = tic();
 
 % If no initial point x is given by the user, generate one at random.
@@ -177,10 +176,14 @@ if ~exist('x', 'var') || isempty(x)
     x = problem.M.rand();
 end
 
-% Compute objective-related quantities for x
-[cost grad storedb] = getCostGrad(problem, x, storedb);
+% Create a store database and generate a key for the current x
+storedb = StoreDB();
+key = storedb.getNewKey();
+
+% Compute cost-related quantities for x
+[cost, grad] = getCostGrad(problem, x, storedb, key);
 gradnorm = problem.M.norm(x, grad);
-[Pgrad storedb] = getPrecon(problem, x, grad, storedb);
+Pgrad = getPrecon(problem, x, grad, storedb, key);
 gradPgrad = inner(x, grad, Pgrad);
 
 % Iteration counter (at any point, iter is the number of fully executed
@@ -197,7 +200,7 @@ lsmem = [];
 
 
 if options.verbosity >= 2
-    fprintf(' iter\t                cost val\t     grad. norm\n');
+    fprintf(' iter\t               cost val\t    grad. norm\n');
 end
 
 % Compute a first descent direction (not normalized)
@@ -216,12 +219,14 @@ while true
     timetic = tic();
     
     % Run standard stopping criterion checks
-    [stop reason] = stoppingcriterion(problem, x, options, info, iter+1);
+    [stop, reason] = stoppingcriterion(problem, x, options, info, iter+1);
     
     % Run specific stopping criterion check
     if ~stop && abs(stats.stepsize) < options.minstepsize
         stop = true;
-        reason = 'Last stepsize smaller than minimum allowed. See options.minstepsize.';
+        reason = sprintf(['Last stepsize smaller than minimum '  ...
+                          'allowed; options.minstepsize = %g.'], ...
+                          options.minstepsize);
     end
     
     if stop
@@ -255,14 +260,14 @@ while true
     
     
     % Execute line search
-    [stepsize newx storedb lsmem lsstats] = options.linesearch(...
-                 problem, x, desc_dir, cost, df0, options, storedb, lsmem);
+    [stepsize, newx, newkey, lsmem, lsstats] = options.linesearch( ...
+            problem, x, desc_dir, cost, df0, options, storedb, key, lsmem);
 
     
-    % Compute the new cost-related quantities for x
-    [newcost newgrad storedb] = getCostGrad(problem, newx, storedb);
+    % Compute the new cost-related quantities for newx
+    [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
     newgradnorm = problem.M.norm(newx, newgrad);
-    [Pnewgrad storedb] = getPrecon(problem, x, newgrad, storedb);
+    Pnewgrad = getPrecon(problem, newx, newgrad, storedb, newkey);
     newgradPnewgrad = inner(newx, newgrad, Pnewgrad);
     
     
@@ -282,7 +287,7 @@ while true
     else
         
         oldgrad = problem.M.transp(x, newx, grad);
-        orth_grads = inner(newx, oldgrad, Pnewgrad)/newgradPnewgrad;
+        orth_grads = inner(newx, oldgrad, Pnewgrad) / newgradPnewgrad;
         
         % Powell's restart strategy (see page 12 of Hager and Zhang's
         % survey on conjugate gradient methods, for example)
@@ -301,7 +306,7 @@ while true
                 % vector grad(new) - transported grad(current)
                 diff = lincomb(newx, 1, newgrad, -1, oldgrad);
                 ip_diff = inner(newx, Pnewgrad, diff);
-                beta = ip_diff/gradPgrad;
+                beta = ip_diff / gradPgrad;
                 beta = max(0, beta);
                 
             elseif strcmp(options.beta_type, 'H-S')  % Hestenes-Stiefel+
@@ -317,13 +322,13 @@ while true
                 deno = inner(newx, diff, desc_dir);
                 numo = inner(newx, diff, Pnewgrad);
                 numo = numo - 2*inner(newx, diff, Pdiff)*...
-                                       inner(newx, desc_dir, newgrad)/deno;
-                beta = numo/deno;
+                                     inner(newx, desc_dir, newgrad) / deno;
+                beta = numo / deno;
                 
                 % Robustness (see Hager-Zhang paper mentioned above)
                 desc_dir_norm = problem.M.norm(newx, desc_dir);
-                eta_HZ = -1/(desc_dir_norm * min(0.01, gradnorm));
-                beta = max(beta,  eta_HZ);
+                eta_HZ = -1 / (  desc_dir_norm * min(0.01, gradnorm)  );
+                beta = max(beta, eta_HZ);
 
             else
                 error(['Unknown options.beta_type. ' ...
@@ -334,11 +339,12 @@ while true
         
     end
     
-    % Make sure we don't use too much memory for the store database.
-    storedb = purgeStoredb(storedb, options.storedepth);
+    % Make sure we don't use too much memory for the store database
+    storedb.purge();
     
-    % Update iterate info
+    % Transfer iterate info
     x = newx;
+    key = newkey;
     cost = newcost;
     grad = newgrad;
     Pgrad = Pnewgrad;
@@ -378,7 +384,7 @@ end
             stats.linesearch = lsstats;
             stats.beta = beta;
         end
-        stats = applyStatsfun(problem, x, storedb, options, stats);
+        stats = applyStatsfun(problem, x, storedb, key, options, stats);
     end
 
 end

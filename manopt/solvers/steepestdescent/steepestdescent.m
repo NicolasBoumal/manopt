@@ -140,7 +140,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     lsmem = [];
     
     if options.verbosity >= 2
-        fprintf(' iter\t                cost val\t     grad. norm\n');
+        fprintf(' iter\t               cost val\t    grad. norm\n');
     end
     
     % Start iterating until stopping criterion triggers
