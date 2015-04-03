@@ -1,6 +1,8 @@
 function egrad = getEuclideanGradient(problem, x, storedb, key)
 % Computes the Euclidean gradient of the cost function at x.
 %
+% function egrad = getEuclideanGradient(problem, x)
+% function egrad = getEuclideanGradient(problem, x, storedb)
 % function egrad = getEuclideanGradient(problem, x, storedb, key)
 %
 % Returns the Euclidean gradient at x of the cost function described in the
@@ -24,6 +26,14 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
     
     if isfield(problem, 'egrad')

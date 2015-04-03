@@ -1,6 +1,8 @@
 function Pd = getPrecon(problem, x, d, storedb, key)
 % Applies the preconditioner for the Hessian of the cost at x along d.
 %
+% function Pd = getPrecon(problem, x, d)
+% function Pd = getPrecon(problem, x, d, storedb)
 % function Pd = getPrecon(problem, x, d, storedb, key)
 %
 % Returns as Pd the result of applying the Hessian preconditioner to the
@@ -20,6 +22,14 @@ function Pd = getPrecon(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
     
     if isfield(problem, 'precon')

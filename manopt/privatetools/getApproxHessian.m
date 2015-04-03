@@ -1,6 +1,8 @@
 function approxhess = getApproxHessian(problem, x, d, storedb, key)
 % Computes an approximation of the Hessian of the cost fun. at x along d.
 %
+% function approxhess = getApproxHessian(problem, x, d)
+% function approxhess = getApproxHessian(problem, x, d, storedb)
 % function approxhess = getApproxHessian(problem, x, d, storedb, key)
 %
 % Returns an approximation of the Hessian at x along d of the cost function
@@ -20,6 +22,14 @@ function approxhess = getApproxHessian(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
 
     if isfield(problem, 'approxhess')

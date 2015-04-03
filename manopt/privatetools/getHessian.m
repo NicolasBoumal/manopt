@@ -1,6 +1,8 @@
 function hess = getHessian(problem, x, d, storedb, key)
 % Computes the Hessian of the cost function at x along d.
 %
+% function hess = getHessian(problem, x, d)
+% function hess = getHessian(problem, x, d, storedb)
 % function hess = getHessian(problem, x, d, storedb, key)
 %
 % Returns the Hessian at x along d of the cost function described in the
@@ -22,6 +24,15 @@ function hess = getHessian(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
+    
     
     if isfield(problem, 'hess')
     %% Compute the Hessian using hess.

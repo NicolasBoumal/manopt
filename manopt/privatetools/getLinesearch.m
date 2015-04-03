@@ -1,6 +1,8 @@
 function t = getLinesearch(problem, x, d, storedb, key)
 % Returns a hint for line-search algorithms.
 %
+% function t = getLinesearch(problem, x, d)
+% function t = getLinesearch(problem, x, d, storedb)
 % function t = getLinesearch(problem, x, d, storedb, key)
 %
 % For a line-search problem at x along the tangent direction d, computes
@@ -19,6 +21,14 @@ function t = getLinesearch(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
 
     if isfield(problem, 'linesearch')
