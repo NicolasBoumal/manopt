@@ -1,26 +1,19 @@
-function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)
+function egrad = getEuclideanGradient(problem, x, storedb, key)
 % Computes the Euclidean gradient of the cost function at x.
 %
-% function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)
+% function egrad = getEuclideanGradient(problem, x, storedb, key)
 %
 % Returns the Euclidean gradient at x of the cost function described in the
-% problem structure. The cache database storedb is passed along, possibly
-% modified and returned in the process.
+% problem structure.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % Because computing the Hessian based on the Euclidean Hessian will require
 % the Euclidean gradient every time, to avoid overly redundant
 % computations, if the egrad function does not use the store caching
-% capabilites, we implement an automatic caching functionality. This means
-% that even if the user does not use the store parameter, the hashing
-% function will be used, and this can translate in a performance hit for
-% small problems. For problems with expensive cost functions, this should
-% be a bonus though. Writing egrad to accept the optional store parameter
-% (as input and output) will disable automatic caching, but activate user
-% controlled caching, which means hashing will be computed in all cases.
-%
-% If you absolutely do not want hashing to be used (and hence do not want
-% caching to be used), you can define grad instead of egrad, without store
-% support, and call problem.M.egrad2rgrad manually.
+% capabilites, this implements an automatic caching functionality. Writing
+% egrad to accept the optional store or storedb parameter will disable
+% automatic caching, but allow user controlled caching.
 %
 % See also: getGradient canGetGradient canGetEuclideanGradient
 
@@ -28,36 +21,41 @@ function [egrad, storedb] = getEuclideanGradient(problem, x, storedb)
 % Original author: Nicolas Boumal, July 9, 2013.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     
     if isfield(problem, 'egrad')
     %% Compute the Euclidean gradient using egrad.
 	
-        % Check whether the egrad function wants to deal with the store
-        % structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.egrad)
             case 1
                 % If it does not want to deal with the store structure,
                 % then we do some caching of our own. There is a small
                 % performance hit for this is some cases, but we expect
                 % that this is most often the preferred choice.
-                store = getStore(problem, x, storedb);
+                store = storedb.get(key);
                 if ~isfield(store, 'egrad__')
                     store.egrad__ = problem.egrad(x);
-                    storedb = setStore(problem, x, storedb, store);
+                    storedb.set(store, key);
                 end
                 egrad = store.egrad__;
             case 2
-                % Obtain, pass along, and save the store structure
-                % associated to this point. If the user deals with the
-                % store structure, then we don't do any automatic caching:
-                % the user is in control.
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                % If the user deals with the store structure, then we don't
+                % do any automatic caching: the user is in control.
+                store = storedb.getWithShared(key);
                 [egrad, store] = problem.egrad(x, store);
-                storedb = setStore(problem, x, storedb, store);
+                storedb.setWithShared(store, key);
+            case 3
+                % Pass along the whole storedb (by reference), with key.
+                % Same here: no automatic caching.
+                egrad = problem.egrad(x, storedb, key);
             otherwise
                 up = MException('manopt:getEuclideanGradient:badegrad', ...
-                    'egrad should accept 1 or 2 inputs.');
+                    'egrad should accept 1, 2 or 3 inputs.');
                 throw(up);
         end
 

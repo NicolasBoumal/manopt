@@ -1,11 +1,12 @@
-function [hess, storedb] = getHessian(problem, x, d, storedb)
+function hess = getHessian(problem, x, d, storedb, key)
 % Computes the Hessian of the cost function at x along d.
 %
-% function [hess, storedb] = getHessian(problem, x, d, storedb)
+% function hess = getHessian(problem, x, d, storedb, key)
 %
 % Returns the Hessian at x along d of the cost function described in the
-% problem structure. The cache database storedb is passed along, possibly
-% modified and returned in the process.
+% problem structure.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % If an exact Hessian is not provided, an approximate Hessian is returned
 % if possible, without warning. If not possible, an exception will be
@@ -18,24 +19,28 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
     
     if isfield(problem, 'hess')
     %% Compute the Hessian using hess.
 	
-        % Check whether the hess function wants to deal with the store
-        % structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.hess)
             case 2
                 hess = problem.hess(x, d);
             case 3
-                % Obtain, pass along, and save the store structure
-                % associated to this point.
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                store = storedb.getWithShared(key);
                 [hess, store] = problem.hess(x, d, store);
-                storedb = setStore(problem, x, storedb, store);
+                storedb.setWithShared(store, key);
+            case 4
+                % Pass along the whole storedb (by reference), with key.
+                hess = problem.hess(x, d, storedb, key);
             otherwise
                 up = MException('manopt:getHessian:badhess', ...
-                    'hess should accept 2 or 3 inputs.');
+                    'hess should accept 2, 3 or 4 inputs.');
                 throw(up);
         end
     
@@ -44,22 +49,23 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
     
         % We will need the Euclidean gradient for the conversion from the
         % Euclidean Hessian to the Riemannian Hessian.
-        [egrad, storedb] = getEuclideanGradient(problem, x, storedb);
+        egrad = getEuclideanGradient(problem, x, storedb, key);
 		
-        % Check whether the ehess function wants to deal with the store
-        % structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.ehess)
             case 2
                 ehess = problem.ehess(x, d);
             case 3
-                % Obtain, pass along, and save the store structure
-                % associated to this point.
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                store = storedb.getWithShared(key);
                 [ehess, store] = problem.ehess(x, d, store);
-                storedb = setStore(problem, x, storedb, store);
+                storedb.setWithShared(store, key);
+            case 4
+                % Pass along the whole storedb (by reference), with key.
+                ehess = problem.ehess(x, d, storedb, key);
             otherwise
                 up = MException('manopt:getHessian:badehess', ...
-                    'ehess should accept 2 or 3 inputs.');
+                    'ehess should accept 2, 3 or 4 inputs.');
                 throw(up);
         end
         
@@ -69,7 +75,7 @@ function [hess, storedb] = getHessian(problem, x, d, storedb)
     else
     %% Attempt the computation of an approximation of the Hessian.
         
-        [hess, storedb] = getApproxHessian(problem, x, d, storedb);
+        hess = getApproxHessian(problem, x, d, storedb, key);
         
     end
     

@@ -56,6 +56,9 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
 % Change log:
 %   
+%   April 3, 2015 (NB):
+%       L products now counted with the new shared memory system. This is
+%       more reliable and more flexible than using a global variable.
 
 
     % If no inputs are provided, generate a random graph Laplacian.
@@ -214,7 +217,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     % cost, gradient and Hessian using the caching system (the store
     % structure). This alows to execute exactly the required number of
     % multiplications with the matrix L. These multiplications are counted
-    % using the permanent memory in the store structure: that memory is
+    % using the shared memory in the store structure: that memory is
     % shared , so we get access to the same data, regardless of the
     % point Y currently visited.
 
@@ -226,10 +229,10 @@ function [Y, info] = maxcut_fixedrank(L, Y)
             % Compute and store the product for the current point Y.
             store.LY = L*Y;
             % Create / increment the shared counter (independent of Y).
-            if isfield(store.permanent, 'counter')
-                store.permanent.counter = store.permanent.counter + 1;
+            if isfield(store.shared, 'counter')
+                store.shared.counter = store.shared.counter + 1;
             else
-                store.permanent.counter = 1;
+                store.shared.counter = 1;
             end
         end
     end
@@ -252,7 +255,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     function [h, store] = ehess(Y, U, store)
         store = prepare(Y, store); % this line is not strictly necessary
         LU = L*U;
-        store.permanent.counter = store.permanent.counter + 1;
+        store.shared.counter = store.shared.counter + 1;
         h = -LU/2;
     end
 
@@ -262,11 +265,11 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     % were needed so far).
     % options.statsfun = @statsfun;
     % function stats = statsfun(problem, Y, stats, store) %#ok
-    %     stats.Lproducts = store.permanent.counter;
+    %     stats.Lproducts = store.shared.counter;
     % end
     % Equivalent, but simpler syntax:
     options.statsfun = statsfunhelper('Lproducts', ...
-                     @(problem, Y, stats, store) store.permanent.counter );
+                     @(problem, Y, stats, store) store.shared.counter );
     
 
     % % Diagnostics tools: to make sure the gradient and Hessian are

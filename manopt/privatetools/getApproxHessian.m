@@ -1,11 +1,12 @@
-function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
+function approxhess = getApproxHessian(problem, x, d, storedb, key)
 % Computes an approximation of the Hessian of the cost fun. at x along d.
 %
-% function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
+% function approxhess = getApproxHessian(problem, x, d, storedb, key)
 %
 % Returns an approximation of the Hessian at x along d of the cost function
-% described in the problem structure. The cache database storedb is passed
-% along, possibly modified and returned in the process.
+% described in the problem structure.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % If no approximate Hessian was provided, this call is redirected to
 % getHessianFD.
@@ -16,32 +17,36 @@ function [approxhess, storedb] = getApproxHessian(problem, x, d, storedb)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
 
     if isfield(problem, 'approxhess')
     %% Compute the approximate Hessian using approxhess.
 		
-        % Check whether the approximate Hessian function wants to deal with
-        % the store structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.approxhess);
             case 2
                 approxhess = problem.approxhess(x, d);
             case 3
-                % Obtain, pass along, and save the store structure
-                % associated to this point.
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                store = storedb.getWithShared(key);
                 [approxhess, store] = problem.approxhess(x, d, store);
-                storedb = setStore(problem, x, storedb, store);
+                storedb.setWithShared(store, key);
+            case 4
+                % Pass along the whole storedb (by reference), with key.
+                approxhess = problem.approxhess(x, d, storedb, key);
             otherwise
                 up = MException('manopt:getApproxHessian:badapproxhess', ...
-                    'approxhess should accept 2 or 3 inputs.');
+                    'approxhess should accept 2, 3 or 4 inputs.');
                 throw(up);
         end
         
     else
     %% Try to fall back to a standard FD approximation.
     
-        [approxhess, storedb] = getHessianFD(problem, x, d, storedb);
+        approxhess = getHessianFD(problem, x, d, storedb, key);
         
     end
     
