@@ -1,9 +1,9 @@
-function [stepsize, newx, storedb, lsmem, lsstats] = ...
-           linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)
+function [stepsize, newx, newkey, lsmem, lsstats] = ...
+      linesearch_hint(problem, x, d, f0, df0, options, storedb, key, lsmem)
 % Armijo line-search based on the line-search hint in the problem structure.
 %
-% function [stepsize, newx, storedb, lsmem, lsstats] = 
-%          linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)
+% function [stepsize, newx, newkey, lsmem, lsstats] = 
+%     linesearch_hint(problem, x, d, f0, df0, options, storedb, key, lsmem)
 %
 % Base line-search algorithm for descent methods, based on a simple
 % backtracking method. The search direction provided has to be a descent
@@ -28,7 +28,8 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
 %  f0 : cost value at x
 %  df0 : directional derivative at x along d
 %  options : options structure (see in code for usage)
-%  storedb : store database structure for caching purposes
+%  storedb : StoreDB object (handle class: passed by reference) for caching
+%  key : key associated to point x in storedb
 %  lsmem : not used
 %
 % Outputs
@@ -36,7 +37,7 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
 %  stepsize : norm of the vector retracted to reach newx from x.
 %  newx : next iterate suggested by the line-search algorithm, such that
 %         the retraction at x of the vector alpha*d reaches newx.
-%  storedb : the (possibly updated) store database structure.
+%  newkey : key associated to newx in storedb
 %  lsmem : not used.
 %  lsstats : statistics about the line-search procedure (stepsize, number
 %            of trials etc).
@@ -48,6 +49,8 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
 % Contributors: 
 % Change log: 
 %
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
 
     % Backtracking default parameters. These can be overwritten in the
@@ -65,11 +68,12 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
     % Obtain an initial guess at alpha from the problem structure. It is
     % assumed that the present line-search is only called when the problem
     % structure provides enough information for the call here to work.
-    [alpha, storedb] = getLinesearch(problem, x, d, storedb);
+    alpha = getLinesearch(problem, x, d, storedb, key);
     
     % Make the chosen step and compute the cost there.
     newx = problem.M.retr(x, d, alpha);
-    [newf, storedb] = getCost(problem, newx, storedb);
+    newkey = storedb.getNewKey();
+    newf = getCost(problem, newx, storedb, newkey);
     cost_evaluations = 1;
     
     % Backtrack while the Armijo criterion is not satisfied
@@ -80,7 +84,8 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
         
         % and look closer down the line
         newx = problem.M.retr(x, d, alpha);
-        [newf, storedb] = getCost(problem, newx, storedb);
+        newkey = storedb.getNewKey();
+        newf = getCost(problem, newx, storedb, newkey);
         cost_evaluations = cost_evaluations + 1;
         
         % Make sure we don't run out of budget
@@ -94,6 +99,7 @@ function [stepsize, newx, storedb, lsmem, lsstats] = ...
     if newf > f0
         alpha = 0;
         newx = x;
+        newkey = key;
         newf = f0; %#ok<NASGU>
     end
     

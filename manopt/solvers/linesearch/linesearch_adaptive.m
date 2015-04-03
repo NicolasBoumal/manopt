@@ -1,9 +1,9 @@
-function [stepsize newx storedb lsmem lsstats] = ...
-       linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)
+function [stepsize, newx, newkey, lsmem, lsstats] = ...
+  linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key, lsmem)
 % Adaptive line search algorithm (step size selection) for descent methods.
 %
-% function [stepsize newx storedb lsmem lsstats] = 
-%      linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)
+% function [stepsize, newx, newkey, lsmem, lsstats] = 
+% linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key, lsmem)
 %
 % Adaptive linesearch algorithm for descent methods, based on a simple
 % backtracking method. On average, this line search intends to do only one
@@ -32,6 +32,9 @@ function [stepsize newx storedb lsmem lsstats] = ...
 %       options structure passed to the solver and have the same names and
 %       same meaning as for the base linesearch. The information is logged
 %       more reliably.
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
 
     % Backtracking default parameters. These can be overwritten in the
@@ -63,7 +66,8 @@ function [stepsize newx storedb lsmem lsstats] = ...
 
     % Make the chosen step and compute the cost there.
     newx = problem.M.retr(x, d, alpha);
-    [newf storedb] = getCost(problem, newx, storedb);
+    newkey = storedb.getNewKey();
+    newf = getCost(problem, newx, storedb, newkey);
     cost_evaluations = 1;
     
     % Backtrack while the Armijo criterion is not satisfied
@@ -74,7 +78,8 @@ function [stepsize newx storedb lsmem lsstats] = ...
         
         % and look closer down the line
         newx = problem.M.retr(x, d, alpha);
-        [newf storedb] = getCost(problem, newx, storedb);
+        newkey = storedb.getNewKey();
+        newf = getCost(problem, newx, storedb, newkey);
         cost_evaluations = cost_evaluations + 1;
         
         % Make sure we don't run out of budget
@@ -88,6 +93,7 @@ function [stepsize newx storedb lsmem lsstats] = ...
     if newf > f0
         alpha = 0;
         newx = x;
+        newkey = key;
         newf = f0; %#ok<NASGU>
     end
     
