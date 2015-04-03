@@ -1039,26 +1039,27 @@ end</pre>
                 <tr>
                   <td><code>cost</code> </td>
                   <td><code>f = cost(x)</code><br>
-                    <nobr><code>[f store] = cost(x, store)</code></nobr></td>
+                    <nobr><code>[f, store] = cost(x, store)</code></nobr></td>
                   <td>$f = f(x)$ </td>
                 </tr>
                 <tr>
                   <td><code>grad</code> </td>
                   <td><code>g = grad(x)</code><br>
-                    <nobr><code>[g store] = grad(x, store)</code></nobr></td>
+                    <nobr><code>[g, store] = grad(x, store)</code></nobr></td>
                   <td>$g = \operatorname{grad} f(x)$ </td>
                 </tr>
                 <tr>
                   <td><code>costgrad</code> </td>
-                  <td><code>[f g] = costgrad(x)</code><br>
-                    <nobr><code>[f g store] = costgrad(x, store)</code></nobr> </td>
+                  <td><code>[f, g] = costgrad(x)</code><br>
+                    <nobr><code>[f, g, store] = costgrad(x, store)</code></nobr>
+                  </td>
                   <td>Computes both $f = f(x)$ and $g = \operatorname{grad}
                     f(x)$.</td>
                 </tr>
                 <tr>
                   <td><code>egrad</code> </td>
                   <td><code>eg = egrad(x)</code><br>
-                    <nobr><code>[eg store] = egrad(x, store)</code></nobr> </td>
+                    <nobr><code>[eg, store] = egrad(x, store)</code></nobr> </td>
                   <td>For submanifolds of a Euclidean space or quotient spaces
                     with a Euclidean total space, computes $eg = \nabla f(x)$,
                     the gradient of $f$ "as if" it were defined in that
@@ -1067,13 +1068,13 @@ end</pre>
                 <tr>
                   <td><code>hess</code> </td>
                   <td><code>h = hess(x, u)</code><br>
-                    <nobr><code>[h store] = hess(x, u, store)</code></nobr></td>
+                    <nobr><code>[h, store] = hess(x, u, store)</code></nobr></td>
                   <td>$h = \operatorname{Hess} f(x)[u]$ </td>
                 </tr>
                 <tr>
                   <td><code>ehess</code> </td>
                   <td><code>eh = ehess(x, u)</code><br>
-                    <nobr><code>[eh store] = ehess(x, u, store)</code></nobr></td>
+                    <nobr><code>[eh, store] = ehess(x, u, store)</code></nobr></td>
                   <td>For submanifolds of a Euclidean space or quotient spaces
                     with a Euclidean total space, computes $eh = \nabla^2
                     f(x)[u]$, the Hessian of $f$ along $u$ "as if" it were
@@ -1083,13 +1084,13 @@ end</pre>
                 <tr>
                   <td><code>diff</code> </td>
                   <td><code>d = diff(x, u)</code><br>
-                    <nobr><code>[d store] = diff(x, u, store)</code></nobr></td>
+                    <nobr><code>[d, store] = diff(x, u, store)</code></nobr></td>
                   <td>$d = \operatorname{D}\! f(x)[u]$ </td>
                 </tr>
                 <tr>
                   <td><code>approxhess</code> </td>
                   <td><code>h = approxhess(x, u)</code><br>
-                    <nobr><code>[h store] = approxhess(x, u, store)</code></nobr>
+                    <nobr><code>[h, store] = approxhess(x, u, store)</code></nobr>
                   </td>
                   <td>This can be any mapping from the tangent space at $x$ to
                     itself. Often, one would like it to be a linear, symmetric
@@ -1102,7 +1103,7 @@ end</pre>
                 <tr>
                   <td><code>precon</code> </td>
                   <td><code>v = precon(x, u)</code><br>
-                    <nobr><code>[v store] = precon(x, u, store)</code></nobr> </td>
+                    <nobr><code>[v, store] = precon(x, u, store)</code></nobr> </td>
                   <td>$v = \operatorname{Prec}(x)[u]$, where
                     $\operatorname{Prec}(x)$ is a preconditioner for the Hessian
                     $\operatorname{Hess} f(x)$, that is,
@@ -1543,8 +1544,9 @@ end
                   <td><code>statsfun = statsfunhelper(name, fun)</code><br>
                     <code>statsfun = statsfunhelper(S)</code></td>
                   <td>Helper function to place a function handle in the field <code>options.statsfun</code>.
-                    See the help about the statsfun option earlier in this tutorial,
-                    and/or the help for statsfunhelper from the command line.</td>
+                    See the help about the statsfun option earlier in this
+                    tutorial, and/or the help for statsfunhelper from the
+                    command line.</td>
                 </tr>
               </tbody>
             </table>
