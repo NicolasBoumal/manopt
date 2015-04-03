@@ -1374,7 +1374,7 @@ end
                 <tr>
                   <td><br>
                   </td>
-                  <td><code>hessianspectrum(problem, x, sqrtprec)</code></td>
+                  <td><code>hessianspectrum(problem, x, sqrtprecon)</code></td>
                   <td>
                     <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a
                       preconditioner $P$ is specified in the problem structure,
@@ -1403,7 +1403,7 @@ end
                       $P^{1/2}$ (optional). Then, <code>eigs</code> is given
                       the problem of computing the spectrum of
                       $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the
-                      spectrum of $HP$. If <code>sqrtprec</code> is provided,
+                      spectrum of $HP$. If <code>sqrtprecon</code> is provided,
                       the preconditioner given in the problem structure is
                       ignored.</p>
                   </td>
