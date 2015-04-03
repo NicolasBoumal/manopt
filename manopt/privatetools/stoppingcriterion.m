@@ -77,7 +77,7 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
     if isfield(options, 'stopfun')
         userstop = options.stopfun(problem, x, info, last);
         if userstop
-            reason = 'User defined stopfun criterion triggered; options.stopfun.';
+            reason = 'User defined stopfun criterion triggered; see options.stopfun.';
             stop = 6;
             return;
         end
