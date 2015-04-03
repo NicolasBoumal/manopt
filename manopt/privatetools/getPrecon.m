@@ -33,7 +33,7 @@ function Pd = getPrecon(problem, x, d, storedb, key)
 
     
     if isfield(problem, 'precon')
-    %% Compute the preconditioning using precon.
+    %% Precondition using precon.
 	
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.precon)
@@ -53,6 +53,12 @@ function Pd = getPrecon(problem, x, d, storedb, key)
                 throw(up);
         end      
 
+    elseif canGetSqrtPrecon(problem)
+    %% Precondition by applying the square root of the preconditioner twice.
+        
+        sqrtPd = getSqrtPrecon(problem, x, d, storedb, key);
+        Pd = getSqrtPrecon(problem, x, sqrtPd, storedb, key);
+        
     else
     %% No preconditioner provided, so just use the identity.
     
