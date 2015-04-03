@@ -55,6 +55,9 @@ function M = symfixedrankYYfactory(n, k)
 %  July 10, 2013 (NB):
 %       Added vec, mat, tangent, tangent2ambient ;
 %       Correction for the dimension of the manifold.
+%
+%   April 2, 2015 (NB):
+%       Replaced trace(A'*B) by A(:)'*B(:) (equivalent but faster).
 
 
 M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
@@ -62,7 +65,7 @@ M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', 
 M.dim = @() k*n - k*(k-1)/2;
 
 % Euclidean metric on the total space
-M.inner = @(Y, eta, zeta) trace(eta'*zeta);
+M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
 
 M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
 
