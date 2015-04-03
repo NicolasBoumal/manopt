@@ -58,7 +58,10 @@ function M = elliptopefactory(n, k)
 % 
 %   June 24, 2014 (NB):
 %       Used code snippets from obliquefactory to speed up projection,
-%       retraction, egrad2rgrad and rand: the code now uses bsxfun to this end.
+%       retraction, egrad2rgrad and rand: the code now uses bsxfun for this.
+% 
+%   April 3, 2015 (NB):
+%       Replaced trace(A'*B) by A(:)'*B(:) : equivalent but faster.
 
 % TODO: modify normalize_rows and project_rows to work without transposes.
 % TODO: enhance ehess2rhess to also use bsxfun.
@@ -78,7 +81,7 @@ function M = elliptopefactory(n, k)
     M.dim = @() n*(k-1) - k*(k-1)/2; % Extra -1 is because of the diagonal constraint that
     
     % Euclidean metric on the total space
-    M.inner = @(Y, eta, zeta) trace(eta'*zeta);
+    M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     

@@ -29,6 +29,10 @@ function M = sympositivedefinitefactory(n)
 %       Implemented proper parallel transport from Sra and Hosseini (not
 %       used by default).
 %       Also added symmetrization in exp and log (to be sure).
+% 
+%   April 3, 2015 (NB):
+%       Replaced trace(A*B) by a faster equivalent that does not compute
+%       the whole product A*B, for inner product, norm and distance.
     
     symm = @(X) .5*(X+X');
     
@@ -36,18 +40,26 @@ function M = sympositivedefinitefactory(n)
     
     M.dim = @() n*(n+1)/2;
     
-    % Choice of the metric on the orthnormal space is motivated by the
+	% Helpers to avoid computing full matrices simply to extract their trace
+	vec     = @(A) A(:);
+	trinner = @(A, B) vec(A')'*vec(B);  % = trace(A*B)
+	trnorm  = @(A) sqrt(trinner(A, A)); % = sqrt(trace(A^2))
+	
+    % Choice of the metric on the orthonormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
     % cone is its natural bi-invariant metric.
-    M.inner = @(X, eta, zeta) trace( (X\eta) * (X\zeta) );
+	% The result is equal to: trace( (X\eta) * (X\zeta) )
+    M.inner = @(X, eta, zeta) trinner(X\eta, X\zeta);
     
     % Notice that X\eta is *not* symmetric in general.
-    M.norm = @(X, eta) sqrt(trace((X\eta)^2));
+	% The result is equal to: sqrt(trace((X\eta)^2))
+    % There should be no need to take the real part, but rounding errors
+    % may cause a small imaginary part to appear, so we discard it.
+    M.norm = @(X, eta) real(trnorm(X\eta));
     
-    % Same here: X\Y is not symmetric in general. There should be no need
-    % to take the real part, but rounding errors may cause a small
-    % imaginary part to appear, so we discard it.
-    M.dist = @(X, Y) sqrt(real(trace((logm(X\Y))^2)));
+    % Same here: X\Y is not symmetric in general.
+    % Same remark about taking the real part.
+    M.dist = @(X, Y) real(trnorm(real(logm(X\Y))));
     
     
     M.typicaldist = @() sqrt(n*(n+1)/2);
