@@ -1,8 +1,9 @@
-function lambdas = hessianspectrum(problem, x, sqrtprec)
+function lambdas = hessianspectrum(problem, x, storedb, key)
 % Returns the eigenvalues of the (preconditioned) Hessian at x.
 % 
 % function lambdas = hessianspectrum(problem, x)
-% function lambdas = hessianspectrum(problem, x, sqrtprecon)
+% function lambdas = hessianspectrum(problem, x, storedb)
+% function lambdas = hessianspectrum(problem, x, storedb, key)
 %
 % If the Hessian is defined in the problem structure and if no
 % preconditioner is defined, returns the eigenvalues of the Hessian
@@ -10,24 +11,28 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 % the tangent space at x. There are problem.M.dim() eigenvalues.
 %
 % If a preconditioner is defined in the problem structure, the eigenvalues
-% of the composition is computed: precon o Hessian. Remember that the
+% of the composition is computed: Precon o Hessian. Remember that the
 % preconditioner has to be symmetric, positive definite, and is supposed to
-% approximate the inverse of the Hessian.
+% approximate the inverse of the (Riemannian) Hessian.
+%
+% The typical ways to define a preconditioner are via problem.precon or
+% problem.sqrtprecon (see comment below). These should be function handles
+% with the same input/output system as problem.hess for the Hessian.
 %
 % Even though the Hessian and the preconditioner are both symmetric, their
 % composition is not symmetric, which can slow down the call to 'eigs'
 % substantially. If possible, you may specify the square root of the
-% preconditioner as an optional input sqrtprecon. This operator on the
-% tangent space at x must also be symmetric, positive definite, and such
-% that sqrtprecon o sqrtprecon = precon. Then the spectrum of the symmetric
-% operator sqrtprecon o hess o sqrtprecon is computed: it is the same as
-% the spectrum of precon o hess, but is generally faster to compute.
-% The operator sqrtprecon(x, u[, store]) accepts as input: a point x,
-% a tangent vector u and (optional) a store structure.
+% preconditioner in the problem structure, as sqrtprecon. This operator on
+% the tangent space at x must also be symmetric, positive definite, and
+% such that sqrtprecon o sqrtprecon = precon. Then, the spectrum of the
+% symmetric operator sqrtprecon o hess o sqrtprecon is computed: it is the
+% same as the spectrum of precon o hess, but is usually faster to compute.
 %
 % The input and the output of the Hessian and of the preconditioner are
 % projected on the tangent space to avoid undesired contributions of the
 % ambient space.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % Requires the manifold description in problem.M to have these functions:
 % 
@@ -49,14 +54,29 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
 %       Returns true if the linear maps encoded by vec and mat are
 %       isometries, false otherwise. It is better if the answer is yes.
 %
-% See also: hessianextreme
+% See also: hessianextreme canGetPrecon canGetSqrtPrecon
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 3, 2013.
 % Contributors: 
 % Change log:
 %
-%  Dec 18, 2014 (NB): the lambdas are now sorted when they are returned.
+%   Dec. 18, 2014 (NB):
+%       The lambdas are now sorted when they are returned.
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
+%       Does no longer accept sqrtprecon as an input: the square root of
+%       the preconditioner may now be specified directly in the problem
+%       structure, following the same syntax as the preconditioner precon.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
 
     if ~canGetHessian(problem)
@@ -80,18 +100,13 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
     n = length(vec(problem.M.zerovec(x)));
     dim = problem.M.dim();
     
-    % The store structure is not updated by the getHessian call because the
-    % eigs function will not take care of it. This might be worked around,
-    % but for now we simply obtain the store structure built from calling
-    % the cost and gradient at x and pass that one for every Hessian call.
-    % This will typically be enough, seen as the Hessian is not supposed to
-    % store anything new.
-    storedb = struct();
+    % It is usually a good idea to force a gradient computation to make
+    % sure precomputable things are precomputed.
     if canGetGradient(problem)
-        [unused1, unused2, storedb] = getCostGrad(problem, x, struct()); %#ok<ASGLU>
+        [unused1, unused2, storedb] = getCostGrad(problem, x, storedb, key); %#ok<ASGLU>
     end
     
-    hess = @(u_mat) tgt(getHessian(problem, x, tgt(u_mat), storedb));
+    hess = @(u_mat) tgt(getHessian(problem, x, tgt(u_mat), storedb, key));
     hess_vec = @(u_vec) vec(hess(mat(u_vec)));
     
     % Regardless of preconditioning, we can only have a symmetric
@@ -99,7 +114,7 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
     % isometry:
     vec_mat_are_isometries = problem.M.vecmatareisometries();
     
-    if ~exist('sqrtprec', 'var') || isempty(sqrtprec)
+    if ~canGetSqrtPrecon(problem)
     
         if ~canGetPrecon(problem)
             
@@ -115,7 +130,7 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
             % There is a preconditioner, but we don't have its square root:
             % deal with the non-symmetric composition prec o hess.
             
-            prec = @(u_mat) tgt(getPrecon(problem, x, tgt(u_mat), storedb));
+            prec = @(u_mat) tgt(getPrecon(problem, x, tgt(u_mat), storedb, key));
             prec_vec = @(u_vec) vec(prec(mat(u_vec)));
             % prec_inv_vec = @(u_vec) pcg(prec_vec, u_vec);
 
@@ -129,18 +144,10 @@ function lambdas = hessianspectrum(problem, x, sqrtprec)
     else
         
         % There is a preconditioner, and we have its square root: deal with
-        % the symmetric composition sqrtprec o hess o sqrtprec.
-        % Need to check also whether sqrtprec uses the store cache or not.
-		
-        switch nargin(sqrtprec)
-			case 2
-				sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)))));
-			case 3
-				store = getStore(problem, x, storedb);
-				sqrtprec_vec = @(u_vec) vec(tgt(sqrtprec(x, tgt(mat(u_vec)), store)));
-			otherwise
-				error('sqrtprec must accept 2 or 3 inputs: x, u, (optional: store)');
-        end
+        % the symmetric composition sqrtprecon o hess o sqrtprecon.
+        
+        sqrtprec = @(u_mat) tgt(getSqrtPrecon(problem, x, tgt(u_mat), storedb, key));
+        sqrtprec_vec = @(u_vec) vec(sqrtprec(mat(u_vec)));
         
         eigs_opts.issym = vec_mat_are_isometries;
         eigs_opts.isreal = true;
