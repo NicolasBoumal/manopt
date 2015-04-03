@@ -1,8 +1,15 @@
 classdef handle_light < handle
-% Trick to hide the methods inherited from the handle class when calling
-% methods(myclass). Source:
+% Trick class to hide methods inherited from the handle class
+% when calling methods(myclass).
+%
+% Source:
 % http://stackoverflow.com/questions/6621850/is-it-possible-to-hide-the-methods-inherited-from-the-handle-class-in-matlab
 % Posted by sclarke81 on StackOverflow on Oct. 24, 2012.
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: sclarke81, added April 3, 2013.
+% Contributors: 
+% Change log: 
 
    methods(Hidden)
       function lh = addlistener(varargin)

@@ -27,7 +27,7 @@ function opts = getGlobalDefaults()
     % Maximum number of store structures to store. If set to 0, caching
     % capabilities are not disabled, but the cache will be emptied at each
     % iteration of iterative solvers (more specifically: every time the
-    % solver calls the purgeStoredb tool).
+    % solver calls to purge the storedb).
     opts.storedepth = 20;
     
     % Maximum amount of time a solver may execute, in seconds.

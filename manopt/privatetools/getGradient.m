@@ -1,11 +1,12 @@
-function [grad, storedb] = getGradient(problem, x, storedb)
+function grad = getGradient(problem, x, storedb, key)
 % Computes the gradient of the cost function at x.
 %
-% function [grad, storedb] = getGradient(problem, x, storedb)
+% function grad = getGradient(problem, x, storedb, key)
 %
 % Returns the gradient at x of the cost function described in the problem
-% structure. The cache database storedb is passed along, possibly modified
-% and returned in the process.
+% structure.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % See also: getDirectionalDerivative canGetGradient
 
@@ -13,52 +14,57 @@ function [grad, storedb] = getGradient(problem, x, storedb)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     
     if isfield(problem, 'grad')
     %% Compute the gradient using grad.
 	
-        % Check whether the gradient function wants to deal with the store
-        % structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.cost)
             case 1
                 grad = problem.grad(x);
             case 2
-                % Obtain, pass along, and save the store structure
-                % associated to this point.
-                store = getStore(problem, x, storedb);
-                [grad store] = problem.grad(x, store);
-                storedb = setStore(problem, x, storedb, store);
+                % Obtain, pass along, and save the store for x.
+                store = storedb.getWithShared(key);
+                [grad, store] = problem.grad(x, store);
+                storedb.setWithShared(store, key);
+            case 3
+                % Pass along the whole storedb (by reference), with key.
+                grad = problem.grad(x, storedb, key);
             otherwise
                 up = MException('manopt:getGradient:badgrad', ...
-                    'grad should accept 1 or 2 inputs.');
+                    'grad should accept 1, 2 or 3 inputs.');
                 throw(up);
         end
     
     elseif isfield(problem, 'costgrad')
     %% Compute the gradient using costgrad.
 		
-        % Check whether the costgrad function wants to deal with the store
-        % structure or not.
+        % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.costgrad)
             case 1
                 [unused, grad] = problem.costgrad(x); %#ok
             case 2
-                % Obtain, pass along, and save the store structure
-                % associated to this point.
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                store = storedb.getWithShared(key);
                 [unused, grad, store] = problem.costgrad(x, store); %#ok
-                storedb = setStore(problem, x, storedb, store);
+                storedb.setWithShared(store, key);
+            case 3
+                % Pass along the whole storedb (by reference), with key.
+                [unused, grad] = problem.costgrad(x, storedb, key); %#ok
             otherwise
                 up = MException('manopt:getGradient:badcostgrad', ...
-                    'costgrad should accept 1 or 2 inputs.');
+                    'costgrad should accept 1, 2 or 3 inputs.');
                 throw(up);
         end
     
     elseif canGetEuclideanGradient(problem)
     %% Compute the gradient using the Euclidean gradient.
         
-        [egrad, storedb] = getEuclideanGradient(problem, x, storedb);
+        egrad = getEuclideanGradient(problem, x, storedb, key);
         grad = problem.M.egrad2rgrad(x, egrad);
 
     else

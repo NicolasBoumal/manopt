@@ -1,12 +1,13 @@
-function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
+function hessfd = getHessianFD(problem, x, d, storedb, key)
 % Computes an approx. of the Hessian w/ finite differences of the gradient.
 %
-% function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
+% function hessfd = getHessianFD(problem, x, d, storedb, key)
 %
 % Returns a finite difference approximation of the Hessian at x along d of
-% the cost function described in the problem structure. The cache database
-% storedb is passed along, possibly modified and returned in the process.
-% The finite difference is based on computations of the gradient. 
+% the cost function described in the problem structure. The finite
+% difference is based on computations of the gradient.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % If the gradient cannot be computed, an exception is thrown.
 
@@ -23,6 +24,9 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
 %       complete radial linearity, and that this was harder to achieve.
 %       This appears not to be necessary after all, which simplifies the
 %       code.
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     
     if ~canGetGradient(problem)
@@ -47,16 +51,18 @@ function [hessfd, storedb] = getHessianFD(problem, x, d, storedb)
     c = epsilon/norm_d;
     
     % Compute the gradient at the current point.
-    [grad0, storedb] = getGradient(problem, x, storedb);
+    grad = getGradient(problem, x, storedb, key);
     
     % Compute a point a little further along d and the gradient there.
+    % Since this is a new point, we need a new key for it, for the storedb.
     x1 = problem.M.retr(x, d, c);
-    [grad1, storedb] = getGradient(problem, x1, storedb);
+    key1 = storedb.getNewKey();
+    grad1 = getGradient(problem, x1, storedb, key1);
     
     % Transport grad1 back from x1 to x.
     grad1 = problem.M.transp(x1, x, grad1);
     
     % Return the finite difference of them.
-    hessfd = problem.M.lincomb(x, 1/c, grad1, -1/c, grad0);
+    hessfd = problem.M.lincomb(x, 1/c, grad1, -1/c, grad);
     
 end

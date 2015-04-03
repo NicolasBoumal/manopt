@@ -1,11 +1,13 @@
-function stats = applyStatsfun(problem, x, storedb, options, stats)
+function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 % Apply the statsfun function to a stats structure (for solvers).
 %
-% function stats = applyStatsfun(problem, x, storedb, options, stats)
+% function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
 % Applies the options.statsfun user supplied function to the stats
 % structure, if it was provided, with the appropriate inputs, and returns
 % the (possibly) modified stats structure.
+%
+% storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % See also: 
 
@@ -13,6 +15,9 @@ function stats = applyStatsfun(problem, x, storedb, options, stats)
 % Original author: Nicolas Boumal, April 3, 2013.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
 	if isfield(options, 'statsfun')
 		
@@ -20,8 +25,11 @@ function stats = applyStatsfun(problem, x, storedb, options, stats)
             case 3
                 stats = options.statsfun(problem, x, stats);
             case 4
-                store = getStore(problem, x, storedb);
+                % Obtain, pass along, and save the store for x.
+                % get/setWithShared must come in pairs.
+                store = storedb.getWithShared(key);
                 stats = options.statsfun(problem, x, stats, store);
+                storedb.setWithShared(store, key);
             otherwise
                 warning('manopt:statsfun', ...
                         'statsfun unused: wrong number of inputs');
