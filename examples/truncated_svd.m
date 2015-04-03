@@ -1,7 +1,7 @@
-function [U S V info] = truncated_svd(A, p)
+function [U, S, V, info] = truncated_svd(A, p)
 % Returns an SVD decomposition of A truncated to rank p.
 %
-% function [U S V] = truncated_svd(A, p)
+% function [U, S, V, info] = truncated_svd(A, p)
 %
 % Input: A real matrix A of size mxn and an integer p <= min(m, n).
 % Output: An orthonormal matrix U of size mxp, an orthonormal matrix Y of
@@ -53,7 +53,7 @@ function [U S V info] = truncated_svd(A, p)
     
     % Retrieve the size of the problem and make sure the requested
     % approximation rank is at most the maximum possible rank.
-    [m n] = size(A);
+    [m, n] = size(A);
     assert(p <= min(m, n), 'p must be smaller than the smallest dimension of A.');
     
     % Define the cost and its derivatives on the Grassmann manifold
@@ -132,7 +132,7 @@ function [U S V info] = truncated_svd(A, p)
     % this. The diameter of the manifold scales like sqrt(2*p), hence the
     % form of our (empirical) choice.
     options.Delta_bar = 4*sqrt(2*p);
-    [X Xcost info] = trustregions(problem, [], options); %#ok<ASGLU>
+    [X, Xcost, info] = trustregions(problem, [], options); %#ok<ASGLU>
     U = X.U;
     V = X.V;
     
@@ -140,7 +140,7 @@ function [U S V info] = truncated_svd(A, p)
     % be diagonal with nonnegative, decreasing entries. This requires a
     % small svd of size pxp.
     Spp = U'*A*V;
-    [Upp Spp Vpp] = svd(Spp);
+    [Upp, Spp, Vpp] = svd(Spp);
     U = U*Upp;
     S = Spp;
     V = V*Vpp;
