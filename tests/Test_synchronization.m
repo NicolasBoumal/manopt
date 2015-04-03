@@ -30,21 +30,32 @@ end
 
 % Solve.
 opts.tolgradnorm = 1e-14;
-[R Rcost info1] = trustregions(problem, [], opts);
-% [R Rcost info2] = conjugategradient(problem);
+opts.rho_regularization = 1e1;
+[R, Rcost, info1] = trustregions(problem, [], opts); %#ok<ASGLU>
+% [R Rcost info2] = conjugategradient(problem, [], opts);
 
 % Display some statistics.
-handle = semilogy([info1.time], [info1.gradnorm], '.-');%, [info2.time], [info2.gradnorm], '.-');
+subplot(2, 1, 1);
+handle1 = semilogy([info1.time], [info1.gradnorm], '.-');
+pbaspect([1.6 1 1]);
+box off;
+title('gradnorm');
+subplot(2, 1, 2);
+handle2 = plot([info1.time], [info1.cost], '.-');
+pbaspect([1.6 1 1]);
+box off;
+title('cost');
 
-set(handle, 'Color', [223 186 105]/255);
-set(handle, 'MarkerSize', 25);
-set(handle, 'LineWidth', 3);
+set(handle1, 'Color', [223 186 105]/255);
+set(handle1, 'MarkerSize', 25);
+set(handle1, 'LineWidth', 3);
+set(handle2, 'Color', [223 186 105]/255);
+set(handle2, 'MarkerSize', 25);
+set(handle2, 'LineWidth', 3);
 % xlim([0 .1])
 % ylim([1e-10 1e2]);
 % set(gca, 'XTick', [0 .1]);
 % set(gca, 'YTick', [1e-10 1e-6 1e-2 1e2]);
-pbaspect([1.6 1 1]);
-box off;
 
 
 % hold on;
