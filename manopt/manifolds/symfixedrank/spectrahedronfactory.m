@@ -103,8 +103,6 @@ function M = spectrahedronfactory(n, k)
     function Hess = ehess2rhess(Y, egrad, ehess, eta)
        
         % Directional derivative of the Riemannian gradient
-		a1 = ;
-		a2 = ;
         Hess = ehess - (egrad(:)'*Y(:))*eta - ( (ehess(:)'*Y(:)) + (eta(:)'*egrad(:)) )*Y;
         Hess = Hess - (Hess(:)'*Y(:))*Y;
         
