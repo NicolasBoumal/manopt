@@ -371,13 +371,13 @@ info(min(10000, options.maxiter+1)).iter = [];
 % ** Display:
 if options.verbosity == 2
    fprintf(['%3s %3s      %5s                %5s     ',...
-            'f: %e   |grad|: %e\n'],...
+            'f: %+e   |grad|: %e\n'],...
            '   ','   ','     ','     ', fx, norm_grad);
 elseif options.verbosity > 2
    fprintf('************************************************************************\n');
    fprintf('%3s %3s    k: %5s     num_inner: %5s     %s\n',...
            '','','______','______','');
-   fprintf('       f(x) : %e       |grad| : %e\n', fx, norm_grad);
+   fprintf('       f(x) : %+e       |grad| : %e\n', fx, norm_grad);
    fprintf('      Delta : %f\n', Delta);
 end
 
@@ -566,7 +566,7 @@ while true
           .5*problem.M.inner(x, getHessian(problem, x, eta, storedb, key), eta);
         zerovec = problem.M.zerovec(x);
         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
-        fprintf('DBG:   new f(x) : %e\n', fx_prop);
+        fprintf('DBG:   new f(x) : %+e\n', fx_prop);
         fprintf('DBG: actual rho : %e\n', actrho);
         fprintf('DBG:   used rho : %e\n', rho);
     end
@@ -632,7 +632,7 @@ while true
     % ** Display:
     if options.verbosity == 2,
         fprintf(['%3s %3s   k: %5d     num_inner: %5d     ', ...
-        'f: %e   |grad|: %e   %s\n'], ...
+        'f: %+e   |grad|: %e   %s\n'], ...
         accstr,trstr,k,numit,fx,norm_grad,srstr);
     elseif options.verbosity > 2,
         if options.useRand && used_cauchy,
@@ -640,7 +640,7 @@ while true
         end
 		fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
 				accstr, trstr, k, numit, srstr);
-		fprintf('       f(x) : %e     |grad| : %e\n',fx,norm_grad);
+		fprintf('       f(x) : %+e     |grad| : %e\n',fx,norm_grad);
 		if options.debug > 0
 			fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
 		end
