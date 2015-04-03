@@ -114,7 +114,9 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
             Dy = spdiags(sum(LY0.*Y0, 2), 0, n, n);
             Sy = (Dy - L)/4;
             % Find the smallest (the "most negative") eigenvalue of Sy.
-            [v, s] = eigs(Sy, 1, 'SA');
+            eigsopts.issym = true;
+            eigsopts.isreal = true;
+            [v, s] = eigs(Sy, 1, 'SA', eigsopts);
             % If there is no negative eigenvalue for Sy, than we are not at
             % a saddle point: we're actually done!
             if s >= -1e-8
@@ -164,8 +166,10 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
         % We can either do the random rounding as follows:
         % x = sign(Y*randn(rr, 1));
         % or extract the "PCA direction" of the points in Y and cut
-        % orthogonally to that direction, as follows:
-        [u, ~, ~] = svds(Y, 1);
+        % orthogonally to that direction, as follows (seems faster than
+        % calling svds):
+        [U, ~, ~] = svd(Y, 0);
+        u = U(:, 1);
         x = sign(u);
 
         cutvalue = (x'*L*x)/4;
