@@ -1,5 +1,5 @@
-function [eta, Heta, inner_it, stop_tCG, storedb] ...
-                      = tCG(problem, x, grad, eta, Delta, options, storedb)
+function [eta, Heta, inner_it, stop_tCG] ...
+                 = tCG(problem, x, grad, eta, Delta, options, storedb, key)
 % tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
@@ -49,6 +49,9 @@ function [eta, Heta, inner_it, stop_tCG, storedb] ...
 %       the documentation (and the original intent) was to ensure a
 %       monotonic decrease of the model cost at each new eta. This is now
 %       the case, with the added line: "model_value = new_model_value;".
+%
+%   NB April 3, 2015:
+%       Works with the new StoreDB class system.
 
 
 % All terms involving the trust-region radius will use an inner product
@@ -89,7 +92,7 @@ if ~options.useRand % and therefore, eta == 0
     e_Pe = 0;
 else % and therefore, no preconditioner
     % eta (presumably) ~= 0 was provided by the caller.
-    [Heta, storedb] = getHessian(problem, x, eta, storedb);
+    Heta = getHessian(problem, x, eta, storedb, key);
     r = lincomb(x, 1, grad, 1, Heta);
     e_Pe = inner(x, eta, eta);
 end
@@ -99,7 +102,7 @@ norm_r0 = norm_r;
 
 % Precondition the residual.
 if ~options.useRand
-    [z, storedb] = getPrecon(problem, x, r, storedb);
+    z = getPrecon(problem, x, r, storedb, key);
 else
     z = r;
 end
@@ -139,7 +142,7 @@ j = 0;
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
-    [Hdelta, storedb] = getHessian(problem, x, delta, storedb);
+    Hdelta = getHessian(problem, x, delta, storedb, key);
     
     % Compute curvature (often called kappa).
     d_Hd = inner(x, delta, Hdelta);
@@ -236,7 +239,7 @@ for j = 1 : options.maxinner
     
     % Precondition the residual.
     if ~options.useRand
-        [z, storedb] = getPrecon(problem, x, r, storedb);
+        z = getPrecon(problem, x, r, storedb, key);
     else
         z = r;
     end

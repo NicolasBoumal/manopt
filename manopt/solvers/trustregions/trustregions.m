@@ -161,7 +161,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       computations for debugging purposes. If a debugging test fails, you
 %       will be informed of it, usually via the command window. Be aware
 %       that these additional computations appear in the algorithm timings
-%       too.
+%       too, and may interfere with operations such as counting the number
+%       of cost evaluations, etc. (the debug calls get storedb too).
 %   storedepth (20)
 %       Maximum number of different points x of the manifold for which a
 %       store structure will be kept in memory in the storedb. If the
@@ -260,6 +261,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Added some comments. Also, Octave now supports safe tic/toc usage,
 %       so we reverted the changes to use that again (see Aug. 22, 2013 log
 %       entry).
+%
+%   NB April 3, 2015:
+%       Works with the new StoreDB class system.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -332,15 +336,16 @@ if options.verbosity >= 3
     disp(options);
 end
 
-% Create a store database
-storedb = struct();
-
 ticstart = tic();
 
 % If no initial point x is given by the user, generate one at random.
 if ~exist('x', 'var') || isempty(x)
     x = problem.M.rand();
 end
+
+% Create a store database and get a key for the current x
+storedb = StoreDB();
+key = storedb.getNewKey();
 
 %% Initializations
 
@@ -349,7 +354,7 @@ end
 k = 0;
 
 % Initialize solution and companion measures: f(x), fgrad(x)
-[fx, fgradx, storedb] = getCostGrad(problem, x, storedb);
+[fx, fgradx] = getCostGrad(problem, x, storedb, key);
 norm_grad = problem.M.norm(x, fgradx);
 
 % Initialize trust-region radius
@@ -359,7 +364,7 @@ Delta = options.Delta0;
 if ~exist('used_cauchy', 'var')
     used_cauchy = [];
 end
-stats = savestats(problem, x, storedb, options, k, fx, norm_grad, Delta, ticstart);
+stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart);
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
 
@@ -429,8 +434,8 @@ while true
     end
 
     % Solve TR subproblem approximately
-    [eta, Heta, numit, stop_inner, storedb] = ...
-                     tCG(problem, x, fgradx, eta, Delta, options, storedb);
+    [eta, Heta, numit, stop_inner] = ...
+                tCG(problem, x, fgradx, eta, Delta, options, storedb, key);
     srstr = tcg_stop_reason{stop_inner};
 
     % If using randomized approach, compare result with the Cauchy point.
@@ -441,7 +446,7 @@ while true
     if options.useRand
         used_cauchy = false;
         % Check the curvature,
-        [Hg, storedb] = getHessian(problem, x, fgradx, storedb);
+        Hg = getHessian(problem, x, fgradx, storedb, key);
         g_Hg = problem.M.inner(x, fgradx, Hg);
         if g_Hg <= 0
             tau_c = 1;
@@ -479,9 +484,10 @@ while true
 
 	% Compute the tentative next iterate (the proposal)
 	x_prop  = problem.M.retr(x, eta);
+    key_prop = storedb.getNewKey();
 
 	% Compute the function value of the proposal
-	[fx_prop, storedb] = getCost(problem, x_prop, storedb);
+	fx_prop = getCost(problem, x_prop, storedb, key_prop);
 
 	% Will we accept the proposal or not?
     % Check the performance of the quadratic model against the actual cost.
@@ -555,9 +561,9 @@ while true
    
     if options.debug > 0
         m = @(x, eta) ...
-          getCost(problem, x, storedb) + ...
-          getDirectionalDerivative(problem, x, eta, storedb) + ...
-          .5*problem.M.inner(x, getHessian(problem, x, eta, storedb), eta);
+          getCost(problem, x, storedb, key) + ...
+          getDirectionalDerivative(problem, x, eta, storedb, key) + ...
+          .5*problem.M.inner(x, getHessian(problem, x, eta, storedb, key), eta);
         zerovec = problem.M.zerovec(x);
         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
         fprintf('DBG:   new f(x) : %e\n', fx_prop);
@@ -599,8 +605,9 @@ while true
         accept = true;
         accstr = 'acc';
         x = x_prop;
+        key = key_prop;
         fx = fx_prop;
-        [fgradx, storedb] = getGradient(problem, x, storedb);
+        fgradx = getGradient(problem, x, storedb, key);
         norm_grad = problem.M.norm(x, fgradx);
     else
         accept = false;
@@ -609,16 +616,16 @@ while true
     
     
     % Make sure we don't use too much memory for the store database
-    storedb = purgeStoredb(storedb, options.storedepth);
+    storedb.purge();
     
     % k is the number of iterations we have accomplished.
     k = k + 1;
 
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
-    stats = savestats(problem, x, storedb, options, k, fx, norm_grad, ...
-                      Delta, ticstart, info, rho, rhonum, rhoden, ...
-                      accept, numit, norm_eta, used_cauchy);
+    stats = savestats(problem, x, storedb, key, options, k, fx, ...
+                      norm_grad, Delta, ticstart, info, rho, rhonum, ...
+                      rhoden, accept, numit, norm_eta, used_cauchy);
     info(k+1) = stats; %#ok<AGROW>
 
     
@@ -669,7 +676,7 @@ end
     
 
 % Routine in charge of collecting the current iteration stats
-function stats = savestats(problem, x, storedb, options, k, fx, ...
+function stats = savestats(problem, x, storedb, key, options, k, fx, ...
                            norm_grad, Delta, ticstart, info, rho, rhonum, ...
                            rhoden, accept, numit, norm_eta, used_cauchy)
     stats.iter = k;
@@ -703,6 +710,6 @@ function stats = savestats(problem, x, storedb, options, k, fx, ...
     % See comment about statsfun above: the x and store passed to statsfun
     % are that of the most recently accepted point after the iteration
     % fully executed.
-    stats = applyStatsfun(problem, x, storedb, options, stats);
+    stats = applyStatsfun(problem, x, storedb, key, options, stats);
     
 end
