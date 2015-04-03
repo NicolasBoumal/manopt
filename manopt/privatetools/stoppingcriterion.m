@@ -25,7 +25,7 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
 % Change log: 
 %
 %   April 2, 2015 (NB):
-%       'reason' now contains the option name and value that triggered.
+%       'reason' now contains the option (name and value) that triggered.
 
 
     stop = 0;
