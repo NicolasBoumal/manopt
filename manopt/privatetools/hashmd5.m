@@ -11,9 +11,10 @@ function h = hashmd5(inp)
 % This code is a stripped version of more general hashing code by
 % Michael Kleder, Nov 2005.
 % Change log: 
-%   Aug. 8, 2013 (NB) : Made x a static (persistent) variable, in the hope
-%                       it will speed it up. Furthermore, the function is
-%                       now Octave compatible.
+% 
+%   Aug. 8, 2013 (NB):
+%       Made x a static (persistent) variable, in the hope it will speed
+%       it up. Furthermore, the function is now Octave compatible.
 
     is_octave = exist('OCTAVE_VERSION', 'builtin');
         
