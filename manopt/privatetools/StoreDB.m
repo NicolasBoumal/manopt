@@ -10,7 +10,8 @@ classdef StoreDB < handle_light
 % TODO : protect get/setWithShared calls: limit to one, and forbid access
 %        to shared memory while it has not been returned.
 %        Do think of the applyStatsFun case : calls a getWithShared, does
-%        not need a setWithShared.
+%        not need a setWithShared. I think for statsfun there should be a
+%        method "forfeitWithShared".
     
     properties(Access = public)
        
@@ -86,6 +87,11 @@ classdef StoreDB < handle_light
         function key = getNewKey(storedb)
             key = sprintf('z%d', storedb.counter);
             storedb.counter = storedb.counter + 1;
+        end
+        
+        % Clear entries in storedb.history to limit memory usage.
+        function purge(storedb) %#ok<MANU>
+            % TODO: implement this.
         end
         
     end
