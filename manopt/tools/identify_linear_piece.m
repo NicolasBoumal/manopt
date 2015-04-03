@@ -22,13 +22,13 @@ function [range, poly] = identify_linear_piece(x, y, window_length)
     residues = zeros(length(x)-window_length, 1);
     polys = zeros(2, length(residues));
     for i = 1 : length(residues)
-        range = i:i+window_length;
+        range = i:(i+window_length);
         [poly, meta] = polyfit(x(range), y(range), 1);
         residues(i) = meta.normr;
         polys(:, i) = poly';
     end
     [unused, best] = min(residues); %#ok<ASGLU>
-    range = best:best+window_length;
+    range = best:(best+window_length);
     poly = polys(:, best)';
 
 end
