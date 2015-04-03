@@ -1,10 +1,14 @@
-function [y, lambda] = hessianextreme(problem, x, side, y0, options)
+function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, key)
 % Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.
 %
+% [u, lambda] = hessianextreme(problem, x)
 % [u, lambda] = hessianextreme(problem, x, side)
 % [u, lambda] = hessianextreme(problem, x, side, u0)
 % [u, lambda] = hessianextreme(problem, x, side, u0, options)
-% [u, lambda] = hessianextreme(problem, x, side, [], options)
+% [u, lambda] = hessianextreme(problem, x, side, u0, options, storedb)
+% [u, lambda] = hessianextreme(problem, x, side, u0, options, storedb, key)
+% 
+% (For side, u0 and options, pass [] to omit any.)
 %
 % Given a Manopt problem structure and a point x on the manifold problem.M,
 % this function computes a tangent vector u at x of unit norm such that the
@@ -13,33 +17,46 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options)
 %    minimize or maximize <u, Hess f(x)[u]> such that <u, u> = 1,
 %
 % where <.,.> is the Riemannian metric on the tangent space at x. Choose
-% between minimizing and maximizing by setting side = 'min' or 'max', the
-% former being the default. The value attained is returned as lambda, and
+% between minimizing and maximizing by setting side = 'min' or 'max', with
+% 'min' being the default. The value attained is returned as lambda, and
 % is the minimal or maximal eigenvalue of the Hessian (actually, the last
-% value attained when the solver stopped). Note that this is a real number
-% as the Hessian is a symmetric operator.
+% value attained when the solver stopped). This is a real number since the
+% Hessian is a symmetric operator.
+%
+% If u0 is specified, it should be a unit-norm tangent vector at x. It is
+% then used as initial guess to solve the above problem. Pass [] to omit.
 %
 % The options structure, if provided, will be passed along to manoptsolve.
 % As such, you may choose which solver to use to solve the above
 % optimization problem by setting options.solver. See manoptsolve's help.
 % The other options will be passed along to the chosen solver too.
-%
-% If u0 is specified, it should be a unit-norm tangent vector at x. It will
-% be used as initial guess to solve the above problem.
+% Pass [] to omit.
 %
 % Often times, it is only necessary to compute a vector u such that the
-% quadratic form is negative, if that is at all possible. To do so, you may
-% set the following stopping criterion: options.tolcost = -1e-10; (for
-% example) and side = 'min'. The solver will return as soon as the
-% quadratic cost above drops below the set value.
+% quadratic form is negative, if that is at all possible. To do so, set the
+% following stopping criterion: options.tolcost = -1e-10; (for example)
+% and side = 'min'. The solver will return as soon as the quadratic cost
+% defined above drops below the set value (or sooner if another stopping
+% criterion triggers first.)
 %
-% See also: hessianspectrum manoptsolve
+% storedb is a StoreDB object, key is the StoreDB key to point x.
+%
+% See also: hessianspectrum manoptsolve tangentspherefactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Aug. 13, 2014.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
+    
+    % By default, minimize
+    if ~exist('side', 'var') || isempty(side)
+        side = 'min';
+    end
+    
     % If no initial guess was specified, prepare the empty one.
     if ~exist('y0', 'var')
         y0 = [];
@@ -49,13 +66,17 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options)
     if ~exist('options', 'var') || isempty(options)
         options = struct();
     end
-    
-    % By default, minimize
-    if ~exist('side', 'var') || isempty(side)
-        side = 'min';
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
     end
     
-    % Convert the side into a sign
+    % Convert the side into a sign.
+    % Since Manopt minimizes, 'min' asks for no sign change.
     switch lower(side)
         case 'min'
             sign = +1;
@@ -80,19 +101,18 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options)
     
     % N is the manifold we build. y will be a point on N, thus also a
     % tangent vector to M at x. This is a typical Riemannian submanifold of
-    % a Euclidean space, hence it will be easy to describe in terms of the
-    % tools available for M.
+    % a Euclidean space, hence it is easy to describe in terms of the tools
+    % available for M.
     N = tangentspherefactory(M, x);
     
-    % Precompute the storedb here by calling costgrad.
-    % An alternative would be to ask for it as an input.
-    storedb = struct();
+    % It is usually a good idea to force a gradient computation to make
+    % sure precomputable things are precomputed.
     if canGetGradient(problem)
-        [unused1, unused2, storedb] = getCostGrad(problem, x, struct()); %#ok<ASGLU>
+        [unused1, unused2] = getCostGrad(problem, x, storedb, key); %#ok
     end
     
     % This is the star operator of this party.
-    hessian = @(y) getHessian(problem, x, y, storedb);
+    hessian = @(y) getHessian(problem, x, y, storedb, key);
     
     % Start a Manopt problem structure for the quadratic optimization
     % problem on the sphere N.
