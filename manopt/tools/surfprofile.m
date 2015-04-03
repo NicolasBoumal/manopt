@@ -22,6 +22,9 @@ function costs = surfprofile(problem, x, d1, d2, t1, t2)
 % Original author: Nicolas Boumal, Sep. 1, 2014.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
@@ -36,9 +39,10 @@ function costs = surfprofile(problem, x, d1, d2, t1, t2)
         str = 'Retr';
     end
     
+    storedb = StoreDB();
     linesearch_fun = @(ta, tb) getCost(problem, ...
                          expo(x, problem.M.lincomb(x, ta, d1, tb, d2)), ...
-                         struct());
+                         storedb);
     
     costs = zeros(length(t1), length(t2));
     for i = 1 : length(t1)

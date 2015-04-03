@@ -16,6 +16,9 @@ function cost = plotprofile(problem, x, d, t)
 % Original author: Nicolas Boumal, Jan. 9, 2013.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
@@ -30,7 +33,8 @@ function cost = plotprofile(problem, x, d, t)
         str = 'Retr';
     end
     
-    linesearch_fun = @(t) getCost(problem, expo(x, d, t), struct());
+    storedb = StoreDB();
+    linesearch_fun = @(t) getCost(problem, expo(x, d, t), storedb);
     
     cost = zeros(size(t));
     for i = 1 : numel(t)
