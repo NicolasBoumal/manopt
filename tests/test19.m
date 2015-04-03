@@ -13,7 +13,7 @@ function test19()
     randnfoo = randn(12345, 1); %#ok<NASGU>
 
     % signal length
-    n = 256;
+    n = 128;
     % number of measurements
     m = 4*n;
     
@@ -59,7 +59,7 @@ function test19()
     
     % Define cost and gradient
     problem.cost = @cost;
-    function [f store] = cost(u, store)
+    function [f, store] = cost(u, store)
         if ~isfield(store, 'Mu')
             store.Mu = Mop(u);
         end
@@ -68,7 +68,7 @@ function test19()
     end
 
     problem.grad = @grad;
-    function [g store] = grad(u, store)
+    function [g, store] = grad(u, store)
         if ~isfield(store, 'Mu')
             store.Mu = Mop(u);
         end
@@ -77,7 +77,7 @@ function test19()
     end
 
     problem.hess = @hess;
-    function [h store] = hess(u, xi, store)
+    function [h, store] = hess(u, xi, store)
         if ~isfield(store, 'Mu')
             store.Mu = Mop(u);
         end
@@ -88,7 +88,7 @@ function test19()
     end
 
     problem.precon = @precon;
-    function [h store] = precon(u, xi, store) %#ok<INUSL>
+    function [h, store] = precon(u, xi, store) %#ok<INUSL>
         h = xi./(b.^2);
     end
     
@@ -117,7 +117,7 @@ function test19()
     options.storedepth = 10;
     profile clear;
     profile on;
-    [zopt costopt info] = trustregions(problem, z0, options);
+    [zopt, costopt, info] = trustregions(problem, z0, options); %#ok<ASGLU>
 %     [zopt costopt info] = conjugategradient(problem, z0, options);
     profile off;
     profile report;
@@ -132,15 +132,16 @@ function test19()
     tic;
     eig_noprecon = hessianspectrum(problem, zopt);
     toc
-    % Finally, with the preconditioner, but with a third input argument
-    % which is a function handle for the square root of the preconditioner
-    % (as en operator): providing it explicitly can sometimes speed up the
+    % Finally, with the square root preconditioner
+    % (as an operator): providing it explicitly can sometimes speed up the
     % computation because it allows to compute the spectrum via a symmetric
-    % operator. In the present case, it does not appear to speed things up
-    % though. Notice that when this third input is provided, it does not
-    % matter whether problem.precon is set or not.
+    % operator.
+    problem.sqrtprecon = @sqrtprecon;
+    function [h, store] = sqrtprecon(u, xi, store) %#ok<INUSL>
+        h = xi./b;
+    end
     tic;
-    eig_precon_sqrt = hessianspectrum(problem, zopt, @(u, xi) xi./b);
+    eig_precon_sqrt = hessianspectrum(problem, zopt);
     toc
     disp([eig_precon eig_precon_sqrt eig_noprecon]);
     
