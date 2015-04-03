@@ -158,7 +158,7 @@ function etaproj = projection(Y, eta)
         % This is supposed to work and indeed return a skew-symmetric
         % solution Omega.
         Omega = lyap(SS, -AS);
-    catch up
+    catch up %#ok<NASGU>
         % It can happen though that SS will be rank deficient. The
         % Lyapunov equation we solve still has a unique skew-symmetric
         % solution, but solutions with a symmetric part now also exist,
@@ -198,7 +198,8 @@ function Ynew = exponential(Y, eta, t)
     Ynew = retraction(Y, eta, t);
     warning('manopt:elliptopefactory:exp', ...
         ['Exponential for fixed rank spectrahedron ' ...
-        'manifold not implemented yet. Used retraction instead.']);
+        'manifold not implemented yet. Used retraction instead.\n' ...
+        'To disable this warning: warning(''off'', ''manopt:elliptopefactory:exp'')']);
 end
 
 % Euclidean gradient to Riemannian gradient conversion.
