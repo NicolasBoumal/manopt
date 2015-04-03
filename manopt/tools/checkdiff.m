@@ -18,6 +18,9 @@ function checkdiff(problem, x, d)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
         
     % Verify that the problem description is sufficient.
@@ -27,8 +30,6 @@ function checkdiff(problem, x, d)
     if ~canGetDirectionalDerivative(problem)
         error('It seems no directional derivatives were provided.');    
     end
-    
-    storedb = struct();
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
     d_isprovided = exist('d', 'var') && ~isempty(d);
@@ -46,17 +47,20 @@ function checkdiff(problem, x, d)
     end
 
     % Compute the value f0 at f and directional derivative at x along d.
-    f0 = getCost(problem, x, storedb);
-    df0 = getDirectionalDerivative(problem, x, d, storedb);
+    storedb = StoreDB();
+    xkey = storedb.getNewKey();
+    f0 = getCost(problem, x, storedb, xkey);
+    df0 = getDirectionalDerivative(problem, x, d, storedb, xkey);
     
-    % Compute the value of f at points on the geodesic (or approximation of
-    % it) originating from x, along direction d, for stepsizes in a large
-    % range given by h.
+    % Compute the value of f at points on the geodesic (or approximation
+    % of it) originating from x, along direction d, for stepsizes in a
+    % large range given by h.
     h = logspace(-8, 0, 51);
     value = zeros(size(h));
     for i = 1 : length(h)
         y = problem.M.exp(x, d, h(i));
-        value(i) = getCost(problem, y, storedb);
+        ykey = storedb.getNewKey();
+        value(i) = getCost(problem, y, storedb, ykey);
     end
     
     % Compute the linear approximation of the cost function using f0 and
@@ -84,7 +88,7 @@ function checkdiff(problem, x, d)
     % as the square of the stepsize, i.e., in loglog scale, the error
     % should have a slope of 2.
     window_len = 10;
-    [range poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
     hold on;
         loglog(h(range), 10.^polyval(poly, log10(h(range))), ...
                'r-', 'LineWidth', 3);

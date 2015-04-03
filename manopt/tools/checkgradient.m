@@ -20,6 +20,9 @@ function checkgradient(problem, x, d)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   April 3, 2015 (NB):
+%       Works with the new StoreDB class system.
 
     
     % Verify that the problem description is sufficient.
@@ -29,8 +32,6 @@ function checkgradient(problem, x, d)
     if ~canGetGradient(problem)
         error('It seems no gradient provided.');    
     end
-    
-    storedb = struct();
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
     d_isprovided = exist('d', 'var') && ~isempty(d);
@@ -64,7 +65,9 @@ function checkgradient(problem, x, d)
     
     %% Try to check that the gradient is a tangent vector.
     if isfield(problem.M, 'tangent')
-        grad = getGradient(problem, x, storedb);
+        storedb = StoreDB();
+        key = storedb.getNewKey();
+        grad = getGradient(problem, x, storedb, key);
         pgrad = problem.M.tangent(x, grad);
         residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
         err = problem.M.norm(x, residual);
