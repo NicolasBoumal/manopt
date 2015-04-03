@@ -112,13 +112,13 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     % and setup a function evaluations counter.
     costs = zeros(options.populationsize, 1);
     for i = 1 : options.populationsize
-        [costs(i) storedb] = getCost(problem, x{i}, storedb);
+        [costs(i), storedb] = getCost(problem, x{i}, storedb);
     end
     fy = costs;
     costevals = options.populationsize;
     
     % Search the best particle and store its cost/position
-    [fbest imin] = min(costs);
+    [fbest, imin] = min(costs);
     xbest = x{imin};
     
     % Iteration counter (at any point, iter is the number of fully executed
@@ -151,8 +151,9 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
         timetic = tic();
         
         % BM: Run standard stopping criterion checks
+        % BM: Stop when any element of the population triggers a criterion
         for i = 1:options.populationsize
-            [stop reason] = stoppingcriterion(problem, x{i}, options, info, iter);% BM: Stop when any element of the population triggers the stop criterion
+            [stop, reason] = stoppingcriterion(problem, x{i}, options, info, iter);
             if stop
                 break;
             end
@@ -181,11 +182,15 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
             
             % Compute new velocity of particle i,
             % composed of 3 contributions
-            inertia = problem.M.lincomb(xi, w , problem.M.transp(xiprev, xi, vi));
-            nostalgia = problem.M.lincomb(xi, rand(1)*options.nostalgia, problem.M.log(xi, yi) );
-            social = problem.M.lincomb(xi, rand(1) * options.social, problem.M.log(xi, xbest));
+            inertia   = problem.M.lincomb(xi, w, ...
+                                         problem.M.transp(xiprev, xi, vi));
+            nostalgia = problem.M.lincomb(xi, rand(1)*options.nostalgia,...
+                                                   problem.M.log(xi, yi) );
+            social    = problem.M.lincomb(xi, rand(1) * options.social, ...
+                                                 problem.M.log(xi, xbest));
             
-            v{i} = problem.M.lincomb(xi, 1, inertia, 1, problem.M.lincomb(xi, 1, nostalgia, 1, social));
+            v{i}      = problem.M.lincomb(xi, 1, inertia, 1, ...
+                           problem.M.lincomb(xi, 1, nostalgia, 1, social));
         end
         
         % Backup the current swarm positions
@@ -196,7 +201,7 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
             % compute new position of particle i
             x{i} = problem.M.retr(x{i}, v{i});
             % compute new cost of particle i
-            [fxi storedb] = getCost(problem, x{i}, storedb);
+            [fxi, storedb] = getCost(problem, x{i}, storedb);
             costevals = costevals + 1;
             
             % update costs of the swarm

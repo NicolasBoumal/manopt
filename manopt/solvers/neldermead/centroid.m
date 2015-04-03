@@ -1,10 +1,10 @@
 function y = centroid(M, x)
-% Attempts the computation of a centroid of a set of points on amanifold.
+% Attempts the computation of a centroid of a set of points on a manifold.
 % 
 % function y = centroid(M, x)
 %
-% M is a structure representing a manifold. x is a cell of points on that
-% manifold.
+% M is a structure representing a manifold.
+% x is a cell of points on that manifold.
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -41,10 +41,10 @@ function y = centroid(M, x)
     % checkgradient(problem);
     
     query = warning('query', 'manopt:getHessian:approx');
-    warning('off', 'manopt:getHessian:approx')
+    warning('off', 'manopt:getHessian:approx');
     options.verbosity = 0;
     options.maxiter = 15;
     y = trustregions(problem, x{randi(n)}, options);
-    warning(query.state, 'manopt:getHessian:approx')
+    warning(query.state, 'manopt:getHessian:approx');
 
 end
