@@ -1,6 +1,8 @@
 function [cost, grad] = getCostGrad(problem, x, storedb, key)
 % Computes the cost function and the gradient at x in one call if possible.
 %
+% function [cost, grad] = getCostGrad(problem, x)
+% function [cost, grad] = getCostGrad(problem, x, storedb)
 % function [cost, grad] = getCostGrad(problem, x, storedb, key)
 %
 % Returns the value at x of the cost function described in the problem
@@ -17,6 +19,14 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
 
     if isfield(problem, 'costgrad')

@@ -1,6 +1,8 @@
 function hessfd = getHessianFD(problem, x, d, storedb, key)
 % Computes an approx. of the Hessian w/ finite differences of the gradient.
 %
+% function hessfd = getHessianFD(problem, x, d)
+% function hessfd = getHessianFD(problem, x, d, storedb)
 % function hessfd = getHessianFD(problem, x, d, storedb, key)
 %
 % Returns a finite difference approximation of the Hessian at x along d of
@@ -27,6 +29,14 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
     
     if ~canGetGradient(problem)

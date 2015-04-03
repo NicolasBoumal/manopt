@@ -1,6 +1,8 @@
 function diff = getDirectionalDerivative(problem, x, d, storedb, key)
 % Computes the directional derivative of the cost function at x along d.
 %
+% function diff = getDirectionalDerivative(problem, x, d)
+% function diff = getDirectionalDerivative(problem, x, d, storedb)
 % function diff = getDirectionalDerivative(problem, x, d, storedb, key)
 %
 % Returns the derivative at x along d of the cost function described in the
@@ -17,6 +19,14 @@ function diff = getDirectionalDerivative(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
+    end
+    if ~exist('key', 'var')
+        key = storedb.getNewKey();
+    end
 
     
     if isfield(problem, 'diff')
