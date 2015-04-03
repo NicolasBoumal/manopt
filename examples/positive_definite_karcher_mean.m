@@ -36,7 +36,7 @@ function X = positive_definite_karcher_mean(A)
         for i = 1 : m
             noise = 0.01*randn(n);
             noise = (noise + noise')/2;
-            [V D] = eig(ref + noise);
+            [V, D] = eig(ref + noise);
             A(:, :, i) = V*diag(max(.01, diag(D)))*V';
         end
     end
