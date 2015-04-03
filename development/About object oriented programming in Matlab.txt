@@ -1,4 +1,5 @@
 Pointers to useful documentation pages about OOP in Matlab, and the use of handle classes rather than value classes.
+ * https://yagtom.googlecode.com/svn/trunk/html/objectOriented.html
  * http://fr.mathworks.com/help/matlab/matlab_oop/comparing-handle-and-value-classes.html
  * http://fr.mathworks.com/help/matlab/matlab_oop/handle-objects.html
  * http://fr.mathworks.com/help/matlab/handle-classes.html
