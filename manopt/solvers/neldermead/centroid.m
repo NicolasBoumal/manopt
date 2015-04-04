@@ -38,7 +38,7 @@ function y = centroid(M, x)
     % This line can be uncommented to check that the gradient is indeed
     % correct. This should always be the case if the dist and the log
     % functions in the manifold are correct.
-    % checkgradient(problem);
+    % checkgradient(problem); pause;
     
     query = warning('query', 'manopt:getHessian:approx');
     warning('off', 'manopt:getHessian:approx');

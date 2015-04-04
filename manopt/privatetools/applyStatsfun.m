@@ -3,9 +3,9 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
 % function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
-% Applies the options.statsfun user supplied function to the stats
-% structure, if it was provided, with the appropriate inputs, and returns
-% the (possibly) modified stats structure.
+% Applies the options.statsfun user supplied function (if it was provided)
+% to the stats structure, and returns the (possibly) modified stats
+% structure.
 %
 % storedb is a StoreDB object, key is the StoreDB key to point x.
 %
