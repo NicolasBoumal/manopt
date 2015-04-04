@@ -1,21 +1,27 @@
 function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
-% Manifold of m-by-n matrices of rank k with quotient geometry.
+% Manifold of m-by-n matrices of rank k with a two factor quotient geometry.
 %
 % function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %
-% This follows the quotient geometry described in the following paper:
-% B. Mishra, G. Meyer, S. Bonnabel and R. Sepulchre
-% "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
-% arXiv, 2012.
-%
-% Paper link: http://arxiv.org/abs/1209.0430
-%
 % A point X on the manifold is represented as a structure with two
-% fields: L and R. The matrices L (mxk) is orthonormal,
+% fields: L and R. The matrix L (mxk) is orthonormal,
 % while the matrix R (nxk) is a full column-rank
-% matrix.
+% matrix such that X = L*R'.
 %
 % Tangent vectors are represented as a structure with two fields: L, R.
+%
+% Please cite the Manopt paper as well as the research paper:
+%     @InProceedings{mishra2014fixedrank,
+%       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
+%       Author  = {Mishra, B. and Meyer, G. and Bonnabel, S. and Sepulchre, R.},
+%       Journal = {Computational Statistics},
+%       Year    = {2014},
+%       Number  = {3-4},
+%       Pages   = {591--621},
+%       Volume  = {29},
+%       Doi     = {10.1007/s00180-013-0464-z}
+%     }
+
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
@@ -193,7 +199,7 @@ function omega = nested_sylvester(sym_mat, asym_mat)
     %     Omega*sym_mat+sym_mat*Omega = X
     % Mishra, Meyer, Bonnabel and Sepulchre, 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
     
-    % Lses built-in lyap function, but does not exploit the fact that it's
+    % Uses built-in lyap function, but does not exploit the fact that it's
     % twice the same sym_mat matrix that comes into play.
     
     X = lyap(sym_mat, -asym_mat);

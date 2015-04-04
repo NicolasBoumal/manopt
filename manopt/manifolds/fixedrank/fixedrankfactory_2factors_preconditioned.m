@@ -1,20 +1,15 @@
 function M = fixedrankfactory_2factors_preconditioned(m, n, k)
-% Manifold of m-by-n matrices of rank k with a balanced quotient geometry
+% Manifold of m-by-n matrices of rank k with a two factor quotient
+% geometry.
 %
 % function M = fixedrankfactory_2factors_preconditioned(m, n, k)
-%
-% This follows the quotient geometry described in the following paper:
-% B. Mishra, K. Adithya Apuroop and R. Sepulchre,
-% "A Riemannian geometry for low-rank matrix completion", arXiv, 2012.
-%
-% Paper link: http://arxiv.org/abs/1211.1550
 %
 % This geometry is tuned to least squares problems such as low-rank matrix
 % completion with ell-2 loss.
 %
 % A point X on the manifold is represented as a structure with two
 % fields: L and R. The matrices L (mxk) and R (nxk) are full column-rank
-% matrices.
+% matrices such that X = L*R'.
 %
 % Tangent vectors are represented as a structure with two fields: L, R.
 %
@@ -28,14 +23,15 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 %     }
 %
 %
-% See also fixedrankembeddedfactory fixedrankfactory_2factors
+% See also fixedrankembeddedfactory fixedrankfactory_2factors fixedrankfactory_3factors_preconditioned
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
-    
-    
+%	April 04, 2015 (BM):
+%       Cosmetic changes including avoing storing the inverse of a kxk matrix.
+  
     
     M.name = @() sprintf('LR''(tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -45,13 +41,11 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     % Some precomputations at the point X to be used in the inner product (and
     % pretty much everywhere else).
     function X = prepare(X)
-        if ~all(isfield(X,{'LtL','RtR','invRtR','invLtL'}))
+        if ~all(isfield(X,{'LtL','RtR'}))
             L = X.L;
             R = X.R;
             X.LtL = L'*L;
             X.RtR = R'*R;
-            X.invLtL = inv(X.LtL);
-            X.invRtR = inv(X.RtR);
         end
     end
     
@@ -77,8 +71,8 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     function eta = egrad2rgrad(X, eta)
         X = prepare(X);
         
-        eta.L = eta.L*X.invRtR;
-        eta.R = eta.R*X.invLtL;
+        eta.L = eta.L/X.RtR;
+        eta.R = eta.R/X.LtL;
     end
     
     M.ehess2rhess = @ehess2rhess;
@@ -89,12 +83,12 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
         rgrad = egrad2rgrad(X, egrad);
         
         % Directional derivative of the Riemannian gradient
-        Hess.L = ehess.L*X.invRtR - 2*egrad.L*(X.invRtR * symm(eta.R'*X.R) * X.invRtR);
-        Hess.R = ehess.R*X.invLtL - 2*egrad.R*(X.invLtL * symm(eta.L'*X.L) * X.invLtL);
+        Hess.L = ehess.L/X.RtR - 2*egrad.L*(X.RtR \ (symm(eta.R'*X.R) / X.RtR));
+        Hess.R = ehess.R/X.LtL - 2*egrad.R*(X.LtL \ (symm(eta.L'*X.L) / X.LtL));
         
         % We still need a correction factor for the non-constant metric
-        Hess.L = Hess.L + rgrad.L*(symm(eta.R'*X.R)*X.invRtR) + eta.L*(symm(rgrad.R'*X.R)*X.invRtR) - X.L*(symm(eta.R'*rgrad.R)*X.invRtR);
-        Hess.R = Hess.R + rgrad.R*(symm(eta.L'*X.L)*X.invLtL) + eta.R*(symm(rgrad.L'*X.L)*X.invLtL) - X.R*(symm(eta.L'*rgrad.L)*X.invLtL);
+        Hess.L = Hess.L + rgrad.L*(symm(eta.R'*X.R)/X.RtR) + eta.L*(symm(rgrad.R'*X.R)/X.RtR) - X.L*(symm(eta.R'*rgrad.R)/X.RtR);
+        Hess.R = Hess.R + rgrad.R*(symm(eta.L'*X.L)/X.LtL) + eta.R*(symm(rgrad.L'*X.L)/X.LtL) - X.R*(symm(eta.L'*rgrad.L)/X.LtL);
         
         % Project on the horizontal space
         Hess = M.proj(X, Hess);
@@ -105,7 +99,7 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     function etaproj = projection(X, eta)
         X = prepare(X);
         
-        Lambda =  (eta.R'*X.R)*X.invRtR  -   X.invLtL*(X.L'*eta.L);
+        Lambda =  (eta.R'*X.R)/X.RtR  -   X.LtL\(X.L'*eta.L);
         Lambda = Lambda/2;
         etaproj.L = eta.L + X.L*Lambda;
         etaproj.R = eta.R - X.R*Lambda';
