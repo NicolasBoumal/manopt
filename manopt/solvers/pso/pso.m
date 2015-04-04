@@ -34,6 +34,11 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
 %
 %   June 23, 2014 (NB) :
 %       Added some logic for handling of the populationsize option.
+%
+%   April 5, 2015 (NB):
+%       Working with the new StoreDB class system. The code keeps track of
+%       storedb keys for all points, even though it is not strictly
+%       necessary. This extra bookkeeping should help maintaining the code.
     
     
     % Verify that the problem description is sufficient for the solver.
@@ -50,7 +55,7 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     localdefaults.maxcostevals = max(5000, 2*dim);
     localdefaults.maxiter = max(500, 4*dim);
     
-    localdefaults.populationsize = min(40,10*dim);
+    localdefaults.populationsize = min(40, 10*dim);
     localdefaults.nostalgia = 1.4;
     localdefaults.social = 1.4;
     
@@ -63,12 +68,9 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     
     
     if ~isfield(problem.M, 'log') % BM
-        error(['The manifold problem.M must provide a logaritmic map, ' ...
+        error(['The manifold problem.M must provide a logarithmic map, ' ...
                'M.log(x, y). An approximate logarithm will do too.']);
     end
-     
-    % Create a store database
-    storedb = struct();
     
     % Start timing for initialization
     timetic = tic();
@@ -93,14 +95,24 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     end
     
     
+    % Create a store database and a key for each point x{i}
+    storedb = StoreDB();
+    xkey = cell(size(x));
+    for i = 1 : numel(x)
+        xkey{i} = storedb.getNewKey();
+    end
+    
     % Initialize personal best positions to the initial population
     y = x;
+    ykey = xkey;
+    
     % Save a copy of the swarm at the previous iteration
     xprev = x;
+    xprevkey = xkey; %#ok<NASGU>
     
     % Initialize velocities for each particle
-    v = cell(options.populationsize, 1);
-    for i = 1 : options.populationsize
+    v = cell(size(x));
+    for i = 1 : numel(x)
         % random velocity to improve initial exploration
         v{i} = problem.M.randvec(x{i});
         % or null velocity
@@ -110,16 +122,17 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     % Compute cost for each particle xi,
     % initialize personal best costs,
     % and setup a function evaluations counter.
-    costs = zeros(options.populationsize, 1);
-    for i = 1 : options.populationsize
-        [costs(i), storedb] = getCost(problem, x{i}, storedb);
+    costs = zeros(size(x));
+    for i = 1 : numel(x)
+        costs(i) = getCost(problem, x{i}, storedb, xkey{i});
     end
     fy = costs;
     costevals = options.populationsize;
     
-    % Search the best particle and store its cost/position
+    % Identify the best particle and store its cost/position
     [fbest, imin] = min(costs);
     xbest = x{imin};
+    xbestkey = xkey{imin}; %#ok<NASGU>
     
     % Iteration counter (at any point, iter is the number of fully executed
     % iterations so far)
@@ -140,7 +153,7 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
         iter = iter + 1;
         
         % Make sure we don't use too much memory for the store database
-        storedb = purgeStoredb(storedb, options.storedepth);
+        storedb.purge();
         
         % Log / display iteration information here.
         if options.verbosity >= 2
@@ -150,9 +163,9 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
         % Start timing this iteration
         timetic = tic();
         
-        % BM: Run standard stopping criterion checks
-        % BM: Stop when any element of the population triggers a criterion
-        for i = 1:options.populationsize
+        % BM: Run standard stopping criterion checks.
+        % BM: Stop if any particle triggers a stopping criterion.
+        for i = numel(x)
             [stop, reason] = stoppingcriterion(problem, x{i}, options, info, iter);
             if stop
                 break;
@@ -172,36 +185,37 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
         w = 0.4 + 0.5*(1-iter/options.maxiter);
         
         % Compute velocities
-        for i = 1 : options.populationsize
+        for i = 1 : numel(x)
+            
             % Get the position and past best position of particle i
             xi = x{i};
             yi = y{i};
+            
             % Get the previous position and velocity of particle i
             xiprev = xprev{i};
             vi = v{i};
             
             % Compute new velocity of particle i,
             % composed of 3 contributions
-            inertia   = problem.M.lincomb(xi, w, ...
-                                         problem.M.transp(xiprev, xi, vi));
-            nostalgia = problem.M.lincomb(xi, rand(1)*options.nostalgia,...
-                                                   problem.M.log(xi, yi) );
-            social    = problem.M.lincomb(xi, rand(1) * options.social, ...
-                                                 problem.M.log(xi, xbest));
+            inertia = problem.M.lincomb(xi, w , problem.M.transp(xiprev, xi, vi));
+            nostalgia = problem.M.lincomb(xi, rand(1)*options.nostalgia, problem.M.log(xi, yi) );
+            social = problem.M.lincomb(xi, rand(1) * options.social, problem.M.log(xi, xbest));
             
-            v{i}      = problem.M.lincomb(xi, 1, inertia, 1, ...
-                           problem.M.lincomb(xi, 1, nostalgia, 1, social));
+            v{i} = problem.M.lincomb(xi, 1, inertia, 1, problem.M.lincomb(xi, 1, nostalgia, 1, social));
+            
         end
         
         % Backup the current swarm positions
         xprev = x;
+        xprevkey = xkey; %#ok<NASGU>
         
         % Update positions, personal bests and global best
-        for i = 1 : options.populationsize
+        for i = 1 : numel(x)
             % compute new position of particle i
             x{i} = problem.M.retr(x{i}, v{i});
+            xkey{i} = storedb.getNewKey();
             % compute new cost of particle i
-            [fxi, storedb] = getCost(problem, x{i}, storedb);
+            fxi = getCost(problem, x{i}, storedb, xkey{i});
             costevals = costevals + 1;
             
             % update costs of the swarm
@@ -211,10 +225,12 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
                 % update self-best cost and position
                 fy(i) = fxi;
                 y{i} = x{i};
+                ykey{i} = xkey{i};
                 % update global-best if necessary
                 if fy(i) < fbest
                     fbest = fy(i);
                     xbest = y{i};
+                    xbestkey = ykey{i}; %#ok<NASGU>
                 end
             end
         end
@@ -239,16 +255,16 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
         
         % BM: Begin storing user defined stats for the entire population
         num_old_fields = size(fieldnames(stats), 1);
-        trialstats = applyStatsfun(problem, x{1}, storedb, options, stats);% BM
+        trialstats = applyStatsfun(problem, x{1}, storedb, xkey{1}, options, stats);% BM
         new_fields = fieldnames(trialstats);
         num_new_fields = size(fieldnames(trialstats), 1);
         num_additional_fields =  num_new_fields - num_old_fields; % User has defined new fields
         for jj = 1 : num_additional_fields % New fields added
             tempfield = new_fields(num_old_fields + jj);
-            stats = setfield(stats, char(tempfield), cell(options.populationsize, 1));
+            stats.(char(tempfield)) = cell(options.populationsize, 1);
         end
         for ii = 1 : options.populationsize % Adding information for each element of the population
-            tempstats = applyStatsfun(problem, x{ii}, storedb, options, stats);
+            tempstats = applyStatsfun(problem, x{ii}, storedb, xkey{ii}, options, stats);
             for jj = 1 : num_additional_fields
                 tempfield = new_fields(num_old_fields + jj);
                 tempfield_value = tempstats.(char(tempfield));
