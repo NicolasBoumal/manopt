@@ -8,14 +8,14 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 %
 % A point X on the manifold is represented as a structure with three
 % fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,
-% while the matrix S (kxk) is a full rank matrix such that such that X = L*S*R'.
+% while the matrix S (kxk) is a full rank matrix such that X = L*S*R'.
 %
 % Tangent vectors are represented as a structure with three fields: L, S
 % and R.
 %
 % Please cite the Manopt paper as well as the research paper:
 %     @InProceedings{mishra2014r3mc,
-%       Title        = {R3MC: A {R}iemannian three-factor algorithm for low-rank matrix completion},
+%       Title        = {{R3MC}: A {R}iemannian three-factor algorithm for low-rank matrix completion},
 %       Author       = {Mishra, B. and Sepulchre, R.},
 %       Booktitle    = {{53rd IEEE Conference on Decision and Control}},
 %       Year         = {2014},
@@ -28,11 +28,10 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
-%
-%
 % Change log:
+%
 %	April 04, 2015 (BM):
-%       Cosmetic changes including avoing storing the inverse of a kxk matrix.
+%       Cosmetic changes including avoiding storing the inverse of a kxk matrix.
 
     
     M.name = @() sprintf('LSR'' (tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -259,7 +258,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 end
 
 % Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INLSL>
+function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
     
     if nargin == 3
         d.L = a1*d1.L;

@@ -28,8 +28,9 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
+%
 %	April 04, 2015 (BM):
-%       Cosmetic changes including avoing storing the inverse of a kxk matrix.
+%       Cosmetic changes including avoiding storing the inverse of a kxk matrix.
   
     
     M.name = @() sprintf('LR''(tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
