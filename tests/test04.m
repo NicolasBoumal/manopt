@@ -1,4 +1,4 @@
-function [Xlsq Xhub D] = test04(n, m)
+function [Xlsq, Xhub, D] = test04(n, m)
 % function [Xlsq Xhub D] = test04(n, m)
 % All intputs are optional.
 %
@@ -86,6 +86,7 @@ function [Xlsq Xhub D] = test04(n, m)
     
     % Add a little Nelder-Mead testing
     optionsnm.maxcostevals = problem.M.dim() * 10;
+    optionsnm.maxiter = 2000;
     simplex = cell(problem.M.dim()+1, 1);
     simplex{1} = problem.M.rand();
     for i = 2 : numel(simplex)
