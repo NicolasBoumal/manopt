@@ -3,12 +3,17 @@ function M = fixedrankfactory_2factors(m, n, k)
 %
 % function M = fixedrankfactory_2factors(m, n, k)
 %
-% This follows the balanced quotient geometry described in the paper:
+% The first-order geometry follows the balanced quotient geometry described in the paper:
 % G. Meyer, S. Bonnabel and R. Sepulchre,
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
 % ICML 2011.
 %
 % Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf
+%
+% The second-order geometry follows the reference 
+% B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
+% "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
+% Computational Statistics, 29(3 ? 4), pp. 591 ? 621, 2014.
 %
 % A point X on the manifold is represented as a structure with two
 % fields: L and R. The matrices L (mxk) and R (nxk) are full column-rank
