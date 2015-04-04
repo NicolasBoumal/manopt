@@ -1,35 +1,50 @@
 function M = fixedrankfactory_3factors_preconditioned(m, n, k)
-% Manifold of m-by-n matrices of rank k with polar quotient geometry.
+% Manifold of m-by-n matrices of rank k with a three factor quotient geometry.
 %
-% function M = fixedrankLSRquotientfactory(m, n, k)
+% function M = fixedrankfactory_3factors_preconditioned(m, n, k)
+%
+% This geometry is tuned to least squares problems such as low-rank matrix
+% completion with ell-2 loss.
 %
 % A point X on the manifold is represented as a structure with three
 % fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,
-% while the matrix S (kxk) is a full rank matrix.
+% while the matrix S (kxk) is a full rank matrix such that such that X = L*S*R'.
 %
 % Tangent vectors are represented as a structure with three fields: L, S
 % and R.
 %
-% See also: fixedrankfactory_3factors
+% Please cite the Manopt paper as well as the research paper:
+%     @InProceedings{mishra2014r3mc,
+%       Title        = {R3MC: A {R}iemannian three-factor algorithm for low-rank matrix completion},
+%       Author       = {Mishra, B. and Sepulchre, R.},
+%       Booktitle    = {{53rd IEEE Conference on Decision and Control}},
+%       Year         = {2014},
+%       Organization = {{IEEE CDC}}
+%     }
+%
+%
+% See also: fixedrankfactory_3factors fixedrankfactory_2factors_preconditioned
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
+%
+%
+% Change log:
+%	April 04, 2015 (BM):
+%       Cosmetic changes including avoing storing the inverse of a kxk matrix.
+
     
-    % Change log:
-    
-    M.name = @() sprintf('LSR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
+    M.name = @() sprintf('LSR'' (tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
     M.dim = @() (m+n-k)*k;
     
-    % Some precomputations at the point X to be used in the inner product (and
+    % Some precomputations at the point X that are to be used in the inner product (and
     % pretty much everywhere else).
     function X = prepare(X)
-        if ~all(isfield(X,{'StS','SSt','invStS','invSSt'}) == 1)
+        if ~all(isfield(X,{'StS','SSt'}) == 1)
             X.SSt = X.S*X.S';
             X.StS = X.S'*X.S;
-            X.invSSt = eye(size(X.S, 2))/X.SSt;
-            X.invStS = eye(size(X.S, 2))/X.StS;
         end
     end
     
@@ -40,8 +55,8 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         
         ip = trace(X.SSt*(eta.L'*zeta.L)) + trace(X.StS*(eta.R'*zeta.R)) ...
             + trace(eta.S'*zeta.S);
-        
     end
+    
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
     M.dist = @(x, y) error('fixedrankLSRquotientfactory.dist not implemented yet.');
@@ -61,18 +76,17 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         SSR = X.StS;
         ASR = 2*symm(SSR*(egrad.S'*X.S));
         
-        %         BL1 = lyap(SSL, -ASL);
-        %         BR1 = lyap(SSR, -ASR);
-        [BL, BR] = tangent_space_lyap(X.S, ASL, ASR);
+        [BL, BR] = tangent_space_lyap(X.S, ASL, ASR); % It computes the solution without calling Matlab's Lyap
         
-        rgrad.L = (egrad.L - X.L*BL)*X.invSSt;
-        rgrad.R = (egrad.R - X.R*BR)*X.invStS;
-        
-        
+        rgrad.L = (egrad.L - X.L*BL)/X.SSt;
+        rgrad.R = (egrad.R - X.R*BR)/X.StS;
         rgrad.S = egrad.S;
         
-        %                         norm(skew(X.SSt*(rgrad.L'*X.L) + rgrad.S*X.S'), 'fro')
-        %                         norm(skew(X.StS*(rgrad.R'*X.R) - X.S'*rgrad.S), 'fro')
+        % Debug
+        %         BL1 = lyap(SSL, -ASL); % Alternate way
+        %         BR1 = lyap(SSR, -ASR);
+        %         norm(skew(X.SSt*(rgrad.L'*X.L) + rgrad.S*X.S'), 'fro')
+        %         norm(skew(X.StS*(rgrad.R'*X.R) - X.S'*rgrad.S), 'fro')
         
     end
     
@@ -89,8 +103,8 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         ASR = 2*symm(SSR*(egrad.S'*X.S));
         [BL, BR] = tangent_space_lyap(X.S, ASL, ASR);
         
-        rgrad.L = (egrad.L - X.L*BL)*X.invSSt;
-        rgrad.R = (egrad.R - X.R*BR)*X.invStS;
+        rgrad.L = (egrad.L - X.L*BL)/X.SSt;
+        rgrad.R = (egrad.R - X.R*BR)/X.StS;
         rgrad.S = egrad.S;
         
         % Directional derivative of the Riemannian gradient
@@ -104,26 +118,29 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         
         [BLdot, BRdot] = tangent_space_lyap(X.S, ASLdot, ASRdot);
         
-        Hess.L = (ehess.L - eta.L*BL - X.L*BLdot - 2*rgrad.L*symm(eta.S*X.S'))*X.invSSt;
-        Hess.R = (ehess.R - eta.R*BR - X.R*BRdot - 2*rgrad.R*symm(eta.S'*X.S))*X.invStS;
+        Hess.L = (ehess.L - eta.L*BL - X.L*BLdot - 2*rgrad.L*symm(eta.S*X.S'))/X.SSt;
+        Hess.R = (ehess.R - eta.R*BR - X.R*BRdot - 2*rgrad.R*symm(eta.S'*X.S))/X.StS;
         Hess.S = ehess.S;
         
         
         
-        % BM comments: Till this, everything seems correct.
+        % BM: Till this, everything seems correct.
         % We still need a correction factor for the non-constant metric
-        % The correction factor owes itself to the Koszul formula...
-        % This is the Riemannian connection in the Euclidean space with the
+        % that is imposed.
+        % The computation of the correction factor owes itself to the Koszul formula.
+        % This corresponds to the Riemannian connection in the Euclidean space with the
         % scaled metric.
-        Hess.L = Hess.L + (eta.L*symm(rgrad.S*X.S') + rgrad.L*symm(eta.S*X.S'))*X.invSSt;
-        Hess.R = Hess.R + (eta.R*symm(rgrad.S'*X.S) + rgrad.R*symm(eta.S'*X.S))*X.invStS;
+        Hess.L = Hess.L + (eta.L*symm(rgrad.S*X.S') + rgrad.L*symm(eta.S*X.S'))/X.SSt;
+        Hess.R = Hess.R + (eta.R*symm(rgrad.S'*X.S) + rgrad.R*symm(eta.S'*X.S))/X.StS;
         Hess.S = Hess.S - symm(rgrad.L'*eta.L)*X.S - X.S*symm(rgrad.R'*eta.R);
         
         % The Riemannian connection on the quotient space is the
-        % projection on the tangent space of the total space and then onto the horizontal
-        % space. This is accomplished by the following operation.
+        % projection of the Riemmian connection in the ambient space onto the tangent space of the total space and
+        % then onto the horizontal space. 
+        % This is accomplished by the following operation.
         Hess = M.proj(X, Hess);
         
+        % Debug
         %         norm(skew(X.SSt*(Hess.L'*X.L) + Hess.S*X.S'))
         %         norm(skew(X.StS*(Hess.R'*X.R) - X.S'*Hess.S))
         
@@ -136,17 +153,16 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
     function etaproj = projection(X, eta)
         X = prepare(X);
         
-        
-        % First, projection onto the tangent space of the total sapce
+        % First, projection onto the tangent space of the total space
         SSL = X.SSt;
         ASL = 2*symm(X.SSt*(X.L'*eta.L)*X.SSt);
         BL = lyap(SSL, -ASL);
-        eta.L = eta.L - X.L*BL*X.invSSt;
+        eta.L = eta.L - X.L*(BL/X.SSt);
         
         SSR = X.StS;
         ASR = 2*symm(X.StS*(X.R'*eta.R)*X.StS);
         BR = lyap(SSR, -ASR);
-        eta.R = eta.R - X.R*BR*X.invStS;
+        eta.R = eta.R - X.R*(BR/X.StS);
         
         % Project onto the horizontal space
         PU = skew((X.L'*eta.L)*X.SSt) + skew(X.S*eta.S');
@@ -160,11 +176,13 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         etaproj.S = eta.S - (X.S*Omega2 - Omega1*X.S) ;
         etaproj.R = eta.R - (X.R*Omega2);
         
-        %                                 norm(skew(X.SSt*(etaproj.L'*X.L) + etaproj.S*X.S'))
-        %                                 norm(skew(X.StS*(etaproj.R'*X.R) - X.S'*etaproj.S))
+        
+        % Debug
+        %         norm(skew(X.SSt*(etaproj.L'*X.L) + etaproj.S*X.S'))
+        %         norm(skew(X.StS*(etaproj.R'*X.R) - X.S'*etaproj.S))
         %
-        %                                  norm(skew(X.SSt*(etaproj.L'*X.L) - X.S*etaproj.S'))
-        %                                 norm(skew(X.StS*(etaproj.R'*X.R) + etaproj.S'*X.S))
+        %         norm(skew(X.SSt*(etaproj.L'*X.L) - X.S*etaproj.S'))
+        %         norm(skew(X.StS*(etaproj.R'*X.R) + etaproj.S'*X.S))
         
     end
     
@@ -191,7 +209,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:fixedrankLSRquotientfactory:exp', ...
+        warning('manopt:fixedrankfactory_3factors_preconditioned:exp', ...
             ['Exponential for fixed rank ' ...
             'manifold not implemented yet. Used retraction instead.']);
     end
@@ -263,12 +281,13 @@ function A = uf(A)
 end
 
 function[BU, BV] = tangent_space_lyap(R, E, F)
-    % We intent to solve     RR^T  BU + BU RR^T  = E
-    %                        R^T R BV + BV R^T R = F
+    % We intent to solve a linear system    RR^T  BU + BU RR^T  = E
+    %                                       R^T R BV + BV R^T R = F
+    % for BU and BV.
     %
-    % This can be solved using two calls to the Matlab lyap.
-    % However, we can still have a more efficient implementations as shown
-    % below...
+    % This can be solved using two calls to the Matlab's lyap.
+    % However, we can still have a more efficient implementation
+    % that does not require the full functionaliyt of Matlab's lyap.
     
     [U, Sigma, V] = svd(R);
     E_mod = U'*E*U;
@@ -286,11 +305,11 @@ function[BU, BV] = tangent_space_lyap(R, E, F)
     % The block elements
     a =  s1.^2 + s2.^2; % a column vector
     
-    % solve the linear system of equations
+    % Solve the linear system of equations
     cu = b1./a; %a.\b1;
     cv = b2./a; %a.\b2;
     
-    % devectorize
+    % Matricize
     CU = reshape(cu, r, r);
     CV = reshape(cv, r, r);
     
@@ -298,7 +317,7 @@ function[BU, BV] = tangent_space_lyap(R, E, F)
     BU = U*CU*U';
     BV = V*CV*V';
     
-    % %% debug
+    % %% Debug
     %
     % norm(R*R'*BU + BU*R*R' - E, 'fro');
     % norm((Sigma.^2)*CU + CU*(Sigma.^2) - E_mod, 'fro');
@@ -323,7 +342,9 @@ function[Omega1, Omega2] = coupled_lyap(R, E, F)
     % We intent to solve the coupled system of Lyapunov equations
     %
     % RR^T Omega1 + Omega1 RR^T  - R Omega2 R^T = E
-    % R^T R Omega2 + Omega1 R^T R  - R^T Omega2 R = F
+    % R^T R Omega2 + Omega1 R^T R  - R^T Omega2 R = F,
+    %
+    % for Omega1 and Omega2, both are skew symmetric matrices.
     %
     % Below is an efficient implementation
     
@@ -334,14 +355,14 @@ function[Omega1, Omega2] = coupled_lyap(R, E, F)
     b2 = F_mod(:);
     
     r = size(Sigma, 1);
-    sig = diag(Sigma); % all the singular values in a vector
-    sig1 = sig*ones(1, r); % columns repeat
-    sig1t = sig1'; % rows repeat
+    sig = diag(Sigma); % All the singular values in a vector
+    sig1 = sig*ones(1, r); % Columns repeat
+    sig1t = sig1'; % Rows repeat
     s1 = sig1(:);
     s2 = sig1t(:);
     
     % The block elements
-    a =  s1.^2 + s2.^2; % a column vector
+    a =  s1.^2 + s2.^2; % A column vector
     c = s1.*s2;
     
     % Solve directly using the formula
@@ -353,7 +374,7 @@ function[Omega1, Omega2] = coupled_lyap(R, E, F)
     Y1_sol = (b2 + (a./c).*b1) ./ ((a.^2)./c - c);
     Y2_sol = (b2 + c.*Y1_sol)./a;
     
-    % devectorize
+    % Matricize
     Omega1 = reshape(Y1_sol, r, r);
     Omega2 = reshape(Y2_sol, r, r);
     
@@ -361,7 +382,7 @@ function[Omega1, Omega2] = coupled_lyap(R, E, F)
     Omega1 = U*Omega1*U';
     Omega2 = V*Omega2*V';
     
-    % %% debug whether we have the right solution
+    % %% Debug: whether we have the right solution.
     % norm(R*R'*Omega1 + Omega1*R*R'  - R*Omega2*R' - E, 'fro')
     % norm(R'*R*Omega2 + Omega2*R'*R  - R'*Omega1*R - F, 'fro')
 end
