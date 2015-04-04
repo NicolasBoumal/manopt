@@ -1,6 +1,5 @@
 function M = fixedrankfactory_2factors_preconditioned(m, n, k)
-% Manifold of m-by-n matrices of rank k with a two factor quotient
-% geometry.
+% Manifold of m-by-n matrices of rank k with two factor quotient geometry.
 %
 % function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 %
