@@ -31,6 +31,9 @@ function M = obliquefactory(n, m, transposed)
 %       bsxfun formulation of column normalization, which avoids using for
 %       loops and provides performance gains. The exponential still uses a
 %       for loop.
+%
+%	April 4, 2015 (NB) :
+%       Log function modified to avoid NaN's appearing for close by points.
 
     
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -107,9 +110,12 @@ function M = obliquefactory(n, m, transposed)
         
         v = M.proj(x1, x2 - x1);
         dists = acos(sum(x1.*x2, 1));
-        norms = sqrt(sum(v.^2, 1));
+        norms = real(sqrt(sum(v.^2, 1)));
 		factors = dists./norms;
-		% factors(dists <= 1e-6) = 1;
+        % For very close points, dists is almost equal to dists, but
+        % because they are both almost zero, the division above can return
+        % NaN's. To avoid that, we force those ratios to 1.
+		factors(dists <= 1e-6) = 1;
 		v = bsxfun(@times, v, factors);
         
         v = trnsp(v);
