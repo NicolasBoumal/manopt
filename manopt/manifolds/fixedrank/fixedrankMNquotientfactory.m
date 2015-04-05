@@ -1,5 +1,5 @@
 function M = fixedrankMNquotientfactory(m, n, k)
-% Manifold of m-by-n matrices of rank k with a two factor quotient geometry.
+% Manifold of m-by-n matrices of rank k with two factor quotient geometry.
 %
 % function M = fixedrankMNquotientfactory(m, n, k)
 %
@@ -17,7 +17,7 @@ function M = fixedrankMNquotientfactory(m, n, k)
 % Tangent vectors are represented as a structure with two fields (M, N).
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @InProceedings{mishra2014fixedrank,
+%     @Article{absil2014fixedrank,
 %       Title   = {Two Newton methods on the manifold of fixed-rank matrices endowed with Riemannian quotient geometries},
 %       Author  = {Absil, P.-A. and Amodei, L. and Meyer, G.},
 %       Journal = {Computational Statistics},
@@ -39,7 +39,7 @@ function M = fixedrankMNquotientfactory(m, n, k)
     M.dim = @() (m+n-k)*k;
     
     % Choice of the metric is motivated by the symmetry present in the
-    % space
+    % space.
     M.inner = @(X, eta, zeta) eta.M(:).'*zeta.M(:) + eta.N(:).'*zeta.N(:);
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
@@ -59,13 +59,13 @@ function M = fixedrankMNquotientfactory(m, n, k)
     M.ehess2rhess = @ehess2rhess;
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         
-        % Directional derivative of the Riemannian gradient
+        % Directional derivative of the Riemannian gradient.
         Hess.M = ehess.M - eta.M*symm(X.M'*egrad.M);
         Hess.M = stiefel_proj(X.M, Hess.M);
         
         Hess.N = ehess.N;
         
-        % Projection onto the horizontal space
+        % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
     end
     
@@ -103,7 +103,7 @@ function M = fixedrankMNquotientfactory(m, n, k)
         S = t^2*eta.M'*eta.M;
         Y.M = [X.M t*eta.M]*expm([A -S ; eye(k) A])*eye(2*k, k)*expm(-A);
         
-        % re-orthonormalize (seems necessary from time to time)
+        % re-orthonormalize (seems necessary from time to time).
         [Q R] = qr(Y.M, 0);
         Y.M = Q * diag(sign(diag(R)));
         

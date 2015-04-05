@@ -11,7 +11,6 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 % matrices such that X = L*R'.
 %
 % Tangent vectors are represented as a structure with two fields: L, R.
-%
 % 
 % Please cite the Manopt paper as well as the research paper:
 %     @Article{mishra2012optimized,
@@ -51,7 +50,7 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     
     
     % The choice of metric is motivated by symmetry and tuned to least square
-    % objective function
+    % objective function.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
@@ -79,18 +78,18 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         X = prepare(X);
         
-        % Riemannian gradient
+        % Riemannian gradient.
         rgrad = egrad2rgrad(X, egrad);
         
-        % Directional derivative of the Riemannian gradient
+        % Directional derivative of the Riemannian gradient.
         Hess.L = ehess.L/X.RtR - 2*egrad.L*(X.RtR \ (symm(eta.R'*X.R) / X.RtR));
         Hess.R = ehess.R/X.LtL - 2*egrad.R*(X.LtL \ (symm(eta.L'*X.L) / X.LtL));
         
-        % We still need a correction factor for the non-constant metric
+        % We still need a correction factor for the non-constant metric.
         Hess.L = Hess.L + rgrad.L*(symm(eta.R'*X.R)/X.RtR) + eta.L*(symm(rgrad.R'*X.R)/X.RtR) - X.L*(symm(eta.R'*rgrad.R)/X.RtR);
         Hess.R = Hess.R + rgrad.R*(symm(eta.L'*X.L)/X.LtL) + eta.R*(symm(rgrad.L'*X.L)/X.LtL) - X.R*(symm(eta.L'*rgrad.L)/X.LtL);
         
-        % Project on the horizontal space
+        % Project on the horizontal space.
         Hess = M.proj(X, Hess);
         
     end
@@ -177,7 +176,7 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     
 end
 
-% Linear combination of tangent vectors
+% Linear combination of tangent vectors.
 function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
     
     if nargin == 3

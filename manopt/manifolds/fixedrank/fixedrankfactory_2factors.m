@@ -10,25 +10,36 @@ function M = fixedrankfactory_2factors(m, n, k)
 %
 % Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf
 %
-% The second-order geometry follows the reference 
+% The second-order geometry follows from the reference 
 % B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
-% Computational Statistics, 29(3 ? 4), pp. 591 ? 621, 2014.
+% Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
 %
 % A point X on the manifold is represented as a structure with two
 % fields: L and R. The matrices L (mxk) and R (nxk) are full column-rank
 % matrices such that X = L*R'.
 %
 % Tangent vectors are represented as a structure with two fields: L, R.
-%
 % 
-% Please cite the Manopt paper as well as the research paper:
+% For first-order geometry, please cite the Manopt paper as well as the research paper:
 %     @InProceedings{meyer2011linear,
 %       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
 %       Author       = {Meyer, G. and Bonnabel, S. and Sepulchre, R.},
 %       Booktitle    = {{28th International Conference on Machine Learning}},
 %       Year         = {2011},
 %       Organization = {{ICML}}
+%     }
+%
+% For second-order geometry, please cite the Manopt paper as well as the research paper:
+%     @Article{mishra2014fixedrank,
+%       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
+%       Author  = {Mishra, B. and Meyer, G. and Bonnabel, S. and Sepulchre, R.},
+%       Journal = {Computational Statistics},
+%       Year    = {2014},
+%       Number  = {3-4},
+%       Pages   = {591--621},
+%       Volume  = {29},
+%       Doi     = {10.1007/s00180-013-0464-z}
 %     }
 %
 %
@@ -60,7 +71,8 @@ function M = fixedrankfactory_2factors(m, n, k)
         end
     end
     
-    % Choice of the metric is motivated by the symmetry present in the space
+    % Choice of the metric is motivated by the symmetry present in the
+    % space.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
@@ -86,23 +98,23 @@ function M = fixedrankfactory_2factors(m, n, k)
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         X = prepare(X);
         
-        % Riemannian gradient
+        % Riemannian gradient computation.
         rgrad = egrad2rgrad(X, egrad);
         
-        % Directional derivative of the Riemannian gradient
+        % Directional derivative of the Riemannian gradient.
         Hess.L = ehess.L*X.LtL + 2*egrad.L*symm(eta.L'*X.L);
         Hess.R = ehess.R*X.RtR + 2*egrad.R*symm(eta.R'*X.R);
         
-        % We need a correction term for the non-constant metric
+        % We need a correction term for the non-constant metric.
         Hess.L = Hess.L - rgrad.L*((X.invLtL)*symm(X.L'*eta.L)) - eta.L*(X.invLtL*symm(X.L'*rgrad.L)) + X.L*(X.invLtL*symm(eta.L'*rgrad.L));
         Hess.R = Hess.R - rgrad.R*((X.invRtR)*symm(X.R'*eta.R)) - eta.R*(X.invRtR*symm(X.R'*rgrad.R)) + X.R*(X.invRtR*symm(eta.R'*rgrad.R));
         
-        % Projection onto the horizontal space
+        % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
     end
     
     M.proj = @projection;
-    % Projection of the vector eta onto the horizontal space
+    % Projection of the vector eta in the ambient space onto the horizontal space.
     function etaproj = projection(X, eta)
         X = prepare(X);
         
@@ -134,7 +146,7 @@ function M = fixedrankfactory_2factors(m, n, k)
         Y.L = Y.L / scaling;
         Y.R = Y.R * scaling;
         
-        % These are reused in the computation of the gradient and Hessian
+        % These are reused in the computation of the gradient and Hessian.
         Y = prepare(Y);
     end
     
@@ -154,7 +166,7 @@ function M = fixedrankfactory_2factors(m, n, k)
     
     M.rand = @random;
     function X = random()
-        % A random point on the total space
+        % A random point on the total space.
         X.L = randn(m, k);
         X.R = randn(n, k);
         X = prepare(X);
@@ -162,7 +174,7 @@ function M = fixedrankfactory_2factors(m, n, k)
     
     M.randvec = @randomvec;
     function eta = randomvec(X)
-        % A random vector in the horizontal space
+        % A random vector in the horizontal space.
         eta.L = randn(m, k);
         eta.R = randn(n, k);
         eta = projection(X, eta);
@@ -185,7 +197,7 @@ function M = fixedrankfactory_2factors(m, n, k)
     
 end
 
-% Linear combination of tangent vectors
+% Linear combination of tangent vectors.
 function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
     
     if nargin == 3

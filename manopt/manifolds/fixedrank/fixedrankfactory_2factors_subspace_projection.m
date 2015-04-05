@@ -1,5 +1,5 @@
 function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
-% Manifold of m-by-n matrices of rank k with a two factor quotient geometry.
+% Manifold of m-by-n matrices of rank k with two factor quotient geometry.
 %
 % function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %
@@ -11,7 +11,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 % Tangent vectors are represented as a structure with two fields: L, R.
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @InProceedings{mishra2014fixedrank,
+%     @Article{mishra2014fixedrank,
 %       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
 %       Author  = {Mishra, B. and Meyer, G. and Bonnabel, S. and Sepulchre, R.},
 %       Journal = {Computational Statistics},
@@ -21,7 +21,6 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %       Volume  = {29},
 %       Doi     = {10.1007/s00180-013-0464-z}
 %     }
-
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
@@ -44,7 +43,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     end
     
     % The choice of the metric is motivated by symmetry and scale
-    % invariance in the total space
+    % invariance in the total space.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
@@ -75,19 +74,19 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         X = prepare(X);
         
-        % Riemannian gradient
+        % Riemannian gradient.
         rgrad = egrad2rgrad(X, egrad);
         
-        % Directional derivative of the Riemannian gradient
+        % Directional derivative of the Riemannian gradient.
         Hess.L = ehess.L - eta.L*symm(X.L'*egrad.L);
         Hess.L = stiefel_proj(X.L, Hess.L);
         
         Hess.R = ehess.R*X.RtR + 2*egrad.R*symm(eta.R'*X.R);
         
-        % Correction factor for the non-constant metric on the factor R
+        % Correction factor for the non-constant metric on the factor R.
         Hess.R = Hess.R - rgrad.R*((X.invRtR)*symm(X.R'*eta.R)) - eta.R*(X.invRtR*symm(X.R'*rgrad.R)) + X.R*(X.invRtR*symm(eta.R'*rgrad.R));
         
-        % Projection onto the horizontal space
+        % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
     end
     
@@ -96,7 +95,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     function etaproj = projection(X, eta)
         X = prepare(X);
         
-        eta.L = stiefel_proj(X.L, eta.L); % On the tangent space
+        eta.L = stiefel_proj(X.L, eta.L); % On the tangent space.
         SS = X.RtR;
         AS1 = 2*X.RtR*skew(X.L'*eta.L)*X.RtR;
         AS2 = 2*skew(X.RtR*(X.R'*eta.R));
@@ -118,7 +117,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
         Y.L = uf(X.L + t*eta.L);
         Y.R = X.R + t*eta.R;
         
-        % These are reused in the computation of the gradient and Hessian
+        % These are reused in the computation of the gradient and Hessian.
         Y = prepare(Y);
     end
     
@@ -171,7 +170,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     
 end
 
-% Linear combination of tangent vectors
+% Linear combination of tangent vectors.
 function d = lincomb(x, a1, d1, a2, d2) %#ok<INLSL>
     
     if nargin == 3
