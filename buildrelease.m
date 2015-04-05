@@ -1,5 +1,4 @@
-% Attempt at a script to facilitate the generation of a new release of
-% manopt.
+% Script to facilitate the generation of a new release of Manopt.
 
 fprintf('Release? Are your sure? CTRL+C if not. Any other key if yes.\n');
 pause();
