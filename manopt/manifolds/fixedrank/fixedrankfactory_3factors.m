@@ -13,7 +13,7 @@ function M = fixedrankfactory_3factors(m, n, k)
 % The second-order geometry follows the reference
 % B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
-% Computational Statistics, 29(3 ? 4), pp. 591 ? 621, 2014.
+% Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
 %
 % Paper link: http://arxiv.org/abs/1209.0430
 %
@@ -26,13 +26,24 @@ function M = fixedrankfactory_3factors(m, n, k)
 % and R.
 %
 % 
-% Please cite the Manopt paper as well as the research paper:
+% For first-order geometry, please cite the Manopt paper as well as the research paper:
 %     @InProceedings{meyer2011linear,
 %       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
 %       Author       = {Meyer, G. and Bonnabel, S. and Sepulchre, R.},
 %       Booktitle    = {{28th International Conference on Machine Learning}},
 %       Year         = {2011},
 %       Organization = {{ICML}}
+%     }
+% For second-order geometry, please cite the Manopt paper as well as the research paper:
+%     @Article{mishra2014fixedrank,
+%       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
+%       Author  = {Mishra, B. and Meyer, G. and Bonnabel, S. and Sepulchre, R.},
+%       Journal = {Computational Statistics},
+%       Year    = {2014},
+%       Number  = {3-4},
+%       Pages   = {591--621},
+%       Volume  = {29},
+%       Doi     = {10.1007/s00180-013-0464-z}
 %     }
 %
 %
@@ -73,10 +84,10 @@ function M = fixedrankfactory_3factors(m, n, k)
     M.ehess2rhess = @ehess2rhess;
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         
-        % Riemannian gradient for the factor S
+        % Riemannian gradient for the factor S.
         rgrad.S = X.S*symm(egrad.S)*X.S;
         
-        % Directional derivatives of the Riemannian gradient
+        % Directional derivatives of the Riemannian gradient.
         Hess.L = ehess.L - eta.L*symm(X.L'*egrad.L);
         Hess.L = stiefel_proj(X.L, Hess.L);
         
@@ -85,22 +96,22 @@ function M = fixedrankfactory_3factors(m, n, k)
         
         Hess.S = X.S*symm(ehess.S)*X.S +  2*symm(eta.S*symm(egrad.S)*X.S);
         
-        % Correction factor for the non-constant metric on the factor S
+        % Correction factor for the non-constant metric on the factor S.
         Hess.S = Hess.S - symm(eta.S*(X.S\rgrad.S));
         
-        % Projection onto the horizontal space
+        % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
     end
     
     
     M.proj = @projection;
     function etaproj = projection(X, eta)
-        % First, projection onto the tangent space of the total sapce
+        % First, projection onto the tangent space of the total space.
         eta.L = stiefel_proj(X.L, eta.L);
         eta.R = stiefel_proj(X.R, eta.R);
         eta.S = symm(eta.S);
         
-        % Then, projection onto the horizontal space
+        % Then, projection onto the horizontal space.
         SS = X.S*X.S;
         AS = X.S*(skew(X.L'*eta.L) + skew(X.R'*eta.R) - 2*skew(X.S\eta.S))*X.S;
         omega = lyap(SS, -AS);
@@ -151,7 +162,7 @@ function M = fixedrankfactory_3factors(m, n, k)
     
     M.randvec = @randomvec;
     function eta = randomvec(X)
-        % A random vector on the horizontal space
+        % A random vector on the horizontal space.
         eta.L = randn(m, k);
         eta.R = randn(n, k);
         eta.S = randn(k, k);
@@ -178,7 +189,7 @@ function M = fixedrankfactory_3factors(m, n, k)
     
 end
 
-% Linear combination of tangent vectors
+% Linear combination of tangent vectors.
 function d = lincomb(x, a1, d1, a2, d2) %#ok<INLSL>
     
     if nargin == 3

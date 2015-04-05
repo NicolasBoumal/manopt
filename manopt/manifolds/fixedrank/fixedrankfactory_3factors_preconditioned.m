@@ -1,5 +1,5 @@
 function M = fixedrankfactory_3factors_preconditioned(m, n, k)
-% Manifold of m-by-n matrices of rank k with a three factor quotient geometry.
+% Manifold of m-by-n matrices of rank k with three factor quotient geometry.
 %
 % function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 %
@@ -47,7 +47,8 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         end
     end
     
-    % Choice of the metric on the orthnormal space is the low-rank matrix completio cost function.
+    % The choice of metric is motivated by symmetry and tuned to least square
+    % objective function.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
@@ -75,7 +76,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         SSR = X.StS;
         ASR = 2*symm(SSR*(egrad.S'*X.S));
         
-        [BL, BR] = tangent_space_lyap(X.S, ASL, ASR); % It computes the solution without calling Matlab's Lyap
+        [BL, BR] = tangent_space_lyap(X.S, ASL, ASR); % It computes the solution without calling Matlab's Lyap.
         
         rgrad.L = (egrad.L - X.L*BL)/X.SSt;
         rgrad.R = (egrad.R - X.R*BR)/X.StS;
@@ -95,7 +96,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         X = prepare(X);
         
-        % Riemannian gradient
+        % Riemannian gradient.
         SSL = X.SSt;
         ASL = 2*symm(SSL*(egrad.S*X.S'));
         SSR = X.StS;
@@ -106,7 +107,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         rgrad.R = (egrad.R - X.R*BR)/X.StS;
         rgrad.S = egrad.S;
         
-        % Directional derivative of the Riemannian gradient
+        % Directional derivative of the Riemannian gradient.
         ASLdot = 2*symm((2*symm(X.S*eta.S')*(egrad.S*X.S')) + X.SSt*(ehess.S*X.S' + egrad.S*eta.S')) - 4*symm(symm(eta.S*X.S')*BL);
         ASRdot = 2*symm((2*symm(X.S'*eta.S)*(egrad.S'*X.S)) + X.StS*(ehess.S'*X.S + egrad.S'*eta.S)) - 4*symm(symm(eta.S'*X.S)*BR);
         
@@ -152,7 +153,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
     function etaproj = projection(X, eta)
         X = prepare(X);
         
-        % First, projection onto the tangent space of the total space
+        % First, projection onto the tangent space of the total space.
         SSL = X.SSt;
         ASL = 2*symm(X.SSt*(X.L'*eta.L)*X.SSt);
         BL = lyap(SSL, -ASL);
