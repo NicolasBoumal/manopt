@@ -3,15 +3,23 @@ function M = euclideanfactory(m, n)
 %
 % function M = euclideanfactory(m, n)
 %
-% Returns M, a structure describing the Euclidean space of m-by-n matrices
+% Returns M, a structure describing the Euclidean space of m-by-n matrices,
 % equipped with the standard Frobenius distance and associated trace inner
-% product as a manifold for Manopt.
+% product, as a manifold for Manopt.
+%
+% Using this 'manifold', Manopt can be used to solve standard
+% unconstrained optimization problems, for example in replacement of
+% Matlab's fminunc.
+%
+% See also: euclideancomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%  July 5, 2013 (NB): added egred2rgrad, ehess2rhess, mat, vec, tangent.
+%
+%   July 5, 2013 (NB):
+%       Added egred2rgrad, ehess2rhess, mat, vec, tangent.
 
     
     if ~exist('n', 'var') || isempty(n)

@@ -89,7 +89,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
     end
     
     % Create a store database and a key for each point.
-    storedb = StoreDB();
+    storedb = StoreDB(options.storedepth);
     key = cell(size(x));
     for i = 1 : dim+1;
         key{i} = storedb.getNewKey();
