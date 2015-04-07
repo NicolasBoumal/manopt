@@ -177,7 +177,7 @@ if ~exist('x', 'var') || isempty(x)
 end
 
 % Create a store database and generate a key for the current x
-storedb = StoreDB();
+storedb = StoreDB(options.storedepth);
 key = storedb.getNewKey();
 
 % Compute cost-related quantities for x

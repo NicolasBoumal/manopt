@@ -96,7 +96,7 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     
     
     % Create a store database and a key for each point x{i}
-    storedb = StoreDB();
+    storedb = StoreDB(options.storedepth);
     xkey = cell(size(x));
     for i = 1 : numel(x)
         xkey{i} = storedb.getNewKey();
