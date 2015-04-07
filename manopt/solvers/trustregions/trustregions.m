@@ -344,7 +344,7 @@ if ~exist('x', 'var') || isempty(x)
 end
 
 % Create a store database and get a key for the current x
-storedb = StoreDB();
+storedb = StoreDB(options.storedepth);
 key = storedb.getNewKey();
 
 %% Initializations

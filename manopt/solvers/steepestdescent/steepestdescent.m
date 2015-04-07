@@ -120,7 +120,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     end
     
     % Create a store database and get a key for the current x
-    storedb = StoreDB();
+    storedb = StoreDB(options.storedepth);
     key = storedb.getNewKey();
     
     % Compute objective-related quantities for x
