@@ -110,7 +110,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 %
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @InProceedings{mishra2014r3mc,
+%     @InProceedings{mishra2011dist,
 %       Title        = {Low-rank optimization for distance matrix completion},
 %       Author       = {Mishra, B. and Meyer, G. and Sepulchre, R.},
 %       Booktitle    = {{50th IEEE Conference on Decision and Control}},
