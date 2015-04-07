@@ -2,7 +2,7 @@ function lowrank_dist_completion( )
 % lowrank_dist_completion()
 % Low-rank Euclidean distance matrix completion
 %
-%
+
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, April 06, 2015.
 % Contributors:
@@ -127,8 +127,8 @@ function lowrank_dist_completion( )
         end
         time = [time thistime]; %#ok<AGROW>
         cost = [cost [infos.cost]]; %#ok<AGROW>
-        if isfield(infos, 'test_error_square')
-            test_error = [test_error [infos.test_error_square]];
+        if isfield(infos, 'test_error')
+            test_error = [test_error [infos.test_error]];
         end
         
         % Evaluate gradient of the convex cost function (i.e. wrt X)
@@ -181,7 +181,7 @@ function lowrank_dist_completion( )
     box off;
     title('Training on the known distances');
     
-    if isfield(infos, 'test_error_square')
+    if isfield(infos, 'test_error')
         fs = 20;
         figure;
         semilogy([test_error], '-O','Color','blue','linewidth', 2.0);
@@ -257,7 +257,7 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(data_train, data_test
     function stats = compute_test_error(problem, Y, stats)
         xij = EIJ_test'*Y;
         estimDists_test = sum(xij.^2,2);
-        stats.test_error_square = 0.5*mean((estimDists_test - data_test.entries).^2);
+        stats.test_error = 0.5*mean((estimDists_test - data_test.entries).^2);
     end
     
     options.stopfun = @mystopfun;
