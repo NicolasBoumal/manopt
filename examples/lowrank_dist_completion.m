@@ -1,12 +1,12 @@
 function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(problem_description)
-% Perform low-rank distance completion w/ automatic rank detection.
+% Perform low-rank distance matrix completion w/ automatic rank detection.
 %
 % function Y =  lowrank_dist_completion(problem_description)
 % function [Y, infos, out_problem_description] =  lowrank_dist_completion(problem_description)
 %
 % It implements the ideas of Journee, Bach, Absil and Sepulchre, SIOPT,
-% 2010 applied to the problem of low-rank distance completion. The details
-% are in the paper "Low-rank optimization for distance matrix completion",
+% 2010, applied to the problem of low-rank distance matrix completion.
+% The details are in the paper "Low-rank optimization for distance matrix completion",
 % B. Mishra, G. Meyer, and R. Sepulchre, IEEE CDC, 2011.
 %
 % Paper link: http://arxiv.org/abs/1304.6663.
@@ -42,17 +42,17 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 % - problem_description.data_test:  Data structure to compute distances for the "unknown" (to the algorithm) distances.
 %                                   It contains the 3 fields that are shown
 %                                   below. An empty "data_test" structure
-%                                   will do nothing.
+%                                   will not compute the test error.
 %
 %       -- data_test.entries:       A column vector consisting of "unknown" (to the algorithm)
 %                                   distances. An empty "data_test.entries"
-%                                   field will do nothing.
+%                                   field will not compute the test error.
 %       -- data_test.rows:          The row position of th corresponding
 %                                   distances. An empty "data_test.rows"
-%                                   field will do nothing.
+%                                   field will not compute the test error.
 %       -- data_test.cols:          The column position of th corresponding
 %                                   distances. An empty "data_test.cols"
-%                                   field will do nothing.
+%                                   field will not compute the test error.
 %
 %
 %
@@ -67,16 +67,16 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 %                                       'TR' for trust-regions,
 %                                       'CG' for conjugate gradients,
 %                                       'SD' for steepest descent.
-%                                       Default, it is 'TR'.
+%                                       By default, it is 'TR'.
 %
 %
 %
 %
-% - problem_description.rank_initial: Starting rank. Default, it is 1.
+% - problem_description.rank_initial: Starting rank. By default, it is 1.
 %
 %
 %
-% - problem_description.rank_max:     Maximum rank. Default, it is equal to
+% - problem_description.rank_max:     Maximum rank. By default, it is equal to
 %                                     "problem_description.n".
 %
 %
@@ -85,27 +85,27 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 % - problem_description.params:  Structure array containing algorithm
 %                                parameters for stopping criteria.
 %       -- params.abstolcost:    Tolerance on absolute value of cost.
-%                                Default, it is 1e-3.
+%                                By default, it is 1e-3.
 %
 %
 %       -- params.reltolcost:    Tolerance on absolute value of cost.
-%                                Default, it is 1e-3.
+%                                By default, it is 1e-3.
 %       -- params.tolgradnorm:   Tolerance on the norm of the gradient.
-%                                Default, it is 1e-5.
+%                                By default, it is 1e-5.
 %       -- params.tolSmin:       Tolerance on smallest eigenvalue of Sy,
 %                                the dual variable.
-%                                Default, it is 1e-5.
+%                                By default, it is 1e-5.
 %       -- params.tolrankdeficiency:   Tolerance on the
 %                                      smallest singular value of Y.
-%                                      Default, it is 1e-3.
-%                           .
+%                                      By default, it is 1e-3.
+%
 %
 % Outputs:
 % --------
 %
 %   Y:                        n-by-r solution matrix of rank r.
-%   out_infos:                Structure array with additional information.
-%   out_problem_description:  Structure array with probelm description.
+%   out_infos:                Structure array with computed statistics.
+%   out_problem_description:  Structure array with used probelm description.
 %
 %
 %
@@ -123,8 +123,8 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 % Contributors: Nicolas Boumal.
 % Change log:
 
-
-    %% Check whether we have complete problem description. 
+    
+    %% Check whether we have complete problem description.
     if ~exist('problem_desription', 'var')...
             || ~isempty(problem_description)...
             || ~all(isfield(problem_description,{'data_train'}) == 1)...
@@ -133,7 +133,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             || isempty(problem_description.data_train.rows)...
             || isempty(problem_description.data_train.entries)
         
-        %% Generating a random instance
+        %% Generate a random problem instance.
         n = 500; % Number of points
         r = 5; % Embedding dimension
         
@@ -172,7 +172,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         data_test.cols = J(test);
         data_test.entries = trueDists(test);
         
-        % Fixed rank algorithm
+        % Fixed-rank algorithm
         fixedrank_algo = 'TR'; % Trust-regions.
         
         
@@ -180,7 +180,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         rank_initial = 1; % Starting rank.
         rank_max = n; % Maximum rank.
         
-        % Basic parameters used in the scheme.
+        % Basic parameters that are used in the optimization scheme.
         params.abstolcost = 1e-3;
         params.reltolcost = 1e-3;
         params.tolgradnorm = 1e-5;
@@ -189,27 +189,34 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         
         
         
-        % Collect the problem description that are we solving.
+        % Collect and output the problem description that are we actual
+        % solving.
         out_problem_description.data_train = data_train;
         out_problem_description.data_test = data_test;
         out_problem_description.n = n;
+        out_problem_description.fixedrank_algo = 'TR';
         out_problem_description.rank_initial = 1;
         out_problem_description.rank_maximum = n;
         out_problem_description.params = params;
-        out_problem_description.fixedrank_algo = 'TR';
         
     else
+        %% Train data
+        data_train = problem_description.data_train;
+        out_problem_description.data_train = data_train;
+        
+        
         
         %% Number of data points.
         if isfield(problem_description, 'n')
             n = problem_description.n;
         else
-            error('problem_description:field_n_notfound','Error. Number of data points must be given \n');
+            error('problem_description:field_n_notfound','Error. Number of data points must be given. \n');
         end
         out_problem_description.n = n;
         
         
-        %% Which fixed rank algorithm to use.
+        
+        %% Fixed-rank algorithm to use.
         if isfield(problem_description, 'fixedrank_algo')
             fixedrank_algo = problem_description.fixedrank_algo;
         else
@@ -219,8 +226,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         
         
         
-        
-        %% Initial rank.
+        %% Initial rank that is given.
         if isfield(problem_description, 'rank_initial') && ~isempty(problem_description.rank_initial)
             rank_initial = problem_description.rank_initial;
         else
@@ -229,24 +235,29 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         out_problem_description.rank_initial = rank_initial;
         
         
+        
         %% Maximum rank that is allowed.
         if isfield(problem_description, 'rank_max') && ~isempty(problem_description.rank_max)
             rank_max = problem_description.rank_max;
         else
             rank_max = n;
-            out_problem_description.rank_maximum = rank_max;
         end
+        out_problem_description.rank_maximum = rank_max;
+
         
         
-        %% Checking if there is a testing dataset.
+        %% Check if a testing dataset is provided.
         if ~isfield(problem_description,{'data_test'})...
                 || ~all(isfield(problem_description.data_test,{'cols', 'rows', 'entries'}) == 1)...
                 || isempty(problem_description.data_test.cols)...
                 || isempty(problem_description.data_test.rows)...
                 || isempty(problem_description.data_test.entries)
             data_test = [];
+        else % Believe that there is a testing dataset.
+            data_test = problem_description.data_test;
         end
         out_problem_description.data_test = data_test;
+        
         
         
         %% Parameters
@@ -260,7 +271,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             if ~isfield(params,'tolrankdeficiency');  params.tolrankdeficiency = 1e-3; end
             
         else
-            % Basic parameters used in the scheme.
+            % Default parameters used in the scheme.
             params.abstolcost = 1e-3;
             params.reltolcost = 1e-3;
             params.tolgradnorm = 1e-5;
@@ -271,16 +282,17 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         out_problem_description.params = params;
         
         
+        
     end
     
     
-    %% Rank search algorithm
+    %% Common 
     N = data_train.nentries; % Number of known distances
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
     
-    rr = rank_initial;
-    Y = randn(n, rr);
+    rr = rank_initial; % Starting rank.
+    Y = randn(n, rr); % Random starting initialization.
     
     time = [];
     cost = [];
@@ -288,15 +300,19 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
     rank = [];
     
     
+    
+    %% Main loop of the rank search algorithm.
+    
     while (rr <= rank_max), % When r = n a global min is attained for sure.
         fprintf('>> Rank %d <<\n', rr);
+        %% Follow a descent direction to compute an iterate.
         if (rr > rank_initial),
-            if isempty(restartDir), % If no restart dir avail. do random restart
+            if isempty(restartDir), % If no restart dir avail. do a random restart.
                 
                 disp('No restart dir available, random restart is performed');
                 Y = randn(n, rr);
                 
-            else % Perform line-search based on the restart direction
+            else % Perform a simple line-search based on the restart direction.
                 
                 disp('>> Line-search with restart direction');
                 Y(:, rr) = 0; % Append a column of zeroes
@@ -311,7 +327,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
                 fprintf('>> Cost before = %f\n',costBefore);
                 
                 step = N/(n^2); % A very rough estimate of the Lipscitz constant
-                for i = 1 : 20, % 20 backtracking to find a descent direction.
+                for i = 1 : 25, % 25 backtracking to find a descent direction.
                     % Update
                     Y(:,rr) = step*restartDir;
                     
@@ -343,10 +359,15 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             
         end
         
-        % Run the fixed-rank optimization using Manopt.
+        
+        
+        
+        %% Fixed-rank optimization with Manopt.
         [Y, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y, params);
         
-        % Some info logging.
+        
+        
+        %% Some info logging.
         thistime = [infos.time];
         if ~isempty(time)
             thistime = time(end) + thistime;
@@ -359,13 +380,18 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             test_error = [test_error [infos.test_error]]; %#ok<AGROW>
         end
         
-        % Evaluate gradient of the convex cost function (i.e. wrt X).
+        
+        
+        %% Evaluate gradient of the convex cost function (i.e. wrt X).
         Z = Y(data_train.rows, :) - Y(data_train.cols,:);
         estimDists = sum(Z.^2,2);
         errors = (estimDists - data_train.entries);
         
-        % Dual variable.
+        
+        
+        %% Dual variable and its minimum eigenvalue that is used to guarantee convergence.
         Sy = EIJ * sparse(1:N,1:N,2 * errors / N,N,N) * EIJ';
+        
         
         % Compute smallest algebraic eigenvalue of Sy,
         % this gives us a descent direction for the next rank (v)
@@ -377,7 +403,9 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         opts.issym = true;
         [v, s_min] = eigs(Sy, 1, 'SA', opts);
         
-        % To check whether Y is rank deficient.
+        
+        
+        %% Check whether Y is rank deficient.
         vp = svd(Y);
         
         % Stopping criterion.
@@ -386,8 +414,14 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             break;
         end
         
+        
+        
+        %% Update rank
         rr = rr + 1; % Update the rank.
         
+        
+        
+        %% Compute a descent direction.
         if (s_min < -1e-10),
             restartDir = v;
         else
@@ -395,17 +429,19 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         end
         clear Sy v;
         
+        
+        
     end
     
     
-    %% Collect the basic informationa that we have.
+    %% Collect the relevant statistics that we have.
     out_infos.time = time;
     out_infos.cost = cost;
     out_infos.rank = rank;
     out_infos.test_error = test_error;
     
     
-    %% Some plots
+    %% Time for plots.
     fs = 20;
     figure;
     semilogy(cost, '-O', 'Color', 'blue', 'linewidth', 2.0);
@@ -429,7 +465,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         legend('Trust-regions');
         legend 'boxoff';
         box off;
-        title('Test error on a set different from the training set');
+        title('Test error on a set of distances different from the training set');
         
     end
     
@@ -439,13 +475,17 @@ end
 
 function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y_initial, params)
     
-    %% Common
+    %% Common 
     [n, r] = size(Y_initial);
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
     
+    
+    
     %% Create the problem structure
     problem.M = symfixedrankYYfactory(n,  r);
+    
+    
     
     %% Cost evaluation
     problem.cost = @cost;
@@ -458,6 +498,8 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_
         f = 0.5*mean((estimDists - data_train.entries).^2);
     end
     
+    
+    
     %% Gradient evaluation.
     problem.grad = @grad;
     function [g, store] = grad(Y, store)
@@ -469,6 +511,8 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_
         estimDists = sum(xij.^2,2);
         g = EIJ * sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N, N, N) * xij;
     end
+    
+    
     
     %% Hessian evaluation.
     problem.hess = @hess;
@@ -509,7 +553,9 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_
         stats.rank = r;
     end
     
-    %% Stopping criteri
+    
+    
+    %% Stopping criteria
     
     options.stopfun = @mystopfun;
     function stopnow = mystopfun(problem, Y, info, last) %#ok<INUSL>
@@ -517,16 +563,20 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_
     end
     options.tolgradnorm = params.tolgradnorm;
     
-    %% Call the appropriate algorithm
+    
+    
+    %% Call the appropriate algorithm.
     if strcmp(fixedrank_algo, 'TR'),
         [Yopt, ~, infos] = trustregions(problem, Y_initial, options);
     elseif strcmp(fixedrank_algo, 'CG'),
         [Yopt, ~, infos] = conjugategradient(problem, Y_initial, options);
     elseif strcmp(fixedrank_algo, 'SD'),
         [Yopt, ~, infos] = steepestdescent(problem, Y_initial, options);
-    else % Default
+    else % By default
         [Yopt, ~, infos] = trustregions(problem, Y_initial, options);
     end
+    
+    
     
 end
 
