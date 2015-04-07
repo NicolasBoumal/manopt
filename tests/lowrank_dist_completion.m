@@ -19,16 +19,17 @@ function lowrank_dist_completion( )
     Yo = randn(n,r); % True embedding
     trueDists = pdist(Yo)'.^2; % True distances
     
-    % Comment out this line if you don't want to add noise
-    trueDists = trueDists + 0.01 * std(trueDists) * randn(size(trueDists)); % add noise
+    % Add noise (set noise_level = 0 for clean measurements)
+    noise_level = 0.01;
+    trueDists = trueDists + noise_level * std(trueDists) * randn(size(trueDists));
     
-    % Compute all pair of indices
-    H = tril(true(n),-1);
-    [I, J] = ind2sub([n,n],find(H(:)));
+    % Compute all pairs of indices
+    H = tril(true(n), -1);
+    [I, J] = ind2sub([n, n], find(H(:)));
     clear 'H';
     
     % Train data
-    train = false(length(trueDists),1);
+    train = false(length(trueDists), 1);
     train(1:floor(length(trueDists)*(1- fractionOfUnknown))) = true;
     train = train(randperm(length(train)));
     
@@ -118,7 +119,7 @@ function lowrank_dist_completion( )
         end
         
         % Run fixed-rank optimization using Manopt
-        [Y infos] = lowrank_dist_completion_fixedrank(data_train, data_test, Y);
+        [Y, infos] = lowrank_dist_completion_fixedrank(data_train, data_test, Y);
         
         % Some info logging.
         thistime = [infos.time];
@@ -128,7 +129,7 @@ function lowrank_dist_completion( )
         time = [time thistime]; %#ok<AGROW>
         cost = [cost [infos.cost]]; %#ok<AGROW>
         if isfield(infos, 'test_error')
-            test_error = [test_error [infos.test_error]];
+            test_error = [test_error [infos.test_error]]; %#ok<AGROW>
         end
         
         % Evaluate gradient of the convex cost function (i.e. wrt X)
@@ -146,7 +147,7 @@ function lowrank_dist_completion( )
         
         % Make eigs silent
         opts.disp = 0;
-        
+        opts.issym = true;
         [v, s_min] = eigs(Sy, 1, 'SA', opts);
         
         % To check whether Y is rank deficient.
@@ -171,11 +172,11 @@ function lowrank_dist_completion( )
     
     fs = 20;
     figure;
-    semilogy([cost], '-O','Color','blue','linewidth', 2.0);
+    semilogy(cost, '-O', 'Color', 'blue', 'linewidth', 2.0);
     ax1 = gca;
-    set(ax1,'FontSize',fs);
-    xlabel(ax1,'Iterations','FontSize',fs);
-    ylabel(ax1,'Cost','FontSize',fs);
+    set(ax1, 'FontSize', fs);
+    xlabel(ax1, 'Iterations', 'FontSize', fs);
+    ylabel(ax1, 'Cost', 'FontSize', fs);
     legend('Trust-regions');
     legend 'boxoff';
     box off;
@@ -184,11 +185,11 @@ function lowrank_dist_completion( )
     if isfield(infos, 'test_error')
         fs = 20;
         figure;
-        semilogy([test_error], '-O','Color','blue','linewidth', 2.0);
+        semilogy(test_error, '-O', 'Color', 'blue', 'linewidth', 2.0);
         ax1 = gca;
-        set(ax1,'FontSize',fs);
-        xlabel(ax1,'Iterations','FontSize',fs);
-        ylabel(ax1,'Test eror','FontSize',fs);
+        set(ax1, 'FontSize', fs);
+        xlabel(ax1, 'Iterations', 'FontSize', fs);
+        ylabel(ax1, 'Test eror', 'FontSize', fs);
         legend('Trust-regions');
         legend 'boxoff';
         box off;
@@ -202,7 +203,7 @@ end
 
 function [Yopt, infos] = lowrank_dist_completion_fixedrank(data_train, data_test, Y_initial)
     
-    [n r] = size(Y_initial);
+    [n, r] = size(Y_initial);
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
     
@@ -212,24 +213,33 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(data_train, data_test
     
     
     problem.cost = @cost;
-    function f = cost(Y)
-        xij = EIJ'*Y;
+    function [f, store] = cost(Y, store)
+        if ~isfield(store, 'xij')
+            store.xij = EIJ'*Y;
+        end
+        xij = store.xij;
         estimDists = sum(xij.^2,2);
         f = 0.5*mean((estimDists - data_train.entries).^2);
     end
     
     problem.grad = @grad;
-    function g = grad(Y)
+    function [g, store] = grad(Y, store)
         N = data_train.nentries;
-        xij = EIJ'*Y;
+        if ~isfield(store, 'xij')
+            store.xij = EIJ'*Y;
+        end
+        xij = store.xij;
         estimDists = sum(xij.^2,2);
         g = EIJ * sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N, N, N) * xij;
     end
     
     problem.hess = @hess;
-    function Hess = hess(Y, eta)
+    function [Hess, store] = hess(Y, eta, store)
         N = data_train.nentries;
-        xij = EIJ'*Y;
+        if ~isfield(store, 'xij')
+            store.xij = EIJ'*Y;
+        end
+        xij = store.xij;
         zij = EIJ'*eta;
         estimDists = sum(xij.^2,2);
         crossYZ = 2*sum(xij .* zij,2);
@@ -254,17 +264,20 @@ function [Yopt, infos] = lowrank_dist_completion_fixedrank(data_train, data_test
         EIJ_test = speye(n);
         EIJ_test = EIJ_test(:, data_test.rows) - EIJ_test(:, data_test.cols);
     end
-    function stats = compute_test_error(problem, Y, stats)
+    function stats = compute_test_error(problem, Y, stats) %#ok<INUSL>
         xij = EIJ_test'*Y;
         estimDists_test = sum(xij.^2,2);
         stats.test_error = 0.5*mean((estimDists_test - data_test.entries).^2);
     end
+
     
     options.stopfun = @mystopfun;
-    function stopnow = mystopfun(problem, Y, info, last)
+    function stopnow = mystopfun(problem, Y, info, last) %#ok<INUSL>
         stopnow = (last >= 3 && (info(last-2).cost - info(last).cost < 1e-3 || abs(info(last-2).cost - info(last).cost)/info(last).cost < 1e-3));
     end
     options.tolgradnorm = 1e-5;
+    
+    
     
     [Yopt, ~, infos] = trustregions(problem, Y_initial, options);
     
