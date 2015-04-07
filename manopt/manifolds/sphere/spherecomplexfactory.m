@@ -17,7 +17,10 @@ function M = spherecomplexfactory(n, m)
 % Contributors: 
 % Change log: 
 %
-%   Sep. 4, 2014 (NB): added ehess2rhess.
+%   Sep. 4, 2014 (NB):
+%       Added ehess2rhess.
+%   April 7, 2015 (NB):
+%       Added vec/mat pair (for use with hessianspectrum, for example).
 
     
     if ~exist('m', 'var')
@@ -79,6 +82,11 @@ function M = spherecomplexfactory(n, m)
         y = x1+x2;
         y = y / norm(y, 'fro');
     end
+
+    mn = m*n;
+    M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
+    M.mat = @(x, u_vec) reshape(u_vec(1:mn), m, n) + 1i*reshape(u_vec((mn+1):end), m, n);
+    M.vecmatareisometries = @() true;
 
 end
 
