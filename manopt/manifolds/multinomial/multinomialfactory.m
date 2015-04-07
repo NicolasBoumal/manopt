@@ -1,14 +1,16 @@
 function M = multinomialfactory(n, m)
-% Returns a manifold struct to optimize over n-by-m matrices with positive entries and
-% such that each column sums to one.
+% Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.
 %
 % function M = multinomialfactory(n, m)
 %
-% The metric imposed is the Fisher metric such that
-% the multinomial oblique manifold is a Riemannian submanifold of the
-% space of n-by-m matrices.
+% The returned structure M is a Manopt manifold structure to optimize over
+% the set of n-by-m matrices with (strictly) positive entries and such that
+% the entries of each column sum to one.
 %
-% The file is based on the development in the research paper
+% The metric imposed is the Fisher metric such that the multinomial oblique
+% manifold is a Riemannian submanifold of the space of n-by-m matrices.
+%
+% The file is based on developments in the research paper
 % Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,
 % "Heterogeneous tensor decomposition for clustering via manifold
 % optimization", Technical report, 2014.
@@ -26,7 +28,7 @@ function M = multinomialfactory(n, m)
 % Contributors:
 % Change log:
     
-    M.name = @() sprintf('%dx%d matrices with positive entries such that each column sums to 1', n, m, 1);
+    M.name = @() sprintf('%dx%d column-stochastic matrices with positive entries', n, m, 1);
     
     M.dim = @() (n-1)*m;
     
@@ -42,9 +44,11 @@ function M = multinomialfactory(n, m)
     
     M.typicaldist = @() m*pi/2; % This is an approximation.
     
+    % Column vector of ones of length n. 
+    e = ones(n, 1);
+    
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
-        e = ones(n, 1); % Column vector of ones of length n. 
         lambda = -sum(X.*egrad, 1); % Row vector of length m.
         rgrad = X.*egrad + (e*lambda).*X; % This is in the tangent space.
     end
@@ -53,12 +57,13 @@ function M = multinomialfactory(n, m)
     function rhess = ehess2rhess(X, egrad, ehess, eta)
         
         % Riemannian gradient computation.
-        e = ones(n, 1); % Column vector of ones of length n.
-        lambda = - sum(X.*egrad, 1); % row vector of length m
+        % lambda is a row vector of length m.
+        lambda = - sum(X.*egrad, 1);
         rgrad =  X.*egrad + (e*lambda).*X;
         
         % Directional derivative of the Riemannian gradient.
-        lambdadot = -sum(eta.*egrad, 1) - sum(X.*ehess, 1); % row vector of length m
+        % lambdadot is a row vector of length m.
+        lambdadot = -sum(eta.*egrad, 1) - sum(X.*ehess, 1); 
         rgraddot = eta.*egrad + X.*ehess + (e*lambdadot).*X + (e*lambda).*eta;
         
         % Correction term because of the non-constant metric that we
@@ -75,7 +80,6 @@ function M = multinomialfactory(n, m)
     % space.
     M.proj = @projection;
     function etaproj = projection(X, eta)
-        e = ones(n, 1); % Column vector of ones of length n.
         alpha = sum(eta, 1); % Row vector of length m.
         etaproj = eta - (e*alpha).*X;
     end
@@ -90,9 +94,9 @@ function M = multinomialfactory(n, m)
         end
         % A standard approximation.
         Y = X.*exp(t*(eta./X)); % Based on mapping for positive scalars.
-        e = ones(n, 1); % Column vector of ones of length n.
         Y = Y./(e*(sum(Y, 1))); % Projection onto the constraint set.
-        Y = max(Y, eps); % For numerical reasons so that we avoid entries going to zero.
+        % For numerical reasons, so that we avoid entries going to zero:
+        Y = max(Y, eps);
     end
     
     M.exp = @exponential;
@@ -112,7 +116,6 @@ function M = multinomialfactory(n, m)
     function X = random()
         % A random point in the ambient space.
         X = rand(n, m); %
-        e = ones(n, 1); % Column vector of ones of length n.
         X = X./(e*(sum(X, 1)));
     end
     
@@ -148,8 +151,3 @@ function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
         error('Bad use of multinomialfactory.lincomb.');
     end
 end
-
-
-
-
-
