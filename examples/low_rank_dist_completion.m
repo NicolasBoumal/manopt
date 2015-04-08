@@ -349,7 +349,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                 
                 % A very rough estimate of the inverse of the Lipschitz constant.
                 % The "2*sqrt(n)" term comes from the diagonal operation.
-                % We multiply the estimate by 4, as its better to have a higher
+                % We multiply the estimate by 4, as it's better to have a higher
                 % stepsize than a lower one. 
                 stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N);
                       
@@ -409,10 +409,10 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         
         time = [time thistime]; %#ok<AGROW>
         cost = [cost [infos.cost]]; %#ok<AGROW>
-        rank = [rank [infos.rank]];
-        rank_change_stats(rank_search).rank = rr;
-        rank_change_stats(rank_search).iter = length([infos.cost]);
-        rank_change_stats(rank_search).Y = Y;
+        rank = [rank [infos.rank]]; %#ok<AGROW>
+        rank_change_stats(rank_search).rank = rr; %#ok<AGROW>
+        rank_change_stats(rank_search).iter = length([infos.cost]); %#ok<AGROW>
+        rank_change_stats(rank_search).Y = Y; %#ok<AGROW>
         
         if isfield(infos, 'test_error')
             test_error = [test_error [infos.test_error]]; %#ok<AGROW>
