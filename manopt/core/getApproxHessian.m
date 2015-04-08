@@ -12,8 +12,8 @@ function approxhess = getApproxHessian(problem, x, d, storedb, key)
 %
 % If no approximate Hessian was provided, this call is redirected to
 % getHessianFD.
-%
-% See also: getHessianFD
+% 
+% See also: getHessianFD canGetApproxHessian
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
