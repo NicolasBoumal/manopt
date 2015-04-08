@@ -284,7 +284,7 @@ if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
     % seems to be aware of the issue.
     warning('manopt:getHessian:approx', ...
             'No Hessian provided. Using an FD approximation instead.');
-    problem.approxhess = approxhessianFD();
+    problem.approxhess = approxhessianFD(problem);
 end
 
 % Define some strings for display
