@@ -119,46 +119,34 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 %     }
 
 
-
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, April 06, 2015.
 % Contributors: Nicolas Boumal.
 % Change log:
 
-
+    
     % Check problem description
     if ~exist('problem_desription', 'var')
         problem_description = struct();
     end
-    
-    
     problem_description = check_problem_description(problem_description); % Check the problem description;
     
     
-    
- 
     % Common quantities
-    
     data_train = problem_description.data_train;
     data_test =  problem_description.data_test;
     n =  problem_description.n;
     rank_initial = problem_description.rank_initial;
     rank_max =  problem_description.rank_max;
     params =  problem_description.params;
-    
-    
     N = data_train.nentries; % Number of known distances
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
-    
     rr = rank_initial; % Starting rank.
     Y = randn(n, rr); % Random starting initialization.
     
     
-    
-    
-    
-    % Information 
+    % Information
     time = [];               % Time for each iteration per rank
     cost = [];               % Cost at each iteration per rank
     test_error = [];         % Test error at each iteration per rank
@@ -167,11 +155,8 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
     
     
     
-    
-    
-    % Main loop rank search 
+    % Main loop rank search
     rank_search = 0;
-    
     while (rr <= rank_max), % When r = n a global min is attained for sure.
         rank_search = rank_search + 1;
         
@@ -180,12 +165,10 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         % Follow the descent direction to compute an iterate in a higher dimension
         if (rr > rank_initial),
             if isempty(restartDir), % If no restart dir avail. do a random restart
-                
                 disp('No restart dir available, random restart is performed');
                 Y = randn(n, rr);
                 
             else % Perform a simple line-search based on the restart direction
-                
                 disp('>> Line-search with restart direction');
                 Y(:, rr) = 0; % Append a column of zeroes
                 
@@ -196,76 +179,33 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 costBefore = mean(errors.^2);
                 fprintf('>> Cost before = %f\n',costBefore);
                 
-                % A very rough estimate of the inverse of the Lipschitz constant.
-                % The "2*sqrt(n)" term comes from the diagonal operation.
-                % We multiply the estimate by 4, as it's better to have a higher
-                % stepsize than a lower one. 
-                stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N);
-                
-                linsearch_fail = false;
-                for i = 1 : 25, % 25 backtracking to find a descent direction.
-                    % Update
-                    Y(:,rr) = stepsize*restartDir;
-                    
-                    % Compute cost
-                    Z = Y(data_train.rows, :) - Y(data_train.cols,:);
-                    estimDists = sum(Z.^2,2);
-                    errors = (estimDists - data_train.entries);
-                    
-                    costAfter = mean(errors.^2);
-                    fprintf('>> Cost after = %f\n',costAfter);
-                    
-                    % Armijo condition
-                    armijo = (costAfter - costBefore) <= 0.5 * stepsize * abs(s_min);
-                    
-                    if armijo,
-                        break;
-                    else
-                        stepsize = stepsize/2;
-                    end
-                    
-                    if i == 25,
-                        linsearch_fail = true;
-                    end
-                end
-                
-                % Check for sufficient decrease of the cost function.
-                if linsearch_fail...
-                        ||(costAfter >= costBefore)...
-                        || abs(costAfter - costBefore) < 1e-8,
-                    disp('Decrease is not sufficient, random restart');
-                    Y = randn(n, rr);
-                end
-                
+                % Simple linesearch to maintain monotonicity
+                problem.M = symfixedrankYYfactory(n, rr);
+                problem.cost = @(Y)  cost_evaluation(Y, data_train);
+                d = zeros(size(Y));
+                d(:, rr) = restartDir;
+                [unused, Y] = linesearch_decrease(problem, Y, d, costBefore);
             end
             
         end
         
-        
-        
-        
         % Fixed-rank optimization with Manopt
         [Y, infos_fixedrank] = low_rank_dist_completion_fixedrank(data_train, data_test, Y, params);
-        
-        
         
         % Some info logging
         thistime = [infos_fixedrank.time];
         if ~isempty(time)
             thistime = time(end) + thistime;
         end
-        
         time = [time thistime]; %#ok<AGROW>
         cost = [cost [infos_fixedrank.cost]]; %#ok<AGROW>
         rank = [rank [infos_fixedrank.rank]]; %#ok<AGROW>
         rank_change_stats(rank_search).rank = rr; %#ok<AGROW>
         rank_change_stats(rank_search).iter = length([infos_fixedrank.cost]); %#ok<AGROW>
         rank_change_stats(rank_search).Y = Y; %#ok<AGROW>
-        
         if isfield(infos_fixedrank, 'test_error')
             test_error = [test_error [infos_fixedrank.test_error]]; %#ok<AGROW>
         end
-        
         
         
         % Evaluate gradient of the convex cost function (i.e. wrt X).
@@ -273,10 +213,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         estimDists = sum(Z.^2,2);
         errors = (estimDists - data_train.entries);
         
-        
-        
-        
-        
+      
         % Dual variable and its minimum eigenvalue that is used to guarantee convergence.
         Sy = EIJ * sparse(1:N,1:N,2 * errors / N,N,N) * EIJ';
         
@@ -292,9 +229,6 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         [v, s_min] = eigs(Sy, 1, 'SA', opts);
         
         
-        
-        
-        
         % Check whether Y is rank deficient.
         vp = svd(Y);
         
@@ -304,12 +238,8 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
             break;
         end
         
-        
-        
         % Update rank
         rr = rr + 1;
-        
-        
         
         % Compute descent direction
         if (s_min < -1e-10),
@@ -327,8 +257,6 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
     infos.test_error = test_error;
     infos.rank_change_stats = rank_change_stats;
     
-    
-    
     % Few plots.
     show_plots(problem_description, infos);
     
@@ -337,16 +265,19 @@ end
 
 
 
+%% Cost function evaluation.
+function val = cost_evaluation(Y, data_train)
+    Z = Y(data_train.rows, :) - Y(data_train.cols,:);
+    estimDists = sum(Z.^2, 2);
+    errors = (estimDists - data_train.entries);
+    val = mean(errors.^2);
+end
 
 
 
 
-
-
-
-%%
+%% Local defaults
 function localdefaults = getlocaldefaults()
-    
     localdefaults.abstolcost = 1e-3;
     localdefaults.reltolcost = 1e-3;
     localdefaults.tolSmin = -1e-3;
@@ -354,9 +285,6 @@ function localdefaults = getlocaldefaults()
     localdefaults.tolgradnorm = 1e-5;
     localdefaults.maxiter = 100;
     localdefaults.solver = @trustregions; % Trust-regions
-    
-    
-    
 end
 
 
@@ -365,18 +293,15 @@ end
 
 
 
-%%
+%% Fixed-rank optimization
 function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_test, Y_initial, params)
     % Common quantities that are used often in the optimization process.
     [n, r] = size(Y_initial);
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
     
-    
-    
-    % Create the problem structure
+    % Create problem structure
     problem.M = symfixedrankYYfactory(n,  r);
-    
     
     
     % Cost evaluation
@@ -390,9 +315,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
         f = 0.5*mean((estimDists - data_train.entries).^2);
     end
     
-    
-    
-    % Gradient evaluation.
+    % Gradient evaluation
     problem.grad = @grad;
     function [g, store] = grad(Y, store)
         N = data_train.nentries;
@@ -405,8 +328,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     end
     
     
-    
-    % Hessian evaluation.
+    % Hessian evaluation
     problem.hess = @hess;
     function [Hess, store] = hess(Y, eta, store)
         N = data_train.nentries;
@@ -431,7 +353,6 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     %     pause;
     
     
-    
     % When asked, ask Manopt to compute the test error at every iteration.
     if ~isempty(data_test)
         options.statsfun = @compute_test_error;
@@ -446,7 +367,6 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     end
     
     
-    
     % Stopping criteria options
     options.stopfun = @mystopfun;
     function stopnow = mystopfun(problem, Y, info, last) %#ok<INUSL>
@@ -456,13 +376,9 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     options.maxiter = params.maxiter;
     
     
-    
-    % Call the appropriate algorithm.
+    % Call appropriate algorithm
     options.solver = params.solver;
-    
-    % Algorithm
     [Yopt, ~, infos] = manoptsolve(problem, Y_initial, options);
-    
     
 end
 
@@ -471,7 +387,7 @@ end
 
 
 
-%%
+%% Helix problem instance
 function problem_description = get_3d_Helix_instance()
     
     % Helix curve in 3d
@@ -539,14 +455,14 @@ function problem_description = get_3d_Helix_instance()
     problem_description.rank_initial = rank_initial;
     problem_description.rank_max = rank_max;
     problem_description.params = params;
-    problem_description.Yo = Yo; % Used for plots
+    problem_description.Yo = Yo; % Store original Helix structure
 end
 
 
 
 
 
-%%
+%% Problem description check
 function checked_problem_description = check_problem_description(problem_description)
     checked_problem_description = problem_description;
     
@@ -562,7 +478,7 @@ function checked_problem_description = check_problem_description(problem_descrip
             'The training set is not properly defined. We work with the default 3d Helix example.\n');
         checked_problem_description = get_3d_Helix_instance();
         checked_problem_description.helix_example = true;
-        return; % No need to check further.
+        return; % No need for further check
     end
     
     
@@ -573,39 +489,15 @@ function checked_problem_description = check_problem_description(problem_descrip
     end
     
     
-    
-    % Check fixed-rank algorithm to use
-    if isfield(problem_description, 'solver')
-        solver = params.solver;
-        if ~(strcmp(solver, 'TR')...
-                || strcmp(solver, 'CG')...
-                || strcmp(solver, 'SD'))
-            warning('low_rank_dist_completion:problem_description', ...
-                'The field "solver" is not one of the choices. We work with the default "TR".\n');
-            
-            solver = 'TR';
-        end
-    else
-        warning('low_rank_dist_completion:problem_description', ...
-            'The field "solver" is not defined. We work with the default "TR".\n');
-        
-        solver = 'TR';
-    end
-    checked_problem_description.solver = solver;
-    
-    
-    
     % Check initial rank
     if ~isfield(problem_description, 'rank_initial')...
             || isempty(problem_description.rank_initial)...
             || ~(floor(problem_description.rank_initial) == problem_description.rank_initial)
         warning('low_rank_dist_completion:problem_description', ...
             'The field "rank_initial" is not properly defined. We work with the default "1".\n');
-        
         rank_initial = 1;
     end
     checked_problem_description.rank_initial = rank_initial;
-    
     
     
     % Check maximum rank
@@ -615,11 +507,9 @@ function checked_problem_description = check_problem_description(problem_descrip
             || problem_description.rank_max > problem_description.n
         warning('low_rank_dist_completion:problem_description', ...
             'The field "rank_max" is not properly defined. We work with the default "n".\n');
-        
         rank_max = problem_description.n;
     end
     checked_problem_description.rank_max = rank_max;
-    
     
     
     % Check testing dataset
@@ -631,47 +521,37 @@ function checked_problem_description = check_problem_description(problem_descrip
         
         warning('low_rank_dist_completion:problem_description', ...
             'The field "data_set" is not properly defined. We work with the default "[]".\n');
-        
         data_test = [];
     end
     checked_problem_description.data_test = data_test;
     
     
-    
     % Check parameters
     if isfield(problem_description, 'params')
         params = problem_description.params;
-        
     else
         params = struct();
-        
     end
     params = mergeOptions(localdefaults, params);
     checked_problem_description.params = params;
-    
-    
-    
-    
-    
+     
 end
 
 
 
 
-%%
+%% Show plots
 function  show_plots(problem_description, infos)
     
     solver = problem_description.params.solver;
-    
     rank_change_stats = infos.rank_change_stats;
-    
     rank_change_stats_rank = [rank_change_stats.rank];
     rank_change_stats_iter = [rank_change_stats.iter];
     rank_change_stats_iter = cumsum(rank_change_stats_iter);
+    N = problem_description.data_train.nentries;
+    n = problem_description.n;
     
    
-    
-    
     % Plot: train error
     fs = 20;
     figure('name', 'Training on the known distances');
@@ -737,12 +617,12 @@ function  show_plots(problem_description, infos)
     end
     
     
-    % Plot: visualize Helix curve with ranks
+    % Plot: visualize Helix curve
     if isfield(problem_description, 'helix_example')
         jj = ceil((length(rank_change_stats_rank) + 1)/2);
         
         
-        figure('name','3D structure')
+        figure('name',['3D structure with ', num2str(N/((n^2 -n)/2)),' fraction known distances'])
         fs = 20;
         ax1 = gca;
         set(ax1,'FontSize',fs);
@@ -762,7 +642,7 @@ function  show_plots(problem_description, infos)
                 plot3(Ykk(:,1), Ykk(:,2), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
                 
-            else  % We need to project onto the 3D dominant subspace.
+            else  % Project onto dominant 3Dsubspace
                 [U1, S1, V1] = svds(Ykk, 3);
                 Yhat = U1*S1*V1';
                 plot3(Yhat(:,1), Yhat(:,2), Yhat(:,3),'*','Color', 'r','LineWidth',1.0);
@@ -771,10 +651,7 @@ function  show_plots(problem_description, infos)
             
         end
         ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' ); %#ok<NASGU>
-        text(0.5, 1,'\bf Recovery of the Helix structure with rank','HorizontalAlignment','center','VerticalAlignment', 'top');
+        text(0.5, 1,['Recovery of Helix from ',num2str(N/((n^2 -n)/2)),' fraction known distances'],'HorizontalAlignment','center','VerticalAlignment', 'top');
     end
-    
-    
-    
-    
+       
 end
