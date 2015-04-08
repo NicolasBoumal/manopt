@@ -201,8 +201,13 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 
                 % A very rough estimate of the inverse of the Lipschitz constant.
                 % The "2*sqrt(n)" term comes from the diagonal operation.
+<<<<<<< HEAD
                 % We multiply the estimate by 4, as its better to have a higher
                 % stepsize than a lower one.
+=======
+                % We multiply the estimate by 4, as it's better to have a higher
+                % stepsize than a lower one. 
+>>>>>>> b5b2cb7f5f76455f948624b975181141ec1a29d2
                 stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N);
                 
                 linsearch_fail = false;
@@ -259,11 +264,19 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         end
         
         time = [time thistime]; %#ok<AGROW>
+<<<<<<< HEAD
         cost = [cost [infos_fixedrank.cost]]; %#ok<AGROW>
         rank = [rank [infos_fixedrank.rank]];
         rank_change_stats(rank_search).rank = rr;
         rank_change_stats(rank_search).iter = length([infos_fixedrank.cost]);
         rank_change_stats(rank_search).Y = Y;
+=======
+        cost = [cost [infos.cost]]; %#ok<AGROW>
+        rank = [rank [infos.rank]]; %#ok<AGROW>
+        rank_change_stats(rank_search).rank = rr; %#ok<AGROW>
+        rank_change_stats(rank_search).iter = length([infos.cost]); %#ok<AGROW>
+        rank_change_stats(rank_search).Y = Y; %#ok<AGROW>
+>>>>>>> b5b2cb7f5f76455f948624b975181141ec1a29d2
         
         if isfield(infos_fixedrank, 'test_error')
             test_error = [test_error [infos_fixedrank.test_error]]; %#ok<AGROW>
