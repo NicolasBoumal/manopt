@@ -97,10 +97,10 @@ function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
 % Original code: Dec. 30, 2012 (NB).
 
     % Allow omission of the key, and even of storedb.
-    if ~exist('storedb', 'var')
-        storedb = StoreDB();
-    end
     if ~exist('key', 'var')
+        if ~exist('storedb', 'var')
+            storedb = StoreDB();
+        end
         key = storedb.getNewKey();
     end
 	
