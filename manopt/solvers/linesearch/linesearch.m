@@ -36,6 +36,8 @@ function [stepsize, newx, newkey, lsstats] = ...
 %  storedb : StoreDB object (handle class: passed by reference) for caching
 %  key : key associated to point x in storedb
 %
+%  options, storedb and key are optional.
+%
 % Outputs
 %
 %  stepsize : norm of the vector retracted to reach newx from x.
@@ -81,6 +83,14 @@ function [stepsize, newx, newkey, lsstats] = ...
 %       Got rid of lsmem input/output: now maintained in storedb.internal.
 
 
+    % Allow omission of the key, and even of storedb.
+    if ~exist('key', 'var')
+        if ~exist('storedb', 'var')
+            storedb = StoreDB();
+        end
+        key = storedb.getNewKey();
+    end
+
     % Backtracking default parameters. These can be overwritten in the
     % options structure which is passed to the solver.
     default_options.ls_contraction_factor = .5;
@@ -89,6 +99,9 @@ function [stepsize, newx, newkey, lsstats] = ...
     default_options.ls_max_steps = 25;
     default_options.ls_initial_stepsize = 1;
     
+    if ~exist('options', 'var') || isempty(options)
+        options = struct();
+    end
     options = mergeOptions(default_options, options);
     
     contraction_factor = options.ls_contraction_factor;
