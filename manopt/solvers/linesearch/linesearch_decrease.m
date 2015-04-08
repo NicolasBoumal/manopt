@@ -1,39 +1,45 @@
 function [stepsize, newx, newkey, lsstats] = ...
-             linesearch_hint(problem, x, d, f0, df0, options, storedb, key)
-% Armijo line-search based on the line-search hint in the problem structure.
+           linesearch_decrease(problem, x, d, f0, ~, options, storedb, key)
+% Backtracking line-search aiming merely for a decrease in cost value.
 %
 % function [stepsize, newx, newkey, lsstats] = 
-%            linesearch_hint(problem, x, d, f0, df0, options, storedb, key)
+%        linesearch_decrease(problem, x, d, f0, df0, options, storedb, key)
 %
-% Base line-search algorithm for descent methods, based on a simple
-% backtracking method. The search direction provided has to be a descent
-% direction, as indicated by a negative df0 = directional derivative of f
-% at x along d.
+% Line-search algorithm based on a simple backtracking method. The search
+% direction provided has to be a descent direction, but needs not be a
+% first-order descent, i.e.: this line-search can be used even if x is a
+% critical point, as long as the cost function is strictly decreasing
+% along the direction d.
 %
-% The algorithm obtains an initial step size candidate from the problem
-% structure, typically through the problem.linesearch function. If that
-% step does not fulfill the Armijo sufficient decrease criterion, that step
-% size is reduced geometrically until a satisfactory step size is obtained
-% or until a failure criterion triggers.
+% The line-search merely guarantees a decrease in the cost (unless a
+% stopping criterion triggers first, such as exceeding a maximal number of
+% iterations). This is typically useful to escape saddle points (critical
+% points admitting descent directions at the second order). Escape
+% directions can be computed using hessianextreme, for example.
 % 
 % Below, the step is constructed as alpha*d, and the step size is the norm
 % of that vector, thus: stepsize = alpha*norm_d. The step is executed by
 % retracting the vector alpha*d from the current point x, giving newx.
+% An initial stepsize of norm_d thus means the first candidate x is
+% obtained by retracting d at x, as is.
 %
-% Inputs/Outputs : see help for linesearch
+% Options:
+%   options.ls_max_steps (25): maximum number of cost evaluations.
+%   options.ls_initial_stepsize (norm_d): first stepsize trial.
+%   options.ls_contraction_factor (0.5): stepsize reduction per iteration.
 %
-% See also: steepestdescent conjugategradients linesearch
+%
+% Inputs/Outputs : see help for linesearch.
+%   f0 is the cost at x.
+%   df0 is unused.
+%   options, storedb and key are optional.
+%
+% See also: steepestdescent linesearch hessianextreme
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Nicolas Boumal, July 17, 2014.
+% Original author: Nicolas Boumal, April 8, 2015.
 % Contributors: 
 % Change log: 
-%
-%   April 3, 2015 (NB):
-%       Works with the new StoreDB class system.
-%
-%   April 8, 2015 (NB):
-%       Got rid of lsmem input/output.
 
 
     % Allow omission of the key, and even of storedb.
@@ -43,11 +49,13 @@ function [stepsize, newx, newkey, lsstats] = ...
         end
         key = storedb.getNewKey();
     end
+    
+    norm_d = problem.M.norm(x, d);
 
     % Backtracking default parameters. These can be overwritten in the
     % options structure which is passed to the solver.
     default_options.ls_contraction_factor = .5;
-    default_options.ls_suff_decr = 1e-4;
+    default_options.ls_initial_stepsize = norm_d;
     default_options.ls_max_steps = 25;
     
     if ~exist('options', 'var') || isempty(options)
@@ -56,13 +64,11 @@ function [stepsize, newx, newkey, lsstats] = ...
     options = mergeOptions(default_options, options);
     
     contraction_factor = options.ls_contraction_factor;
-    suff_decr = options.ls_suff_decr;
+    initial_stepsize = options.ls_initial_stepsize;
     max_ls_steps = options.ls_max_steps;
     
-    % Obtain an initial guess at alpha from the problem structure. It is
-    % assumed that the present line-search is only called when the problem
-    % structure provides enough information for the call here to work.
-    alpha = getLinesearch(problem, x, d, storedb, key);
+    % Initial step size as a mutliplier of d.
+    alpha = initial_stepsize / norm_d;
     
     % Make the chosen step and compute the cost there.
     newx = problem.M.retr(x, d, alpha);
@@ -70,8 +76,8 @@ function [stepsize, newx, newkey, lsstats] = ...
     newf = getCost(problem, newx, storedb, newkey);
     cost_evaluations = 1;
     
-    % Backtrack while the Armijo criterion is not satisfied
-    while newf > f0 + suff_decr*alpha*df0
+    % Backtrack while no cost decrease is obtained.
+    while newf >= f0
         
         % Reduce the step size,
         alpha = contraction_factor * alpha;
@@ -90,6 +96,8 @@ function [stepsize, newx, newkey, lsstats] = ...
     end
     
     % If we got here without obtaining a decrease, we reject the step.
+    % Equal cost is accepted, since if x is critical, it is important to
+    % move away from x more than it is important to decrease the cost.
     if newf > f0
         alpha = 0;
         newx = x;
@@ -99,7 +107,6 @@ function [stepsize, newx, newkey, lsstats] = ...
     
     % As seen outside this function, stepsize is the size of the vector we
     % retract to make the step from x to newx. Since the step is alpha*d:
-    norm_d = problem.M.norm(x, d);
     stepsize = alpha * norm_d;
     
     % Return some statistics also, for possible analysis.
