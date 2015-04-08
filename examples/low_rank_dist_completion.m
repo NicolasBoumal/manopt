@@ -1,8 +1,8 @@
 function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(problem_description)
 % Perform low-rank distance matrix completion w/ automatic rank detection.
 %
-% function Y =  low_rank_dist_completion(problem_description)
-% function [Y, out_infos, out_problem_description] =  llow_rank_dist_completion(problem_description)
+% function Y = low_rank_dist_completion(problem_description)
+% function [Y, out_infos, out_problem_description] = low_rank_dist_completion(problem_description)
 %
 % It implements the ideas of Journee, Bach, Absil and Sepulchre, SIOPT,
 % 2010, applied to the problem of low-rank distance matrix completion.
