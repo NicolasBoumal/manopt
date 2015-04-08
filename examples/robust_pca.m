@@ -34,9 +34,6 @@ function [U, cost] = robust_pca(X, d)
 % There are no guarantees that this code will return the optimal U.
 % This code is distributed to illustrate one possible way of optimizing
 % a nonsmooth cost function over a manifold, using Manopt with smoothing.
-% It would be interesting to study whether this algorithm achieves a
-% global optimizer with high probability, under some probabilistic model
-% on the data and some conditions on the noise.
 % For practical use, the constants in the code would need to be tuned.
 
 % This file is part of Manopt and is copyrighted. See the license file.
@@ -82,6 +79,8 @@ function [U, cost] = robust_pca(X, d)
 	
 	% Do classical PCA for the initial guess.
 	% This is just one idea: it is not necessarily useful or ideal.
+    % Using a random initial guess, and starting over for a few different
+    % ones is probably much better. For this example, we keep it simple.
     [U, ~, ~] = svds(X, d);
 
     
@@ -93,7 +92,7 @@ function [U, cost] = robust_pca(X, d)
 	options.verbosity = 2; % Change this number for more or less output
     warning('off', 'manopt:getHessian:approx');
     for iter = 1 : n_iterations
-        U = trustregions(problem, [], options);
+        U = trustregions(problem, U, options);
         epsilon = epsilon * reduction;
     end
     warning('on', 'manopt:getHessian:approx');
