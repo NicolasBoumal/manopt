@@ -1,8 +1,8 @@
-function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(problem_description)
+function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(problem_description)
 % Perform low-rank distance matrix completion w/ automatic rank detection.
 %
-% function Y =  lowrank_dist_completion(problem_description)
-% function [Y, infos, out_problem_description] =  lowrank_dist_completion(problem_description)
+% function Y =  low_rank_dist_completion(problem_description)
+% function [Y, out_infos, out_problem_description] =  llow_rank_dist_completion(problem_description)
 %
 % It implements the ideas of Journee, Bach, Absil and Sepulchre, SIOPT,
 % 2010, applied to the problem of low-rank distance matrix completion.
@@ -25,7 +25,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
 %       -- data_train.entries:      A column vector consisting of known
 %                                   distances. An empty "data_train.entries"
 %                                   field will generate a random
-%                                   problem instance..
+%                                   problem instance.
 %
 %       -- data_train.rows:         The row position of th corresponding
 %                                   distances. An empty "data_train.rows"
@@ -133,25 +133,34 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             || isempty(problem_description.data_train.rows)...
             || isempty(problem_description.data_train.entries)
         
-        %% Generate a random problem instance.
-        n = 500; % Number of points
-        r = 5; % Embedding dimension
+        %% Generate a 3d Helix curve with 101 poins.
+        helix_example = true;
+        
+        tvec = 0:2*pi/100:2*pi;
+        tvec = tvec'; % column vector
+        xvec = 4*cos(3*tvec); 
+        yvec = 4*sin(3*tvec);
+        zvec = 2*tvec;
+        Yo = [xvec, yvec, zvec];
+        n = size(Yo, 1); % Number of points
         
         % Fraction of unknown distances
-        fractionOfUnknown = 0.8;
+        fractionOfUnknown = 0.85;
         
-        
-        Yo = randn(n,r); % True embedding
+        % True distances among points forming the 3d Helix.      
         trueDists = pdist(Yo)'.^2; % True distances
+        
         
         % Add noise (set noise_level = 0 for clean measurements)
         noise_level = 0.01;
         trueDists = trueDists + noise_level * std(trueDists) * randn(size(trueDists));
         
+        
         % Compute all pairs of indices
         H = tril(true(n), -1);
         [I, J] = ind2sub([n, n], find(H(:)));
         clear 'H';
+        
         
         % Train data
         train = false(length(trueDists), 1);
@@ -163,6 +172,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         data_train.entries = trueDists(train);
         data_train.nentries = length(data_train.entries);
         
+        
         % Test data
         data_test.nentries = 1*data_train.nentries; % Depends how big data can we handle.
         test = false(length(trueDists),1);
@@ -172,6 +182,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         data_test.cols = J(test);
         data_test.entries = trueDists(test);
         
+        
         % Fixed-rank algorithm
         fixedrank_algo = 'TR'; % Trust-regions.
         
@@ -179,6 +190,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         % Rank bounds
         rank_initial = 1; % Starting rank.
         rank_max = n; % Maximum rank.
+        
         
         % Basic parameters that are used in the optimization scheme.
         params.abstolcost = 1e-3;
@@ -219,6 +231,11 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         %% Fixed-rank algorithm to use.
         if isfield(problem_description, 'fixedrank_algo')
             fixedrank_algo = problem_description.fixedrank_algo;
+            if ~(strcmp(fixedrank_algo, 'TR')...
+                    || strcmp(fixedrank_algo, 'CG')...
+                    || strcmp(fixedrank_algo, 'SD'))
+                fixedrank_algo = 'TR';
+            end
         else
             fixedrank_algo = 'TR';
         end
@@ -243,7 +260,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
             rank_max = n;
         end
         out_problem_description.rank_maximum = rank_max;
-
+        
         
         
         %% Check if a testing dataset is provided.
@@ -286,7 +303,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
     end
     
     
-    %% Common 
+    %% Common quantities that are used often.
     N = data_train.nentries; % Number of known distances
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
@@ -294,18 +311,22 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
     rr = rank_initial; % Starting rank.
     Y = randn(n, rr); % Random starting initialization.
     
-    time = [];
-    cost = [];
-    test_error = [];
-    rank = [];
+    %% Information that we will be collecting
+    time = []; % Time for each iteration per rank.
+    cost = []; % Cost at each iteration per rank.
+    test_error = []; % Test error at each iteration per rank.
+    rank = []; % Rank at each iteration.
+    rank_change_stats = []; % Some stats relating the change of ranks.
     
     
     
     %% Main loop of the rank search algorithm.
-    
+    rank_search = 0;
     while (rr <= rank_max), % When r = n a global min is attained for sure.
+        rank_search = rank_search + 1;
+        
         fprintf('>> Rank %d <<\n', rr);
-        %% Follow a descent direction to compute an iterate.
+        %% Follow the descent direction to compute an iterate in a higher dimension.
         if (rr > rank_initial),
             if isempty(restartDir), % If no restart dir avail. do a random restart.
                 
@@ -363,7 +384,7 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         
         
         %% Fixed-rank optimization with Manopt.
-        [Y, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y, params);
+        [Y, infos] = low_rank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y, params);
         
         
         
@@ -372,9 +393,13 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
         if ~isempty(time)
             thistime = time(end) + thistime;
         end
+        
         time = [time thistime]; %#ok<AGROW>
         cost = [cost [infos.cost]]; %#ok<AGROW>
         rank = [rank [infos.rank]];
+        rank_change_stats(rank_search).rank = rr;
+        rank_change_stats(rank_search).iter = length([infos.cost]);
+        rank_change_stats(rank_search).Y = Y;
         
         if isfield(infos, 'test_error')
             test_error = [test_error [infos.test_error]]; %#ok<AGROW>
@@ -439,43 +464,127 @@ function [Y, out_infos, out_problem_description] =  lowrank_dist_completion(prob
     out_infos.cost = cost;
     out_infos.rank = rank;
     out_infos.test_error = test_error;
+    out_infos.rank_change_stats = rank_change_stats;
     
     
-    %% Time for plots.
+    
+    %% Few plots.
+    
+    rank_change_stats_rank = [rank_change_stats.rank];
+    rank_change_stats_iter = [rank_change_stats.iter];
+    rank_change_stats_iter = cumsum(rank_change_stats_iter);
+    
+    % Plot: minimizing the training error.
     fs = 20;
-    figure;
-    semilogy(cost, '-O', 'Color', 'blue', 'linewidth', 2.0);
-    ax1 = gca;
-    set(ax1, 'FontSize', fs);
-    xlabel(ax1, 'Iterations', 'FontSize', fs);
-    ylabel(ax1, 'Cost', 'FontSize', fs);
-    legend('Trust-regions');
-    legend 'boxoff';
-    box off;
-    title('Training on the known distances');
+    figure('name', 'Training on the known distances');
     
+    line(1:length(cost),log10(cost),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5);
+    ax1 = gca;
+    
+    set(ax1,'FontSize',fs);
+    xlabel(ax1,'Number of iterations','FontSize',fs);
+    ylabel(ax1,'Cost (log scale) on known distances','FontSize',fs);
+    
+    ax2 = axes('Position',get(ax1,'Position'),...
+        'XAxisLocation','top',...
+        'YAxisLocation','right',...
+        'Color','none',...
+        'XColor','k');
+    
+    set(ax2,'FontSize',fs);
+    line(1:length(cost),log10(cost),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5,'Parent',ax2);
+    set(ax2,'XTick',rank_change_stats_iter(1:end-1),...
+        'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(end-1) + 1,...
+        'YTick',[]);
+    
+    set(ax2,'XGrid','on');
+    legend(fixedrank_algo);
+    title('Rank');
+    legend 'boxoff';
+    
+    
+    % Plot: tracking the testing error if given.
     if isfield(infos, 'test_error')
         fs = 20;
-        figure;
-        semilogy(test_error, '-O', 'Color', 'blue', 'linewidth', 2.0);
+        figure('name','Test error on a set of distances different from the training set');
+        
+        line(1:length(test_error),log10(test_error),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5);
         ax1 = gca;
-        set(ax1, 'FontSize', fs);
-        xlabel(ax1, 'Iterations', 'FontSize', fs);
-        ylabel(ax1, 'Test error', 'FontSize', fs);
-        legend('Trust-regions');
+        
+        set(ax1,'FontSize',fs);
+        xlabel(ax1,'Number of iterations','FontSize',fs);
+        ylabel(ax1,'Cost (log scale) on testing set','FontSize',fs);
+        
+        ax2 = axes('Position',get(ax1,'Position'),...
+            'XAxisLocation','top',...
+            'YAxisLocation','right',...
+            'Color','none',...
+            'XColor','k');
+        
+        set(ax2,'FontSize',fs);
+        line(1:length(test_error),log10(test_error),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5,'Parent',ax2);
+        set(ax2,'XTick',rank_change_stats_iter(1:end-1),...
+            'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(end-1) + 1,...
+            'YTick',[]);
+        
+        set(ax2,'XGrid','on');
+        legend(fixedrank_algo);
+        title('Rank');
         legend 'boxoff';
-        box off;
-        title('Test error on a set of distances different from the training set');
+        
+        
         
     end
+    
+    
+    
+    % Plot to visualize the Helix curve with different ranks.
+    if helix_example
+        jj = ceil((length(rank_change_stats_rank) + 1)/2);
+        
+        
+        figure('name','3D structure')
+        fs = 20;
+        ax1 = gca;
+        set(ax1,'FontSize',fs);
+        subplot(jj,2,1);
+        plot3(Yo(:,1), Yo(:,2), Yo(:,3),'*','Color', 'b','LineWidth',1.0);
+        title('Original 3D structure');
+        for kk = 1 : length(rank_change_stats_rank)
+            subplot(jj, 2, kk + 1);
+            rank_change_stats_kk = rank_change_stats(kk);
+            Ykk = rank_change_stats_kk.Y;
+            if size(Ykk, 2) == 1, 
+                plot3(Ykk(:,1), zeros(size(Ykk, 1)), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
+                legend(fixedrank_algo)
+                title(['Recovery at rank ',num2str(size(Ykk, 2))]);
+                
+            elseif size(Ykk, 2) == 2
+                plot3(Ykk(:,1), Ykk(:,2), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
+                title(['Recovery at rank ',num2str(size(Ykk, 2))]);
+                
+            else  % We need to project onto the 3D dominant subspace.
+                [U1, S1, V1] = svds(Ykk, 3);
+                Yhat = U1*S1*V1';
+                plot3(Yhat(:,1), Yhat(:,2), Yhat(:,3),'*','Color', 'r','LineWidth',1.0);
+                title(['Recovery at rank ',num2str(size(Ykk, 2))]);
+            end
+            
+        end
+        ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' );
+        text(0.5, 1,'\bf Recovery of the Helix structure with rank','HorizontalAlignment','center','VerticalAlignment', 'top');
+    end
+    
+    
+    
     
 end
 
 
 
-function [Yopt, infos] = lowrank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y_initial, params)
+function [Yopt, infos] = low_rank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y_initial, params)
     
-    %% Common 
+    %% Common quantities that are used often in the optimization process.
     [n, r] = size(Y_initial);
     EIJ = speye(n);
     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
