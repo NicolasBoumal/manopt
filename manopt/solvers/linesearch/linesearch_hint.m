@@ -1,9 +1,9 @@
-function [stepsize, newx, newkey, lsmem, lsstats] = ...
-      linesearch_hint(problem, x, d, f0, df0, options, storedb, key, lsmem)
+function [stepsize, newx, newkey, lsstats] = ...
+             linesearch_hint(problem, x, d, f0, df0, options, storedb, key)
 % Armijo line-search based on the line-search hint in the problem structure.
 %
-% function [stepsize, newx, newkey, lsmem, lsstats] = 
-%     linesearch_hint(problem, x, d, f0, df0, options, storedb, key, lsmem)
+% function [stepsize, newx, newkey, lsstats] = 
+%            linesearch_hint(problem, x, d, f0, df0, options, storedb, key)
 %
 % Base line-search algorithm for descent methods, based on a simple
 % backtracking method. The search direction provided has to be a descent
@@ -16,31 +16,11 @@ function [stepsize, newx, newkey, lsmem, lsstats] = ...
 % size is reduced geometrically until a satisfactory step size is obtained
 % or until a failure criterion triggers.
 % 
-% Below, the step will be constructed as alpha*d, and the step size is the
-% norm of that vector, thus: stepsize = alpha*norm_d. The step is executed
-% by retracting the vector alpha*d from the current point x, giving newx.
+% Below, the step is constructed as alpha*d, and the step size is the norm
+% of that vector, thus: stepsize = alpha*norm_d. The step is executed by
+% retracting the vector alpha*d from the current point x, giving newx.
 %
-% Inputs
-%
-%  problem : structure holding the description of the optimization problem
-%  x : current point on the manifold problem.M
-%  d : tangent vector at x (descent direction)
-%  f0 : cost value at x
-%  df0 : directional derivative at x along d
-%  options : options structure (see in code for usage)
-%  storedb : StoreDB object (handle class: passed by reference) for caching
-%  key : key associated to point x in storedb
-%  lsmem : not used
-%
-% Outputs
-%
-%  stepsize : norm of the vector retracted to reach newx from x.
-%  newx : next iterate suggested by the line-search algorithm, such that
-%         the retraction at x of the vector alpha*d reaches newx.
-%  newkey : key associated to newx in storedb
-%  lsmem : not used.
-%  lsstats : statistics about the line-search procedure (stepsize, number
-%            of trials etc).
+% Inputs/Outputs : see help for linesearch
 %
 % See also: steepestdescent conjugategradients linesearch
 

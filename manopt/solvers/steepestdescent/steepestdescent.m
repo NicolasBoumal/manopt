@@ -48,7 +48,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %       search in manopt is @linesearch_adaptive, in
 %       /manopt/linesearch/linesearch_adaptive.m
 %       If the problem structure includes a line search hint, then the
-%       default line search used in @linesearch_hint.
+%       default line search used is @linesearch_hint.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -136,9 +136,6 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     info(1) = stats;
     info(min(10000, options.maxiter+1)).iter = [];
     
-    % Initial line search memory
-    lsmem = [];
-    
     if options.verbosity >= 2
         fprintf(' iter\t               cost val\t    grad. norm\n');
     end
@@ -177,9 +174,9 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         desc_dir = problem.M.lincomb(x, -1, grad);
         
         % Execute the line search
-        [stepsize, newx, newkey, lsmem, lsstats] = options.linesearch( ...
-                      problem, x, desc_dir, cost, -gradnorm^2, ...
-                      options, storedb, key, lsmem);
+        [stepsize, newx, newkey, lsstats] = options.linesearch( ...
+                             problem, x, desc_dir, cost, -gradnorm^2, ...
+                             options, storedb, key);
         
         % Compute the new cost-related quantities for x
         [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
