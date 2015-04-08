@@ -122,7 +122,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
 % Original author: Bamdev Mishra, April 06, 2015.
 % Contributors: Nicolas Boumal.
 % Change log:
-
+    
     
     %% Check whether we have complete problem description.
     if ~exist('problem_desription', 'var')...
@@ -138,7 +138,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         
         tvec = 0:2*pi/100:2*pi;
         tvec = tvec'; % column vector
-        xvec = 4*cos(3*tvec); 
+        xvec = 4*cos(3*tvec);
         yvec = 4*sin(3*tvec);
         zvec = 2*tvec;
         Yo = [xvec, yvec, zvec];
@@ -147,7 +147,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         % Fraction of unknown distances
         fractionOfUnknown = 0.85;
         
-        % True distances among the points forming the 3d Helix.      
+        % True distances among the points forming the 3d Helix.
         trueDists = pdist(Yo)'.^2; % True distances
         
         
@@ -174,7 +174,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         
         
         % Test data
-        data_test.nentries = 1*data_train.nentries; % Depends how big data can we handle.
+        data_test.nentries = 1*data_train.nentries; % Depends how big data that we can handle.
         test = false(length(trueDists),1);
         test(1 : floor(data_test.nentries)) = true;
         test = test(randperm(length(test)));
@@ -288,7 +288,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
             if ~isfield(params,'tolrankdeficiency');  params.tolrankdeficiency = 1e-3; end
             
         else
-            % Default parameters used in the scheme.
+            % Default parameters that are used in the scheme.
             params.abstolcost = 1e-3;
             params.reltolcost = 1e-3;
             params.tolgradnorm = 1e-5;
@@ -342,16 +342,21 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                 estimDists = sum(Z.^2, 2);
                 errors = (estimDists - data_train.entries);
                 
-                grad_Y = EIJ * sparse(1:N,1:N,2 * errors / N,N,N) * Z;
+                %                 grad_Y = EIJ * sparse(1:N,1:N,2 * errors / N,N,N) * Z;
                 
                 costBefore = mean(errors.^2);
                 fprintf('>> Cost before = %f\n',costBefore);
                 
-                step = N/(n^2); % A very rough estimate of the Lipschitz constant.
+                % A very rough estimate of the inverse of the Lipschitz constant.
+                % The "2*sqrt(n)" term comes from the diagonal operation.
+                % We multiply the estimate by 4, as its better to have a higher
+                % stepsize than a lower one. 
+                stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N);
+                      
                 linsearch_fail = false;
                 for i = 1 : 25, % 25 backtracking to find a descent direction.
                     % Update
-                    Y(:,rr) = step*restartDir;
+                    Y(:,rr) = stepsize*restartDir;
                     
                     % Compute cost
                     Z = Y(data_train.rows, :) - Y(data_train.cols,:);
@@ -362,20 +367,22 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                     fprintf('>> Cost after = %f\n',costAfter);
                     
                     % Armijo condition
-                    armijo = (costAfter - costBefore) <= 0.5 * step * (restartDir'*grad_Y(:,rr));
+                    %                     armijo = (costAfter - costBefore) <= 0.5 * step * (restartDir'*grad_Y(:,rr));
+                    armijo = (costAfter - costBefore) <= 0.5 * stepsize * abs(s_min);
+
                     if armijo,
                         break;
                     else
-                        step = step/2;
+                        stepsize = stepsize/2;
                     end
                     
                     if i == 25,
                         linsearch_fail = true;
                     end
                 end
-                
-                % Check for sufficient decrease
-                if linsearch_fail... 
+               
+                % Check for sufficient decrease of the cost function.
+                if linsearch_fail...
                         ||(costAfter >= costBefore)...
                         || abs(costAfter - costBefore) < 1e-8,
                     disp('Decrease is not sufficient, random restart');
@@ -564,7 +571,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
             subplot(jj, 2, kk + 1);
             rank_change_stats_kk = rank_change_stats(kk);
             Ykk = rank_change_stats_kk.Y;
-            if size(Ykk, 2) == 1, 
+            if size(Ykk, 2) == 1,
                 plot3(Ykk(:,1), zeros(size(Ykk, 1)), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
                 legend(fixedrank_algo_name)
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
