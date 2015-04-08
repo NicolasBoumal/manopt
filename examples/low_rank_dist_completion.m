@@ -147,16 +147,16 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         % Fraction of unknown distances
         fractionOfUnknown = 0.85;
         
-        % True distances among points forming the 3d Helix.      
+        % True distances among the points forming the 3d Helix.      
         trueDists = pdist(Yo)'.^2; % True distances
         
         
         % Add noise (set noise_level = 0 for clean measurements)
-        noise_level = 0.01;
+        noise_level = 0; % 0.01;
         trueDists = trueDists + noise_level * std(trueDists) * randn(size(trueDists));
         
         
-        % Compute all pairs of indices
+        % Compute all pairs of indices.
         H = tril(true(n), -1);
         [I, J] = ind2sub([n, n], find(H(:)));
         clear 'H';
@@ -201,7 +201,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         
         
         
-        % Collect and output the problem description that are we actual
+        % Collect and output the problem description that are we actually
         % solving.
         out_problem_description.data_train = data_train;
         out_problem_description.data_test = data_test;
@@ -212,7 +212,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         out_problem_description.params = params;
         
     else
-        %% Train data
+        %% Train data.
         data_train = problem_description.data_train;
         out_problem_description.data_train = data_train;
         
@@ -347,7 +347,8 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                 costBefore = mean(errors.^2);
                 fprintf('>> Cost before = %f\n',costBefore);
                 
-                step = N/(n^2); % A very rough estimate of the Lipscitz constant
+                step = N/(n^2); % A very rough estimate of the Lipscitz constant.
+                linsearch_fail = false;
                 for i = 1 : 25, % 25 backtracking to find a descent direction.
                     % Update
                     Y(:,rr) = step*restartDir;
@@ -368,10 +369,15 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                         step = step/2;
                     end
                     
+                    if i == 25,
+                        linsearch_fail = true;
+                    end
                 end
                 
                 % Check for sufficient decrease
-                if (costAfter >= costBefore) || abs(costAfter - costBefore) < 1e-8,
+                if linsearch_fail... 
+                        ||(costAfter >= costBefore)...
+                        || abs(costAfter - costBefore) < 1e-8,
                     disp('Decrease is not sufficient, random restart');
                     Y = randn(n, rr);
                 end
@@ -474,6 +480,10 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
     rank_change_stats_iter = [rank_change_stats.iter];
     rank_change_stats_iter = cumsum(rank_change_stats_iter);
     
+    if strcmp(fixedrank_algo, 'TR'), fixedrank_algo_name='Trust-region'; end
+    if strcmp(fixedrank_algo, 'CG'), fixedrank_algo_name='Conjugate gradient'; end
+    if strcmp(fixedrank_algo, 'SD'), fixedrank_algo_name='Steepest descent'; end
+    
     % Plot: minimizing the training error.
     fs = 20;
     figure('name', 'Training on the known distances');
@@ -498,7 +508,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         'YTick',[]);
     
     set(ax2,'XGrid','on');
-    legend(fixedrank_algo);
+    legend(fixedrank_algo_name);
     title('Rank');
     legend 'boxoff';
     
@@ -528,7 +538,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
             'YTick',[]);
         
         set(ax2,'XGrid','on');
-        legend(fixedrank_algo);
+        legend(fixedrank_algo_name);
         title('Rank');
         legend 'boxoff';
         
@@ -556,7 +566,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
             Ykk = rank_change_stats_kk.Y;
             if size(Ykk, 2) == 1, 
                 plot3(Ykk(:,1), zeros(size(Ykk, 1)), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
-                legend(fixedrank_algo)
+                legend(fixedrank_algo_name)
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
                 
             elseif size(Ykk, 2) == 2
