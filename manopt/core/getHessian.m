@@ -26,10 +26,10 @@ function hess = getHessian(problem, x, d, storedb, key)
 %       Works with the new StoreDB class system.
 
     % Allow omission of the key, and even of storedb.
-    if ~exist('storedb', 'var')
-        storedb = StoreDB();
-    end
     if ~exist('key', 'var')
+        if ~exist('storedb', 'var')
+            storedb = StoreDB();
+        end
         key = storedb.getNewKey();
     end
     
