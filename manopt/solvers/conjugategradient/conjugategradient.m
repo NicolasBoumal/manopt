@@ -69,7 +69,7 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       each line search's documentation for info. Another available line
 %       search in manopt is @linesearch, in /manopt/linesearch/linesearch.m
 %       If the problem structure includes a line search hint, then the
-%       default line search used in @linesearch_hint.
+%       default line search used is @linesearch_hint.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -109,8 +109,8 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       Now logging beta parameter too.
 %    
 %	Nov. 7, 2013, NB:
-%       The search direction is not normalized before it is passed to the
-%       linesearch anymore. This way, it is up to the designers of the
+%       The search direction is no longer normalized before it is passed
+%       to the linesearch. This way, it is up to the designers of the
 %       linesearch to decide whether they want to use the norm of the
 %       search direction in their algorithm or not. There are reasons
 %       against it, but practical evidence that it may help too, so we
@@ -195,9 +195,6 @@ stats = savestats();
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
 
-% Initial linesearch memory
-lsmem = [];
-
 
 if options.verbosity >= 2
     fprintf(' iter\t               cost val\t    grad. norm\n');
@@ -260,8 +257,8 @@ while true
     
     
     % Execute line search
-    [stepsize, newx, newkey, lsmem, lsstats] = options.linesearch( ...
-            problem, x, desc_dir, cost, df0, options, storedb, key, lsmem);
+    [stepsize, newx, newkey, lsstats] = options.linesearch( ...
+                   problem, x, desc_dir, cost, df0, options, storedb, key);
 
     
     % Compute the new cost-related quantities for newx

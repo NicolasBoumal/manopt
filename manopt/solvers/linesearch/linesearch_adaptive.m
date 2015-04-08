@@ -1,16 +1,24 @@
-function [stepsize, newx, newkey, lsmem, lsstats] = ...
-  linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key, lsmem)
+function [stepsize, newx, newkey, lsstats] = ...
+  linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)
 % Adaptive line search algorithm (step size selection) for descent methods.
 %
-% function [stepsize, newx, newkey, lsmem, lsstats] = 
-% linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key, lsmem)
+% function [stepsize, newx, newkey, lsstats] = 
+%        linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)
 %
 % Adaptive linesearch algorithm for descent methods, based on a simple
-% backtracking method. On average, this line search intends to do only one
-% or two cost evaluations.
+% backtracking method. Contrary to linesearch.m, this function is not
+% invariant under rescaling of the search direction d. These two line
+% search methods vary mainly in their strategy to pick the initial step
+% size.
+% 
+% Below, the step is constructed as alpha*d, and the step size is the norm
+% of that vector, thus: stepsize = alpha*norm_d. The step is executed by
+% retracting the vector alpha*d from the current point x, giving newx.
 %
-% Contrary to linesearch.m, this function is not invariant under rescaling
-% of the search direction d. Nevertheless, it sometimes performs better.
+% This line-search may create and maintain a structure called lsmem inside
+% storedb.internal. This gives the linesearch the opportunity to remember
+% what happened in the previous calls. This is typically used to make a
+% first guess at the step size, based on previous events.
 %
 % Inputs/Outputs : see help for linesearch
 %
@@ -35,7 +43,18 @@ function [stepsize, newx, newkey, lsmem, lsstats] = ...
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   April 8, 2015 (NB):
+%       Got rid of lsmem input/output: now maintained in storedb.internal.
 
+
+    % Allow omission of the key, and even of storedb.
+    if ~exist('key', 'var')
+        if ~exist('storedb', 'var')
+            storedb = StoreDB();
+        end
+        key = storedb.getNewKey();
+    end
 
     % Backtracking default parameters. These can be overwritten in the
     % options structure which is passed to the solver.
@@ -43,6 +62,10 @@ function [stepsize, newx, newkey, lsmem, lsstats] = ...
     default_options.ls_suff_decr = .5;
     default_options.ls_max_steps = 10;
     default_options.ls_initial_stepsize = 1;
+    
+    if ~exist('options', 'var') || isempty(options)
+        options = struct();
+    end
     options = mergeOptions(default_options, options);
     
     contraction_factor = options.ls_contraction_factor;
@@ -55,10 +78,12 @@ function [stepsize, newx, newkey, lsmem, lsstats] = ...
     
     % If this is not the first iteration, then lsmem should have been
     % filled with a suggestion for the initial step.
-    if isstruct(lsmem) && isfield(lsmem, 'init_alpha')
-        % Pick initial step size based on where we were last time,
-        alpha = lsmem.init_alpha;
-    
+    if isfield(storedb.internal, 'lsmem')
+        lsmem = storedb.internal.lsmem;
+        if isfield(lsmem, 'init_alpha')
+            % Pick initial step size based on where we were last time,
+            alpha = lsmem.init_alpha;
+        end
     % Otherwise, fall back to a user supplied suggestion.
     else
         alpha = initial_stepsize / norm_d;
@@ -108,18 +133,19 @@ function [stepsize, newx, newkey, lsmem, lsstats] = ...
     % rescaling of the search direction d.
     switch cost_evaluations
         case 1
-            % If things go well, push your luck.
-            lsmem.init_alpha = 2 * alpha;
+            % If things go very well, push your luck.
+            init_alpha = 2 * alpha;
         case 2
-            % If things go smoothly, try to keep pace.
-            lsmem.init_alpha = alpha;
+            % If things go reasonably well, try to keep pace.
+            init_alpha = alpha;
         otherwise
-            % If you backtracked a lot, the new stepsize is probably quite
+            % If we backtracked a lot, the new stepsize is probably quite
             % small: try to recover.
-            lsmem.init_alpha = 2 * alpha;
+            init_alpha = 2 * alpha;
     end
+    storedb.internal.lsmem.init_alpha = init_alpha;
     
-    % Save some statistics also, for possible analysis.
+    % Return some statistics also, for possible analysis.
     lsstats.costevals = cost_evaluations;
     lsstats.stepsize = stepsize;
     lsstats.alpha = alpha;
