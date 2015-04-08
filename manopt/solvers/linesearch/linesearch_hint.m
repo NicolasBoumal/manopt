@@ -31,6 +31,9 @@ function [stepsize, newx, newkey, lsstats] = ...
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   April 8, 2015 (NB):
+%       Got rid of lsmem input/output.
 
 
     % Backtracking default parameters. These can be overwritten in the
