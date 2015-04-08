@@ -4,8 +4,8 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
 % function Y = low_rank_dist_completion(problem_description)
 % function [Y, out_infos, out_problem_description] = low_rank_dist_completion(problem_description)
 %
-% It implements the ideas of Journee, Bach, Absil and Sepulchre, SIOPT,
-% 2010, applied to the problem of low-rank distance matrix completion.
+% It implements the ideas of Journée, Bach, Absil and Sepulchre, SIOPT, 2010,
+% applied to the problem of low-rank Euclidean distance matrix completion.
 % The details are in the paper "Low-rank optimization for distance matrix completion",
 % B. Mishra, G. Meyer, and R. Sepulchre, IEEE CDC, 2011.
 %
@@ -105,7 +105,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
 %
 %   Y:                        n-by-r solution matrix of rank r.
 %   out_infos:                Structure array with computed statistics.
-%   out_problem_description:  Structure array with used probelm description.
+%   out_problem_description:  Structure array with used problem description.
 %
 %
 %
@@ -133,7 +133,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
             || isempty(problem_description.data_train.rows)...
             || isempty(problem_description.data_train.entries)
         
-        %% Generate a 3d Helix curve with 101 poins.
+        %% Generate a 3d Helix curve with 101 points.
         helix_example = true;
         
         tvec = 0:2*pi/100:2*pi;
