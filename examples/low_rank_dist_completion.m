@@ -4,7 +4,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 % function Y = low_rank_dist_completion(problem_description)
 % function [Y, infos, out_problem_description] = low_rank_dist_completion(problem_description)
 %
-% It implements the ideas of Journée, Bach, Absil and Sepulchre, SIOPT, 2010,
+% It implements the ideas of Journee, Bach, Absil and Sepulchre, SIOPT, 2010,
 % applied to the problem of low-rank Euclidean distance matrix completion.
 % The details are in the paper "Low-rank optimization for distance matrix completion",
 % B. Mishra, G. Meyer, and R. Sepulchre, IEEE CDC, 2011.
@@ -201,13 +201,8 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 
                 % A very rough estimate of the inverse of the Lipschitz constant.
                 % The "2*sqrt(n)" term comes from the diagonal operation.
-<<<<<<< HEAD
-                % We multiply the estimate by 4, as its better to have a higher
-                % stepsize than a lower one.
-=======
                 % We multiply the estimate by 4, as it's better to have a higher
                 % stepsize than a lower one. 
->>>>>>> b5b2cb7f5f76455f948624b975181141ec1a29d2
                 stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N);
                 
                 linsearch_fail = false;
@@ -264,19 +259,11 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         end
         
         time = [time thistime]; %#ok<AGROW>
-<<<<<<< HEAD
         cost = [cost [infos_fixedrank.cost]]; %#ok<AGROW>
-        rank = [rank [infos_fixedrank.rank]];
-        rank_change_stats(rank_search).rank = rr;
-        rank_change_stats(rank_search).iter = length([infos_fixedrank.cost]);
-        rank_change_stats(rank_search).Y = Y;
-=======
-        cost = [cost [infos.cost]]; %#ok<AGROW>
-        rank = [rank [infos.rank]]; %#ok<AGROW>
+        rank = [rank [infos_fixedrank.rank]]; %#ok<AGROW>
         rank_change_stats(rank_search).rank = rr; %#ok<AGROW>
-        rank_change_stats(rank_search).iter = length([infos.cost]); %#ok<AGROW>
+        rank_change_stats(rank_search).iter = length([infos_fixedrank.cost]); %#ok<AGROW>
         rank_change_stats(rank_search).Y = Y; %#ok<AGROW>
->>>>>>> b5b2cb7f5f76455f948624b975181141ec1a29d2
         
         if isfield(infos_fixedrank, 'test_error')
             test_error = [test_error [infos_fixedrank.test_error]]; %#ok<AGROW>
@@ -798,7 +785,7 @@ function  show_plots(problem_description, infos)
             end
             
         end
-        ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' );
+        ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' ); %#ok<NASGU>
         text(0.5, 1,'\bf Recovery of the Helix structure with rank','HorizontalAlignment','center','VerticalAlignment', 'top');
     end
     
