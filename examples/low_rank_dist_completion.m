@@ -201,7 +201,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
         
         
         
-        % Collect and output the problem description that are we actually
+        % Collect and output the problem description that we are actually
         % solving.
         out_problem_description.data_train = data_train;
         out_problem_description.data_test = data_test;
@@ -347,7 +347,7 @@ function [Y, out_infos, out_problem_description] =  low_rank_dist_completion(pro
                 costBefore = mean(errors.^2);
                 fprintf('>> Cost before = %f\n',costBefore);
                 
-                step = N/(n^2); % A very rough estimate of the Lipscitz constant.
+                step = N/(n^2); % A very rough estimate of the Lipschitz constant.
                 linsearch_fail = false;
                 for i = 1 : 25, % 25 backtracking to find a descent direction.
                     % Update
