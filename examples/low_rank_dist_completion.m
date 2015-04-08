@@ -20,7 +20,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 % - problem_description.data_train: Data structure for known distances that are used to learn a low-rank model.
 %                                   It contains the 3 fields that are shown
 %                                   below. An empty "data_train" structure
-%                                   will generate the 3d Helix instance
+%                                   will generate the 3d Helix instance.
 %
 %       -- data_train.entries:      A column vector consisting of known
 %                                   distances. An empty "data_train.entries"
@@ -63,13 +63,6 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 %
 %
 %
-% - problem_description.fixedrank_algo: Fixed-rank algorithm. Options are
-%                                       'TR' for trust-regions,
-%                                       'CG' for conjugate gradients,
-%                                       'SD' for steepest descent.
-%                                       By default, it is 'TR'.
-%
-%
 %
 %
 % - problem_description.rank_initial: Starting rank. By default, it is 1.
@@ -100,6 +93,11 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 %       -- params.tolrankdeficiency:   Tolerance on the
 %                                      smallest singular value of Y.
 %                                      By default, it is 1e-3.
+%       -- params.solver:        Fixed-rank algorithm. Options are
+%                                '@trustregions' for trust-regions,
+%                                '@conjugategradient' for conjugate gradients,
+%                                '@steepestdescent' for steepest descent.
+%                                 By default, it is '@trustregions'.
 %
 %
 % Output:
@@ -144,7 +142,6 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
     data_train = problem_description.data_train;
     data_test =  problem_description.data_test;
     n =  problem_description.n;
-    fixedrank_algo =  problem_description.fixedrank_algo;
     rank_initial = problem_description.rank_initial;
     rank_max =  problem_description.rank_max;
     params =  problem_description.params;
@@ -248,7 +245,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         
         
         % Fixed-rank optimization with Manopt
-        [Y, infos_fixedrank] = low_rank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y, params);
+        [Y, infos_fixedrank] = low_rank_dist_completion_fixedrank(data_train, data_test, Y, params);
         
         
         
@@ -356,6 +353,9 @@ function localdefaults = getlocaldefaults()
     localdefaults.tolrankdeficiency = 1e-3;
     localdefaults.tolgradnorm = 1e-5;
     localdefaults.maxiter = 100;
+    localdefaults.solver = @trustregions; % Trust-regions
+    
+    
     
 end
 
@@ -366,7 +366,7 @@ end
 
 
 %%
-function [Yopt, infos] = low_rank_dist_completion_fixedrank(fixedrank_algo, data_train, data_test, Y_initial, params)
+function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_test, Y_initial, params)
     % Common quantities that are used often in the optimization process.
     [n, r] = size(Y_initial);
     EIJ = speye(n);
@@ -458,14 +458,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(fixedrank_algo, data
     
     
     % Call the appropriate algorithm.
-    if strcmp(fixedrank_algo, 'TR'),
-        options.solver = @trustregions;
-    elseif strcmp(fixedrank_algo, 'CG'),
-        options.solver = @conjugategradient;
-    elseif strcmp(fixedrank_algo, 'SD'),
-        options.solver = @steepestdescent;
-    end
-    
+    options.solver = params.solver;
     
     % Algorithm
     [Yopt, ~, infos] = manoptsolve(problem, Y_initial, options);
@@ -529,10 +522,6 @@ function problem_description = get_3d_Helix_instance()
     data_test.entries = trueDists(test);
     
     
-    % Fixed-rank algorithm
-    fixedrank_algo = 'TR'; % Trust-regions
-    
-    
     % Rank bounds
     rank_initial = 1; % Starting rank
     rank_max = n; % Maximum rank
@@ -547,7 +536,6 @@ function problem_description = get_3d_Helix_instance()
     problem_description.data_train = data_train;
     problem_description.data_test = data_test;
     problem_description.n = n;
-    problem_description.fixedrank_algo = fixedrank_algo;
     problem_description.rank_initial = rank_initial;
     problem_description.rank_max = rank_max;
     problem_description.params = params;
@@ -587,23 +575,23 @@ function checked_problem_description = check_problem_description(problem_descrip
     
     
     % Check fixed-rank algorithm to use
-    if isfield(problem_description, 'fixedrank_algo')
-        fixedrank_algo = problem_description.fixedrank_algo;
-        if ~(strcmp(fixedrank_algo, 'TR')...
-                || strcmp(fixedrank_algo, 'CG')...
-                || strcmp(fixedrank_algo, 'SD'))
+    if isfield(problem_description, 'solver')
+        solver = params.solver;
+        if ~(strcmp(solver, 'TR')...
+                || strcmp(solver, 'CG')...
+                || strcmp(solver, 'SD'))
             warning('low_rank_dist_completion:problem_description', ...
-                'The field "fixedrank_algo" is not one of the choices. We work with the default "TR".\n');
+                'The field "solver" is not one of the choices. We work with the default "TR".\n');
             
-            fixedrank_algo = 'TR';
+            solver = 'TR';
         end
     else
         warning('low_rank_dist_completion:problem_description', ...
-            'The field "fixedrank_algo" is not defined. We work with the default "TR".\n');
+            'The field "solver" is not defined. We work with the default "TR".\n');
         
-        fixedrank_algo = 'TR';
+        solver = 'TR';
     end
-    checked_problem_description.fixedrank_algo = fixedrank_algo;
+    checked_problem_description.solver = solver;
     
     
     
@@ -672,19 +660,16 @@ end
 
 %%
 function  show_plots(problem_description, infos)
-    fixedrank_algo = problem_description.fixedrank_algo;
+    
+    solver = problem_description.params.solver;
+    
     rank_change_stats = infos.rank_change_stats;
     
     rank_change_stats_rank = [rank_change_stats.rank];
     rank_change_stats_iter = [rank_change_stats.iter];
     rank_change_stats_iter = cumsum(rank_change_stats_iter);
     
-    if strcmp(fixedrank_algo, 'TR'), fixedrank_algo_name='Trust-region'; end
-    if strcmp(fixedrank_algo, 'CG'), fixedrank_algo_name='Conjugate gradient'; end
-    if strcmp(fixedrank_algo, 'SD'), fixedrank_algo_name='Steepest descent'; end
-    
-    
-    
+   
     
     
     % Plot: train error
@@ -711,7 +696,7 @@ function  show_plots(problem_description, infos)
         'YTick',[]);
     
     set(ax2,'XGrid','on');
-    legend(fixedrank_algo_name);
+    legend(func2str(solver));
     title('Rank');
     legend 'boxoff';
     
@@ -743,7 +728,7 @@ function  show_plots(problem_description, infos)
             'YTick',[]);
         
         set(ax2,'XGrid','on');
-        legend(fixedrank_algo_name);
+        legend(func2str(solver));
         title('Rank');
         legend 'boxoff';
         
@@ -770,7 +755,7 @@ function  show_plots(problem_description, infos)
             Ykk = rank_change_stats_kk.Y;
             if size(Ykk, 2) == 1,
                 plot3(Ykk(:,1), zeros(size(Ykk, 1)), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
-                legend(fixedrank_algo_name)
+                legend(func2str(solver))
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
                 
             elseif size(Ykk, 2) == 2
