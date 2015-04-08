@@ -63,6 +63,9 @@ function X = positive_definite_karcher_mean(A)
     problem.cost = @cost;
     problem.grad = @grad;
     
+    % Explicitly pick an approximate Hessian for the trust-region method
+    problem.approxhess = approxhessianFD(problem, struct('stepsize', 1e-4));
+    
     % The functions below make many redundant computations. This
     % performance hit can be alleviated by using the caching system. We go
     % for a simple implementation here, as a tutorial example.

@@ -12,6 +12,8 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
 % storedb is a StoreDB object, key is the StoreDB key to point x.
 %
 % If the gradient cannot be computed, an exception is thrown.
+%
+% See also: approxhessianFD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -55,7 +57,7 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
     end
     
     % Parameter: how far do we look?
-	% TODO: this parameter should be tunable by the user.
+    % (Use approxhessianFD explicitly to gain access to this parameter.)
     epsilon = 1e-4;
         
     c = epsilon/norm_d;
