@@ -186,7 +186,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 %                 d(:, rr) = restartDir;
                 %                 [unused, Y] = linesearch_decrease(problem, Y, d, costBefore); %#ok<ASGLU>
                 
-                % Method 2: Armijo along the projection arc
+                % Method 2: Armijo along projection arc
                 % A very rough estimate of the inverse of the Lipschitz constant.
                 % The "2*sqrt(n)" term comes from the diagonal operation.
                 % We multiply the estimate by 4, as it's better to have a higher
@@ -220,7 +220,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                         || abs(costAfter - costBefore) < 1e-8...
                         || linesearch_fail
                     disp('Decrease is not sufficient, random restart');
-                    Y = randn(n,p);
+                    Y = randn(n, rr);
                 end
                 
                 
