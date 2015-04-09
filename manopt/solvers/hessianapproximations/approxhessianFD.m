@@ -79,10 +79,20 @@ function hessfun = approxhessianFD(problem, options)
     
     % Finite-difference parameter: how far do we look?
     stepsize = options.stepsize;
-
-    % Build and return the function handle here.
-    hessfun = @(x, xdot, storedb, key) ...
-                       hessianFD(stepsize, problem, x, xdot, storedb, key);
+                   
+    % Build and return the function handle here. This extra construct via
+    % funhandle makes it possible to make storedb and key optional.
+    hessfun = @funhandle;
+    function hessfd = funhandle(x, xdot, storedb, key)
+        % Allow omission of the key, and even of storedb.
+        if ~exist('key', 'var')
+            if ~exist('storedb', 'var')
+                storedb = StoreDB();
+            end
+            key = storedb.getNewKey();
+        end 
+        hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key);
+    end
     
 end
 
@@ -90,19 +100,7 @@ end
 function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
 % This function does the actual work.
 %
-% function hessfd = hessianFD(stepsize, problem, x, xdot)
-% function hessfd = hessianFD(stepsize, problem, x, xdot, storedb)
-% function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
-%
 % Original code: Dec. 30, 2012 (NB).
-
-    % Allow omission of the key, and even of storedb.
-    if ~exist('key', 'var')
-        if ~exist('storedb', 'var')
-            storedb = StoreDB();
-        end
-        key = storedb.getNewKey();
-    end
 	
 	% Extract the input vector norm.
     norm_xdot = problem.M.norm(x, xdot);
