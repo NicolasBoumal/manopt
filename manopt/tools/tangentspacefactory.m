@@ -31,7 +31,7 @@ function N = tangentspacefactory(M, x)
     
     N.dim   = @() M.dim();
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
-    N.norm  = @(y, u) M.norm(y, u);
+    N.norm  = @(y, u) M.norm(x, u);
     N.proj  = @(y, v) M.proj;
     N.typicaldist = @() N.dim();
     N.tangent = N.proj;
