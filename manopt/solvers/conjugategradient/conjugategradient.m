@@ -96,6 +96,18 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %
 % See also: steepestdescent trustregions manopt/solvers/linesearch manopt/examples
 
+% An explicit, general listing of this algorithm, with preconditioning,
+% can be found in the following paper:
+%     @Article{boumal2015lowrank,
+%       Title   = {Low-rank matrix completion via preconditioned optimization on the {G}rassmann manifold},
+%       Author  = {Boumal, N. and Absil, P.-A.},
+%       Journal = {Linear Algebra and its Applications},
+%       Year    = {2015},
+%       Pages   = {200--239},
+%       Volume  = {475},
+%       Doi     = {10.1016/j.laa.2015.02.027},
+%     }
+
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors: Nicolas Boumal

@@ -199,6 +199,19 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %
 % See also: steepestdescent conjugategradient manopt/examples
 
+% An explicit, general listing of this algorithm, with preconditioning,
+% can be found in the following paper:
+%     @Article{boumal2015lowrank,
+%       Title   = {Low-rank matrix completion via preconditioned optimization on the {G}rassmann manifold},
+%       Author  = {Boumal, N. and Absil, P.-A.},
+%       Journal = {Linear Algebra and its Applications},
+%       Year    = {2015},
+%       Pages   = {200--239},
+%       Volume  = {475},
+%       Doi     = {10.1016/j.laa.2015.02.027},
+%     }
+
+
 % This file is part of Manopt: www.manopt.org.
 % This code is an adaptation to Manopt of the original GenRTR code:
 % RTR - Riemannian Trust-Region
