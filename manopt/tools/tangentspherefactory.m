@@ -34,7 +34,7 @@ function N = tangentspherefactory(M, x)
     
     N.dim   = @() M.dim() - 1;
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
-    N.norm  = @(y, u)      M.norm(y, u);
+    N.norm  = @(y, u)      M.norm(x, u);
     N.proj  = @(y, v) M.lincomb(x, 1, v, -M.inner(x, v, y), y);
     N.typicaldist = @() 1;
     N.tangent = N.proj;
