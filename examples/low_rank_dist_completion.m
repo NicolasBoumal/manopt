@@ -184,7 +184,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 problem.cost = @(Y)  cost_evaluation(Y, data_train);
                 d = zeros(size(Y));
                 d(:, rr) = restartDir;
-                [unused, Y] = linesearch_decrease(problem, Y, d, costBefore);
+                [unused, Y] = linesearch_decrease(problem, Y, d, costBefore); %#ok<ASGLU>
             end
             
         end
