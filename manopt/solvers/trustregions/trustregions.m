@@ -283,7 +283,8 @@ if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
     % explicitly given in the problem description, as in that case the user
     % seems to be aware of the issue.
     warning('manopt:getHessian:approx', ...
-            'No Hessian provided. Using an FD approximation instead.');
+           ['No Hessian provided. Using an FD approximation instead.\n' ...
+            'To disable this warning: warning(''off'', ''manopt:getHessian:approx'')']);
     problem.approxhess = approxhessianFD(problem);
 end
 

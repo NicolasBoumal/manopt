@@ -86,11 +86,6 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
     % more variables than samples.
     St = stiefelfactory(p, m);
     problem.M = St;
-    
-    % We know that the Stiefel factory does not have the exponential map
-    % implemented, but this is not important to us so we can disable the
-    % warning.
-    warning('off', 'manopt:stiefel:exp');
 
     % In this helper function, given a point 'X' on the manifold we check
     % whether the caching structure 'store' has been populated with
@@ -107,7 +102,7 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
 
     % Define the cost function here and set it in the problem structure.
     problem.cost = @cost;
-    function [f store] = cost(X, store)
+    function [f, store] = cost(X, store)
         store = prepare(X, store);
         pos = store.pos;
         f = -.5*norm(pos, 'fro')^2;
@@ -117,7 +112,7 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
     % grad) : Manopt will take care of converting it to the Riemannian
     % gradient.
     problem.egrad = @egrad;
-    function [G store] = egrad(X, store)
+    function [G, store] = egrad(X, store)
         if ~isfield(store, 'G')
             store = prepare(X, store);
             pos = store.pos;
@@ -168,6 +163,6 @@ end
 
 % Returns the U-factor of the polar decomposition of X
 function U = ufactor(X)
-    [W S V] = svd(X, 0); %#ok<ASGLU>
+    [W, S, V] = svd(X, 0); %#ok<ASGLU>
     U = W*V';
 end
