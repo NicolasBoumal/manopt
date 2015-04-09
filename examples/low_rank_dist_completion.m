@@ -175,54 +175,27 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 Z = Y(data_train.rows, :) - Y(data_train.cols,:);
                 estimDists = sum(Z.^2, 2);
                 errors = (estimDists - data_train.entries);
-                
                 costBefore = 0.5*mean(errors.^2);
                 fprintf('>> Cost before = %f\n',costBefore);
                 
-                %                 % Method 1: simple linesearch to maintain monotonicity
-                %                 problem.M = symfixedrankYYfactory(n, rr);
-                %                 problem.cost = @(Y)  cost_evaluation(Y, data_train);
-                %                 d = zeros(size(Y));
-                %                 d(:, rr) = restartDir;
-                %                 [unused, Y] = linesearch_decrease(problem, Y, d, costBefore); %#ok<ASGLU>
+                % Simple linesearch to maintain monotonicity
+                problem.M = symfixedrankYYfactory(n, rr);
+                problem.cost = @(Y)  cost_evaluation(Y, data_train);
+                d = zeros(size(Y));
+                d(:, rr) = restartDir;
+                [unused, Y] = linesearch_decrease(problem, Y, d, costBefore); %#ok<ASGLU>
                 
-                % Method 2: Armijo along projection arc
-                % A very rough estimate of the inverse of the Lipschitz constant.
-                % The "2*sqrt(n)" term comes from the diagonal operation.
-                % We multiply the estimate by 4, as it's better to have a higher
-                % stepsize than a lower one.
+                Z = Y(data_train.rows, :) - Y(data_train.cols,:);
+                estimDists = sum(Z.^2, 2);
+                errors = (estimDists - data_train.entries);
+                costAfter = 0.5*mean(errors.^2);
                 
-                stepsize = 4*(n^2)/((1 + 2*sqrt(n))*N); 
-                linesearch_fail = false;
-                for i = 1 : 25,
-                    % Update
-                    Y(:,rr) = stepsize*restartDir;
-                    % Compute cost
-                    Z = Y(data_train.rows, :) - Y(data_train.cols,:);
-                    estimDists = sum(Z.^2, 2);
-                    errors = (estimDists - data_train.entries);
-                    costAfter = 0.5*mean(errors.^2);
-                    fprintf('>> Cost after = %f\n',costAfter);
-                    % Monotonicity condition
-                    armijo = (costAfter - costBefore) <= - 0.5 * stepsize^2 * abs(s_min);
-                    if armijo,
-                        break;
-                    else
-                        stepsize = stepsize/2;
-                    end
-                    if i == 25,
-                        linesearch_fail = true;
-                    end
-                    
-                end
-                % Check for sufficient decrease
+                % Check for decrease
                 if (costAfter >= costBefore)...
-                        || abs(costAfter - costBefore) < 1e-8...
-                        || linesearch_fail
+                        || abs(costAfter - costBefore) < 1e-8
                     disp('Decrease is not sufficient, random restart');
                     Y = randn(n, rr);
                 end
-                
                 
             end
             
