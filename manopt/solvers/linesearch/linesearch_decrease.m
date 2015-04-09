@@ -33,6 +33,8 @@ function [stepsize, newx, newkey, lsstats] = ...
 %   f0 is the cost at x.
 %   df0 is unused.
 %   options, storedb and key are optional.
+%   Thus, a simplified calling pattern is (with all outputs still
+%   available): linesearch_decrease(problem, x, d, f0)
 %
 % See also: steepestdescent linesearch hessianextreme
 
