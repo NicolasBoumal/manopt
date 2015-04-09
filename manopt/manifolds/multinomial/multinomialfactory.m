@@ -7,19 +7,25 @@ function M = multinomialfactory(n, m)
 % the set of n-by-m matrices with (strictly) positive entries and such that
 % the entries of each column sum to one.
 %
-% The metric imposed is the Fisher metric such that the multinomial oblique
-% manifold is a Riemannian submanifold of the space of n-by-m matrices.
-%
+% The metric imposed on the manifold is the Fisher metric such that 
+% the set of n-by-m column-stochastic matrices (aka the multinomial manifold)
+% is a Riemannian submanifold of the space of n-by-m matrices. Also it
+% should be noted that the retraction operation that we define 
+% is first order and as such the checkhessian tool cannot verify 
+% the slope correctly.
+%             
 % The file is based on developments in the research paper
 % Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,
 % "Heterogeneous tensor decomposition for clustering via manifold
-% optimization", Technical report, 2014.
+% optimization", arXiv:1504.01777, 2015.
+%
+% Link to the paper: http://arxiv.org/abs/1504.01777.
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @Article{sun2014multinomial,
+%     @Techreport{sun2014multinomial,
 %       Title   = {Heterogeneous tensor decomposition for clustering via manifold optimization},
 %       Author  = {Sun, Y. and Gao, J. and Hong, X. and Mishra, B. and Yin, B.},
-%       Journal = {Technical report},
+%       Journal = {arXiv:1504.01777},
 %       Year    = {2014}
 %     }
 
@@ -92,7 +98,7 @@ function M = multinomialfactory(n, m)
         if nargin < 3
             t = 1.0;
         end
-        % A standard approximation.
+        % A first-order retraction.
         Y = X.*exp(t*(eta./X)); % Based on mapping for positive scalars.
         Y = Y./(e*(sum(Y, 1))); % Projection onto the constraint set.
         % For numerical reasons, so that we avoid entries going to zero:
