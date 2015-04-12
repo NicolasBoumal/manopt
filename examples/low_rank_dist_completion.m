@@ -126,7 +126,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 
     
     % Check problem description
-    if ~exist('problem_desription', 'var')
+    if ~exist('problem_description', 'var')
         problem_description = struct();
     end
     problem_description = check_problem_description(problem_description); % Check the problem description;
@@ -191,8 +191,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
                 costAfter = 0.5*mean(errors.^2);
                 
                 % Check for decrease
-                if (costAfter >= costBefore)...
-                        || abs(costAfter - costBefore) < 1e-8
+                if costAfter >= costBefore - 1e-8
                     disp('Decrease is not sufficient, random restart');
                     Y = randn(n, rr);
                 end
@@ -479,7 +478,7 @@ function checked_problem_description = check_problem_description(problem_descrip
     checked_problem_description = problem_description;
     
     % Check train data
-    if ~isempty(problem_description)...
+    if isempty(problem_description)...
             || ~all(isfield(problem_description,{'data_train'}) == 1)...
             || ~all(isfield(problem_description.data_train,{'cols', 'rows', 'entries'}) == 1)...
             || isempty(problem_description.data_train.cols)...
@@ -508,6 +507,8 @@ function checked_problem_description = check_problem_description(problem_descrip
         warning('low_rank_dist_completion:problem_description', ...
             'The field "rank_initial" is not properly defined. We work with the default "1".\n');
         rank_initial = 1;
+    else
+        rank_initial = problem_description.rank_initial;
     end
     checked_problem_description.rank_initial = rank_initial;
     
@@ -520,6 +521,8 @@ function checked_problem_description = check_problem_description(problem_descrip
         warning('low_rank_dist_completion:problem_description', ...
             'The field "rank_max" is not properly defined. We work with the default "n".\n');
         rank_max = problem_description.n;
+    else
+        rank_max = problem_description.rank_max;
     end
     checked_problem_description.rank_max = rank_max;
     
@@ -532,8 +535,10 @@ function checked_problem_description = check_problem_description(problem_descrip
             || isempty(problem_description.data_test.entries)
         
         warning('low_rank_dist_completion:problem_description', ...
-            'The field "data_set" is not properly defined. We work with the default "[]".\n');
+            'The field "data_test" is not properly defined. We work with the default "[]".\n');
         data_test = [];
+    else
+        data_test = problem_description.data_test;
     end
     checked_problem_description.data_test = data_test;
     
