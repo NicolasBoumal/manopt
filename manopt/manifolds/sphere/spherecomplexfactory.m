@@ -21,6 +21,8 @@ function M = spherecomplexfactory(n, m)
 %       Added ehess2rhess.
 %   April 7, 2015 (NB):
 %       Added vec/mat pair (for use with hessianspectrum, for example).
+%   April 13, 2015 (NB):
+%       Added logarithm
 
     
     if ~exist('m', 'var')
@@ -39,7 +41,7 @@ function M = spherecomplexfactory(n, m)
     
     M.norm = @(x, d) norm(d, 'fro');
     
-    M.dist = @(x, y) acos(real(x(:)'*y(:)));
+    M.dist = @(x, y) real(acos(real(x(:)'*y(:))));
     
     M.typicaldist = @() pi;
     
@@ -61,8 +63,14 @@ function M = spherecomplexfactory(n, m)
     M.retr = @retraction;
 
     M.log = @logarithm;
-    function v = logarithm(x1, x2) %#ok<INUSD,STOUT>
-        error('The logarithmic map is not yet implemented for this manifold.');
+    function v = logarithm(x1, x2)
+        v = M.proj(x1, x2 - x1);
+        di = M.dist(x1, x2);
+        % If the two points are "far apart", correct the norm.
+        if di > 1e-6
+            nv = norm(v, 'fro');
+            v = v * (di / nv);
+        end
     end
     
     M.hash = @(x) ['z' hashmd5([real(x(:)) ; imag(x(:))])];
@@ -101,11 +109,11 @@ function y = exponential(x, d, t)
     
     nrm_td = norm(td, 'fro');
     
-    if nrm_td > 1e-6
+    if nrm_td > 4.5e-8
         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
     else
-        % If the step is too small, to avoid dividing by nrm_td, we choose
-        % to approximate with this retraction-like step.
+        % If the step is too small to accurately evaluate sin(x)/x,
+        % then sin(x)/x is almost indistinguishable from 1.
         y = x + td;
         y = y / norm(y, 'fro');
     end

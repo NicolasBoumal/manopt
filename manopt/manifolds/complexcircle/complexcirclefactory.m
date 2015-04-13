@@ -22,6 +22,8 @@ function M = complexcirclefactory(n)
 %
 %   Sep. 3, 2014 (NB): Correction to the dist function (extract real part).
 %
+%   April 13, 2015 (NB): Fixed logarithm.
+%
     
     if ~exist('n', 'var')
         n = 1;
@@ -67,7 +69,7 @@ function M = complexcirclefactory(n)
         % For very small steps, we use a a limit version of the exponential
         % (which actually coincides with the retraction), so as to not
         % divide by very small numbers.
-        mask = nrm_tv > 1e-6;
+        mask = nrm_tv > 4.5e-8;
         y(mask) = z(mask).*cos(nrm_tv(mask)) + ...
                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
         y(~mask) = z(~mask) + tv(~mask);
@@ -87,9 +89,11 @@ function M = complexcirclefactory(n)
     M.log = @logarithm;
     function v = logarithm(x1, x2)
         v = M.proj(x1, x2 - x1);
-        di = M.dist(x1, x2);
-        nv = norm(v);
-		v = v * (di / nv);
+        di = real(acos(real(conj(x1) .* x2)));
+        nv = abs(v);
+        factors = di ./ nv;
+        factors(di <= 1e-6) = 1;
+		v = v .* factors;
     end
     
     M.hash = @(z) ['z' hashmd5( [real(z(:)) ; imag(z(:))] ) ];
