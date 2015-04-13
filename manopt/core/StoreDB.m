@@ -66,7 +66,7 @@ classdef StoreDB < handle_light
         end
         
         % Return the store associated to a given key.
-        % If the key is unknown, returns an empty strucrure.
+        % If the key is unknown, returns an empty structure.
         function store = get(storedb, key)
             if isfield(storedb.history, key)
                 store = storedb.history.(key);
