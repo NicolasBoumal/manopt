@@ -89,12 +89,87 @@ body {
             <ul>
               <li>Manopt 1.0.8, not released yet</li>
               <ul>
-                <li>Added the tool <code>statsfunhelper</code> to ease the use
-                  of <code>options.statsfun</code>, which allows recording
-                  custom statistics at each iteration during optimization. See
-                  the tutorial.</li>
-                <li>Private tools get*** simplified now that Octave supports
-                  Matlab style <code>nargin</code>.</li>
+                <li>Revamped the internal hashing system used for caching:
+                  Manopt no longer uses hashing, which leads to speed-ups and
+                  cleaner internal code. Solvers need to be adapted
+                  consequently, to use the StoreDB class.</li>
+                <li>The caching system now offers a shared memory, which can be
+                  accessed and modified at all points. This can notably be used
+                  to count function evaluations, or to produce Hessian
+                  approximations which require previsous iterations memory (such
+                  as BFGS for example).</li>
+                <li>Because of the new class StoreDB, Octave compatibility is
+                  unfortunately compromised until Octave supports Matlab's
+                  classdef object oriented programming.</li>
+                <li>New geometries:</li>
+                <ul>
+                  <li>specialeuclideanfactory (for rigid body motions).</li>
+                  <li>multinomialfactory (for probability distributions, i.e.,
+                    simplex elements).</li>
+                  <li>euclideancomplexfactory (for complex matrices).</li>
+                </ul>
+                <li>spherecomplexfactory: added ehess2rhess.</li>
+                <li>complexcirclefactory: distance function corrected.</li>
+                <li>Contributions more explicitly acknowledged in some files,
+                  notably via BibTex entries.</li>
+                <li>hessianspectrum: output eigenvalues now sorted, and the
+                  square root of the preconditioner, if available, must now be
+                  given through problem.sqrtprecon, not as an additional input.
+                  An option now allows to ask for the Hessian spectrum or the
+                  preconditioned Hessian spectrum, explicitly.</li>
+                <li>New management of Hessian approximations and
+                  preconditioners. The file hessianapproxFD encapsulates
+                  Manopt's standard approximation, with access to options. A
+                  first generic preconditioner allows solving linear systems
+                  involving the Hessian (for Newton-type methods):
+                  preconhessiansolve.</li>
+                <li>Line-search algorithms now work with StoreDB, and as a
+                  result have a simplified calling pattern. There is also a new
+                  one: linesearch_decrease.</li>
+                <li>New tools:</li>
+                <ul>
+                  <li><code>manoptsolve</code>, to automatically call an
+                    appropriate solver (or a dynamically chosen solver) on a
+                    problem structure.</li>
+                  <li><code>statsfunhelper</code>, to ease the use of <code>options.statsfun</code>,
+                    which allows recording custom statistics at each iteration
+                    during optimization. See the tutorial.</li>
+                  <li><code>hessianextreme</code>, to compute minimal and
+                    maximal eigenvectors and eigenvalues of the Hessian of a
+                    cost function.</li>
+                  <li><code>surfprofile</code>, to complement <code>plotprofile</code>:
+                    used to plot a cost function restricted to a 1D or 2D
+                    subspace of a tangent space.</li>
+                  <li><code>tangentspherefactory</code> and <code>tangentspacefactory</code>,
+                    to obtain a manifold representation of the unit sphere on
+                    the tangent space to a manifold at a given point, or a
+                    representation of the whole tangent space. Useful to solve
+                    optimization problems over those spaces.</li>
+                </ul>
+                <li>Trust-region solver:</li>
+                <ul>
+                  <li>As of Manopt 1.0.6, the inner solver tCG monitors the
+                    model cost; an (innocuous) logic bug was corrected there. Theory
+                    behind this feature is now better understood (a paper+BibTex
+                    entry will be added).</li>
+                  <li>Warns if many TR+ steps detected, to suggest changing
+                    parameter values.</li>
+                  <li>Uses safe version of tic/toc timers (originally because
+                    Octave now supports them).</li>
+                  <li>Many more comments inside the code.</li>
+                </ul>
+                <li>New examples:</li>
+                <ul>
+                  <li>robust_pca, illustrating how to smooth a nonsmooth cost
+                    function (here, on the Grassmann manifold).</li>
+                  <li>low_rank_dist_completion, illustrating usage of Manopt as
+                    a building block in a rank-incremental optimization
+                    algorithm for SDP.</li>
+                </ul>
+                <li>New cost description function: sqrtprecon, for the square
+                  root of the preconditioner (used in hessianspectrum).</li>
+                <li>The privatetools directory is now named core, and will be
+                  documented.</li>
               </ul>
               <li><a href="download.html">Manopt 1.0.7</a>, packaged August 12,
                 2014.</li>
