@@ -651,12 +651,12 @@ function  show_plots(problem_description, infos)
             rank_change_stats_kk = rank_change_stats(kk);
             Ykk = rank_change_stats_kk.Y;
             if size(Ykk, 2) == 1,
-                plot3(Ykk(:,1), zeros(size(Ykk, 1)), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
+                plot(Ykk(:,1), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
                 legend(func2str(solver))
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
                 
             elseif size(Ykk, 2) == 2
-                plot3(Ykk(:,1), Ykk(:,2), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
+                plot(Ykk(:,1), Ykk(:,2),'*','Color', 'r','LineWidth',1.0);
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
                 
             else  % Project onto dominant 3Dsubspace
@@ -666,8 +666,15 @@ function  show_plots(problem_description, infos)
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
             end
             
+            axis equal;
+            
         end
-        ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' ); %#ok<NASGU>
+        
+        % Trick to add a global title to the whole subplot collection.
+        % HitTest is disabled to make it easier to select the individual
+        % subplots (for example, to rotate the viewing angle).
+        ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off' );
+        set(ha, 'HitTest', 'off');
         text(0.5, 1,['Recovery of Helix from ',num2str(N/((n^2 -n)/2)),' fraction known distances'],'HorizontalAlignment','center','VerticalAlignment', 'top');
     end
        
