@@ -9,6 +9,10 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
 % storedb is a StoreDB object, key is the StoreDB key to point x.
 %
+% Note: if statsfun accepts a store structure as input, this structure can
+% be read but not modified (modifications will be lost) ; the store
+% structure will contain the store.shared field.
+%
 % See also: 
 
 % This file is part of Manopt: www.manopt.org.
