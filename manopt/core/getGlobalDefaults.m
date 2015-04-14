@@ -16,6 +16,13 @@ function opts = getGlobalDefaults()
 % Change log: 
 
 
+    % There should be no reason to modify this file.
+    % For better compatibility with future Manopt versions,
+    % use the options structure of solvers.
+    %
+    % Really: don't modify it.
+    
+
     % Verbosity level: 0 is no output at all. The higher the verbosity, the
     % more info is printed / displayed during solver execution.
     opts.verbosity = 3;
