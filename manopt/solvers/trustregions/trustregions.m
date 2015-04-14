@@ -178,10 +178,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % the store structure containing everything that was computed at that point
 % (possibly including previous rejects at that same point). Hence, statsfun
 % should not be used in conjunction with the store to count operations for
-% example. Instead, you could use a global variable and increment that
-% variable directly from the cost related functions. It is however possible
-% to use statsfun with the store to compute, for example, alternate merit
-% functions on the point x.
+% example. Instead, you should use storedb's shared memory for such
+% purposes (either via storedb.shared, or via store.shared, see
+% online documentation). It is however possible to use statsfun with the
+% store to compute, for example, other merit functions on the point x
+% (other than the actual cost function, that is).
 %
 %
 % Please cite the Manopt paper as well as the research paper:

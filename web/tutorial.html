@@ -1379,284 +1379,311 @@ end
             Hessian approximations and generic preconditioners. The feature is
             working, but as this is work in progress we do not have many options
             to show yet. Check out these folders if you are interested:
-          <ul>
-            <li><a style="font-family: monospace;" href="reference/manopt/solvers/hessianapproximations/index.html">/solvers/hessianapproximations</a>.</li>
-            <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li>
-          </ul>
-        </section>
-        <section id="tools">
-          <div class="page-header">
-            <h1>Helpful tools</h1>
-          </div>
-          <p>A number of generically useful tools in the context of using Manopt
-            are available in <a href="reference/manopt/tools/index.html">/<tt>manopt/tools</tt></a>.
-            The <code>multitransp</code> / <code>multiprod</code> pair is code
-            by <a href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo
-              de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>,
-            which is code by <a href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton
-              Moore</a>. </p>
-          <table style="width: 100%;" class="table table-striped table-bordered">
-            <thead>
+            <ul>
+              <li><a style="font-family: monospace;" href="reference/manopt/solvers/hessianapproximations/index.html">/solvers/hessianapproximations</a>.</li>
+              <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li>
+            </ul>
+          </section>
+          <section id="tools">
+            <div class="page-header">
+              <h1>Helpful tools</h1>
+            </div>
+            <p>A number of generically useful tools in the context of using
+              Manopt are available in <a href="reference/manopt/tools/index.html">/<tt>manopt/tools</tt></a>.
+              The <code>multitransp</code> / <code>multiprod</code> pair is
+              code by <a href="http://www.mathworks.com/matlabcentral/fileexchange/8773-multiple-matrix-multiplications-with-array-expansion-enabled">Paolo
+                de Leva</a> ; <code>multitrace</code> is a wrapper around <code>diagsum</code>,
+              which is code by <a href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton
+                Moore</a>. </p>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td style="text-align: center;"> </td>
+                <td>Call </td>
+                <td>Description </td>
+              </tr>
+            </thead>
+            <tbody>
               <tr>
                 <td style="text-align: center;"> </td>
-              <td>Call </td>
-              <td>Description </td>
+              <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
             </tr>
-          </thead>
-          <tbody>
+            <tr>
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkdiff.html"><i
+                    class="icon-book">&#160;</i></a></td>
+              <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
+              <td>Numerical check of the directional derivatives of the cost
+                function. From a truncated Taylor expansion, we know that the
+                following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) +
+                t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$
+                Hence, in a log-log plot with $\log(t)$ on the abscissa, the
+                error should behave as $\log(t^2) = 2\log(t)$, i.e., we should
+                observe a slope of 2. This tool produces such a plot and tries
+                to compute the slope of it (<em>tries</em> to, because numerical
+                errors prevent the curve to have a slope of 2 everywhere even if
+                directional derivatives are correct; so you should really just
+                inspect the plot visually). If <code>x</code> and <code>u</code>
+                are omitted, they are picked at random. </td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkgradient.html"><i
+                    class="icon-book">&#160;</i></a></td>
+              <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
+              <td>Numerical check of the gradient of the cost function. Based on
+                the statement that if the gradient exists, than it is the only
+                tangent vector field that satisfies $$\langle
+                \operatorname{grad} f(x), u\rangle_x =
+                \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code>
+                first, and it also verifies that the gradient is indeed a
+                tangent vector, by computing the norm of the difference between
+                the gradient and its projection to the tangent space (if a
+                projector is available). Of course, this should be zero. </td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkhessian.html"><i
+                    class="icon-book">&#160;</i></a></td>
+              <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
+              <td>
+                <p>Numerical check of the Hessian of the cost function. From a
+                  truncated Taylor expansion, we know that the following holds:
+                  $$f(\operatorname{Exp}_x(tu)) - \left[f(x) +
+                  t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle
+                  \operatorname{Hess} f(x)[u], u \rangle_x\right] =
+                  \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on
+                  the abscissa, the error should behave as $\log(t^3) =
+                  3\log(t)$, i.e., we should observe a slope of 3. This tool
+                  produces such a plot and tries to compute the slope of it (<em>tries</em>
+                  to, because numerical errors prevent the curve to have a slope
+                  of 3 everywhere even if the derivatives are correct; so you
+                  should really just inspect the plot visually). If <code>x</code>
+                  and <code>u</code> are omitted, they are picked at random.
+                  The tool also verifies that the Hessian indeed returns a
+                  tangent vector, by computing the norm of the difference
+                  between $\operatorname{Hess} f(x)[u]$ and its projection to
+                  the tangent space (if a projector is available). Of course,
+                  this should be zero.</p>
+                <p>The Hessian is a linear, symmetric operator from the tangent
+                  space at $x$ to itself. To verify symmetry, this tool
+                  generates two random tangent vectors $u_1$ and $u_2$ and
+                  computes the difference $$\langle \operatorname{Hess}
+                  f(x)[u_1], u_2 \rangle_x - \langle u_1,&#160;
+                  \operatorname{Hess} f(x)[u_2]\rangle_x,$$ which should be
+                  zero.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><a href="reference/manopt/tools/plotprofile.html"><i
+                    class="icon-book">&#160;</i></a></td>
+              <td><code>plotprofile(problem, x, d, t)</code></td>
+              <td>Plots the cost function along a geodesic or a retraction path
+                starting at $x$, along direction $d$. See <span style="font-family: monospace;">help
+                  plotprofile</span> for more information.</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><a href="reference/manopt/tools/surfprofile.html"><i
+                    class="icon-book">&#160;</i></a></td>
+              <td><code>surfprofile(problem, x, d1, d2, t1, t2)</code></td>
+              <td>Plots the cost function, lifted and restricted to a
+                2-dimensional subspace of the tangent space at $x$. See <span style="font-family: monospace;">help
+                  surfprofile</span> for more information.</td>
+            </tr>
             <tr>
               <td style="text-align: center;"> </td>
-            <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
+            <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
           </tr>
           <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/checkdiff.html"><i
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianspectrum.html"><i
                   class="icon-book">&#160;</i></a></td>
-            <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
-            <td>Numerical check of the directional derivatives of the cost
-              function. From a truncated Taylor expansion, we know that the
-              following holds: $$f(\operatorname{Exp}_x(tu)) - \left[f(x) +
-              t\cdot\operatorname{D}\!f(x)[u]\right] = \mathcal{O}(t^2).$$
-              Hence, in a log-log plot with $\log(t)$ on the abscissa, the error
-              should behave as $\log(t^2) = 2\log(t)$, i.e., we should observe a
-              slope of 2. This tool produces such a plot and tries to compute
-              the slope of it (<em>tries</em> to, because numerical errors
-              prevent the curve to have a slope of 2 everywhere even if
-              directional derivatives are correct; so you should really just
-              inspect the plot visually). If <code>x</code> and <code>u</code>
-              are omitted, they are picked at random. </td>
-          </tr>
-          <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/checkgradient.html"><i
-                  class="icon-book">&#160;</i></a></td>
-            <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
-            <td>Numerical check of the gradient of the cost function. Based on
-              the statement that if the gradient exists, than it is the only
-              tangent vector field that satisfies $$\langle \operatorname{grad}
-              f(x), u\rangle_x = \operatorname{D}\!f(x)[u],$$ this tool calls <code>checkdiff</code>
-              first, and it also verifies that the gradient is indeed a tangent
-              vector, by computing the norm of the difference between the
-              gradient and its projection to the tangent space (if a projector
-              is available). Of course, this should be zero. </td>
-          </tr>
-          <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/checkhessian.html"><i
-                  class="icon-book">&#160;</i></a></td>
-            <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
+            <td><code>lambdas = hessianspectrum(problem, x, useprecon, storedb,
+                key)</code></td>
             <td>
-              <p>Numerical check of the Hessian of the cost function. From a
-                truncated Taylor expansion, we know that the following holds:
-                $$f(\operatorname{Exp}_x(tu)) - \left[f(x) +
-                t\cdot\operatorname{D}\!f(x)[u] + \frac{t^2}{2} \cdot \langle
-                \operatorname{Hess} f(x)[u], u \rangle_x\right] =
-                \mathcal{O}(t^3).$$ Hence, in a log-log plot with $\log(t)$ on
-                the abscissa, the error should behave as $\log(t^3) = 3\log(t)$,
-                i.e., we should observe a slope of 3. This tool produces such a
-                plot and tries to compute the slope of it (<em>tries</em> to,
-                because numerical errors prevent the curve to have a slope of 3
-                everywhere even if the derivatives are correct; so you should
-                really just inspect the plot visually). If <code>x</code> and <code>u</code>
-                are omitted, they are picked at random. The tool also verifies
-                that the Hessian indeed returns a tangent vector, by computing
-                the norm of the difference between $\operatorname{Hess} f(x)[u]$
-                and its projection to the tangent space (if a projector is
-                available). Of course, this should be zero.</p>
-              <p>The Hessian is a linear, symmetric operator from the tangent
-                space at $x$ to itself. To verify symmetry, this tool generates
-                two random tangent vectors $u_1$ and $u_2$ and computes the
-                difference $$\langle \operatorname{Hess} f(x)[u_1], u_2
-                \rangle_x - \langle u_1,&#160; \operatorname{Hess}
-                f(x)[u_2]\rangle_x,$$ which should be zero.</p>
+              <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a
+                preconditioner $P$ is specified in the problem structure and <code>useprecon</code>
+                is set to <code>'precon'</code>, the eigenvalues of the
+                preconditioned Hessian $HP$ are computed.</p>
+              <p>This function relies on <code>problem.M.vec</code> and <code>problem.M.mat</code>
+                to pass the computation to the built-in <code>eigs</code>
+                function. For the eigenvalue problem to remain symmetric in the
+                column-vector representation domain, we need <code>M.vec</code>
+                and <code>M.mat</code> to be orthonormal, i.e., isometries (see
+                <code>matvecareisometries</code> in the <a href="#manifolds">manifod
+                  section</a>). If they are not isometries, computations may
+                take longer. Indeed, let $G$ denote the <code>M.vec</code>
+                operator and let $G^{-1}$ represent the <code>M.mat</code>
+                operator (on the appropriate domain). Then, <code>eigs</code>
+                will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which
+                are identical to, respectively, the spectra of $H$ and $HP$.
+                This is only symmetric if there is no preconditioner and $G^T =
+                G^{-1}$.</p>
+              <p>If a preconditioner is used, the symmetry of the eigenvalue
+                problem is lost: $H$ and $P$ are symmetric, but $HP$ is not. If
+                <code>M.vec</code> and <code>M.mat</code> are isometries and
+                the dimension of the manifold is large, it may be useful to
+                restore symmetry by giving this tool a function handle for the
+                square root of the preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code>
+                is given the problem of computing the spectrum of
+                $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the
+                spectrum of $HP$. Typically, the square root of the
+                preconditioner is given via <code>problem.sqrtprecon</code>
+                (see <a href="#costdescription">cost description</a>).</p>
+              <p><code>storedb</code> and <code>key</code> are optional (see <a
+                  href="#cachingsystem">caching system</a>).</p>
             </td>
           </tr>
           <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/plotprofile.html"><i
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianextreme.html"><i
                   class="icon-book">&#160;</i></a></td>
-            <td><code>plotprofile(problem, x, d, t)</code></td>
-            <td>Plots the cost function along a geodesic or a retraction path
-              starting at $x$, along direction $d$. See <span style="font-family: monospace;">help
-                plotprofile</span> for more information.</td>
-          </tr>
-          <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/surfprofile.html"><i
-                  class="icon-book">&#160;</i></a></td>
-            <td><code>surfprofile(problem, x, d1, d2, t1, t2)</code></td>
-            <td>Plots the cost function, lifted and restricted to a
-              2-dimensional subspace of the tangent space at $x$. See <span style="font-family: monospace;">help
-                surfprofile</span> for more information.</td>
+            <td><code>[u, lambda] = hessianextreme(problem, x, side, u0,
+                options, storedb, key)</code></td>
+            <td>
+              <p>Computes either an eigenvector / eigenvalue pair associated to
+                a largest or to a smallest eigenvalue of the Hessian of the cost
+                at <code>x</code>, for the cost as described in the <code>problem</code>
+                structure. Choose an extreme side of the spectrum by setting <code>side</code>
+                either to the <code>'min'</code> or to the <code>'max'</code>
+                string. The (optional) parameters <code>u0</code> (initial
+                guess for <code>u</code>) and <code>options</code> will be
+                passed on to <code>manoptsolve</code>, then on to the Manopt
+                solver that ultimately computes the eigenpair, by means of
+                Rayleigh quotient optimization over the sphere in the tangent
+                space at <code>x</code>.</p>
+              <p><code>storedb</code> and <code>key</code> are optional (see <a
+                  href="#cachingsystem">caching system</a>).</p>
+            </td>
           </tr>
           <tr>
             <td style="text-align: center;"> </td>
-          <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
+          <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/hessianspectrum.html"><i
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiscale.html"><i
                 class="icon-book">&#160;</i></a></td>
-          <td><code>lambdas = hessianspectrum(problem, x, useprecon, storedb,
-              key)</code></td>
-          <td>
-            <p>Computes the eigenvalues of the Hessian $H$ at $x$. If a
-              preconditioner $P$ is specified in the problem structure and <code>useprecon</code>
-              is set to <code>'precon'</code>, the eigenvalues of the
-              preconditioned Hessian $HP$ are computed.</p>
-            <p>This function relies on <code>problem.M.vec</code> and <code>problem.M.mat</code>
-              to pass the computation to the built-in <code>eigs</code>
-              function. For the eigenvalue problem to remain symmetric in the
-              column-vector representation domain, we need <code>M.vec</code>
-              and <code>M.mat</code> to be orthonormal, i.e., isometries (see <code>matvecareisometries</code>
-              in the <a href="#manifolds">manifod section</a>). If they are not
-              isometries, computations may take longer. Indeed, let $G$ denote
-              the <code>M.vec</code> operator and let $G^{-1}$ represent the <code>M.mat</code>
-              operator (on the appropriate domain). Then, <code>eigs</code>
-              will compute the spectrum of $GHG^{-1}$ or $GHPG^{-1}$, which are
-              identical to, respectively, the spectra of $H$ and $HP$. This is
-              only symmetric if there is no preconditioner and $G^T = G^{-1}$.</p>
-            <p>If a preconditioner is used, the symmetry of the eigenvalue
-              problem is lost: $H$ and $P$ are symmetric, but $HP$ is not. If <code>M.vec</code>
-              and <code>M.mat</code> are isometries and the dimension of the
-              manifold is large, it may be useful to restore symmetry by giving
-              this tool a function handle for the square root of the
-              preconditioner, $P^{1/2}$ (optional). Then, <code>eigs</code> is
-              given the problem of computing the spectrum of
-              $GP^{1/2}HP^{1/2}G^T$ (symmetric), which is equal to the spectrum
-              of $HP$. Typically, the square root of the preconditioner is given
-              via <code>problem.sqrtprecon</code> (see <a href="#costdescription">cost
-                description</a>).</p>
-            <p><code>storedb</code> and <code>key</code> are optional (see <a
-                href="#cachingsystem">caching system</a>).</p>
+          <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
+          <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a
+            vector <code>scale</code> of length <tt>N</tt>, returns <code>B</code>,
+            a 3D matrix of the same size as <code>A</code> such that <nobr><code>B(:,
+                :, k) = scale(k) * A(:, :, k)</code></nobr> for each <code>k</code>.
           </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/hessianextreme.html"><i
+          <td style="text-align: center;"><a href="reference/manopt/tools/multitrace.html"><i
                 class="icon-book">&#160;</i></a></td>
-          <td><code>[u, lambda] = hessianextreme(problem, x, side, u0, options,
-              storedb, key)</code></td>
-          <td>
-            <p>Computes either an eigenvector / eigenvalue pair associated to a
-              largest or to a smallest eigenvalue of the Hessian of the cost at
-              <code>x</code>, for the cost as described in the <code>problem</code>
-              structure. Choose an extreme side of the spectrum by setting <code>side</code>
-              either to the <code>'min'</code> or to the <code>'max'</code>
-              string. The (optional) parameters <code>u0</code> (initial guess
-              for <code>u</code>) and <code>options</code> will be passed on
-              to <code>manoptsolve</code>, then on to the Manopt solver that
-              ultimately computes the eigenpair, by means of Rayleigh quotient
-              optimization over the sphere in the tangent space at <code>x</code>.</p>
-            <p><code>storedb</code> and <code>key</code> are optional (see <a
-                href="#cachingsystem">caching system</a>).</p>
-          </td>
+          <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
+          <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
+            column vector <code>tr</code> of length <tt>N</tt> such that <nobr><code>tr(k)
+                = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;"><a href="reference/manopt/tools/multitransp.html"><i
+                class="icon-book">&#160;</i></a></td>
+          <td><nobr><code>B = multitransp(A)</code></nobr> </td>
+          <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>,
+            a 3D matrix of size <tt>mxnxN</tt> such that <nobr><code>B(:, :,
+                k) = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiprod.html"><i
+                class="icon-book">&#160;</i></a></td>
+          <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
+          <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of
+            size <tt>pxmxN</tt>, returns <code>C</code>, a 3D matrix of size <tt>nxmxN</tt>
+            such that <nobr><code>C(:, :, k) = A(:, :, k) * B(:, :, k)</code></nobr>
+            for each <code>k</code>. </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiskew.html"><i
+                class="icon-book">&#160;</i></a></td>
+          <td><code>B = multiskew(A)</code></td>
+          <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
+            3D matrix <code>B</code> the same size as <code>A</code> such that
+            each slice <code>B(:, :, i)</code> is the skew-symmetric part of
+            the slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)-A(:,
+              :, i)')/2</code>.</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;"><a href="reference/manopt/tools/multisym.html"><i
+                class="icon-book">&#160;</i></a></td>
+          <td><code>B = multisym(A)</code></td>
+          <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
+            3D matrix <code>B</code> the same size as <code>A</code> such that
+            each slice <code>B(:, :, i)</code> is the symmetric part of the
+            slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)+A(:, :,
+              i)')/2</code>.</td>
         </tr>
         <tr>
           <td style="text-align: center;"> </td>
-        <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
+        <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multiscale.html"><i
+        <td style="text-align: center;"><a href="reference/manopt/tools/powermanifold.html"><i
               class="icon-book">&#160;</i></a></td>
-        <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
-        <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a vector
-          <code>scale</code> of length <tt>N</tt>, returns <code>B</code>, a
-          3D matrix of the same size as <code>A</code> such that <nobr><code>B(:,
-              :, k) = scale(k) * A(:, :, k)</code></nobr> for each <code>k</code>.
-        </td>
+        <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
+        <td>Given <code>M</code>, a structure representing a manifold
+          $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>,
+          a structure representing the manifold $\mathcal{M}^n$. The geometry is
+          obtained by element-wise extension. Points and vectors on <code>Mn</code>
+          are represented as cells of length <code>n</code>. </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multitrace.html"><i
+        <td style="text-align: center;"><a href="reference/manopt/tools/productmanifold.html"><i
               class="icon-book">&#160;</i></a></td>
-        <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
-        <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
-          column vector <code>tr</code> of length <tt>N</tt> such that <nobr><code>tr(k)
-              = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
+        <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
+        <td>Given <code>elements</code>, a structure with fields <code>A, B,
+            C...</code> containing structures <code>Ma, Mb, Mc...</code> such
+          that <code>Ma</code> is a structure representing a manifold
+          $\mathcal{M}_A$ etc., returns <code>M</code>, a structure
+          representing the manifold $\mathcal{M}_A \times \mathcal{M}_B \times
+          \mathcal{M}_C \times \cdots$. The geometry is obtained by element-wise
+          extension. Points and vectors are represented as structures with the
+          same field names as <code>elements</code>. </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multitransp.html"><i
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspherefactory.html"><i
               class="icon-book">&#160;</i></a></td>
-        <td><nobr><code>B = multitransp(A)</code></nobr> </td>
-        <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>,
-          a 3D matrix of size <tt>mxnxN</tt> such that <nobr><code>B(:, :, k)
-              = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
+        <td><code>N = tangentspherefactory(M, x)</code></td>
+        <td>Given a manifold structure <code>M</code> and a point on that
+          manifold <code>x</code>, returns a manifold structure <code>N</code>
+          representing the unit sphere on the tangent space to <code>M</code>
+          at <code>x</code>. This is notably used by the <a href="reference/manopt/tools/hessianextreme.html"><span
+              style="font-family: monospace;">hessianextreme</span></a> tool.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multiprod.html"><i
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspacefactory.html"><i
               class="icon-book">&#160;</i></a></td>
-        <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
-        <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of
-          size <tt>pxmxN</tt>, returns <code>C</code>, a 3D matrix of size <tt>nxmxN</tt>
-          such that <nobr><code>C(:, :, k) = A(:, :, k) * B(:, :, k)</code></nobr>
-          for each <code>k</code>. </td>
-      </tr>
-      <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multiskew.html"><i
-              class="icon-book">&#160;</i></a></td>
-        <td><code>B = multiskew(A)</code></td>
-        <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
-          3D matrix <code>B</code> the same size as <code>A</code> such that
-          each slice <code>B(:, :, i)</code> is the skew-symmetric part of the
-          slice <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)-A(:, :,
-            i)')/2</code>.</td>
-      </tr>
-      <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/multisym.html"><i
-              class="icon-book">&#160;</i></a></td>
-        <td><code>B = multisym(A)</code></td>
-        <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
-          3D matrix <code>B</code> the same size as <code>A</code> such that
-          each slice <code>B(:, :, i)</code> is the symmetric part of the slice
-          <code>A(:, :, i)</code>, that is, <code>(A(:, :, i)+A(:, :, i)')/2</code>.</td>
+        <td><code>N = tangentspacefactory(M, x)</code></td>
+        <td>Given a manifold structure <code>M</code> and a point on that
+          manifold <code>x</code>, returns a manifold structure <code>N</code>
+          representing the tangent space to <code>M</code> at <code>x</code>.
+          This is notably used by the <a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/preconhessiansolve.html">preconhessiansolve</a>
+          preconditioner.</td>
       </tr>
       <tr>
         <td style="text-align: center;"> </td>
-      <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
+      <td colspan="2" rowspan="1"><strong>Solver utilities</strong></td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="reference/manopt/tools/powermanifold.html"><i
+      <td style="text-align: center;"><a href="reference/manopt/tools/manoptsolve.html"><i
             class="icon-book">&#160;</i></a></td>
-      <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
-      <td>Given <code>M</code>, a structure representing a manifold
-        $\mathcal{M}$, and <code>n</code>, an integer, returns <code>Mn</code>,
-        a structure representing the manifold $\mathcal{M}^n$. The geometry is
-        obtained by element-wise extension. Points and vectors on <code>Mn</code>
-        are represented as cells of length <code>n</code>. </td>
+      <td><code>[x, cost, info, options] = manoptsolve(problem, x0, options)</code></td>
+      <td>Gateway function to call a Manopt solver. You may specify which solver
+        to call by setting <code>options.solver</code> to a function handle
+        corresponding to a solver. Otherwise, a solver will be picked
+        automatically. This is mainly useful when programming meta algorithms
+        which need to solve a Manopt problem at some point, but one wants to
+        leave the decision of which solver to use up to the final user.</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="reference/manopt/tools/productmanifold.html"><i
+      <td style="text-align: center;"><a href="reference/manopt/tools/statsfunhelper.html"><i
             class="icon-book">&#160;</i></a></td>
-      <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
-      <td>Given <code>elements</code>, a structure with fields <code>A, B,
-          C...</code> containing structures <code>Ma, Mb, Mc...</code> such
-        that <code>Ma</code> is a structure representing a manifold
-        $\mathcal{M}_A$ etc., returns <code>M</code>, a structure representing
-        the manifold $\mathcal{M}_A \times \mathcal{M}_B \times \mathcal{M}_C
-        \times \cdots$. The geometry is obtained by element-wise extension.
-        Points and vectors are represented as structures with the same field
-        names as <code>elements</code>. </td>
+      <td><code>statsfun = statsfunhelper(name, fun)</code><br>
+        <code>statsfun = statsfunhelper(S)</code></td>
+      <td>Helper function to place a function handle in the field <code>options.statsfun</code>.
+        See the help about the statsfun option <a href="#statsfunhelp">earlier
+          in this tutorial</a>, and/or the help for <a style="font-family: monospace;"
+          href="reference/manopt/tools/statsfunhelper.html">statsfunhelper</a>
+        from the command line.</td>
     </tr>
-    <tr>
-      <td style="text-align: center;"> </td>
-    <td colspan="2" rowspan="1"><strong>Solver utilities</strong></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><a href="reference/manopt/tools/manoptsolve.html"><i
-          class="icon-book">&#160;</i></a></td>
-    <td><code>[x, cost, info, options] = manoptsolve(problem, x0, options)</code></td>
-    <td>Gateway function to call a Manopt solver. You may specify which solver
-      to call by setting <code>options.solver</code> to a function handle
-      corresponding to a solver. Otherwise, a solver will be picked
-      automatically. This is mainly useful when programming meta algorithms
-      which need to solve a Manopt problem at some point, but one wants to leave
-      the decision of which solver to use up to the final user.</td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><a href="reference/manopt/tools/statsfunhelper.html"><i
-          class="icon-book">&#160;</i></a></td>
-    <td><code>statsfun = statsfunhelper(name, fun)</code><br>
-      <code>statsfun = statsfunhelper(S)</code></td>
-    <td>Helper function to place a function handle in the field <code>options.statsfun</code>.
-      See the help about the statsfun option <a href="#statsfunhelp">earlier in
-        this tutorial</a>, and/or the help for <a style="font-family: monospace;"
-        href="reference/manopt/tools/statsfunhelper.html">statsfunhelper</a>
-      from the command line.</td>
-  </tr>
-</tbody>
+  </tbody>
 </table>
 <div class="alert alert-info"><strong>Heads up!</strong> When using the <code>checkhessian</code>
   tool, it is important to obtain <em>both</em> a slope of 3 <em>and</em> to
