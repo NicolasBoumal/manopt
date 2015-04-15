@@ -176,7 +176,7 @@ function low_rank_matrix_completion()
     end
 
     % Notice that for this solver, the Hessian is not needed.
-    [Xcg, xcost, info, options] = conjugategradient(problem, X0);
+    [Xcg, xcost, info, options] = conjugategradient(problem, X0); %#ok<ASGLU>
     
     fprintf('Take a look at the options that CG used:\n');
     disp(options);
@@ -196,7 +196,7 @@ function low_rank_matrix_completion()
     % Remove the linesearch helper from the problem structure.
     problem = rmfield(problem, 'linesearch');
     
-    [Xcg, xcost, info, options] = conjugategradient(problem, X0);
+    [Xcg, xcost, info, options] = conjugategradient(problem, X0); %#ok<ASGLU>
     
     fprintf('Take a look at the options that CG used:\n');
     disp(options);
