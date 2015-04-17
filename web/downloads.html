@@ -48,7 +48,7 @@ body {
     <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
       aria-hidden="true">
       <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-          aria-hidden="true">×</button>
+          aria-hidden="true">&#215;</button>
         <h3 id="myModalLabel">To contact us</h3>
       </div>
       <div class="modal-body">
@@ -72,8 +72,8 @@ body {
             <div class="page-header">
               <h1>Get the latest release</h1>
             </div>
-            &nbsp; <a target="_blank" class="btn btn-primary" href="download.html">Download
-              <i class="icon-download-alt icon-white"></i></a>&nbsp;&nbsp; The
+            &#160; <a target="_blank" class="btn btn-primary" href="download.html">Download
+              <i class="icon-download-alt icon-white"></i></a>&#160;&#160; The
             current version is 1.0.7 and was packaged on August 12<sup></sup>,
             2014. The file is less than 200 Kb.<br>
             <br>
@@ -96,7 +96,7 @@ body {
                 <li>The caching system now offers a shared memory, which can be
                   accessed and modified at all points. This can notably be used
                   to count function evaluations, or to produce Hessian
-                  approximations which require previsous iterations memory (such
+                  approximations which require previous iterations memory (such
                   as BFGS for example).</li>
                 <li>Because of the new class StoreDB, Octave compatibility is
                   unfortunately compromised until Octave supports Matlab's
@@ -107,6 +107,7 @@ body {
                   <li>multinomialfactory (for probability distributions, i.e.,
                     simplex elements).</li>
                   <li>euclideancomplexfactory (for complex matrices).</li>
+                  <li>spheresymmetricfactory (for unit norm symmetric matrices)</li>
                 </ul>
                 <li>spherecomplexfactory: added ehess2rhess.</li>
                 <li>complexcirclefactory: distance function corrected.</li>
@@ -150,9 +151,9 @@ body {
                 <ul>
                   <li>As of Manopt 1.0.6, the inner solver tCG monitors the
                     model cost; an (innocuous) logic bug was corrected there. Theory
-                    behind this feature is now better understood (a paper+BibTex
-                    entry will be added).</li>
-                  <li>Warns if many TR+ steps detected, to suggest changing
+                    behind this feature is now better understood (a paper
+                    reference + BibTex entry will be added).</li>
+                  <li>Warns if many TR+ steps are detected, to suggest changing
                     parameter values.</li>
                   <li>Uses safe version of tic/toc timers (originally because
                     Octave now supports them).</li>
@@ -168,7 +169,7 @@ body {
                 </ul>
                 <li>New cost description function: sqrtprecon, for the square
                   root of the preconditioner (used in hessianspectrum).</li>
-                <li>The privatetools directory is now named core, and will be
+                <li>The privatetools directory is now named core, and is
                   documented.</li>
               </ul>
               <li><a href="download.html">Manopt 1.0.7</a>, packaged August 12,
@@ -292,12 +293,12 @@ body {
               <li><a target="_blank" href="downloads/Manopt_1.0.4.zip">Manopt
                   1.0.4</a>, packaged August 22<sup>nd</sup>, 2013.</li>
               <ul>
-                <li>This release is a first step toward compatibility with <strong>Octave</strong>.
-                  We're not there yet, but in the <span style="font-family: monospace;">examples</span>
-                  folder, you will find <a href="reference/examples/maxcut_octave.html"><span
-                      style="font-family: monospace;">maxcut_octave.m</span></a>,
-                  which should run in Octave 3.6.4. In there, more info about
-                  compatibility issues and limitations are provided.</li>
+                <li>This release is a first step toward compatibility with
+                  Octave. We're not there yet, but in the <span style="font-family: monospace;">examples</span>
+                  folder, you will find <span style="font-family: monospace;">maxcut_octave.m</span>
+                  (removed in 1.0.8), which should run in Octave 3.6.4. In
+                  there, more info about compatibility issues and limitations
+                  are provided.</li>
                 <li>Manopt is not organized in a Matlab package anymore (so
                   folders are called <span style="font-family: monospace;">folder</span>
                   and not <span style="font-family: monospace;">+folder</span>):
@@ -333,7 +334,7 @@ body {
                   manifolds, to represent tangent vectors as column vectors.</li>
               </ul>
               <li><a target="_blank" href="downloads/Manopt_1.0.2.zip">Manopt
-                  1.0.2</a>, packaged June 11<sup></sup>, 2013.&nbsp;</li>
+                  1.0.2</a>, packaged June 11<sup></sup>, 2013.&#160;</li>
               <ul>
                 <li>Improved trustregions solver (e.g., avoids a redundant
                   Hessian computation).</li>
