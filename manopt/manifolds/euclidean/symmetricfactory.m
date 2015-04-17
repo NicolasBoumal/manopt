@@ -80,8 +80,9 @@ function M = symmetricfactory(n, k)
     
     M.pairmean = @(x1, x2) .5*(x1+x2);
     
+    % TODO : check isometry ; probably needs tweeking.
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
-    M.vecmatareisometries = @() true;
+    M.vecmatareisometries = @() false;
 
 end
