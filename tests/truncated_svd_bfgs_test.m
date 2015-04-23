@@ -55,6 +55,9 @@ function truncated_svd_bfgs_test(A, p)
     
     problem.precon = preconBFGS(problem);
     problem.linesearch = @(x, xdot, storedb, key) 1;
-    conjugategradient(problem);
+    options.beta_type ='steep';
+    conjugategradient(problem, [],options);
+    
+    trustregions(problem, [],options);
 
 end
