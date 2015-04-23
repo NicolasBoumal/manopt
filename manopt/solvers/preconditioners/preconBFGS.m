@@ -84,6 +84,7 @@ end
 function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,INUSL>
 % This function does the actual work.
 	
+    
 	% Extract the input vector norm.
     norm_xdot = problem.M.norm(x, xdot);
     
@@ -95,13 +96,14 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
     
     % If this is the first call, use the identity as approximation.
     if ~isfield(storedb.internal, 'cg')
-        Pxdot = xdot;
+        Pxdot = xdot; % Identity operation
         
         nsmax = 100; % options.nsmax;  % BM: should be supplied for the limited memory version
         storedb.internal.BFGS.ns = 0;
         storedb.internal.BFGS.alpha = zeros(nsmax, 1);
         storedb.internal.BFGS.beta = zeros(nsmax, 1);
         storedb.internal.BFGS.sstore = cell(nsmax);
+        storedb.internal.BFGS.xstore = cell(nsmax);
         storedb.internal.BFGS.alphatmp = 0;
         storedb.internal.BFGS.b = 0;
         storedb.internal.BFGS.b0 = 0;
@@ -112,12 +114,13 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
     desc_dir = storedb.internal.cg.stepdirection; % search dirction at origin
     xc = storedb.internal.cg.steporigin;% x orgin;
     xt = storedb.internal.cg.steptarget;% newx;
-    lambda = storedb.internal.cg.stepsize; 
+    lambda = 1; % BM: should be 1 or less? verify  % storedb.internal.cg.stepsize; 
     keyc = storedb.internal.cg.steporiginkey;
     keyt = storedb.internal.cg.steptargetkey;
     
     % Computing s, y, and go
-    s = problem.M.transp(xc, xt, desc_dir);  % Transport s to newx
+    step = problem.M.lincomb(xc, lambda, desc_dir);
+    s = problem.M.transp(xc, xt, step);  % Transport s to newx
     gc = getGradient(problem, xc, storedb, keyc); % Gradient origin
     gc = problem.M.transp(xc, xt, gc); % Transport gradient from origin to newx
     gt = getGradient(problem, xt, storedb, keyt); % Get new gradient
@@ -125,7 +128,7 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
     yts = problem.M.inner(xt, s, y); % Inner product between y and s
     go = problem.M.inner(xt, s, gc); % Inner product between y and s
     
-    
+   
     
     % Options
     ns = storedb.internal.BFGS.ns;
@@ -140,12 +143,14 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
         storedb.internal.BFGS.alpha = zeros(nsmax, 1);
         storedb.internal.BFGS.beta = zeros(nsmax, 1);
         storedb.internal.BFGS.sstore = cell(nsmax);
+        storedb.internal.BFGS.xstore = cell(nsmax);
     else
         ns = ns + 1;
         
         % Store
         storedb.internal.BFGS.ns = ns;
         storedb.internal.BFGS.sstore{ns} = s; % BM: Check this?
+        storedb.internal.BFGS.xstore{ns} = xc;
         
         if(ns > 1)
             alpha = storedb.internal.BFGS.alpha;
@@ -164,60 +169,74 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
         end
     end
     
-    
+  
     % Compute the Hessian application
-    dsdp =  problem.M.lincomb(xt, -1, gt); % -gt;
+    dsdp =  problem.M.lincomb(xt, -1, gt); % -gt
     if (ns > 1)
         dsdp = bfgsw(problem, xt, xdot, storedb);
     end
     
-    xi = dsdp;
-    b0 = -1/yts;
+    if ns == 0
+        Pxdot = xdot; % Identity operation
+    else
+        xi = problem.M.lincomb(xt, 1, dsdp); % BM: it should be xi = -dsdp; but we are preconditioning...
+
+        b0 = -1/yts;
+        
+        % Verify these quantities
+        
+        %     zeta = problem.M.lincomb(xt, (1 - 1/lambda), s,  1, xi);  % (1 - 1/lambda)*s + xi;
+        %     a1 = b0*b0*(problem.M.inner(xt, zeta, y)); % b0*b0*(zeta'*y);
+        
+        a1 = -b0*(1 - 1/lambda) + b0*b0*(problem.M.inner(xt, xi, y)); % -b0*(1 - 1/lambda)+b0*b0*y'*xi;
+        a = - problem.M.inner(xt, gc, problem.M.lincomb(xt, a1, s, b0, xi) ); % -(a1*s + b0*xi)'*gc;
+        alphatmp = a1 + 2*a/go;
+        b = -b0*go;
+        
+        % Compute the search direction
+        Pxdot =  problem.M.lincomb(xt, a, s, b, xi); % dsd = a*s + b*xi;
+        
+        if problem.M.inner(xt, Pxdot, xdot) < 0 
+            Pxdot =  problem.M.lincomb(xt, -1,  Pxdot);
+        end
+
+        
+        % Store
+        storedb.internal.BFGS.alphatmp = alphatmp;
+        storedb.internal.BFGS.b = b;
+        storedb.internal.BFGS.b0 = b0;
+        % storedb.internal.BFGS.ns = ns; % already updated
+        % storedb.internal.BFGS.alpha = alpha;  % already updated
+        % storedb.internal.BFGS.beta = beta; % already updated
+        % storedb.internal.BFGS.sstore = []; % already updated
+        
+        
+    end
     
-    % Verify these quantities
-    
-    %     zeta = problem.M.lincomb(xt, (1 - 1/lambda), s,  1, xi);  % (1 - 1/lambda)*s + xi;
-    %     a1 = b0*b0*(problem.M.inner(xt, zeta, y)); % b0*b0*(zeta'*y);
-    
-    a1 = -b0*(1 - 1/lambda) + b0*b0*(problem.M.inner(xt, xi, y)); % -b0*(1 - 1/lambda)+b0*b0*y'*xi;
-    a = - problem.M.inner(xt, gc, problem.M.lincomb(xt, a1, s, b0, xi) ); % -(a1*s + b0*xi)'*gc;
-    alphatmp = a1 + 2*a/go;
-    b = -b0*go;
-    
-    % Compute the search direction
-    Pxdot =  problem.M.lincomb(xt, a, s, b, xi); % dsd = a*s + b*xi;
-    
-    
-    % Store
-    storedb.internal.BFGS.alphatmp = alphatmp;
-    storedb.internal.BFGS.b = b;
-    storedb.internal.BFGS.b0 = b0;
-    % storedb.internal.BFGS.ns = ns; % already updated
-    % storedb.internal.BFGS.alpha = alpha;  % already updated
-    % storedb.internal.BFGS.beta = beta; % already updated
-    % storedb.internal.BFGS.sstore = []; % already updated
-         
+            
 end
 
-function dnewt = bfgsw(problem, x, xdot, storedb)
+function dnewt = bfgsw(problem, x, dsd, storedb)
     ns = storedb.internal.BFGS.ns;
     sstore = storedb.internal.BFGS.sstore; % cell of cells
+    xstore = storedb.internal.BFGS.xstore; % cell of cells
     alpha = storedb.internal.BFGS.alpha;
     beta = storedb.internal.BFGS.beta;
     
-    dnewt = xdot;
+    dnewt = dsd; % dsd is descent direction
     if ns <= 1 
         return; 
     end;
-    dnewt = xdot; 
+    dnewt = dsd; 
     
     
     % BM: Could this be accelerated?
-    fullsigma = zeros(ns, 0);
+    fullsigma = zeros(ns, 1);
     projsstore = cell(ns);
     for ii = 1 : ns 
         sii = sstore{ii};
-        sii = problem.M.proj(x, sii); % BM: proj or should we use problem.M.transp? NB : Is it a tangent vector, or could it not be one? If tangent, what is the root point of the vector? And what do you want the root to be?
+        xii = xstore{ii};
+        sii = problem.M.transp(xii, x, sii); % BM: proj or should we use problem.M.transp? NB : Is it a tangent vector, or could it not be one? If tangent, what is the root point of the vector? And what do you want the root to be?
         projsstore{ii} = sii;
         fullsigma(ii) = problem.M.inner(x, sii, dsd);
     end
@@ -232,8 +251,7 @@ function dnewt = bfgsw(problem, x, xdot, storedb)
     %
     %     dnewt = dnewt + gamma3(1)*sstore(:,1) + gamma2(ns-1)*sstore(:,ns);
     dnewt = problem.M.lincomb(x, 1, dnewt, 1,...
-                              problem.M.lincomb(x, gamma3(1), sstore{1}, gamma2(ns-1), sstore{ns})...
-                              );
+                              problem.M.lincomb(x, gamma3(1), sstore{1}, gamma2(ns-1), sstore{ns}));
     if(ns <= 2) 
         return; 
     end
