@@ -48,6 +48,8 @@ function preconfun =  preconBFGS(problem, options)
 %        1) looks up storedb.internal.cg : need to be more general.
 %        2) assumes exactly one call to precon per iteration, so that the
 %           inverse Hessian approximation is updated at each call.
+% TODO : comment on the non-usability of hessianspectrum because of storedb
+%        and think of a workaround.
 
     % This preconditioner requires the gradient: check availability.
     if ~canGetGradient(problem)
