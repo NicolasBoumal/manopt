@@ -1,29 +1,29 @@
-function hessfun =  approxinversehessianBFGS(problem, options)
-% Hessian approx. fnctn handle based on inv. Hessian approx with BFGS.
+function preconfun =  preconBFGS(problem, options)
+% Approximate inverse Hessian based on a BFGS update rule.
 %
-% function hessfun = approxinversehessianBFGS(problem)
-% function hessfun = approxinversehessianBFGS(problem, options)
+% function preconfun = preconBFGS(problem)
+% function preconfun = preconBFGS(problem, options)
 %
 % Input:
 %
 % A Manopt problem structure (already containing the manifold and enough
 % information to compute the cost gradient) and an options structure
-% (optional), containing one option:
-%    options.stepsize (positive double; default: 1e-4).
+% (optional). It future versions, it will be possible to use options to
+% limit memory usage, for example.
 %
 % If the gradient cannot be computed on 'problem', a warning is issued.
 %
 % Output:
 % 
-% Returns a function handle, encapsulating a generic finite difference
-% approximation of the Hessian of the problem cost. The finite difference
-% is based on computations of the gradient.
+% Returns a function handle, encapsulating a generic preconditioner (that
+% is, an approximation of the inverse of the Hessian of the problem cost.)
+% The approximation is based on a generalization of the BFGS method.
 % 
-% The returned hessfun has this calling pattern:
+% The returned preconfun has this calling pattern:
 % 
-%   function hessfd = hessfun(x, xdot)
-%   function hessfd = hessfun(x, xdot, storedb)
-%   function hessfd = hessfun(x, xdot, storedb, key)
+%   function Pxdot = preconfun(x, xdot)
+%   function Pxdot = preconfun(x, xdot, storedb)
+%   function Pxdot = preconfun(x, xdot, storedb, key)
 % 
 % x is a point on the manifold problem.M, xdot is a tangent vector to that
 % manifold at x, storedb is a StoreDB object, and key is the StoreDB key to
@@ -33,57 +33,39 @@ function hessfun =  approxinversehessianBFGS(problem, options)
 %
 % Typically, the user will set problem.M and other fields to define the
 % cost and the gradient (typically, problem.cost and problem.grad or
-% problem.egrad). Then, to use this generic purpose Hessian approximation:
+% problem.egrad). Then, to use this generic purpose preconditioner:
 %
-%   problem.approxhess = approxhessianFD(problem, options);
+%   problem.precon = preconBFGS(problem, options);
 %
-% See also: trustregions
+% See also: conjugategradient
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Nicolas Boumal, April 8, 2015.
-% Contributors: 
+% Original author: Bamdev Mishra, April 22, 2015.
+% Contributors: Nicolas Boumal
 % Change log: 
-%
-%   Feb. 19, 2015 (NB):
-%       It is sufficient to ensure positive radial linearity to guarantee
-%       (together with other assumptions) that this approximation of the
-%       Hessian will confer global convergence to the trust-regions method.
-%       Formerly, in-code comments referred to the necessity of having
-%       complete radial linearity, and that this was harder to achieve.
-%       This appears not to be necessary after all, which simplifies the
-%       code.
-%
-%   April 3, 2015 (NB):
-%       Works with the new StoreDB class system.
-%
-%   April 8, 2015 (NB):
-%       Changed to approxhessianFD, which now returns a function handle
-%       that encapsulates the getHessianFD functionality. Will be better
-%       aligned with the other Hessian approximations to come (which may
-%       want to use storedb.internal), and now allows specifying the step
-%       size.
 
-    % This Hessian approximation is based on the gradient:
-    % check availability.
+% TODO : For now, only works with CG solver, for two reasons:
+%        1) looks up storedb.internal.cg : need to be more general.
+%        2) assumes exactly one call to precon per iteration, so that the
+%           inverse Hessian approximation is updated at each call.
+
+    % This preconditioner requires the gradient: check availability.
     if ~canGetGradient(problem)
-        warning('manopt:approxinversehessianBFGS:nogradient', ...
-                'approxinversehessianBFGS requires the gradient to be computable.');
+        warning('manopt:preconBFGS:nogradient', ...
+                'preconBFGS requires the gradient to be computable.');
     end
-
-    %     % Set local defaults here, and merge with user options, if any.
-    %     localdefaults.stepsize = 1e-4;
-    %     if ~exist('options', 'var') || isempty(options)
-    %         options = struct();
-    %     end
-    %     options = mergeOptions(localdefaults, options);
     
-    %     % Finite-difference parameter: how far do we look?
-    %     stepsize = options.stepsize;
+    if ~exist('options', 'var')
+        options = struct();
+    end
                    
     % Build and return the function handle here. This extra construct via
     % funhandle makes it possible to make storedb and key optional.
-    hessfun = @funhandle;
-    function [inversehess storedb] = funhandle(x, xdot, storedb, key)
+    % Note that for this preconditioner, it would make little sense to call
+    % it without a storedb, since it is based on a history of the
+    % iterations.
+    preconfun = @funhandle;
+    function Pxdot = funhandle(x, xdot, storedb, key)
         % Allow omission of the key, and even of storedb.
         if ~exist('key', 'var')
             if ~exist('storedb', 'var')
@@ -91,29 +73,27 @@ function hessfun =  approxinversehessianBFGS(problem, options)
             end
             key = storedb.getNewKey();
         end 
-        [inversehess storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, key);
+        Pxdot = BFGShelper(problem, x, xdot, options, storedb, key);
     end
     
 end
 
 
-function [dsd storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, key)
+function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,INUSL>
 % This function does the actual work.
-%
-% Original code: Dec. 30, 2012 (NB).
 	
 	% Extract the input vector norm.
     norm_xdot = problem.M.norm(x, xdot);
     
     % First, check whether the step xdot is not too small.
     if norm_xdot < eps
-        dsd = problem.M.zerovec(x);
+        Pxdot = problem.M.zerovec(x);
         return;
     end
     
-    % Check whether this is the first call.
-    if ~isfield(storedb.internal, 'cg') %
-        dsd = xdot;
+    % If this is the first call, use the identity as approximation.
+    if ~isfield(storedb.internal, 'cg')
+        Pxdot = xdot;
         
         nsmax = 100; % options.nsmax;  % BM: should be supplied for the limited memory version
         storedb.internal.BFGS.ns = 0;
@@ -151,7 +131,7 @@ function [dsd storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, 
     
    
     %   Restart if y'*s is not positive or we're out of room
-    if (yts <= 0) || (ns == nsmax)
+    if (yts <= 0) || (ns >= nsmax)
         disp(' loss of positivity or storage');
         ns = 0;
         storedb.internal.BFGS.ns = 0;
@@ -163,7 +143,7 @@ function [dsd storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, 
         
         % Store
         storedb.internal.BFGS.ns = ns;
-        storedb.internal.BFGS.sstore(ns) = s; % BM: Check this?
+        storedb.internal.BFGS.sstore{ns} = s; % BM: Check this?
         
         if(ns > 1)
             alpha = storedb.internal.BFGS.alpha;
@@ -172,8 +152,8 @@ function [dsd storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, 
             b = storedb.internal.BFGS.b;
             alphatmp = storedb.internal.BFGS.alphatmp;
             
-            alpha(ns - 1)= alphatmp;
-            beta(ns - 1) = b0 / (b*lambda);
+            alpha(ns - 1) = alphatmp;
+            beta(ns - 1)  = b0 / (b*lambda);
             
             % Store
             storedb.internal.BFGS.alpha = alpha;
@@ -203,7 +183,7 @@ function [dsd storedb] = inversehessianBFGS(problem, x, xdot, options, storedb, 
     b = -b0*go;
     
     % Compute the search direction
-    dsd =  problem.M.lincomb(xt, a, s, b, xi); % dsd = a*s + b*xi;
+    Pxdot =  problem.M.lincomb(xt, a, s, b, xi); % dsd = a*s + b*xi;
     
     
     % Store
@@ -233,10 +213,10 @@ function dnewt = bfgsw(problem, x, xdot, storedb)
     % BM: Could this be accelerated?
     fullsigma = zeros(ns, 0);
     projsstore = cell(ns);
-    for ii = 1: ns 
-        sii = sstore(ii);
-        sii = problem.M.proj(x, sii); % BM: proj or should we use problem.M.transp?
-        projsstore(ii) = sii;
+    for ii = 1 : ns 
+        sii = sstore{ii};
+        sii = problem.M.proj(x, sii); % BM: proj or should we use problem.M.transp? NB : Is it a tangent vector, or could it not be one? If tangent, what is the root point of the vector? And what do you want the root to be?
+        projsstore{ii} = sii;
         fullsigma(ii) = problem.M.inner(x, sii, dsd);
     end
     
@@ -250,7 +230,7 @@ function dnewt = bfgsw(problem, x, xdot, storedb)
     %
     %     dnewt = dnewt + gamma3(1)*sstore(:,1) + gamma2(ns-1)*sstore(:,ns);
     dnewt = problem.M.lincomb(x, 1, dnewt, 1,...
-                              problem.M.lincomb(x, gamma3(1), sstore(1), gamma2(ns-1), sstore(ns))...
+                              problem.M.lincomb(x, gamma3(1), sstore{1}, gamma2(ns-1), sstore{ns})...
                               );
     if(ns <= 2) 
         return; 
@@ -261,7 +241,7 @@ function dnewt = bfgsw(problem, x, xdot, storedb)
     %     dnewt = dnewt + sstore(1:n,2:ns-1)*delta(1:ns-2);
     for jj = 2: ns - 1
         dnewt = problem.M.lincomb(x, 1, dnewt, delta(jj -1),...
-            projsstore(jj));
+            projsstore{jj});
     end
 end
 
