@@ -1,8 +1,9 @@
 function truncated_svd_bfgs_test(A, p)
+    clear all; clc; close all;
     
     % Generate some random data to test the function if none is given.
     if ~exist('A', 'var') || isempty(A)
-        A = randn(42, 60);
+        A = randn(402, 500);
     end
     if ~exist('p', 'var') || isempty(p)
         p = 5;
@@ -17,6 +18,7 @@ function truncated_svd_bfgs_test(A, p)
 
     tuple.U = grassmannfactory(m, p);
     tuple.V = grassmannfactory(n, p);
+    
     M = productmanifold(tuple);
     
     problem.M = M;
@@ -30,6 +32,7 @@ function truncated_svd_bfgs_test(A, p)
         V = X.V;
         f = -.5*norm(U'*A*V, 'fro')^2;
     end
+    
     % Euclidean gradient of the cost function
     function g = egrad(X)
         U = X.U;
@@ -39,6 +42,7 @@ function truncated_svd_bfgs_test(A, p)
         g.U = -AV*(AV'*U);
         g.V = -AtU*(AtU'*V);
     end
+    
     % Euclidean Hessian of the cost function
     function h = ehess(X, H)
         U = X.U;
@@ -53,11 +57,11 @@ function truncated_svd_bfgs_test(A, p)
         h.V = -(AtUdot*AtU'*V + AtU*AtUdot'*V + AtU*AtU'*Vdot);
     end
     
+    conjugategradient(problem);
+    %     trustregions(problem);
+    
     problem.precon = preconBFGS(problem);
     problem.linesearch = @(x, xdot, storedb, key) 1;
     options.beta_type ='steep';
     conjugategradient(problem, [],options);
-    
-    trustregions(problem, [],options);
-
 end
