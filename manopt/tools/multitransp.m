@@ -35,3 +35,5 @@ if nargin == 1, dim = 1; end
 % Transposing
 order = [1:dim-1, dim+1, dim, dim+2:ndims(a)];
 b = permute(a, order);
+
+end
