@@ -51,7 +51,7 @@ function M = complexstiefelfactory(n, p, k)
     function Up = projection(X, U)
         
         XHU = multiprod(multihconj(X), U); %! XtU -> XHU, multitransp -> multihconj
-        herXHU = multiher(XHU); %! symXtU -> herXHU, multisym -> multiher
+        herXHU = multiherm(XHU); %! symXtU -> herXHU, multisym -> multiherm
         Up = U - multiprod(X, herXHU); %! symXtU -> herXHU
         
         % The code above is equivalent to, but much faster than, the code below.
@@ -75,7 +75,7 @@ function M = complexstiefelfactory(n, p, k)
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
         XHG = multiprod(multihconj(X), egrad); %! XtG -> XHG, multitransp -> multihconj
-        herXHG = multiher(XHG); %! symXtG -> herXHG, multisym(XtG) -> multiher(XHG)
+        herXHG = multiherm(XHG); %! symXtG -> herXHG, multisym(XtG) -> multiherm(XHG)
         HherXHG = multiprod(H, herXHG); %! HsymXtG -> HherXHG, symXtG -> herXHG
         rhess = projection(X, ehess - HherXHG); %! HsymXtG -> HherXHG
     end
