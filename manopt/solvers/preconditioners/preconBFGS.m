@@ -190,9 +190,9 @@ function Pxdot = BFGShelper(problem, x, xdot, options, storedb, key) %#ok<INUSD,
     end
     
     if ns == 0
-        fprintf('Identity operation\n');
+        fprintf('BFGS: Identity operation\n');
         Pxdot = xdot;% xdot; % Identity operation
-        pause;
+        % pause;
     else
         % Here gc of CTK's code transforms to gt for us.
         
