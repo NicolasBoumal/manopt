@@ -22,7 +22,7 @@ function b = multihconj(a, dim)
 %    See also MULTITRANSP MULTIHERM.
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Bamdev Mishra, May 4, 2015.
+% Original author: Hiroyuki Sato, April 27, 2015.
 % Contributors: 
 % Change log: 
 
