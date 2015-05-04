@@ -6,10 +6,10 @@ function b = multihconj(a, dim)
 %    B = MULTIHCONJ(A, DIM) is equivalent to
 %    B = PERMUTE(A, [1:DIM-1, DIM+1, DIM, DIM+2:NDIMS(A)]), where A is an
 %    array containing N P-by-Q matrices along its dimensions DIM and DIM+1,
-%    and B is an array containing the Q-by-P Hermitian conjugate (') of those N
-%    matrices along the same dimensions. N = NUMEL(A) / (P*Q), i.e. N is
-%    equal to the number of elements in A divided by the number of elements
-%    in each matrix.
+%    and B is an array containing the Q-by-P Hermitian conjugate (') of
+%    those N matrices along the same dimensions. N = NUMEL(A) / (P*Q), i.e.
+%    N is equal to the number of elements in A divided by the number of
+%    elements in each matrix.
 %
 %
 %    Example:
@@ -17,19 +17,22 @@ function b = multihconj(a, dim)
 %       containing ten 9-by-3 matrices along dimensions 2 and 3. In this
 %       case, its size is so indicated:  5-by-(9-by-3)-by-2 or 5x(9x3)x2.
 %       If A is ................ a 5x(9x3)x2 array of 9x3 matrices,
-%       C = MULTITRANSP(A, 2) is a 5x(3x9)x2 array of 3x9 matrices.
+%       C = MULTIHCONJ(A, 2) is a 5x(3x9)x2 array of 3x9 matrices.
 %
-%    See also MULTITRANSP.
+%    See also MULTITRANSP MULTIHERM.
 
-% -------------------------------------------------------------------------
+% This file is part of Manopt: www.manopt.org.
+% Original author: Bamdev Mishra, May 4, 2015.
+% Contributors: 
+% Change log: 
 
-% Setting DIM if not supplied.
-if nargin == 1, dim = 1; end
+    % Setting DIM if not supplied.
+    if nargin == 1, dim = 1; end
 
-% Transposing
-b = multitransp(a, dim);
+    % Transposing
+    b = multitransp(a, dim);
 
-%Conjugating
-b = conj(b);
+    %Conjugating
+    b = conj(b);
 
 end
