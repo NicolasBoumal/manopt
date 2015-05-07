@@ -96,8 +96,8 @@ body {
                 Manopt paper</a> published in the Journal of Machine Learning
               Research:</p>
             <p><samp>@article{manopt,<br>
-                &#160; author&#160; = {Nicolas Boumal and Bamdev Mishra and
-                P.-A. Absil and Rodolphe Sepulchre},<br>
+                &#160; author&#160; = {Boumal, N. and Mishra, B. and Absil, </samp><samp>P.-A.
+                and Sepulchre, R.},<br>
                 &#160; title&#160;&#160; = {{M}anopt, a {M}atlab Toolbox for
                 Optimization on Manifolds},<br>
                 &#160; journal = {Journal of Machine Learning Research},<br>
@@ -121,16 +121,15 @@ body {
             <div class="page-header">
               <h1>Authorship, contributors and third-party code </h1>
             </div>
-            <p>The core design, code and documentation of the toolbox is due to
-              <a href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas Boumal</a>.
-              The design of the toolbox was imagined with <a href="http://www.inma.ucl.ac.be/%7Eborckmans/">Pierre
-                Borckmans</a><a href="http://perso.uclouvain.be/pa.absil/"></a>,
-              who also contributed the <abbr title="Particle swarm optimization">PSO</abbr>
-              solver. <a target="_blank" href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev
-                Mishra</a> is an active contributor of the project. He
-              contributed most fixed-rank manifold factories, the
+            <p>The original design, code and documentation of the toolbox is due
+              to <a href="http://perso.uclouvain.be/nicolas.boumal/">Nicolas
+                Boumal</a>. The design of the toolbox was imagined with <a href="http://www.inma.ucl.ac.be/%7Eborckmans/">Pierre
+                Borckmans</a>, who also contributed the <abbr title="Particle swarm optimization">PSO</abbr>
+              solver.&#160; The main developers are Nicolas and <a target="_blank"
+                href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a>.
+              Bamdev contributed most fixed-rank manifold factories, the
               conjugate-gradient solver, the adaptive line search algorithm and
-              many ideas and bug reports. The RANSO group (<a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine
+              many other ideas and bug reports. The RANSO group (<a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine
                 Absil</a>, <a href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii
                 Nesterov</a> and <a href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe
                 Sepulchre</a>) provides helpful support and guidance. </p>
@@ -139,7 +138,7 @@ body {
                 Baker</a>, Pierre-Antoine Absil and <a href="http://www.math.fsu.edu/%7Egallivan/">Kyle
                 Gallivan</a>, which was modified to become the <code>trustregions</code>
               solver, is arguably the most important solver in the toolbox so
-              far and merits special credits.</p>
+              far and merits special credit.</p>
             <p><a target="_blank" href="http://web.math.princeton.edu/%7Ebartv/">Bart
                 Vandereycken</a> helped a lot in revising the geometry file <a
                 href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
@@ -158,8 +157,8 @@ body {
               <li><code>multitrace</code> is a wrapper around <code>diagsum</code>,
                 which is code by <a target="_blank" href="http://www.mathworks.com/matlabcentral/fileexchange/10062-multi-dimensional-matrix-product-outer-product-and-partial-trace">Wynton
                   Moore</a> ;</li>
-              <li>The <code>hashmd5</code> private tool is a stripped version
-                of more general hashing code by Michael Kleder (not available
+              <li>The <code>hashmd5</code> core tool is a stripped version of
+                more general hashing code by Michael Kleder (not available
                 anymore). </li>
             </ul>
           </section>
@@ -217,6 +216,9 @@ body {
               <li><a target="_blank" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>
                 is the Generic Riemannian Trust-Region package for Matlab (it is
                 included in a slightly modified form in Manopt) ;</li>
+              <li><a target="_blank" href="http://www.math.fsu.edu/%7Ewhuang2/GROPT_htm/Riemannian_Optimization_Package.htm">GROPT</a>
+                is a Riemannian optimization package written in C++ (with mex
+                interface to Matlab), by Wen Huang and Kyle Gallivan ;</li>
               <li><a target="_blank" href="http://www.cs.ucdavis.edu/%7Ebai/ET/other_methods/overview_SGMIN.html">SGMIN</a>
                 performs Stiefel-Grassmann optimization ;</li>
               <li><a target="_blank" href="http://www.math.umbc.edu/%7Ekofi/GrassmannOptim/">GrassmannOptim</a>
