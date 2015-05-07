@@ -31,10 +31,6 @@ function M = euclideanfactory(m, n)
         n = 1;
     end
     
-    if ~isinteger(m) || ~isinteger(n)
-        error('Bad usage of euclideanfactory');
-    end
-    
     if size(m, 1) >= size(m, 2)
         m = m'; % Make #columns bigger than #rows.
     end
