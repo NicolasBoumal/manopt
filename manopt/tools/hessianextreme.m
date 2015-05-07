@@ -50,6 +50,9 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, ke
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   May 7, 2015 (NB):
+%       Default solver options: verbosity = 0 and defaults to trustregions.
 
     
     % By default, minimize
@@ -62,10 +65,14 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, ke
         y0 = [];
     end
 
-    % If no options are specified, prepare the empty structure.
+    % Merge default solver options with potential user-specified options.
+    % Set local defaults here
+    localdefaults.verbosity = 0;
+    localdefaults.solver = @trustregions;
     if ~exist('options', 'var') || isempty(options)
         options = struct();
     end
+    options = mergeOptions(localdefaults, options);
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
