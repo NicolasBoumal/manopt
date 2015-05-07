@@ -19,6 +19,27 @@ function M = stiefelcomplexfactory(n, p, k)
 %
 % By default, k = 1.
 %
+%
+% Please cite the Manopt paper as well as either of these research papers
+% pertaining to this specific geometry:
+% @InProceedings{sato2013complex,
+%   Title        = {A complex singular value decomposition algorithm based on the {R}iemannian {N}ewton method},
+%   Author       = {Sato, H. and Iwai, T.},
+%   Booktitle    = {Decision and Control ({CDC}), 2013 {IEEE} 52nd Annual Conference on},
+%   Year         = {2013},
+%   Organization = {IEEE},
+%   Pages        = {2972--2978}
+% }
+% @InProceedings{sato2014Riemannian,
+%   Title        = {{R}iemannian conjugate gradient method for complex singular value decomposition problem},
+%   Author       = {Sato, H.},
+%   Booktitle    = {Decision and Control ({CDC}), 2014 {IEEE} 53rd Annual Conference on},
+%   Year         = {2014},
+%   Organization = {IEEE},
+%   Pages        = {5849--5854}
+% }
+%
+%
 % See also: stiefelfactory
 
 % This file is part of Manopt: www.manopt.org.
