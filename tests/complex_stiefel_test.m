@@ -9,7 +9,7 @@ function complex_stiefel_test()
     N = diag(p:-1:1);
     
     % Create the problem structure.
-    manifold = stiefelcomplexfactory(n,p);
+    manifold = stiefelcomplexfactory(n, p);
     problem.M = manifold;
     
     % Define the problem cost function and its Euclidean gradient.
@@ -18,8 +18,8 @@ function complex_stiefel_test()
     problem.ehess = @(X, Xdot) -2*A*Xdot*N;
     
     % Numerically check gradient consistency (optional).
-    checkgradient(problem); pause;
-    checkhessian(problem); pause;
+    % checkgradient(problem); pause;
+    % checkhessian(problem); pause;
     
     % Solve.
     [X, Xcost, info, options] = trustregions(problem); %#ok<NASGU,ASGLU>
