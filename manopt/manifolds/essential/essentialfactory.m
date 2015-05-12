@@ -68,113 +68,15 @@ function M = essentialfactory(k)
         HProjHoriz=HProj-multiprod(p/2,[hat3(permute(X(3,1:3,:),[2 3 1])) hat3(permute(X(3,4:6,:),[2 3 1]))]);
     end
     
-    
-    
-    % Robertos functions
-    M.p1=@(X) X(:,1:3,:);
-    M.p2=@(X) X(:,4:6,:);
-    
-    
-    
-
-    M.flat=@flat;
-    function Hp=flat(H)
-        %Reshape a [3x6xk] matrix to a [3x3x2k] matrix
-        Hp=reshape(H,3,3,[]);
-    end
-
-    M.sharp=@sharp;
-    function H=sharp(Hp)
-        %Reshape a [3x3x2k] matrix to a [3x6xk] matrix
-        H=reshape(Hp,3,6,[]);
-    end
-
-    M.vertproj=@(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
-    
-    
+     
     M.tangent = @(X, H) sharp(multiskew(flat(H)));
     
-    M.tangent2ambient = @(X, H) sharp(multiprod(flat(X), flat(H)));
-	
-    %compute the essential matrix from the quotient representation
-    M.E=@(X) multiprod(multiprod(multitransp(M.p1(X)),e3hat),M.p2(X));
-    M.dE=@dE;
-    function Edot=dE(X,H)
-        E=M.E(X);
-        Edot=multiprod(multitransp(M.p1(H)),E)+multiprod(E,M.p2(H));
-    end
-
-    M.ddE=@ddE;
-    function Eddot=ddE(X,S)
-        E=M.E(X);
-        SA=M.p1(S);
-        SB=M.p2(S);
-        SASq=multiprod(SA,SA);
-        SBSq=multiprod(SB,SB);
-        Eddot=multiprod(multitransp(SASq),E)...
-            +multiprod(multiprod(multitransp(SA),E),SB)...
-            +multiprod(E,SBSq);
-    end
-    
-    M.ef2rf=@(X,ef) ef(M.E(X));
-
-    M.egradE2egrad= @egradE2egrad;
-    function egrad=egradE2egrad(X,egradE)
-        %Compute the Euclidean gradient with respect to the factors (R1,R2) 
-        %starting from the Euclidean gradient with respect to the essential
-        %matrix E. In practice, EgradE is a 3x3 matrix, and egrad is a
-        %3x3x2 array
-        
-        RA=M.p1(X);
-        RB=M.p2(X);
-        E=M.E(X);
-        G=egradE(E);
-        
-        %The following is the vectorized version of egrad=e3hat*[RB*G' -RA*G];
-        egrad=multiprod(e3hat,cat(2,...
-            multiprod(RB,multitransp(G)),...
-            -multiprod(RA,G)));
-    end
-
     M.egrad2rgrad=@egrad2rgrad;
     function rgrad=egrad2rgrad(X,egrad)
         rgrad=M.proj(X,egrad(X));
     end
-
-    M.egradE2rgrad= @egradE2rgrad;
-    function rgrad=egradE2rgrad(X,egradE)
-        %Compute the Riemannian gradient starting from the Euclidean
-        %gradient of a function of the 3x3 essential matrix.
-        %That is, EgradE is a 3x3 matrix.
-        egrad=@(X) M.egradE2egrad(X,egradE);
-        rgrad=M.egrad2rgrad(X,egrad);
-    end
-	
-    M.ehessE2ehess=@ehessE2ehess;
-    function ehess = ehessE2ehess(X, egradE, ehessE, V)
-        % Reminder : V DOES NOT contain skew-symmeric matrices.
-        % If you are using this with a tangent vector, you should set V=X*S.
-
-        RA=M.p1(X);
-        RB=M.p2(X);
-        VA=M.p1(V);
-        VB=M.p2(V);
-
-        E=M.E(X);
-        %The following is the vectorized version of VA'*e3hat*RB+RA'*e3hat*VB
-        dE=multiprod(multitransp(VA),multiprod(e3hat,RB))...
-            +multiprod(multitransp(RA),multiprod(e3hat,VB));
-        
-        G=egradE(E);
-        H=ehessE(E,dE);
-
-        %The following is the vectorized version of ehess=e3hat*[(VB*G'+RB*H') -(VA*G+RA*H)]
-        ehess=multiprod(e3hat,cat(2,...
-            multiprod(VB,multitransp(G))+multiprod(RB,multitransp(H)),...
-            -multiprod(VA,G)-multiprod(RA,H)));
-	end
-
-	M.ehess2rhess = @ehess2rhess;
+    
+    M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, S)
         % Reminder : S contains skew-symmeric matrices. The actual
         % direction that the point X is moved along is X*S.
@@ -197,14 +99,9 @@ function M = essentialfactory(k)
             multiprod(multisym(multiprod(multitransp(GB),RB)),SB)));
         
         rhess=M.proj(X,H+connection);
-	end
+    end
     
-	M.ehessE2rhess = @ehessE2rhess;
-    function rhess = ehessE2rhess(X, egradE, ehessE, S)
-        egrad=@(X) M.egradE2egrad(X,egradE);
-        ehess=@(X,V) M.ehessE2ehess(X, egradE, ehessE, V);
-        rhess= M.ehess2rhess(X, egrad, ehess, S);
- 	end
+    
     
     M.exp = @exponential;
     function Y = exponential(X, U, t)
@@ -287,6 +184,114 @@ function M = essentialfactory(k)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
     M.vecmatareisometries = @() true;
+    
+    
+    %% Robertos functions
+    M.p1=@(X) X(:,1:3,:);
+    M.p2=@(X) X(:,4:6,:);
+    
+
+    M.flat=@flat;
+    function Hp=flat(H)
+        %Reshape a [3x6xk] matrix to a [3x3x2k] matrix
+        Hp=reshape(H,3,3,[]);
+    end
+
+    M.sharp=@sharp;
+    function H=sharp(Hp)
+        %Reshape a [3x3x2k] matrix to a [3x6xk] matrix
+        H=reshape(Hp,3,6,[]);
+    end
+
+    M.vertproj=@(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
+    
+   M.tangent2ambient = @(X, H) sharp(multiprod(flat(X), flat(H)));
+	
+    %compute the essential matrix from the quotient representation
+    M.E=@(X) multiprod(multiprod(multitransp(M.p1(X)),e3hat),M.p2(X));
+    M.dE=@dE;
+    function Edot=dE(X,H)
+        E=M.E(X);
+        Edot=multiprod(multitransp(M.p1(H)),E)+multiprod(E,M.p2(H));
+    end
+
+    M.ddE=@ddE;
+    function Eddot=ddE(X,S)
+        E=M.E(X);
+        SA=M.p1(S);
+        SB=M.p2(S);
+        SASq=multiprod(SA,SA);
+        SBSq=multiprod(SB,SB);
+        Eddot=multiprod(multitransp(SASq),E)...
+            +multiprod(multiprod(multitransp(SA),E),SB)...
+            +multiprod(E,SBSq);
+    end
+    
+    M.ef2rf=@(X,ef) ef(M.E(X));
+
+    M.egradE2egrad= @egradE2egrad;
+    function egrad=egradE2egrad(X,egradE)
+        %Compute the Euclidean gradient with respect to the factors (R1,R2) 
+        %starting from the Euclidean gradient with respect to the essential
+        %matrix E. In practice, EgradE is a 3x3 matrix, and egrad is a
+        %3x3x2 array
+        
+        RA=M.p1(X);
+        RB=M.p2(X);
+        E=M.E(X);
+        G=egradE(E);
+        
+        %The following is the vectorized version of egrad=e3hat*[RB*G' -RA*G];
+        egrad=multiprod(e3hat,cat(2,...
+            multiprod(RB,multitransp(G)),...
+            -multiprod(RA,G)));
+    end
+
+    
+
+    M.egradE2rgrad= @egradE2rgrad;
+    function rgrad=egradE2rgrad(X,egradE)
+        %Compute the Riemannian gradient starting from the Euclidean
+        %gradient of a function of the 3x3 essential matrix.
+        %That is, EgradE is a 3x3 matrix.
+        egrad=@(X) M.egradE2egrad(X,egradE);
+        rgrad=M.egrad2rgrad(X,egrad);
+    end
+	
+    M.ehessE2ehess=@ehessE2ehess;
+    function ehess = ehessE2ehess(X, egradE, ehessE, V)
+        % Reminder : V DOES NOT contain skew-symmeric matrices.
+        % If you are using this with a tangent vector, you should set V=X*S.
+
+        RA=M.p1(X);
+        RB=M.p2(X);
+        VA=M.p1(V);
+        VB=M.p2(V);
+
+        E=M.E(X);
+        %The following is the vectorized version of VA'*e3hat*RB+RA'*e3hat*VB
+        dE=multiprod(multitransp(VA),multiprod(e3hat,RB))...
+            +multiprod(multitransp(RA),multiprod(e3hat,VB));
+        
+        G=egradE(E);
+        H=ehessE(E,dE);
+
+        %The following is the vectorized version of ehess=e3hat*[(VB*G'+RB*H') -(VA*G+RA*H)]
+        ehess=multiprod(e3hat,cat(2,...
+            multiprod(VB,multitransp(G))+multiprod(RB,multitransp(H)),...
+            -multiprod(VA,G)-multiprod(RA,H)));
+	end
+
+	
+    
+	M.ehessE2rhess = @ehessE2rhess;
+    function rhess = ehessE2rhess(X, egradE, ehessE, S)
+        egrad=@(X) M.egradE2egrad(X,egradE);
+        ehess=@(X,V) M.ehessE2ehess(X, egradE, ehessE, V);
+        rhess= M.ehess2rhess(X, egrad, ehess, S);
+ 	end
+    
+    
 end
 
 % Linear combination of tangent vectors
