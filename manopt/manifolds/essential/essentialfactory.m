@@ -51,19 +51,19 @@ function M = essentialfactory(k)
     M.dim = k*5;% BM: okay
     
     
-    M.inner = @(x, d1, d2) d1(:).'*d2(:);
+    M.inner = @(x, d1, d2) d1(:).'*d2(:); % BM: okay
     
-    M.norm = @(x, d) norm(d(:));
+    M.norm = @(x, d) norm(d(:)); % BM: okay
     
-    M.typicaldist = @() pi*sqrt(2*k);
+    M.typicaldist = @() pi*sqrt(2*k); % BM: okay
     
-    M.proj = @tangentProjection;
+    M.proj = @tangentProjection; % BM: caution.. Uses sharp and vertproj, but no need to be as structs of M?
     function HProjHoriz=tangentProjection(X,H)
         %project H on the tangent space of SO(3)^2
-        HProj=sharp(multiskew(multiprod(multitransp(flat(X)), flat(H))));
+        HProj = sharp(multiskew(multiprod(multitransp(flat(X)), flat(H))));
         
         %compute projection on vertical component
-        p=M.vertproj(X,HProj);
+        p = vertproj(X,HProj);
 
         HProjHoriz=HProj-multiprod(p/2,[hat3(permute(X(3,1:3,:),[2 3 1])) hat3(permute(X(3,4:6,:),[2 3 1]))]);
     end
@@ -73,7 +73,7 @@ function M = essentialfactory(k)
     
     M.egrad2rgrad=@egrad2rgrad;
     function rgrad=egrad2rgrad(X,egrad)
-        rgrad=M.proj(X,egrad(X));
+        rgrad = M.proj(X,egrad(X));
     end
     
     M.ehess2rhess = @ehess2rhess;
@@ -203,7 +203,7 @@ function M = essentialfactory(k)
         H=reshape(Hp,3,6,[]);
     end
 
-    M.vertproj=@(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
+    vertproj=@(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
     
    M.tangent2ambient = @(X, H) sharp(multiprod(flat(X), flat(H)));
 	
