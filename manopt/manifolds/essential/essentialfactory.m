@@ -24,7 +24,7 @@ function M = essentialfactory(k)
 %
 % Tangent vectors are represented in the Lie algebra of SO(3)^2, i.e., as
 % [3x6] matrices where each [3x3] block is a skew-symmetric matrix.
-% Use the function M.tangent2ambient(X, H) to switch from the Lie algebra
+% Use the function tangent2ambient(X, H) to switch from the Lie algebra
 % representation to the embedding space representation in R^(3x6).
 %
 % By default, k = 1.
@@ -46,10 +46,7 @@ function M = essentialfactory(k)
         error('k must be an integer no less than 1.'); % BM: okay
     end
     
-    e3hat=[0 -1 0; 1 0 0; 0 0 0]; % BM: okay
-
     M.dim = k*5;% BM: okay
-    
     
     M.inner = @(x, d1, d2) d1(:).'*d2(:); % BM: okay
     
@@ -60,45 +57,46 @@ function M = essentialfactory(k)
     M.proj = @tangentProjection; % BM: caution.. Uses sharp and vertproj, but no need to be as structs of M?
     function HProjHoriz=tangentProjection(X,H)
         %project H on the tangent space of SO(3)^2
-        HProj = sharp(multiskew(multiprod(multitransp(flat(X)), flat(H))));
+        HProj = sharp(multiskew(multiprod(multitransp(flat(X)), flat(H)))); % BM: okay
         
         %compute projection on vertical component
-        p = vertproj(X,HProj);
+        p = vertproj(X, HProj); % BM: okay
 
-        HProjHoriz=HProj-multiprod(p/2,[hat3(permute(X(3,1:3,:),[2 3 1])) hat3(permute(X(3,4:6,:),[2 3 1]))]);
+        HProjHoriz = HProj - multiprod(p/2,[hat3(permute(X(3,1:3,:),[2 3 1])) hat3(permute(X(3,4:6,:),[2 3 1]))]);% BM: okay
     end
     
      
-    M.tangent = @(X, H) sharp(multiskew(flat(H)));
+    M.tangent = @(X, H) sharp(multiskew(flat(H))); % BM: okay
     
     M.egrad2rgrad=@egrad2rgrad;
-    function rgrad=egrad2rgrad(X,egrad)
-        rgrad = M.proj(X,egrad(X));
-    end
+    function rgrad = egrad2rgrad(X, egrad)
+        % BM
+        rgrad = M.proj(X, egrad);
+    end 
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, S)
+        % BM code
+        
         % Reminder : S contains skew-symmeric matrices. The actual
         % direction that the point X is moved along is X*S.
         RA=M.p1(X);
         RB=M.p2(X);
         SA=M.p1(S);
         SB=M.p2(S);
-
-        dX=M.tangent2ambient(X,S);
-        E=M.E(X);
-        G=egrad(X);
-        GA=M.p1(G);
-        GB=M.p2(G);
         
-        H=ehess(X,dX);
-
+        G = egrad; %egrad(X);
+        GA = M.p1(G);
+        GB = M.p2(G);
+        
+        H = ehess; %ehess(X,dX);
+        
         %The following is the vectorized version of connection=-[multisym(GA'*RA)*SA multisym(GB'*RB)*SB];
-        connection=M.tangent2ambient(X,-cat(2,...
-            multiprod(multisym(multiprod(multitransp(GA),RA)),SA),...
-            multiprod(multisym(multiprod(multitransp(GB),RB)),SB)));
+        connection = tangent2ambient(X,-cat(2,...
+            multiprod(multisym(multiprod(multitransp(GA), RA)), SA),...
+            multiprod(multisym(multiprod(multitransp(GB), RB)), SB)));
         
-        rhess=M.proj(X,H+connection);
+        rhess = M.proj(X,H + connection);
     end
     
     
@@ -116,7 +114,7 @@ function M = essentialfactory(k)
     
     M.retr = @exponential;
     
-    M.log = @logarithm;
+    M.log = @logarithm; % BM:???
     function U = logarithm(X, Y, varargin)
         flagSigned=true;
         %optional parameters
@@ -166,11 +164,11 @@ function M = essentialfactory(k)
         %aligns the vertical spaces at the two elements.
         
         %group operation in the ambient group, X12=X2'*X1
-        X12=sharp(multiprod(multitransp(flat(X2)),flat(X1)));
-        X12Flat=flat(X12);
+        X12 = sharp(multiprod(multitransp(flat(X2)),flat(X1)));
+        X12Flat = flat(X12);
         
         %left translation, S2=X12*S*X12'
-        S2=sharp(multiprod(X12Flat,multiprod(flat(S1),multitransp(X12Flat))));
+        S2 = sharp(multiprod(X12Flat,multiprod(flat(S1),multitransp(X12Flat))));
     end
     
     M.pairmean = @pairmean;
@@ -187,111 +185,25 @@ function M = essentialfactory(k)
     
     
     %% Robertos functions
-    M.p1=@(X) X(:,1:3,:);
-    M.p2=@(X) X(:,4:6,:);
-    
+    M.p1 = @(X) X(:,1:3,:);
+    M.p2 = @(X) X(:,4:6,:);
+   
 
-    M.flat=@flat;
-    function Hp=flat(H)
+    function Hp = flat(H)
         %Reshape a [3x6xk] matrix to a [3x3x2k] matrix
         Hp=reshape(H,3,3,[]);
     end
 
-    M.sharp=@sharp;
     function H=sharp(Hp)
         %Reshape a [3x3x2k] matrix to a [3x6xk] matrix
         H=reshape(Hp,3,6,[]);
     end
 
-    vertproj=@(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
+   vertproj = @(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2])); % BM: okay
     
-   M.tangent2ambient = @(X, H) sharp(multiprod(flat(X), flat(H)));
+   tangent2ambient = @(X, H) sharp(multiprod(flat(X), flat(H)));
 	
-    %compute the essential matrix from the quotient representation
-    M.E=@(X) multiprod(multiprod(multitransp(M.p1(X)),e3hat),M.p2(X));
-    M.dE=@dE;
-    function Edot=dE(X,H)
-        E=M.E(X);
-        Edot=multiprod(multitransp(M.p1(H)),E)+multiprod(E,M.p2(H));
-    end
-
-    M.ddE=@ddE;
-    function Eddot=ddE(X,S)
-        E=M.E(X);
-        SA=M.p1(S);
-        SB=M.p2(S);
-        SASq=multiprod(SA,SA);
-        SBSq=multiprod(SB,SB);
-        Eddot=multiprod(multitransp(SASq),E)...
-            +multiprod(multiprod(multitransp(SA),E),SB)...
-            +multiprod(E,SBSq);
-    end
-    
-    M.ef2rf=@(X,ef) ef(M.E(X));
-
-    M.egradE2egrad= @egradE2egrad;
-    function egrad=egradE2egrad(X,egradE)
-        %Compute the Euclidean gradient with respect to the factors (R1,R2) 
-        %starting from the Euclidean gradient with respect to the essential
-        %matrix E. In practice, EgradE is a 3x3 matrix, and egrad is a
-        %3x3x2 array
-        
-        RA=M.p1(X);
-        RB=M.p2(X);
-        E=M.E(X);
-        G=egradE(E);
-        
-        %The following is the vectorized version of egrad=e3hat*[RB*G' -RA*G];
-        egrad=multiprod(e3hat,cat(2,...
-            multiprod(RB,multitransp(G)),...
-            -multiprod(RA,G)));
-    end
-
-    
-
-    M.egradE2rgrad= @egradE2rgrad;
-    function rgrad=egradE2rgrad(X,egradE)
-        %Compute the Riemannian gradient starting from the Euclidean
-        %gradient of a function of the 3x3 essential matrix.
-        %That is, EgradE is a 3x3 matrix.
-        egrad=@(X) M.egradE2egrad(X,egradE);
-        rgrad=M.egrad2rgrad(X,egrad);
-    end
-	
-    M.ehessE2ehess=@ehessE2ehess;
-    function ehess = ehessE2ehess(X, egradE, ehessE, V)
-        % Reminder : V DOES NOT contain skew-symmeric matrices.
-        % If you are using this with a tangent vector, you should set V=X*S.
-
-        RA=M.p1(X);
-        RB=M.p2(X);
-        VA=M.p1(V);
-        VB=M.p2(V);
-
-        E=M.E(X);
-        %The following is the vectorized version of VA'*e3hat*RB+RA'*e3hat*VB
-        dE=multiprod(multitransp(VA),multiprod(e3hat,RB))...
-            +multiprod(multitransp(RA),multiprod(e3hat,VB));
-        
-        G=egradE(E);
-        H=ehessE(E,dE);
-
-        %The following is the vectorized version of ehess=e3hat*[(VB*G'+RB*H') -(VA*G+RA*H)]
-        ehess=multiprod(e3hat,cat(2,...
-            multiprod(VB,multitransp(G))+multiprod(RB,multitransp(H)),...
-            -multiprod(VA,G)-multiprod(RA,H)));
-	end
-
-	
-    
-	M.ehessE2rhess = @ehessE2rhess;
-    function rhess = ehessE2rhess(X, egradE, ehessE, S)
-        egrad=@(X) M.egradE2egrad(X,egradE);
-        ehess=@(X,V) M.ehessE2ehess(X, egradE, ehessE, V);
-        rhess= M.ehess2rhess(X, egrad, ehess, S);
- 	end
-    
-    
+  
 end
 
 % Linear combination of tangent vectors
@@ -308,3 +220,133 @@ function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
 end
 
 
+% Some private calls
+function v = vee3(V)
+    v = squeeze([V(3,2,:)-V(2,3,:); V(1,3,:)-V(3,1,:); V(2,1,:)-V(1,2,:)])/2;
+end
+
+
+%Compute the exponential map in SO(3) using Rodrigues' formula
+% function R=rot3_exp(V)
+%V must be a [3x3xN] array of [3x3] skew-symmetric matrices.
+function R=rot3_exp(V)
+    v=vee3(V);
+    nv=cnorm(v);
+    idxZero=nv<1e-15;
+    nvMod=nv;
+    nvMod(idxZero)=1;
+    
+    vNorm=v./([1;1;1]*nvMod);
+    
+    %matrix exponential using Rodrigues' formula
+    nv=shiftdim(nv,-1);
+    c=cos(nv);
+    s=sin(nv);
+    [VNorm,vNormShift]=hat3(vNorm);
+    vNormvNormT=multiprod(vNormShift,multitransp(vNormShift));
+    R=multiprod(eye(3),c)+multiprod(VNorm,s)+multiprod(vNormvNormT,1-c);
+end
+
+%Compute the matrix representation of the cross product
+%function [V,vShift]=hat3(v)
+%V is a [3x3xN] array of skew-symmetric matrices where each [3x3] block is
+%the matrix representation of the cross product of one of the columns of v
+%vShift is equal to permute(v,[1 3 2]).
+function [V,vShift]=hat3(v)
+    N=size(v,2);
+    V=zeros(3,3,N);
+    vShift=permute(v,[1 3 2]);
+    V(1,2,:)=-vShift(3,:,:);
+    V(2,1,:)=vShift(3,:,:);
+    V(1,3,:)=vShift(2,:,:);
+    V(3,1,:)=-vShift(2,:,:);
+    V(2,3,:)=-vShift(1,:,:);
+    V(3,2,:)=vShift(1,:,:);
+end
+
+%Compute the logarithm map in SO(3)
+% function V=rot3_log(R)
+%V is a [3x3xN] array of [3x3] skew-symmetric matrices
+function V=rot3_log(R)
+    skewR=multiskew(R);
+    ctheta=(multitrace(R)'-1)/2;
+    stheta=cnorm(vee3(skewR));
+    theta=atan2(stheta,ctheta);
+    
+    V=skewR;
+    for ik=1:size(R,3)
+        V(:,:,ik)=V(:,:,ik)/sincN(theta(ik));
+    end
+end
+
+function Q = randessential(N)
+        % Generates random essential matrices.
+        %
+        % function Q = randessential(N)
+        %
+        % Q is a [3x6] matrix where each [3x3] block is a uniformly distributed
+        % matrix.
+        
+        % This file is part of Manopt: www.manopt.org.
+        % Original author: Roberto Tron, Aug. 8, 2014
+        % Contributors:
+        % Change log:
+        
+        if nargin < 1
+            N = 1;
+        end
+        
+        Q = [randrot(3,N) randrot(3,N)];
+        
+end
+    
+function S = randskew(n, N)
+% Generates random skew symmetric matrices with normal entries.
+% 
+% function S = randskew(n, N)
+%
+% S is an n-by-n-by-N matrix where each slice S(:, :, i) for i = 1..N is a
+% random skew-symmetric matrix with upper triangular entries distributed
+% independently following a normal distribution (Gaussian, zero mean, unit
+% variance).
+%
+% See also: randrot
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, Sept. 25, 2012.
+% Contributors: 
+% Change log: 
+
+
+    if nargin < 2
+        N = 1;
+    end
+
+    % Subindices of the (strictly) upper triangular entries of an n-by-n
+    % matrix
+    [I J] = find(triu(ones(n), 1));
+    
+    K = repmat(1:N, n*(n-1)/2, 1);
+    
+    % Indices of the strictly upper triangular entries of all N slices of
+    % an n-by-n-by-N matrix
+    L = sub2ind([n n N], repmat(I, N, 1), repmat(J, N, 1), K(:));
+    
+    % Allocate memory for N random skew matrices of size n-by-n and
+    % populate each upper triangular entry with a random number following a
+    % normal distribution and copy them with opposite sign on the
+    % corresponding lower triangular side.
+    S = zeros(n, n, N);
+    S(L) = randn(size(L));
+    S = S-multitransp(S);
+
+end
+
+function sx=sincN(x)
+    sx=sin(x)./x;
+    sx(x==0)=1;
+end
+
+function nv=cnorm(v)
+    nv=sqrt(sum(v.^2));
+end
