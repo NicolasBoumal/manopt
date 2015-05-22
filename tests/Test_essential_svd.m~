@@ -1,0 +1,72 @@
+function Test_essential_svd
+%Sample solution of an optimization problem on the essential manifold
+%Solves the problem \sum_{i=1}^N ||E_i-A_i||^2, where E_i are essential
+%matrices.
+
+    % Make data for the test
+    N = 2;    %number of matrices to process in parallel
+    A = multiprod(multiprod(randrot(3, N), essential_hat3([0; 0; 1])), randrot(3, N));
+    
+    % Make the manifold
+    M = essentialfactory(N);
+    problem.M = M;
+    
+    
+    costE = @(E) 0.5*sum(multitrace(multiprod(multitransp(E - A),(E - A))));
+    
+    problem.cost = @cost;
+    function val = cost(X)
+        val = essential_costE2cost(X, costE);
+    end
+    
+    egradE = @(E) E - A;
+    problem.egrad = @egrad;
+    function g = egrad(X)
+        g = essential_egradE2egrad(X, egradE);
+    end
+    
+    ehessE = @(E, U) U;
+    problem.ehess = @ehess;
+    function gdot = ehess(X, S)
+        gdot = essential_ehessE2ehess(X, egradE, ehessE, S);
+    end
+    
+    
+    
+    % Numerically check the differentials.
+    checkgradient(problem); pause;
+    checkhessian(problem); pause;
+    
+    
+    
+    %Solve the problem
+    Xsol = trustregions(problem);
+    
+    % Distance between original matrices and decompositions
+   
+    e3hat = [0 -1 0; 1 0 0; 0 0 0];
+    RAsol = Xsol(:,1:3,:); 
+    RBsol = Xsol(:,4:6,:); 
+    Esol = multiprod(multiprod(multitransp(RAsol), e3hat), RBsol); % M.E(X);
+    Gsol =  Esol - A;
+    val = sqrt(sum(multitrace(multiprod(multitransp(Gsol),(Gsol)))));
+    fprintf('Distance between original matrices and decompositions is %e \n', val);
+
+end
+
+
+function val = essential_costE2cost(X, costE)
+    e3hat = [0 -1 0; 1 0 0; 0 0 0];
+    
+    RA = X(:,1:3,:); % M.p1(X);
+    RB = X(:,4:6,:); % M.p2(X);
+    E = multiprod(multiprod(multitransp(RA), e3hat), RB); % M.E(X);
+    
+    val = costE(E);
+    
+end
+
+
+
+
+
