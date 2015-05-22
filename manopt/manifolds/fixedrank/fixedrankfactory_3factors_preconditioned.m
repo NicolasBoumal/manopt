@@ -59,7 +59,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankLSRquotientfactory.dist not implemented yet.');
+    M.dist = @(x, y) error('fixedrankfactory_3factors_preconditioned.dist not implemented yet.');
     
     M.typicaldist = @() 10*k;
     
@@ -270,7 +270,7 @@ function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
         d.R = a1*d1.R + a2*d2.R;
         d.S = a1*d1.S + a2*d2.S;
     else
-        error('Bad use of fixedrankLSRquotientfactory.lincomb.');
+        error('Bad use of fixedrankfactory_3factors_preconditioned.lincomb.');
     end
     
 end
