@@ -59,9 +59,9 @@ function M = stiefelcomplexfactory(n, p, k)
         error('k must be an integer no less than 1.');
     end
     
-    M.dim = @() k*(2*n*p - p^2); %!
+    M.dim = @() k*(2*n*p - p^2); %! k*(n*p - .5*p*(p+1)) -> k*(2*n*p - p^2)
     
-    M.inner = @(x, d1, d2) real(d1(:)'*d2(:)); %!
+    M.inner = @(x, d1, d2) real(d1(:)'*d2(:)); %! trace -> real-trace
     
     M.norm = @(x, d) norm(d(:));
     
