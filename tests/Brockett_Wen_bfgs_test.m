@@ -1,10 +1,10 @@
-function RQI_Qi_bfgs_test()
-    clear all; clc; close all;
-    n = 12;
-    p = 7;
-    A = randn(n, n);
-    B = randn(p, p);
+function Brockett_Wen_bfgs_test()
+    clear all; %clc; close all;
     
+    n = 500;
+    p = 4;
+    B = randn(n, n); B = B + B';
+    D = sparse(diag(p : -1 : 1));
     
     M = stiefelfactory(n, p);
     
@@ -14,17 +14,18 @@ function RQI_Qi_bfgs_test()
 
     % Cost function
     function f = cost(X)
-        f = 0.5*norm(A*X - X*B, 'fro')^2;
+        f = trace(X'*(B*X*D));
     end
     
     % Euclidean gradient of the cost function
     function g = egrad(X)
-        g = A'*(A*X - X*B) - (A*X - X*B)*B';
+        g = 2*B*X*D;
     end
     
     
     problem.precon = preconBFGS(problem);
     problem.linesearch = @(x, xdot, storedb, key) 1;
     options.beta_type ='steep';
+    options.tolgradnorm = 1e-5;
     conjugategradient(problem, [],options);
 end
