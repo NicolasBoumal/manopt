@@ -1,4 +1,4 @@
-function M = essentialfactory(k)
+function M = essentialfactory(k, varargin)
 % Returns a manifold structure to optimize over the space of essential
 % matrices using the quotient representation.
 %
@@ -29,9 +29,38 @@ function M = essentialfactory(k)
 %
 % By default, k = 1.
 
+
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
 % Contributors: Bamdev Mishra, May 15, 2015.
+%
+%
+%
+% RT: General implementation note: to streamline component-wise
+% computations, in tangentProjection and exponential,
+% we flatten out the arguments into [3 x 3 x 2K] arrays, compute the
+% components all together, and then sharp the result again into [3 x 6 x K]
+% arrays.
+
+
+    flagSigned = true;
+    % Optional parameters to switch between the signed and unsigned
+    % versions of the manifold.
+    ivarargin = 1;
+    while(ivarargin<=length(varargin))
+        switch(lower(varargin{ivarargin}))
+            case 'signed'
+                flagSigned = true;
+            case 'unsigned'
+                flagSigned = false;
+            case 'flagsigned'
+                ivarargin = ivarargin + 1;
+                flagSigned = varargin{ivarargin};
+            otherwise
+                error(['Argument ' varargin{ivarargin} ' not valid!'])
+        end
+        ivarargin = ivarargin + 1;
+    end
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -56,10 +85,10 @@ function M = essentialfactory(k)
     
     M.proj = @tangentProjection; % BM: caution.. Uses essential_sharp and vertproj, but no need to be as structs of M?
     function HProjHoriz=tangentProjection(X,H)
-        %project H on the tangent space of SO(3)^2
+        % Project H on the tangent space of SO(3)^2
         HProj = essential_sharp(multiskew(multiprod(multitransp(essential_flat(X)), essential_flat(H)))); % BM: okay
         
-        %compute projection on vertical component
+        % Compute projection on vertical component
         p = vertproj(X, HProj); % BM: okay
         
         HProjHoriz = HProj - multiprod(p/2,[essential_hat3(permute(X(3,1:3,:),[2 3 1])) essential_hat3(permute(X(3,4:6,:),[2 3 1]))]);% BM: okay
@@ -70,32 +99,32 @@ function M = essentialfactory(k)
     
     M.egrad2rgrad=@egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
-        % BM
         rgrad = M.proj(X, egrad);
     end
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, S)
-        % BM code
-        
-        % Reminder : S contains skew-symmeric matrices. The actual
+        % Reminder: S contains skew-symmeric matrices. The actual
         % direction that the point X is moved along is X*S.
-        RA=p1(X);
-        RB=p2(X);
-        SA=p1(S);
-        SB=p2(S);
+        RA = p1(X);
+        RB = p2(X);
+        SA = p1(S);
+        SB = p2(S);
         
-        G = egrad; %egrad(X);
+        G = egrad; 
         GA = p1(G);
         GB = p2(G);
         
-        H = ehess; %ehess(X,dX);
+        H = ehess; 
         
-        %The following is the vectorized version of connection=-[multisym(GA'*RA)*SA multisym(GB'*RB)*SB];
+        % RT: We now compute the connection, i.e. the part of the derivative
+        % given by the curvature of the space (as opposed to a simple
+        % Euclidean derivative).
+        
+        % The following is the vectorized version of connection=-[multisym(GA'*RA)*SA multisym(GB'*RB)*SB];
         connection = tangent2ambient(X,-cat(2,...
             multiprod(multisym(multiprod(multitransp(GA), RA)), SA),...
             multiprod(multisym(multiprod(multitransp(GB), RB)), SB)));
-        
         rhess = M.proj(X,H + connection);
     end
     
@@ -108,38 +137,22 @@ function M = essentialfactory(k)
         end
         
         UFlat = essential_flat(U);
-        exptUFlat=rot3_exp(UFlat);
+        exptUFlat = rot3_exp(UFlat);
         Y = essential_sharp(multiprod(essential_flat(X), exptUFlat));
     end
     
     M.retr = @exponential;
     
-    M.log = @logarithm; % BM:???
-    function U = logarithm(X, Y, varargin)
-        flagSigned=true;
-        %optional parameters
-        ivarargin=1;
-        while(ivarargin<=length(varargin))
-            switch(lower(varargin{ivarargin}))
-                case 'signed'
-                    flagSigned=true;
-                case 'unsigned'
-                    flagSigned=false;
-                case 'flagsigned'
-                    ivarargin=ivarargin+1;
-                    flagSigned=varargin{ivarargin};
-                otherwise
-                    error(['Argument ' varargin{ivarargin} ' not valid!'])
-            end
-            ivarargin=ivarargin+1;
-        end
-        QX=[X(:,1:3,:);X(:,4:6,:)];
-        QY=[Y(:,1:3,:);Y(:,4:6,:)];
-        QYr=essential_closestRepresentative(QX,QY,'flagSigned',flagSigned);
-        Yr=[QYr(1:3,:,:) QYr(4:6,:,:)];
-        U=zeros(size(X));
-        U(:,1:3,:)=rot3_log(multiprod(multitransp(X(:,1:3,:)),Yr(:,1:3,:)));
-        U(:,4:6,:)=rot3_log(multiprod(multitransp(X(:,4:6,:)),Yr(:,4:6,:)));
+    M.log = @logarithm; 
+    function U = logarithm(X, Y)
+        
+        QX = [X(:,1:3,:);X(:,4:6,:)];
+        QY = [Y(:,1:3,:);Y(:,4:6,:)];
+        QYr = essential_closestRepresentative(QX,QY,'flagSigned',flagSigned);
+        Yr = [QYr(1:3,:,:) QYr(4:6,:,:)];
+        U = zeros(size(X));
+        U(:,1:3,:) = rot3_log(multiprod(multitransp(X(:,1:3,:)),Yr(:,1:3,:)));
+        U(:,4:6,:) = rot3_log(multiprod(multitransp(X(:,4:6,:)),Yr(:,4:6,:)));
     end
     
     M.hash = @(X) ['z' hashmd5(X(:))];
@@ -163,7 +176,6 @@ function M = essentialfactory(k)
         end
         
         Q = [randrot(3,N) randrot(3,N)];
-        
     end
     
     M.randvec = @randomvec;
@@ -177,17 +189,17 @@ function M = essentialfactory(k)
     M.zerovec = @(x) zeros(3, 6, k);
     
     M.transp = @transport;
-    function S2=transport(X1,X2,S1)
-        %transport a vector from the tangent space at X1 to the tangent
-        %space at X2. This transport uses the left translation of the
-        %ambient group and preserves the norm of S1. The left translation
-        %aligns the vertical spaces at the two elements.
+    function S2 = transport(X1, X2, S1)
+        % Transport a vector from the tangent space at X1 to the tangent
+        % space at X2. This transport uses the left translation of the
+        % ambient group and preserves the norm of S1. The left translation
+        % aligns the vertical spaces at the two elements.
         
-        %group operation in the ambient group, X12=X2'*X1
+        % Group operation in the ambient group, X12=X2'*X1
         X12 = essential_sharp(multiprod(multitransp(essential_flat(X2)),essential_flat(X1)));
         X12Flat = essential_flat(X12);
         
-        %left translation, S2=X12*S*X12'
+        % Left translation, S2=X12*S*X12'
         S2 = essential_sharp(multiprod(X12Flat,multiprod(essential_flat(S1),multitransp(X12Flat))));
     end
     
@@ -197,7 +209,7 @@ function M = essentialfactory(k)
         Y = M.exp(X1, .5*V);
     end
     
-    M.dist = @(x, y, varargin) M.norm(x, M.log(x, y, varargin{:})); % BM:???
+    M.dist = @(x, y) M.norm(x, M.log(x, y)); 
     
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
@@ -237,9 +249,9 @@ function v = vee3(V)
 end
 
 
-%Compute the exponential map in SO(3) using Rodrigues' formula
-% function R=rot3_exp(V)
-%V must be a [3x3xN] array of [3x3] skew-symmetric matrices.
+% Compute the exponential map in SO(3) using Rodrigues' formula
+%  function R = rot3_exp(V)
+% V must be a [3x3xN] array of [3x3] skew-symmetric matrices.
 function R = rot3_exp(V)
     v = vee3(V);
     nv = cnorm(v);
@@ -249,20 +261,20 @@ function R = rot3_exp(V)
     
     vNorm = v./([1;1;1]*nvMod);
     
-    %matrix exponential using Rodrigues' formula
+    % Matrix exponential using Rodrigues' formula
     nv = shiftdim(nv,-1);
     c = cos(nv);
     s = sin(nv);
     [VNorm,vNormShift] = essential_hat3(vNorm);
-    vNormvNormT=multiprod(vNormShift,multitransp(vNormShift));
+    vNormvNormT = multiprod(vNormShift,multitransp(vNormShift));
     R=multiprod(eye(3),c)+multiprod(VNorm,s)+multiprod(vNormvNormT,1-c);
 end
 
 
 
-%Compute the logarithm map in SO(3)
-% function V=rot3_log(R)
-%V is a [3x3xN] array of [3x3] skew-symmetric matrices
+% Compute the logarithm map in SO(3)
+%  function V = rot3_log(R)
+% V is a [3x3xN] array of [3x3] skew-symmetric matrices
 function V = rot3_log(R)
     skewR = multiskew(R);
     ctheta = (multitrace(R)'-1)/2;
