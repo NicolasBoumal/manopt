@@ -15,7 +15,7 @@ function low_rank_tensor_completion()
 %
 % minimize f(X) such that rank(X) = [r1 r2 r3], size(X) = [n1, n2, n3].
 %
-% Input:  None. This example file generate random data.
+% Input:  None. This example file generates random data.
 % 
 % Output: None.
 
@@ -82,7 +82,7 @@ function low_rank_tensor_completion()
     % fields U1, U2, U3, G representing a rank (r1,r2,r3) tensor.
     % f(X) = 1/2 * || P.*(X - A) ||^2
     problem.cost = @cost;
-    function [f] = cost(X)
+    function f = cost(X)
         Xmultiarray = tucker2multiarray(X);
         Diffmultiarray = P.*Xmultiarray - PA;
         Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
@@ -95,7 +95,8 @@ function low_rank_tensor_completion()
     % Define the Euclidean gradient of the cost function, that is, the
     % gradient of f(X) seen as a standard function of X.
     % nabla f(X) = P.*(X-A)
-    problem.egrad =  @egrad; % We need to give only Euclidean gradient, Manopt converts it internally
+    % We only need to give the Euclidean gradient, Manopt converts it internally
+    problem.egrad =  @egrad;
     function [g] = egrad(X)
         Xmultiarray = tucker2multiarray(X);
         Smultiarray = P.*Xmultiarray - PA;     
@@ -119,7 +120,8 @@ function low_rank_tensor_completion()
     % represented as a tangent vector: a structure with fields U1, U2, U3, G.
     % This is the directional derivative of nabla f(X) at X along Xdot:
     % nabla^2 f(X)[Xdot] = P.*Xdot
-    problem.ehess = @ehess; % We need to give only Euclidean Hessian, Manopt converts it internally.
+    % We only need to give the Euclidean Hessian, Manopt converts it internally.
+    problem.ehess = @ehess;
     function [Hess] = ehess(X, eta)
 
         % Computing S, and its unfolding matrices, S1, S2, and S3.
@@ -213,12 +215,13 @@ function low_rank_tensor_completion()
     % This is because the retraction is not second-order compatible with 
     % the Riemannian exponential on this manifold, making 
     % the checkhessian tool unusable. The Hessian is correct though. 
-    %     checkgradient(problem); %# ok
-    %     drawnow;
-    %     pause;
-    %     checkhessian(problem);
-    %     drawnow;
-    %     pause;
+    % % warning('off', 'manopt:fixedrankfactory_tucker_preconditioned:exp');
+    % % checkgradient(problem);
+    % % drawnow;
+    % % pause;
+    % % checkhessian(problem);
+    % % drawnow;
+    % % pause;
     
 
     
@@ -256,7 +259,7 @@ function low_rank_tensor_completion()
     % The specific derivation is in the paper referenced above.
     
     problem.linesearch = @linesearch_helper;
-    function [tmin] = linesearch_helper(X, eta)
+    function tmin = linesearch_helper(X, eta)
         
         % term0
         Xmultiarray = tucker2multiarray(X);

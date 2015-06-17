@@ -36,7 +36,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         error('Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.');
     end
     
-    % Tesnor size
+    % Tensor size
     n1 = tensor_size(1);
     n2 = tensor_size(2);
     n3 = tensor_size(3);
@@ -380,7 +380,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 end
 
 % Linear combination of tangent vectors
-function d = lincomb(X, a1, d1, a2, d2) %#ok<INLSL>
+function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
     
     if nargin == 3
         d.U1 = a1*d1.U1;
