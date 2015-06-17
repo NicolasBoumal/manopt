@@ -1,7 +1,10 @@
-function Test_essential_svd
-% Sample solution of an optimization problem on the essential manifold
+function essential_svd
+% Sample solution of an optimization problem on the essential manifold.
 % Solves the problem \sum_{i=1}^N ||E_i-A_i||^2, where E_i are essential
-% matrices.
+% matrices. Essential matrices are used in computer vision to represent the
+% epipolar constraint between projected points in two perspective views.
+%
+% See also essentialfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
@@ -9,7 +12,7 @@ function Test_essential_svd
 
 
     % Make data for the test
-    N = 2;    %number of matrices to process in parallel
+    N = 2;    % number of matrices to process in parallel
     A = multiprod(multiprod(randrot(3, N), essential_hat3([0; 0; 1])), randrot(3, N));
     
     % The essential manifold
@@ -17,7 +20,7 @@ function Test_essential_svd
     problem.M = M;
     
     % Function handles of the essential matrix E and Euclidean gradient and Hessian
-    costE = @(E) 0.5*sum(multitrace(multiprod(multitransp(E - A),(E - A))));
+    costE  = @(E) 0.5*sum(multisqnorm(E-A));
     egradE = @(E) E - A;
     ehessE = @(E, U) U;
 
@@ -40,8 +43,8 @@ function Test_essential_svd
     
     
     % Numerically check the differentials.
-    checkgradient(problem); pause;
-    checkhessian(problem); pause;
+    % checkgradient(problem); pause;
+    % checkhessian(problem); pause;
     
     %Solve the problem
     Xsol = trustregions(problem);
@@ -51,10 +54,3 @@ function Test_essential_svd
     fprintf('Distance between original matrices and decompositions is %e \n', val);
 
 end
-
-
-
-
-
-
-

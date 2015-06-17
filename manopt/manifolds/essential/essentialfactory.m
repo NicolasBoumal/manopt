@@ -29,7 +29,8 @@ function M = essentialfactory(k, varargin)
 %
 % By default, k = 1.
 %
-%
+% See also rotationsfactory
+
 % Please cite the Manopt paper as well as the research paper:
 %     @InProceedings{tron2014essential,
 %       Title        = {On the quotient representation of the essential manifold},
@@ -56,7 +57,7 @@ function M = essentialfactory(k, varargin)
     % Optional parameters to switch between the signed and unsigned
     % versions of the manifold.
     ivarargin = 1;
-    while(ivarargin<=length(varargin))
+    while(ivarargin <= length(varargin))
         switch(lower(varargin{ivarargin}))
             case 'signed'
                 flagSigned = true;
@@ -73,38 +74,38 @@ function M = essentialfactory(k, varargin)
 
     
     if ~exist('k', 'var') || isempty(k)
-        k = 1; % BM: okay
+        k = 1;
     end
     
     if k == 1
-        M.name = @() sprintf('Quotient representation of the essential manifold'); % BM: okay
+        M.name = @() sprintf('Quotient representation of the essential manifold');
     elseif k > 1
-        M.name = @() sprintf('Product of %d quotient representations of the essential manifold', k); % BM: okay
+        M.name = @() sprintf('Product of %d quotient representations of the essential manifold', k);
     else
-        error('k must be an integer no less than 1.'); % BM: okay
+        error('k must be an integer no less than 1.');
     end
     
     M.dim = k*5;% BM: okay
     
-    M.inner = @(x, d1, d2) d1(:).'*d2(:); % BM: okay
+    M.inner = @(x, d1, d2) d1(:).'*d2(:);
     
-    M.norm = @(x, d) norm(d(:)); % BM: okay
+    M.norm = @(x, d) norm(d(:));
     
-    M.typicaldist = @() pi*sqrt(2*k); % BM: okay
+    M.typicaldist = @() pi*sqrt(2*k);
     
-    M.proj = @tangentProjection; % BM: okay
+    M.proj = @tangentProjection;
     function HProjHoriz=tangentProjection(X,H)
         % Project H on the tangent space of SO(3)^2
-        HProj = essential_sharp(multiskew(multiprod(multitransp(essential_flat(X)), essential_flat(H)))); % BM: okay
+        HProj = essential_sharp(multiskew(multiprod(multitransp(essential_flat(X)), essential_flat(H))));
         
         % Compute projection on vertical component
-        p = vertproj(X, HProj); % BM: okay
+        p = vertproj(X, HProj);
         
         HProjHoriz = HProj - multiprod(p/2,[essential_hat3(permute(X(3,1:3,:),[2 3 1])) essential_hat3(permute(X(3,4:6,:),[2 3 1]))]);% BM: okay
     end
     
     
-    M.tangent = @(X, H) essential_sharp(multiskew(essential_flat(H))); % BM: okay
+    M.tangent = @(X, H) essential_sharp(multiskew(essential_flat(H)));
     
     M.egrad2rgrad=@egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
@@ -230,7 +231,7 @@ function M = essentialfactory(k, varargin)
     p2 = @(X) X(:,4:6,:);
     
     
-    vertproj = @(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2])); % BM: okay
+    vertproj = @(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
     
     tangent2ambient = @(X, H) essential_sharp(multiprod(essential_flat(X), essential_flat(H)));
     
