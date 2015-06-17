@@ -1,5 +1,5 @@
 function RQI_Qi_bfgs_test()
-    clear all; clc; close all;
+
     n = 12;
     p = 7;
     A = randn(n, n);
@@ -25,6 +25,7 @@ function RQI_Qi_bfgs_test()
     
     problem.precon = preconBFGS(problem);
     problem.linesearch = @(x, xdot, storedb, key) 1;
-    options.beta_type ='steep';
-    conjugategradient(problem, [],options);
+    options.beta_type = 'steep';
+    conjugategradient(problem, [], options);
+    
 end
