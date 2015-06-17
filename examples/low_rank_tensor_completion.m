@@ -30,9 +30,9 @@ function low_rank_tensor_completion()
 
     % Random data generation. First, choose the size of the problem.
     % We will complete a tensor of size n1-by-n2-by-n3 of rank (r1, r2, r3):  
-    n1 = 100;
-    n2 = 120;
-    n3 = 140;
+    n1 = 70;
+    n2 = 60;
+    n3 = 50;
     r1 = 3;
     r2 = 4;
     r3 = 5;
@@ -60,7 +60,7 @@ function low_rank_tensor_completion()
     % Generate a random mask P for observed entries: P(i, j, k) = 1 if the entry
     % (i, j, k) of A is observed, and 0 otherwise.    
     % Observation ratio
-    fraction = 0.1;
+    fraction = 0.1; % Fraction of known entries.
     nr = round(fraction * total_entries);
     ind = randperm(total_entries);
     ind = ind(1 : nr);
