@@ -1,5 +1,4 @@
 function Brockett_Wen_bfgs_test()
-    clear all; %clc; close all;
     
     n = 500;
     p = 4;
@@ -27,5 +26,13 @@ function Brockett_Wen_bfgs_test()
     problem.linesearch = @(x, xdot, storedb, key) 1;
     options.beta_type ='steep';
     options.tolgradnorm = 1e-5;
-    conjugategradient(problem, [],options);
+    conjugategradient(problem, [], options);
+    
+    pause;
+    
+    % For comparison, run RTR-FD
+    warning('off', 'manopt:getHessian:approx');
+    problem = rmfield(problem, 'precon');
+    trustregions(problem);
+    
 end

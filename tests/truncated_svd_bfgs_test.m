@@ -1,5 +1,4 @@
 function truncated_svd_bfgs_test(A, p)
-    clear all; clc; close all;
     
     % Generate some random data to test the function if none is given.
     if ~exist('A', 'var') || isempty(A)
