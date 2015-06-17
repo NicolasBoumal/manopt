@@ -28,12 +28,21 @@ function M = essentialfactory(k, varargin)
 % representation to the embedding space representation in R^(3x6).
 %
 % By default, k = 1.
+%
+%
+% Please cite the Manopt paper as well as the research paper:
+%     @InProceedings{tron2014essential,
+%       Title        = {On the quotient representation of the essential manifold},
+%       Author       = {Tron, R. and Daniilidis, K.},
+%       Booktitle    = {IEEE Conference on Computer Vision and Pattern Recognition},
+%       Year         = {2014},
+%       Organization = {{IEEE CVPR}}
+%     }
 
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
 % Contributors: Bamdev Mishra, May 15, 2015.
-%
 %
 %
 % RT: General implementation note: to streamline component-wise
@@ -83,7 +92,7 @@ function M = essentialfactory(k, varargin)
     
     M.typicaldist = @() pi*sqrt(2*k); % BM: okay
     
-    M.proj = @tangentProjection; % BM: caution.. Uses essential_sharp and vertproj, but no need to be as structs of M?
+    M.proj = @tangentProjection; % BM: okay
     function HProjHoriz=tangentProjection(X,H)
         % Project H on the tangent space of SO(3)^2
         HProj = essential_sharp(multiskew(multiprod(multitransp(essential_flat(X)), essential_flat(H)))); % BM: okay
