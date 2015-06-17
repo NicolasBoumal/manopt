@@ -1,6 +1,5 @@
 function M = grassmanncomplexfactory(n, p, k)
-% Returns a manifold struct to optimize over the space of vector subspaces
-% in C^n.
+% Returns a manifold struct to optimize over the set of subspaces in C^n.
 %
 % function M = grassmanncomplexfactory(n, p)
 % function M = grassmanncomplexfactory(n, p, k)
