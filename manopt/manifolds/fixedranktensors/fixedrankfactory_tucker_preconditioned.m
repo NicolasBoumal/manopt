@@ -325,25 +325,51 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
             'Tucker manifold not implemented yet. Used retraction instead.']);
     end
     
-    M.hash = @(X) ['z' hashmd5([sum(X.U1(:)) ; sum(X.U2(:)); sum(X.U3(:)); sum(X.G(:)) ])]; % Efficient, suggest by Bart Vandereycken.
+    M.hash = @(X) ['z' hashmd5([sum(X.U1(:)) ; sum(X.U2(:)); sum(X.U3(:)); sum(X.G(:)) ])]; % Efficient, suggested by Bart Vandereycken.
     % M.hash = @(X) ['z' hashmd5([X.U1(:); X.U2(:); X.U3(:); X.G(:)])];
     
     M.rand = @random;
-    % Factors U1, U2, and U3 are on Stiefel manifolds, hence we reuse
-    % their random generator.
-    stiefell = stiefelfactory(n1, r1);
-    stiefelm = stiefelfactory(n2, r2);
-    stiefeln = stiefelfactory(n3, r3);
     function X = random()
-        X.U1 = stiefell.rand();
-        X.U2 = stiefelm.rand();
-        X.U3 = stiefeln.rand();
+        %         % Random generator on the total space
+        %         % Factors U1, U2, and U3 are on Stiefel manifolds, hence we reuse
+        %         % their random generator.
+        %         stiefell = stiefelfactory(n1, r1);
+        %         stiefelm = stiefelfactory(n2, r2);
+        %         stiefeln = stiefelfactory(n3, r3);
+        %
+        %         X.U1 = stiefell.rand();
+        %         X.U2 = stiefelm.rand();
+        %         X.U3 = stiefeln.rand();
+        %
+        %         % Random initialization: generalization of randn(r1, r1 = r2) in the
+        %         % matrix case.
+        %         X.G = randn(r1,r2,r3);
         
-        % Random initialization: generalization of randn(r1, r1 = r2) in the
-        % matrix case.
-        X.G = randn(r1,r2,r3);
+        
+        %  Random generator on the fixed-rank space from a uniform distribution on [0, 1].
+        [U1, R1] = qr(rand(n1, r1), 0);
+        [U2, R2] = qr(rand(n2, r2), 0);
+        [U3, R3] = qr(rand(n3, r3), 0);
+        C  = rand(r1, r2, r3);
+        
+        C1 = reshape(C, r1, r2*r3);
+        CR1 = reshape(R1*C1, r1, r2, r3); % Multplication by R1
+        
+        C2 = reshape(permute(CR1, [2 1 3]), r2, r1*r3);
+        CR1R2 = permute(reshape(R2*C2, r2, r1, r3), [2 1 3]); % Multplication by R2
+        
+        C3 = reshape(permute(CR1R2, [3 1 2]), r3, r1*r2);
+        CR1R2R3 = permute(reshape(R3*C3, r3, r1, r2), [2 3 1]); % Multplication by R3
+        
+        X.U1 = U1;
+        X.U2 = U2;
+        X.U3 = U3;
+        X.G = CR1R2R3;
+    
+        
         
         X = prepare(X);
+        
     end
     
     M.randvec = @randomvec;

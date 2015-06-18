@@ -16,7 +16,7 @@ function low_rank_matrix_completion()
 % Note that the code is long because it showcases quite a few features of
 % Manopt: most of the code is optional.
 %
-% Input:  None. This example file generate random data.
+% Input:  None. This example file generates random data.
 % 
 % Output: None.
 
