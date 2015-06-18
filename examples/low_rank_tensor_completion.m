@@ -225,7 +225,6 @@ function low_rank_tensor_completion()
     
 
     
-    
     % options
     options.maxiter = 200;
     options.maxinner = 30;
@@ -299,5 +298,23 @@ function low_rank_tensor_completion()
     disp(options);
     fprintf('And see how many trials were made at each line search call:\n');
     info_ls = [infocg.linesearch];
-    disp([info_ls.costevals]);     
+    disp([info_ls.costevals]); 
+    
+    
+     
+    fprintf('Try it again without the linesearch helper.\n');
+    
+    % Remove the linesearch helper from the problem structure.
+    problem = rmfield(problem, 'linesearch');
+    
+    [Xcg, xcost, info, options] = conjugategradient(problem, []); %#ok<ASGLU>
+    
+    fprintf('Take a look at the options that CG used:\n');
+    disp(options);
+    fprintf('And see how many trials were made at each line search call:\n');
+    info_ls = [info.linesearch];
+    disp([info_ls.costevals]);
+    
+    
+    
 end
