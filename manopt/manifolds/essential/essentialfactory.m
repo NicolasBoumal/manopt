@@ -29,6 +29,10 @@ function M = essentialfactory(k, varargin)
 %
 % By default, k = 1.
 %
+% Optional arguments:
+%   "signed"    selects the signed version of the manifold
+%   "unsigned"  selects the unsigned version of the manifold
+%
 % See also rotationsfactory
 
 % Please cite the Manopt paper as well as the research paper:
