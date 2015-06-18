@@ -8,9 +8,9 @@ function M = euclideanfactory(m, n)
 % product, as a manifold for Manopt.
 %
 % m and n in general can be vectors to handle multidimensional arrays.
-% If either of m or n is a vector, they are concatenated as [m n].
+% If either of m or n is a vector, they are concatenated as [m, n].
 %
-% Using this 'manifold', Manopt can be used to solve standard
+% Using this simple linear manifold, Manopt can be used to solve standard
 % unconstrained optimization problems, for example in replacement of
 % Matlab's fminunc.
 %
@@ -27,25 +27,18 @@ function M = euclideanfactory(m, n)
 %       Added functionality to handle multidimensional arrays.
 
 
+    % The size can be defined using both m and n, or simply with m.
+    % If m is a scalar, then n is implicitly 1.
+    % This mimicks the use of built-in Matlab functions such as zeros(...).
     if ~exist('n', 'var') || isempty(n)
-        n = 1;
+        if numel(m) == 1
+            n = 1;
+        else
+            n = [];
+        end
     end
     
-    if size(m, 1) >= size(m, 2)
-        m = m'; % Make #columns bigger than #rows.
-    end
-    
-    if size(n, 1) >= size(n, 2)
-        n = n'; % Make #columns bigger than #rows.
-    end
-    
-    if size(m, 1) > 1 || size(n, 1) > 1
-        % m or n being a matrix is not what we should be handling here.
-        error('Bad usage of euclideanfactory');  
-    end
-    
-    % We have no reason to not believe in the scenario below.
-    dimensions_vec = [m, n]; % We have a row vector.
+    dimensions_vec = [m(:)', n(:)']; % We have a row vector.
     
     
     M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec)); % BM: okay.
