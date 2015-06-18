@@ -36,7 +36,7 @@ function M = symmetricfactory(n, k)
     
     M.egrad2rgrad = M.proj;
     
-    %M.ehess2rhess = @(x, eg, eh, d) eh;
+    M.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
     
     M.tangent = @(x, d) d;
     
