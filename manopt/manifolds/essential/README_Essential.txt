@@ -19,10 +19,21 @@ rotations. In Matlab, we represents k points on the essential
 manifold as array of dimension $[3 \times 6 \times k]$, where each $[3 \times 3]$
 sub matrix is a 3-D rotation.
 
-Note: for now, the implementation only provides the "signed" version
-of the manifold presented in the paper.
+The implementation provides both the "signed" and "unsigned" version
+of the manifold presented in the paper. The only difference between
+the two is in how the logarithm, and hence the distance, are
+computed. In the signed version, the points related by the twisted pair
+ambiguity are considered as distinct; in practice, this is the case when the
+cheirality constraint is used to remove the ambiguity. In the unsigned
+version, points related by the twisted pair ambiguity belong to the
+same class; in practice, it means that they all produce equivalent
+epipolar constraints. See the paper for details.
 
-Factory call: M=essentialfactory(k). By default, k equals 1
+Factory call:
+M=essentialfactory(k,signature).
+By default, k equals 1. The string signature should be set to "signed"
+(resp. "unsigned") to use the signed (resp. unsigned) version of the
+manifold. By default, signature equals "signed".
 
 See the paper for the definition of the set and tangent spaces.
 
@@ -153,18 +164,10 @@ horizontal: it simply applies the exponential map on each copy of
 SO(3)
 
 - Logarithm map
-M.log(X,Y,varargin)
+M.log(X,Y)
 The inverse of the exponential map. It is guaranteed to correspond to
 the horizontal vector pointing in the direction of the shortest
-geodesic from X to Y. By default, the logarithm is computed for the signed 
-version of the manifold (i.e., points related by the twisted pair
-ambiguity are considered as distinct; this is the case when the
-cheirality constraint is used to remove the ambiguity). The same
-behaviour is obtained by passing the optional argument "signed".
-To use the unsigned version (i.e., points related by the twisted pair
-ambiguity belong to the same class), use the optional argument "unsigned".
-See the paper for details about the precise description of the
-signed and unsigned versions of the manifold.
+geodesic from X to Y.
 
 - Transport
 M.transp(X1,X2,S1)
@@ -173,10 +176,9 @@ of X2, using left translations in SO(3)^2. This transport preserves
 the length of the vectors.
 
 - Distance
-M.dist(X,Y,varargin)
+M.dist(X,Y)
 $\dist(X,Y)=\|\log(X,Y)\|$
-Compute the shortest geodesic distance between X and Y. The optional
-arguments are the same as M.log().
+Compute the shortest geodesic distance between X and Y. 
 
 - Pair mean
 M.pairmean(X,Y)
