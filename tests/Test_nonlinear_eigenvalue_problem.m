@@ -36,14 +36,17 @@ function Test_nonlinear_eigenvalue_problem()
     end
     
     
-    % Check whether gradient and Hessian computations are correct
-    checkgradient(problem);
-    pause;
-    checkhessian(problem);
-    pause;
+    %     % Check whether gradient and Hessian computations are correct
+    %     checkgradient(problem);
+    %     pause;
+    %     checkhessian(problem);
+    %     pause;
     
+    
+    % Initialization
+    X0 = [];
     
     % Call the trust-region algorithm.
-    Xsol = trustregions(problem);
+    Xsol = trustregions(problem, X0);
     
 end
