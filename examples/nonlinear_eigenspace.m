@@ -1,7 +1,7 @@
-function [Xsol] = Test_nonlinear_eigenvalue_problem(L, k, alpha)
+function [Xsol] = nonlinear_eigenspace(L, k, alpha)
 % Minimize total energy minimization nonlinear eigenvalue problem.
 %
-% function [Xsol] = Test_nonlinear_eigenvalue_problem(L, k, alpha)
+% function [Xsol] = nonlinear_eigenspace(L, k, alpha)
 %
 % L is a discrete Laplacian operator,
 % alpha is a given constant, and
@@ -34,7 +34,7 @@ function [Xsol] = Test_nonlinear_eigenvalue_problem(L, k, alpha)
     % If no inputs are provided, generate a  discrete Laplacian operator.
     % This is for illustration purposes only.
     % The default example corresponds to Case (c) of Example 6.2 of the
-    % referenced paper.
+    % above referenced paper.
     
     if ~exist('L', 'var') || isempty(L)
         n = 100;
