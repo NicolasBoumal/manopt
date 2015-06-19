@@ -28,7 +28,9 @@ function low_rank_tensor_completion()
 % 
     
 
-    % Random data generation. First, choose the size of the problem.
+    % Random data generation with pseudo-random numbers from a 
+    % uniform distribution on [0, 1].
+    % First, choose the size of the problem.
     % We will complete a tensor of size n1-by-n2-by-n3 of rank (r1, r2, r3):  
     n1 = 70;
     n2 = 60;
