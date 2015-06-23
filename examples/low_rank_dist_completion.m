@@ -381,7 +381,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     % Stopping criteria options
     options.stopfun = @mystopfun;
     function stopnow = mystopfun(problem, Y, info, last) %#ok<INUSL>
-        stopnow = (last >= 3 && (info(last-2).cost - info(last).cost < params.abstolcost || abs(info(last-2).cost - info(last).cost)/info(last).cost < params.reltolcost));
+        stopnow = (last >= 5 && (info(last-2).cost - info(last).cost < params.abstolcost || abs(info(last-2).cost - info(last).cost)/info(last).cost < params.reltolcost));
     end
     options.tolgradnorm = params.tolgradnorm;
     options.maxiter = params.maxiter;
