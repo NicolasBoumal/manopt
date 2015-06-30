@@ -39,6 +39,17 @@ function hessfun = approxhessianFD(problem, options)
 %
 % See also: trustregions
 
+% The Riemannian Trust-Region method, used in combination with the present
+% Hessian approximation, is called RTR-FD. Some convergence theory for it
+% is available in this paper:
+%
+% @incollection{boumal2015rtrfd
+% 	author={Boumal, N.},
+% 	title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
+% 	year={2015},
+% 	booktitle={Geometric Science of Information}
+% }
+
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 8, 2015.
 % Contributors: 
