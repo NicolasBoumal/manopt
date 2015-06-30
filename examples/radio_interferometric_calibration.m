@@ -1,12 +1,19 @@
-function[xsol] = radio_interferometric_calibration(N, K)
+function xsol = radio_interferometric_calibration(N, K)
 % Returns the gain matrices of N stations with K receivers.
 %
-% function[xsol] = radio_interferometric_calibration(N, K)
+% function xsol = radio_interferometric_calibration(N, K)
 %
 % N >= K is always assumed.
 %
 % The example considers calibration of an array of N stations.
 % We simulate a system with N stations, each having K receivers.
+% For radio astronomy, K = 2.
+%
+% For a detailed exposition of the problem at hand, refer to the paper:
+% "Radio interferometric calibration using a Riemannian manifold",
+% Sarod Yatawatta, ICASSP, 2013.
+% Available here: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&tag=1
+%
 % The source of the signal is unpolarized (given by the matrix C).
 % The measured data is the cross correlation of the signals at each receiver.
 % So there will be N(N-1)/2 possible cross correlations.
@@ -24,15 +31,10 @@ function[xsol] = radio_interferometric_calibration(N, K)
 % optimization routine always has an unkown unitary matrix that makes the 
 % solution different from the true solution.
 %
-% For radio astronomy K = 2. For more details, please refer the paper:
-% "Radio interferometric calibration using a Riemannian manifold",
-% Sarod Yatawatta, ICASSP, 2013.
-%
-% Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&tag=1
 %
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Sarod Yatawatta, Jun. 29, 2015.
+% Original author: Sarod Yatawatta, June 29, 2015.
 % Contributors: Bamdev Mishra.
 % Change log:
 %    
@@ -46,13 +48,14 @@ function[xsol] = radio_interferometric_calibration(N, K)
         K = 2; 
     end
     
+    assert(N >= K, 'N must be larger than or equal to K.');
     
     % Baselines (pairs of correlations)
     B = N*(N-1)/2;
     
     
     
-    % Source coherency, at phase center
+    % Source coherence, at phase center
     C = eye(K);
     
     % Random J (gains) of all stations
@@ -104,8 +107,11 @@ function[xsol] = radio_interferometric_calibration(N, K)
         end
     end
     
-    % Gradient of the cost function
-    problem.egrad = @egrad; % Euclidean gradeint. Manopt automatically converts it to the Riemannian couterpart.
+    % Euclidean gradient of the cost function.
+    % Manopt automatically converts it to the Riemannian couterpart.
+    % The code involves for-loops for readability, but could be vectorized
+    % for improved speed.
+    problem.egrad = @egrad;
     function grad = egrad(x)
         grad = zeros(K*N, K);
         ck = 1;
@@ -119,8 +125,9 @@ function[xsol] = radio_interferometric_calibration(N, K)
         end
     end
     
-    % Hessian of the cost function along a search direction, say, eta.
-    problem.ehess = @ehess; % Euclidean Hessian. Manopt automatically converts it to the Riemannian couterpart.
+    % Euclidean Hessian of the cost function along a search direction eta.
+    % Manopt automatically converts it to the Riemannian couterpart.
+    problem.ehess = @ehess;
     function hess = ehess(x, eta)
         hess = zeros(K*N, K);
         ck = 1;
@@ -139,7 +146,6 @@ function[xsol] = radio_interferometric_calibration(N, K)
     
     
     % Execute some checks on the derivatives for early debugging.
-    % These things can be commented out of course.
     % checkgradient(problem);
     % pause;
     % checkhessian(problem);
@@ -161,36 +167,38 @@ function[xsol] = radio_interferometric_calibration(N, K)
     ylabel(ax1, 'Gradient norm', 'FontSize',fs);
     title('Convergence of the trust-regions algorithm');
 
-    % Make a plot of estimation error (only for K=2).
+    % Make a plot of estimation error (only for K = 2).
     if K == 2,
-      % Find unitary ambiguity first by solving min ||J - xsol U||.
-      % This has a closed-form solution.
-      [u, ignore, v] = svd(xsol'*J);
-      
-      % Error in position
-      E = J - xsol*u*v'; 
-      
-      % Normalize error
-      E = E/norm(J);
-      
-      % Plot
-      figure;
-      ax1 = subplot(1,2,1);
-      quiver(real(J(:,1)), imag(J(:,1)),real(E(:,1)),imag(E(:,1)));
-      hold all;
-      scatter(real(J(:,1)), imag(J(:,1)));
-      set(ax1,'FontSize',fs);
-      xlabel('Real E_1');
-      ylabel('Imag E_1');
-      title('Position error 1st coordinate'); 
-      ax2 = subplot(1,2,2);
-      quiver(real(J(:,2)),imag(J(:,2)),real(E(:,2)),imag(E(:,2)));
-      hold all;
-      scatter(real(J(:,2)),imag(J(:,2)));
-      set(ax2,'FontSize',fs);
-      xlabel('Real E_2');
-      ylabel('Imag E_2');
-      title('Position error 2nd coordinate'); 
+        % Find unitary ambiguity first by solving min ||J - xsol U||.
+        % This has a closed-form solution.
+        [u, ignore, v] = svd(xsol'*J); %#ok<ASGLU>
+
+        % Error in position
+        E = J - xsol*u*v'; 
+
+        % Normalize error
+        E = E/norm(J);
+
+        % Plot
+        figure;
+        ax1 = subplot(1,2,1);
+        quiver(real(J(:,1)), imag(J(:,1)),real(E(:,1)),imag(E(:,1)));
+        hold all;
+        scatter(real(J(:,1)), imag(J(:,1)));
+        set(ax1,'FontSize',fs);
+        xlabel('Real E_1');
+        ylabel('Imag E_1');
+        title('Position error 1st coordinate'); 
+        axis equal;
+        ax2 = subplot(1,2,2);
+        quiver(real(J(:,2)),imag(J(:,2)),real(E(:,2)),imag(E(:,2)));
+        hold all;
+        scatter(real(J(:,2)),imag(J(:,2)));
+        set(ax2,'FontSize',fs);
+        xlabel('Real E_2');
+        ylabel('Imag E_2');
+        title('Position error 2nd coordinate'); 
+        axis equal;
     end
     
 end
