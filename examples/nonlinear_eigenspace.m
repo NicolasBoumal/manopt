@@ -1,23 +1,23 @@
-function [Xsol] = nonlinear_eigenspace(L, k, alpha)
-% Minimize total energy minimization nonlinear eigenvalue problem.
+function Xsol = nonlinear_eigenspace(L, k, alpha)
+% Example of nonlinear eigenvalue problem: total energy minimization.
 %
-% function [Xsol] = nonlinear_eigenspace(L, k, alpha)
+% function Xsol = nonlinear_eigenspace(L, k, alpha)
 %
 % L is a discrete Laplacian operator,
 % alpha is a given constant, and
-% k corresponds to the smallest eigenspace sought. 
+% k corresponds to the dimension of the least eigenspace sought. 
 %
 % This example demonstrates how to use the Grassmann geometry factory 
-% to solve the nonlinear eigenvalue problem as the optimization problem
+% to solve the nonlinear eigenvalue problem as the optimization problem:
 %
 % minimize 0.5*trace(X'*L*X) + (alpha/4)*(rho(X)*L\(rho(X))) 
 % over X such that X'*X = Identity,
 %
 % where L is of size n-by-n,
-% X is a n-by-k matrix, and
+% X is an n-by-k matrix, and
 % rho(X) is the diagonal part of X*X'.
 %
-% This is motivated in the paper
+% This example is motivated in the paper
 % "A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems" by
 % Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,
 % SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.
@@ -70,7 +70,6 @@ function [Xsol] = nonlinear_eigenspace(L, k, alpha)
     function g = egrad(X)
         rhoX = sum(X.^2, 2); % diag(X*X');
         g = L*X + alpha*diag(L\rhoX)*X;
-        
     end
     
     % Euclidean Hessian evaluation
@@ -92,14 +91,14 @@ function [Xsol] = nonlinear_eigenspace(L, k, alpha)
     
     % Initialization as suggested in above referenced paper.
     X = randn(n, k);
-    [U, S, V] = svd(X, 0);
+    [U, S, V] = svd(X, 0); %#ok<ASGLU>
     X = U*V';
-    [U0, S0, V0] = eigs(L + alpha*diag(L\(sum(X.^2, 2))), k,'sm');
+    [U0, S0, V0] = eigs(L + alpha*diag(L\(sum(X.^2, 2))), k,'sm'); %#ok<NASGU,ASGLU>
     X0 = U0;
   
     % Call manoptsolve to automatically call an appropriate solver.
-    % Note: it calls the trust regions solver as we have all the required,
-    % e.g., gradient and Hessian, information.
+    % Note: it calls the trust regions solver as we have all the required
+    % ingredients, namely, gradient and Hessian information.
     Xsol = manoptsolve(problem, X0);
     
 end
