@@ -59,7 +59,8 @@ function M = symfixedrankYYcomplexfactory(n, k)
     M.dim = @() 2*k*n - k*k; % SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2)
     
     % Euclidean metric on the total space
-    M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:)); % BM: equivalent is 2.0*real(trace(eta'*zeta)), but is not efficient.
+    % BM: equivalent to 2.0*real(trace(eta'*zeta)), but more efficient.
+    M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:));
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     
@@ -67,9 +68,9 @@ function M = symfixedrankYYcomplexfactory(n, k)
     % Procrustes problem with svd(Y'*Z).
     M.dist = @(Y, Z) distance;
     function distval = distance(Y, Z)
-        [u, ignore, v] = svd(Z'*Y);
+        [u, ignore, v] = svd(Z'*Y); %#ok<ASGLU>
         E = Y - Z*u*v'; % SY: checked.
-        distval = real(E(:)'*E(:)); % BM: equivalent is real(trace(E'*E)), but is not efficient.
+        distval = real(E(:)'*E(:));
     end
     
     M.typicaldist = @() 10*k; % BM: To do.
@@ -140,7 +141,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 end
 
 
-% Linear conbination of tangent vectors
+% Linear combination of tangent vectors
 function d = lincomb(Y, a1, d1, a2, d2) %#ok<INUSL>
     
     if nargin == 3
