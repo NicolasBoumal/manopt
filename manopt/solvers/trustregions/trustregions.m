@@ -590,6 +590,16 @@ while true
     end
     
     rho = rhonum / rhoden;
+    
+    % Added June 30, 2015 following observation by BM.
+    if isnan(rho)
+        fprintf('rho is NaN! Forcing a radius decrease. This should not happen.\n');
+        if isnan(fx_prop)
+            fprintf('The cost function returned NaN (perhaps the retraction returned a bad point?)\n');
+        else
+            fprintf('The cost function did not return a NaN value.');
+        end
+    end
    
     if options.debug > 0
         m = @(x, eta) ...
@@ -607,7 +617,7 @@ while true
     trstr = '   ';
     % If the actual decrease is smaller than 1/4 of the predicted decrease,
     % then reduce the TR radius.
-    if rho < 1/4 || ~model_decreased
+    if rho < 1/4 || ~model_decreased || isnan(rho)
         trstr = 'TR-';
         Delta = Delta/4;
         consecutive_TRplus = 0;
