@@ -1,8 +1,9 @@
-function M = essentialfactory(k, varargin)
-% Returns a manifold structure to optimize over the space of essential
-% matrices using the quotient representation.
+function M = essentialfactory(k, strSigned)
+% Manifold structure to optimize over the space of essential matrices.
 %
 % function M = essentialfactory(k)
+% function M = essentialfactory(k, 'signed')
+% function M = essentialfactory(k, 'unsigned')
 %
 %
 % Quotient representation of the essential manifold: deals with the
@@ -10,8 +11,8 @@ function M = essentialfactory(k, varargin)
 % computer vision to represent the epipolar constraint between projected
 % points in two perspective views.
 %
-% The space is represented as the quotient (SO(3)^2/SO(2)). See the
-% following references for details
+% The space is represented as the quotient (SO(3)^2/SO(2)).
+% See the following references for details:
 %
 %   R. Tron, K. Daniilidis,
 %   "On the quotient representation of the essential manifold"
@@ -20,14 +21,14 @@ function M = essentialfactory(k, varargin)
 % For computational purposes, each essential matrix is represented as a
 % [3x6] matrix where each [3x3] block is a rotation.
 %
-% The metric used is the one induced by the submersion of M_rE in SO(3)^2
+% The metric used is the one induced by the submersion of M_rE in SO(3)^2.
 %
 % Tangent vectors are represented in the Lie algebra of SO(3)^2, i.e., as
 % [3x6] matrices where each [3x3] block is a skew-symmetric matrix.
 % Use the function tangent2ambient(X, H) to switch from the Lie algebra
 % representation to the embedding space representation in R^(3x6).
 %
-% By default, k = 1.
+% By default, k = 1, and the geometry is 'signed'.
 %
 % Optional arguments:
 %   "signed"    selects the signed version of the manifold
@@ -57,23 +58,18 @@ function M = essentialfactory(k, varargin)
 % arrays.
 
 
-    flagSigned = true;
     % Optional parameters to switch between the signed and unsigned
     % versions of the manifold.
-    ivarargin = 1;
-    while(ivarargin <= length(varargin))
-        switch(lower(varargin{ivarargin}))
-            case 'signed'
-                flagSigned = true;
-            case 'unsigned'
-                flagSigned = false;
-            case 'flagsigned'
-                ivarargin = ivarargin + 1;
-                flagSigned = varargin{ivarargin};
-            otherwise
-                error(['Argument ' varargin{ivarargin} ' not valid!'])
-        end
-        ivarargin = ivarargin + 1;
+    if ~exist('strSigned', 'var') || isempty(strSigned)
+        strSigned = 'signed';
+    end
+    switch(strSigned)
+        case 'signed'
+            flagSigned = true;
+        case 'unsigned'
+            flagSigned = false;
+        otherwise
+            error('Second argument can be either empty, ''signed'', or ''unsigned''.');
     end
 
     
@@ -82,14 +78,14 @@ function M = essentialfactory(k, varargin)
     end
     
     if k == 1
-        M.name = @() sprintf('Quotient representation of the essential manifold');
-    elseif k > 1
-        M.name = @() sprintf('Product of %d quotient representations of the essential manifold', k);
+        M.name = @() sprintf('Quotient representation of the essential manifold, %s', strSigned);
+    elseif k > 1 && k == round(k)
+        M.name = @() sprintf('Product of %d quotient representations of the essential manifold, %s', k, strSigned);
     else
         error('k must be an integer no less than 1.');
     end
     
-    M.dim = k*5;% BM: okay
+    M.dim = @() k*5;
     
     M.inner = @(x, d1, d2) d1(:).'*d2(:);
     
