@@ -162,7 +162,7 @@ function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
     elseif nargin == 5
         d = a1*d1 + a2*d2;
     else
-        error('Bad use of complexstiefel.lincomb.');
+        error('Bad use of stiefelcomplex.lincomb.');
     end
 
 end
