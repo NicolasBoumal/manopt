@@ -54,7 +54,7 @@ function M = grassmanncomplexfactory(n, p, k)
     
     M.dist = @distance;
     function d = distance(x, y)
-        square_d = 0;
+        principal_angles = zeros(p, k);
         XHY = multiprod(multihconj(x), y); %! XtY -> XHY, multitransp -> multihconj
         for i = 1 : k
             cos_princ_angle = svd(XHY(:, :, i));
@@ -64,9 +64,9 @@ function M = grassmanncomplexfactory(n, p, k)
             % thus vanish when the norm is taken.
             % cos_princ_angle = min(cos_princ_angle,  1);
             % cos_princ_angle = max(cos_princ_angle, -1);
-            square_d = square_d + norm(acos(cos_princ_angle))^2;
+            principal_angles(:, i) = acos(cos_princ_angle);
         end
-        d = sqrt(square_d);
+        d = norm(real(principal_angles), 'fro');
     end
     
     M.typicaldist = @() sqrt(p*k);
