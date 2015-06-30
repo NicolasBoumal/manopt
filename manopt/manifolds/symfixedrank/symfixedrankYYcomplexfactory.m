@@ -52,7 +52,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Sarod Yatawatta, Jun. 29, 2015.
+% Original author: Sarod Yatawatta, June 29, 2015.
 % Contributors: Bamdev Mishra.
 % Change log:
 %    

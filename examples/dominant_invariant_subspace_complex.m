@@ -1,60 +1,48 @@
-function [X, info] = dominant_invariant_subspace(A, p)
-% Returns an orthonormal basis of the dominant invariant p-subspace of A.
+function [X, info] = dominant_invariant_subspace_complex(A, p)
+% Returns a unitary basis of the dominant invariant p-subspace of A.
 %
 % function X = dominant_invariant_subspace(A, p)
 %
-% Input: A real, symmetric matrix A of size nxn and an integer p < n.
-% Output: A real, orthonormal matrix X of size nxp such that trace(X'*A*X)
-%         is maximized. That is, the columns of X form an orthonormal basis
-%         of a dominant subspace of dimension p of A. These are thus
-%         eigenvectors associated with the largest eigenvalues of A (in no
-%         particular order). Sign is important: 2 is deemed a larger
-%         eigenvalue than -5.
+% Input: A complex, Hermitian matrix A of size nxn and an integer p < n.
+% Output: A complex, unitary matrix X of size nxp such that trace(X'*A*X)
+%         is maximized. That is, the columns of X form a unitary basis
+%         of a dominant subspace of dimension p of A.
 %
-% The optimization is performed on the Grassmann manifold, since only the
-% space spanned by the columns of X matters. The implementation is short to
-% show how Manopt can be used to quickly obtain a prototype. To make the
-% implementation more efficient, one might first try to use the caching
-% system, that is, use the optional 'store' arguments in the cost, grad and
-% hess functions. Furthermore, using egrad2rgrad and ehess2rhess is quick
-% and easy, but not always efficient. Having a look at the formulas
-% implemented in these functions can help rewrite the code without them,
-% possibly more efficiently.
+% The optimization is performed on the complex Grassmann manifold, since
+% only the space spanned by the columns of X matters.
 %
-% See also: dominant_invariant_subspace_complex
+% See dominant_invariant_subspace for more details in the real case.
+%
+% See also: dominant_invariant_subspace grassmanncomplexfactory
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
-% Main author: Nicolas Boumal, July 5, 2013
+% Main author: Nicolas Boumal, June 30, 2015
 % Contributors:
 %
 % Change log:
-%
-%   NB Dec. 6, 2013:
-%       We specify a max and initial trust region radius in the options.
     
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
-        A = randn(128);
+        A = randn(128) + 1i*randn(128);
         A = (A+A')/2;
     end
     if ~exist('p', 'var') || isempty(p)
         p = 3;
     end
     
-    % Make sure the input matrix is square and symmetric
+    % Make sure the input matrix is Hermitian
     n = size(A, 1);
-	assert(isreal(A), 'A must be real.')
     assert(size(A, 2) == n, 'A must be square.');
-    assert(norm(A-A', 'fro') < n*eps, 'A must be symmetric.');
+    assert(norm(A-A', 'fro') < n*eps, 'A must be Hermitian.');
 	assert(p<=n, 'p must be smaller than n.');
     
-    % Define the cost and its derivatives on the Grassmann manifold
-    Gr = grassmannfactory(n, p);
+    % Define the cost and its derivatives on the complex Grassmann manifold
+    Gr = grassmanncomplexfactory(n, p);
     problem.M = Gr;
-    problem.cost = @(X)    -trace(X'*A*X);
-    problem.grad = @(X)    -2*Gr.egrad2rgrad(X, A*X);
-    problem.hess = @(X, H) -2*Gr.ehess2rhess(X, A*X, A*H, H);
+    problem.cost  = @(X)    -real(trace(X'*A*X));
+    problem.egrad = @(X)    -2*A*X;
+    problem.ehess = @(X, H) -2*A*H;
     
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.
