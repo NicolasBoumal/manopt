@@ -9,6 +9,15 @@ function M = sympositivedefinitefactory(n)
 % (but not necessarily definite). The Riemannian metric is the bi-invariant
 % metric, described notably in Chapter 6 of the 2007 book
 % "Positive definite matrices" by Rajendra Bhatia, Princeton Univ. Press.
+%
+%
+% The retraction / exponential map involves expm (the matrix exponential).
+% If a too large vector is retracted / exponentiated (e.g., a solver tries
+% to make too big a step), this may result in NaN's in the returned point,
+% which most likely would lead to NaN's in the cost / gradient / ... and
+% will result in failure of the optimization. For trustregions, this can be
+% controlled by setting options.Delta0 and options.Delta_bar, to prevent
+% too large steps.
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, August 29, 2013.
