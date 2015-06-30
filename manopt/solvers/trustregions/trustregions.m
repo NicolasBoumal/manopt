@@ -197,7 +197,6 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Doi      = {10.1007/s10208-005-0179-9}
 %     }
 %
-%
 % See also: steepestdescent conjugategradient manopt/examples
 
 % An explicit, general listing of this algorithm, with preconditioning,
@@ -211,6 +210,16 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Volume  = {475},
 %       Doi     = {10.1016/j.laa.2015.02.027},
 %     }
+
+% When the Hessian is not specified, it is approximated with
+% finite-differences of the gradient. The resulting method is called
+% RTR-FD. Some convergence theory for it is available in this paper:
+% @incollection{boumal2015rtrfd
+% 	author={Boumal, N.},
+% 	title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
+% 	year={2015},
+% 	booktitle={Geometric Science of Information}
+% }
 
 
 % This file is part of Manopt: www.manopt.org.
@@ -403,9 +412,10 @@ elseif options.verbosity > 2
    fprintf('      Delta : %f\n', Delta);
 end
 
-% To keep track of consecutive radius increases, so that we can warn the
+% To keep track of consecutive radius changes, so that we can warn the
 % user if it appears necessary.
 consecutive_TRplus = 0;
+consecutive_TRminus = 0;
 
 
 % **********************
@@ -601,6 +611,13 @@ while true
         trstr = 'TR-';
         Delta = Delta/4;
         consecutive_TRplus = 0;
+        consecutive_TRminus = consecutive_TRminus + 1;
+        if consecutive_TRminus >= 5 && options.verbosity >= 1
+            consecutive_TRminus = -inf;
+            fprintf(' +++ Detected many consecutive TR- (radius decreases).\n');
+            fprintf(' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n');
+            fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
+        end
     % If the actual decrease is at least 3/4 of the precicted decrease and
     % the tCG (inner solve) hit the TR boundary, increase the TR radius.
     % We also keep track of the number of consecutive trust-region radius
@@ -609,6 +626,7 @@ while true
     elseif rho > 3/4 && (stop_inner == 1 || stop_inner == 2)
         trstr = 'TR+';
         Delta = min(2*Delta, options.Delta_bar);
+        consecutive_TRminus = 0;
         consecutive_TRplus = consecutive_TRplus + 1;
         if consecutive_TRplus >= 5 && options.verbosity >= 1
             consecutive_TRplus = -inf;
@@ -619,6 +637,7 @@ while true
     else
         % Otherwise, keep the TR radius constant.
         consecutive_TRplus = 0;
+        consecutive_TRminus = 0;
     end
 
     % Choose to accept or reject the proposed step based on the model
