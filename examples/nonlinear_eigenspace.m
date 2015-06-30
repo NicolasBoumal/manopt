@@ -90,7 +90,7 @@ function [Xsol] = nonlinear_eigenspace(L, k, alpha)
     %     pause;
     
     
-    % Initialization as suggested in above referenced paper
+    % Initialization as suggested in above referenced paper.
     X = randn(n, k);
     [U, S, V] = svd(X, 0);
     X = U*V';
