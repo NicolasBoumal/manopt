@@ -47,6 +47,9 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %  doi = {10.1093/mnras/sts069}, 
 %  journal = {Monthly Notices of the Royal Astronomical Society} 
 % }
+%
+% See also: symfixedrankYYfactory   sympositivedefinitefactory
+
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Sarod Yatawatta, June 29, 2015.
