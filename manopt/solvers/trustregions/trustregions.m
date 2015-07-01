@@ -592,6 +592,10 @@ while true
     rho = rhonum / rhoden;
     
     % Added June 30, 2015 following observation by BM.
+    % With this modification, it is guaranteed that a step rejection is
+    % always accompanied by a TR reduction. This prevents stagnation in
+    % this "corner case" (NaN's really aren't supposed to occur, but it's
+    % nice if we can handle them nonetheless).
     if isnan(rho)
         fprintf('rho is NaN! Forcing a radius decrease. This should not happen.\n');
         if isnan(fx_prop)
