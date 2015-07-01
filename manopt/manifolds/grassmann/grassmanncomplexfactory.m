@@ -22,7 +22,7 @@ function M = grassmanncomplexfactory(n, p, k)
 %
 % By default, k = 1.
 %
-% See also: grassmannfactory, stiefelcomplexfactory
+% See also: grassmannfactory, stiefelcomplexfactory, grassmanngeneralizedfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Hiroyuki Sato, May 21, 2015.
