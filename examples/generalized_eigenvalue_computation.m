@@ -1,19 +1,21 @@
-function [X, info] = generalized_eigenvalue_computation(A, B, p)
+function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
 % Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.
 %
-% function X = dgeneralized_eigenvalue_computation(A, B, p)
+% function [Xsol, Ssol] = dgeneralized_eigenvalue_computation(A, B, p)
 %
 % Input: A real, symmetric matrix A of size nxn and an integer p < n.
 %        B is symmetric positive definite matrix.
-% Output: A real, orthonormal matrix X of size nxp such that trace(X'*A*X)
+% Output: Xsol: a real, orthonormal matrix X of size nxp such that trace(X'*A*X)
 %         is maximized subject to X'*B*X is identity. 
 %         That is, the columns of X form an orthonormal basis
 %         of a dominant subspace of dimension p of B^(-1)*A. These are thus
 %         eigenvectors associated with the largest eigenvalues of B^(-1)*A 
 %         (in no particular order). Sign is important: 2 is deemed a larger
 %         eigenvalue than -5.
+%         Ssol: the eigenvalues associated with the eigenvectors Xsol.
 % 
-% We intend to solve the system AX = BX Lambda.
+% We intend to solve the system A*X = B*X*S, where S is a diagonal
+% matirx of the eigenvalues of B^-1 A. 
 %
 %
 % The optimization is performed on the generalized Grassmann manifold, 
@@ -25,7 +27,7 @@ function [X, info] = generalized_eigenvalue_computation(A, B, p)
 % X --> XO, where O is a p-by-p orthogonal matrix. The search space, in
 % essence, is set of equivalence classes
 % [X] = {XO : X'*B*X = I and O is orthogonal matrix}. This space is called
-% the generalized Grassmann manifold.
+% the generalized Grassmann manifold. 
 
 
 % This file is part of Manopt and is copyrighted. See the license file.
@@ -38,7 +40,8 @@ function [X, info] = generalized_eigenvalue_computation(A, B, p)
     
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
-        A = randn(128);
+        n = 128;
+        A = randn(n);
         A = (A+A')/2;
     end
     if ~exist('B', 'var') || isempty(B)
@@ -64,9 +67,9 @@ function [X, info] = generalized_eigenvalue_computation(A, B, p)
     gGr = grassmanngeneralizedfactory(n, p, B);
     
     problem.M = gGr;
-    problem.cost = @(X)    -trace(X'*A*X);
-    problem.grad = @(X)    -2*gGr.egrad2rgrad(X, A*X);
-    problem.hess = @(X, H) -2*gGr.ehess2rhess(X, A*X, A*H, H);
+    problem.cost = @(X)     -trace(X'*A*X);
+    problem.egrad = @(X)    -2*(A*X); % Only Euclidean gradient needed.
+    problem.ehess = @(X, H) -2*(A*H);% Only Euclidean Hessian needed.
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.
@@ -78,6 +81,8 @@ function [X, info] = generalized_eigenvalue_computation(A, B, p)
     % Issue a call to a solver. A random initial guess will be chosen and
     % default options are selected except for the ones we specify here.
     options.Delta_bar = 8*sqrt(p);
-    [X, costX, info, options] = trustregions(problem, [], options); %#ok<ASGLU>
+    [Xsol, costXsol, info] = trustregions(problem, [], options); %#ok<ASGLU>
     
+    Ssol = eig(Xsol'*(A*Xsol));
+  
 end
