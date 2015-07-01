@@ -169,7 +169,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
     % gGr.norm(x, u) % be the same.
     % z = gGr.exp(x, u) % z needs not be the same matrix as y, but it should
     % v = gGr.log(x, z) % be the same point as y on Grassmann: dist almost 0.
-    % gGr.dist(z,y)
+    % gGr.dist(z, y)
     M.log = @logarithm;
     function U = logarithm(X, Y)
         YtBX = Y'*(B*X); % YtX ---> YtBX.
@@ -217,24 +217,13 @@ function M = grassmanngeneralizedfactory(n, p, B)
         % Generalized uf polar decomposition.
         % X'*B*X is identity.
         
-        % This file is part of Manopt: www.manopt.org.
-        % Original author: Bamdev Mishra, June 30, 2015.
-        % Contributors:
-        % Change log:
-        
         [u, ~, v] = svd(D, 0);
         X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
     end
     
-    function[u s v] = restricted_svd(Y)
+    function[u, s, v] = restricted_svd(Y)
         % We compute thin svd usv' of Y such that
-        % u'*B*u is identity.
-        
-        % This file is part of Manopt: www.manopt.org.
-        % Original author: Bamdev Mishra, June 30, 2015.
-        % Contributors:
-        % Change log:
-        
+        % u'*B*u is identity.        
         
         [v, ssquare] = eig(Y'*(B*Y));
         ssquarevec = diag(ssquare);
