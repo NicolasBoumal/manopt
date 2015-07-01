@@ -26,6 +26,13 @@ function M = grassmanngeneralizedfactory(n, p, B)
 %
 % Paper link: http://arxiv.org/abs/physics/9806030.
 %
+% 
+% Note: some computations such as restricted_svd, distance, logarithm, and 
+% exponential are new and we believe them to be correct.
+% Also, we hope that the computations are sufficiently stable.
+% In case some things do not work out as expected or there is some trouble,
+% please contact us at http://www.manopt.org.
+%
 % See also: stiefelgeneralizedfactory  stiefelfactory  grassmannfactory
 
 
@@ -44,18 +51,15 @@ function M = grassmanngeneralizedfactory(n, p, B)
         B = speye(n); % Standard Grassmann manifold.
     end
     
-    
     M.name = @() sprintf('Generalized Grassmann manifold Gr(%d, %d)', n, p);
     
-    
-    M.dim = @() p*(n - p); % BM: to verify.
-    
+    M.dim = @() p*(n - p);   
     
     M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); % Scaled metric, but horizontally invaraiant.
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @distance; % BM: to verify.
+    M.dist = @distance; 
     function d = distance(X, Y)
         XtBY = X'*(B*Y); % XtY ---> XtBY
         cos_princ_angle = svd(XtBY); % svd(XtY) ---> svd(XtBY)
@@ -73,8 +77,8 @@ function M = grassmanngeneralizedfactory(n, p, B)
     M.typicaldist = @() sqrt(p);
     
     
-    % Orthogonal projection of an ambient vector U to the horizontal space
-    % at X.
+    % Orthogonal projection of an ambient vector U onto the 
+    % horizontal space at X.
     M.proj = @projection;
     function Up = projection(X, U)
         BX = B*X;
@@ -92,14 +96,14 @@ function M = grassmanngeneralizedfactory(n, p, B)
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
         
-        % First, scale egrad according the to the scaled metric in the
+        % First, scale egrad according to the scaled metric in the
         % Euclidean space.
         egrad_scaled = B\egrad;
         
         % Second, project onto the tangent space.
         % No need to project onto the horizontal space as
-        % by the Riemannian submersion theory, this quantity also belongs
-        % to the horizontal space.
+        % by the Riemannian submersion theory, this quantity automatically
+        % belongs to the horizontal space.
         %
         %
         % rgrad = egrad_scaled - X*symm((B*X)'*egrad_scaled);
@@ -126,7 +130,6 @@ function M = grassmanngeneralizedfactory(n, p, B)
     end
     
     
-    
     M.retr = @retraction;
     function Y = retraction(X, U, t)
         if nargin < 3
@@ -134,7 +137,6 @@ function M = grassmanngeneralizedfactory(n, p, B)
         end
         Y = guf(X + t*U); % Ensure that Y'*B*Y is identity.
     end
-    
     
     
     M.exp = @exponential;
@@ -152,11 +154,9 @@ function M = grassmanngeneralizedfactory(n, p, B)
         Y = X*v*cos_s*v' + u*sin_s*v';% Verify that Y'*B*Y is identity
         
         % From numerical experiments, it seems necessary to
-        % re-orthonormalize. This is overall quite expensive.
+        % re-orthonormalize.
         Y = guf(Y);% Ensure that Y'*B*Y is identity.
     end
-    
-    
     
     
     
@@ -214,23 +214,29 @@ function M = grassmanngeneralizedfactory(n, p, B)
     symm = @(D) (D + D')/2;
     
     function X = guf(D)
-        % Generalized uf polar decomposition.
+        % Generalized polar decomposition.
         % X'*B*X is identity.
         
+        % More stable computation
         [u, ~, v] = svd(D, 0);
         X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
+        
+        % Another computation using restricted_svd
+        % [u, ~, v] = restricted_svd(D);
+        % X = u*v'; % X'*B*X is identity.
+        
     end
     
     function[u, s, v] = restricted_svd(Y)
         % We compute thin svd usv' of Y such that
         % u'*B*u is identity.        
-        
-        [v, ssquare] = eig(Y'*(B*Y));
+        [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
         ssquarevec = diag(ssquare);
         
         s = diag(abs(sqrt(ssquarevec)));
-        u = Y*(v/s);
+        u = Y*(v/s); % u'*B*u is identity.
     end
+    
 end
 
 % Linear combination of tangent vectors
