@@ -140,11 +140,6 @@ function M = stiefelgeneralizedfactory(n, p, B)
         % Generalized uf polar decomposition.
         % X'*B*X is identity.
         
-        % This file is part of Manopt: www.manopt.org.
-        % Original author: Bamdev Mishra, June 30, 2015.
-        % Contributors:
-        % Change log:
-        
         [u, ~, v] = svd(D, 0);
         X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
     end

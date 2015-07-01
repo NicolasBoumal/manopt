@@ -106,10 +106,14 @@ body {
                   <li>euclideancomplexfactory (for complex matrices).</li>
                   <li>spheresymmetricfactory (for unit norm symmetric matrices)</li>
                   <li>stiefelcomplexfactory (for complex orthonormal matrices)</li>
+                  <li>stiefelgeneralizedfactory (for matrices which are
+                    orthonormal in another basis)</li>
                   <li>stiefelstackedfactory (for multiple orthonormal matrices
                     of same size, represented in stacked form)</li>
                   <li>grassmanncomplexfactory (complex Grassmannian, for complex
                     subspaces of $\mathbb{C}^n$)</li>
+                  <li>grassmanngeneralizedfactory (for optimization over subspaces,
+                    represented via orthonormal bases in a non-standard basis)</li>
                   <li>symfixedrankYYcomplexfactory (for complex fixed-rank
                     positive semidefinite matrices)</li>
                   <li>fixedrankfactory_tucker_preconditioned (for optimization
@@ -178,7 +182,11 @@ body {
                     of the complex fixed-rank manifold.</li>
                   <li>nonlinear_eigenspace, showing how to address certain
                     nonlinear eigenvalue problems.</li>
-                  <li>essential_svd, demonstrating the new geometry essentialfactory.</li>
+                  <li>essential_svd, demonstrating the new geometry
+                    essentialfactory.</li>
+                  <li>generalized_eigenvalue_computation, shows how to use
+                    grassmanngeneralizedfactory to solve generalized eigenvalue
+                    problems.</li>
                 </ul>
                 <li>New cost description function: sqrtprecon, for the square
                   root of the preconditioner (used in hessianspectrum).</li>
