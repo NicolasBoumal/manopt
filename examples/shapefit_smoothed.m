@@ -64,8 +64,9 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         normalize_cols = @(A) bsxfun(@times, A, 1./sqrt(sum(A.^2, 1)));
         sqnorm_cols = @(A) sum(A.^2, 1);
 
-        % Those points are the columns of T : they are what we need to estimate,
-        % up to scaling and translation. We center T for convenience.
+        % Those points are the columns of T : they are what we need to
+        % estimate, up to scaling and translation. We center T for
+        % convenience.
         T_tru = center_cols(rand(d, n));
 
         % We get a measurement of some pairs of relative directions.
@@ -75,9 +76,10 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         edge_fraction = 0.1;
         [ii, jj] = erdosrenyi(n, edge_fraction);
         m = length(ii);
-        J = sparse([ii ; jj], [(1:m)' ; (1:m)'], [ones(m, 1), -ones(m, 1)], n, m, 2*m);
+        J = sparse([ii ; jj], [(1:m)' ; (1:m)'], ...
+                   [ones(m, 1), -ones(m, 1)], n, m, 2*m);
 
-        % The measurements give us the directions from one point to another.
+        % The measurements give the directions from one point to another.
         % That is: we get the position difference, normalized. Here, with
         % Gaussian noise. Least-squares will be well-suited for this.
         sigma = .0;
@@ -153,7 +155,8 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         h = @(x2) sqrt(x2 + delta^2) - delta; % pseudo-Huber loss
 
         problem.cost  = @(T) sum(h(sqnorm_cols(A(T))));
-        problem.egrad = @(T) Astar(bsxfun(@times, A(T), 1./sqrt(sqnorm_cols(A(T)) + delta^2)));
+        problem.egrad = @(T) Astar(bsxfun(@times, A(T), ...
+                                    1./sqrt(sqnorm_cols(A(T)) + delta^2)));
 
         % Solve, using the previous solution as initial guess.
         T_hub = trustregions(problem, T_hub);
@@ -201,11 +204,13 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         end
 
         legend('ground truth', 'least squares', ...
-               sprintf('pseudo-huber, \\delta = %.1e', delta), 'CVX ShapeFit');
+               sprintf('pseudo-huber, \\delta = %.1e', delta), ...
+               'CVX ShapeFit');
            
-        title(sprintf(['ShapeFit problem : d = %d, n = %d, edge fraction ' ...
-                       '= %.2g, sigma = %.2g, outlier fraction = %.2g'], ...
-                       d, n, edge_fraction, sigma, outlier_fraction));
+        title(sprintf(['ShapeFit problem : d = %d, n = %d, edge ' ...
+                       'fraction = %.2g, sigma = %.2g, outlier ' ...
+                       'fraction = %.2g'], d, n, edge_fraction, sigma, ...
+                       outlier_fraction));
         axis equal;
     
     end
