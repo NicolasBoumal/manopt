@@ -33,6 +33,12 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % In case some things do not work out as expected or there is some trouble,
 % please contact us at http://www.manopt.org.
 %
+% Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If
+% you find that this is a bottleneck for your application, you may want to
+% create a modified version of this file which preprocesses B to speed this
+% up (typically, by computing a Cholesky factorization of it, then calling
+% an appropriate solver).
+%
 % See also: stiefelgeneralizedfactory  stiefelfactory  grassmannfactory
 
 
@@ -227,7 +233,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
         
     end
     
-    function[u, s, v] = restricted_svd(Y)
+    function [u, s, v] = restricted_svd(Y)
         % We compute thin svd usv' of Y such that
         % u'*B*u is identity.        
         [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
