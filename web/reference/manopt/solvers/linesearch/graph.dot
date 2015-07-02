@@ -3,5 +3,6 @@ digraph m2html {
 
   linesearch [URL="linesearch.html"];
   linesearch_adaptive [URL="linesearch_adaptive.html"];
+  linesearch_decrease [URL="linesearch_decrease.html"];
   linesearch_hint [URL="linesearch_hint.html"];
 }

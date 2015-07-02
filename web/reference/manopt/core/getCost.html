@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getCost</title>
+  <meta name="keywords" content="getCost">
+  <meta name="description" content="Computes the cost function at x.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; getCost.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getCost
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes the cost function at x.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function cost = getCost(problem, x, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes the cost function at x.
+
+ function cost = getCost(problem, x)
+ function cost = getCost(problem, x, storedb)
+ function cost = getCost(problem, x, storedb, key)
+
+ Returns the value at x of the cost function described in the problem
+ structure.
+
+ storedb is a StoreDB object, key is the StoreDB key to point x.
+
+ See also: <a href="canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../manopt/solvers/linesearch/linesearch.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, key)">linesearch</a>	Standard line-search algorithm (step size selection) for descent methods.</li><li><a href="../../manopt/solvers/linesearch/linesearch_adaptive.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)">linesearch_adaptive</a>	Adaptive line search algorithm (step size selection) for descent methods.</li><li><a href="../../manopt/solvers/linesearch/linesearch_decrease.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_decrease(problem, x, d, f0, ~, options, storedb, key)">linesearch_decrease</a>	Backtracking line-search aiming merely for a decrease in cost value.</li><li><a href="../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../manopt/tools/checkdiff.html" class="code" title="function checkdiff(problem, x, d)">checkdiff</a>	Checks the consistency of the cost function and directional derivatives.</li><li><a href="../../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li><li><a href="../../manopt/tools/plotprofile.html" class="code" title="function cost = plotprofile(problem, x, d, t)">plotprofile</a>	Plot the cost function along a geodesic or a retraction path.</li><li><a href="../../manopt/tools/surfprofile.html" class="code" title="function costs = surfprofile(problem, x, d1, d2, t1, t2)">surfprofile</a>	Plot the cost function as a surface over a 2-dimensional subspace.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function cost = getCost(problem, x, storedb, key)</a>
+0002 <span class="comment">% Computes the cost function at x.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function cost = getCost(problem, x)</span>
+0005 <span class="comment">% function cost = getCost(problem, x, storedb)</span>
+0006 <span class="comment">% function cost = getCost(problem, x, storedb, key)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns the value at x of the cost function described in the problem</span>
+0009 <span class="comment">% structure.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% storedb is a StoreDB object, key is the StoreDB key to point x.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also: canGetCost</span>
+0014 
+0015 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0016 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0017 <span class="comment">% Contributors:</span>
+0018 <span class="comment">% Change log:</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   April 3, 2015 (NB):</span>
+0021 <span class="comment">%       Works with the new StoreDB class system.</span>
+0022 
+0023     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0024     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0025         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0026             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
+0027         <span class="keyword">end</span>
+0028         key = storedb.getNewKey();
+0029     <span class="keyword">end</span>
+0030 
+0031 
+0032     <span class="keyword">if</span> isfield(problem, <span class="string">'cost'</span>)
+0033     <span class="comment">%% Compute the cost function using cost.</span>
+0034     
+0035         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0036         <span class="keyword">switch</span> nargin(problem.cost)
+0037             <span class="keyword">case</span> 1
+0038                 cost = problem.cost(x);
+0039             <span class="keyword">case</span> 2
+0040                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0041                 store = storedb.getWithShared(key);
+0042                 [cost, store] = problem.cost(x, store);
+0043                 storedb.setWithShared(store, key);
+0044             <span class="keyword">case</span> 3
+0045                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0046                 cost = problem.cost(x, storedb, key);
+0047             <span class="keyword">otherwise</span>
+0048                 up = MException(<span class="string">'manopt:getCost:badcost'</span>, <span class="keyword">...</span>
+0049                     <span class="string">'cost should accept 1, 2 or 3 inputs.'</span>);
+0050                 throw(up);
+0051         <span class="keyword">end</span>
+0052         
+0053     <span class="keyword">elseif</span> isfield(problem, <span class="string">'costgrad'</span>)
+0054     <span class="comment">%% Compute the cost function using costgrad.</span>
+0055     
+0056         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0057         <span class="keyword">switch</span> nargin(problem.costgrad)
+0058             <span class="keyword">case</span> 1
+0059                 cost = problem.costgrad(x);
+0060             <span class="keyword">case</span> 2
+0061                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0062                 store = storedb.getWithShared(key);
+0063                 [cost, grad, store] = problem.costgrad(x, store); <span class="comment">%#ok</span>
+0064                 storedb.setWithShared(store, key);
+0065             <span class="keyword">case</span> 3
+0066                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0067                 cost = problem.costgrad(x, storedb, key);
+0068             <span class="keyword">otherwise</span>
+0069                 up = MException(<span class="string">'manopt:getCost:badcostgrad'</span>, <span class="keyword">...</span>
+0070                     <span class="string">'costgrad should accept 1, 2 or 3 inputs.'</span>);
+0071                 throw(up);
+0072         <span class="keyword">end</span>
+0073 
+0074     <span class="keyword">else</span>
+0075     <span class="comment">%% Abandon computing the cost function.</span>
+0076 
+0077         up = MException(<span class="string">'manopt:getCost:fail'</span>, <span class="keyword">...</span>
+0078             [<span class="string">'The problem description is not explicit enough to '</span> <span class="keyword">...</span>
+0079              <span class="string">'compute the cost.'</span>]);
+0080         throw(up);
+0081         
+0082     <span class="keyword">end</span>
+0083     
+0084 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of nonlinear_eigenspace</title>
+  <meta name="keywords" content="nonlinear_eigenspace">
+  <meta name="description" content="Example of nonlinear eigenvalue problem: total energy minimization.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; nonlinear_eigenspace.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>nonlinear_eigenspace
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Example of nonlinear eigenvalue problem: total energy minimization.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Xsol = nonlinear_eigenspace(L, k, alpha) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Example of nonlinear eigenvalue problem: total energy minimization.
+
+ function Xsol = nonlinear_eigenspace(L, k, alpha)
+
+ L is a discrete Laplacian operator,
+ alpha is a given constant, and
+ k corresponds to the dimension of the least eigenspace sought. 
+
+ This example demonstrates how to use the Grassmann geometry factory 
+ to solve the nonlinear eigenvalue problem as the optimization problem:
+
+ minimize 0.5*trace(X'*L*X) + (alpha/4)*(rho(X)*L\(rho(X))) 
+ over X such that X'*X = Identity,
+
+ where L is of size n-by-n,
+ X is an n-by-k matrix, and
+ rho(X) is the diagonal part of X*X'.
+
+ This example is motivated in the paper
+ &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot; by
+ Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,
+ SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function val = cost(X)</a></li><li><a href="#_sub2" class="code">function g = egrad(X)</a></li><li><a href="#_sub3" class="code">function h = ehess(X, U)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Xsol = nonlinear_eigenspace(L, k, alpha)</a>
+0002 <span class="comment">% Example of nonlinear eigenvalue problem: total energy minimization.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function Xsol = nonlinear_eigenspace(L, k, alpha)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% L is a discrete Laplacian operator,</span>
+0007 <span class="comment">% alpha is a given constant, and</span>
+0008 <span class="comment">% k corresponds to the dimension of the least eigenspace sought.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% This example demonstrates how to use the Grassmann geometry factory</span>
+0011 <span class="comment">% to solve the nonlinear eigenvalue problem as the optimization problem:</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% minimize 0.5*trace(X'*L*X) + (alpha/4)*(rho(X)*L\(rho(X)))</span>
+0014 <span class="comment">% over X such that X'*X = Identity,</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% where L is of size n-by-n,</span>
+0017 <span class="comment">% X is an n-by-k matrix, and</span>
+0018 <span class="comment">% rho(X) is the diagonal part of X*X'.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% This example is motivated in the paper</span>
+0021 <span class="comment">% &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot; by</span>
+0022 <span class="comment">% Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,</span>
+0023 <span class="comment">% SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.</span>
+0024 
+0025 
+0026 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% Main author: Bamdev Mishra, June 19, 2015.</span>
+0029 <span class="comment">% Contributors:</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">% Change log:</span>
+0032 
+0033 
+0034     <span class="comment">% If no inputs are provided, generate a  discrete Laplacian operator.</span>
+0035     <span class="comment">% This is for illustration purposes only.</span>
+0036     <span class="comment">% The default example corresponds to Case (c) of Example 6.2 of the</span>
+0037     <span class="comment">% above referenced paper.</span>
+0038     
+0039     <span class="keyword">if</span> ~exist(<span class="string">'L'</span>, <span class="string">'var'</span>) || isempty(L)
+0040         n = 100;
+0041         L = gallery(<span class="string">'tridiag'</span>, n, -1, 2, -1);
+0042     <span class="keyword">end</span>
+0043     
+0044     n = size(L, 1);
+0045     assert(size(L, 2) == n, <span class="string">'L must be square.'</span>);
+0046     
+0047     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k) || k &gt; n
+0048         k = 10;
+0049     <span class="keyword">end</span>
+0050     
+0051     <span class="keyword">if</span> ~exist(<span class="string">'alpha'</span>, <span class="string">'var'</span>) || isempty(alpha)
+0052         alpha = 1;
+0053     <span class="keyword">end</span>
+0054     
+0055     
+0056     <span class="comment">% Grassmann manifold description</span>
+0057     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, k);
+0058     problem.M = Gr;
+0059     
+0060     <span class="comment">% Cost function evaluation</span>
+0061     problem.cost =  @<a href="#_sub1" class="code" title="subfunction val = cost(X)">cost</a>;
+0062     <a name="_sub1" href="#_subfunctions" class="code">function val = cost(X)</a>
+0063         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
+0064         val = 0.5*trace(X'*(L*X)) + (alpha/4)*(rhoX'*(L\rhoX));
+0065     <span class="keyword">end</span>
+0066     
+0067     <span class="comment">% Euclidean gradient evaluation</span>
+0068     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
+0069     problem.egrad = @<a href="#_sub2" class="code" title="subfunction g = egrad(X)">egrad</a>;
+0070     <a name="_sub2" href="#_subfunctions" class="code">function g = egrad(X)</a>
+0071         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
+0072         g = L*X + alpha*diag(L\rhoX)*X;
+0073     <span class="keyword">end</span>
+0074     
+0075     <span class="comment">% Euclidean Hessian evaluation</span>
+0076     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
+0077     problem.ehess = @<a href="#_sub3" class="code" title="subfunction h = ehess(X, U)">ehess</a>;
+0078     <a name="_sub3" href="#_subfunctions" class="code">function h = ehess(X, U)</a>
+0079         rhoX = sum(X.^2, 2); <span class="comment">%diag(X*X');</span>
+0080         rhoXdot = 2*sum(X.*U, 2); 
+0081         h = L*U + alpha*diag(L\rhoXdot)*X + alpha*diag(L\rhoX)*U;
+0082     <span class="keyword">end</span>
+0083     
+0084     
+0085     <span class="comment">%     % Check whether gradient and Hessian computations are correct.</span>
+0086     <span class="comment">%     checkgradient(problem);</span>
+0087     <span class="comment">%     pause;</span>
+0088     <span class="comment">%     checkhessian(problem);</span>
+0089     <span class="comment">%     pause;</span>
+0090     
+0091     
+0092     <span class="comment">% Initialization as suggested in above referenced paper.</span>
+0093     X = randn(n, k);
+0094     [U, S, V] = svd(X, 0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0095     X = U*V';
+0096     [U0, S0, V0] = eigs(L + alpha*diag(L\(sum(X.^2, 2))), k,<span class="string">'sm'</span>); <span class="comment">%#ok&lt;NASGU,ASGLU&gt;</span>
+0097     X0 = U0;
+0098   
+0099     <span class="comment">% Call manoptsolve to automatically call an appropriate solver.</span>
+0100     <span class="comment">% Note: it calls the trust regions solver as we have all the required</span>
+0101     <span class="comment">% ingredients, namely, gradient and Hessian information.</span>
+0102     Xsol = <a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(problem, X0);
+0103     
+0104 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

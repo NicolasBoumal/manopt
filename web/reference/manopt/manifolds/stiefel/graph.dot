@@ -1,5 +1,8 @@
 /* Created by mdot for Matlab */
 digraph m2html {
 
+  stiefelcomplexfactory [URL="stiefelcomplexfactory.html"];
   stiefelfactory [URL="stiefelfactory.html"];
+  stiefelgeneralizedfactory [URL="stiefelgeneralizedfactory.html"];
+  stiefelstackedfactory [URL="stiefelstackedfactory.html"];
 }

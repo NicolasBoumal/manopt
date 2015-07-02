@@ -4,7 +4,7 @@
 <head>
   <title>Description of centroid</title>
   <meta name="keywords" content="centroid">
-  <meta name="description" content="Attempts the computation of a centroid of a set of points on amanifold.">
+  <meta name="description" content="Attempts the computation of a centroid of a set of points on a manifold.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,18 +21,18 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Attempts the computation of a centroid of a set of points on amanifold.</strong></div>
+<div class="box"><strong>Attempts the computation of a centroid of a set of points on a manifold.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function y = centroid(M, x) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Attempts the computation of a centroid of a set of points on amanifold.
+<div class="fragment"><pre class="comment"> Attempts the computation of a centroid of a set of points on a manifold.
  
  function y = centroid(M, x)
 
- M is a structure representing a manifold. x is a cell of points on that
- manifold.</pre></div>
+ M is a structure representing a manifold.
+ x is a cell of points on that manifold.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -50,12 +50,12 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function y = centroid(M, x)</a>
-0002 <span class="comment">% Attempts the computation of a centroid of a set of points on amanifold.</span>
+0002 <span class="comment">% Attempts the computation of a centroid of a set of points on a manifold.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function y = centroid(M, x)</span>
 0005 <span class="comment">%</span>
-0006 <span class="comment">% M is a structure representing a manifold. x is a cell of points on that</span>
-0007 <span class="comment">% manifold.</span>
+0006 <span class="comment">% M is a structure representing a manifold.</span>
+0007 <span class="comment">% x is a cell of points on that manifold.</span>
 0008 
 0009 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
 0010 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
@@ -89,16 +89,16 @@ This function is called by:
 0038     <span class="comment">% This line can be uncommented to check that the gradient is indeed</span>
 0039     <span class="comment">% correct. This should always be the case if the dist and the log</span>
 0040     <span class="comment">% functions in the manifold are correct.</span>
-0041     <span class="comment">% checkgradient(problem);</span>
+0041     <span class="comment">% checkgradient(problem); pause;</span>
 0042     
 0043     query = warning(<span class="string">'query'</span>, <span class="string">'manopt:getHessian:approx'</span>);
-0044     warning(<span class="string">'off'</span>, <span class="string">'manopt:getHessian:approx'</span>)
+0044     warning(<span class="string">'off'</span>, <span class="string">'manopt:getHessian:approx'</span>);
 0045     options.verbosity = 0;
 0046     options.maxiter = 15;
 0047     y = <a href="../../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, x{randi(n)}, options);
-0048     warning(query.state, <span class="string">'manopt:getHessian:approx'</span>)
+0048     warning(query.state, <span class="string">'manopt:getHessian:approx'</span>);
 0049 
 0050 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stiefelgeneralizedfactory</title>
+  <meta name="keywords" content="stiefelgeneralizedfactory">
+  <meta name="description" content="Returns a manifold structure of &quot;scaled&quot; orthonormal matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">stiefel</a> &gt; stiefelgeneralizedfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\stiefel&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>stiefelgeneralizedfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold structure of &quot;scaled&quot; orthonormal matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = stiefelgeneralizedfactory(n, p, B) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold structure of &quot;scaled&quot; orthonormal matrices.
+
+ function M = stiefelgeneralizedfactory(n, p)
+ function M = stiefelgeneralizedfactory(n, p, B)
+
+ The generalized Stiefel manifold is the set of &quot;scaled&quot; orthonormal 
+ nxp matrices X such that X'*B*X is identity. If B is identity, then this
+ is the standard Stiefel manifold.
+
+ The generalized Stiefel manifold is endowed with a scaled metric
+ by making it a Riemannian submanifold of the Euclidean space,
+ again endowed with the scaled inner product.
+
+ Some notions (not all) are from Section 4.5 of the paper
+ &quot;The geometry of algorithms with orthogonality constraints&quot;,
+ A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.
+
+ Paper link: http://arxiv.org/abs/physics/9806030.
+
+ See also: grassmanngeneralizedfactory grassmannfactory <a href="stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub2" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub4" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub5" class="code">function Y = exponential(X, Z, t)</a></li><li><a href="#_sub6" class="code">function X = random()</a></li><li><a href="#_sub7" class="code">function U = randomvec(X)</a></li><li><a href="#_sub8" class="code">function X = guf(D)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = stiefelgeneralizedfactory(n, p, B)</a>
+0002 <span class="comment">% Returns a manifold structure of &quot;scaled&quot; orthonormal matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = stiefelgeneralizedfactory(n, p)</span>
+0005 <span class="comment">% function M = stiefelgeneralizedfactory(n, p, B)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% The generalized Stiefel manifold is the set of &quot;scaled&quot; orthonormal</span>
+0008 <span class="comment">% nxp matrices X such that X'*B*X is identity. If B is identity, then this</span>
+0009 <span class="comment">% is the standard Stiefel manifold.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% The generalized Stiefel manifold is endowed with a scaled metric</span>
+0012 <span class="comment">% by making it a Riemannian submanifold of the Euclidean space,</span>
+0013 <span class="comment">% again endowed with the scaled inner product.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Some notions (not all) are from Section 4.5 of the paper</span>
+0016 <span class="comment">% &quot;The geometry of algorithms with orthogonality constraints&quot;,</span>
+0017 <span class="comment">% A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% Paper link: http://arxiv.org/abs/physics/9806030.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% See also: grassmanngeneralizedfactory grassmannfactory stiefelfactory</span>
+0022 
+0023 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0024 <span class="comment">% Original author: Bamdev Mishra, June 30, 2015.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Change log:</span>
+0028 <span class="comment">%</span>
+0029 
+0030     
+0031     <span class="keyword">if</span> ~exist(<span class="string">'B'</span>, <span class="string">'var'</span>) || isempty(B)
+0032         B = speye(n); <span class="comment">% Standard Stiefel manifold.</span>
+0033     <span class="keyword">end</span>
+0034    
+0035     M.name = @() sprintf(<span class="string">'Generalized Stiefel manifold St(%d, %d)'</span>, n, p);
+0036     
+0037     M.dim = @() (n*p - .5*p*(p+1));
+0038     
+0039     M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); <span class="comment">% Scaled metric.</span>
+0040     
+0041     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0042     
+0043     M.dist = @(X, Y) error(<span class="string">'stiefelgeneralizedfactory.dist not implemented yet.'</span>);
+0044     
+0045     M.typicaldist = @() sqrt(p);
+0046     
+0047     <span class="comment">% Orthogonal projection of an ambient vector U to the tangent space</span>
+0048     <span class="comment">% at X.</span>
+0049     M.proj = @<a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>;
+0050     <a name="_sub1" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
+0051         BX = B*X;
+0052         
+0053         <span class="comment">% Projection onto the tangent space</span>
+0054         Up = U - X*symm(BX'*U);  
+0055     <span class="keyword">end</span>
+0056     
+0057     M.tangent = M.proj;
+0058     
+0059     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0060     <a name="_sub2" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0061         
+0062         <span class="comment">% First, scale egrad according the to the scaled metric in the</span>
+0063         <span class="comment">% Euclidean space.</span>
+0064         egrad_scaled = B\egrad;
+0065         
+0066         <span class="comment">% Second, project onto the tangent space.</span>
+0067         <span class="comment">% rgrad = egrad_scaled - X*symm((B*X)'*egrad_scaled);</span>
+0068         <span class="comment">%</span>
+0069         <span class="comment">% Verify that symm(BX'*egrad_scaled) = symm(X'*egrad).</span>
+0070         
+0071         rgrad = egrad_scaled - X*symm(X'*egrad);
+0072     <span class="keyword">end</span>
+0073     
+0074     
+0075     
+0076     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0077     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0078         egraddot = ehess;
+0079         Xdot = H;
+0080         
+0081         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
+0082         egrad_scaleddot = B\egraddot;
+0083         rgraddot = egrad_scaleddot - Xdot*symm(X'*egrad)<span class="keyword">...</span>
+0084             - X*symm(Xdot'*egrad)<span class="keyword">...</span>
+0085             - X*symm(X'*egraddot);
+0086         
+0087         <span class="comment">% Project onto the tangent space.</span>
+0088         rhess = M.proj(X, rgraddot);
+0089     <span class="keyword">end</span>
+0090     
+0091     
+0092     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0093     <a name="_sub4" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0094         <span class="keyword">if</span> nargin &lt; 3
+0095             t = 1.0;
+0096         <span class="keyword">end</span>
+0097         Y = <a href="#_sub8" class="code" title="subfunction X = guf(D)">guf</a>(X + t*U); <span class="comment">% Ensure that Y'*B*Y is identity.</span>
+0098     <span class="keyword">end</span>
+0099     
+0100     
+0101     M.exp = @<a href="#_sub5" class="code" title="subfunction Y = exponential(X, Z, t)">exponential</a>;
+0102     <a name="_sub5" href="#_subfunctions" class="code">function Y = exponential(X, Z, t)</a>
+0103         <span class="keyword">if</span> nargin &lt; 3
+0104             t = 1.0;
+0105         <span class="keyword">end</span>
+0106         Y = <a href="#_sub4" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>(X, Z, t);
+0107         warning(<span class="string">'manopt:stiefelgeneralizedfactory:exp'</span>, <span class="keyword">...</span>
+0108                [<span class="string">'Exponential for generalized Stiefel manifold '</span> <span class="keyword">...</span>
+0109                 <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0110     <span class="keyword">end</span>
+0111 
+0112 
+0113     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0114     
+0115     M.rand = @<a href="#_sub6" class="code" title="subfunction X = random()">random</a>;
+0116     <a name="_sub6" href="#_subfunctions" class="code">function X = random()</a>
+0117         X = <a href="#_sub8" class="code" title="subfunction X = guf(D)">guf</a>(randn(n, p)); <span class="comment">% Ensure that X'*B*X is identity;</span>
+0118     <span class="keyword">end</span>
+0119     
+0120     M.randvec = @<a href="#_sub7" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0121     <a name="_sub7" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0122         U = <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p));
+0123         U = U / norm(U(:));
+0124     <span class="keyword">end</span>
+0125     
+0126     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0127     
+0128     M.zerovec = @(X) zeros(n, p);
+0129     
+0130     M.transp = @(X1, X2, d) <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X2, d);
+0131     
+0132     M.vec = @(X, u_mat) u_mat(:);
+0133     M.mat = @(X, u_vec) reshape(u_vec, [n, p]);
+0134     M.vecmatareisometries = @() false;
+0135     
+0136     <span class="comment">% Some auxiliary functions</span>
+0137     symm = @(D) (D + D')/2;
+0138     
+0139     <a name="_sub8" href="#_subfunctions" class="code">function X = guf(D)</a>
+0140         <span class="comment">% Generalized uf polar decomposition.</span>
+0141         <span class="comment">% X'*B*X is identity.</span>
+0142         
+0143         [u, ~, v] = svd(D, 0);
+0144         X = u*(sqrtm(u'*(B*u))\(v')); <span class="comment">% X'*B*X is identity.</span>
+0145     <span class="keyword">end</span>
+0146     
+0147 
+0148 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

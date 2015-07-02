@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of canGetSqrtPrecon</title>
+  <meta name="keywords" content="canGetSqrtPrecon">
+  <meta name="description" content="Checks whether a square root of preconditioner was specified in problem.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; canGetSqrtPrecon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>canGetSqrtPrecon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks whether a square root of preconditioner was specified in problem.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function candoit = canGetSqrtPrecon(problem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks whether a square root of preconditioner was specified in problem.
+
+ function candoit = canGetSqrtPrecon(problem)
+
+ Returns true if the problem structure allows for applying the square root
+ of a preconditioner to tangent vectors at a given point. The square root
+ of the preconditioner at x must be a symmetric, positive definite
+ operator Q such that applying Q twice (Q o Q) amounts to applying the
+ preconditioner once. If both a preconditioner and a square root of
+ preconditioner are provided, it is the user's responsibility to ensure
+ their compatibility.
+
+ Similarly to getPrecon, if the present function returns false, calls to
+ getSqrtPrecon will still work: they will act as the identity. Note that
+ this may be incompatible with the preconditioner if it is given. Thus,
+ always check by calling canGetSqrtPrecon first.
+
+ See also: <a href="canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a> <a href="getSqrtPrecon.html" class="code" title="function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)">getSqrtPrecon</a> <a href="getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>	Checks whether a preconditioner was specified in the problem description.</li><li><a href="getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function candoit = canGetSqrtPrecon(problem)</a>
+0002 <span class="comment">% Checks whether a square root of preconditioner was specified in problem.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function candoit = canGetSqrtPrecon(problem)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns true if the problem structure allows for applying the square root</span>
+0007 <span class="comment">% of a preconditioner to tangent vectors at a given point. The square root</span>
+0008 <span class="comment">% of the preconditioner at x must be a symmetric, positive definite</span>
+0009 <span class="comment">% operator Q such that applying Q twice (Q o Q) amounts to applying the</span>
+0010 <span class="comment">% preconditioner once. If both a preconditioner and a square root of</span>
+0011 <span class="comment">% preconditioner are provided, it is the user's responsibility to ensure</span>
+0012 <span class="comment">% their compatibility.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Similarly to getPrecon, if the present function returns false, calls to</span>
+0015 <span class="comment">% getSqrtPrecon will still work: they will act as the identity. Note that</span>
+0016 <span class="comment">% this may be incompatible with the preconditioner if it is given. Thus,</span>
+0017 <span class="comment">% always check by calling canGetSqrtPrecon first.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% See also: canGetPrecon getSqrtPrecon getPrecon</span>
+0020 
+0021 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0022 <span class="comment">% Original author: Nicolas Boumal, April 3, 2015.</span>
+0023 <span class="comment">% Contributors:</span>
+0024 <span class="comment">% Change log:</span>
+0025 
+0026     candoit = isfield(problem, <span class="string">'sqrtprecon'</span>);
+0027     
+0028 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

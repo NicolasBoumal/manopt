@@ -3,6 +3,7 @@ digraph m2html {
 
   elliptopefactory [URL="elliptopefactory.html"];
   spectrahedronfactory [URL="spectrahedronfactory.html"];
+  symfixedrankYYcomplexfactory [URL="symfixedrankYYcomplexfactory.html"];
   symfixedrankYYfactory [URL="symfixedrankYYfactory.html"];
   sympositivedefinitefactory [URL="sympositivedefinitefactory.html"];
 }

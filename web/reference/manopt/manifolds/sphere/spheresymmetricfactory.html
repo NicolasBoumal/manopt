@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spheresymmetricfactory</title>
+  <meta name="keywords" content="spheresymmetricfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over unit-norm symmetric matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">sphere</a> &gt; spheresymmetricfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\sphere&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>spheresymmetricfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over unit-norm symmetric matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = spheresymmetricfactory(n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-norm symmetric matrices.
+
+ function M = spheresymmetricfactory(n)
+
+ Manifold of n-by-n real symmetric matrices of unit Frobenius norm.
+ The metric is such that the sphere is a Riemannian submanifold of the
+ space of nxn symmetric matrices with the usual trace inner product, i.e.,
+ the usual metric &lt;A, B&gt; = trace(A'*B).
+ 
+ See also: <a href="spherefactory.html" class="code" title="function M = spherefactory(n, m)">spherefactory</a> obliquefactory <a href="spherecomplexfactory.html" class="code" title="function M = spherecomplexfactory(n, m)">spherecomplexfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function xdot = proj(x, d)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub5" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub6" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub7" class="code">function x = random(n)</a></li><li><a href="#_sub8" class="code">function d = randomvec(n, x)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spheresymmetricfactory(n)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over unit-norm symmetric matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = spheresymmetricfactory(n)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Manifold of n-by-n real symmetric matrices of unit Frobenius norm.</span>
+0007 <span class="comment">% The metric is such that the sphere is a Riemannian submanifold of the</span>
+0008 <span class="comment">% space of nxn symmetric matrices with the usual trace inner product, i.e.,</span>
+0009 <span class="comment">% the usual metric &lt;A, B&gt; = trace(A'*B).</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% See also: spherefactory obliquefactory spherecomplexfactory</span>
+0012 
+0013 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0014 <span class="comment">% Original author: Nicolas Boumal, April 17, 2015.</span>
+0015 <span class="comment">% Contributors:</span>
+0016 <span class="comment">% Change log:</span>
+0017 
+0018 
+0019     M.name = @() sprintf(<span class="string">'Sphere of symmetric matrices of size %d'</span>, n);
+0020     
+0021     M.dim = @() n*(n+1)/2 - 1;
+0022     
+0023     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0024     
+0025     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0026     
+0027     M.dist = @(x, y) real(acos(x(:).'*y(:)));
+0028     
+0029     M.typicaldist = @() pi;
+0030     
+0031     M.proj = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0032     <a name="_sub1" href="#_subfunctions" class="code">function xdot = proj(x, d)</a>
+0033         d = (d+d.')/2;
+0034         xdot = d - x*(x(:).'*d(:));
+0035     <span class="keyword">end</span>
+0036     
+0037     M.tangent = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0038     
+0039     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0040     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0041     M.egrad2rgrad = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0042     
+0043     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(x, egrad, ehess, u)">ehess2rhess</a>;
+0044     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a>
+0045         <span class="comment">% these are not explicitly required, given the use.</span>
+0046         <span class="comment">% egrad = (egrad + egrad.')/2;</span>
+0047         <span class="comment">% ehess = (ehess + ehess.')/2;</span>
+0048         rhess = <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x, ehess) - (x(:)'*egrad(:))*u;
+0049     <span class="keyword">end</span>
+0050     
+0051     M.exp = @<a href="#_sub5" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
+0052     
+0053     M.retr = @<a href="#_sub6" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
+0054 
+0055     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0056     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0057         v = <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x1, x2 - x1);
+0058         di = M.dist(x1, x2);
+0059         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
+0060         <span class="keyword">if</span> di &gt; 1e-6
+0061             nv = norm(v, <span class="string">'fro'</span>);
+0062             v = v * (di / nv);
+0063         <span class="keyword">end</span>
+0064     <span class="keyword">end</span>
+0065     
+0066     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0067     
+0068     M.rand = @() <a href="#_sub7" class="code" title="subfunction x = random(n)">random</a>(n);
+0069     
+0070     M.randvec = @(x) <a href="#_sub8" class="code" title="subfunction d = randomvec(n, x)">randomvec</a>(n, x);
+0071     
+0072     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0073     
+0074     M.zerovec = @(x) zeros(n);
+0075     
+0076     M.transp = @(x1, x2, d) <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x2, d);
+0077     
+0078     M.pairmean = @<a href="#_sub4" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0079     <a name="_sub4" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0080         y = x1+x2;
+0081         y = y / norm(y, <span class="string">'fro'</span>);
+0082     <span class="keyword">end</span>
+0083 
+0084     <span class="comment">% TODO : check isometry and fix.</span>
+0085     M.vec = @(x, u_mat) u_mat(:);
+0086     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
+0087     M.vecmatareisometries = @() false;
+0088 
+0089 <span class="keyword">end</span>
+0090 
+0091 <span class="comment">% Exponential on the sphere</span>
+0092 <a name="_sub5" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
+0093 
+0094     <span class="keyword">if</span> nargin == 2
+0095         t = 1;
+0096     <span class="keyword">end</span>
+0097     
+0098     td = t*d;
+0099     
+0100     nrm_td = norm(td, <span class="string">'fro'</span>);
+0101     
+0102     <span class="keyword">if</span> nrm_td &gt; 4.5e-8
+0103         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
+0104     <span class="keyword">else</span>
+0105         <span class="comment">% If the step is too small to accurately evaluate sin(x)/x,</span>
+0106         <span class="comment">% then sin(x)/x is almost indistinguishable from 1.</span>
+0107         y = x + td;
+0108         y = y / norm(y, <span class="string">'fro'</span>);
+0109     <span class="keyword">end</span>
+0110 
+0111 <span class="keyword">end</span>
+0112 
+0113 <span class="comment">% Retraction on the sphere</span>
+0114 <a name="_sub6" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0115 
+0116     <span class="keyword">if</span> nargin == 2
+0117         t = 1;
+0118     <span class="keyword">end</span>
+0119     
+0120     y = x + t*d;
+0121     y = y / norm(y, <span class="string">'fro'</span>);
+0122 
+0123 <span class="keyword">end</span>
+0124 
+0125 <span class="comment">% Uniform random sampling on the sphere.</span>
+0126 <a name="_sub7" href="#_subfunctions" class="code">function x = random(n)</a>
+0127 
+0128     x = randn(n);
+0129     x = (x + x.')/2;
+0130     x = x/norm(x, <span class="string">'fro'</span>);
+0131 
+0132 <span class="keyword">end</span>
+0133 
+0134 <span class="comment">% Random normalized tangent vector at x.</span>
+0135 <a name="_sub8" href="#_subfunctions" class="code">function d = randomvec(n, x)</a>
+0136 
+0137     d = randn(n);
+0138     d = (d + d.')/2;
+0139     d = d - x*(x(:).'*d(:));
+0140     d = d / norm(d, <span class="string">'fro'</span>);
+0141 
+0142 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

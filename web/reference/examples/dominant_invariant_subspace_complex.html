@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of dominant_invariant_subspace_complex</title>
+  <meta name="keywords" content="dominant_invariant_subspace_complex">
+  <meta name="description" content="Returns a unitary basis of the dominant invariant p-subspace of A.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; dominant_invariant_subspace_complex.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>dominant_invariant_subspace_complex
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Returns a unitary basis of the dominant invariant p-subspace of A.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [X, info] = dominant_invariant_subspace_complex(A, p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a unitary basis of the dominant invariant p-subspace of A.
+
+ function X = dominant_invariant_subspace(A, p)
+
+ Input: A complex, Hermitian matrix A of size nxn and an integer p &lt; n.
+ Output: A complex, unitary matrix X of size nxp such that trace(X'*A*X)
+         is maximized. That is, the columns of X form a unitary basis
+         of a dominant subspace of dimension p of A.
+
+ The optimization is performed on the complex Grassmann manifold, since
+ only the space spanned by the columns of X matters.
+
+ See dominant_invariant_subspace for more details in the real case.
+
+ See also: <a href="dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a> grassmanncomplexfactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/grassmann/grassmanncomplexfactory.html" class="code" title="function M = grassmanncomplexfactory(n, p, k)">grassmanncomplexfactory</a>	Returns a manifold struct to optimize over the set of subspaces in C^n.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [X, info] = dominant_invariant_subspace_complex(A, p)</a>
+0002 <span class="comment">% Returns a unitary basis of the dominant invariant p-subspace of A.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function X = dominant_invariant_subspace(A, p)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input: A complex, Hermitian matrix A of size nxn and an integer p &lt; n.</span>
+0007 <span class="comment">% Output: A complex, unitary matrix X of size nxp such that trace(X'*A*X)</span>
+0008 <span class="comment">%         is maximized. That is, the columns of X form a unitary basis</span>
+0009 <span class="comment">%         of a dominant subspace of dimension p of A.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% The optimization is performed on the complex Grassmann manifold, since</span>
+0012 <span class="comment">% only the space spanned by the columns of X matters.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% See dominant_invariant_subspace for more details in the real case.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% See also: dominant_invariant_subspace grassmanncomplexfactory</span>
+0017 
+0018 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Main author: Nicolas Boumal, June 30, 2015</span>
+0021 <span class="comment">% Contributors:</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Change log:</span>
+0024     
+0025     <span class="comment">% Generate some random data to test the function</span>
+0026     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0027         A = randn(128) + 1i*randn(128);
+0028         A = (A+A')/2;
+0029     <span class="keyword">end</span>
+0030     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0031         p = 3;
+0032     <span class="keyword">end</span>
+0033     
+0034     <span class="comment">% Make sure the input matrix is Hermitian</span>
+0035     n = size(A, 1);
+0036     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0037     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be Hermitian.'</span>);
+0038     assert(p&lt;=n, <span class="string">'p must be smaller than n.'</span>);
+0039     
+0040     <span class="comment">% Define the cost and its derivatives on the complex Grassmann manifold</span>
+0041     Gr = <a href="../manopt/manifolds/grassmann/grassmanncomplexfactory.html" class="code" title="function M = grassmanncomplexfactory(n, p, k)">grassmanncomplexfactory</a>(n, p);
+0042     problem.M = Gr;
+0043     problem.cost  = @(X)    -real(trace(X'*A*X));
+0044     problem.egrad = @(X)    -2*A*X;
+0045     problem.ehess = @(X, H) -2*A*H;
+0046     
+0047     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0048     <span class="comment">% These can be commented out.</span>
+0049     <span class="comment">% checkgradient(problem);</span>
+0050     <span class="comment">% pause;</span>
+0051     <span class="comment">% checkhessian(problem);</span>
+0052     <span class="comment">% pause;</span>
+0053     
+0054     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0055     <span class="comment">% default options are selected except for the ones we specify here.</span>
+0056     options.Delta_bar = 8*sqrt(p);
+0057     [X, costX, info, options] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0058     
+0059     fprintf(<span class="string">'Options used:\n'</span>);
+0060     disp(options);
+0061     
+0062     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
+0063     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
+0064     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
+0065     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
+0066     <span class="comment">% Hessian, this would also inform us on its performance.</span>
+0067     <span class="comment">%</span>
+0068     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
+0069     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
+0070     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
+0071     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
+0072     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
+0073     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
+0074     <span class="comment">% the optimizer not isolated anymore.</span>
+0075     <span class="keyword">if</span> Gr.dim() &lt; 512
+0076         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>(problem, X);
+0077         stairs(sort(evs));
+0078         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
+0079                <span class="string">'at the solution'</span>]);
+0080         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
+0081         ylabel(<span class="string">'Value of the eigenvalue'</span>);
+0082     <span class="keyword">end</span>
+0083 
+0084 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

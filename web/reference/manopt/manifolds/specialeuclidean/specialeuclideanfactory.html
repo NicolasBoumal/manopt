@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of specialeuclideanfactory</title>
+  <meta name="keywords" content="specialeuclideanfactory">
+  <meta name="description" content="Returns a manifold structure to optimize over the special Euclidean group">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">specialeuclidean</a> &gt; specialeuclideanfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\specialeuclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>specialeuclideanfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold structure to optimize over the special Euclidean group</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = specialeuclideanfactory(n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold structure to optimize over the special Euclidean group
+ 
+ function M = specialeuclideanfactory(n)
+ function M = specialeuclideanfactory(n, k)
+
+ The special Euclidean group (the manifold of rigid transformations):
+ This is a product manifold of the rotations group SO(n) and the
+ translation group R^n, copied k times.
+
+ Points on the manifold are represented as structures X with two fields.
+ X.R is a 3D array of size nxnxk such that each slice X.R(:, :, i)
+ corresponds to a rotation matrix (orthogonal with determinant 1).
+ X.t is a matrix of size nxk such that each column X.t(:, i) corresponds
+ to a translation vector.
+
+ Tangent vectors are represented as structures with the same fields. Note
+ that rotational components of the tangent vectors are represented in the
+ Lie algebra, i.e., each slice Xdot.R(:, :, i) is a skew-symmetric matrix.
+ Use M.tangent2ambient(X, Xdot) to obtain a representation in the ambient
+ space.
+
+ This is a description of SE(n)^k with the induced metric from the
+ embedding space (R^nxn)^k x (R^n)^k, i.e., this manifold is a Riemannian
+ submanifold of the embedding Euclidean space with the usual inner
+ product.
+
+ By default, k = 1.
+
+ This is a test geometry: it may not be the &quot;appropriate&quot; geometry to give
+ to SE(n).
+
+ See rotationsfactory and euclideanfactory for details.
+
+ See also: rotationsfactory euclideanfactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>	Returns a manifold struct to optimize over m-by-n matrices.</li><li><a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>	Returns a manifold structure to optimize over rotation matrices.</li><li><a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = specialeuclideanfactory(n, k)</a>
+0002 <span class="comment">% Returns a manifold structure to optimize over the special Euclidean group</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = specialeuclideanfactory(n)</span>
+0005 <span class="comment">% function M = specialeuclideanfactory(n, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% The special Euclidean group (the manifold of rigid transformations):</span>
+0008 <span class="comment">% This is a product manifold of the rotations group SO(n) and the</span>
+0009 <span class="comment">% translation group R^n, copied k times.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Points on the manifold are represented as structures X with two fields.</span>
+0012 <span class="comment">% X.R is a 3D array of size nxnxk such that each slice X.R(:, :, i)</span>
+0013 <span class="comment">% corresponds to a rotation matrix (orthogonal with determinant 1).</span>
+0014 <span class="comment">% X.t is a matrix of size nxk such that each column X.t(:, i) corresponds</span>
+0015 <span class="comment">% to a translation vector.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Tangent vectors are represented as structures with the same fields. Note</span>
+0018 <span class="comment">% that rotational components of the tangent vectors are represented in the</span>
+0019 <span class="comment">% Lie algebra, i.e., each slice Xdot.R(:, :, i) is a skew-symmetric matrix.</span>
+0020 <span class="comment">% Use M.tangent2ambient(X, Xdot) to obtain a representation in the ambient</span>
+0021 <span class="comment">% space.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% This is a description of SE(n)^k with the induced metric from the</span>
+0024 <span class="comment">% embedding space (R^nxn)^k x (R^n)^k, i.e., this manifold is a Riemannian</span>
+0025 <span class="comment">% submanifold of the embedding Euclidean space with the usual inner</span>
+0026 <span class="comment">% product.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% By default, k = 1.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% This is a test geometry: it may not be the &quot;appropriate&quot; geometry to give</span>
+0031 <span class="comment">% to SE(n).</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% See rotationsfactory and euclideanfactory for details.</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">% See also: rotationsfactory euclideanfactory</span>
+0036 
+0037 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0038 <span class="comment">% Original author: Nicolas Boumal, Sep. 23, 2014.</span>
+0039 <span class="comment">% Contributors:</span>
+0040 <span class="comment">% Change log:</span>
+0041 
+0042     
+0043     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0044         k = 1;
+0045     <span class="keyword">end</span>
+0046     
+0047     elements = struct();
+0048     elements.R = <a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>(n, k);
+0049     elements.t = <a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>(n, k);
+0050     
+0051     M = <a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>(elements);
+0052 
+0053 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

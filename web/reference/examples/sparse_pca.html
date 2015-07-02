@@ -79,7 +79,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)</a></li><li><a href="#_sub2" class="code">function store = prepare(X, store)</a></li><li><a href="#_sub3" class="code">function [f store] = cost(X, store)</a></li><li><a href="#_sub4" class="code">function [G store] = egrad(X, store)</a></li><li><a href="#_sub5" class="code">function Z = postprocess(A, P, X)</a></li><li><a href="#_sub6" class="code">function U = ufactor(X)</a></li></ul>
+<li><a href="#_sub1" class="code">function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)</a></li><li><a href="#_sub2" class="code">function store = prepare(X, store)</a></li><li><a href="#_sub3" class="code">function [f, store] = cost(X, store)</a></li><li><a href="#_sub4" class="code">function [G, store] = egrad(X, store)</a></li><li><a href="#_sub5" class="code">function Z = postprocess(A, P, X)</a></li><li><a href="#_sub6" class="code">function U = ufactor(X)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Z, P, X, A] = sparse_pca(A, m, gamma)</a>
@@ -170,91 +170,86 @@ This function is called by:
 0086     <span class="comment">% more variables than samples.</span>
 0087     St = <a href="../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(p, m);
 0088     problem.M = St;
-0089     
-0090     <span class="comment">% We know that the Stiefel factory does not have the exponential map</span>
-0091     <span class="comment">% implemented, but this is not important to us so we can disable the</span>
-0092     <span class="comment">% warning.</span>
-0093     warning(<span class="string">'off'</span>, <span class="string">'manopt:stiefel:exp'</span>);
-0094 
-0095     <span class="comment">% In this helper function, given a point 'X' on the manifold we check</span>
-0096     <span class="comment">% whether the caching structure 'store' has been populated with</span>
-0097     <span class="comment">% quantities that are useful to compute at X or not. If they were not,</span>
-0098     <span class="comment">% then we compute and store them now.</span>
-0099     <a name="_sub2" href="#_subfunctions" class="code">function store = prepare(X, store)</a>
-0100         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>) || ~store.ready
-0101             store.AtX = A'*X;
-0102             store.absAtX = abs(store.AtX);
-0103             store.pos = max(0, store.absAtX - gamma);
-0104             store.ready = true;
-0105         <span class="keyword">end</span>
-0106     <span class="keyword">end</span>
-0107 
-0108     <span class="comment">% Define the cost function here and set it in the problem structure.</span>
-0109     problem.cost = @<a href="#_sub3" class="code" title="subfunction [f store] = cost(X, store)">cost</a>;
-0110     <a name="_sub3" href="#_subfunctions" class="code">function [f store] = cost(X, store)</a>
-0111         store = <a href="#_sub2" class="code" title="subfunction store = prepare(X, store)">prepare</a>(X, store);
-0112         pos = store.pos;
-0113         f = -.5*norm(pos, <span class="string">'fro'</span>)^2;
-0114     <span class="keyword">end</span>
-0115 
-0116     <span class="comment">% Here, we chose to define the Euclidean gradient (egrad instead of</span>
-0117     <span class="comment">% grad) : Manopt will take care of converting it to the Riemannian</span>
-0118     <span class="comment">% gradient.</span>
-0119     problem.egrad = @<a href="#_sub4" class="code" title="subfunction [G store] = egrad(X, store)">egrad</a>;
-0120     <a name="_sub4" href="#_subfunctions" class="code">function [G store] = egrad(X, store)</a>
-0121         <span class="keyword">if</span> ~isfield(store, <span class="string">'G'</span>)
-0122             store = <a href="#_sub2" class="code" title="subfunction store = prepare(X, store)">prepare</a>(X, store);
-0123             pos = store.pos;
-0124             AtX = store.AtX;
-0125             sgAtX = sign(AtX);
-0126             factor = pos.*sgAtX;
-0127             store.G = -A*factor;
-0128         <span class="keyword">end</span>
-0129         G = store.G;
-0130     <span class="keyword">end</span>
-0131 
-0132     <span class="comment">% checkgradient(problem);</span>
-0133     <span class="comment">% pause;</span>
+0089 
+0090     <span class="comment">% In this helper function, given a point 'X' on the manifold we check</span>
+0091     <span class="comment">% whether the caching structure 'store' has been populated with</span>
+0092     <span class="comment">% quantities that are useful to compute at X or not. If they were not,</span>
+0093     <span class="comment">% then we compute and store them now.</span>
+0094     <a name="_sub2" href="#_subfunctions" class="code">function store = prepare(X, store)</a>
+0095         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>) || ~store.ready
+0096             store.AtX = A'*X;
+0097             store.absAtX = abs(store.AtX);
+0098             store.pos = max(0, store.absAtX - gamma);
+0099             store.ready = true;
+0100         <span class="keyword">end</span>
+0101     <span class="keyword">end</span>
+0102 
+0103     <span class="comment">% Define the cost function here and set it in the problem structure.</span>
+0104     problem.cost = @<a href="#_sub3" class="code" title="subfunction [f, store] = cost(X, store)">cost</a>;
+0105     <a name="_sub3" href="#_subfunctions" class="code">function [f, store] = cost(X, store)</a>
+0106         store = <a href="#_sub2" class="code" title="subfunction store = prepare(X, store)">prepare</a>(X, store);
+0107         pos = store.pos;
+0108         f = -.5*norm(pos, <span class="string">'fro'</span>)^2;
+0109     <span class="keyword">end</span>
+0110 
+0111     <span class="comment">% Here, we chose to define the Euclidean gradient (egrad instead of</span>
+0112     <span class="comment">% grad) : Manopt will take care of converting it to the Riemannian</span>
+0113     <span class="comment">% gradient.</span>
+0114     problem.egrad = @<a href="#_sub4" class="code" title="subfunction [G, store] = egrad(X, store)">egrad</a>;
+0115     <a name="_sub4" href="#_subfunctions" class="code">function [G, store] = egrad(X, store)</a>
+0116         <span class="keyword">if</span> ~isfield(store, <span class="string">'G'</span>)
+0117             store = <a href="#_sub2" class="code" title="subfunction store = prepare(X, store)">prepare</a>(X, store);
+0118             pos = store.pos;
+0119             AtX = store.AtX;
+0120             sgAtX = sign(AtX);
+0121             factor = pos.*sgAtX;
+0122             store.G = -A*factor;
+0123         <span class="keyword">end</span>
+0124         G = store.G;
+0125     <span class="keyword">end</span>
+0126 
+0127     <span class="comment">% checkgradient(problem);</span>
+0128     <span class="comment">% pause;</span>
+0129 
+0130     <span class="comment">% The optimization happens here. To improve the method, it may be</span>
+0131     <span class="comment">% interesting to investigate better-than-random initial iterates and,</span>
+0132     <span class="comment">% possibly, to fine tune the parameters of the solver.</span>
+0133     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem);
 0134 
-0135     <span class="comment">% The optimization happens here. To improve the method, it may be</span>
-0136     <span class="comment">% interesting to investigate better-than-random initial iterates and,</span>
-0137     <span class="comment">% possibly, to fine tune the parameters of the solver.</span>
-0138     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem);
+0135     <span class="comment">% Compute the sparsity pattern by thresholding</span>
+0136     P = abs(A'*X) &gt; gamma;
+0137     
+0138 <span class="keyword">end</span>
 0139 
-0140     <span class="comment">% Compute the sparsity pattern by thresholding</span>
-0141     P = abs(A'*X) &gt; gamma;
-0142     
-0143 <span class="keyword">end</span>
-0144 
-0145 
-0146 <span class="comment">% This post-processing algorithm produces a matrix Z of size nxm matching</span>
-0147 <span class="comment">% the sparsity pattern P and representing sparse principal components for</span>
-0148 <span class="comment">% A. This is to be called with the output of the main algorithm. This</span>
-0149 <span class="comment">% algorithm is described in the reference paper by Journee et al.</span>
-0150 <a name="_sub5" href="#_subfunctions" class="code">function Z = postprocess(A, P, X)</a>
-0151     fprintf(<span class="string">'Post-processing... '</span>);
-0152     counter = 0;
-0153     maxiter = 1000;
-0154     tolerance = 1e-8;
-0155     <span class="keyword">while</span> counter &lt; maxiter
-0156         Z = A'*X;
-0157         Z(~P) = 0;
-0158         Z = Z*diag(1./sqrt(diag(Z'*Z)));
-0159         X = <a href="#_sub6" class="code" title="subfunction U = ufactor(X)">ufactor</a>(A*Z);
-0160         counter = counter + 1;
-0161         <span class="keyword">if</span> counter &gt; 1 &amp;&amp; norm(Z0-Z, <span class="string">'fro'</span>) &lt; tolerance*norm(Z0, <span class="string">'fro'</span>)
-0162             <span class="keyword">break</span>;
-0163         <span class="keyword">end</span>
-0164         Z0 = Z;
-0165     <span class="keyword">end</span>
-0166     fprintf(<span class="string">'done, in %d iterations (max = %d).\n'</span>, counter, maxiter);
-0167 <span class="keyword">end</span>
-0168 
-0169 <span class="comment">% Returns the U-factor of the polar decomposition of X</span>
-0170 <a name="_sub6" href="#_subfunctions" class="code">function U = ufactor(X)</a>
-0171     [W S V] = svd(X, 0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0172     U = W*V';
-0173 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0140 
+0141 <span class="comment">% This post-processing algorithm produces a matrix Z of size nxm matching</span>
+0142 <span class="comment">% the sparsity pattern P and representing sparse principal components for</span>
+0143 <span class="comment">% A. This is to be called with the output of the main algorithm. This</span>
+0144 <span class="comment">% algorithm is described in the reference paper by Journee et al.</span>
+0145 <a name="_sub5" href="#_subfunctions" class="code">function Z = postprocess(A, P, X)</a>
+0146     fprintf(<span class="string">'Post-processing... '</span>);
+0147     counter = 0;
+0148     maxiter = 1000;
+0149     tolerance = 1e-8;
+0150     <span class="keyword">while</span> counter &lt; maxiter
+0151         Z = A'*X;
+0152         Z(~P) = 0;
+0153         Z = Z*diag(1./sqrt(diag(Z'*Z)));
+0154         X = <a href="#_sub6" class="code" title="subfunction U = ufactor(X)">ufactor</a>(A*Z);
+0155         counter = counter + 1;
+0156         <span class="keyword">if</span> counter &gt; 1 &amp;&amp; norm(Z0-Z, <span class="string">'fro'</span>) &lt; tolerance*norm(Z0, <span class="string">'fro'</span>)
+0157             <span class="keyword">break</span>;
+0158         <span class="keyword">end</span>
+0159         Z0 = Z;
+0160     <span class="keyword">end</span>
+0161     fprintf(<span class="string">'done, in %d iterations (max = %d).\n'</span>, counter, maxiter);
+0162 <span class="keyword">end</span>
+0163 
+0164 <span class="comment">% Returns the U-factor of the polar decomposition of X</span>
+0165 <a name="_sub6" href="#_subfunctions" class="code">function U = ufactor(X)</a>
+0166     [W, S, V] = svd(X, 0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0167     U = W*V';
+0168 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

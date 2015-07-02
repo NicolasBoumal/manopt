@@ -44,7 +44,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li></ul>
+<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 </ul>
@@ -71,26 +71,38 @@ This function is called by:
 0016 <span class="comment">% Original author: Nicolas Boumal, Jan. 9, 2013.</span>
 0017 <span class="comment">% Contributors:</span>
 0018 <span class="comment">% Change log:</span>
-0019 
-0020     <span class="comment">% Verify that the problem description is sufficient.</span>
-0021     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0022         error(<span class="string">'It seems no cost was provided.'</span>);  
-0023     <span class="keyword">end</span>
-0024     
-0025     linesearch_fun = @(t) <a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, problem.M.exp(x, d, t), struct());
-0026     
-0027     cost = zeros(size(t));
-0028     <span class="keyword">for</span> i = 1 : numel(t)
-0029         cost(i) = linesearch_fun(t(i));
-0030     <span class="keyword">end</span>
-0031     
-0032     <span class="keyword">if</span> nargout == 0
-0033         plot(t, cost);
-0034         xlabel(<span class="string">'t'</span>);
-0035         ylabel(<span class="string">'f(Exp_x(t*d))'</span>);
-0036     <span class="keyword">end</span>
-0037     
-0038 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   April 3, 2015 (NB):</span>
+0021 <span class="comment">%       Works with the new StoreDB class system.</span>
+0022 
+0023     <span class="comment">% Verify that the problem description is sufficient.</span>
+0024     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0025         error(<span class="string">'It seems no cost was provided.'</span>);  
+0026     <span class="keyword">end</span>
+0027     
+0028     <span class="keyword">if</span> isfield(problem.M, <span class="string">'exp'</span>)
+0029         expo = problem.M.exp;
+0030         str = <span class="string">'Exp'</span>;
+0031     <span class="keyword">else</span>
+0032         expo = problem.M.retr;
+0033         str = <span class="string">'Retr'</span>;
+0034     <span class="keyword">end</span>
+0035     
+0036     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0037     linesearch_fun = @(t) <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, expo(x, d, t), storedb);
+0038     
+0039     cost = zeros(size(t));
+0040     <span class="keyword">for</span> i = 1 : numel(t)
+0041         cost(i) = linesearch_fun(t(i));
+0042     <span class="keyword">end</span>
+0043     
+0044     <span class="keyword">if</span> nargout == 0
+0045         plot(t, cost);
+0046         xlabel(<span class="string">'t'</span>);
+0047         ylabel([<span class="string">'f('</span> str <span class="string">'_x(t*d))'</span>]);
+0048     <span class="keyword">end</span>
+0049     
+0050 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

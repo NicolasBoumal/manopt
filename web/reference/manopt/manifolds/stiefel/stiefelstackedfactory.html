@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stiefelstackedfactory</title>
+  <meta name="keywords" content="stiefelstackedfactory">
+  <meta name="description" content="Stiefel(k, d)^m, represented as matrices of size m*d-by-k.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">stiefel</a> &gt; stiefelstackedfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\stiefel&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>stiefelstackedfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Stiefel(k, d)^m, represented as matrices of size m*d-by-k.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = stiefelstackedfactory(m, d, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Stiefel(k, d)^m, represented as matrices of size m*d-by-k.
+
+ function M = stiefelstackedfactory(m, d, k)
+
+ Points on this manifold are matrices Y of size n x k, with n = m*d.
+ Y is thought of as m matrices of size d x k each, stacked on top of each
+ other. Call them Y1, ..., Ym. Each Yi is an orthonormal matrix, that is,
+ its d rows are unit norm and are orthogonal to each other. Thus, this
+ geometry is a product of Stiefel manifolds.
+ 
+ To easily transform matrices Y to 3D arrays Y3 of size d x k x m such
+ that each slice Y3(:, :, i) corresponds to one of the matrices Yi, use
+ the functions
+ 
+    Y3 = M.to3D(Y)   and   Y = M.to2D(Y3).
+
+ The ambient space R^(nxk) is endowed with the usual inner product
+ &lt;A, B&gt; = trace(A'*B). This inner product is restricted to the tangent
+ spaces of the present manifold, thus making it a Riemannian submanifold
+ of the Euclidean space R^(nxk). Tangent vectors are represented as
+ matrices of the same size as Y, and can likewise be converted to 3D
+ arrays and back using to3D() and to2D().
+
+ In dealing with this geometry, especially when dealing with the 3D array
+ representations of points and tangent vectors, the tools multiprod,
+ multitransp, multitrace, multiscale etc. available in Manopt are often
+ useful.
+
+ See also: <a href="stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a> obliquefactory multiprod multitransp</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function A2 = to2D(A3)</a></li><li><a href="#_sub2" class="code">function A3 = to3D(A2)</a></li><li><a href="#_sub3" class="code">function C = symbdiag(A, B)</a></li><li><a href="#_sub4" class="code">function Zt = projection(Y, Z)</a></li><li><a href="#_sub5" class="code">function rhess = ehess2rhess(Y, egrad, ehess, Ydot)</a></li><li><a href="#_sub6" class="code">function Y = retraction(Y, U, t)</a></li><li><a href="#_sub7" class="code">function Y = exponential(Y, U, t)</a></li><li><a href="#_sub8" class="code">function Y = random()</a></li><li><a href="#_sub9" class="code">function U = randomvec(Y)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = stiefelstackedfactory(m, d, k)</a>
+0002 <span class="comment">% Stiefel(k, d)^m, represented as matrices of size m*d-by-k.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = stiefelstackedfactory(m, d, k)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Points on this manifold are matrices Y of size n x k, with n = m*d.</span>
+0007 <span class="comment">% Y is thought of as m matrices of size d x k each, stacked on top of each</span>
+0008 <span class="comment">% other. Call them Y1, ..., Ym. Each Yi is an orthonormal matrix, that is,</span>
+0009 <span class="comment">% its d rows are unit norm and are orthogonal to each other. Thus, this</span>
+0010 <span class="comment">% geometry is a product of Stiefel manifolds.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% To easily transform matrices Y to 3D arrays Y3 of size d x k x m such</span>
+0013 <span class="comment">% that each slice Y3(:, :, i) corresponds to one of the matrices Yi, use</span>
+0014 <span class="comment">% the functions</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%    Y3 = M.to3D(Y)   and   Y = M.to2D(Y3).</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% The ambient space R^(nxk) is endowed with the usual inner product</span>
+0019 <span class="comment">% &lt;A, B&gt; = trace(A'*B). This inner product is restricted to the tangent</span>
+0020 <span class="comment">% spaces of the present manifold, thus making it a Riemannian submanifold</span>
+0021 <span class="comment">% of the Euclidean space R^(nxk). Tangent vectors are represented as</span>
+0022 <span class="comment">% matrices of the same size as Y, and can likewise be converted to 3D</span>
+0023 <span class="comment">% arrays and back using to3D() and to2D().</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% In dealing with this geometry, especially when dealing with the 3D array</span>
+0026 <span class="comment">% representations of points and tangent vectors, the tools multiprod,</span>
+0027 <span class="comment">% multitransp, multitrace, multiscale etc. available in Manopt are often</span>
+0028 <span class="comment">% useful.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% See also: stiefelfactory obliquefactory multiprod multitransp</span>
+0031 
+0032 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0033 <span class="comment">% Original author: Nicolas Boumal, May 4, 2015.</span>
+0034 <span class="comment">% Contributors:</span>
+0035 <span class="comment">% Change log:</span>
+0036 
+0037     assert(k &gt;= d, <span class="string">'k must be at least as large as d.'</span>);
+0038 
+0039     n = m*d;
+0040     
+0041     M.name = @() sprintf(<span class="string">'Manifold of %d orthonormal matrices of size %dx%d, stacked'</span>, m, d, k);
+0042     
+0043     M.dim = @() m*(k*d - .5*d*(d+1));
+0044     
+0045     M.size = @() [m, d, k];
+0046     
+0047     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0048     
+0049     M.norm = @(x, d) norm(d(:));
+0050     
+0051     M.dist = @(x, y) error(<span class="string">'stiefelstackedfactory.dist not implemented yet.'</span>);
+0052     
+0053     M.typicaldist = @() sqrt(M.dim());
+0054 
+0055     <span class="comment">% Convert a dxkxm matrix to an nxk matrix</span>
+0056     M.to2D = @<a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>;
+0057     <a name="_sub1" href="#_subfunctions" class="code">function A2 = to2D(A3)</a>
+0058         A2 = reshape(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(A3), [k, m*d])';
+0059     <span class="keyword">end</span>
+0060 
+0061     <span class="comment">% Convert an nxk matrix to a dxkxm matrix</span>
+0062     M.to3D = @<a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>;
+0063     <a name="_sub2" href="#_subfunctions" class="code">function A3 = to3D(A2)</a>
+0064         A3 = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(reshape(A2', [k, d, m]));
+0065     <span class="keyword">end</span>
+0066 
+0067     <span class="comment">% Given 2 3D matrices A and B of size dxkxm, returns a 3D matrix C of</span>
+0068     <span class="comment">% size dxdxm such that each slice C(:, :, i) is the symmetric part of</span>
+0069     <span class="comment">% the product A(:, :, i) * B(:, :, i)'. The name is short for</span>
+0070     <span class="comment">% &quot;symmetric-block-diagonal&quot;, because if A and B were transformed to</span>
+0071     <span class="comment">% their 2D equivalents via to2D, then the output would contain the</span>
+0072     <span class="comment">% symmetric parts of the diagonal blocks of A*B'.</span>
+0073     M.symbdiag = @<a href="#_sub3" class="code" title="subfunction C = symbdiag(A, B)">symbdiag</a>;
+0074     <a name="_sub3" href="#_subfunctions" class="code">function C = symbdiag(A, B)</a>
+0075         C = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(A, <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(B)));
+0076     <span class="keyword">end</span>
+0077     
+0078     <span class="comment">% Orthogonal projection from the ambient space R^(nxk) to the tangent</span>
+0079     <span class="comment">% space at X.</span>
+0080     M.proj = @<a href="#_sub4" class="code" title="subfunction Zt = projection(Y, Z)">projection</a>;
+0081     <a name="_sub4" href="#_subfunctions" class="code">function Zt = projection(Y, Z)</a>
+0082         Y3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Y);
+0083         Z3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Z);
+0084         Lambda = <a href="#_sub3" class="code" title="subfunction C = symbdiag(A, B)">symbdiag</a>(Y3, Z3);
+0085         Zt3 = Z3 - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Lambda, Y3);
+0086         Zt = <a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>(Zt3);
+0087     <span class="keyword">end</span>    
+0088     
+0089     M.tangent = M.proj;
+0090     
+0091     M.egrad2rgrad = M.proj;
+0092     
+0093     M.ehess2rhess = @<a href="#_sub5" class="code" title="subfunction rhess = ehess2rhess(Y, egrad, ehess, Ydot)">ehess2rhess</a>;
+0094     <a name="_sub5" href="#_subfunctions" class="code">function rhess = ehess2rhess(Y, egrad, ehess, Ydot)</a>
+0095         Y3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Y);
+0096         Ydot3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Ydot);
+0097         egrad3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(egrad);
+0098         C = <a href="#_sub3" class="code" title="subfunction C = symbdiag(A, B)">symbdiag</a>(Y3, egrad3);
+0099         CYdot = <a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(C, Ydot3));
+0100         rhess = <a href="#_sub4" class="code" title="subfunction Zt = projection(Y, Z)">projection</a>(Y, ehess - CYdot);
+0101     <span class="keyword">end</span>
+0102     
+0103     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(Y, U, t)">retraction</a>;
+0104     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(Y, U, t)</a>
+0105         <span class="keyword">if</span> nargin &lt; 3
+0106             t = 1.0;
+0107         <span class="keyword">end</span>
+0108         Y = Y + t*U;
+0109         Y3 = <a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Y);
+0110         <span class="keyword">for</span> i = 1 : m
+0111             <span class="comment">% Orthonormalize the rows of Y3(:, :, i):</span>
+0112             [u, s, v] = svd(Y3(:, :, i), <span class="string">'econ'</span>); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0113             Y3(:, :, i) = u*v';
+0114             <span class="comment">% Alternative code if one desires to use QR instead of SVD.</span>
+0115             <span class="comment">% The instruction with the signs of R assures we are not</span>
+0116             <span class="comment">% flipping signs of some columns.</span>
+0117             <span class="comment">% [Q, R] = qr(Y3(:, :, i)', 0);</span>
+0118             <span class="comment">% Y3(:, :, i) = (Q * diag(sign(sign(diag(R))+.5)))';</span>
+0119         <span class="keyword">end</span>
+0120         Y = <a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>(Y3);
+0121     <span class="keyword">end</span>
+0122     
+0123     M.exp = @<a href="#_sub7" class="code" title="subfunction Y = exponential(Y, U, t)">exponential</a>;
+0124     <a name="_sub7" href="#_subfunctions" class="code">function Y = exponential(Y, U, t)</a>
+0125         <span class="keyword">if</span> nargin == 2
+0126             t = 1;
+0127         <span class="keyword">end</span>
+0128         tU3 = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(<a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(t*U));
+0129         Y3 = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(<a href="#_sub2" class="code" title="subfunction A3 = to3D(A2)">to3D</a>(Y));
+0130         <span class="comment">% From a formula by Ross Lippert, Example 5.4.2 in AMS08.</span>
+0131         <span class="keyword">for</span> i = 1 : m
+0132             X = Y3(:, :, i);
+0133             Z = tU3(:, :, i);
+0134             Y3(:, :, i) = [X, Z] * <span class="keyword">...</span>
+0135                           expm([  X'*Z , -Z'*Z ; eye(d) , X'*Z]) * <span class="keyword">...</span>
+0136                           [ expm(-X'*Z) ; zeros(d) ];
+0137             <span class="comment">% We may loose orthonormality here. Just to be sure:</span>
+0138             [u, s, v] = svd(Y3(:, :, i), <span class="string">'econ'</span>); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0139             Y3(:, :, i) = u*v';
+0140         <span class="keyword">end</span>
+0141         Y = <a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(Y3));
+0142     <span class="keyword">end</span>
+0143 
+0144     M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
+0145     
+0146     M.rand = @<a href="#_sub8" class="code" title="subfunction Y = random()">random</a>;
+0147     <a name="_sub8" href="#_subfunctions" class="code">function Y = random()</a>
+0148         Y3 = zeros(d, k, m);
+0149         <span class="keyword">for</span> i = 1 : m
+0150             [Q, unused] = qr(randn(k, d), 0); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0151             Y3(:, :, i) = Q';
+0152         <span class="keyword">end</span>
+0153         Y = <a href="#_sub1" class="code" title="subfunction A2 = to2D(A3)">to2D</a>(Y3);
+0154     <span class="keyword">end</span>
+0155     
+0156     M.randvec = @<a href="#_sub9" class="code" title="subfunction U = randomvec(Y)">randomvec</a>;
+0157     <a name="_sub9" href="#_subfunctions" class="code">function U = randomvec(Y)</a>
+0158         U = <a href="#_sub4" class="code" title="subfunction Zt = projection(Y, Z)">projection</a>(Y, randn(n, k));
+0159         U = U / M.norm(Y, U);
+0160     <span class="keyword">end</span>
+0161     
+0162     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0163     
+0164     M.zerovec = @(x) zeros(n, k);
+0165     
+0166     M.transp = @(x1, x2, u) <a href="#_sub4" class="code" title="subfunction Zt = projection(Y, Z)">projection</a>(x2, u);
+0167     
+0168     M.vec = @(x, u_mat) u_mat(:);
+0169     M.mat = @(x, u_vec) reshape(u_vec, [n, k]);
+0170     M.vecmatareisometries = @() true;
+0171 
+0172 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

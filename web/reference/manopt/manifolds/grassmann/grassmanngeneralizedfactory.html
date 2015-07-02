@@ -1,0 +1,335 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grassmanngeneralizedfactory</title>
+  <meta name="keywords" content="grassmanngeneralizedfactory">
+  <meta name="description" content="Returns a manifold struct of &quot;scaled&quot; vector subspaces.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">grassmann</a> &gt; grassmanngeneralizedfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\grassmann&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>grassmanngeneralizedfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct of &quot;scaled&quot; vector subspaces.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = grassmanngeneralizedfactory(n, p, B) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct of &quot;scaled&quot; vector subspaces.
+
+ function M = grassmanngeneralizedfactory(n, p)
+ function M = grassmanngeneralizedfactory(n, p, B)
+
+ Generalized Grassmann manifold: each point on this manifold is a
+ collection of &quot;scaled&quot; vector subspaces of dimension p embedded in R^n.
+ The scaling is due to the symmetric positive definite matrix B.
+
+ When B is identity, the manifold is the standard Grassmann manifold.
+
+ The metric is obtained by making the generalized Grassmannian
+ a Riemannian quotient manifold of the generalized Stiefel manifold, i.e.,
+ the manifold of &quot;sclaed&quot; orthonormal matrices. Specifically, the scaled
+ Stiefel manifold is the set {X : X'*B*X = I}. The generalized Grassmann
+ manifold is the Grassmannian of the generalized Stiefel manifold.
+
+ The generalized Stiefel manifold is endowed with a scaled metric
+ by making it a Riemannian submanifold of the Euclidean space,
+ again endowed with the scaled inner product.
+
+ Some notions (not all) are from Section 4.5 of the paper
+ &quot;The geometry of algorithms with orthogonality constraints&quot;,
+ A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.
+
+ Paper link: http://arxiv.org/abs/physics/9806030.
+
+ 
+ Note: some computations such as restricted_svd, distance, logarithm, and 
+ exponential are new and we believe them to be correct.
+ Also, we hope that the computations are sufficiently stable.
+ In case some things do not work out as expected or there is some trouble,
+ please contact us at http://www.manopt.org.
+
+ Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If
+ you find that this is a bottleneck for your application, you may want to
+ create a modified version of this file which preprocesses B to speed this
+ up (typically, by computing a Cholesky factorization of it, then calling
+ an appropriate solver).
+
+ See also: stiefelgeneralizedfactory  stiefelfactory  <a href="grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/generalized_eigenvalue_computation.html" class="code" title="function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)">generalized_eigenvalue_computation</a>	Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function d = distance(X, Y)</a></li><li><a href="#_sub2" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub3" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub4" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub5" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub6" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub7" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub8" class="code">function X = random()</a></li><li><a href="#_sub9" class="code">function U = randomvec(X)</a></li><li><a href="#_sub10" class="code">function X = guf(D)</a></li><li><a href="#_sub11" class="code">function [u, s, v] = restricted_svd(Y)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = grassmanngeneralizedfactory(n, p, B)</a>
+0002 <span class="comment">% Returns a manifold struct of &quot;scaled&quot; vector subspaces.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = grassmanngeneralizedfactory(n, p)</span>
+0005 <span class="comment">% function M = grassmanngeneralizedfactory(n, p, B)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Generalized Grassmann manifold: each point on this manifold is a</span>
+0008 <span class="comment">% collection of &quot;scaled&quot; vector subspaces of dimension p embedded in R^n.</span>
+0009 <span class="comment">% The scaling is due to the symmetric positive definite matrix B.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% When B is identity, the manifold is the standard Grassmann manifold.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% The metric is obtained by making the generalized Grassmannian</span>
+0014 <span class="comment">% a Riemannian quotient manifold of the generalized Stiefel manifold, i.e.,</span>
+0015 <span class="comment">% the manifold of &quot;sclaed&quot; orthonormal matrices. Specifically, the scaled</span>
+0016 <span class="comment">% Stiefel manifold is the set {X : X'*B*X = I}. The generalized Grassmann</span>
+0017 <span class="comment">% manifold is the Grassmannian of the generalized Stiefel manifold.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% The generalized Stiefel manifold is endowed with a scaled metric</span>
+0020 <span class="comment">% by making it a Riemannian submanifold of the Euclidean space,</span>
+0021 <span class="comment">% again endowed with the scaled inner product.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Some notions (not all) are from Section 4.5 of the paper</span>
+0024 <span class="comment">% &quot;The geometry of algorithms with orthogonality constraints&quot;,</span>
+0025 <span class="comment">% A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Paper link: http://arxiv.org/abs/physics/9806030.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% Note: some computations such as restricted_svd, distance, logarithm, and</span>
+0031 <span class="comment">% exponential are new and we believe them to be correct.</span>
+0032 <span class="comment">% Also, we hope that the computations are sufficiently stable.</span>
+0033 <span class="comment">% In case some things do not work out as expected or there is some trouble,</span>
+0034 <span class="comment">% please contact us at http://www.manopt.org.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If</span>
+0037 <span class="comment">% you find that this is a bottleneck for your application, you may want to</span>
+0038 <span class="comment">% create a modified version of this file which preprocesses B to speed this</span>
+0039 <span class="comment">% up (typically, by computing a Cholesky factorization of it, then calling</span>
+0040 <span class="comment">% an appropriate solver).</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% See also: stiefelgeneralizedfactory  stiefelfactory  grassmannfactory</span>
+0043 
+0044 
+0045 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0046 <span class="comment">% Original author: Bamdev Mishra, June 30, 2015.</span>
+0047 <span class="comment">% Contributors:</span>
+0048 <span class="comment">%</span>
+0049 <span class="comment">% Change log:</span>
+0050 <span class="comment">%</span>
+0051     
+0052     assert(n &gt;= p, <span class="keyword">...</span>
+0053         [<span class="string">'The dimension n of the ambient space must be larger '</span> <span class="keyword">...</span>
+0054         <span class="string">'than the dimension p of the subspaces.'</span>]);
+0055     
+0056     <span class="keyword">if</span> ~exist(<span class="string">'B'</span>, <span class="string">'var'</span>) || isempty(B)
+0057         B = speye(n); <span class="comment">% Standard Grassmann manifold.</span>
+0058     <span class="keyword">end</span>
+0059     
+0060     M.name = @() sprintf(<span class="string">'Generalized Grassmann manifold Gr(%d, %d)'</span>, n, p);
+0061     
+0062     M.dim = @() p*(n - p);   
+0063     
+0064     M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); <span class="comment">% Scaled metric, but horizontally invaraiant.</span>
+0065     
+0066     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0067     
+0068     M.dist = @<a href="#_sub1" class="code" title="subfunction d = distance(X, Y)">distance</a>; 
+0069     <a name="_sub1" href="#_subfunctions" class="code">function d = distance(X, Y)</a>
+0070         XtBY = X'*(B*Y); <span class="comment">% XtY ---&gt; XtBY</span>
+0071         cos_princ_angle = svd(XtBY); <span class="comment">% svd(XtY) ---&gt; svd(XtBY)</span>
+0072         <span class="comment">% Two next instructions not necessary: the imaginary parts that</span>
+0073         <span class="comment">% would appear if the cosines are not between -1 and 1, when</span>
+0074         <span class="comment">% passed to the acos function, would be very small, and would</span>
+0075         <span class="comment">% thus vanish when the norm is taken.</span>
+0076         <span class="comment">% cos_princ_angle = min(cos_princ_angle,  1);</span>
+0077         <span class="comment">% cos_princ_angle = max(cos_princ_angle, -1);</span>
+0078         square_d = norm(acos(cos_princ_angle))^2;
+0079         
+0080         d = sqrt(square_d);
+0081     <span class="keyword">end</span>
+0082     
+0083     M.typicaldist = @() sqrt(p);
+0084     
+0085     
+0086     <span class="comment">% Orthogonal projection of an ambient vector U onto the</span>
+0087     <span class="comment">% horizontal space at X.</span>
+0088     M.proj = @<a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>;
+0089     <a name="_sub2" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
+0090         BX = B*X;
+0091         
+0092         <span class="comment">% Projection onto the tangent space</span>
+0093         <span class="comment">% U = U - X*symm(BX'*U);</span>
+0094         <span class="comment">% Projection onto the horizontal space</span>
+0095         <span class="comment">% Up = U - X*skew(BX'*U);</span>
+0096         
+0097         Up = U - X*(BX'*U);
+0098     <span class="keyword">end</span>
+0099     
+0100     M.tangent = M.proj;
+0101     
+0102     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0103     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0104         
+0105         <span class="comment">% First, scale egrad according to the scaled metric in the</span>
+0106         <span class="comment">% Euclidean space.</span>
+0107         egrad_scaled = B\egrad;
+0108         
+0109         <span class="comment">% Second, project onto the tangent space.</span>
+0110         <span class="comment">% No need to project onto the horizontal space as</span>
+0111         <span class="comment">% by the Riemannian submersion theory, this quantity automatically</span>
+0112         <span class="comment">% belongs to the horizontal space.</span>
+0113         <span class="comment">%</span>
+0114         <span class="comment">%</span>
+0115         <span class="comment">% rgrad = egrad_scaled - X*symm((B*X)'*egrad_scaled);</span>
+0116         <span class="comment">%</span>
+0117         <span class="comment">% Verify that symm(BX'*egrad_scaled) = symm(X'*egrad).</span>
+0118         
+0119         rgrad = egrad_scaled - X*symm(X'*egrad);
+0120     <span class="keyword">end</span>
+0121     
+0122     
+0123     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0124     <a name="_sub4" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0125         egraddot = ehess;
+0126         Xdot = H;
+0127         
+0128         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
+0129         egrad_scaleddot = B\egraddot;
+0130         rgraddot = egrad_scaleddot - Xdot*symm(X'*egrad)<span class="keyword">...</span>
+0131             - X*symm(Xdot'*egrad)<span class="keyword">...</span>
+0132             - X*symm(X'*egraddot);
+0133         
+0134         <span class="comment">% Project onto the horizontal space.</span>
+0135         rhess = M.proj(X, rgraddot);
+0136     <span class="keyword">end</span>
+0137     
+0138     
+0139     M.retr = @<a href="#_sub5" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0140     <a name="_sub5" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0141         <span class="keyword">if</span> nargin &lt; 3
+0142             t = 1.0;
+0143         <span class="keyword">end</span>
+0144         Y = <a href="#_sub10" class="code" title="subfunction X = guf(D)">guf</a>(X + t*U); <span class="comment">% Ensure that Y'*B*Y is identity.</span>
+0145     <span class="keyword">end</span>
+0146     
+0147     
+0148     M.exp = @<a href="#_sub6" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0149     <a name="_sub6" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0150         <span class="keyword">if</span> nargin == 3
+0151             tU = t*U;
+0152         <span class="keyword">else</span>
+0153             tU = U;
+0154         <span class="keyword">end</span>
+0155         
+0156         <span class="comment">% restricted_svd is defined later in the file.</span>
+0157         [u, s, v] = <a href="#_sub11" class="code" title="subfunction [u, s, v] = restricted_svd(Y)">restricted_svd</a>(tU);<span class="comment">% svd(tU, 0) ---&gt; restricted_svd(tU).</span>
+0158         cos_s = diag(cos(diag(s)));
+0159         sin_s = diag(sin(diag(s)));
+0160         Y = X*v*cos_s*v' + u*sin_s*v';<span class="comment">% Verify that Y'*B*Y is identity</span>
+0161         
+0162         <span class="comment">% From numerical experiments, it seems necessary to</span>
+0163         <span class="comment">% re-orthonormalize.</span>
+0164         Y = <a href="#_sub10" class="code" title="subfunction X = guf(D)">guf</a>(Y);<span class="comment">% Ensure that Y'*B*Y is identity.</span>
+0165     <span class="keyword">end</span>
+0166     
+0167     
+0168     
+0169     <span class="comment">% Test code for the logarithm:</span>
+0170     <span class="comment">% gGr = grassmanngeneralizedfactory(5, 2, diag(rand(5,1)));</span>
+0171     <span class="comment">% x = gGr.rand()</span>
+0172     <span class="comment">% y = gGr.rand()</span>
+0173     <span class="comment">% u = gGr.log(x, y)</span>
+0174     <span class="comment">% gGr.dist(x, y) % These two numbers should</span>
+0175     <span class="comment">% gGr.norm(x, u) % be the same.</span>
+0176     <span class="comment">% z = gGr.exp(x, u) % z needs not be the same matrix as y, but it should</span>
+0177     <span class="comment">% v = gGr.log(x, z) % be the same point as y on Grassmann: dist almost 0.</span>
+0178     <span class="comment">% gGr.dist(z, y)</span>
+0179     M.log = @<a href="#_sub7" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
+0180     <a name="_sub7" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
+0181         YtBX = Y'*(B*X); <span class="comment">% YtX ---&gt; YtBX.</span>
+0182         At = (Y' - YtBX*X');
+0183         Bt = YtBX\At;
+0184         [u, s, v] = <a href="#_sub11" class="code" title="subfunction [u, s, v] = restricted_svd(Y)">restricted_svd</a>(Bt');<span class="comment">% svd(Bt', 'econ') ---&gt; restricted_svd(Bt').</span>
+0185         
+0186         u = u(:, 1:p);
+0187         s = diag(s);
+0188         s = s(1:p);
+0189         v = v(:, 1:p);
+0190         U = u*diag(atan(s))*v'; <span class="comment">% A horizontal vector, i.e., U'*(B*X) is zero.</span>
+0191     <span class="keyword">end</span>
+0192     
+0193     
+0194     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0195     
+0196     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
+0197     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
+0198         X = <a href="#_sub10" class="code" title="subfunction X = guf(D)">guf</a>(randn(n, p)); <span class="comment">% Ensure that X'*B*X is identity;</span>
+0199     <span class="keyword">end</span>
+0200     
+0201     M.randvec = @<a href="#_sub9" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0202     <a name="_sub9" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0203         U = <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p));
+0204         U = U / norm(U(:));
+0205     <span class="keyword">end</span>
+0206     
+0207     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0208     
+0209     M.zerovec = @(X) zeros(n, p);
+0210     
+0211     <span class="comment">% This transport is compatible with the generalized polar retraction.</span>
+0212     M.transp = @(X1, X2, d) <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X2, d);
+0213     
+0214     M.vec = @(X, u_mat) u_mat(:);
+0215     M.mat = @(X, u_vec) reshape(u_vec, [n, p]);
+0216     M.vecmatareisometries = @() false;
+0217     
+0218     
+0219     <span class="comment">% Some auxiliary functions</span>
+0220     symm = @(D) (D + D')/2;
+0221     
+0222     <a name="_sub10" href="#_subfunctions" class="code">function X = guf(D)</a>
+0223         <span class="comment">% Generalized polar decomposition.</span>
+0224         <span class="comment">% X'*B*X is identity.</span>
+0225         
+0226         <span class="comment">% More stable computation</span>
+0227         [u, ~, v] = svd(D, 0);
+0228         X = u*(sqrtm(u'*(B*u))\(v')); <span class="comment">% X'*B*X is identity.</span>
+0229         
+0230         <span class="comment">% Another computation using restricted_svd</span>
+0231         <span class="comment">% [u, ~, v] = restricted_svd(D);</span>
+0232         <span class="comment">% X = u*v'; % X'*B*X is identity.</span>
+0233         
+0234     <span class="keyword">end</span>
+0235     
+0236     <a name="_sub11" href="#_subfunctions" class="code">function [u, s, v] = restricted_svd(Y)</a>
+0237         <span class="comment">% We compute thin svd usv' of Y such that</span>
+0238         <span class="comment">% u'*B*u is identity.</span>
+0239         [v, ssquare] = eig(symm(Y'*(B*Y))); <span class="comment">% Y*B*Y is positive definite</span>
+0240         ssquarevec = diag(ssquare);
+0241         
+0242         s = diag(abs(sqrt(ssquarevec)));
+0243         u = Y*(v/s); <span class="comment">% u'*B*u is identity.</span>
+0244     <span class="keyword">end</span>
+0245     
+0246 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

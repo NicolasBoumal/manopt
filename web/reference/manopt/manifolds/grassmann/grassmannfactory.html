@@ -49,21 +49,21 @@
 
  By default, k = 1.
 
- See also: stiefelfactory</pre></div>
+ See also: stiefelfactory <a href="grassmanncomplexfactory.html" class="code" title="function M = grassmanncomplexfactory(n, p, k)">grassmanncomplexfactory</a> <a href="grassmanngeneralizedfactory.html" class="code" title="function M = grassmanngeneralizedfactory(n, p, B)">grassmanngeneralizedfactory</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U S V info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li></ul>
+<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/nonlinear_eigenspace.html" class="code" title="function Xsol = nonlinear_eigenspace(L, k, alpha)">nonlinear_eigenspace</a>	Example of nonlinear eigenvalue problem: total energy minimization.</li><li><a href="../../../examples/robust_pca.html" class="code" title="function [U, cost] = robust_pca(X, d)">robust_pca</a>	Computes a robust version of PCA (principal component analysis) on data.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U, S, V, info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function d = distance(x, y)</a></li><li><a href="#_sub2" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub4" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub5" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub6" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub7" class="code">function X = random()</a></li><li><a href="#_sub8" class="code">function U = randomvec(X)</a></li><li><a href="#_sub9" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function d = distance(x, y)</a></li><li><a href="#_sub2" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub4" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub5" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub6" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub7" class="code">function X = random()</a></li><li><a href="#_sub8" class="code">function U = randomvec(X)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = grassmannfactory(n, p, k)</a>
@@ -89,213 +89,203 @@ This function is called by:
 0021 <span class="comment">%</span>
 0022 <span class="comment">% By default, k = 1.</span>
 0023 <span class="comment">%</span>
-0024 <span class="comment">% See also: stiefelfactory</span>
+0024 <span class="comment">% See also: stiefelfactory grassmanncomplexfactory grassmanngeneralizedfactory</span>
 0025 
 0026 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
 0027 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
 0028 <span class="comment">% Contributors:</span>
 0029 <span class="comment">% Change log:</span>
-0030 <span class="comment">%   March 22, 2013 (NB) : Implemented geodesic distance.</span>
-0031 <span class="comment">%   April 17, 2013 (NB) : Retraction changed to the polar decomposition, so</span>
-0032 <span class="comment">%                         that the vector transport is now correct, in the</span>
-0033 <span class="comment">%                         sense that it is compatible with the retraction,</span>
-0034 <span class="comment">%                         i.e., transporting a tangent vector G from U to V</span>
-0035 <span class="comment">%                         where V = Retr(U, H) will give Z, and</span>
-0036 <span class="comment">%                         transporting GQ from UQ to VQ will give ZQ: there</span>
-0037 <span class="comment">%                         is no dependence on the representation, which is</span>
-0038 <span class="comment">%                         as it should be. Notice that the polar</span>
-0039 <span class="comment">%                         factorization requires an SVD whereas the qfactor</span>
-0040 <span class="comment">%                         retraction requires a QR decomposition, which is</span>
-0041 <span class="comment">%                         cheaper. Hence, if the retraction happens to be a</span>
-0042 <span class="comment">%                         bottleneck in your application and you are not</span>
-0043 <span class="comment">%                         using vector transports, you may want to replace</span>
-0044 <span class="comment">%                         the retraction with a qfactor.</span>
-0045 <span class="comment">%   July  4, 2013 (NB)  : Added support for the logarithmic map 'log'.</span>
-0046 <span class="comment">%   July  5, 2013 (NB)  : Added support for ehess2rhess.</span>
-0047 <span class="comment">%   June 24, 2014 (NB)  : Small bug fix in the retraction, and added final</span>
-0048 <span class="comment">%                         re-orthonormalization at the end of the</span>
-0049 <span class="comment">%                         exponential map. This follows discussions on the</span>
-0050 <span class="comment">%                         forum where it appeared there is a significant</span>
-0051 <span class="comment">%                         loss in orthonormality without that extra step.</span>
-0052 <span class="comment">%                         Also changed the randvec function so that it now</span>
-0053 <span class="comment">%                         returns a globally normalized vector, not a</span>
-0054 <span class="comment">%                         vector where each component is normalized (this</span>
-0055 <span class="comment">%                         only matters if k&gt;1).</span>
-0056 
-0057     assert(n &gt;= p, <span class="keyword">...</span>
-0058            [<span class="string">'The dimension n of the ambient space must be larger '</span> <span class="keyword">...</span>
-0059             <span class="string">'than the dimension p of the subspaces.'</span>]);
-0060     
-0061     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
-0062         k = 1;
-0063     <span class="keyword">end</span>
-0064     
-0065     <span class="keyword">if</span> k == 1
-0066         M.name = @() sprintf(<span class="string">'Grassmann manifold Gr(%d, %d)'</span>, n, p);
-0067     <span class="keyword">elseif</span> k &gt; 1
-0068         M.name = @() sprintf(<span class="string">'Multi Grassmann manifold Gr(%d, %d)^%d'</span>, <span class="keyword">...</span>
-0069                              n, p, k);
-0070     <span class="keyword">else</span>
-0071         error(<span class="string">'k must be an integer no less than 1.'</span>);
-0072     <span class="keyword">end</span>
-0073     
-0074     M.dim = @() k*p*(n-p);
-0075     
-0076     M.inner = @(x, d1, d2) d1(:).'*d2(:);
-0077     
-0078     M.norm = @(x, d) norm(d(:));
-0079     
-0080     M.dist = @<a href="#_sub1" class="code" title="subfunction d = distance(x, y)">distance</a>;
-0081     <a name="_sub1" href="#_subfunctions" class="code">function d = distance(x, y)</a>
-0082         square_d = 0;
-0083         XtY = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(x), y);
-0084         <span class="keyword">for</span> i = 1 : k
-0085             cos_princ_angle = svd(XtY(:, :, i));
-0086             <span class="comment">% Two next instructions not necessary: the imaginary parts that</span>
-0087             <span class="comment">% would appear if the cosines are not between -1 and 1 when</span>
-0088             <span class="comment">% passed to the acos function would be very small, and would</span>
-0089             <span class="comment">% thus vanish when the norm is taken.</span>
-0090             <span class="comment">% cos_princ_angle = min(cos_princ_angle,  1);</span>
-0091             <span class="comment">% cos_princ_angle = max(cos_princ_angle, -1);</span>
-0092             square_d = square_d + norm(acos(cos_princ_angle))^2;
-0093         <span class="keyword">end</span>
-0094         d = sqrt(square_d);
-0095     <span class="keyword">end</span>
-0096     
-0097     M.typicaldist = @() sqrt(p*k);
-0098     
-0099     <span class="comment">% Orthogonal projection of an ambient vector U to the horizontal space</span>
-0100     <span class="comment">% at X.</span>
-0101     M.proj = @<a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>;
-0102     <a name="_sub2" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
-0103         
-0104         XtU = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), U);
-0105         Up = U - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, XtU);
-0106 
-0107     <span class="keyword">end</span>
-0108     
-0109     M.tangent = M.proj;
-0110     
-0111     M.egrad2rgrad = M.proj;
-0112     
-0113     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
-0114     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
-0115         PXehess = <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, ehess);
-0116         XtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), egrad);
-0117         HXtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, XtG);
-0118         rhess = PXehess - HXtG;
-0119     <span class="keyword">end</span>
-0120     
-0121     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
-0122     <a name="_sub4" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
-0123         <span class="keyword">if</span> nargin &lt; 3
-0124             t = 1.0;
-0125         <span class="keyword">end</span>
-0126         Y = X + t*U;
-0127         <span class="keyword">for</span> i = 1 : k
-0128             <span class="comment">% We do not need to worry about flipping signs of columns here,</span>
-0129             <span class="comment">% since only the column space is important, not the actual</span>
-0130             <span class="comment">% columns. Compare this with the Stiefel manifold.</span>
-0131             <span class="comment">% [Q, unused] = qr(Y(:, :, i), 0); %#ok</span>
-0132             <span class="comment">% Y(:, :, i) = Q;</span>
-0133             
-0134             <span class="comment">% Compute the polar factorization of Y = X+tU</span>
-0135             [u, s, v] = svd(Y(:, :, i), <span class="string">'econ'</span>); <span class="comment">%#ok</span>
-0136             Y(:, :, i) = u*v';
-0137         <span class="keyword">end</span>
-0138     <span class="keyword">end</span>
-0139     
-0140     M.exp = @<a href="#_sub5" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
-0141     <a name="_sub5" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
-0142         <span class="keyword">if</span> nargin == 3
-0143             tU = t*U;
-0144         <span class="keyword">else</span>
-0145             tU = U;
-0146         <span class="keyword">end</span>
-0147         Y = zeros(size(X));
-0148         <span class="keyword">for</span> i = 1 : k
-0149             [u s v] = svd(tU(:, :, i), 0);
-0150             cos_s = diag(cos(diag(s)));
-0151             sin_s = diag(sin(diag(s)));
-0152             Y(:, :, i) = X(:, :, i)*v*cos_s*v' + u*sin_s*v';
-0153             <span class="comment">% From numerical experiments, it seems necessary to</span>
-0154             <span class="comment">% re-orthonormalize. This is overall quite expensive.</span>
-0155             [q, unused] = qr(Y(:, :, i), 0); <span class="comment">%#ok</span>
-0156             Y(:, :, i) = q;
-0157         <span class="keyword">end</span>
-0158     <span class="keyword">end</span>
-0159 
-0160     <span class="comment">% Test code for the logarithm:</span>
-0161     <span class="comment">% Gr = grassmannfactory(5, 2, 3);</span>
-0162     <span class="comment">% x = Gr.rand()</span>
-0163     <span class="comment">% y = Gr.rand()</span>
-0164     <span class="comment">% u = Gr.log(x, y)</span>
-0165     <span class="comment">% Gr.dist(x, y) % These two numbers should</span>
-0166     <span class="comment">% Gr.norm(x, u) % be the same.</span>
-0167     <span class="comment">% z = Gr.exp(x, u) % z needs not be the same matrix as y, but it should</span>
-0168     <span class="comment">% v = Gr.log(x, z) % be the same point as y on Grassmann: dist almost 0.</span>
-0169     M.log = @<a href="#_sub6" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
-0170     <a name="_sub6" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
-0171         U = zeros(n, p, k);
-0172         <span class="keyword">for</span> i = 1 : k
-0173             x = X(:, :, i);
-0174             y = Y(:, :, i);
-0175             ytx = y.'*x;
-0176             At = y.'-ytx*x.';
-0177             Bt = ytx\At;
-0178             [u, s, v] = svd(Bt.', <span class="string">'econ'</span>);
-0179 
-0180             u = u(:, 1:p);
-0181             s = diag(s);
-0182             s = s(1:p);
-0183             v = v(:, 1:p);
-0184 
-0185             U(:, :, i) = u*diag(atan(s))*v.';
-0186         <span class="keyword">end</span>
-0187     <span class="keyword">end</span>
-0188 
-0189     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
-0190     
-0191     M.rand = @<a href="#_sub7" class="code" title="subfunction X = random()">random</a>;
-0192     <a name="_sub7" href="#_subfunctions" class="code">function X = random()</a>
-0193         X = zeros(n, p, k);
-0194         <span class="keyword">for</span> i = 1 : k
-0195             [Q, unused] = qr(randn(n, p), 0); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0196             X(:, :, i) = Q;
-0197         <span class="keyword">end</span>
-0198     <span class="keyword">end</span>
-0199     
-0200     M.randvec = @<a href="#_sub8" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
-0201     <a name="_sub8" href="#_subfunctions" class="code">function U = randomvec(X)</a>
-0202         U = <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p, k));
-0203         U = U / norm(U(:));
-0204     <span class="keyword">end</span>
-0205     
-0206     M.lincomb = @<a href="#_sub9" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
-0207     
-0208     M.zerovec = @(x) zeros(n, p, k);
-0209     
-0210     <span class="comment">% This transport is compatible with the polar retraction.</span>
-0211     M.transp = @(x1, x2, d) <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(x2, d);
+0030 <span class="comment">%   March 22, 2013 (NB) :</span>
+0031 <span class="comment">%       Implemented geodesic distance.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   April 17, 2013 (NB) :</span>
+0034 <span class="comment">%       Retraction changed to the polar decomposition, so that the vector</span>
+0035 <span class="comment">%       transport is now correct, in the sense that it is compatible with</span>
+0036 <span class="comment">%       the retraction, i.e., transporting a tangent vector G from U to V</span>
+0037 <span class="comment">%       where V = Retr(U, H) will give Z, and transporting GQ from UQ to VQ</span>
+0038 <span class="comment">%       will give ZQ: there is no dependence on the representation, which</span>
+0039 <span class="comment">%       is as it should be. Notice that the polar factorization requires an</span>
+0040 <span class="comment">%       SVD whereas the qfactor retraction requires a QR decomposition,</span>
+0041 <span class="comment">%       which is cheaper. Hence, if the retraction happens to be a</span>
+0042 <span class="comment">%       bottleneck in your application and you are not using vector</span>
+0043 <span class="comment">%       transports, you may want to replace the retraction with a qfactor.</span>
+0044 <span class="comment">%</span>
+0045 <span class="comment">%   July  4, 2013 (NB) :</span>
+0046 <span class="comment">%       Added support for the logarithmic map 'log'.</span>
+0047 <span class="comment">%</span>
+0048 <span class="comment">%   July  5, 2013 (NB) :</span>
+0049 <span class="comment">%       Added support for ehess2rhess.</span>
+0050 <span class="comment">%</span>
+0051 <span class="comment">%   June 24, 2014 (NB) :</span>
+0052 <span class="comment">%       Small bug fix in the retraction, and added final</span>
+0053 <span class="comment">%       re-orthonormalization at the end of the exponential map. This</span>
+0054 <span class="comment">%       follows discussions on the forum where it appeared there is a</span>
+0055 <span class="comment">%       significant loss in orthonormality without that extra step. Also</span>
+0056 <span class="comment">%       changed the randvec function so that it now returns a globally</span>
+0057 <span class="comment">%       normalized vector, not a vector where each component is normalized</span>
+0058 <span class="comment">%       (this only matters if k&gt;1).</span>
+0059 
+0060     assert(n &gt;= p, <span class="keyword">...</span>
+0061            [<span class="string">'The dimension n of the ambient space must be larger '</span> <span class="keyword">...</span>
+0062             <span class="string">'than the dimension p of the subspaces.'</span>]);
+0063     
+0064     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0065         k = 1;
+0066     <span class="keyword">end</span>
+0067     
+0068     <span class="keyword">if</span> k == 1
+0069         M.name = @() sprintf(<span class="string">'Grassmann manifold Gr(%d, %d)'</span>, n, p);
+0070     <span class="keyword">elseif</span> k &gt; 1
+0071         M.name = @() sprintf(<span class="string">'Multi Grassmann manifold Gr(%d, %d)^%d'</span>, <span class="keyword">...</span>
+0072                              n, p, k);
+0073     <span class="keyword">else</span>
+0074         error(<span class="string">'k must be an integer no less than 1.'</span>);
+0075     <span class="keyword">end</span>
+0076     
+0077     M.dim = @() k*p*(n-p);
+0078     
+0079     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0080     
+0081     M.norm = @(x, d) norm(d(:));
+0082     
+0083     M.dist = @<a href="#_sub1" class="code" title="subfunction d = distance(x, y)">distance</a>;
+0084     <a name="_sub1" href="#_subfunctions" class="code">function d = distance(x, y)</a>
+0085         square_d = 0;
+0086         XtY = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(x), y);
+0087         <span class="keyword">for</span> i = 1 : k
+0088             cos_princ_angle = svd(XtY(:, :, i));
+0089             <span class="comment">% Two next instructions not necessary: the imaginary parts that</span>
+0090             <span class="comment">% would appear if the cosines are not between -1 and 1, when</span>
+0091             <span class="comment">% passed to the acos function, would be very small, and would</span>
+0092             <span class="comment">% thus vanish when the norm is taken.</span>
+0093             <span class="comment">% cos_princ_angle = min(cos_princ_angle,  1);</span>
+0094             <span class="comment">% cos_princ_angle = max(cos_princ_angle, -1);</span>
+0095             square_d = square_d + norm(acos(cos_princ_angle))^2;
+0096         <span class="keyword">end</span>
+0097         d = sqrt(square_d);
+0098     <span class="keyword">end</span>
+0099     
+0100     M.typicaldist = @() sqrt(p*k);
+0101     
+0102     <span class="comment">% Orthogonal projection of an ambient vector U to the horizontal space</span>
+0103     <span class="comment">% at X.</span>
+0104     M.proj = @<a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>;
+0105     <a name="_sub2" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
+0106         
+0107         XtU = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), U);
+0108         Up = U - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, XtU);
+0109 
+0110     <span class="keyword">end</span>
+0111     
+0112     M.tangent = M.proj;
+0113     
+0114     M.egrad2rgrad = M.proj;
+0115     
+0116     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0117     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0118         PXehess = <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, ehess);
+0119         XtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), egrad);
+0120         HXtG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, XtG);
+0121         rhess = PXehess - HXtG;
+0122     <span class="keyword">end</span>
+0123     
+0124     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0125     <a name="_sub4" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0126         <span class="keyword">if</span> nargin &lt; 3
+0127             t = 1.0;
+0128         <span class="keyword">end</span>
+0129         Y = X + t*U;
+0130         <span class="keyword">for</span> i = 1 : k
+0131             <span class="comment">% We do not need to worry about flipping signs of columns here,</span>
+0132             <span class="comment">% since only the column space is important, not the actual</span>
+0133             <span class="comment">% columns. Compare this with the Stiefel manifold.</span>
+0134             <span class="comment">% [Q, unused] = qr(Y(:, :, i), 0); %#ok</span>
+0135             <span class="comment">% Y(:, :, i) = Q;</span>
+0136             
+0137             <span class="comment">% Compute the polar factorization of Y = X+tU</span>
+0138             [u, s, v] = svd(Y(:, :, i), <span class="string">'econ'</span>); <span class="comment">%#ok</span>
+0139             Y(:, :, i) = u*v';
+0140         <span class="keyword">end</span>
+0141     <span class="keyword">end</span>
+0142     
+0143     M.exp = @<a href="#_sub5" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0144     <a name="_sub5" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0145         <span class="keyword">if</span> nargin == 3
+0146             tU = t*U;
+0147         <span class="keyword">else</span>
+0148             tU = U;
+0149         <span class="keyword">end</span>
+0150         Y = zeros(size(X));
+0151         <span class="keyword">for</span> i = 1 : k
+0152             [u, s, v] = svd(tU(:, :, i), 0);
+0153             cos_s = diag(cos(diag(s)));
+0154             sin_s = diag(sin(diag(s)));
+0155             Y(:, :, i) = X(:, :, i)*v*cos_s*v' + u*sin_s*v';
+0156             <span class="comment">% From numerical experiments, it seems necessary to</span>
+0157             <span class="comment">% re-orthonormalize. This is overall quite expensive.</span>
+0158             [q, unused] = qr(Y(:, :, i), 0); <span class="comment">%#ok</span>
+0159             Y(:, :, i) = q;
+0160         <span class="keyword">end</span>
+0161     <span class="keyword">end</span>
+0162 
+0163     <span class="comment">% Test code for the logarithm:</span>
+0164     <span class="comment">% Gr = grassmannfactory(5, 2, 3);</span>
+0165     <span class="comment">% x = Gr.rand()</span>
+0166     <span class="comment">% y = Gr.rand()</span>
+0167     <span class="comment">% u = Gr.log(x, y)</span>
+0168     <span class="comment">% Gr.dist(x, y) % These two numbers should</span>
+0169     <span class="comment">% Gr.norm(x, u) % be the same.</span>
+0170     <span class="comment">% z = Gr.exp(x, u) % z needs not be the same matrix as y, but it should</span>
+0171     <span class="comment">% v = Gr.log(x, z) % be the same point as y on Grassmann: dist almost 0.</span>
+0172     M.log = @<a href="#_sub6" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
+0173     <a name="_sub6" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
+0174         U = zeros(n, p, k);
+0175         <span class="keyword">for</span> i = 1 : k
+0176             x = X(:, :, i);
+0177             y = Y(:, :, i);
+0178             ytx = y.'*x;
+0179             At = y.'-ytx*x.';
+0180             Bt = ytx\At;
+0181             [u, s, v] = svd(Bt.', <span class="string">'econ'</span>);
+0182 
+0183             u = u(:, 1:p);
+0184             s = diag(s);
+0185             s = s(1:p);
+0186             v = v(:, 1:p);
+0187 
+0188             U(:, :, i) = u*diag(atan(s))*v.';
+0189         <span class="keyword">end</span>
+0190     <span class="keyword">end</span>
+0191 
+0192     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0193     
+0194     M.rand = @<a href="#_sub7" class="code" title="subfunction X = random()">random</a>;
+0195     <a name="_sub7" href="#_subfunctions" class="code">function X = random()</a>
+0196         X = zeros(n, p, k);
+0197         <span class="keyword">for</span> i = 1 : k
+0198             [Q, unused] = qr(randn(n, p), 0); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0199             X(:, :, i) = Q;
+0200         <span class="keyword">end</span>
+0201     <span class="keyword">end</span>
+0202     
+0203     M.randvec = @<a href="#_sub8" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0204     <a name="_sub8" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0205         U = <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p, k));
+0206         U = U / norm(U(:));
+0207     <span class="keyword">end</span>
+0208     
+0209     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0210     
+0211     M.zerovec = @(x) zeros(n, p, k);
 0212     
-0213     M.vec = @(x, u_mat) u_mat(:);
-0214     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
-0215     M.vecmatareisometries = @() true;
-0216 
-0217 <span class="keyword">end</span>
-0218 
-0219 <span class="comment">% Linear combination of tangent vectors</span>
-0220 <a name="_sub9" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0221 
-0222     <span class="keyword">if</span> nargin == 3
-0223         d = a1*d1;
-0224     <span class="keyword">elseif</span> nargin == 5
-0225         d = a1*d1 + a2*d2;
-0226     <span class="keyword">else</span>
-0227         error(<span class="string">'Bad use of grassmann.lincomb.'</span>);
-0228     <span class="keyword">end</span>
-0229 
-0230 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0213     <span class="comment">% This transport is compatible with the polar retraction.</span>
+0214     M.transp = @(x1, x2, d) <a href="#_sub2" class="code" title="subfunction Up = projection(X, U)">projection</a>(x2, d);
+0215     
+0216     M.vec = @(x, u_mat) u_mat(:);
+0217     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
+0218     M.vecmatareisometries = @() true;
+0219 
+0220 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

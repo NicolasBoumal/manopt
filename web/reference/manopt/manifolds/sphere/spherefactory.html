@@ -44,7 +44,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -52,7 +52,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub2" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub3" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub5" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub6" class="code">function x = random(n, m)</a></li><li><a href="#_sub7" class="code">function d = randomvec(n, m, x)</a></li><li><a href="#_sub8" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub2" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub3" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub5" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub6" class="code">function x = random(n, m)</a></li><li><a href="#_sub7" class="code">function d = randomvec(n, m, x)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spherefactory(n, m)</a>
@@ -116,97 +116,87 @@ This function is called by:
 0059     <a name="_sub2" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
 0060         v = M.proj(x1, x2 - x1);
 0061         di = M.dist(x1, x2);
-0062         nv = norm(v, <span class="string">'fro'</span>);
-0063         v = v * (di / nv);
-0064     <span class="keyword">end</span>
-0065     
-0066     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
-0067     
-0068     M.rand = @() <a href="#_sub6" class="code" title="subfunction x = random(n, m)">random</a>(n, m);
-0069     
-0070     M.randvec = @(x) <a href="#_sub7" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, x);
-0071     
-0072     M.lincomb = @<a href="#_sub8" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
-0073     
-0074     M.zerovec = @(x) zeros(n, m);
-0075     
-0076     M.transp = @(x1, x2, d) M.proj(x2, d);
-0077     
-0078     M.pairmean = @<a href="#_sub3" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
-0079     <a name="_sub3" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
-0080         y = x1+x2;
-0081         y = y / norm(y, <span class="string">'fro'</span>);
-0082     <span class="keyword">end</span>
-0083 
-0084     M.vec = @(x, u_mat) u_mat(:);
-0085     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
-0086     M.vecmatareisometries = @() true;
-0087 
-0088 <span class="keyword">end</span>
-0089 
-0090 <span class="comment">% Exponential on the sphere</span>
-0091 <a name="_sub4" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
+0062         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
+0063         <span class="keyword">if</span> di &gt; 1e-6
+0064             nv = norm(v, <span class="string">'fro'</span>);
+0065             v = v * (di / nv);
+0066         <span class="keyword">end</span>
+0067     <span class="keyword">end</span>
+0068     
+0069     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0070     
+0071     M.rand = @() <a href="#_sub6" class="code" title="subfunction x = random(n, m)">random</a>(n, m);
+0072     
+0073     M.randvec = @(x) <a href="#_sub7" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, x);
+0074     
+0075     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0076     
+0077     M.zerovec = @(x) zeros(n, m);
+0078     
+0079     M.transp = @(x1, x2, d) M.proj(x2, d);
+0080     
+0081     M.pairmean = @<a href="#_sub3" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0082     <a name="_sub3" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0083         y = x1+x2;
+0084         y = y / norm(y, <span class="string">'fro'</span>);
+0085     <span class="keyword">end</span>
+0086 
+0087     M.vec = @(x, u_mat) u_mat(:);
+0088     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
+0089     M.vecmatareisometries = @() true;
+0090 
+0091 <span class="keyword">end</span>
 0092 
-0093     <span class="keyword">if</span> nargin == 2
-0094         t = 1;
-0095     <span class="keyword">end</span>
-0096     
-0097     td = t*d;
-0098     
-0099     nrm_td = norm(td, <span class="string">'fro'</span>);
-0100     
-0101     <span class="keyword">if</span> nrm_td &gt; 1e-6
-0102         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
-0103     <span class="keyword">else</span>
-0104         <span class="comment">% if the step is too small, to avoid dividing by nrm_td, we choose</span>
-0105         <span class="comment">% to approximate with this retraction-like step.</span>
-0106         y = x + td;
-0107         y = y / norm(y, <span class="string">'fro'</span>);
-0108     <span class="keyword">end</span>
-0109 
-0110 <span class="keyword">end</span>
-0111 
-0112 <span class="comment">% Retraction on the sphere</span>
-0113 <a name="_sub5" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0093 <span class="comment">% Exponential on the sphere</span>
+0094 <a name="_sub4" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
+0095 
+0096     <span class="keyword">if</span> nargin == 2
+0097         t = 1;
+0098     <span class="keyword">end</span>
+0099     
+0100     td = t*d;
+0101     
+0102     nrm_td = norm(td, <span class="string">'fro'</span>);
+0103     
+0104     <span class="keyword">if</span> nrm_td &gt; 4.5e-8
+0105         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
+0106     <span class="keyword">else</span>
+0107         <span class="comment">% If the step is too small to accurately evaluate sin(x)/x,</span>
+0108         <span class="comment">% then sin(x)/x is almost indistinguishable from 1.</span>
+0109         y = x + td;
+0110         y = y / norm(y, <span class="string">'fro'</span>);
+0111     <span class="keyword">end</span>
+0112 
+0113 <span class="keyword">end</span>
 0114 
-0115     <span class="keyword">if</span> nargin == 2
-0116         t = 1;
-0117     <span class="keyword">end</span>
-0118     
-0119     y = x + t*d;
-0120     y = y / norm(y, <span class="string">'fro'</span>);
-0121 
-0122 <span class="keyword">end</span>
-0123 
-0124 <span class="comment">% Uniform random sampling on the sphere.</span>
-0125 <a name="_sub6" href="#_subfunctions" class="code">function x = random(n, m)</a>
+0115 <span class="comment">% Retraction on the sphere</span>
+0116 <a name="_sub5" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0117 
+0118     <span class="keyword">if</span> nargin == 2
+0119         t = 1;
+0120     <span class="keyword">end</span>
+0121     
+0122     y = x + t*d;
+0123     y = y / norm(y, <span class="string">'fro'</span>);
+0124 
+0125 <span class="keyword">end</span>
 0126 
-0127     x = randn(n, m);
-0128     x = x/norm(x, <span class="string">'fro'</span>);
+0127 <span class="comment">% Uniform random sampling on the sphere.</span>
+0128 <a name="_sub6" href="#_subfunctions" class="code">function x = random(n, m)</a>
 0129 
-0130 <span class="keyword">end</span>
-0131 
-0132 <span class="comment">% Random normalized tangent vector at x.</span>
-0133 <a name="_sub7" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
+0130     x = randn(n, m);
+0131     x = x/norm(x, <span class="string">'fro'</span>);
+0132 
+0133 <span class="keyword">end</span>
 0134 
-0135     d = randn(n, m);
-0136     d = d - x*(x(:).'*d(:));
-0137     d = d / norm(d, <span class="string">'fro'</span>);
-0138 
-0139 <span class="keyword">end</span>
-0140 
-0141 <span class="comment">% Linear combination of tangent vectors</span>
-0142 <a name="_sub8" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0143 
-0144     <span class="keyword">if</span> nargin == 3
-0145         d = a1*d1;
-0146     <span class="keyword">elseif</span> nargin == 5
-0147         d = a1*d1 + a2*d2;
-0148     <span class="keyword">else</span>
-0149         error(<span class="string">'Bad use of sphere.lincomb.'</span>);
-0150     <span class="keyword">end</span>
-0151 
-0152 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0135 <span class="comment">% Random normalized tangent vector at x.</span>
+0136 <a name="_sub7" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
+0137 
+0138     d = randn(n, m);
+0139     d = d - x*(x(:).'*d(:));
+0140     d = d / norm(d, <span class="string">'fro'</span>);
+0141 
+0142 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of essential_distMinAnglePair_discontinuityDistance</title>
+  <meta name="keywords" content="essential_distMinAnglePair_discontinuityDistance">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="../index.html">essential</a> &gt; <a href="index.html">privateessential</a> &gt; essential_distMinAnglePair_discontinuityDistance.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\essential\privateessential&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
+
+<h1>essential_distMinAnglePair_discontinuityDistance
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>function [tBreak,a,b,c,m,p]=essential_distMinAnglePair_discontinuityDistance(Q21) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="essential_distMinAnglePair_base.html" class="code" title="function [tMin,fMin,tBreak1,tBreak2,tMinAll]=essential_distMinAnglePair_base(Q211,Q212)">essential_distMinAnglePair_base</a>	</li><li><a href="essential_distMinAnglePair_ftFromQ.html" class="code" title="function [ft,tBreak]=essential_distMinAnglePair_ftFromQ(t,Q1,Q2,varargin)">essential_distMinAnglePair_ftFromQ</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function v=clip(v)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [tBreak,a,b,c,m,p]=essential_distMinAnglePair_discontinuityDistance(Q21)</a>
+0002 a=Q21(1,1)+Q21(2,2);
+0003 b=Q21(1,2)-Q21(2,1);
+0004 c=Q21(3,3);
+0005 
+0006 m=norm([a;b]);
+0007 p=sign(a)*acos(<a href="#_sub1" class="code" title="subfunction v=clip(v)">clip</a>(b/m));
+0008 
+0009 <span class="comment">%tBreak=modAngle(3/2*pi-p);</span>
+0010 tBreak=-0.5*pi-p;
+0011 
+0012 <a name="_sub1" href="#_subfunctions" class="code">function v=clip(v)</a>
+0013 v=min(1,max(-1,v));</pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

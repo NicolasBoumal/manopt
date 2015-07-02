@@ -3,4 +3,5 @@ digraph m2html {
 
   spherecomplexfactory [URL="spherecomplexfactory.html"];
   spherefactory [URL="spherefactory.html"];
+  spheresymmetricfactory [URL="spheresymmetricfactory.html"];
 }

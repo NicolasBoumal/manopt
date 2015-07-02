@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of canGetApproxHessian</title>
+  <meta name="keywords" content="canGetApproxHessian">
+  <meta name="description" content="Checks whether an approximate Hessian can be computed for this problem.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; canGetApproxHessian.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>canGetApproxHessian
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks whether an approximate Hessian can be computed for this problem.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function candoit = canGetApproxHessian(problem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks whether an approximate Hessian can be computed for this problem.
+
+ function candoit = canGetApproxHessian(problem)
+
+ Returns true if an approximate Hessian of the cost function is provided
+ in the given problem description, false otherwise.
+ If a Hessian is defined but no approximate Hessian is defined explicitly,
+ returns false.
+
+ Even if this returns false, calls to getApproxHessian may succeed, as
+ they will be redirected to getHessianFD. The latter simply requires
+ availability of gradients in problem, and vector transports in problem.M.
+
+ See also: <a href="canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a> <a href="getHessianFD.html" class="code" title="function hessfd = getHessianFD(problem, x, d, storedb, key)">getHessianFD</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/preconditioners/preconhessiansolve.html" class="code" title="function preconfun = preconhessiansolve(problem, options)">preconhessiansolve</a>	Preconditioner based on the inverse Hessian, by solving linear systems.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function candoit = canGetApproxHessian(problem)</a>
+0002 <span class="comment">% Checks whether an approximate Hessian can be computed for this problem.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function candoit = canGetApproxHessian(problem)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns true if an approximate Hessian of the cost function is provided</span>
+0007 <span class="comment">% in the given problem description, false otherwise.</span>
+0008 <span class="comment">% If a Hessian is defined but no approximate Hessian is defined explicitly,</span>
+0009 <span class="comment">% returns false.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Even if this returns false, calls to getApproxHessian may succeed, as</span>
+0012 <span class="comment">% they will be redirected to getHessianFD. The latter simply requires</span>
+0013 <span class="comment">% availability of gradients in problem, and vector transports in problem.M.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% See also: canGetHessian getHessianFD</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0018 <span class="comment">% Original author: Nicolas Boumal, April 8, 2015.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021 
+0022     candoit = isfield(problem, <span class="string">'approxhess'</span>);
+0023     
+0024 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

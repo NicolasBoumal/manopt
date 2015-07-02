@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of preconhessiansolve</title>
+  <meta name="keywords" content="preconhessiansolve">
+  <meta name="description" content="Preconditioner based on the inverse Hessian, by solving linear systems.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">preconditioners</a> &gt; preconhessiansolve.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\preconditioners&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>preconhessiansolve
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Preconditioner based on the inverse Hessian, by solving linear systems.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function preconfun = preconhessiansolve(problem, options) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Preconditioner based on the inverse Hessian, by solving linear systems.
+
+ function preconfun = preconhessiansolve(problem)
+ function preconfun = preconhessiansolve(problem, options)
+
+ Input:
+
+ A Manopt problem structure (already containing the manifold and enough
+ information to compute the Hessian of the cost) and an options structure
+ (optional, currently ignored). Notice that if the Hessian is not positive
+ definite, then its inverse is not positive definite either and this
+ preconditioner is not suitable.
+
+ If the Hessian cannot be computed on 'problem', a warning is issued. An
+ approximation of the Hessian will be used instead, and the present
+ preconditioner will attempt to invert that (although it may not be a
+ linear operator). If no approximate Hessian is provided either, a generic
+ approximation is used. Behavior is unspecified.
+
+ Output:
+ 
+ Returns a function handle, encapsulating a generic preconditioner of the
+ Hessian based on solving linear systems of the form:
+   Hessian(x)[preconfun(x, xdot)] = xdot,
+ where x is the point on the manifold, xdot is the input to the
+ preconditioner (a tangent vector) and preconfun(x, xdot) is returned
+ (also a tangent vector). The solve may be approximate.
+ 
+ The returned preconfun has this calling pattern:
+ 
+   function precxdot = preconfun(x, xdot)
+   function precxdot = preconfun(x, xdot, storedb)
+   function precxdot = preconfun(x, xdot, storedb, key)
+ 
+ x is a point on the manifold problem.M, xdot is a tangent vector to that
+ manifold at x, storedb is a StoreDB object, and key is the StoreDB key to
+ point x.
+
+ Usage:
+
+ Typically, the user will set problem.M and other fields to define the
+ cost, the gradient and the Hessian (typically, problem.cost, problem.grad
+ and problem.hess, or problem.egrad and problem.ehess). Then, to use this
+ generic purpose Hessian preconditioner:
+
+   problem.precon = preconhessiansolve(problem, options);
+
+ Passing that problem structure to the conjugategradients solver
+ (which uses preconditioning) configured in steepest descent mode results
+ in a type of Riemannian Newton method.
+
+ See also: conjugategradients</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>	Checks whether an approximate Hessian can be computed for this problem.</li><li><a href="../../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li><li><a href="../../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li><li><a href="../../../manopt/tools/tangentspacefactory.html" class="code" title="function N = tangentspacefactory(M, x)">tangentspacefactory</a>	Returns a manifold structure representing the tangent space to M at x.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function precxdot = funhandle(x, xdot, storedb, key)</a></li><li><a href="#_sub2" class="code">function precxdot = hessiansolvehelper(options, problem, x, xdot, storedb, key)</a></li><li><a href="#_sub3" class="code">function [f, store] = cost(u, store)</a></li><li><a href="#_sub4" class="code">function [g, store] = grad(u, store)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function preconfun = preconhessiansolve(problem, options)</a>
+0002 <span class="comment">% Preconditioner based on the inverse Hessian, by solving linear systems.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function preconfun = preconhessiansolve(problem)</span>
+0005 <span class="comment">% function preconfun = preconhessiansolve(problem, options)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Input:</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% A Manopt problem structure (already containing the manifold and enough</span>
+0010 <span class="comment">% information to compute the Hessian of the cost) and an options structure</span>
+0011 <span class="comment">% (optional, currently ignored). Notice that if the Hessian is not positive</span>
+0012 <span class="comment">% definite, then its inverse is not positive definite either and this</span>
+0013 <span class="comment">% preconditioner is not suitable.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% If the Hessian cannot be computed on 'problem', a warning is issued. An</span>
+0016 <span class="comment">% approximation of the Hessian will be used instead, and the present</span>
+0017 <span class="comment">% preconditioner will attempt to invert that (although it may not be a</span>
+0018 <span class="comment">% linear operator). If no approximate Hessian is provided either, a generic</span>
+0019 <span class="comment">% approximation is used. Behavior is unspecified.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% Output:</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Returns a function handle, encapsulating a generic preconditioner of the</span>
+0024 <span class="comment">% Hessian based on solving linear systems of the form:</span>
+0025 <span class="comment">%   Hessian(x)[preconfun(x, xdot)] = xdot,</span>
+0026 <span class="comment">% where x is the point on the manifold, xdot is the input to the</span>
+0027 <span class="comment">% preconditioner (a tangent vector) and preconfun(x, xdot) is returned</span>
+0028 <span class="comment">% (also a tangent vector). The solve may be approximate.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% The returned preconfun has this calling pattern:</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%   function precxdot = preconfun(x, xdot)</span>
+0033 <span class="comment">%   function precxdot = preconfun(x, xdot, storedb)</span>
+0034 <span class="comment">%   function precxdot = preconfun(x, xdot, storedb, key)</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% x is a point on the manifold problem.M, xdot is a tangent vector to that</span>
+0037 <span class="comment">% manifold at x, storedb is a StoreDB object, and key is the StoreDB key to</span>
+0038 <span class="comment">% point x.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">% Usage:</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% Typically, the user will set problem.M and other fields to define the</span>
+0043 <span class="comment">% cost, the gradient and the Hessian (typically, problem.cost, problem.grad</span>
+0044 <span class="comment">% and problem.hess, or problem.egrad and problem.ehess). Then, to use this</span>
+0045 <span class="comment">% generic purpose Hessian preconditioner:</span>
+0046 <span class="comment">%</span>
+0047 <span class="comment">%   problem.precon = preconhessiansolve(problem, options);</span>
+0048 <span class="comment">%</span>
+0049 <span class="comment">% Passing that problem structure to the conjugategradients solver</span>
+0050 <span class="comment">% (which uses preconditioning) configured in steepest descent mode results</span>
+0051 <span class="comment">% in a type of Riemannian Newton method.</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">% See also: conjugategradients</span>
+0054 
+0055 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0056 <span class="comment">% Original author: Nicolas Boumal, April 9, 2015.</span>
+0057 <span class="comment">% Contributors:</span>
+0058 <span class="comment">% Change log:</span>
+0059 
+0060     <span class="comment">% Check availability of the Hessian, or at least of an approximation.</span>
+0061     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem) &amp;&amp; ~<a href="../../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>(problem)
+0062         <span class="comment">% Note: we do not give a warning if an approximate Hessian is</span>
+0063         <span class="comment">% explicitly given in the problem description, as in that case the</span>
+0064         <span class="comment">% user seems to be aware of the issue.</span>
+0065         warning(<span class="string">'manopt:getHessian:approx'</span>, <span class="keyword">...</span>
+0066                [<span class="string">'No Hessian provided. Using an FD approximation instead.\n'</span> <span class="keyword">...</span>
+0067                 <span class="string">'To disable this warning: warning(''off'', ''manopt:getHessian:approx'')'</span>]);
+0068         problem.approxhess = <a href="../../../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>(problem);
+0069     <span class="keyword">end</span>
+0070 
+0071     <span class="comment">% Set local defaults here, and merge with user options, if any.</span>
+0072     localdefaults = struct();
+0073     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0074         options = struct();
+0075     <span class="keyword">end</span>
+0076     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
+0077 
+0078     <span class="comment">% Build and return the function handle here. This extra construct via</span>
+0079     <span class="comment">% funhandle makes it possible to make storedb and key optional.</span>
+0080     preconfun = @<a href="#_sub1" class="code" title="subfunction precxdot = funhandle(x, xdot, storedb, key)">funhandle</a>;
+0081     <a name="_sub1" href="#_subfunctions" class="code">function precxdot = funhandle(x, xdot, storedb, key)</a>
+0082         <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0083         <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0084             <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0085                 storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0086             <span class="keyword">end</span>
+0087             key = storedb.getNewKey();
+0088         <span class="keyword">end</span> 
+0089         precxdot = <a href="#_sub2" class="code" title="subfunction precxdot = hessiansolvehelper(options, problem, x, xdot, storedb, key)">hessiansolvehelper</a>(options, problem, x, xdot, <span class="keyword">...</span>
+0090                                       storedb, key);
+0091     <span class="keyword">end</span>
+0092     
+0093 <span class="keyword">end</span>
+0094 
+0095 
+0096 <a name="_sub2" href="#_subfunctions" class="code">function precxdot = hessiansolvehelper(options, problem, x, xdot, storedb, key)</a>
+0097 <span class="comment">% This function does the actual work.</span>
+0098     
+0099     <span class="comment">% Exclude the case where xdot is zero</span>
+0100     norm_xdot = problem.M.norm(x, xdot);
+0101     <span class="keyword">if</span> norm_xdot &lt; eps
+0102         precxdot = problem.M.zerovec(x);
+0103         <span class="keyword">return</span>;
+0104     <span class="keyword">end</span>
+0105     
+0106     <span class="comment">% Get a shorthand for the Hessian of the cost on M at x.</span>
+0107     hessian = @(u) <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, u, storedb, key);
+0108     
+0109     <span class="comment">% Setup an optimization problem on the tangent space to problem.M at x.</span>
+0110     M = problem.M;
+0111     tgtspace = <a href="../../../manopt/tools/tangentspacefactory.html" class="code" title="function N = tangentspacefactory(M, x)">tangentspacefactory</a>(M, x);
+0112     prblm.M = tgtspace;
+0113     prblm.cost = @<a href="#_sub3" class="code" title="subfunction [f, store] = cost(u, store)">cost</a>;
+0114     prblm.grad = @<a href="#_sub4" class="code" title="subfunction [g, store] = grad(u, store)">grad</a>;
+0115     prblm.hess = @(u, udot) 2*hessian(hessian(udot))/norm_xdot;
+0116     
+0117     <a name="_sub3" href="#_subfunctions" class="code">function [f, store] = cost(u, store)</a>
+0118         <span class="keyword">if</span> ~isfield(store, <span class="string">'residue'</span>)
+0119             Hu = hessian(u);
+0120             store.residue = M.lincomb(x, 1, Hu, -1, xdot);
+0121         <span class="keyword">end</span>
+0122         f = M.norm(x, store.residue).^2 / norm_xdot;
+0123     <span class="keyword">end</span>
+0124     <a name="_sub4" href="#_subfunctions" class="code">function [g, store] = grad(u, store)</a>
+0125         <span class="keyword">if</span> ~isfield(store, <span class="string">'residue'</span>)
+0126             Hu = hessian(u);
+0127             store.residue = M.lincomb(x, 1, Hu, -1, xdot);
+0128         <span class="keyword">end</span>
+0129         g = 2 * hessian(store.residue) / norm_xdot;
+0130     <span class="keyword">end</span>
+0131     
+0132     <span class="comment">% checkgradient(prblm); pause;</span>
+0133     <span class="comment">% checkhessian(prblm); pause;</span>
+0134     
+0135     localdefaults.solver = @<a href="../../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>;
+0136     localdefaults.verbosity = 0;
+0137     <span class="comment">% Merge local defaults with user options, if any.</span>
+0138     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0139         options = struct();
+0140     <span class="keyword">end</span>
+0141     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
+0142     
+0143     <span class="comment">% Solve the linear system by solving the optimization problem.</span>
+0144     precxdot = <a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(prblm, M.zerovec(), options);
+0145     
+0146 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of euclideancomplexfactory</title>
+  <meta name="keywords" content="euclideancomplexfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over complex m-by-n matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; euclideancomplexfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>euclideancomplexfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over complex m-by-n matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = euclideancomplexfactory(m, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over complex m-by-n matrices.
+
+ function M = euclideancomplexfactory(m, n)
+
+ Returns M, a structure describing the vector space of complex m-by-n
+ matrices, as a manifold for Manopt.
+
+ The complex plane is here viewed as R^2. The inner product between two
+ m-by-n matrices A and B is given by: real(trace(A'*B)). This choice
+ guides the proper definition of gradient and Hessian for this geometry.
+ This is not the classical Euclidean inner product for complex matrices;
+ it is a real inner product.
+
+ See also: <a href="euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = euclideancomplexfactory(m, n)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over complex m-by-n matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = euclideancomplexfactory(m, n)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns M, a structure describing the vector space of complex m-by-n</span>
+0007 <span class="comment">% matrices, as a manifold for Manopt.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% The complex plane is here viewed as R^2. The inner product between two</span>
+0010 <span class="comment">% m-by-n matrices A and B is given by: real(trace(A'*B)). This choice</span>
+0011 <span class="comment">% guides the proper definition of gradient and Hessian for this geometry.</span>
+0012 <span class="comment">% This is not the classical Euclidean inner product for complex matrices;</span>
+0013 <span class="comment">% it is a real inner product.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% See also: euclideanfactory</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0018 <span class="comment">% Original author: Nicolas Boumal, April 7, 2015.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021 
+0022     
+0023     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0024         n = 1;
+0025     <span class="keyword">end</span>
+0026 
+0027     M.name = @() sprintf(<span class="string">'Vector space C^(%dx%d)'</span>, m, n);
+0028     
+0029     M.dim = @() 2*m*n;
+0030     
+0031     M.inner = @(x, d1, d2) real(d1(:)'*d2(:));
+0032     
+0033     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0034     
+0035     M.dist = @(x, y) norm(x-y, <span class="string">'fro'</span>);
+0036     
+0037     M.typicaldist = @() sqrt(m*n);
+0038     
+0039     M.proj = @(x, d) d;
+0040     
+0041     M.egrad2rgrad = @(x, g) g;
+0042     
+0043     M.ehess2rhess = @(x, eg, eh, d) eh;
+0044     
+0045     M.tangent = M.proj;
+0046     
+0047     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0048     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0049         <span class="keyword">if</span> nargin == 3
+0050             y = x + t*d;
+0051         <span class="keyword">else</span>
+0052             y = x + d;
+0053         <span class="keyword">end</span>
+0054     <span class="keyword">end</span>
+0055     
+0056     M.retr = M.exp;
+0057     
+0058     M.log = @(x, y) y-x;
+0059 
+0060     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([real(x(:)) ; imag(x(:))])];
+0061     
+0062     M.rand = @() (randn(m, n) + 1i*randn(m, n))/sqrt(2);
+0063     
+0064     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
+0065     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0066         u = randn(m, n) + 1i*randn(m, n);
+0067         u = u / norm(u, <span class="string">'fro'</span>);
+0068     <span class="keyword">end</span>
+0069     
+0070     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0071     
+0072     M.zerovec = @(x) zeros(m, n);
+0073     
+0074     M.transp = @(x1, x2, d) d;
+0075     
+0076     M.pairmean = @(x1, x2) .5*(x1+x2);
+0077     
+0078     mn = m*n;
+0079     M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
+0080     M.mat = @(x, u_vec) reshape(u_vec(1:mn), [m, n]) + 1i*reshape(u_vec((mn+1):end), [m, n]);
+0081     M.vecmatareisometries = @() true;
+0082 
+0083 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

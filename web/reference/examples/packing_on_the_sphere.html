@@ -24,12 +24,12 @@
 <div class="box"><strong>Return a set of points spread out on the sphere.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0) </strong></div>
+<div class="box"><strong>function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Return a set of points spread out on the sphere.
 
- function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
+ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 
  Using optimization on the oblique manifold, that is, the product of
  spheres, this function returns a set of n points with unit norm in R^d in
@@ -66,7 +66,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -74,13 +74,13 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function [f store] = cost(X, store)</a></li><li><a href="#_sub2" class="code">function [g store] = grad(X, store)</a></li></ul>
+<li><a href="#_sub1" class="code">function [f, store] = cost(X, store)</a></li><li><a href="#_sub2" class="code">function [g, store] = grad(X, store)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</a>
 0002 <span class="comment">% Return a set of points spread out on the sphere.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</span>
+0004 <span class="comment">% function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)</span>
 0005 <span class="comment">%</span>
 0006 <span class="comment">% Using optimization on the oblique manifold, that is, the product of</span>
 0007 <span class="comment">% spheres, this function returns a set of n points with unit norm in R^d in</span>
@@ -174,7 +174,7 @@ This function is called by:
 0095     <span class="comment">% same store structure back. We may modify the store structure inside</span>
 0096     <span class="comment">% the function and return it: the changes will be remembered for next</span>
 0097     <span class="comment">% time.</span>
-0098     <a name="_sub1" href="#_subfunctions" class="code">function [f store] = cost(X, store)</a>
+0098     <a name="_sub1" href="#_subfunctions" class="code">function [f, store] = cost(X, store)</a>
 0099         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
 0100             XXt = X*X';
 0101             <span class="comment">% Shift the exponentials by the maximum value to reduce</span>
@@ -199,9 +199,9 @@ This function is called by:
 0120     <span class="comment">% point X for which the cost was already called, the store structure we</span>
 0121     <span class="comment">% receive remember everything that the cost function stored in it, so</span>
 0122     <span class="comment">% we can reuse previously computed elements.</span>
-0123     <a name="_sub2" href="#_subfunctions" class="code">function [g store] = grad(X, store)</a>
+0123     <a name="_sub2" href="#_subfunctions" class="code">function [g, store] = grad(X, store)</a>
 0124         <span class="keyword">if</span> ~isfield(store, <span class="string">'ready'</span>)
-0125             [~, store] = <a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>(X, store);
+0125             [~, store] = <a href="#_sub1" class="code" title="subfunction [f, store] = cost(X, store)">cost</a>(X, store);
 0126         <span class="keyword">end</span>
 0127         <span class="comment">% Compute the Euclidean gradient</span>
 0128         eg = store.expXXt*X / store.u;
@@ -212,8 +212,8 @@ This function is called by:
 0133     <span class="comment">% Setup the problem structure with its manifold M and cost+grad</span>
 0134     <span class="comment">% functions.</span>
 0135     problem.M = manifold;
-0136     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>;
-0137     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g store] = grad(X, store)">grad</a>;
+0136     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f, store] = cost(X, store)">cost</a>;
+0137     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g, store] = grad(X, store)">grad</a>;
 0138 
 0139     <span class="comment">% For debugging, it's always nice to check the gradient a few times.</span>
 0140     <span class="comment">% checkgradient(problem);</span>
@@ -243,7 +243,7 @@ This function is called by:
 0164     <span class="comment">% fortiori not symmetric. The result of this computation is thus not</span>
 0165     <span class="comment">% reliable. It does display the zero eigenvalues as expected though.</span>
 0166     <span class="keyword">if</span> manifold.dim() &lt; 300
-0167         evs = real(<a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X));
+0167         evs = real(<a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>(problem, X));
 0168         figure;
 0169         stem(1:length(evs), sort(evs), <span class="string">'.'</span>);
 0170         title([<span class="string">'Eigenvalues of the approximate Hessian of the cost '</span> <span class="keyword">...</span>
@@ -279,7 +279,7 @@ This function is called by:
 0200     <span class="keyword">if</span> d == 3
 0201         figure;
 0202         <span class="comment">% Plot the sphere</span>
-0203         [sphere_x sphere_y sphere_z] = sphere(50);
+0203         [sphere_x, sphere_y, sphere_z] = sphere(50);
 0204         handle = surf(sphere_x, sphere_y, sphere_z);
 0205         set(handle, <span class="string">'FaceColor'</span>, [152,186,220]/255);
 0206         set(handle, <span class="string">'FaceAlpha'</span>, .5);
@@ -296,7 +296,7 @@ This function is called by:
 0217         <span class="comment">% within some tolerance.</span>
 0218         min_distance = real(acos(maxdot));
 0219         connected = real(acos(XXt)) &lt;= 1.20*min_distance;
-0220         [Ic Jc] = find(triu(connected, 1));
+0220         [Ic, Jc] = find(triu(connected, 1));
 0221         <span class="keyword">for</span> k = 1 : length(Ic)
 0222             i = Ic(k); j = Jc(k);
 0223             plot3(Y(1, [i j]), Y(2, [i j]), Y(3, [i j]), <span class="string">'k-'</span>);
@@ -305,6 +305,6 @@ This function is called by:
 0226     <span class="keyword">end</span>
 0227 
 0228 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

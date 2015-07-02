@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getSqrtPrecon</title>
+  <meta name="keywords" content="getSqrtPrecon">
+  <meta name="description" content="Applies the square root of the Hessian preconditioner at x along d.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; getSqrtPrecon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getSqrtPrecon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Applies the square root of the Hessian preconditioner at x along d.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Applies the square root of the Hessian preconditioner at x along d.
+
+ function sqrtPd = getSqrtPrecon(problem, x, d)
+ function sqrtPd = getSqrtPrecon(problem, x, d, storedb)
+ function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)
+
+ Returns as sqrtPd the result of applying the square root of the Hessian
+ preconditioner to the tangent vector d at point x. The preconditioner is
+ supposed to be a symmetric, positive definite approximation of the
+ inverse of the Hessian. Its square root must thus be symmetric and
+ positive definite itself.
+ 
+ If no square root of preconditioner is available, sqrtPd = d (identity).
+ Note that this may be incompatible with the preconditioner, if that one
+ is supplied in the problem description. Always check with canGetPrecon
+ and canGetSqrtPrecon.
+
+ storedb is a StoreDB object, key is the StoreDB key to point x.
+
+ See also: <a href="getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a> <a href="canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a> <a href="canGetSqrtPrecon.html" class="code" title="function candoit = canGetSqrtPrecon(problem)">canGetSqrtPrecon</a> <a href="getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)</a>
+0002 <span class="comment">% Applies the square root of the Hessian preconditioner at x along d.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function sqrtPd = getSqrtPrecon(problem, x, d)</span>
+0005 <span class="comment">% function sqrtPd = getSqrtPrecon(problem, x, d, storedb)</span>
+0006 <span class="comment">% function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns as sqrtPd the result of applying the square root of the Hessian</span>
+0009 <span class="comment">% preconditioner to the tangent vector d at point x. The preconditioner is</span>
+0010 <span class="comment">% supposed to be a symmetric, positive definite approximation of the</span>
+0011 <span class="comment">% inverse of the Hessian. Its square root must thus be symmetric and</span>
+0012 <span class="comment">% positive definite itself.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% If no square root of preconditioner is available, sqrtPd = d (identity).</span>
+0015 <span class="comment">% Note that this may be incompatible with the preconditioner, if that one</span>
+0016 <span class="comment">% is supplied in the problem description. Always check with canGetPrecon</span>
+0017 <span class="comment">% and canGetSqrtPrecon.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% storedb is a StoreDB object, key is the StoreDB key to point x.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% See also: getPrecon canGetPrecon canGetSqrtPrecon getHessian</span>
+0022 
+0023 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0024 <span class="comment">% Original author: Nicolas Boumal, April 3, 2015.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">% Change log:</span>
+0027 
+0028     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0029     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0030         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0031             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
+0032         <span class="keyword">end</span>
+0033         key = storedb.getNewKey();
+0034     <span class="keyword">end</span>
+0035 
+0036     
+0037     <span class="keyword">if</span> isfield(problem, <span class="string">'sqrtprecon'</span>)
+0038     <span class="comment">%% Apply sqrtprecon for the square root of the preconditioner</span>
+0039     
+0040         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0041         <span class="keyword">switch</span> nargin(problem.sqrtprecon)
+0042             <span class="keyword">case</span> 2
+0043                 sqrtPd = problem.sqrtprecon(x, d);
+0044             <span class="keyword">case</span> 3
+0045                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0046                 store = storedb.getWithShared(key);
+0047                 [sqrtPd, store] = problem.sqrtprecon(x, d, store);
+0048                 storedb.setWithShared(store, key);
+0049             <span class="keyword">case</span> 4
+0050                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0051                 sqrtPd = problem.sqrtprecon(x, d, storedb, key);
+0052             <span class="keyword">otherwise</span>
+0053                 up = MException(<span class="string">'manopt:getSqrtPrecon:badsqrtprecon'</span>, <span class="keyword">...</span>
+0054                     <span class="string">'sqrtprecon should accept 2, 3 or 4 inputs.'</span>);
+0055                 throw(up);
+0056         <span class="keyword">end</span>
+0057         
+0058     <span class="keyword">else</span>
+0059     <span class="comment">%% No preconditioner square root provided, so just use the identity.</span>
+0060     
+0061         sqrtPd = d;
+0062         
+0063     <span class="keyword">end</span>
+0064     
+0065 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -39,9 +39,6 @@
  (otherwise, at a random point on the manifold). To specify options whilst
  not specifying an initial guess, give x0 as [] (the empty matrix).
 
- In most of the examples bundled with the toolbox (see link below), the
- solver can be replaced by the present one if need be.
-
  The outputs x and cost are the best reached point on the manifold and its
  cost. The struct-array info contains information about the iterations:
    iter : the iteration number (0 for the initial guess)
@@ -100,7 +97,7 @@
        each line search's documentation for info. Another available line
        search in manopt is @linesearch, in /manopt/linesearch/linesearch.m
        If the problem structure includes a line search hint, then the
-       default line search used in @linesearch_hint.
+       default line search used is @linesearch_hint.
    statsfun (none)
        Function handle to a function that will be called after each
        iteration to provide the opportunity to log additional statistics.
@@ -122,16 +119,19 @@
        the CG algorithm, a store depth of 2 should always be sufficient.
 
 
+ In most of the examples bundled with the toolbox (see link below), the
+ solver can be replaced by the present one if need be.
+
  See also: steepestdescent trustregions manopt/solvers/linesearch manopt/examples</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/privatetools/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>	Makes sure the storedb database does not exceed some maximum size.</li><li><a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_adaptive.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_adaptive</a>	Adaptive line search algorithm (step size selection) for descent methods.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_adaptive.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)">linesearch_adaptive</a>	Adaptive line search algorithm (step size selection) for descent methods.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li><li><a href="../../../examples/packing_on_the_sphere.html" class="code" title="function [X maxdot] = packing_on_the_sphere(d, n, epsilon, X0)">packing_on_the_sphere</a>	Return a set of points spread out on the sphere.</li></ul>
+<li><a href="../../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li><li><a href="../../../examples/low_rank_tensor_completion.html" class="code" title="function low_rank_tensor_completion()">low_rank_tensor_completion</a>	Given partial observation of a low rank tensor, attempts to complete it.</li><li><a href="../../../examples/packing_on_the_sphere.html" class="code" title="function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)">packing_on_the_sphere</a>	Return a set of points spread out on the sphere.</li><li><a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -152,380 +152,398 @@ This function is called by:
 0011 <span class="comment">% (otherwise, at a random point on the manifold). To specify options whilst</span>
 0012 <span class="comment">% not specifying an initial guess, give x0 as [] (the empty matrix).</span>
 0013 <span class="comment">%</span>
-0014 <span class="comment">% In most of the examples bundled with the toolbox (see link below), the</span>
-0015 <span class="comment">% solver can be replaced by the present one if need be.</span>
-0016 <span class="comment">%</span>
-0017 <span class="comment">% The outputs x and cost are the best reached point on the manifold and its</span>
-0018 <span class="comment">% cost. The struct-array info contains information about the iterations:</span>
-0019 <span class="comment">%   iter : the iteration number (0 for the initial guess)</span>
-0020 <span class="comment">%   cost : cost value</span>
-0021 <span class="comment">%   time : elapsed time in seconds</span>
-0022 <span class="comment">%   gradnorm : Riemannian norm of the gradient</span>
-0023 <span class="comment">%   stepsize : norm of the last tangent vector retracted</span>
-0024 <span class="comment">%   beta : value of the beta parameter (see options.beta_type)</span>
-0025 <span class="comment">%   linesearch : information logged by options.linesearch</span>
-0026 <span class="comment">%   And possibly additional information logged by options.statsfun.</span>
-0027 <span class="comment">% For example, type [info.gradnorm] to obtain a vector of the successive</span>
-0028 <span class="comment">% gradient norms reached.</span>
-0029 <span class="comment">%</span>
-0030 <span class="comment">% The options structure is used to overwrite the default values. All</span>
-0031 <span class="comment">% options have a default value and are hence optional. To force an option</span>
-0032 <span class="comment">% value, pass an options structure with a field options.optionname, where</span>
-0033 <span class="comment">% optionname is one of the following and the default value is indicated</span>
-0034 <span class="comment">% between parentheses:</span>
-0035 <span class="comment">%</span>
-0036 <span class="comment">%   tolgradnorm (1e-6)</span>
-0037 <span class="comment">%       The algorithm terminates if the norm of the gradient drops below this.</span>
-0038 <span class="comment">%   maxiter (1000)</span>
-0039 <span class="comment">%       The algorithm terminates if maxiter iterations have been executed.</span>
-0040 <span class="comment">%   maxtime (Inf)</span>
-0041 <span class="comment">%       The algorithm terminates if maxtime seconds elapsed.</span>
-0042 <span class="comment">%   minstepsize (1e-10)</span>
-0043 <span class="comment">%       The algorithm terminates if the linesearch returns a displacement</span>
-0044 <span class="comment">%       vector (to be retracted) smaller in norm than this value.</span>
-0045 <span class="comment">%   beta_type ('H-S')</span>
-0046 <span class="comment">%       Conjugate gradient beta rule used to construct the new search</span>
-0047 <span class="comment">%       direction, based on a linear combination of the previous search</span>
-0048 <span class="comment">%       direction and the new (preconditioned) gradient. Possible values</span>
-0049 <span class="comment">%       for this parameter are:</span>
-0050 <span class="comment">%           'S-D', 'steep' for beta = 0 (preconditioned steepest descent)</span>
-0051 <span class="comment">%           'F-R' for Fletcher-Reeves's rule</span>
-0052 <span class="comment">%           'P-R' for Polak-Ribiere's modified rule</span>
-0053 <span class="comment">%           'H-S' for Hestenes-Stiefel's modified rule</span>
-0054 <span class="comment">%           'H-Z' for Hager-Zhang's modified rule</span>
-0055 <span class="comment">%       See Hager and Zhang 2006, &quot;A survey of nonlinear conjugate gradient</span>
-0056 <span class="comment">%       methods&quot; for a description of these rules in the Euclidean case and</span>
-0057 <span class="comment">%       for an explanation of how to adapt them to the preconditioned case.</span>
-0058 <span class="comment">%       The adaption to the Riemannian case is straightforward: see in code</span>
-0059 <span class="comment">%       for details. Modified rules take the max between 0 and the computed</span>
-0060 <span class="comment">%       beta value, which provides automatic restart, except for H-Z which</span>
-0061 <span class="comment">%       uses a different modification.</span>
-0062 <span class="comment">%   orth_value (Inf)</span>
-0063 <span class="comment">%       Following Powell's restart strategy (Math. prog. 1977), restart CG</span>
-0064 <span class="comment">%       (that is, make a -preconditioned- gradient step) if two successive</span>
-0065 <span class="comment">%       -preconditioned- gradients are &quot;too&quot; parallel. See for example</span>
-0066 <span class="comment">%       Hager and Zhang 2006, &quot;A survey of nonlinear conjugate gradient</span>
-0067 <span class="comment">%       methods&quot;, page 12. An infinite value disables this strategy. See in</span>
-0068 <span class="comment">%       code formula for the specific criterion used.</span>
-0069 <span class="comment">%   linesearch (@linesearch_adaptive or @linesearch_hint)</span>
-0070 <span class="comment">%       Function handle to a line search function. The options structure is</span>
-0071 <span class="comment">%       passed to the line search too, so you can pass it parameters. See</span>
-0072 <span class="comment">%       each line search's documentation for info. Another available line</span>
-0073 <span class="comment">%       search in manopt is @linesearch, in /manopt/linesearch/linesearch.m</span>
-0074 <span class="comment">%       If the problem structure includes a line search hint, then the</span>
-0075 <span class="comment">%       default line search used in @linesearch_hint.</span>
-0076 <span class="comment">%   statsfun (none)</span>
-0077 <span class="comment">%       Function handle to a function that will be called after each</span>
-0078 <span class="comment">%       iteration to provide the opportunity to log additional statistics.</span>
-0079 <span class="comment">%       They will be returned in the info struct. See the generic Manopt</span>
-0080 <span class="comment">%       documentation about solvers for further information.</span>
-0081 <span class="comment">%   stopfun (none)</span>
-0082 <span class="comment">%       Function handle to a function that will be called at each iteration</span>
-0083 <span class="comment">%       to provide the opportunity to specify additional stopping criteria.</span>
-0084 <span class="comment">%       See the generic Manopt documentation about solvers for further</span>
-0085 <span class="comment">%       information.</span>
-0086 <span class="comment">%   verbosity (3)</span>
-0087 <span class="comment">%       Integer number used to tune the amount of output the algorithm</span>
-0088 <span class="comment">%       generates during execution (mostly as text in the command window).</span>
-0089 <span class="comment">%       The higher, the more output. 0 means silent.</span>
-0090 <span class="comment">%   storedepth (2)</span>
-0091 <span class="comment">%       Maximum number of different points x of the manifold for which a</span>
-0092 <span class="comment">%       store structure will be kept in memory in the storedb. If the</span>
-0093 <span class="comment">%       caching features of Manopt are not used, this is irrelevant. For</span>
-0094 <span class="comment">%       the CG algorithm, a store depth of 2 should always be sufficient.</span>
-0095 <span class="comment">%</span>
+0014 <span class="comment">% The outputs x and cost are the best reached point on the manifold and its</span>
+0015 <span class="comment">% cost. The struct-array info contains information about the iterations:</span>
+0016 <span class="comment">%   iter : the iteration number (0 for the initial guess)</span>
+0017 <span class="comment">%   cost : cost value</span>
+0018 <span class="comment">%   time : elapsed time in seconds</span>
+0019 <span class="comment">%   gradnorm : Riemannian norm of the gradient</span>
+0020 <span class="comment">%   stepsize : norm of the last tangent vector retracted</span>
+0021 <span class="comment">%   beta : value of the beta parameter (see options.beta_type)</span>
+0022 <span class="comment">%   linesearch : information logged by options.linesearch</span>
+0023 <span class="comment">%   And possibly additional information logged by options.statsfun.</span>
+0024 <span class="comment">% For example, type [info.gradnorm] to obtain a vector of the successive</span>
+0025 <span class="comment">% gradient norms reached.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% The options structure is used to overwrite the default values. All</span>
+0028 <span class="comment">% options have a default value and are hence optional. To force an option</span>
+0029 <span class="comment">% value, pass an options structure with a field options.optionname, where</span>
+0030 <span class="comment">% optionname is one of the following and the default value is indicated</span>
+0031 <span class="comment">% between parentheses:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   tolgradnorm (1e-6)</span>
+0034 <span class="comment">%       The algorithm terminates if the norm of the gradient drops below this.</span>
+0035 <span class="comment">%   maxiter (1000)</span>
+0036 <span class="comment">%       The algorithm terminates if maxiter iterations have been executed.</span>
+0037 <span class="comment">%   maxtime (Inf)</span>
+0038 <span class="comment">%       The algorithm terminates if maxtime seconds elapsed.</span>
+0039 <span class="comment">%   minstepsize (1e-10)</span>
+0040 <span class="comment">%       The algorithm terminates if the linesearch returns a displacement</span>
+0041 <span class="comment">%       vector (to be retracted) smaller in norm than this value.</span>
+0042 <span class="comment">%   beta_type ('H-S')</span>
+0043 <span class="comment">%       Conjugate gradient beta rule used to construct the new search</span>
+0044 <span class="comment">%       direction, based on a linear combination of the previous search</span>
+0045 <span class="comment">%       direction and the new (preconditioned) gradient. Possible values</span>
+0046 <span class="comment">%       for this parameter are:</span>
+0047 <span class="comment">%           'S-D', 'steep' for beta = 0 (preconditioned steepest descent)</span>
+0048 <span class="comment">%           'F-R' for Fletcher-Reeves's rule</span>
+0049 <span class="comment">%           'P-R' for Polak-Ribiere's modified rule</span>
+0050 <span class="comment">%           'H-S' for Hestenes-Stiefel's modified rule</span>
+0051 <span class="comment">%           'H-Z' for Hager-Zhang's modified rule</span>
+0052 <span class="comment">%       See Hager and Zhang 2006, &quot;A survey of nonlinear conjugate gradient</span>
+0053 <span class="comment">%       methods&quot; for a description of these rules in the Euclidean case and</span>
+0054 <span class="comment">%       for an explanation of how to adapt them to the preconditioned case.</span>
+0055 <span class="comment">%       The adaption to the Riemannian case is straightforward: see in code</span>
+0056 <span class="comment">%       for details. Modified rules take the max between 0 and the computed</span>
+0057 <span class="comment">%       beta value, which provides automatic restart, except for H-Z which</span>
+0058 <span class="comment">%       uses a different modification.</span>
+0059 <span class="comment">%   orth_value (Inf)</span>
+0060 <span class="comment">%       Following Powell's restart strategy (Math. prog. 1977), restart CG</span>
+0061 <span class="comment">%       (that is, make a -preconditioned- gradient step) if two successive</span>
+0062 <span class="comment">%       -preconditioned- gradients are &quot;too&quot; parallel. See for example</span>
+0063 <span class="comment">%       Hager and Zhang 2006, &quot;A survey of nonlinear conjugate gradient</span>
+0064 <span class="comment">%       methods&quot;, page 12. An infinite value disables this strategy. See in</span>
+0065 <span class="comment">%       code formula for the specific criterion used.</span>
+0066 <span class="comment">%   linesearch (@linesearch_adaptive or @linesearch_hint)</span>
+0067 <span class="comment">%       Function handle to a line search function. The options structure is</span>
+0068 <span class="comment">%       passed to the line search too, so you can pass it parameters. See</span>
+0069 <span class="comment">%       each line search's documentation for info. Another available line</span>
+0070 <span class="comment">%       search in manopt is @linesearch, in /manopt/linesearch/linesearch.m</span>
+0071 <span class="comment">%       If the problem structure includes a line search hint, then the</span>
+0072 <span class="comment">%       default line search used is @linesearch_hint.</span>
+0073 <span class="comment">%   statsfun (none)</span>
+0074 <span class="comment">%       Function handle to a function that will be called after each</span>
+0075 <span class="comment">%       iteration to provide the opportunity to log additional statistics.</span>
+0076 <span class="comment">%       They will be returned in the info struct. See the generic Manopt</span>
+0077 <span class="comment">%       documentation about solvers for further information.</span>
+0078 <span class="comment">%   stopfun (none)</span>
+0079 <span class="comment">%       Function handle to a function that will be called at each iteration</span>
+0080 <span class="comment">%       to provide the opportunity to specify additional stopping criteria.</span>
+0081 <span class="comment">%       See the generic Manopt documentation about solvers for further</span>
+0082 <span class="comment">%       information.</span>
+0083 <span class="comment">%   verbosity (3)</span>
+0084 <span class="comment">%       Integer number used to tune the amount of output the algorithm</span>
+0085 <span class="comment">%       generates during execution (mostly as text in the command window).</span>
+0086 <span class="comment">%       The higher, the more output. 0 means silent.</span>
+0087 <span class="comment">%   storedepth (2)</span>
+0088 <span class="comment">%       Maximum number of different points x of the manifold for which a</span>
+0089 <span class="comment">%       store structure will be kept in memory in the storedb. If the</span>
+0090 <span class="comment">%       caching features of Manopt are not used, this is irrelevant. For</span>
+0091 <span class="comment">%       the CG algorithm, a store depth of 2 should always be sufficient.</span>
+0092 <span class="comment">%</span>
+0093 <span class="comment">%</span>
+0094 <span class="comment">% In most of the examples bundled with the toolbox (see link below), the</span>
+0095 <span class="comment">% solver can be replaced by the present one if need be.</span>
 0096 <span class="comment">%</span>
 0097 <span class="comment">% See also: steepestdescent trustregions manopt/solvers/linesearch manopt/examples</span>
 0098 
-0099 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0100 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
-0101 <span class="comment">% Contributors: Nicolas Boumal</span>
-0102 <span class="comment">% Change log:</span>
-0103 <span class="comment">%</span>
-0104 <span class="comment">%   March 14, 2013, NB:</span>
-0105 <span class="comment">%       Added preconditioner support : see Section 8 in</span>
-0106 <span class="comment">%       https://www.math.lsu.edu/~hozhang/papers/cgsurvey.pdf</span>
-0107 <span class="comment">%</span>
-0108 <span class="comment">%   Sept. 13, 2013, NB:</span>
-0109 <span class="comment">%       Now logging beta parameter too.</span>
-0110 <span class="comment">%</span>
-0111 <span class="comment">%    Nov. 7, 2013, NB:</span>
-0112 <span class="comment">%       The search direction is not normalized before it is passed to the</span>
-0113 <span class="comment">%       linesearch anymore. This way, it is up to the designers of the</span>
-0114 <span class="comment">%       linesearch to decide whether they want to use the norm of the</span>
-0115 <span class="comment">%       search direction in their algorithm or not. There are reasons</span>
-0116 <span class="comment">%       against it, but practical evidence that it may help too, so we</span>
-0117 <span class="comment">%       allow it. The default linesearch_adaptive used does exploit the</span>
-0118 <span class="comment">%       norm information. The base linesearch does not. You may select it</span>
-0119 <span class="comment">%       by setting options.linesearch = @linesearch;</span>
-0120 <span class="comment">%</span>
-0121 <span class="comment">%    Nov. 29, 2013, NB:</span>
-0122 <span class="comment">%       Documentation improved: options are now explicitly described.</span>
-0123 <span class="comment">%       Removed the Daniel rule for beta: it was not appropriate for</span>
-0124 <span class="comment">%       preconditioned CG and I could not find a proper reference for it.</span>
-0125 
-0126 
-0127 <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
-0128 <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0129     warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
-0130         <span class="string">'No cost provided. The algorithm will likely abort.'</span>);
-0131 <span class="keyword">end</span>
-0132 <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0133     warning(<span class="string">'manopt:getGradient'</span>, <span class="keyword">...</span>
-0134         <span class="string">'No gradient provided. The algorithm will likely abort.'</span>);
-0135 <span class="keyword">end</span>
-0136 
-0137 <span class="comment">% Set local defaults here</span>
-0138 localdefaults.minstepsize = 1e-10;
-0139 localdefaults.maxiter = 1000;
-0140 localdefaults.tolgradnorm = 1e-6;
-0141 localdefaults.storedepth = 2;
-0142 <span class="comment">% Changed by NB : H-S has the &quot;auto restart&quot; property.</span>
-0143 <span class="comment">% See Hager-Zhang 2005/2006 survey about CG methods.</span>
-0144 <span class="comment">% Well, the auto restart comes from the 'max(0, ...)', not so much from the</span>
-0145 <span class="comment">% reason stated in Hager-Zhang I believe. P-R also has auto restart.</span>
-0146 localdefaults.beta_type = <span class="string">'H-S'</span>;
-0147 localdefaults.orth_value = Inf; <span class="comment">% by BM as suggested in Nocedal and Wright</span>
-0148 
-0149     
-0150 <span class="comment">% Depending on whether the problem structure specifies a hint for</span>
-0151 <span class="comment">% line-search algorithms, choose a default line-search that works on</span>
-0152 <span class="comment">% its own (typical) or that uses the hint.</span>
-0153 <span class="keyword">if</span> ~<a href="../../../manopt/privatetools/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem)
-0154     localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_adaptive.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_adaptive</a>;
-0155 <span class="keyword">else</span>
-0156     localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, storedb, lsmem, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_hint</a>;
-0157 <span class="keyword">end</span>
-0158 
-0159 <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0160 localdefaults = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/privatetools/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
-0161 <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0162     options = struct();
-0163 <span class="keyword">end</span>
-0164 options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
-0165 
-0166 <span class="comment">% for convenience</span>
-0167 inner = problem.M.inner;
-0168 lincomb = problem.M.lincomb;
-0169 
-0170 <span class="comment">% Create a store database</span>
-0171 storedb = struct();
+0099 <span class="comment">% An explicit, general listing of this algorithm, with preconditioning,</span>
+0100 <span class="comment">% can be found in the following paper:</span>
+0101 <span class="comment">%     @Article{boumal2015lowrank,</span>
+0102 <span class="comment">%       Title   = {Low-rank matrix completion via preconditioned optimization on the {G}rassmann manifold},</span>
+0103 <span class="comment">%       Author  = {Boumal, N. and Absil, P.-A.},</span>
+0104 <span class="comment">%       Journal = {Linear Algebra and its Applications},</span>
+0105 <span class="comment">%       Year    = {2015},</span>
+0106 <span class="comment">%       Pages   = {200--239},</span>
+0107 <span class="comment">%       Volume  = {475},</span>
+0108 <span class="comment">%       Doi     = {10.1016/j.laa.2015.02.027},</span>
+0109 <span class="comment">%     }</span>
+0110 
+0111 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0112 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0113 <span class="comment">% Contributors: Nicolas Boumal</span>
+0114 <span class="comment">% Change log:</span>
+0115 <span class="comment">%</span>
+0116 <span class="comment">%   March 14, 2013, NB:</span>
+0117 <span class="comment">%       Added preconditioner support : see Section 8 in</span>
+0118 <span class="comment">%       https://www.math.lsu.edu/~hozhang/papers/cgsurvey.pdf</span>
+0119 <span class="comment">%</span>
+0120 <span class="comment">%   Sept. 13, 2013, NB:</span>
+0121 <span class="comment">%       Now logging beta parameter too.</span>
+0122 <span class="comment">%</span>
+0123 <span class="comment">%    Nov. 7, 2013, NB:</span>
+0124 <span class="comment">%       The search direction is no longer normalized before it is passed</span>
+0125 <span class="comment">%       to the linesearch. This way, it is up to the designers of the</span>
+0126 <span class="comment">%       linesearch to decide whether they want to use the norm of the</span>
+0127 <span class="comment">%       search direction in their algorithm or not. There are reasons</span>
+0128 <span class="comment">%       against it, but practical evidence that it may help too, so we</span>
+0129 <span class="comment">%       allow it. The default linesearch_adaptive used does exploit the</span>
+0130 <span class="comment">%       norm information. The base linesearch does not. You may select it</span>
+0131 <span class="comment">%       by setting options.linesearch = @linesearch;</span>
+0132 <span class="comment">%</span>
+0133 <span class="comment">%    Nov. 29, 2013, NB:</span>
+0134 <span class="comment">%       Documentation improved: options are now explicitly described.</span>
+0135 <span class="comment">%       Removed the Daniel rule for beta: it was not appropriate for</span>
+0136 <span class="comment">%       preconditioned CG and I could not find a proper reference for it.</span>
+0137 <span class="comment">%</span>
+0138 <span class="comment">%   April 3, 2015 (NB):</span>
+0139 <span class="comment">%       Works with the new StoreDB class system.</span>
+0140 
+0141 <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
+0142 <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0143     warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
+0144         <span class="string">'No cost provided. The algorithm will likely abort.'</span>);
+0145 <span class="keyword">end</span>
+0146 <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0147     warning(<span class="string">'manopt:getGradient'</span>, <span class="keyword">...</span>
+0148         <span class="string">'No gradient provided. The algorithm will likely abort.'</span>);
+0149 <span class="keyword">end</span>
+0150 
+0151 <span class="comment">% Set local defaults here</span>
+0152 localdefaults.minstepsize = 1e-10;
+0153 localdefaults.maxiter = 1000;
+0154 localdefaults.tolgradnorm = 1e-6;
+0155 localdefaults.storedepth = 20;
+0156 <span class="comment">% Changed by NB : H-S has the &quot;auto restart&quot; property.</span>
+0157 <span class="comment">% See Hager-Zhang 2005/2006 survey about CG methods.</span>
+0158 <span class="comment">% The auto restart comes from the 'max(0, ...)', not so much from the</span>
+0159 <span class="comment">% reason stated in Hager-Zhang I think. P-R also has auto restart.</span>
+0160 localdefaults.beta_type = <span class="string">'H-S'</span>;
+0161 localdefaults.orth_value = Inf; <span class="comment">% by BM as suggested in Nocedal and Wright</span>
+0162 
+0163     
+0164 <span class="comment">% Depending on whether the problem structure specifies a hint for</span>
+0165 <span class="comment">% line-search algorithms, choose a default line-search that works on</span>
+0166 <span class="comment">% its own (typical) or that uses the hint.</span>
+0167 <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem)
+0168     localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_adaptive.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)">linesearch_adaptive</a>;
+0169 <span class="keyword">else</span>
+0170     localdefaults.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>;
+0171 <span class="keyword">end</span>
 0172 
-0173 timetic = tic();
-0174 
-0175 <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
-0176 <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0177     x = problem.M.rand();
-0178 <span class="keyword">end</span>
+0173 <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
+0174 localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0175 <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0176     options = struct();
+0177 <span class="keyword">end</span>
+0178 options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
 0179 
-0180 <span class="comment">% Compute objective-related quantities for x</span>
-0181 [cost grad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, x, storedb);
-0182 gradnorm = problem.M.norm(x, grad);
-0183 [Pgrad storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, grad, storedb);
-0184 gradPgrad = inner(x, grad, Pgrad);
+0180 <span class="comment">% For convenience</span>
+0181 inner = problem.M.inner;
+0182 lincomb = problem.M.lincomb;
+0183 
+0184 timetic = tic();
 0185 
-0186 <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
-0187 <span class="comment">% iterations so far)</span>
-0188 iter = 0;
-0189 
-0190 <span class="comment">% Save stats in a struct array info and preallocate,</span>
-0191 <span class="comment">% see http://people.csail.mit.edu/jskelly/blog/?x=entry:entry091030-033941</span>
-0192 stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0193 info(1) = stats;
-0194 info(min(10000, options.maxiter+1)).iter = [];
-0195 
-0196 <span class="comment">% Initial linesearch memory</span>
-0197 lsmem = [];
-0198 
-0199 
-0200 <span class="keyword">if</span> options.verbosity &gt;= 2
-0201     fprintf(<span class="string">' iter\t                cost val\t     grad. norm\n'</span>);
-0202 <span class="keyword">end</span>
-0203 
-0204 <span class="comment">% Compute a first descent direction (not normalized)</span>
-0205 desc_dir = lincomb(x, -1, Pgrad);
-0206 
-0207 
-0208 <span class="comment">% Start iterating until stopping criterion triggers</span>
-0209 <span class="keyword">while</span> true
-0210     
-0211     <span class="comment">% Display iteration information</span>
-0212     <span class="keyword">if</span> options.verbosity &gt;= 2
-0213         fprintf(<span class="string">'%5d\t%+.16e\t%.8e\n'</span>, iter, cost, gradnorm);
-0214     <span class="keyword">end</span>
-0215     
-0216     <span class="comment">% Start timing this iteration</span>
-0217     timetic = tic();
-0218     
-0219     <span class="comment">% Run standard stopping criterion checks</span>
-0220     [stop reason] = <a href="../../../manopt/privatetools/stoppingcriterion.html" class="code" title="function [stop reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, iter+1);
+0186 <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
+0187 <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0188     x = problem.M.rand();
+0189 <span class="keyword">end</span>
+0190 
+0191 <span class="comment">% Create a store database and generate a key for the current x</span>
+0192 storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(options.storedepth);
+0193 key = storedb.getNewKey();
+0194 
+0195 <span class="comment">% Compute cost-related quantities for x</span>
+0196 [cost, grad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key);
+0197 gradnorm = problem.M.norm(x, grad);
+0198 Pgrad = <a href="../../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>(problem, x, grad, storedb, key);
+0199 gradPgrad = inner(x, grad, Pgrad);
+0200 
+0201 <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
+0202 <span class="comment">% iterations so far)</span>
+0203 iter = 0;
+0204 
+0205 <span class="comment">% Save stats in a struct array info and preallocate.</span>
+0206 stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0207 info(1) = stats;
+0208 info(min(10000, options.maxiter+1)).iter = [];
+0209 
+0210 
+0211 <span class="keyword">if</span> options.verbosity &gt;= 2
+0212     fprintf(<span class="string">' iter\t               cost val\t    grad. norm\n'</span>);
+0213 <span class="keyword">end</span>
+0214 
+0215 <span class="comment">% Compute a first descent direction (not normalized)</span>
+0216 desc_dir = lincomb(x, -1, Pgrad);
+0217 
+0218 
+0219 <span class="comment">% Start iterating until stopping criterion triggers</span>
+0220 <span class="keyword">while</span> true
 0221     
-0222     <span class="comment">% Run specific stopping criterion check</span>
-0223     <span class="keyword">if</span> ~stop &amp;&amp; abs(stats.stepsize) &lt; options.minstepsize
-0224         stop = true;
-0225         reason = <span class="string">'Last stepsize smaller than minimum allowed. See options.minstepsize.'</span>;
-0226     <span class="keyword">end</span>
-0227     
-0228     <span class="keyword">if</span> stop
-0229         <span class="keyword">if</span> options.verbosity &gt;= 1
-0230             fprintf([reason <span class="string">'\n'</span>]);
-0231         <span class="keyword">end</span>
-0232         <span class="keyword">break</span>;
-0233     <span class="keyword">end</span>
-0234     
-0235     
-0236     <span class="comment">% The line search algorithms require the directional derivative of the</span>
-0237     <span class="comment">% cost at the current point x along the search direction.</span>
-0238     df0 = inner(x, grad, desc_dir);
-0239         
-0240     <span class="comment">% If we didn't get a descent direction: restart, i.e., switch to the</span>
-0241     <span class="comment">% negative gradient. Equivalent to resetting the CG direction to a</span>
-0242     <span class="comment">% steepest descent step, which discards the past information.</span>
-0243     <span class="keyword">if</span> df0 &gt;= 0
-0244         
-0245         <span class="comment">% Or we switch to the negative gradient direction.</span>
-0246         <span class="keyword">if</span> options.verbosity &gt;= 3
-0247             fprintf([<span class="string">'Conjugate gradient info: got an ascent direction '</span><span class="keyword">...</span>
-0248                      <span class="string">'(df0 = %2e), reset to the (preconditioned) '</span><span class="keyword">...</span>
-0249                      <span class="string">'steepest descent direction.\n'</span>], df0);
-0250         <span class="keyword">end</span>
-0251         <span class="comment">% Reset to negative gradient: this discards the CG memory.</span>
-0252         desc_dir = lincomb(x, -1, Pgrad);
-0253         df0 = -gradPgrad;
-0254         
-0255     <span class="keyword">end</span>
-0256     
-0257     
-0258     <span class="comment">% Execute line search</span>
-0259     [stepsize newx storedb lsmem lsstats] = options.linesearch(<span class="keyword">...</span>
-0260                  problem, x, desc_dir, cost, df0, options, storedb, lsmem);
-0261 
-0262     
-0263     <span class="comment">% Compute the new cost-related quantities for x</span>
-0264     [newcost newgrad storedb] = <a href="../../../manopt/privatetools/getCostGrad.html" class="code" title="function [cost, grad, storedb] = getCostGrad(problem, x, storedb)">getCostGrad</a>(problem, newx, storedb);
-0265     newgradnorm = problem.M.norm(newx, newgrad);
-0266     [Pnewgrad storedb] = <a href="../../../manopt/privatetools/getPrecon.html" class="code" title="function [Pd, storedb] = getPrecon(problem, x, d, storedb)">getPrecon</a>(problem, x, newgrad, storedb);
-0267     newgradPnewgrad = inner(newx, newgrad, Pnewgrad);
-0268     
+0222     <span class="comment">% Display iteration information</span>
+0223     <span class="keyword">if</span> options.verbosity &gt;= 2
+0224         fprintf(<span class="string">'%5d\t%+.16e\t%.8e\n'</span>, iter, cost, gradnorm);
+0225     <span class="keyword">end</span>
+0226     
+0227     <span class="comment">% Start timing this iteration</span>
+0228     timetic = tic();
+0229     
+0230     <span class="comment">% Run standard stopping criterion checks</span>
+0231     [stop, reason] = <a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, iter+1);
+0232     
+0233     <span class="comment">% Run specific stopping criterion check</span>
+0234     <span class="keyword">if</span> ~stop &amp;&amp; abs(stats.stepsize) &lt; options.minstepsize
+0235         stop = true;
+0236         reason = sprintf([<span class="string">'Last stepsize smaller than minimum '</span>  <span class="keyword">...</span>
+0237                           <span class="string">'allowed; options.minstepsize = %g.'</span>], <span class="keyword">...</span>
+0238                           options.minstepsize);
+0239     <span class="keyword">end</span>
+0240     
+0241     <span class="keyword">if</span> stop
+0242         <span class="keyword">if</span> options.verbosity &gt;= 1
+0243             fprintf([reason <span class="string">'\n'</span>]);
+0244         <span class="keyword">end</span>
+0245         <span class="keyword">break</span>;
+0246     <span class="keyword">end</span>
+0247     
+0248     
+0249     <span class="comment">% The line search algorithms require the directional derivative of the</span>
+0250     <span class="comment">% cost at the current point x along the search direction.</span>
+0251     df0 = inner(x, grad, desc_dir);
+0252         
+0253     <span class="comment">% If we didn't get a descent direction: restart, i.e., switch to the</span>
+0254     <span class="comment">% negative gradient. Equivalent to resetting the CG direction to a</span>
+0255     <span class="comment">% steepest descent step, which discards the past information.</span>
+0256     <span class="keyword">if</span> df0 &gt;= 0
+0257         
+0258         <span class="comment">% Or we switch to the negative gradient direction.</span>
+0259         <span class="keyword">if</span> options.verbosity &gt;= 3
+0260             fprintf([<span class="string">'Conjugate gradient info: got an ascent direction '</span><span class="keyword">...</span>
+0261                      <span class="string">'(df0 = %2e), reset to the (preconditioned) '</span><span class="keyword">...</span>
+0262                      <span class="string">'steepest descent direction.\n'</span>], df0);
+0263         <span class="keyword">end</span>
+0264         <span class="comment">% Reset to negative gradient: this discards the CG memory.</span>
+0265         desc_dir = lincomb(x, -1, Pgrad);
+0266         df0 = -gradPgrad;
+0267         
+0268     <span class="keyword">end</span>
 0269     
-0270     <span class="comment">% Apply the CG scheme to compute the next search direction.</span>
-0271     <span class="comment">%</span>
-0272     <span class="comment">% This paper https://www.math.lsu.edu/~hozhang/papers/cgsurvey.pdf</span>
-0273     <span class="comment">% by Hager and Zhang lists many known beta rules. The rules defined</span>
-0274     <span class="comment">% here can be found in that paper (or are provided with additional</span>
-0275     <span class="comment">% references), adapted to the Riemannian setting.</span>
-0276     <span class="comment">%</span>
-0277     <span class="keyword">if</span> strcmpi(options.beta_type, <span class="string">'steep'</span>) || <span class="keyword">...</span>
-0278        strcmpi(options.beta_type, <span class="string">'S-D'</span>)              <span class="comment">% Gradient Descent</span>
-0279         
-0280         beta = 0;
-0281         desc_dir = lincomb(x, -1, Pnewgrad);
-0282         
-0283     <span class="keyword">else</span>
-0284         
-0285         oldgrad = problem.M.transp(x, newx, grad);
-0286         orth_grads = inner(newx, oldgrad, Pnewgrad)/newgradPnewgrad;
-0287         
-0288         <span class="comment">% Powell's restart strategy (see page 12 of Hager and Zhang's</span>
-0289         <span class="comment">% survey on conjugate gradient methods, for example)</span>
-0290         <span class="keyword">if</span> abs(orth_grads) &gt;= options.orth_value,
-0291             beta = 0;
-0292             desc_dir = lincomb(x, -1, Pnewgrad);
-0293             
-0294         <span class="keyword">else</span> <span class="comment">% Compute the CG modification</span>
-0295             
-0296             desc_dir = problem.M.transp(x, newx, desc_dir);
-0297             
-0298             <span class="keyword">if</span> strcmp(options.beta_type, <span class="string">'F-R'</span>)  <span class="comment">% Fletcher-Reeves</span>
-0299                 beta = newgradPnewgrad / gradPgrad;
-0300                 
-0301             <span class="keyword">elseif</span> strcmp(options.beta_type, <span class="string">'P-R'</span>)  <span class="comment">% Polak-Ribiere+</span>
-0302                 <span class="comment">% vector grad(new) - transported grad(current)</span>
-0303                 diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-0304                 ip_diff = inner(newx, Pnewgrad, diff);
-0305                 beta = ip_diff/gradPgrad;
-0306                 beta = max(0, beta);
-0307                 
-0308             <span class="keyword">elseif</span> strcmp(options.beta_type, <span class="string">'H-S'</span>)  <span class="comment">% Hestenes-Stiefel+</span>
-0309                 diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-0310                 ip_diff = inner(newx, Pnewgrad, diff);
-0311                 beta = ip_diff / inner(newx, diff, desc_dir);
-0312                 beta = max(0, beta);
-0313 
-0314             <span class="keyword">elseif</span> strcmp(options.beta_type, <span class="string">'H-Z'</span>) <span class="comment">% Hager-Zhang+</span>
-0315                 diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-0316                 Poldgrad = problem.M.transp(x, newx, Pgrad);
-0317                 Pdiff = lincomb(newx, 1, Pnewgrad, -1, Poldgrad);
-0318                 deno = inner(newx, diff, desc_dir);
-0319                 numo = inner(newx, diff, Pnewgrad);
-0320                 numo = numo - 2*inner(newx, diff, Pdiff)*<span class="keyword">...</span>
-0321                                        inner(newx, desc_dir, newgrad)/deno;
-0322                 beta = numo/deno;
-0323                 
-0324                 <span class="comment">% Robustness (see Hager-Zhang paper mentioned above)</span>
-0325                 desc_dir_norm = problem.M.norm(newx, desc_dir);
-0326                 eta_HZ = -1/(desc_dir_norm * min(0.01, gradnorm));
-0327                 beta = max(beta,  eta_HZ);
+0270     
+0271     <span class="comment">% Execute line search</span>
+0272     [stepsize, newx, newkey, lsstats] = options.linesearch( <span class="keyword">...</span>
+0273                    problem, x, desc_dir, cost, df0, options, storedb, key);
+0274                
+0275     
+0276     <span class="comment">% Compute the new cost-related quantities for newx</span>
+0277     [newcost, newgrad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, newx, storedb, newkey);
+0278     newgradnorm = problem.M.norm(newx, newgrad);
+0279     Pnewgrad = <a href="../../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>(problem, newx, newgrad, storedb, newkey);
+0280     newgradPnewgrad = inner(newx, newgrad, Pnewgrad);
+0281     
+0282     
+0283     <span class="comment">% Apply the CG scheme to compute the next search direction.</span>
+0284     <span class="comment">%</span>
+0285     <span class="comment">% This paper https://www.math.lsu.edu/~hozhang/papers/cgsurvey.pdf</span>
+0286     <span class="comment">% by Hager and Zhang lists many known beta rules. The rules defined</span>
+0287     <span class="comment">% here can be found in that paper (or are provided with additional</span>
+0288     <span class="comment">% references), adapted to the Riemannian setting.</span>
+0289     <span class="comment">%</span>
+0290     <span class="keyword">if</span> strcmpi(options.beta_type, <span class="string">'steep'</span>) || <span class="keyword">...</span>
+0291        strcmpi(options.beta_type, <span class="string">'S-D'</span>)              <span class="comment">% Gradient Descent</span>
+0292         
+0293         beta = 0;
+0294         desc_dir = lincomb(x, -1, Pnewgrad);
+0295         
+0296     <span class="keyword">else</span>
+0297         
+0298         oldgrad = problem.M.transp(x, newx, grad);
+0299         orth_grads = inner(newx, oldgrad, Pnewgrad) / newgradPnewgrad;
+0300         
+0301         <span class="comment">% Powell's restart strategy (see page 12 of Hager and Zhang's</span>
+0302         <span class="comment">% survey on conjugate gradient methods, for example)</span>
+0303         <span class="keyword">if</span> abs(orth_grads) &gt;= options.orth_value,
+0304             beta = 0;
+0305             desc_dir = lincomb(x, -1, Pnewgrad);
+0306             
+0307         <span class="keyword">else</span> <span class="comment">% Compute the CG modification</span>
+0308             
+0309             desc_dir = problem.M.transp(x, newx, desc_dir);
+0310             
+0311             <span class="keyword">switch</span> upper(options.beta_type)
+0312             
+0313                 <span class="keyword">case</span> <span class="string">'F-R'</span>  <span class="comment">% Fletcher-Reeves</span>
+0314                     beta = newgradPnewgrad / gradPgrad;
+0315                 
+0316                 <span class="keyword">case</span> <span class="string">'P-R'</span>  <span class="comment">% Polak-Ribiere+</span>
+0317                     <span class="comment">% vector grad(new) - transported grad(current)</span>
+0318                     diff = lincomb(newx, 1, newgrad, -1, oldgrad);
+0319                     ip_diff = inner(newx, Pnewgrad, diff);
+0320                     beta = ip_diff / gradPgrad;
+0321                     beta = max(0, beta);
+0322                 
+0323                 <span class="keyword">case</span> <span class="string">'H-S'</span>  <span class="comment">% Hestenes-Stiefel+</span>
+0324                     diff = lincomb(newx, 1, newgrad, -1, oldgrad);
+0325                     ip_diff = inner(newx, Pnewgrad, diff);
+0326                     beta = ip_diff / inner(newx, diff, desc_dir);
+0327                     beta = max(0, beta);
 0328 
-0329             <span class="keyword">else</span>
-0330                 error([<span class="string">'Unknown options.beta_type. '</span> <span class="keyword">...</span>
-0331                        <span class="string">'Should be steep, S-D, F-R, P-R, H-S or H-Z.'</span>]);
-0332             <span class="keyword">end</span>
-0333             desc_dir = lincomb(newx, -1, Pnewgrad, beta, desc_dir);
-0334         <span class="keyword">end</span>
-0335         
-0336     <span class="keyword">end</span>
-0337     
-0338     <span class="comment">% Make sure we don't use too much memory for the store database.</span>
-0339     storedb = <a href="../../../manopt/privatetools/purgeStoredb.html" class="code" title="function storedb = purgeStoredb(storedb, storedepth)">purgeStoredb</a>(storedb, options.storedepth);
-0340     
-0341     <span class="comment">% Update iterate info</span>
-0342     x = newx;
-0343     cost = newcost;
-0344     grad = newgrad;
-0345     Pgrad = Pnewgrad;
-0346     gradnorm = newgradnorm;
-0347     gradPgrad = newgradPnewgrad;
-0348     
-0349     <span class="comment">% iter is the number of iterations we have accomplished.</span>
-0350     iter = iter + 1;
-0351     
-0352     <span class="comment">% Log statistics for freshly executed iteration</span>
-0353     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0354     info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0355     
-0356 <span class="keyword">end</span>
-0357 
-0358 
-0359 info = info(1:iter+1);
-0360 
-0361 <span class="keyword">if</span> options.verbosity &gt;= 1
-0362     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
-0363 <span class="keyword">end</span>
-0364 
-0365 
-0366 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
-0367     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
-0368         stats.iter = iter;
-0369         stats.cost = cost;
-0370         stats.gradnorm = gradnorm;
-0371         <span class="keyword">if</span> iter == 0
-0372             stats.stepsize = nan;
-0373             stats.time = toc(timetic);
-0374             stats.linesearch = [];
-0375             stats.beta = 0;
-0376         <span class="keyword">else</span>
-0377             stats.stepsize = stepsize;
-0378             stats.time = info(iter).time + toc(timetic);
-0379             stats.linesearch = lsstats;
-0380             stats.beta = beta;
-0381         <span class="keyword">end</span>
-0382         stats = <a href="../../../manopt/privatetools/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, options, stats)">applyStatsfun</a>(problem, x, storedb, options, stats);
-0383     <span class="keyword">end</span>
-0384 
-0385 <span class="keyword">end</span>
-0386 
-0387</pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0329                 <span class="keyword">case</span> <span class="string">'H-Z'</span> <span class="comment">% Hager-Zhang+</span>
+0330                     diff = lincomb(newx, 1, newgrad, -1, oldgrad);
+0331                     Poldgrad = problem.M.transp(x, newx, Pgrad);
+0332                     Pdiff = lincomb(newx, 1, Pnewgrad, -1, Poldgrad);
+0333                     deno = inner(newx, diff, desc_dir);
+0334                     numo = inner(newx, diff, Pnewgrad);
+0335                     numo = numo - 2*inner(newx, diff, Pdiff)*<span class="keyword">...</span>
+0336                                      inner(newx, desc_dir, newgrad) / deno;
+0337                     beta = numo / deno;
+0338 
+0339                     <span class="comment">% Robustness (see Hager-Zhang paper mentioned above)</span>
+0340                     desc_dir_norm = problem.M.norm(newx, desc_dir);
+0341                     eta_HZ = -1 / ( desc_dir_norm * min(0.01, gradnorm) );
+0342                     beta = max(beta, eta_HZ);
+0343 
+0344                 <span class="keyword">otherwise</span>
+0345                     error([<span class="string">'Unknown options.beta_type. '</span> <span class="keyword">...</span>
+0346                            <span class="string">'Should be steep, S-D, F-R, P-R, H-S or H-Z.'</span>]);
+0347             <span class="keyword">end</span>
+0348             
+0349             desc_dir = lincomb(newx, -1, Pnewgrad, beta, desc_dir);
+0350         
+0351         <span class="keyword">end</span>
+0352         
+0353     <span class="keyword">end</span>
+0354     
+0355     <span class="comment">% Make sure we don't use too much memory for the store database</span>
+0356     storedb.purge();
+0357     
+0358     <span class="comment">% Transfer iterate info</span>
+0359     x = newx;
+0360     key = newkey;
+0361     cost = newcost;
+0362     grad = newgrad;
+0363     Pgrad = Pnewgrad;
+0364     gradnorm = newgradnorm;
+0365     gradPgrad = newgradPnewgrad;
+0366     
+0367     <span class="comment">% iter is the number of iterations we have accomplished.</span>
+0368     iter = iter + 1;
+0369     
+0370     <span class="comment">% Log statistics for freshly executed iteration</span>
+0371     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0372     info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0373     
+0374 <span class="keyword">end</span>
+0375 
+0376 
+0377 info = info(1:iter+1);
+0378 
+0379 <span class="keyword">if</span> options.verbosity &gt;= 1
+0380     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
+0381 <span class="keyword">end</span>
+0382 
+0383 
+0384 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
+0385 <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
+0386     stats.iter = iter;
+0387     stats.cost = cost;
+0388     stats.gradnorm = gradnorm;
+0389     <span class="keyword">if</span> iter == 0
+0390         stats.stepsize = nan;
+0391         stats.time = toc(timetic);
+0392         stats.linesearch = [];
+0393         stats.beta = 0;
+0394     <span class="keyword">else</span>
+0395         stats.stepsize = stepsize;
+0396         stats.time = info(iter).time + toc(timetic);
+0397         stats.linesearch = lsstats;
+0398         stats.beta = beta;
+0399     <span class="keyword">end</span>
+0400     stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key, options, stats);
+0401 <span class="keyword">end</span>
+0402 
+0403 <span class="keyword">end</span>
+0404 
+0405</pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

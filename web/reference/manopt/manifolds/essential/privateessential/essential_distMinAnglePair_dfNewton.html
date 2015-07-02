@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of essential_distMinAnglePair_dfNewton</title>
+  <meta name="keywords" content="essential_distMinAnglePair_dfNewton">
+  <meta name="description" content="Support function for essential_distMinAnglePair implementing Newton's search">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="../index.html">essential</a> &gt; <a href="index.html">privateessential</a> &gt; essential_distMinAnglePair_dfNewton.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\essential\privateessential&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
+
+<h1>essential_distMinAnglePair_dfNewton
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>Support function for essential_distMinAnglePair implementing Newton's search</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>function [tMin,fMin]=essential_distMinAnglePair_dfNewton(m1,p1,c1,m2,p2,c2,tMin,tLow,tHigh) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Support function for essential_distMinAnglePair implementing Newton's search</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="essential_distMinAnglePair_base.html" class="code" title="function [tMin,fMin,tBreak1,tBreak2,tMinAll]=essential_distMinAnglePair_base(Q211,Q212)">essential_distMinAnglePair_base</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function v=clip(v)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%Support function for essential_distMinAnglePair implementing Newton's search</span>
+0002 <a name="_sub0" href="#_subfunctions" class="code">function [tMin,fMin]=essential_distMinAnglePair_dfNewton(m1,p1,c1,m2,p2,c2,tMin,tLow,tHigh)</a>
+0003 tolDist=1e-8;
+0004 <span class="keyword">for</span> i=1:100
+0005 <span class="comment">%     d=dfi(m1,p1,c1,tMin)+dfi(m2,p2,c2,tMin);</span>
+0006 <span class="comment">%     dd=ddfi(m1,p1,c1,tMin)+ddfi(m2,p2,c2,tMin);</span>
+0007     <span class="comment">%The code below unrolls the following calls</span>
+0008     <span class="comment">%     f1=fi(m1,p1,c1,tMin);</span>
+0009     <span class="comment">%     f2=fi(m2,p2,c2,tMin);</span>
+0010     <span class="comment">%     d=dfi2(m1,p1,f1,tMin)+dfi2(m2,p2,f2,tMin);</span>
+0011     <span class="comment">%     dd=ddfi2(m1,p1,f1,tMin)+ddfi2(m2,p2,f2,tMin);</span>
+0012     mc1=m1*cos(tMin+p1);
+0013     mc2=m2*cos(tMin+p2);
+0014     f1=acos(<a href="#_sub1" class="code" title="subfunction v=clip(v)">clip</a>((m1*sin(tMin+p1)+c1-1)/2));
+0015     f2=acos(<a href="#_sub1" class="code" title="subfunction v=clip(v)">clip</a>((m2*sin(tMin+p2)+c2-1)/2));
+0016     sf1=2*sin(f1);
+0017     sf2=2*sin(f2);
+0018     d1=-f1*mc1/sf1;
+0019     d2=-f2*mc2/sf2;
+0020     d=d1+d2;
+0021     eztuSq1=(mc1/sf1)^2;
+0022     dd1=eztuSq1+f1/2*cot(f1/2)*(1-eztuSq1);
+0023     eztuSq2=(mc2/sf2)^2;
+0024     dd2=eztuSq2+f2/2*cot(f2/2)*(1-eztuSq2);
+0025     dd=dd1+dd2;
+0026         
+0027             
+0028     tOld=tMin;
+0029     tMin=max(tLow+tolDist,min(tHigh-tolDist,tOld-d/dd));
+0030     <span class="keyword">if</span> abs(tMin-tOld)&lt;tolDist
+0031         <span class="keyword">break</span>
+0032     <span class="keyword">end</span>
+0033 <span class="keyword">end</span>
+0034 fMin=f1^2+f2^2;
+0035 
+0036 <a name="_sub1" href="#_subfunctions" class="code">function v=clip(v)</a>
+0037 v=min(1,max(-1,v));
+0038</pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

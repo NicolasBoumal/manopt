@@ -4,7 +4,7 @@
 <head>
   <title>Description of fixedrankfactory_3factors_preconditioned</title>
   <meta name="keywords" content="fixedrankfactory_3factors_preconditioned">
-  <meta name="description" content="Manifold of m-by-n matrices of rank k with polar quotient geometry.">
+  <meta name="description" content="Manifold of m-by-n matrices of rank k with three factor quotient geometry.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,29 +21,43 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Manifold of m-by-n matrices of rank k with polar quotient geometry.</strong></div>
+<div class="box"><strong>Manifold of m-by-n matrices of rank k with three factor quotient geometry.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function M = fixedrankfactory_3factors_preconditioned(m, n, k) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Manifold of m-by-n matrices of rank k with polar quotient geometry.
+<div class="fragment"><pre class="comment"> Manifold of m-by-n matrices of rank k with three factor quotient geometry.
 
- function M = fixedrankLSRquotientfactory(m, n, k)
+ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
+
+ This geometry is tuned to least squares problems such as low-rank matrix
+ completion with ell-2 loss.
 
  A point X on the manifold is represented as a structure with three
  fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,
- while the matrix S (kxk) is a full rank matrix
- matrix.
+ while the matrix S (kxk) is a full rank matrix such that X = L*S*R'.
 
  Tangent vectors are represented as a structure with three fields: L, S
- and R.</pre></div>
+ and R.
+
+ Please cite the Manopt paper as well as the research paper:
+     @InProceedings{mishra2014r3mc,
+       Title        = {{R3MC}: A {R}iemannian three-factor algorithm for low-rank matrix completion},
+       Author       = {Mishra, B. and Sepulchre, R.},
+       Booktitle    = {{53rd IEEE Conference on Decision and Control}},
+       Year         = {2014},
+       Organization = {{IEEE CDC}}
+     }
+
+
+ See also: <a href="fixedrankfactory_3factors.html" class="code" title="function M = fixedrankfactory_3factors(m, n, k)">fixedrankfactory_3factors</a> <a href="fixedrankfactory_2factors_preconditioned.html" class="code" title="function M = fixedrankfactory_2factors_preconditioned(m, n, k)">fixedrankfactory_2factors_preconditioned</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+<li><a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -55,371 +69,393 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankfactory_3factors_preconditioned(m, n, k)</a>
-0002 <span class="comment">% Manifold of m-by-n matrices of rank k with polar quotient geometry.</span>
+0002 <span class="comment">% Manifold of m-by-n matrices of rank k with three factor quotient geometry.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function M = fixedrankLSRquotientfactory(m, n, k)</span>
+0004 <span class="comment">% function M = fixedrankfactory_3factors_preconditioned(m, n, k)</span>
 0005 <span class="comment">%</span>
-0006 <span class="comment">% A point X on the manifold is represented as a structure with three</span>
-0007 <span class="comment">% fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,</span>
-0008 <span class="comment">% while the matrix S (kxk) is a full rank matrix</span>
-0009 <span class="comment">% matrix.</span>
-0010 <span class="comment">%</span>
-0011 <span class="comment">% Tangent vectors are represented as a structure with three fields: L, S</span>
-0012 <span class="comment">% and R.</span>
-0013 
-0014 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0015 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
-0016 <span class="comment">% Contributors:</span>
-0017     
-0018     <span class="comment">% Change log:</span>
-0019     
-0020     M.name = @() sprintf(<span class="string">'LSR'' quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
-0021     
-0022     M.dim = @() (m+n-k)*k;
-0023     
-0024     <span class="comment">% Some precomputations at the point X to be used in the inner product (and</span>
-0025     <span class="comment">% pretty much everywhere else).</span>
-0026     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
-0027         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'StS'</span>,<span class="string">'SSt'</span>,<span class="string">'invStS'</span>,<span class="string">'invSSt'</span>}) == 1)
-0028             X.SSt = X.S*X.S';
-0029             X.StS = X.S'*X.S;
-0030             X.invSSt = eye(size(X.S, 2))/X.SSt;
-0031             X.invStS = eye(size(X.S, 2))/X.StS;
-0032         <span class="keyword">end</span>
-0033     <span class="keyword">end</span>
-0034     
-0035     <span class="comment">% Choice of the metric on the orthnormal space is the low-rank matrix completio cost function.</span>
-0036     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
-0037     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
-0038         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0039         
-0040         ip = trace(X.SSt*(eta.L'*zeta.L)) + trace(X.StS*(eta.R'*zeta.R)) <span class="keyword">...</span>
-0041             + trace(eta.S'*zeta.S);
-0042         
-0043     <span class="keyword">end</span>
-0044     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
-0045     
-0046     M.dist = @(x, y) error(<span class="string">'fixedrankLSRquotientfactory.dist not implemented yet.'</span>);
-0047     
-0048     M.typicaldist = @() 10*k;
+0006 <span class="comment">% This geometry is tuned to least squares problems such as low-rank matrix</span>
+0007 <span class="comment">% completion with ell-2 loss.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% A point X on the manifold is represented as a structure with three</span>
+0010 <span class="comment">% fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,</span>
+0011 <span class="comment">% while the matrix S (kxk) is a full rank matrix such that X = L*S*R'.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Tangent vectors are represented as a structure with three fields: L, S</span>
+0014 <span class="comment">% and R.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0017 <span class="comment">%     @InProceedings{mishra2014r3mc,</span>
+0018 <span class="comment">%       Title        = {{R3MC}: A {R}iemannian three-factor algorithm for low-rank matrix completion},</span>
+0019 <span class="comment">%       Author       = {Mishra, B. and Sepulchre, R.},</span>
+0020 <span class="comment">%       Booktitle    = {{53rd IEEE Conference on Decision and Control}},</span>
+0021 <span class="comment">%       Year         = {2014},</span>
+0022 <span class="comment">%       Organization = {{IEEE CDC}}</span>
+0023 <span class="comment">%     }</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% See also: fixedrankfactory_3factors fixedrankfactory_2factors_preconditioned</span>
+0027 
+0028 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0029 <span class="comment">% Original author: Bamdev Mishra, Dec. 30, 2012.</span>
+0030 <span class="comment">% Contributors:</span>
+0031 <span class="comment">% Change log:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%    April 04, 2015 (BM):</span>
+0034 <span class="comment">%       Cosmetic changes including avoiding storing the inverse of a kxk matrix.</span>
+0035 
+0036     
+0037     M.name = @() sprintf(<span class="string">'LSR'' (tuned for least square problems) quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
+0038     
+0039     M.dim = @() (m+n-k)*k;
+0040     
+0041     <span class="comment">% Some precomputations at the point X that are to be used in the inner product (and</span>
+0042     <span class="comment">% pretty much everywhere else).</span>
+0043     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
+0044         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'StS'</span>,<span class="string">'SSt'</span>}) == 1)
+0045             X.SSt = X.S*X.S';
+0046             X.StS = X.S'*X.S;
+0047         <span class="keyword">end</span>
+0048     <span class="keyword">end</span>
 0049     
-0050     skew = @(X) .5*(X-X');
-0051     symm = @(X) .5*(X+X');
-0052     
-0053     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
-0054     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
-0055         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0056         
-0057         SSL = X.SSt;
-0058         ASL = 2*symm(SSL*(egrad.S*X.S'));
-0059         
-0060         SSR = X.StS;
-0061         ASR = 2*symm(SSR*(egrad.S'*X.S));
-0062         
-0063         <span class="comment">%         BL1 = lyap(SSL, -ASL);</span>
-0064         <span class="comment">%         BR1 = lyap(SSR, -ASR);</span>
-0065         [BL, BR] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASL, ASR);
-0066         
-0067         rgrad.L = (egrad.L - X.L*BL)*X.invSSt;
-0068         rgrad.R = (egrad.R - X.R*BR)*X.invStS;
-0069         
-0070         
-0071         rgrad.S = egrad.S;
+0050     <span class="comment">% The choice of metric is motivated by symmetry and tuned to least square</span>
+0051     <span class="comment">% objective function.</span>
+0052     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0053     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0054         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0055         
+0056         ip = trace(X.SSt*(eta.L'*zeta.L)) + trace(X.StS*(eta.R'*zeta.R)) <span class="keyword">...</span>
+0057             + trace(eta.S'*zeta.S);
+0058     <span class="keyword">end</span>
+0059     
+0060     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0061     
+0062     M.dist = @(x, y) error(<span class="string">'fixedrankfactory_3factors_preconditioned.dist not implemented yet.'</span>);
+0063     
+0064     M.typicaldist = @() 10*k;
+0065     
+0066     skew = @(X) .5*(X-X');
+0067     symm = @(X) .5*(X+X');
+0068     
+0069     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0070     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0071         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
 0072         
-0073         <span class="comment">%                         norm(skew(X.SSt*(rgrad.L'*X.L) + rgrad.S*X.S'), 'fro')</span>
-0074         <span class="comment">%                         norm(skew(X.StS*(rgrad.R'*X.R) - X.S'*rgrad.S), 'fro')</span>
+0073         SSL = X.SSt;
+0074         ASL = 2*symm(SSL*(egrad.S*X.S'));
 0075         
-0076     <span class="keyword">end</span>
-0077     
-0078     
-0079     
-0080     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
-0081     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
-0082         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0083         
-0084         <span class="comment">% Riemannian gradient</span>
-0085         SSL = X.SSt;
-0086         ASL = 2*symm(SSL*(egrad.S*X.S'));
-0087         SSR = X.StS;
-0088         ASR = 2*symm(SSR*(egrad.S'*X.S));
-0089         [BL, BR] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASL, ASR);
+0076         SSR = X.StS;
+0077         ASR = 2*symm(SSR*(egrad.S'*X.S));
+0078         
+0079         [BL, BR] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASL, ASR); <span class="comment">% It computes the solution without calling Matlab's Lyap.</span>
+0080         
+0081         rgrad.L = (egrad.L - X.L*BL)/X.SSt;
+0082         rgrad.R = (egrad.R - X.R*BR)/X.StS;
+0083         rgrad.S = egrad.S;
+0084         
+0085         <span class="comment">% Debug</span>
+0086         <span class="comment">%         BL1 = lyap(SSL, -ASL); % Alternate way</span>
+0087         <span class="comment">%         BR1 = lyap(SSR, -ASR);</span>
+0088         <span class="comment">%         norm(skew(X.SSt*(rgrad.L'*X.L) + rgrad.S*X.S'), 'fro')</span>
+0089         <span class="comment">%         norm(skew(X.StS*(rgrad.R'*X.R) - X.S'*rgrad.S), 'fro')</span>
 0090         
-0091         rgrad.L = (egrad.L - X.L*BL)*X.invSSt;
-0092         rgrad.R = (egrad.R - X.R*BR)*X.invStS;
-0093         rgrad.S = egrad.S;
-0094         
-0095         <span class="comment">% Directional derivative of the Riemannian gradient</span>
-0096         ASLdot = 2*symm((2*symm(X.S*eta.S')*(egrad.S*X.S')) + X.SSt*(ehess.S*X.S' + egrad.S*eta.S')) - 4*symm(symm(eta.S*X.S')*BL);
-0097         ASRdot = 2*symm((2*symm(X.S'*eta.S)*(egrad.S'*X.S)) + X.StS*(ehess.S'*X.S + egrad.S'*eta.S)) - 4*symm(symm(eta.S'*X.S)*BR);
+0091     <span class="keyword">end</span>
+0092     
+0093     
+0094     
+0095     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0096     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0097         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
 0098         
-0099         <span class="comment">%         SSLdot = X.SSt;</span>
-0100         <span class="comment">%         SSRdot = X.StS;</span>
-0101         <span class="comment">%         BLdot = lyap(SSLdot, -ASLdot);</span>
-0102         <span class="comment">%         BRdot = lyap(SSRdot, -ASRdot);</span>
-0103         
-0104         [BLdot, BRdot] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASLdot, ASRdot);
+0099         <span class="comment">% Riemannian gradient.</span>
+0100         SSL = X.SSt;
+0101         ASL = 2*symm(SSL*(egrad.S*X.S'));
+0102         SSR = X.StS;
+0103         ASR = 2*symm(SSR*(egrad.S'*X.S));
+0104         [BL, BR] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASL, ASR);
 0105         
-0106         Hess.L = (ehess.L - eta.L*BL - X.L*BLdot - 2*rgrad.L*symm(eta.S*X.S'))*X.invSSt;
-0107         Hess.R = (ehess.R - eta.R*BR - X.R*BRdot - 2*rgrad.R*symm(eta.S'*X.S))*X.invStS;
-0108         Hess.S = ehess.S;
+0106         rgrad.L = (egrad.L - X.L*BL)/X.SSt;
+0107         rgrad.R = (egrad.R - X.R*BR)/X.StS;
+0108         rgrad.S = egrad.S;
 0109         
-0110         
-0111         
-0112         <span class="comment">% BM comments: Till this, everything seems correct.</span>
-0113         <span class="comment">% We still need a correction factor for the non-constant metric</span>
-0114         <span class="comment">% The correction factor owes itself to the Koszul formula...</span>
-0115         <span class="comment">% This is the Riemannian connection in the Euclidean space with the</span>
-0116         <span class="comment">% scaled metric.</span>
-0117         Hess.L = Hess.L + (eta.L*symm(rgrad.S*X.S') + rgrad.L*symm(eta.S*X.S'))*X.invSSt;
-0118         Hess.R = Hess.R + (eta.R*symm(rgrad.S'*X.S) + rgrad.R*symm(eta.S'*X.S))*X.invStS;
-0119         Hess.S = Hess.S - symm(rgrad.L'*eta.L)*X.S - X.S*symm(rgrad.R'*eta.R);
+0110         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
+0111         ASLdot = 2*symm((2*symm(X.S*eta.S')*(egrad.S*X.S')) + X.SSt*(ehess.S*X.S' + egrad.S*eta.S')) - 4*symm(symm(eta.S*X.S')*BL);
+0112         ASRdot = 2*symm((2*symm(X.S'*eta.S)*(egrad.S'*X.S)) + X.StS*(ehess.S'*X.S + egrad.S'*eta.S)) - 4*symm(symm(eta.S'*X.S)*BR);
+0113         
+0114         <span class="comment">%         SSLdot = X.SSt;</span>
+0115         <span class="comment">%         SSRdot = X.StS;</span>
+0116         <span class="comment">%         BLdot = lyap(SSLdot, -ASLdot);</span>
+0117         <span class="comment">%         BRdot = lyap(SSRdot, -ASRdot);</span>
+0118         
+0119         [BLdot, BRdot] = <a href="#_sub12" class="code" title="subfunction[BU, BV] = tangent_space_lyap(R, E, F)">tangent_space_lyap</a>(X.S, ASLdot, ASRdot);
 0120         
-0121         <span class="comment">% The Riemannian connection on the quotient space is the</span>
-0122         <span class="comment">% projection on the tangent space of the total space and then onto the horizontal</span>
-0123         <span class="comment">% space. This is accomplished by the following operation.</span>
-0124         Hess = M.proj(X, Hess);
+0121         Hess.L = (ehess.L - eta.L*BL - X.L*BLdot - 2*rgrad.L*symm(eta.S*X.S'))/X.SSt;
+0122         Hess.R = (ehess.R - eta.R*BR - X.R*BRdot - 2*rgrad.R*symm(eta.S'*X.S))/X.StS;
+0123         Hess.S = ehess.S;
+0124         
 0125         
-0126         <span class="comment">%         norm(skew(X.SSt*(Hess.L'*X.L) + Hess.S*X.S'))</span>
-0127         <span class="comment">%         norm(skew(X.StS*(Hess.R'*X.R) - X.S'*Hess.S))</span>
-0128         
-0129     <span class="keyword">end</span>
-0130     
-0131     
-0132     
-0133     
-0134     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
-0135     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
-0136         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0137         
-0138         
-0139         <span class="comment">% First, projection onto the tangent space of the total sapce</span>
-0140         SSL = X.SSt;
-0141         ASL = 2*symm(X.SSt*(X.L'*eta.L)*X.SSt);
-0142         BL = lyap(SSL, -ASL);
-0143         eta.L = eta.L - X.L*BL*X.invSSt;
-0144         
-0145         SSR = X.StS;
-0146         ASR = 2*symm(X.StS*(X.R'*eta.R)*X.StS);
-0147         BR = lyap(SSR, -ASR);
-0148         eta.R = eta.R - X.R*BR*X.invStS;
-0149         
-0150         <span class="comment">% Project onto the horizontal space</span>
-0151         PU = skew((X.L'*eta.L)*X.SSt) + skew(X.S*eta.S');
-0152         PV = skew((X.R'*eta.R)*X.StS)  + skew(X.S'*eta.S);
-0153         [Omega1, Omega2] = <a href="#_sub13" class="code" title="subfunction[Omega1, Omega2] = coupled_lyap(R, E, F)">coupled_lyap</a>(X.S, PU, PV);
-0154         <span class="comment">%         norm(2*skew(Omega1*X.SSt) - PU -(X.S*Omega2*X.S'),'fro' )</span>
-0155         <span class="comment">%         norm(2*skew(Omega2*X.StS) - PV -(X.S'*Omega1*X.S),'fro' )</span>
-0156         <span class="comment">%</span>
-0157         
-0158         etaproj.L = eta.L - (X.L*Omega1);
-0159         etaproj.S = eta.S - (X.S*Omega2 - Omega1*X.S) ;
-0160         etaproj.R = eta.R - (X.R*Omega2);
+0126         
+0127         <span class="comment">% BM: Till this, everything seems correct.</span>
+0128         <span class="comment">% We still need a correction factor for the non-constant metric</span>
+0129         <span class="comment">% that is imposed.</span>
+0130         <span class="comment">% The computation of the correction factor owes itself to the Koszul formula.</span>
+0131         <span class="comment">% This corresponds to the Riemannian connection in the Euclidean space with the</span>
+0132         <span class="comment">% scaled metric.</span>
+0133         Hess.L = Hess.L + (eta.L*symm(rgrad.S*X.S') + rgrad.L*symm(eta.S*X.S'))/X.SSt;
+0134         Hess.R = Hess.R + (eta.R*symm(rgrad.S'*X.S) + rgrad.R*symm(eta.S'*X.S))/X.StS;
+0135         Hess.S = Hess.S - symm(rgrad.L'*eta.L)*X.S - X.S*symm(rgrad.R'*eta.R);
+0136         
+0137         <span class="comment">% The Riemannian connection on the quotient space is the</span>
+0138         <span class="comment">% projection of the Riemmian connection in the ambient space onto the tangent space of the total space and</span>
+0139         <span class="comment">% then onto the horizontal space.</span>
+0140         <span class="comment">% This is accomplished by the following operation.</span>
+0141         Hess = M.proj(X, Hess);
+0142         
+0143         <span class="comment">% Debug</span>
+0144         <span class="comment">%         norm(skew(X.SSt*(Hess.L'*X.L) + Hess.S*X.S'))</span>
+0145         <span class="comment">%         norm(skew(X.StS*(Hess.R'*X.R) - X.S'*Hess.S))</span>
+0146         
+0147     <span class="keyword">end</span>
+0148     
+0149     
+0150     
+0151     
+0152     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0153     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0154         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0155         
+0156         <span class="comment">% First, projection onto the tangent space of the total space.</span>
+0157         SSL = X.SSt;
+0158         ASL = 2*symm(X.SSt*(X.L'*eta.L)*X.SSt);
+0159         BL = lyap(SSL, -ASL);
+0160         eta.L = eta.L - X.L*(BL/X.SSt);
 0161         
-0162         <span class="comment">%                                 norm(skew(X.SSt*(etaproj.L'*X.L) + etaproj.S*X.S'))</span>
-0163         <span class="comment">%                                 norm(skew(X.StS*(etaproj.R'*X.R) - X.S'*etaproj.S))</span>
-0164         <span class="comment">%</span>
-0165         <span class="comment">%                                  norm(skew(X.SSt*(etaproj.L'*X.L) - X.S*etaproj.S'))</span>
-0166         <span class="comment">%                                 norm(skew(X.StS*(etaproj.R'*X.R) + etaproj.S'*X.S))</span>
-0167         
-0168     <span class="keyword">end</span>
-0169     
-0170     
-0171     M.tangent = M.proj;
-0172     M.tangent2ambient = @(X, eta) eta;
-0173     
-0174     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
-0175     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
-0176         <span class="keyword">if</span> nargin &lt; 3
-0177             t = 1.0;
-0178         <span class="keyword">end</span>
+0162         SSR = X.StS;
+0163         ASR = 2*symm(X.StS*(X.R'*eta.R)*X.StS);
+0164         BR = lyap(SSR, -ASR);
+0165         eta.R = eta.R - X.R*(BR/X.StS);
+0166         
+0167         <span class="comment">% Project onto the horizontal space</span>
+0168         PU = skew((X.L'*eta.L)*X.SSt) + skew(X.S*eta.S');
+0169         PV = skew((X.R'*eta.R)*X.StS)  + skew(X.S'*eta.S);
+0170         [Omega1, Omega2] = <a href="#_sub13" class="code" title="subfunction[Omega1, Omega2] = coupled_lyap(R, E, F)">coupled_lyap</a>(X.S, PU, PV);
+0171         <span class="comment">%         norm(2*skew(Omega1*X.SSt) - PU -(X.S*Omega2*X.S'),'fro' )</span>
+0172         <span class="comment">%         norm(2*skew(Omega2*X.StS) - PV -(X.S'*Omega1*X.S),'fro' )</span>
+0173         <span class="comment">%</span>
+0174         
+0175         etaproj.L = eta.L - (X.L*Omega1);
+0176         etaproj.S = eta.S - (X.S*Omega2 - Omega1*X.S) ;
+0177         etaproj.R = eta.R - (X.R*Omega2);
+0178         
 0179         
-0180         Y.S = (X.S + t*eta.S);
-0181         Y.L = <a href="#_sub11" class="code" title="subfunction A = uf(A)">uf</a>((X.L + t*eta.L));
-0182         Y.R = <a href="#_sub11" class="code" title="subfunction A = uf(A)">uf</a>((X.R + t*eta.R));
-0183         
-0184         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
-0185     <span class="keyword">end</span>
-0186     
-0187     M.exp = @<a href="#_sub7" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
-0188     <a name="_sub7" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
-0189         <span class="keyword">if</span> nargin &lt; 3
-0190             t = 1.0;
-0191         <span class="keyword">end</span>
-0192         Y = <a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
-0193         warning(<span class="string">'manopt:fixedrankLSRquotientfactory:exp'</span>, <span class="keyword">...</span>
-0194             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
-0195             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
-0196     <span class="keyword">end</span>
-0197     
-0198     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.L(:) ; X.S(:) ; X.R(:)])];
-0199     
-0200     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
-0201     <span class="comment">% Factors L and R live on Stiefel manifolds, hence we will reuse</span>
-0202     <span class="comment">% their random generator.</span>
-0203     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
-0204     stiefeln = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(n, k);
-0205     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
-0206         X.L = stiefelm.rand();
-0207         X.R = stiefeln.rand();
-0208         X.S = diag(1+rand(k, 1));
-0209         
-0210         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0211     <span class="keyword">end</span>
-0212     
-0213     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
-0214     <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
-0215         <span class="comment">% A random vector on the horizontal space</span>
-0216         eta.L = randn(m, k);
-0217         eta.R = randn(n, k);
-0218         eta.S = randn(k, k);
-0219         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
-0220         nrm = M.norm(X, eta);
-0221         eta.L = eta.L / nrm;
-0222         eta.R = eta.R / nrm;
-0223         eta.S = eta.S / nrm;
-0224     <span class="keyword">end</span>
-0225     
-0226     M.lincomb = @<a href="#_sub10" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
-0227     
-0228     M.zerovec = @(X) struct(<span class="string">'L'</span>, zeros(m, k), <span class="string">'S'</span>, zeros(k, k), <span class="keyword">...</span>
-0229         <span class="string">'R'</span>, zeros(n, k));
-0230     
-0231     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
-0232     
-0233     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
-0234     M.vec = @(X, U) [U.L(:) ; U.S(:); U.R(:)];
-0235     M.mat = @(X, u) struct(<span class="string">'L'</span>, reshape(u(1:(m*k)), m, k), <span class="keyword">...</span>
-0236         <span class="string">'S'</span>, reshape(u((m*k+1): m*k + k*k), k, k), <span class="keyword">...</span>
-0237         <span class="string">'R'</span>, reshape(u((m*k+ k*k + 1):end), n, k));
-0238     M.vecmatareisometries = @() false;
-0239     
-0240 <span class="keyword">end</span>
-0241 
-0242 <span class="comment">% Linear combination of tangent vectors</span>
-0243 <a name="_sub10" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INLSL&gt;</span>
+0180         <span class="comment">% Debug</span>
+0181         <span class="comment">%         norm(skew(X.SSt*(etaproj.L'*X.L) + etaproj.S*X.S'))</span>
+0182         <span class="comment">%         norm(skew(X.StS*(etaproj.R'*X.R) - X.S'*etaproj.S))</span>
+0183         <span class="comment">%</span>
+0184         <span class="comment">%         norm(skew(X.SSt*(etaproj.L'*X.L) - X.S*etaproj.S'))</span>
+0185         <span class="comment">%         norm(skew(X.StS*(etaproj.R'*X.R) + etaproj.S'*X.S))</span>
+0186         
+0187     <span class="keyword">end</span>
+0188     
+0189     
+0190     M.tangent = M.proj;
+0191     M.tangent2ambient = @(X, eta) eta;
+0192     
+0193     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0194     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0195         <span class="keyword">if</span> nargin &lt; 3
+0196             t = 1.0;
+0197         <span class="keyword">end</span>
+0198         
+0199         Y.S = (X.S + t*eta.S);
+0200         Y.L = <a href="#_sub11" class="code" title="subfunction A = uf(A)">uf</a>((X.L + t*eta.L));
+0201         Y.R = <a href="#_sub11" class="code" title="subfunction A = uf(A)">uf</a>((X.R + t*eta.R));
+0202         
+0203         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
+0204     <span class="keyword">end</span>
+0205     
+0206     M.exp = @<a href="#_sub7" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0207     <a name="_sub7" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0208         <span class="keyword">if</span> nargin &lt; 3
+0209             t = 1.0;
+0210         <span class="keyword">end</span>
+0211         Y = <a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
+0212         warning(<span class="string">'manopt:fixedrankfactory_3factors_preconditioned:exp'</span>, <span class="keyword">...</span>
+0213             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0214             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0215     <span class="keyword">end</span>
+0216     
+0217     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.L(:) ; X.S(:) ; X.R(:)])];
+0218     
+0219     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
+0220     <span class="comment">% Factors L and R live on Stiefel manifolds, hence we will reuse</span>
+0221     <span class="comment">% their random generator.</span>
+0222     stiefelm = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(m, k);
+0223     stiefeln = <a href="../../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a>(n, k);
+0224     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
+0225         X.L = stiefelm.rand();
+0226         X.R = stiefeln.rand();
+0227         X.S = diag(1+rand(k, 1));
+0228         
+0229         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0230     <span class="keyword">end</span>
+0231     
+0232     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0233     <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0234         <span class="comment">% A random vector on the horizontal space</span>
+0235         eta.L = randn(m, k);
+0236         eta.R = randn(n, k);
+0237         eta.S = randn(k, k);
+0238         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0239         nrm = M.norm(X, eta);
+0240         eta.L = eta.L / nrm;
+0241         eta.R = eta.R / nrm;
+0242         eta.S = eta.S / nrm;
+0243     <span class="keyword">end</span>
 0244     
-0245     <span class="keyword">if</span> nargin == 3
-0246         d.L = a1*d1.L;
-0247         d.R = a1*d1.R;
-0248         d.S = a1*d1.S;
-0249     <span class="keyword">elseif</span> nargin == 5
-0250         d.L = a1*d1.L + a2*d2.L;
-0251         d.R = a1*d1.R + a2*d2.R;
-0252         d.S = a1*d1.S + a2*d2.S;
-0253     <span class="keyword">else</span>
-0254         error(<span class="string">'Bad use of fixedrankLSRquotientfactory.lincomb.'</span>);
-0255     <span class="keyword">end</span>
-0256     
-0257 <span class="keyword">end</span>
-0258 
-0259 <a name="_sub11" href="#_subfunctions" class="code">function A = uf(A)</a>
-0260     [L, unused, R] = svd(A, 0); <span class="comment">%#ok</span>
-0261     A = L*R';
-0262 <span class="keyword">end</span>
-0263 
-0264 <a name="_sub12" href="#_subfunctions" class="code">function[BU, BV] = tangent_space_lyap(R, E, F)</a>
-0265     <span class="comment">% We intent to solve     RR^T  BU + BU RR^T  = E</span>
-0266     <span class="comment">%                        R^T R BV + BV R^T R = F</span>
-0267     <span class="comment">%</span>
-0268     <span class="comment">% This can be solved using two calls to the Matlab lyap.</span>
-0269     <span class="comment">% However, we can still have a more efficient implementations as shown</span>
-0270     <span class="comment">% below...</span>
-0271     
-0272     [U, Sigma, V] = svd(R);
-0273     E_mod = U'*E*U;
-0274     F_mod = V'*F*V;
-0275     b1 = E_mod(:);
-0276     b2 = F_mod(:);
-0277     
-0278     r = size(Sigma, 1);
-0279     sig = diag(Sigma); <span class="comment">% all the singular values in a vector</span>
-0280     sig1 = sig*ones(1, r); <span class="comment">% columns repeat</span>
-0281     sig1t = sig1'; <span class="comment">% rows repeat</span>
-0282     s1 = sig1(:);
-0283     s2 = sig1t(:);
-0284     
-0285     <span class="comment">% The block elements</span>
-0286     a =  s1.^2 + s2.^2; <span class="comment">% a column vector</span>
-0287     
-0288     <span class="comment">% solve the linear system of equations</span>
-0289     cu = b1./a; <span class="comment">%a.\b1;</span>
-0290     cv = b2./a; <span class="comment">%a.\b2;</span>
+0245     M.lincomb = @<a href="#_sub10" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0246     
+0247     M.zerovec = @(X) struct(<span class="string">'L'</span>, zeros(m, k), <span class="string">'S'</span>, zeros(k, k), <span class="keyword">...</span>
+0248         <span class="string">'R'</span>, zeros(n, k));
+0249     
+0250     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
+0251     
+0252     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0253     M.vec = @(X, U) [U.L(:) ; U.S(:); U.R(:)];
+0254     M.mat = @(X, u) struct(<span class="string">'L'</span>, reshape(u(1:(m*k)), m, k), <span class="keyword">...</span>
+0255         <span class="string">'S'</span>, reshape(u((m*k+1): m*k + k*k), k, k), <span class="keyword">...</span>
+0256         <span class="string">'R'</span>, reshape(u((m*k+ k*k + 1):end), n, k));
+0257     M.vecmatareisometries = @() false;
+0258     
+0259 <span class="keyword">end</span>
+0260 
+0261 <span class="comment">% Linear combination of tangent vectors</span>
+0262 <a name="_sub10" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0263     
+0264     <span class="keyword">if</span> nargin == 3
+0265         d.L = a1*d1.L;
+0266         d.R = a1*d1.R;
+0267         d.S = a1*d1.S;
+0268     <span class="keyword">elseif</span> nargin == 5
+0269         d.L = a1*d1.L + a2*d2.L;
+0270         d.R = a1*d1.R + a2*d2.R;
+0271         d.S = a1*d1.S + a2*d2.S;
+0272     <span class="keyword">else</span>
+0273         error(<span class="string">'Bad use of fixedrankfactory_3factors_preconditioned.lincomb.'</span>);
+0274     <span class="keyword">end</span>
+0275     
+0276 <span class="keyword">end</span>
+0277 
+0278 <a name="_sub11" href="#_subfunctions" class="code">function A = uf(A)</a>
+0279     [L, unused, R] = svd(A, 0); <span class="comment">%#ok</span>
+0280     A = L*R';
+0281 <span class="keyword">end</span>
+0282 
+0283 <a name="_sub12" href="#_subfunctions" class="code">function[BU, BV] = tangent_space_lyap(R, E, F)</a>
+0284     <span class="comment">% We intent to solve a linear system    RR^T  BU + BU RR^T  = E</span>
+0285     <span class="comment">%                                       R^T R BV + BV R^T R = F</span>
+0286     <span class="comment">% for BU and BV.</span>
+0287     <span class="comment">%</span>
+0288     <span class="comment">% This can be solved using two calls to the Matlab's lyap.</span>
+0289     <span class="comment">% However, we can still have a more efficient implementation</span>
+0290     <span class="comment">% that does not require the full functionaliyt of Matlab's lyap.</span>
 0291     
-0292     <span class="comment">% devectorize</span>
-0293     CU = reshape(cu, r, r);
-0294     CV = reshape(cv, r, r);
-0295     
-0296     <span class="comment">% Do the similarity transforms</span>
-0297     BU = U*CU*U';
-0298     BV = V*CV*V';
-0299     
-0300     <span class="comment">% %% debug</span>
-0301     <span class="comment">%</span>
-0302     <span class="comment">% norm(R*R'*BU + BU*R*R' - E, 'fro');</span>
-0303     <span class="comment">% norm((Sigma.^2)*CU + CU*(Sigma.^2) - E_mod, 'fro');</span>
-0304     <span class="comment">% norm(a.*cu - b1, 'fro');</span>
-0305     <span class="comment">%</span>
-0306     <span class="comment">% norm(R'*R*BV + BV*R'*R - F, 'fro');</span>
-0307     <span class="comment">%</span>
-0308     <span class="comment">% BU1 = lyap(R*R', - E);</span>
-0309     <span class="comment">% norm(R*R'*BU1 + BU1*R*R' - E, 'fro');</span>
-0310     <span class="comment">%</span>
-0311     <span class="comment">% BV1 = lyap(R'*R, - F);</span>
-0312     <span class="comment">% norm(R'*R*BV1 + BV1*R'*R - F, 'fro');</span>
-0313     <span class="comment">%</span>
-0314     <span class="comment">% % as accurate as the lyap</span>
-0315     <span class="comment">% norm(BU - BU1, 'fro')</span>
-0316     <span class="comment">% norm(BV - BV1, 'fro')</span>
-0317 <span class="keyword">end</span>
-0318 
-0319 
-0320 
-0321 <a name="_sub13" href="#_subfunctions" class="code">function[Omega1, Omega2] = coupled_lyap(R, E, F)</a>
-0322     <span class="comment">% We intent to solve the coupled system of Lyapunov equations</span>
-0323     <span class="comment">%</span>
-0324     <span class="comment">% RR^T Omega1 + Omega1 RR^T  - R Omega2 R^T = E</span>
-0325     <span class="comment">% R^T R Omega2 + Omega1 R^T R  - R^T Omega2 R = F</span>
-0326     <span class="comment">%</span>
-0327     <span class="comment">% Below is an efficient implementation</span>
-0328     
-0329     [U, Sigma, V] = svd(R);
-0330     E_mod = U'*E*U;
-0331     F_mod = V'*F*V;
-0332     b1 = E_mod(:);
-0333     b2 = F_mod(:);
-0334     
-0335     r = size(Sigma, 1);
-0336     sig = diag(Sigma); <span class="comment">% all the singular values in a vector</span>
-0337     sig1 = sig*ones(1, r); <span class="comment">% columns repeat</span>
-0338     sig1t = sig1'; <span class="comment">% rows repeat</span>
-0339     s1 = sig1(:);
-0340     s2 = sig1t(:);
-0341     
-0342     <span class="comment">% The block elements</span>
-0343     a =  s1.^2 + s2.^2; <span class="comment">% a column vector</span>
-0344     c = s1.*s2;
-0345     
-0346     <span class="comment">% Solve directly using the formula</span>
-0347     <span class="comment">% A = diag(a);</span>
-0348     <span class="comment">% C = diag(c);</span>
-0349     <span class="comment">% Y1_sol = (A*(C\A) - C) \ (b2 + A*(C\b1));</span>
-0350     <span class="comment">% Y2_sol = A\(b2 + C*Y1_sol);</span>
-0351     
-0352     Y1_sol = (b2 + (a./c).*b1) ./ ((a.^2)./c - c);
-0353     Y2_sol = (b2 + c.*Y1_sol)./a;
-0354     
-0355     <span class="comment">% devectorize</span>
-0356     Omega1 = reshape(Y1_sol, r, r);
-0357     Omega2 = reshape(Y2_sol, r, r);
-0358     
-0359     <span class="comment">% Do the similarity transforms</span>
-0360     Omega1 = U*Omega1*U';
-0361     Omega2 = V*Omega2*V';
-0362     
-0363     <span class="comment">% %% debug whether we have the right solution</span>
-0364     <span class="comment">% norm(R*R'*Omega1 + Omega1*R*R'  - R*Omega2*R' - E, 'fro')</span>
-0365     <span class="comment">% norm(R'*R*Omega2 + Omega2*R'*R  - R'*Omega1*R - F, 'fro')</span>
-0366 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0292     [U, Sigma, V] = svd(R);
+0293     E_mod = U'*E*U;
+0294     F_mod = V'*F*V;
+0295     b1 = E_mod(:);
+0296     b2 = F_mod(:);
+0297     
+0298     r = size(Sigma, 1);
+0299     sig = diag(Sigma); <span class="comment">% all the singular values in a vector</span>
+0300     sig1 = sig*ones(1, r); <span class="comment">% columns repeat</span>
+0301     sig1t = sig1'; <span class="comment">% rows repeat</span>
+0302     s1 = sig1(:);
+0303     s2 = sig1t(:);
+0304     
+0305     <span class="comment">% The block elements</span>
+0306     a =  s1.^2 + s2.^2; <span class="comment">% a column vector</span>
+0307     
+0308     <span class="comment">% Solve the linear system of equations</span>
+0309     cu = b1./a; <span class="comment">%a.\b1;</span>
+0310     cv = b2./a; <span class="comment">%a.\b2;</span>
+0311     
+0312     <span class="comment">% Matricize</span>
+0313     CU = reshape(cu, r, r);
+0314     CV = reshape(cv, r, r);
+0315     
+0316     <span class="comment">% Do the similarity transforms</span>
+0317     BU = U*CU*U';
+0318     BV = V*CV*V';
+0319     
+0320     <span class="comment">% %% Debug</span>
+0321     <span class="comment">%</span>
+0322     <span class="comment">% norm(R*R'*BU + BU*R*R' - E, 'fro');</span>
+0323     <span class="comment">% norm((Sigma.^2)*CU + CU*(Sigma.^2) - E_mod, 'fro');</span>
+0324     <span class="comment">% norm(a.*cu - b1, 'fro');</span>
+0325     <span class="comment">%</span>
+0326     <span class="comment">% norm(R'*R*BV + BV*R'*R - F, 'fro');</span>
+0327     <span class="comment">%</span>
+0328     <span class="comment">% BU1 = lyap(R*R', - E);</span>
+0329     <span class="comment">% norm(R*R'*BU1 + BU1*R*R' - E, 'fro');</span>
+0330     <span class="comment">%</span>
+0331     <span class="comment">% BV1 = lyap(R'*R, - F);</span>
+0332     <span class="comment">% norm(R'*R*BV1 + BV1*R'*R - F, 'fro');</span>
+0333     <span class="comment">%</span>
+0334     <span class="comment">% % as accurate as the lyap</span>
+0335     <span class="comment">% norm(BU - BU1, 'fro')</span>
+0336     <span class="comment">% norm(BV - BV1, 'fro')</span>
+0337 <span class="keyword">end</span>
+0338 
+0339 
+0340 
+0341 <a name="_sub13" href="#_subfunctions" class="code">function[Omega1, Omega2] = coupled_lyap(R, E, F)</a>
+0342     <span class="comment">% We intent to solve the coupled system of Lyapunov equations</span>
+0343     <span class="comment">%</span>
+0344     <span class="comment">% RR^T Omega1 + Omega1 RR^T  - R Omega2 R^T = E</span>
+0345     <span class="comment">% R^T R Omega2 + Omega1 R^T R  - R^T Omega2 R = F,</span>
+0346     <span class="comment">%</span>
+0347     <span class="comment">% for Omega1 and Omega2, both are skew symmetric matrices.</span>
+0348     <span class="comment">%</span>
+0349     <span class="comment">% Below is an efficient implementation</span>
+0350     
+0351     [U, Sigma, V] = svd(R);
+0352     E_mod = U'*E*U;
+0353     F_mod = V'*F*V;
+0354     b1 = E_mod(:);
+0355     b2 = F_mod(:);
+0356     
+0357     r = size(Sigma, 1);
+0358     sig = diag(Sigma); <span class="comment">% All the singular values in a vector</span>
+0359     sig1 = sig*ones(1, r); <span class="comment">% Columns repeat</span>
+0360     sig1t = sig1'; <span class="comment">% Rows repeat</span>
+0361     s1 = sig1(:);
+0362     s2 = sig1t(:);
+0363     
+0364     <span class="comment">% The block elements</span>
+0365     a =  s1.^2 + s2.^2; <span class="comment">% A column vector</span>
+0366     c = s1.*s2;
+0367     
+0368     <span class="comment">% Solve directly using the formula</span>
+0369     <span class="comment">% A = diag(a);</span>
+0370     <span class="comment">% C = diag(c);</span>
+0371     <span class="comment">% Y1_sol = (A*(C\A) - C) \ (b2 + A*(C\b1));</span>
+0372     <span class="comment">% Y2_sol = A\(b2 + C*Y1_sol);</span>
+0373     
+0374     Y1_sol = (b2 + (a./c).*b1) ./ ((a.^2)./c - c);
+0375     Y2_sol = (b2 + c.*Y1_sol)./a;
+0376     
+0377     <span class="comment">% Matricize</span>
+0378     Omega1 = reshape(Y1_sol, r, r);
+0379     Omega2 = reshape(Y2_sol, r, r);
+0380     
+0381     <span class="comment">% Do the similarity transforms</span>
+0382     Omega1 = U*Omega1*U';
+0383     Omega2 = V*Omega2*V';
+0384     
+0385     <span class="comment">% %% Debug: whether we have the right solution.</span>
+0386     <span class="comment">% norm(R*R'*Omega1 + Omega1*R*R'  - R*Omega2*R' - E, 'fro')</span>
+0387     <span class="comment">% norm(R'*R*Omega2 + Omega2*R'*R  - R'*Omega1*R - F, 'fro')</span>
+0388 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

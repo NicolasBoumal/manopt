@@ -24,13 +24,13 @@
 <div class="box"><strong>Standard line-search algorithm (step size selection) for descent methods.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function [stepsize, newx, storedb, lsmem, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, lsmem) </strong></div>
+<div class="box"><strong>function [stepsize, newx, newkey, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, key) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Standard line-search algorithm (step size selection) for descent methods.
 
- function [stepsize, newx, storedb, lsmem, lsstats] = 
-               linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
+ function [stepsize, newx, newkey, lsstats] = 
+                 linesearch(problem, x, d, f0, df0, options, storedb, key)
 
  Base line-search algorithm for descent methods, based on a simple
  backtracking method. The search direction provided has to be a descent
@@ -43,9 +43,14 @@
  the returned step size is independent of the norm of the search direction
  vector d: only the direction of d is important.
  
- Below, the step will be constructed as alpha*d, and the step size is the
- norm of that vector, thus: stepsize = alpha*norm_d. The step is executed
- by retracting the vector alpha*d from the current point x, giving newx.
+ Below, the step is constructed as alpha*d, and the step size is the norm
+ of that vector, thus: stepsize = alpha*norm_d. The step is executed by
+ retracting the vector alpha*d from the current point x, giving newx.
+
+ This line-search may create and maintain a structure called lsmem inside
+ storedb.internal. This gives the linesearch the opportunity to remember
+ what happened in the previous calls. This is typically used to make a
+ first guess at the step size, based on previous events.
 
  Inputs
 
@@ -55,35 +60,27 @@
   f0 : cost value at x
   df0 : directional derivative at x along d
   options : options structure (see in code for usage)
-  storedb : store database structure for caching purposes
-  lsmem : a special memory holder to give the linesearch the opportunity
-          to &quot;remember&quot; what happened in the previous calls. See below.
+  storedb : StoreDB object (handle class: passed by reference) for caching
+  key : key associated to point x in storedb
+
+  options, storedb and key are optional.
 
  Outputs
 
   stepsize : norm of the vector retracted to reach newx from x.
   newx : next iterate suggested by the line-search algorithm, such that
          the retraction at x of the vector alpha*d reaches newx.
-  storedb : the (possibly updated) store database structure.
-  lsmem : the (possibly updated) lsmem memory holder.
-  lsstats : statistics about the line-search procedure (stepsize, number
-            of trials etc).
- 
- About lsmem : It can be anything, and will typically be a matrix or a
-               structure. When first calling the line-search, it should be
-               passed as the empty matrix []. For subsequent calls
-               (pertaining to the same solver call), the previously
-               returned lsmem should be passed as input. This memory
-               holder gives the line-search a chance to exploit knowledge
-               of previous decisions to make new decisions.
+  newkey : key associated to newx in storedb
+  lsstats : statistics about the line-search procedure
+            (stepsize, number of trials etc).
 
- See also: steepestdescent conjugategradients <a href="linesearch_adaptive.html" class="code" title="function [stepsize newx storedb lsmem lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, lsmem)">linesearch_adaptive</a></pre></div>
+ See also: steepestdescent conjugategradients <a href="linesearch_adaptive.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_adaptive(problem, x, d, f0, df0, options, storedb, key)">linesearch_adaptive</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
@@ -92,12 +89,12 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize, newx, storedb, lsmem, lsstats] = </a><span class="keyword">...</span>
-0002                 linesearch(problem, x, d, f0, df0, options, storedb, lsmem)
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize, newx, newkey, lsstats] = </a><span class="keyword">...</span>
+0002                   linesearch(problem, x, d, f0, df0, options, storedb, key)
 0003 <span class="comment">% Standard line-search algorithm (step size selection) for descent methods.</span>
 0004 <span class="comment">%</span>
-0005 <span class="comment">% function [stepsize, newx, storedb, lsmem, lsstats] =</span>
-0006 <span class="comment">%               linesearch(problem, x, d, f0, df0, options, storedb, lsmem)</span>
+0005 <span class="comment">% function [stepsize, newx, newkey, lsstats] =</span>
+0006 <span class="comment">%                 linesearch(problem, x, d, f0, df0, options, storedb, key)</span>
 0007 <span class="comment">%</span>
 0008 <span class="comment">% Base line-search algorithm for descent methods, based on a simple</span>
 0009 <span class="comment">% backtracking method. The search direction provided has to be a descent</span>
@@ -110,163 +107,186 @@ This function is called by:
 0016 <span class="comment">% the returned step size is independent of the norm of the search direction</span>
 0017 <span class="comment">% vector d: only the direction of d is important.</span>
 0018 <span class="comment">%</span>
-0019 <span class="comment">% Below, the step will be constructed as alpha*d, and the step size is the</span>
-0020 <span class="comment">% norm of that vector, thus: stepsize = alpha*norm_d. The step is executed</span>
-0021 <span class="comment">% by retracting the vector alpha*d from the current point x, giving newx.</span>
+0019 <span class="comment">% Below, the step is constructed as alpha*d, and the step size is the norm</span>
+0020 <span class="comment">% of that vector, thus: stepsize = alpha*norm_d. The step is executed by</span>
+0021 <span class="comment">% retracting the vector alpha*d from the current point x, giving newx.</span>
 0022 <span class="comment">%</span>
-0023 <span class="comment">% Inputs</span>
-0024 <span class="comment">%</span>
-0025 <span class="comment">%  problem : structure holding the description of the optimization problem</span>
-0026 <span class="comment">%  x : current point on the manifold problem.M</span>
-0027 <span class="comment">%  d : tangent vector at x (descent direction) -- its norm is irrelevant</span>
-0028 <span class="comment">%  f0 : cost value at x</span>
-0029 <span class="comment">%  df0 : directional derivative at x along d</span>
-0030 <span class="comment">%  options : options structure (see in code for usage)</span>
-0031 <span class="comment">%  storedb : store database structure for caching purposes</span>
-0032 <span class="comment">%  lsmem : a special memory holder to give the linesearch the opportunity</span>
-0033 <span class="comment">%          to &quot;remember&quot; what happened in the previous calls. See below.</span>
-0034 <span class="comment">%</span>
-0035 <span class="comment">% Outputs</span>
-0036 <span class="comment">%</span>
-0037 <span class="comment">%  stepsize : norm of the vector retracted to reach newx from x.</span>
-0038 <span class="comment">%  newx : next iterate suggested by the line-search algorithm, such that</span>
-0039 <span class="comment">%         the retraction at x of the vector alpha*d reaches newx.</span>
-0040 <span class="comment">%  storedb : the (possibly updated) store database structure.</span>
-0041 <span class="comment">%  lsmem : the (possibly updated) lsmem memory holder.</span>
-0042 <span class="comment">%  lsstats : statistics about the line-search procedure (stepsize, number</span>
-0043 <span class="comment">%            of trials etc).</span>
-0044 <span class="comment">%</span>
-0045 <span class="comment">% About lsmem : It can be anything, and will typically be a matrix or a</span>
-0046 <span class="comment">%               structure. When first calling the line-search, it should be</span>
-0047 <span class="comment">%               passed as the empty matrix []. For subsequent calls</span>
-0048 <span class="comment">%               (pertaining to the same solver call), the previously</span>
-0049 <span class="comment">%               returned lsmem should be passed as input. This memory</span>
-0050 <span class="comment">%               holder gives the line-search a chance to exploit knowledge</span>
-0051 <span class="comment">%               of previous decisions to make new decisions.</span>
-0052 <span class="comment">%</span>
-0053 <span class="comment">% See also: steepestdescent conjugategradients linesearch_adaptive</span>
-0054 
-0055 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0056 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0057 <span class="comment">% Contributors:</span>
-0058 <span class="comment">% Change log:</span>
-0059 <span class="comment">%     Sept. 13, 2013 (NB) : User control over the parameters of the</span>
-0060 <span class="comment">%                           linesearch via the options</span>
-0061 <span class="comment">%                           ls_contraction_factor, ls_optimism,</span>
-0062 <span class="comment">%                           ls_suff_decr and ls_max_steps. See in code for</span>
-0063 <span class="comment">%                           the effect of those.</span>
-0064 <span class="comment">%     Sept. 13, 2013 (NB) : The automatic direction reversal feature was</span>
-0065 <span class="comment">%                           removed (it triggered when df0 &gt; 0). Direction</span>
-0066 <span class="comment">%                           reversal is a decision that needs to be made by</span>
-0067 <span class="comment">%                           the solver, so it can know about it.</span>
-0068 <span class="comment">%     Sept. 13, 2013 (NB) : The linesearch is now invariant under rescaling</span>
-0069 <span class="comment">%                           of the cost function f. That is, if f is</span>
-0070 <span class="comment">%                           replaced by 8*f (and hence the directional</span>
-0071 <span class="comment">%                           derivatives of f are scaled accordingly), the</span>
-0072 <span class="comment">%                           stepsizes computed will not change.</span>
-0073 <span class="comment">%     Nov. 7, 2013 (NB) :   The linesearch is now invariant under rescaling</span>
-0074 <span class="comment">%                           of the search direction d. The meaning of</span>
-0075 <span class="comment">%                           stepsize is also more clear in the comments.</span>
-0076 <span class="comment">%                           Added a parameter ls_initial_stepsize to give</span>
-0077 <span class="comment">%                           users control over the first step size trial.</span>
-0078 
-0079 
-0080     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
-0081     <span class="comment">% options structure which is passed to the solver.</span>
-0082     default_options.ls_contraction_factor = .5;
-0083     default_options.ls_optimism = 1/.5;
-0084     default_options.ls_suff_decr = 1e-4;
-0085     default_options.ls_max_steps = 25;
-0086     default_options.ls_initial_stepsize = 1;
-0087     
-0088     options = <a href="../../../manopt/privatetools/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
-0089     
-0090     contraction_factor = options.ls_contraction_factor;
-0091     optimism = options.ls_optimism;
-0092     suff_decr = options.ls_suff_decr;
-0093     max_ls_steps = options.ls_max_steps;
-0094     initial_stepsize = options.ls_initial_stepsize;
-0095     
-0096     <span class="comment">% Compute the norm of the search direction.</span>
-0097     <span class="comment">% This is useful to make the linesearch algorithm invariant under the</span>
-0098     <span class="comment">% scaling of d. The rationale is that the important information is the</span>
-0099     <span class="comment">% search direction, not the size of that vector. The question of how</span>
-0100     <span class="comment">% far we should go is precisely what the linesearch algorithm is</span>
-0101     <span class="comment">% supposed to answer: the calling algorithm should not need to care.</span>
-0102     norm_d = problem.M.norm(x, d);
-0103     
-0104     <span class="comment">% At first, we have no idea of what the step size should be.</span>
-0105     alpha = NaN;
+0023 <span class="comment">% This line-search may create and maintain a structure called lsmem inside</span>
+0024 <span class="comment">% storedb.internal. This gives the linesearch the opportunity to remember</span>
+0025 <span class="comment">% what happened in the previous calls. This is typically used to make a</span>
+0026 <span class="comment">% first guess at the step size, based on previous events.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% Inputs</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%  problem : structure holding the description of the optimization problem</span>
+0031 <span class="comment">%  x : current point on the manifold problem.M</span>
+0032 <span class="comment">%  d : tangent vector at x (descent direction) -- its norm is irrelevant</span>
+0033 <span class="comment">%  f0 : cost value at x</span>
+0034 <span class="comment">%  df0 : directional derivative at x along d</span>
+0035 <span class="comment">%  options : options structure (see in code for usage)</span>
+0036 <span class="comment">%  storedb : StoreDB object (handle class: passed by reference) for caching</span>
+0037 <span class="comment">%  key : key associated to point x in storedb</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">%  options, storedb and key are optional.</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">% Outputs</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">%  stepsize : norm of the vector retracted to reach newx from x.</span>
+0044 <span class="comment">%  newx : next iterate suggested by the line-search algorithm, such that</span>
+0045 <span class="comment">%         the retraction at x of the vector alpha*d reaches newx.</span>
+0046 <span class="comment">%  newkey : key associated to newx in storedb</span>
+0047 <span class="comment">%  lsstats : statistics about the line-search procedure</span>
+0048 <span class="comment">%            (stepsize, number of trials etc).</span>
+0049 <span class="comment">%</span>
+0050 <span class="comment">% See also: steepestdescent conjugategradients linesearch_adaptive</span>
+0051 
+0052 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0053 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0054 <span class="comment">% Contributors:</span>
+0055 <span class="comment">% Change log:</span>
+0056 <span class="comment">%</span>
+0057 <span class="comment">%    Sept. 13, 2013 (NB):</span>
+0058 <span class="comment">%       User control over the parameters of the linesearch via the options</span>
+0059 <span class="comment">%       ls_contraction_factor, ls_optimism, ls_suff_decr and ls_max_steps.</span>
+0060 <span class="comment">%       See in code for the effect of those.</span>
+0061 <span class="comment">%</span>
+0062 <span class="comment">%   Sept. 13, 2013 (NB):</span>
+0063 <span class="comment">%       The automatic direction reversal feature was removed (it triggered</span>
+0064 <span class="comment">%       when df0 &gt; 0). Direction reversal is a decision that needs to be</span>
+0065 <span class="comment">%       made by the solver, so it can know about it.</span>
+0066 <span class="comment">%</span>
+0067 <span class="comment">%    Sept. 13, 2013 (NB):</span>
+0068 <span class="comment">%       The linesearch is now invariant under rescaling of the cost</span>
+0069 <span class="comment">%       function f. That is, if f is replaced by 8*f (and hence the</span>
+0070 <span class="comment">%       directional derivatives of f are scaled accordingly), the</span>
+0071 <span class="comment">%       stepsizes computed will not change.</span>
+0072 <span class="comment">%</span>
+0073 <span class="comment">%   Nov. 7, 2013 (NB):</span>
+0074 <span class="comment">%       The linesearch is now invariant under rescaling of the search</span>
+0075 <span class="comment">%       direction d. The meaning of stepsize is also more clear in the</span>
+0076 <span class="comment">%       comments. Added a parameter ls_initial_stepsize to give users</span>
+0077 <span class="comment">%       control over the first step size trial.</span>
+0078 <span class="comment">%</span>
+0079 <span class="comment">%   April 3, 2015 (NB):</span>
+0080 <span class="comment">%       Works with the new StoreDB class system.</span>
+0081 <span class="comment">%</span>
+0082 <span class="comment">%   April 8, 2015 (NB):</span>
+0083 <span class="comment">%       Got rid of lsmem input/output: now maintained in storedb.internal.</span>
+0084 
+0085 
+0086     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0087     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0088         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0089             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0090         <span class="keyword">end</span>
+0091         key = storedb.getNewKey();
+0092     <span class="keyword">end</span>
+0093 
+0094     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0095     <span class="comment">% options structure which is passed to the solver.</span>
+0096     default_options.ls_contraction_factor = .5;
+0097     default_options.ls_optimism = 1/.5;
+0098     default_options.ls_suff_decr = 1e-4;
+0099     default_options.ls_max_steps = 25;
+0100     default_options.ls_initial_stepsize = 1;
+0101     
+0102     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0103         options = struct();
+0104     <span class="keyword">end</span>
+0105     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
 0106     
-0107     <span class="comment">% If we know about what happened at the previous step, we can leverage</span>
-0108     <span class="comment">% that to compute an initial guess for the step size, as inspired from</span>
-0109     <span class="comment">% Nocedal&amp;Wright, p59.</span>
-0110     <span class="keyword">if</span> isstruct(lsmem) &amp;&amp; isfield(lsmem, <span class="string">'f0'</span>)
-0111         <span class="comment">% Pick initial step size based on where we were last time,</span>
-0112         alpha = 2*(f0-lsmem.f0)/df0;
-0113         <span class="comment">% and go look a little further (or less far), just in case.</span>
-0114         alpha = optimism*alpha;
-0115     <span class="keyword">end</span>
-0116     
-0117     <span class="comment">% If we have no information about the previous iteration (maybe this is</span>
-0118     <span class="comment">% the first one?) or if the above formula gave a too small step size</span>
-0119     <span class="comment">% (perhaps it is even negative), then fall back to a user supplied</span>
-0120     <span class="comment">% suggestion for the first step size (the &quot;a priori&quot;).</span>
-0121     <span class="comment">% At any rate, the choice should be invariant under rescaling of the</span>
-0122     <span class="comment">% cost function f and of the search direction d, and it should be</span>
-0123     <span class="comment">% bounded away from zero for convergence guarantees. We must allow it</span>
-0124     <span class="comment">% to be close to zero though, for fine convergence.</span>
-0125     <span class="keyword">if</span> isnan(alpha) || alpha*norm_d &lt;= eps
-0126         alpha = initial_stepsize/norm_d;
-0127     <span class="keyword">end</span>
-0128     
-0129 
-0130     <span class="comment">% Make the chosen step and compute the cost there.</span>
-0131     newx = problem.M.retr(x, d, alpha);
-0132     [newf storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
-0133     cost_evaluations = 1;
-0134     
-0135     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
-0136     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
-0137         
-0138         <span class="comment">% Reduce the step size,</span>
-0139         alpha = contraction_factor * alpha;
-0140         
-0141         <span class="comment">% and look closer down the line</span>
-0142         newx = problem.M.retr(x, d, alpha);
-0143         [newf storedb] = <a href="../../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, newx, storedb);
-0144         cost_evaluations = cost_evaluations + 1;
-0145         
-0146         <span class="comment">% Make sure we don't run out of budget</span>
-0147         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
-0148             <span class="keyword">break</span>;
-0149         <span class="keyword">end</span>
-0150         
-0151     <span class="keyword">end</span>
-0152     
-0153     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
-0154     <span class="keyword">if</span> newf &gt; f0
-0155         alpha = 0;
-0156         newx = x;
-0157         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
-0158     <span class="keyword">end</span>
-0159     
-0160     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
-0161     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
-0162     stepsize = alpha * norm_d;
-0163 
-0164     <span class="comment">% Save the situtation faced now so that at the next iteration, we will</span>
-0165     <span class="comment">% know something about the previous decision.</span>
-0166     lsmem.f0 = f0;
-0167     lsmem.df0 = df0;
-0168     lsmem.stepsize = stepsize;
-0169     
-0170     <span class="comment">% Save some statistics also, for possible analysis.</span>
-0171     lsstats.costevals = cost_evaluations;
-0172     lsstats.stepsize = stepsize;
-0173     lsstats.alpha = alpha;
+0107     contraction_factor = options.ls_contraction_factor;
+0108     optimism = options.ls_optimism;
+0109     suff_decr = options.ls_suff_decr;
+0110     max_ls_steps = options.ls_max_steps;
+0111     initial_stepsize = options.ls_initial_stepsize;
+0112     
+0113     <span class="comment">% Compute the norm of the search direction.</span>
+0114     <span class="comment">% This is useful to make the linesearch algorithm invariant under the</span>
+0115     <span class="comment">% scaling of d. The rationale is that the important information is the</span>
+0116     <span class="comment">% search direction, not the size of that vector. The question of how</span>
+0117     <span class="comment">% far we should go is precisely what the linesearch algorithm is</span>
+0118     <span class="comment">% supposed to answer: the calling algorithm should not need to care.</span>
+0119     norm_d = problem.M.norm(x, d);
+0120     
+0121     <span class="comment">% At first, we have no idea of what the step size should be.</span>
+0122     alpha = NaN;
+0123     
+0124     <span class="comment">% If we know about what happened at the previous step, we can leverage</span>
+0125     <span class="comment">% that to compute an initial guess for the step size, as inspired from</span>
+0126     <span class="comment">% Nocedal&amp;Wright, p59.</span>
+0127     <span class="keyword">if</span> isfield(storedb.internal, <span class="string">'lsmem'</span>)
+0128         lsmem = storedb.internal;
+0129         <span class="keyword">if</span> isfield(lsmem, <span class="string">'f0'</span>)
+0130             <span class="comment">% Pick initial step size based on where we were last time,</span>
+0131             alpha = 2*(f0 - lsmem.f0) / df0;
+0132             <span class="comment">% and go look a little further (or less far), just in case.</span>
+0133             alpha = optimism*alpha;
+0134         <span class="keyword">end</span>
+0135     <span class="keyword">end</span>
+0136     
+0137     <span class="comment">% If we have no information about the previous iteration (maybe this is</span>
+0138     <span class="comment">% the first one?) or if the above formula gave a too small step size</span>
+0139     <span class="comment">% (perhaps it is even negative), then fall back to a user supplied</span>
+0140     <span class="comment">% suggestion for the first step size (the &quot;a priori&quot;).</span>
+0141     <span class="comment">% At any rate, the choice should be invariant under rescaling of the</span>
+0142     <span class="comment">% cost function f and of the search direction d, and it should be</span>
+0143     <span class="comment">% bounded away from zero for convergence guarantees. We must allow it</span>
+0144     <span class="comment">% to be close to zero though, for fine convergence.</span>
+0145     <span class="keyword">if</span> isnan(alpha) || alpha*norm_d &lt;= eps
+0146         alpha = initial_stepsize/norm_d;
+0147     <span class="keyword">end</span>
+0148     
+0149 
+0150     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0151     newx = problem.M.retr(x, d, alpha);
+0152     newkey = storedb.getNewKey();
+0153     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0154     cost_evaluations = 1;
+0155     
+0156     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
+0157     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
+0158         
+0159         <span class="comment">% Reduce the step size,</span>
+0160         alpha = contraction_factor * alpha;
+0161         
+0162         <span class="comment">% and look closer down the line</span>
+0163         newx = problem.M.retr(x, d, alpha);
+0164         newkey = storedb.getNewKey();
+0165         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0166         cost_evaluations = cost_evaluations + 1;
+0167         
+0168         <span class="comment">% Make sure we don't run out of budget</span>
+0169         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0170             <span class="keyword">break</span>;
+0171         <span class="keyword">end</span>
+0172         
+0173     <span class="keyword">end</span>
 0174     
-0175 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0175     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0176     <span class="keyword">if</span> newf &gt; f0
+0177         alpha = 0;
+0178         newx = x;
+0179         newkey = key;
+0180         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0181     <span class="keyword">end</span>
+0182     
+0183     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0184     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0185     stepsize = alpha * norm_d;
+0186 
+0187     <span class="comment">% Save the situtation faced now so that, at the next iteration,</span>
+0188     <span class="comment">% we will know something about the previous decision.</span>
+0189     storedb.internal.lsmem.f0 = f0;
+0190     storedb.internal.lsmem.df0 = df0;
+0191     storedb.internal.lsmem.stepsize = stepsize;
+0192     
+0193     <span class="comment">% Return some statistics also, for possible analysis.</span>
+0194     lsstats.costevals = cost_evaluations;
+0195     lsstats.stepsize = stepsize;
+0196     lsstats.alpha = alpha;
+0197     
+0198 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

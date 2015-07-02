@@ -47,13 +47,15 @@
  hess functions. Furthermore, using egrad2rgrad and ehess2rhess is quick
  and easy, but not always efficient. Having a look at the formulas
  implemented in these functions can help rewrite the code without them,
- possibly more efficiently.</pre></div>
+ possibly more efficiently.
+
+ See also: <a href="dominant_invariant_subspace_complex.html" class="code" title="function [X, info] = dominant_invariant_subspace_complex(A, p)">dominant_invariant_subspace_complex</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -84,78 +86,80 @@ This function is called by:
 0020 <span class="comment">% and easy, but not always efficient. Having a look at the formulas</span>
 0021 <span class="comment">% implemented in these functions can help rewrite the code without them,</span>
 0022 <span class="comment">% possibly more efficiently.</span>
-0023 
-0024 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
-0025 <span class="comment">%</span>
-0026 <span class="comment">% Main author: Nicolas Boumal, July 5, 2013</span>
-0027 <span class="comment">% Contributors:</span>
-0028 <span class="comment">%</span>
-0029 <span class="comment">% Change log:</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% See also: dominant_invariant_subspace_complex</span>
+0025 
+0026 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% Main author: Nicolas Boumal, July 5, 2013</span>
+0029 <span class="comment">% Contributors:</span>
 0030 <span class="comment">%</span>
-0031 <span class="comment">%   NB Dec. 6, 2013:</span>
-0032 <span class="comment">%       We specify a max and initial trust region radius in the options.</span>
-0033     
-0034     <span class="comment">% Generate some random data to test the function</span>
-0035     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
-0036         A = randn(128);
-0037         A = (A+A')/2;
-0038     <span class="keyword">end</span>
-0039     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
-0040         p = 3;
-0041     <span class="keyword">end</span>
-0042     
-0043     <span class="comment">% Make sure the input matrix is square and symmetric</span>
-0044     n = size(A, 1);
-0045     assert(isreal(A), <span class="string">'A must be real.'</span>)
-0046     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
-0047     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
-0048     assert(p&lt;=n, <span class="string">'p must be smaller than n.'</span>);
-0049     
-0050     <span class="comment">% Define the cost and its derivatives on the Grassmann manifold</span>
-0051     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, p);
-0052     problem.M = Gr;
-0053     problem.cost = @(X)    -trace(X'*A*X);
-0054     problem.grad = @(X)    -2*Gr.egrad2rgrad(X, A*X);
-0055     problem.hess = @(X, H) -2*Gr.ehess2rhess(X, A*X, A*H, H);
-0056     
-0057     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
-0058     <span class="comment">% These things can be commented out of course.</span>
-0059     <span class="comment">% checkgradient(problem);</span>
-0060     <span class="comment">% pause;</span>
-0061     <span class="comment">% checkhessian(problem);</span>
+0031 <span class="comment">% Change log:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   NB Dec. 6, 2013:</span>
+0034 <span class="comment">%       We specify a max and initial trust region radius in the options.</span>
+0035     
+0036     <span class="comment">% Generate some random data to test the function</span>
+0037     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0038         A = randn(128);
+0039         A = (A+A')/2;
+0040     <span class="keyword">end</span>
+0041     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0042         p = 3;
+0043     <span class="keyword">end</span>
+0044     
+0045     <span class="comment">% Make sure the input matrix is square and symmetric</span>
+0046     n = size(A, 1);
+0047     assert(isreal(A), <span class="string">'A must be real.'</span>)
+0048     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0049     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
+0050     assert(p&lt;=n, <span class="string">'p must be smaller than n.'</span>);
+0051     
+0052     <span class="comment">% Define the cost and its derivatives on the Grassmann manifold</span>
+0053     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, p);
+0054     problem.M = Gr;
+0055     problem.cost = @(X)    -trace(X'*A*X);
+0056     problem.grad = @(X)    -2*Gr.egrad2rgrad(X, A*X);
+0057     problem.hess = @(X, H) -2*Gr.ehess2rhess(X, A*X, A*H, H);
+0058     
+0059     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0060     <span class="comment">% These can be commented out.</span>
+0061     <span class="comment">% checkgradient(problem);</span>
 0062     <span class="comment">% pause;</span>
-0063     
-0064     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
-0065     <span class="comment">% default options are selected except for the ones we specify here.</span>
-0066     options.Delta_bar = 8*sqrt(p);
-0067     [X, costX, info, options] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0068     
-0069     fprintf(<span class="string">'Options used:\n'</span>);
-0070     disp(options);
-0071     
-0072     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
-0073     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
-0074     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
-0075     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
-0076     <span class="comment">% Hessian, this would also inform us on its performance.</span>
-0077     <span class="comment">%</span>
-0078     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
-0079     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
-0080     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
-0081     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
-0082     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
-0083     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
-0084     <span class="comment">% the optimizer not isolated anymore.</span>
-0085     <span class="keyword">if</span> Gr.dim() &lt; 512
-0086         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
-0087         stairs(sort(evs));
-0088         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
-0089                <span class="string">'at the solution'</span>]);
-0090         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
-0091         ylabel(<span class="string">'Value of the eigenvalue'</span>);
-0092     <span class="keyword">end</span>
-0093 
-0094 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0063     <span class="comment">% checkhessian(problem);</span>
+0064     <span class="comment">% pause;</span>
+0065     
+0066     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0067     <span class="comment">% default options are selected except for the ones we specify here.</span>
+0068     options.Delta_bar = 8*sqrt(p);
+0069     [X, costX, info, options] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0070     
+0071     fprintf(<span class="string">'Options used:\n'</span>);
+0072     disp(options);
+0073     
+0074     <span class="comment">% For our information, Manopt can also compute the spectrum of the</span>
+0075     <span class="comment">% Riemannian Hessian on the tangent space at (any) X. Computing the</span>
+0076     <span class="comment">% spectrum at the solution gives us some idea of the conditioning of</span>
+0077     <span class="comment">% the problem. If we were to implement a preconditioner for the</span>
+0078     <span class="comment">% Hessian, this would also inform us on its performance.</span>
+0079     <span class="comment">%</span>
+0080     <span class="comment">% Notice that (typically) all eigenvalues of the Hessian at the</span>
+0081     <span class="comment">% solution are positive, i.e., we find an isolated minimizer. If we</span>
+0082     <span class="comment">% replace the Grassmann manifold by the Stiefel manifold, hence still</span>
+0083     <span class="comment">% optimizing over orthonormal matrices but ignoring the invariance</span>
+0084     <span class="comment">% cost(XQ) = cost(X) for all Q orthogonal, then we see</span>
+0085     <span class="comment">% dim O(p) = p(p-1)/2 zero eigenvalues in the Hessian spectrum, making</span>
+0086     <span class="comment">% the optimizer not isolated anymore.</span>
+0087     <span class="keyword">if</span> Gr.dim() &lt; 512
+0088         evs = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>(problem, X);
+0089         stairs(sort(evs));
+0090         title([<span class="string">'Eigenvalues of the Hessian of the cost function '</span> <span class="keyword">...</span>
+0091                <span class="string">'at the solution'</span>]);
+0092         xlabel(<span class="string">'Eigenvalue number (sorted)'</span>);
+0093         ylabel(<span class="string">'Value of the eigenvalue'</span>);
+0094     <span class="keyword">end</span>
+0095 
+0096 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of canGetCost</title>
+  <meta name="keywords" content="canGetCost">
+  <meta name="description" content="Checks whether the cost function can be computed for a problem structure.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; canGetCost.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>canGetCost
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks whether the cost function can be computed for a problem structure.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function candoit = canGetCost(problem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks whether the cost function can be computed for a problem structure.
+
+ function candoit = canGetCost(problem)
+
+ Returns true if the cost function can be computed given the problem
+ description, false otherwise.
+
+ See also: <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a> <a href="canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a> <a href="canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a> <a href="canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../manopt/tools/checkdiff.html" class="code" title="function checkdiff(problem, x, d)">checkdiff</a>	Checks the consistency of the cost function and directional derivatives.</li><li><a href="../../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li><li><a href="../../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li><li><a href="../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li><li><a href="../../manopt/tools/plotprofile.html" class="code" title="function cost = plotprofile(problem, x, d, t)">plotprofile</a>	Plot the cost function along a geodesic or a retraction path.</li><li><a href="../../manopt/tools/surfprofile.html" class="code" title="function costs = surfprofile(problem, x, d1, d2, t1, t2)">surfprofile</a>	Plot the cost function as a surface over a 2-dimensional subspace.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function candoit = canGetCost(problem)</a>
+0002 <span class="comment">% Checks whether the cost function can be computed for a problem structure.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function candoit = canGetCost(problem)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Returns true if the cost function can be computed given the problem</span>
+0007 <span class="comment">% description, false otherwise.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% See also: getCost canGetDirectionalDerivative canGetGradient canGetHessian</span>
+0010 
+0011 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0012 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0013 <span class="comment">% Contributors:</span>
+0014 <span class="comment">% Change log:</span>
+0015 
+0016 
+0017     candoit = isfield(problem, <span class="string">'cost'</span>) || isfield(problem, <span class="string">'costgrad'</span>);
+0018     
+0019 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

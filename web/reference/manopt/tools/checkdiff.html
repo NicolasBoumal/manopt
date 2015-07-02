@@ -46,7 +46,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>	Checks whether dir. derivatives can be computed for a problem structure.</li><li><a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>	Computes the cost function at x.</li><li><a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
+<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>	Checks whether dir. derivatives can be computed for a problem structure.</li><li><a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 <li><a href="checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li></ul>
@@ -75,83 +75,87 @@ This function is called by:
 0018 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
 0019 <span class="comment">% Contributors:</span>
 0020 <span class="comment">% Change log:</span>
-0021 
-0022         
-0023     <span class="comment">% Verify that the problem description is sufficient.</span>
-0024     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0025         error(<span class="string">'It seems no cost was provided.'</span>);  
-0026     <span class="keyword">end</span>
-0027     <span class="keyword">if</span> ~<a href="../../manopt/privatetools/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>(problem)
-0028         error(<span class="string">'It seems no directional derivatives were provided.'</span>);    
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   April 3, 2015 (NB):</span>
+0023 <span class="comment">%       Works with the new StoreDB class system.</span>
+0024 
+0025         
+0026     <span class="comment">% Verify that the problem description is sufficient.</span>
+0027     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0028         error(<span class="string">'It seems no cost was provided.'</span>);  
 0029     <span class="keyword">end</span>
-0030     
-0031     dbstore = struct();
-0032         
-0033     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
-0034     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
-0035     
-0036     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
-0037         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
-0038     <span class="keyword">end</span>
-0039     
-0040     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
-0041     <span class="keyword">if</span> ~x_isprovided
-0042         x = problem.M.rand();
-0043     <span class="keyword">end</span>
-0044     <span class="keyword">if</span> ~d_isprovided
-0045         d = problem.M.randvec(x);
-0046     <span class="keyword">end</span>
-0047 
-0048     <span class="comment">% Compute the value f0 at f and directional derivative at x along d.</span>
-0049     f0 = <a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, x, dbstore);
-0050     df0 = <a href="../../manopt/privatetools/getDirectionalDerivative.html" class="code" title="function [diff, storedb] = getDirectionalDerivative(problem, x, d, storedb)">getDirectionalDerivative</a>(problem, x, d, dbstore);
-0051     
-0052     <span class="comment">% Compute the value of f at points on the geodesic (or approximation of</span>
-0053     <span class="comment">% it) originating from x, along direction d, for stepsizes in a large</span>
-0054     <span class="comment">% range given by h.</span>
-0055     h = logspace(-8, 0, 51);
-0056     value = zeros(size(h));
-0057     <span class="keyword">for</span> i = 1 : length(h)
-0058         y = problem.M.exp(x, d, h(i));
-0059         value(i) = <a href="../../manopt/privatetools/getCost.html" class="code" title="function [cost, storedb] = getCost(problem, x, storedb)">getCost</a>(problem, y, dbstore);
-0060     <span class="keyword">end</span>
-0061     
-0062     <span class="comment">% Compute the linear approximation of the cost function using f0 and</span>
-0063     <span class="comment">% df0 at the same points.</span>
-0064     model = polyval([df0 f0], h);
+0030     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetDirectionalDerivative.html" class="code" title="function candoit = canGetDirectionalDerivative(problem)">canGetDirectionalDerivative</a>(problem)
+0031         error(<span class="string">'It seems no directional derivatives were provided.'</span>);    
+0032     <span class="keyword">end</span>
+0033         
+0034     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
+0035     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
+0036     
+0037     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
+0038         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
+0039     <span class="keyword">end</span>
+0040     
+0041     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
+0042     <span class="keyword">if</span> ~x_isprovided
+0043         x = problem.M.rand();
+0044     <span class="keyword">end</span>
+0045     <span class="keyword">if</span> ~d_isprovided
+0046         d = problem.M.randvec(x);
+0047     <span class="keyword">end</span>
+0048 
+0049     <span class="comment">% Compute the value f0 at f and directional derivative at x along d.</span>
+0050     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0051     xkey = storedb.getNewKey();
+0052     f0 = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, xkey);
+0053     df0 = <a href="../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>(problem, x, d, storedb, xkey);
+0054     
+0055     <span class="comment">% Compute the value of f at points on the geodesic (or approximation</span>
+0056     <span class="comment">% of it) originating from x, along direction d, for stepsizes in a</span>
+0057     <span class="comment">% large range given by h.</span>
+0058     h = logspace(-8, 0, 51);
+0059     value = zeros(size(h));
+0060     <span class="keyword">for</span> i = 1 : length(h)
+0061         y = problem.M.exp(x, d, h(i));
+0062         ykey = storedb.getNewKey();
+0063         value(i) = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, y, storedb, ykey);
+0064     <span class="keyword">end</span>
 0065     
-0066     <span class="comment">% Compute the approximation error</span>
-0067     err = abs(model - value);
-0068     
-0069     <span class="comment">% And plot it.</span>
-0070     loglog(h, err);
-0071     title(sprintf([<span class="string">'Directional derivative check.\nThe slope of the '</span><span class="keyword">...</span>
-0072                    <span class="string">'continuous line should match that of the dashed '</span><span class="keyword">...</span>
-0073                    <span class="string">'(reference) line\nover at least a few orders of '</span><span class="keyword">...</span>
-0074                    <span class="string">'magnitude for h.'</span>]));
-0075     xlabel(<span class="string">'h'</span>);
-0076     ylabel(<span class="string">'Approximation error'</span>);
-0077     
-0078     line(<span class="string">'xdata'</span>, [1e-8 1e0], <span class="string">'ydata'</span>, [1e-8 1e8], <span class="keyword">...</span>
-0079          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
-0080          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0066     <span class="comment">% Compute the linear approximation of the cost function using f0 and</span>
+0067     <span class="comment">% df0 at the same points.</span>
+0068     model = polyval([df0 f0], h);
+0069     
+0070     <span class="comment">% Compute the approximation error</span>
+0071     err = abs(model - value);
+0072     
+0073     <span class="comment">% And plot it.</span>
+0074     loglog(h, err);
+0075     title(sprintf([<span class="string">'Directional derivative check.\nThe slope of the '</span><span class="keyword">...</span>
+0076                    <span class="string">'continuous line should match that of the dashed '</span><span class="keyword">...</span>
+0077                    <span class="string">'(reference) line\nover at least a few orders of '</span><span class="keyword">...</span>
+0078                    <span class="string">'magnitude for h.'</span>]));
+0079     xlabel(<span class="string">'h'</span>);
+0080     ylabel(<span class="string">'Approximation error'</span>);
 0081     
-0082     
-0083     <span class="comment">% In a numerically reasonable neighborhood, the error should decrease</span>
-0084     <span class="comment">% as the square of the stepsize, i.e., in loglog scale, the error</span>
-0085     <span class="comment">% should have a slope of 2.</span>
-0086     window_len = 10;
-0087     [range poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
-0088     hold on;
-0089         loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="keyword">...</span>
-0090                <span class="string">'r-'</span>, <span class="string">'LineWidth'</span>, 3);
-0091     hold off;
-0092     
-0093     fprintf(<span class="string">'The slope should be 2. It appears to be: %g.\n'</span>, poly(1));
-0094     fprintf([<span class="string">'If it is far from 2, then directional derivatives '</span> <span class="keyword">...</span>
-0095              <span class="string">'might be erroneous.\n'</span>]);
+0082     line(<span class="string">'xdata'</span>, [1e-8 1e0], <span class="string">'ydata'</span>, [1e-8 1e8], <span class="keyword">...</span>
+0083          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
+0084          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0085     
+0086     
+0087     <span class="comment">% In a numerically reasonable neighborhood, the error should decrease</span>
+0088     <span class="comment">% as the square of the stepsize, i.e., in loglog scale, the error</span>
+0089     <span class="comment">% should have a slope of 2.</span>
+0090     window_len = 10;
+0091     [range, poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
+0092     hold on;
+0093         loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="keyword">...</span>
+0094                <span class="string">'r-'</span>, <span class="string">'LineWidth'</span>, 3);
+0095     hold off;
 0096     
-0097 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0097     fprintf(<span class="string">'The slope should be 2. It appears to be: %g.\n'</span>, poly(1));
+0098     fprintf([<span class="string">'If it is far from 2, then directional derivatives '</span> <span class="keyword">...</span>
+0099              <span class="string">'might be erroneous.\n'</span>]);
+0100     
+0101 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
