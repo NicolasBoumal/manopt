@@ -39,5 +39,5 @@ express or implied) including, without limitation, any implied warranty of merch
 fitness for a particular purpose and any warranty of non-infringement.
 
 
-This CLA is a modification of the CLA used by the UW Calendar project of the Univeristy of
+This CLA is a modification of the CLA used by the UW Calendar project of the University of
 Washington: <http://www.washington.edu/ucal/CLicense.html>
