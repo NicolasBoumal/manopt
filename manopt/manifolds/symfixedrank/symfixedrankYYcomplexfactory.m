@@ -3,18 +3,18 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %
 % function M = symfixedrankYYcomplexfactory(n, k)
 %
-% Manifold of n-by-n complex symmetric positive semidefinite matrices of 
+% Manifold of n-by-n complex Hermitian positive semidefinite matrices of 
 % fixed rank k. This follows the quotient geometry described 
 % in Sarod Yatawatta's 2013 paper:
 % "Radio interferometric calibration using a Riemannian manifold".
 %
-% Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&tag=1
+% Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382
 %
 % A point X on the manifold M is parameterized as YY^* where Y is a complex matrix of
 % size nxk. Any point Y on the manifold M, given any kxk complex unitary matrix U, 
 % we say Y*U  is equivalent to Y, i.e., YY^* does not change.
 % Therefore, M is the set of equivalence classes and
-% is a Riemanniana quotient manifold C^{nk}/SU(k). 
+% is a Riemannian quotient manifold C^{nk}/SU(k). 
 % The metric is the usual real-trace inner product, that is, 
 % it is the usual metric for the complex plane identified with R^2.
 %
