@@ -111,7 +111,7 @@ function M = complexcirclefactory(n)
         v = v / norm(v);
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) zeros(n, 1);
     
@@ -126,19 +126,5 @@ function M = complexcirclefactory(n)
     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
     M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
     M.vecmatareisometries = @() true;
-
-end
-
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of sphere.lincomb.');
-    end
 
 end

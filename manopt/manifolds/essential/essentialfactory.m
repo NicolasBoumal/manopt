@@ -194,7 +194,7 @@ function M = essentialfactory(k, strSigned)
         U = U / sqrt(M.inner([],U,U));
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) zeros(3, 6, k);
     
@@ -235,19 +235,6 @@ function M = essentialfactory(k, strSigned)
     
     tangent2ambient = @(X, H) essential_sharp(multiprod(essential_flat(X), essential_flat(H)));
     
-    
-end
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-    
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of essential.lincomb.');
-    end
     
 end
 

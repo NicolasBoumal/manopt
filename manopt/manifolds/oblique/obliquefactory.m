@@ -149,7 +149,7 @@ function M = obliquefactory(n, m, transposed)
     
     M.randvec = @(x) trnsp(randomvec(n, m, trnsp(x)));
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) trnsp(zeros(n, m));
     
@@ -178,8 +178,9 @@ end
 % Given a matrix X, returns the same matrix but with each column scaled so
 % that they have unit 2-norm.
 function X = normalize_columns(X)
-	norms = sqrt(sum(X.^2, 1));
-	X = bsxfun(@times, X, 1./norms);
+	% This is faster than norms(X, 2, 1) for small X, and as fast for large X.
+	nrms = sqrt(sum(X.^2, 1));
+	X = bsxfun(@times, X, 1./nrms);
 end
 
 % Orthogonal projection of the ambient vector H onto the tangent space at X
@@ -215,18 +216,5 @@ function d = randomvec(n, m, x)
     d = randn(n, m);
     d = projection(x, d);
     d = d / norm(d(:));
-
-end
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of oblique.lincomb.');
-    end
 
 end

@@ -134,7 +134,7 @@ function M = multinomialfactory(n, m)
         eta = eta / nrm;
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(X) zeros(n, m);
     
@@ -144,16 +144,4 @@ function M = multinomialfactory(n, m)
     M.vec = @(X, U) U(:);
     M.mat = @(X, u) reshape(u, n, m);
     M.vecmatareisometries = @() false;
-end
-
-
-% Linear combination of tangent vectors
-function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of multinomialfactory.lincomb.');
-    end
 end

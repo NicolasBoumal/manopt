@@ -131,7 +131,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
         eta = eta / nrm;
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(Y) zeros(n, k);
     
@@ -140,19 +140,5 @@ function M = symfixedrankYYcomplexfactory(n, k)
     M.vec = @(Y, u_mat) [real(u_mat(:)); imag(u_mat(:))];
     M.mat = @(Y, u_vec) reshape(u_vec(1 : n*k), [n, k]) + 1i*reshape(u_vec(n*k + 1: end), [n, k]);
     M.vecmatareisometries = @() true; 
-    
-end
-
-
-% Linear combination of tangent vectors
-function d = lincomb(Y, a1, d1, a2, d2) %#ok<INUSL>
-    
-    if nargin == 3
-        d  = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of symfixedrankYYcomplexfactory.lincomb.');
-    end
     
 end

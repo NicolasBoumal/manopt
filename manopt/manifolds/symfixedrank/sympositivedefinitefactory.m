@@ -134,7 +134,7 @@ function M = sympositivedefinitefactory(n)
         eta = eta / nrm;
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(X) zeros(n);
     
@@ -164,15 +164,3 @@ function M = sympositivedefinitefactory(n)
     M.vecmatareisometries = @() false;
     
 end
-
-% Linear combination of tangent vectors
-function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of sympositivedefinitefactory.lincomb.');
-    end 
-end
-

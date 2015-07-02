@@ -69,7 +69,7 @@ function M = spheresymmetricfactory(n)
     
     M.randvec = @(x) randomvec(n, x);
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) zeros(n);
     
@@ -138,18 +138,5 @@ function d = randomvec(n, x)
     d = (d + d.')/2;
     d = d - x*(x(:).'*d(:));
     d = d / norm(d, 'fro');
-
-end
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of spheresymmetric.lincomb.');
-    end
 
 end
