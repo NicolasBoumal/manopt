@@ -34,7 +34,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % please contact us at http://www.manopt.org.
 %
 % Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If
-% you find that this is a bottleneck for your application, you may want to
+% this is a bottleneck for a specific application, then a way forward is to
 % create a modified version of this file which preprocesses B to speed this
 % up (typically, by computing a Cholesky factorization of it, then calling
 % an appropriate solver).
@@ -215,31 +215,39 @@ function M = grassmanngeneralizedfactory(n, p, B)
     M.mat = @(X, u_vec) reshape(u_vec, [n, p]);
     M.vecmatareisometries = @() false;
     
-    
     % Some auxiliary functions
     symm = @(D) (D + D')/2;
     
-    function X = guf(D)
-        % Generalized polar decomposition.
+    function X = guf(Y)
+        % Generalized polar decomposition of an n-by-p matrix Y.
         % X'*B*X is identity.
         
-        % More stable computation
-        [u, ~, v] = svd(D, 0);
-        X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
+        % Method 1
+        [u, ~, v] = svd(Y, 0);
+  
+        % Equivalent, but might be expensive
+        % X = u*(sqrtm(u'*(B*u))\(v'));
+        [q, ssquare] = eig(u'*(B*u));
+        qsinv = q/sparse(diag(sqrt(diag(ssquare))));
+        X = u*((qsinv*q')*v'); % X'*B*X is identity.
         
-        % Another computation using restricted_svd
-        % [u, ~, v] = restricted_svd(D);
+        
+        % Method2: another computation using restricted_svd
+        % [u, ~, v] = restricted_svd(Y);
         % X = u*v'; % X'*B*X is identity.
         
     end
     
     function [u, s, v] = restricted_svd(Y)
-        % We compute thin svd usv' of Y such that
-        % u'*B*u is identity.        
+        % We compute a thin svd-like decomposition of an n-by-p matrix Y 
+        % into matrices u, s, and v such that u is an n-by-p matrix
+        % with u'*B*u being identity, s is a p-by-p diagonal matrix 
+        % with positive entries, and v is a p-by-p orthogonal matrix.
+        % Y = u*s*v'.
         [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
         ssquarevec = diag(ssquare);
         
-        s = diag(abs(sqrt(ssquarevec)));
+        s = sparse(diag(abs(sqrt(ssquarevec))));
         u = Y*(v/s); % u'*B*u is identity.
     end
     
