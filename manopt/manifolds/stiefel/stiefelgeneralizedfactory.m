@@ -123,7 +123,7 @@ function M = stiefelgeneralizedfactory(n, p, B)
         U = U / norm(U(:));
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(X) zeros(n, p);
     
@@ -144,18 +144,5 @@ function M = stiefelgeneralizedfactory(n, p, B)
         X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
     end
     
-
-end
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of stiefelgeneralizedfactory.lincomb.');
-    end
 
 end

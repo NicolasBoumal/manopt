@@ -141,7 +141,7 @@ function M = spectrahedronfactory(n, k)
         eta = eta / nrm;
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(Y) zeros(n, k);
     
@@ -152,22 +152,3 @@ function M = spectrahedronfactory(n, k)
     M.vecmatareisometries = @() true;
     
 end
-
-
-% Linear conbination of tangent vectors
-function d = lincomb(Y, a1, d1, a2, d2) %#ok<INUSL>
-    
-    if nargin == 3
-        d  = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of spectrahedronfactory.lincomb.');
-    end
-    
-end
-
-
-
-
-

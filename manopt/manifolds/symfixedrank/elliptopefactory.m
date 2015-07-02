@@ -109,7 +109,7 @@ function M = elliptopefactory(n, k)
     
     M.randvec = @randomvec;
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(Y) zeros(n, k);
     
@@ -245,17 +245,4 @@ function eta = randomvec(Y)
     eta = projection(Y, eta);
     nrm = norm(eta, 'fro');
     eta = eta / nrm;
-end
-
-% Linear conbination of tangent vectors
-function d = lincomb(Y, a1, d1, a2, d2) %#ok<INUSL>
-    
-    if nargin == 3
-        d  = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of elliptopefactory.lincomb.');
-    end
-    
 end

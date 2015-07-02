@@ -67,16 +67,7 @@ function M = euclideancomplexfactory(m, n)
         u = u / norm(u, 'fro');
     end
     
-    M.lincomb = @lincomb;
-    function v = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-        if nargin == 3
-            v = a1*d1;
-        elseif nargin == 5
-            v = a1*d1 + a2*d2;
-        else
-            error('Bad usage of euclideancomplex.lincomb');
-        end
-    end
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) zeros(m, n);
     

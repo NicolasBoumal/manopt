@@ -206,7 +206,7 @@ function M = grassmannfactory(n, p, k)
         U = U / norm(U(:));
     end
     
-    M.lincomb = @lincomb;
+    M.lincomb = @matrixlincomb;
     
     M.zerovec = @(x) zeros(n, p, k);
     
@@ -216,18 +216,5 @@ function M = grassmannfactory(n, p, k)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
     M.vecmatareisometries = @() true;
-
-end
-
-% Linear combination of tangent vectors
-function d = lincomb(x, a1, d1, a2, d2) %#ok<INUSL>
-
-    if nargin == 3
-        d = a1*d1;
-    elseif nargin == 5
-        d = a1*d1 + a2*d2;
-    else
-        error('Bad use of grassmann.lincomb.');
-    end
 
 end
