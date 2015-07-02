@@ -54,15 +54,15 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>	Generates uniformly random rotation matrices.</li><li><a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>	Generates random skew symmetric matrices with normal entries.</li><li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>	Returns the skew-symmetric parts of the matrices in the 3D matrix X.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+<li><a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>	Generates uniformly random rotation matrices.</li><li><a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>	Generates random skew symmetric matrices with normal entries.</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>	Returns the skew-symmetric parts of the matrices in the 3D matrix X.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li></ul>
+<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../manopt/manifolds/specialeuclidean/specialeuclideanfactory.html" class="code" title="function M = specialeuclideanfactory(n, k)">specialeuclideanfactory</a>	Returns a manifold structure to optimize over the special Euclidean group</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub4" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub5" class="code">function U = randomvec(X)</a></li><li><a href="#_sub6" class="code">function Y = pairmean(X1, X2)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub4" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub5" class="code">function U = randomvec(X)</a></li><li><a href="#_sub6" class="code">function Y = pairmean(X1, X2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = rotationsfactory(n, k)</a>
@@ -182,7 +182,7 @@ This function is called by:
 0115         U = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(U);
 0116     <span class="keyword">end</span>
 0117 
-0118     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0118     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
 0119     
 0120     M.rand = @() <a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(n, k);
 0121     
@@ -193,7 +193,7 @@ This function is called by:
 0126         U = U / nrmU;
 0127     <span class="keyword">end</span>
 0128     
-0129     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0129     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
 0130     
 0131     M.zerovec = @(x) zeros(n, n, k);
 0132     
@@ -211,21 +211,7 @@ This function is called by:
 0144     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
 0145     M.vecmatareisometries = @() true;
 0146 
-0147 <span class="keyword">end</span>
-0148 
-0149 <span class="comment">% Linear combination of tangent vectors</span>
-0150 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0151 
-0152     <span class="keyword">if</span> nargin == 3
-0153         d = a1*d1;
-0154     <span class="keyword">elseif</span> nargin == 5
-0155         d = a1*d1 + a2*d2;
-0156     <span class="keyword">else</span>
-0157         error(<span class="string">'Bad use of rotations.lincomb.'</span>);
-0158     <span class="keyword">end</span>
-0159 
-0160 <span class="keyword">end</span>
-0161</pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0147 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

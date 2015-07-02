@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of applyStatsfun</title>
+  <meta name="keywords" content="applyStatsfun">
+  <meta name="description" content="Apply the statsfun function to a stats structure (for solvers).">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; applyStatsfun.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>applyStatsfun
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Apply the statsfun function to a stats structure (for solvers).</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function stats = applyStatsfun(problem, x, storedb, key, options, stats) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Apply the statsfun function to a stats structure (for solvers).
+
+ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
+
+ Applies the options.statsfun user supplied function (if it was provided)
+ to the stats structure, and returns the (possibly) modified stats
+ structure.
+
+ storedb is a StoreDB object, key is the StoreDB key to point x.
+
+ Note: if statsfun accepts a store structure as input, this structure can
+ be read but not modified (modifications will be lost) ; the store
+ structure will contain the store.shared field.
+
+ See also:</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function stats = applyStatsfun(problem, x, storedb, key, options, stats)</a>
+0002 <span class="comment">% Apply the statsfun function to a stats structure (for solvers).</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function stats = applyStatsfun(problem, x, storedb, key, options, stats)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Applies the options.statsfun user supplied function (if it was provided)</span>
+0007 <span class="comment">% to the stats structure, and returns the (possibly) modified stats</span>
+0008 <span class="comment">% structure.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% storedb is a StoreDB object, key is the StoreDB key to point x.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Note: if statsfun accepts a store structure as input, this structure can</span>
+0013 <span class="comment">% be read but not modified (modifications will be lost) ; the store</span>
+0014 <span class="comment">% structure will contain the store.shared field.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% See also:</span>
+0017 
+0018 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0019 <span class="comment">% Original author: Nicolas Boumal, April 3, 2013.</span>
+0020 <span class="comment">% Contributors:</span>
+0021 <span class="comment">% Change log:</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   April 3, 2015 (NB):</span>
+0024 <span class="comment">%       Works with the new StoreDB class system.</span>
+0025 
+0026     <span class="keyword">if</span> isfield(options, <span class="string">'statsfun'</span>)
+0027         
+0028         <span class="keyword">switch</span> nargin(options.statsfun)
+0029             <span class="keyword">case</span> 3
+0030                 stats = options.statsfun(problem, x, stats);
+0031             <span class="keyword">case</span> 4
+0032                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0033                 <span class="comment">% get/setWithShared must come in pairs.</span>
+0034                 store = storedb.getWithShared(key);
+0035                 stats = options.statsfun(problem, x, stats, store);
+0036                 storedb.setWithShared(store, key);
+0037             <span class="keyword">otherwise</span>
+0038                 warning(<span class="string">'manopt:statsfun'</span>, <span class="keyword">...</span>
+0039                         <span class="string">'statsfun unused: wrong number of inputs'</span>);
+0040         <span class="keyword">end</span>
+0041     <span class="keyword">end</span>
+0042 
+0043 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

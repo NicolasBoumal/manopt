@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of essential_egradE2egrad</title>
+  <meta name="keywords" content="essential_egradE2egrad">
+  <meta name="description" content="Converts the gradient in essential matrix E to the gradient in X.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">essential</a> &gt; essential_egradE2egrad.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\essential&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>essential_egradE2egrad
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Converts the gradient in essential matrix E to the gradient in X.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function egrad = essential_egradE2egrad(X, egradE) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Converts the gradient in essential matrix E to the gradient in X.
+
+ function egrad = essential_egradE2egrad(X, egradE)
+
+ egradE is the function handle for the gradient in E.
+ 
+ The output is a matrix in the space of X.
+
+ See also: <a href="essential_costE2cost.html" class="code" title="function val = essential_costE2cost(X, costE)">essential_costE2cost</a> <a href="essential_ehessE2ehess.html" class="code" title="function ehess = essential_ehessE2ehess(X, egradE, ehessE, S)">essential_ehessE2ehess</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/essential_svd.html" class="code" title="function essential_svd">essential_svd</a>	Sample solution of an optimization problem on the essential manifold.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function egrad = essential_egradE2egrad(X, egradE)</a>
+0002 <span class="comment">% Converts the gradient in essential matrix E to the gradient in X.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function egrad = essential_egradE2egrad(X, egradE)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% egradE is the function handle for the gradient in E.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% The output is a matrix in the space of X.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% See also: essential_costE2cost essential_ehessE2ehess</span>
+0011 
+0012 
+0013 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0014 <span class="comment">% Original author: Roberto Tron, Aug. 8, 2014</span>
+0015 <span class="comment">% Contributors: Bamdev Mishra, May 22, 2015.</span>
+0016 
+0017     e3hat = [0 -1 0; 1 0 0; 0 0 0];
+0018     RA = X(:,1:3,:); 
+0019     RB = X(:,4:6,:);
+0020     E = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(RA), e3hat), RB); 
+0021     G =  egradE(E); 
+0022     
+0023     <span class="comment">%The following is the vectorized version of egrad = e3hat*[RB*G' -RA*G];</span>
+0024     egrad = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(e3hat, cat(2,<span class="keyword">...</span>
+0025         <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(RB, <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(G)),<span class="keyword">...</span>
+0026         -<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(RA, G)));
+0027 <span class="keyword">end</span>
+0028</pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

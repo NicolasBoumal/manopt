@@ -44,7 +44,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-</ul>
+<li><a href="../../examples/robust_pca.html" class="code" title="function [U, cost] = robust_pca(X, d)">robust_pca</a>	Computes a robust version of PCA (principal component analysis) on data.</li></ul>
 <!-- crossreference -->
 
 
@@ -70,7 +70,7 @@ This function is called by:
 0018     assert(ndims(A) &lt;= 3, <span class="keyword">...</span>
 0019            [<span class="string">'multiscale is only well defined for matrix arrays of 3 '</span> <span class="keyword">...</span>
 0020             <span class="string">'or less dimensions.'</span>]);
-0021     [n m N] = size(A);
+0021     [n, m, N] = size(A);
 0022     assert(numel(scale) == N, <span class="keyword">...</span>
 0023            [<span class="string">'scale must be a vector whose length equals the third '</span> <span class="keyword">...</span>
 0024             <span class="string">'dimension of A, that is, the number of 2D matrix slices '</span> <span class="keyword">...</span>
@@ -80,6 +80,6 @@ This function is called by:
 0028     A = reshape(bsxfun(@times, reshape(A, n*m, N), scale'), n, m, N);
 0029 
 0030 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

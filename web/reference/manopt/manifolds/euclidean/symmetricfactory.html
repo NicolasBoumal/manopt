@@ -43,7 +43,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -51,7 +51,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li><li><a href="#_sub3" class="code">function v = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li><li><a href="#_sub3" class="code">function u_mat = matricize(X, u_vec)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = symmetricfactory(n, k)</a>
@@ -92,7 +92,7 @@ This function is called by:
 0036     
 0037     M.egrad2rgrad = M.proj;
 0038     
-0039     <span class="comment">%M.ehess2rhess = @(x, eg, eh, d) eh;</span>
+0039     M.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
 0040     
 0041     M.tangent = @(x, d) d;
 0042     
@@ -109,7 +109,7 @@ This function is called by:
 0053     
 0054     M.log = @(x, y) y-x;
 0055 
-0056     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0056     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
 0057     
 0058     M.rand = @() <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(randn(n, n, k));
 0059     
@@ -119,28 +119,50 @@ This function is called by:
 0063         u = u / norm(u(:), <span class="string">'fro'</span>);
 0064     <span class="keyword">end</span>
 0065     
-0066     M.lincomb = @<a href="#_sub3" class="code" title="subfunction v = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
-0067     <a name="_sub3" href="#_subfunctions" class="code">function v = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0068         <span class="keyword">if</span> nargin == 3
-0069             v = a1*d1;
-0070         <span class="keyword">elseif</span> nargin == 5
-0071             v = a1*d1 + a2*d2;
-0072         <span class="keyword">else</span>
-0073             error(<span class="string">'Bad usage of euclidean.lincomb'</span>);
-0074         <span class="keyword">end</span>
-0075     <span class="keyword">end</span>
-0076     
-0077     M.zerovec = @(x) zeros(n, n, k);
-0078     
-0079     M.transp = @(x1, x2, d) d;
-0080     
-0081     M.pairmean = @(x1, x2) .5*(x1+x2);
-0082     
-0083     M.vec = @(x, u_mat) u_mat(:);
-0084     M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
-0085     M.vecmatareisometries = @() true;
-0086 
-0087 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0066     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0067     
+0068     M.zerovec = @(x) zeros(n, n, k);
+0069     
+0070     M.transp = @(x1, x2, d) d;
+0071     
+0072     M.pairmean = @(x1, x2) .5*(x1+x2);
+0073     
+0074     
+0075     <span class="comment">% Elaborate list of indices of diagonal entries of an nxnxk matrix.</span>
+0076     single_diag_entries = (1:(n+1):n^2)';
+0077     all_diag_entries = bsxfun(@plus, single_diag_entries, n^2*(0:(k-1)));
+0078     all_diag_entries = all_diag_entries(:);
+0079     
+0080     <span class="comment">% Likewise, elaborate list of indices of upper-triangular entries.</span>
+0081     single_upper_triangle = find(triu(ones(n), 1));
+0082     all_upper_triangle = bsxfun(@plus, single_upper_triangle, n^2*(0:(k-1)));
+0083     all_upper_triangle = all_upper_triangle(:);
+0084     
+0085     <span class="comment">% To vectorize a matrix, we extract all diagonal entries, then all</span>
+0086     <span class="comment">% upper-triangular entries, the latter being scaled by sqrt(2) to</span>
+0087     <span class="comment">% ensure isometry, that is: given two tangent vectors U and V at a</span>
+0088     <span class="comment">% point X, M.inner(X, U, V) is equal to u'*v, where u = M.vec(X, U) and</span>
+0089     <span class="comment">% likewise for v. This construction has the advantage of providing a</span>
+0090     <span class="comment">% vectorized representation of matrices that has the same length as the</span>
+0091     <span class="comment">% intrinsic dimension of the space they live in.</span>
+0092     M.vec = @(x, u_mat) [u_mat(all_diag_entries) ; <span class="keyword">...</span>
+0093                          sqrt(2)*u_mat(all_upper_triangle)];
+0094     M.mat = @<a href="#_sub3" class="code" title="subfunction u_mat = matricize(X, u_vec) ">matricize</a>;
+0095     <a name="_sub3" href="#_subfunctions" class="code">function u_mat = matricize(X, u_vec) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0096         u_mat = zeros(n, n, k);
+0097         u_mat(all_upper_triangle) = u_vec((k*n+1):end) / sqrt(2);
+0098         u_mat = u_mat + <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(u_mat);
+0099         u_mat(all_diag_entries) = u_vec(1:(k*n));
+0100     <span class="keyword">end</span>
+0101     M.vecmatareisometries = @() true;
+0102 
+0103 <span class="keyword">end</span>
+0104 
+0105 <span class="comment">% Former, easier versions for vec / mat. They had the disadvantage of</span>
+0106 <span class="comment">% giving vector representations of length k*n^2, instead of k*n*(n+1).</span>
+0107 <span class="comment">% M.vec = @(x, u_mat) u_mat(:);</span>
+0108 <span class="comment">% M.mat = @(x, u_vec) reshape(u_vec, [m, n]);</span>
+0109 <span class="comment">% M.vecmatareisometries = @() true;</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

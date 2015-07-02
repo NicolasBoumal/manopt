@@ -1,0 +1,389 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of low_rank_tensor_completion</title>
+  <meta name="keywords" content="low_rank_tensor_completion">
+  <meta name="description" content="Given partial observation of a low rank tensor, attempts to complete it.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; low_rank_tensor_completion.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>low_rank_tensor_completion
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Given partial observation of a low rank tensor, attempts to complete it.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function low_rank_tensor_completion() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Given partial observation of a low rank tensor, attempts to complete it.
+
+ function low_rank_tensor_completion()
+
+ This example demonstrates how to use the geometry factory for the
+ quotient manifold of fixed-rank tensors, 
+ fixedrankfactory_tucker_preconditioned.
+
+ This geometry is described in the technical report
+ &quot;Riemannian preconditioning for tensor completion&quot;
+ Hiroyuki Kasai and Bamdev Mishra, arXiv:1506.02159, 2015.
+
+ This can be a starting point for many optimization problems of the form:
+
+ minimize f(X) such that rank(X) = [r1 r2 r3], size(X) = [n1, n2, n3].
+
+ Input:  None. This example file generates random data.
+ 
+ Output: None.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/fixedranktensors/fixedrankfactory_tucker_preconditioned.html" class="code" title="function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)">fixedrankfactory_tucker_preconditioned</a>	Manifold of fixed-multilinear-rank tensors.</li><li><a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>	Converts a 3d Tucker form to a multiarray</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function f = cost(X)</a></li><li><a href="#_sub2" class="code">function [g] = egrad(X)</a></li><li><a href="#_sub3" class="code">function [Hess] = ehess(X, eta)</a></li><li><a href="#_sub4" class="code">function tmin = linesearch_helper(X, eta)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function low_rank_tensor_completion()</a>
+0002 <span class="comment">% Given partial observation of a low rank tensor, attempts to complete it.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function low_rank_tensor_completion()</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This example demonstrates how to use the geometry factory for the</span>
+0007 <span class="comment">% quotient manifold of fixed-rank tensors,</span>
+0008 <span class="comment">% fixedrankfactory_tucker_preconditioned.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% This geometry is described in the technical report</span>
+0011 <span class="comment">% &quot;Riemannian preconditioning for tensor completion&quot;</span>
+0012 <span class="comment">% Hiroyuki Kasai and Bamdev Mishra, arXiv:1506.02159, 2015.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% This can be a starting point for many optimization problems of the form:</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% minimize f(X) such that rank(X) = [r1 r2 r3], size(X) = [n1, n2, n3].</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Input:  None. This example file generates random data.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Output: None.</span>
+0021 
+0022 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% Main authors: Hiroyuki Kasai and Bamdev Mishra, June 16, 2015.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Change log:</span>
+0028 <span class="comment">%</span>
+0029     
+0030 
+0031     <span class="comment">% Random data generation with pseudo-random numbers from a</span>
+0032     <span class="comment">% uniform distribution on [0, 1].</span>
+0033     <span class="comment">% First, choose the size of the problem.</span>
+0034     <span class="comment">% We will complete a tensor of size n1-by-n2-by-n3 of rank (r1, r2, r3):</span>
+0035     n1 = 70;
+0036     n2 = 60;
+0037     n3 = 50;
+0038     r1 = 3;
+0039     r2 = 4;
+0040     r3 = 5;
+0041     tensor_dims = [n1 n2 n3];
+0042     core_dims = [r1 r2 r3];
+0043     total_entries = n1*n2*n3;
+0044     
+0045     <span class="comment">% Generate a random tensor A of size n1-by-n2-by-n3 of rank (r1, r2, r3).</span>
+0046     [U1,R1] = qr(rand(n1, r1), 0);
+0047     [U2,R2] = qr(rand(n2, r2), 0);
+0048     [U3,R3] = qr(rand(n3, r3), 0);
+0049 
+0050     Z.U1 = R1;
+0051     Z.U2 = R2;
+0052     Z.U3 = R3;   
+0053     Z.G = rand( core_dims );
+0054     Core = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(Z); <span class="comment">% Converts tucker format tensor to full tensor.</span>
+0055 
+0056     Y.U1 = U1;
+0057     Y.U2 = U2;
+0058     Y.U3 = U3;
+0059     Y.G = Core;
+0060     A = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(Y);       
+0061     
+0062     <span class="comment">% Generate a random mask P for observed entries: P(i, j, k) = 1 if the entry</span>
+0063     <span class="comment">% (i, j, k) of A is observed, and 0 otherwise.</span>
+0064     <span class="comment">% Observation ratio</span>
+0065     fraction = 0.1; <span class="comment">% Fraction of known entries.</span>
+0066     nr = round(fraction * total_entries);
+0067     ind = randperm(total_entries);
+0068     ind = ind(1 : nr);
+0069     P = false(tensor_dims);
+0070     P(ind) = true;    
+0071     <span class="comment">% Hence, we know the nonzero entries in PA:</span>
+0072     PA = P.*A;  
+0073     
+0074 
+0075     
+0076     
+0077     <span class="comment">% Pick the manifold of tensors of size n1-by-n2-by-n3 of rank (r1, r2, r3).</span>
+0078     problem.M = <a href="../manopt/manifolds/fixedranktensors/fixedrankfactory_tucker_preconditioned.html" class="code" title="function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)">fixedrankfactory_tucker_preconditioned</a>(tensor_dims, core_dims);
+0079     
+0080     
+0081     
+0082     
+0083     <span class="comment">% Define the problem cost function. The input X is a structure with</span>
+0084     <span class="comment">% fields U1, U2, U3, G representing a rank (r1,r2,r3) tensor.</span>
+0085     <span class="comment">% f(X) = 1/2 * || P.*(X - A) ||^2</span>
+0086     problem.cost = @<a href="#_sub1" class="code" title="subfunction f = cost(X)">cost</a>;
+0087     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
+0088         Xmultiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X);
+0089         Diffmultiarray = P.*Xmultiarray - PA;
+0090         Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
+0091         f = .5*norm( Diffmultiarray_flat , <span class="string">'fro'</span>)^2;
+0092     <span class="keyword">end</span>
+0093 
+0094 
+0095     
+0096     
+0097     <span class="comment">% Define the Euclidean gradient of the cost function, that is, the</span>
+0098     <span class="comment">% gradient of f(X) seen as a standard function of X.</span>
+0099     <span class="comment">% nabla f(X) = P.*(X-A)</span>
+0100     <span class="comment">% We only need to give the Euclidean gradient, Manopt converts it internally</span>
+0101     problem.egrad =  @<a href="#_sub2" class="code" title="subfunction [g] = egrad(X)">egrad</a>;
+0102     <a name="_sub2" href="#_subfunctions" class="code">function [g] = egrad(X)</a>
+0103         Xmultiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X);
+0104         Smultiarray = P.*Xmultiarray - PA;     
+0105 
+0106         <span class="comment">% BM: computation of S, S1, S2, and S3</span>
+0107         S1multiarray = reshape(Smultiarray, [n1, n2*n3]);
+0108         S2multiarray = reshape(permute(Smultiarray, [2 1 3]),[n2, n1*n3]);
+0109         S3multiarray = reshape(permute(Smultiarray, [3 1 2]),[n3, n1*n2]);
+0110 
+0111         g.U1 = double(S1multiarray) * kron(X.U3, X.U2) * reshape(X.G, r1, r2*r3)';
+0112         g.U2 = double(S2multiarray) * kron(X.U3, X.U1) * reshape(permute(X.G, [2 1 3]), r2, r1*r3)';
+0113         g.U3 = double(S3multiarray) * kron(X.U2, X.U1) * reshape(permute(X.G, [3 1 2]), r3, r1*r2)';
+0114         g.G = reshape(X.U1' * reshape(double(Smultiarray),n1,n2*n3) * kron(X.U3', X.U2')', r1, r2, r3);  
+0115     <span class="keyword">end</span>
+0116     
+0117     
+0118     
+0119     
+0120     
+0121     <span class="comment">% Define the Euclidean Hessian of the cost at X, along eta, where eta is</span>
+0122     <span class="comment">% represented as a tangent vector: a structure with fields U1, U2, U3, G.</span>
+0123     <span class="comment">% This is the directional derivative of nabla f(X) at X along Xdot:</span>
+0124     <span class="comment">% nabla^2 f(X)[Xdot] = P.*Xdot</span>
+0125     <span class="comment">% We only need to give the Euclidean Hessian, Manopt converts it internally.</span>
+0126     problem.ehess = @<a href="#_sub3" class="code" title="subfunction [Hess] = ehess(X, eta)">ehess</a>;
+0127     <a name="_sub3" href="#_subfunctions" class="code">function [Hess] = ehess(X, eta)</a>
+0128 
+0129         <span class="comment">% Computing S, and its unfolding matrices, S1, S2, and S3.</span>
+0130         Xmultiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X);
+0131         S = P.*Xmultiarray - PA;     
+0132         S1 = reshape(S, [n1, n2*n3]);
+0133         S2 = reshape(permute(S, [2 1 3]),[n2, n1*n3]);
+0134         S3 = reshape(permute(S, [3 1 2]),[n3, n1*n2]);            
+0135 
+0136         <span class="comment">% Computing Sdot, S1dot, S2dot and S3dot.</span>
+0137         XG = X.G;
+0138         etaG = eta.G;
+0139         G1 = zeros(4*size(X.G));
+0140         G1(1:r1, 1:r2, 1:r3) = XG;
+0141         G1(r1 + 1 : 2*r1, r2 + 1 : 2*r2, r3 + 1 : 2*r3) = XG;
+0142         G1(2*r1 + 1 : 3*r1, 2*r2 + 1 : 3*r2, 2*r3 + 1 : 3*r3) = XG;
+0143         G1(3*r1 + 1 : 4*r1, 3*r2 + 1 : 4*r2, 3*r3 + 1 : 4*r3) = etaG;      
+0144              
+0145         X1.G = G1;
+0146         X1.U1 = [eta.U1 X.U1 X.U1 X.U1];
+0147         X1.U2 = [X.U2 eta.U2 X.U2 X.U2];
+0148         X1.U3 = [X.U3 X.U3 eta.U3 X.U3];
+0149         
+0150         X1multiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X1);
+0151         Sdot = P.*X1multiarray;
+0152         S1dot = reshape(Sdot, [n1, n2*n3]);
+0153         S2dot = reshape(permute(Sdot, [2 1 3]),[n2, n1*n3]);
+0154         S3dot = reshape(permute(Sdot, [3 1 2]),[n3, n1*n2]);
+0155         
+0156         <span class="comment">% Computing unfolding matrices of X.G and eta.G.</span>
+0157         X_G1 = reshape(double(X.G),r1, r2*r3);
+0158         X_G2 = reshape(permute(double(X.G),[2 1 3]),r2, r1*r3);
+0159         X_G3 = reshape(permute(double(X.G),[3 1 2]),r3, r1*r2);
+0160         eta_G1 = reshape(double(eta.G),r1, r2*r3);
+0161         eta_G2 = reshape(permute(double(eta.G),[2 1 3]),r2, r1*r3);
+0162         eta_G3 = reshape(permute(double(eta.G),[3 1 2]),r3, r1*r2);             
+0163 
+0164         <span class="comment">% Computing Hessians for U1, U2 and U3.</span>
+0165         T1 = double(S1dot) * (kron(X.U3,X.U2)*X_G1') <span class="keyword">...</span>
+0166             + double(S1) * (kron(eta.U3,X.U2)*X_G1' <span class="keyword">...</span>
+0167             + kron(X.U3,eta.U2)*X_G1' + kron(X.U3,X.U2)*eta_G1');
+0168         
+0169         T2 = double(S2dot) * (kron(X.U3,X.U1)*X_G2') <span class="keyword">...</span>
+0170             + double(S2) * (kron(eta.U3,X.U1)*X_G2' <span class="keyword">...</span>
+0171             + kron(X.U3,eta.U1)*X_G2' + kron(X.U3,X.U1)*eta_G2');
+0172 
+0173         T3 = double(S3dot) * (kron(X.U2,X.U1)*X_G3') <span class="keyword">...</span>
+0174             + double(S3) * (kron(eta.U2,X.U1)*X_G3' <span class="keyword">...</span>
+0175             + kron(X.U2,eta.U1)*X_G3' + kron(X.U2,X.U1)*eta_G3');
+0176         
+0177         Hess.U1 = T1;
+0178         Hess.U2 = T2;
+0179         Hess.U3 = T3;  
+0180         
+0181         <span class="comment">% Computing Hessian for G</span>
+0182         N.U1 = X.U1';
+0183         N.U2 = X.U2';
+0184         N.U3 = X.U3';
+0185         N.G = Sdot;
+0186         M0array = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(N);
+0187         
+0188         M1.U1 = eta.U1';
+0189         M1.U2 = X.U2';
+0190         M1.U3 = X.U3';
+0191         M1.G = S;    
+0192         M1array = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(M1);
+0193         
+0194         M2.U1 = X.U1';
+0195         M2.U2 = eta.U2';
+0196         M2.U3 = X.U3';
+0197         M2.G = S;    
+0198         M2array = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(M2); 
+0199         
+0200         M3.U1 = X.U1';
+0201         M3.U2 = X.U2';
+0202         M3.U3 = eta.U3';
+0203         M3.G = S;    
+0204         M3array = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(M3);   
+0205         
+0206         Hess.G = M0array + M1array + M2array + M3array; 
+0207     <span class="keyword">end</span>
+0208     
+0209 
+0210  
+0211 
+0212     <span class="comment">% Check consistency of the gradient and the Hessian. Useful if you</span>
+0213     <span class="comment">% adapt this example for a new cost function and you would like to make</span>
+0214     <span class="comment">% sure there is no mistake.</span>
+0215     <span class="comment">%</span>
+0216     <span class="comment">% Notice that the checkhessian test fails: the slope is not right.</span>
+0217     <span class="comment">% This is because the retraction is not second-order compatible with</span>
+0218     <span class="comment">% the Riemannian exponential on this manifold, making</span>
+0219     <span class="comment">% the checkhessian tool unusable. The Hessian is correct though.</span>
+0220     <span class="comment">% % warning('off', 'manopt:fixedrankfactory_tucker_preconditioned:exp');</span>
+0221     <span class="comment">% % checkgradient(problem);</span>
+0222     <span class="comment">% % drawnow;</span>
+0223     <span class="comment">% % pause;</span>
+0224     <span class="comment">% % checkhessian(problem);</span>
+0225     <span class="comment">% % drawnow;</span>
+0226     <span class="comment">% % pause;</span>
+0227     
+0228 
+0229     
+0230     <span class="comment">% options</span>
+0231     options.maxiter = 200;
+0232     options.maxinner = 30;
+0233     options.maxtime = inf;
+0234     options.tolgradnorm = 1e-5;     
+0235 
+0236 
+0237     
+0238     
+0239     <span class="comment">% Minimize the cost function using Riemannian trust-regions</span>
+0240     Xtr = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options);
+0241 
+0242     
+0243     
+0244     <span class="comment">% The reconstructed tensor is X, represented as a structure with fields</span>
+0245     <span class="comment">% U1, U2, U3 and G.</span>
+0246     Xtrmultiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(Xtr);
+0247     fprintf(<span class="string">'||X-A||_F = %g\n'</span>, norm(reshape(Xtrmultiarray - A, [n1 n2*n3]), <span class="string">'fro'</span>));   
+0248     
+0249    
+0250     
+0251     
+0252     <span class="comment">% Alternatively, we could decide to use a solver such as steepestdescent (SD)</span>
+0253     <span class="comment">% or conjugategradient (CG). These solvers need to solve a</span>
+0254     <span class="comment">% line-search problem at each iteration. Standard line searches in</span>
+0255     <span class="comment">% Manopt have generic purpose systems to do this. But for the problem</span>
+0256     <span class="comment">% at hand, we could exploit the least-squares structure to compute an</span>
+0257     <span class="comment">% approximate stepsize for the line-search problem. The approximation</span>
+0258     <span class="comment">% is obtained by linearizing the nonlinear manifold locally and</span>
+0259     <span class="comment">% approximating it further with a degree 2 polynomial approximation.</span>
+0260     <span class="comment">% The specific derivation is in the paper referenced above.</span>
+0261     
+0262     problem.linesearch = @<a href="#_sub4" class="code" title="subfunction tmin = linesearch_helper(X, eta)">linesearch_helper</a>;
+0263     <a name="_sub4" href="#_subfunctions" class="code">function tmin = linesearch_helper(X, eta)</a>
+0264         
+0265         <span class="comment">% term0</span>
+0266         Xmultiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X);
+0267         residual_mat = P.*Xmultiarray - PA;     
+0268         residual_vec = residual_mat(:);
+0269         term0 = residual_vec;
+0270         
+0271         <span class="comment">% term1</span>
+0272         XG = X.G;
+0273         etaG = eta.G;        
+0274         G1 = zeros(4*size(X.G));
+0275         G1(1:r1, 1:r2, 1:r3) = XG;
+0276         G1(r1 + 1 : 2*r1, r2 + 1 : 2*r2, r3 + 1 : 2*r3) = XG;
+0277         G1(2*r1 + 1 : 3*r1, 2*r2 + 1 : 3*r2, 2*r3 + 1 : 3*r3) = XG;
+0278         G1(3*r1 + 1 : 4*r1, 3*r2 + 1 : 4*r2, 3*r3 + 1 : 4*r3) = etaG;  
+0279 
+0280         X1.U1 = [eta.U1 X.U1 X.U1 X.U1];
+0281         X1.U2 = [X.U2 eta.U2 X.U2 X.U2];
+0282         X1.U3 = [X.U3 X.U3 eta.U3 X.U3];
+0283         X1.G = G1;
+0284         
+0285         X1multiarray = <a href="../manopt/manifolds/fixedranktensors/tucker2multiarray.html" class="code" title="function GU1U2U3 = tucker2multiarray(X)">tucker2multiarray</a>(X1);
+0286         term1_mat = P.*X1multiarray;    
+0287         term1 = term1_mat(:);
+0288         
+0289         <span class="comment">% tmin is the solution to the problem argmin a2*t^2 + a1*t.</span>
+0290         a2 = (term1'*term1);
+0291         a1 = 2*(term1'*term0);
+0292         tmin = - 0.5*(a1 / a2);
+0293         
+0294     <span class="keyword">end</span>    
+0295 
+0296     <span class="comment">% Notice that for this solver, the Hessian is not needed.</span>
+0297     [Xcg, costcg, infocg] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, [], options);
+0298     
+0299     fprintf(<span class="string">'Take a look at the options that CG used:\n'</span>);
+0300     disp(options);
+0301     fprintf(<span class="string">'And see how many trials were made at each line search call:\n'</span>);
+0302     info_ls = [infocg.linesearch];
+0303     disp([info_ls.costevals]); 
+0304     
+0305     
+0306      
+0307     fprintf(<span class="string">'Try it again without the linesearch helper.\n'</span>);
+0308     
+0309     <span class="comment">% Remove the linesearch helper from the problem structure.</span>
+0310     problem = rmfield(problem, <span class="string">'linesearch'</span>);
+0311     
+0312     [Xcg, xcost, info, options] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, []); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0313     
+0314     fprintf(<span class="string">'Take a look at the options that CG used:\n'</span>);
+0315     disp(options);
+0316     fprintf(<span class="string">'And see how many trials were made at each line search call:\n'</span>);
+0317     info_ls = [info.linesearch];
+0318     disp([info_ls.costevals]);
+0319     
+0320     
+0321     
+0322 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

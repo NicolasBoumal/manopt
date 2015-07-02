@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stoppingcriterion</title>
+  <meta name="keywords" content="stoppingcriterion">
+  <meta name="description" content="Checks for standard stopping criteria, as a helper to solvers.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; stoppingcriterion.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>stoppingcriterion
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Checks for standard stopping criteria, as a helper to solvers.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [stop, reason] = stoppingcriterion(problem, x, options, info, last) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks for standard stopping criteria, as a helper to solvers.
+
+ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
+
+ Executes standard stopping criterion checks, based on what is defined in
+ the info(last) stats structure and in the options structure.
+
+ The returned number 'stop' is 0 if none of the stopping criteria
+ triggered, and a (strictly) positive integer otherwise. The integer
+ identifies which criterion triggered:
+  0 : Nothing triggered;
+  1 : Cost tolerance reached;
+  2 : Gradient norm tolerance reached;
+  3 : Max time exceeded;
+  4 : Max iteration count reached;
+  5 : Maximum number of cost evaluations reached;
+  6 : User defined stopfun criterion triggered.
+
+ The output 'reason' is a string describing the triggered event.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stop, reason] = stoppingcriterion(problem, x, options, info, last)</a>
+0002 <span class="comment">% Checks for standard stopping criteria, as a helper to solvers.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [stop, reason] = stoppingcriterion(problem, x, options, info, last)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Executes standard stopping criterion checks, based on what is defined in</span>
+0007 <span class="comment">% the info(last) stats structure and in the options structure.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% The returned number 'stop' is 0 if none of the stopping criteria</span>
+0010 <span class="comment">% triggered, and a (strictly) positive integer otherwise. The integer</span>
+0011 <span class="comment">% identifies which criterion triggered:</span>
+0012 <span class="comment">%  0 : Nothing triggered;</span>
+0013 <span class="comment">%  1 : Cost tolerance reached;</span>
+0014 <span class="comment">%  2 : Gradient norm tolerance reached;</span>
+0015 <span class="comment">%  3 : Max time exceeded;</span>
+0016 <span class="comment">%  4 : Max iteration count reached;</span>
+0017 <span class="comment">%  5 : Maximum number of cost evaluations reached;</span>
+0018 <span class="comment">%  6 : User defined stopfun criterion triggered.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% The output 'reason' is a string describing the triggered event.</span>
+0021 
+0022 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0023 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0024 <span class="comment">% Contributors:</span>
+0025 <span class="comment">% Change log:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%   April 2, 2015 (NB):</span>
+0028 <span class="comment">%       'reason' now contains the option (name and value) that triggered.</span>
+0029 
+0030 
+0031     stop = 0;
+0032     reason = <span class="string">''</span>;
+0033     
+0034     stats = info(last);
+0035 
+0036     <span class="comment">% Target cost attained</span>
+0037     <span class="keyword">if</span> isfield(stats, <span class="string">'cost'</span>) &amp;&amp; isfield(options, <span class="string">'tolcost'</span>) &amp;&amp; <span class="keyword">...</span>
+0038        stats.cost &lt;= options.tolcost
+0039         reason = sprintf(<span class="string">'Cost tolerance reached; options.tolcost = %g.'</span>, options.tolcost);
+0040         stop = 1;
+0041         <span class="keyword">return</span>;
+0042     <span class="keyword">end</span>
+0043 
+0044     <span class="comment">% Target gradient norm attained</span>
+0045     <span class="keyword">if</span> isfield(stats, <span class="string">'gradnorm'</span>) &amp;&amp; isfield(options, <span class="string">'tolgradnorm'</span>) &amp;&amp; <span class="keyword">...</span>
+0046        stats.gradnorm &lt; options.tolgradnorm
+0047         reason = sprintf(<span class="string">'Gradient norm tolerance reached; options.tolgradnorm = %g.'</span>, options.tolgradnorm);
+0048         stop = 2;
+0049         <span class="keyword">return</span>;
+0050     <span class="keyword">end</span>
+0051 
+0052     <span class="comment">% Allotted time exceeded</span>
+0053     <span class="keyword">if</span> isfield(stats, <span class="string">'time'</span>) &amp;&amp; isfield(options, <span class="string">'maxtime'</span>) &amp;&amp; <span class="keyword">...</span>
+0054        stats.time &gt;= options.maxtime
+0055         reason = sprintf(<span class="string">'Max time exceeded; options.maxtime = %g.'</span>, options.maxtime);
+0056         stop = 3;
+0057         <span class="keyword">return</span>;
+0058     <span class="keyword">end</span>
+0059 
+0060     <span class="comment">% Allotted iteration count exceeded</span>
+0061     <span class="keyword">if</span> isfield(stats, <span class="string">'iter'</span>) &amp;&amp; isfield(options, <span class="string">'maxiter'</span>) &amp;&amp; <span class="keyword">...</span>
+0062        stats.iter &gt;= options.maxiter
+0063         reason = sprintf(<span class="string">'Max iteration count reached; options.maxiter = %g.'</span>, options.maxiter);
+0064         stop = 4;
+0065         <span class="keyword">return</span>;
+0066     <span class="keyword">end</span>
+0067     
+0068     <span class="comment">% Allotted function evaluation count exceeded</span>
+0069     <span class="keyword">if</span> isfield(stats, <span class="string">'costevals'</span>) &amp;&amp; isfield(options, <span class="string">'maxcostevals'</span>) &amp;&amp; <span class="keyword">...</span>
+0070        stats.costevals &gt;= options.maxcostevals
+0071         reason = sprintf(<span class="string">'Maximum number of cost evaluations reached; options.maxcostevals = %g.'</span>, options.maxcostevals);
+0072         stop = 5;
+0073     <span class="keyword">end</span>
+0074 
+0075     <span class="comment">% Check whether the possibly user defined stopping criterion</span>
+0076     <span class="comment">% triggers or not.</span>
+0077     <span class="keyword">if</span> isfield(options, <span class="string">'stopfun'</span>)
+0078         userstop = options.stopfun(problem, x, info, last);
+0079         <span class="keyword">if</span> userstop
+0080             reason = <span class="string">'User defined stopfun criterion triggered; see options.stopfun.'</span>;
+0081             stop = 6;
+0082             <span class="keyword">return</span>;
+0083         <span class="keyword">end</span>
+0084     <span class="keyword">end</span>
+0085 
+0086 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of essential_distMinAngle</title>
+  <meta name="keywords" content="essential_distMinAngle">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="../index.html">essential</a> &gt; <a href="index.html">privateessential</a> &gt; essential_distMinAngle.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\essential\privateessential&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
+
+<h1>essential_distMinAngle
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="essential_distMinAngle.html" class="code" title="function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin)">essential_distMinAngle</a>	</li><li><a href="essential_distMinAnglePair.html" class="code" title="function [tMin,fMin,tBreak1,tBreak2,Q2,tMinAll]=essential_distMinAnglePair(Q1,Q2,kFlip)">essential_distMinAnglePair</a>	</li><li><a href="modAngle.html" class="code" title="function a=modAngle(a)">modAngle</a>	Maps any angle to the equivalent between -pi and pi</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="essential_closestRepresentative.html" class="code" title="function Q2r=essential_closestRepresentative(Q1,Q2,varargin)">essential_closestRepresentative</a>	</li><li><a href="essential_distMinAngle.html" class="code" title="function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin)">essential_distMinAngle</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin)</a>
+0002 NQ1=size(Q1,3);
+0003 NQ2=size(Q2,3);
+0004 
+0005 <span class="keyword">if</span> NQ1==1 &amp;&amp; NQ2&gt;1
+0006     Q1=repmat(Q1,[1 1 NQ2]);
+0007     NQ1=NQ2;
+0008 <span class="keyword">end</span>
+0009 <span class="keyword">if</span> NQ1&gt;1 &amp;&amp; NQ2==1
+0010     Q2=repmat(Q2,[1 1 NQ1]);
+0011 <span class="keyword">end</span>
+0012 
+0013 <span class="keyword">if</span> NQ1&gt;1
+0014     tMin=zeros(NQ1,1);
+0015     fMin=zeros(NQ1,1);
+0016     Q2Flip=zeros(6,3,NQ1);
+0017     <span class="keyword">if</span> nargout&gt;3
+0018         output=repmat(struct(<span class="string">'tMin'</span>,[],<span class="string">'fMin'</span>,[],<span class="string">'tBreak1'</span>,[],<span class="string">'tBreak2'</span>,[]),NQ1,1);
+0019     <span class="keyword">end</span>
+0020     <span class="keyword">for</span> iQ=1:NQ1
+0021         <span class="keyword">if</span> nargout&gt;3
+0022             [tMin(iQ),fMin(iQ),Q2Flip(:,:,iQ),output(iQ)]=<span class="keyword">...</span>
+0023                 <a href="essential_distMinAngle.html" class="code" title="function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin)">essential_distMinAngle</a>(Q1(:,:,iQ),Q2(:,:,iQ),varargin{:});
+0024         <span class="keyword">else</span>
+0025             [tMin(iQ),fMin(iQ),Q2Flip(:,:,iQ)]=<span class="keyword">...</span>
+0026                 <a href="essential_distMinAngle.html" class="code" title="function [tMin,fMin,Q2Flip,output]=essential_distMinAngle(Q1,Q2,varargin)">essential_distMinAngle</a>(Q1(:,:,iQ),Q2(:,:,iQ),varargin{:});
+0027         <span class="keyword">end</span>
+0028     <span class="keyword">end</span>
+0029 <span class="keyword">else</span>
+0030     flagModTMin=false;
+0031     flagSigned=false;
+0032 
+0033     <span class="comment">%optional parameters</span>
+0034     ivarargin=1;
+0035     <span class="keyword">while</span>(ivarargin&lt;=length(varargin))
+0036         <span class="keyword">switch</span>(lower(varargin{ivarargin}))
+0037             <span class="keyword">case</span> <span class="string">'flagmodtmin'</span>
+0038                 ivarargin=ivarargin+1;
+0039                 flagModTMin=varargin{ivarargin};
+0040             <span class="keyword">case</span> <span class="string">'signed'</span>
+0041                 flagSigned=true;
+0042             <span class="keyword">case</span> <span class="string">'flagsigned'</span>
+0043                 ivarargin=ivarargin+1;
+0044                 flagSigned=varargin{ivarargin};
+0045             <span class="keyword">otherwise</span>
+0046                     error([<span class="string">'Argument '</span> varargin{ivarargin} <span class="string">' not valid!'</span>])
+0047         <span class="keyword">end</span>
+0048         ivarargin=ivarargin+1;
+0049     <span class="keyword">end</span>
+0050 
+0051     tMin=zeros(4,1);
+0052     fMin=zeros(4,1);
+0053     tBreak1=zeros(4,1);
+0054     tBreak2=zeros(4,1);
+0055     Q2Flip=zeros(6,3,4);
+0056     <span class="keyword">if</span> ~flagSigned
+0057         <span class="keyword">for</span> k=1:4
+0058             [tMin(k),fMin(k),tBreak1(k),tBreak2(k),Q2Flip(:,:,k)]=<span class="keyword">...</span>
+0059                 <a href="essential_distMinAnglePair.html" class="code" title="function [tMin,fMin,tBreak1,tBreak2,Q2,tMinAll]=essential_distMinAnglePair(Q1,Q2,kFlip)">essential_distMinAnglePair</a>(Q1,Q2,k);
+0060         <span class="keyword">end</span>
+0061     <span class="keyword">else</span>
+0062         [tMin,fMin,tBreak1,tBreak2,Q2Flip]=<span class="keyword">...</span>
+0063             <a href="essential_distMinAnglePair.html" class="code" title="function [tMin,fMin,tBreak1,tBreak2,Q2,tMinAll]=essential_distMinAnglePair(Q1,Q2,kFlip)">essential_distMinAnglePair</a>(Q1,Q2,1);
+0064     <span class="keyword">end</span>    
+0065 
+0066     <span class="keyword">if</span> flagModTMin
+0067         tMin=<a href="modAngle.html" class="code" title="function a=modAngle(a)">modAngle</a>(tMin);
+0068     <span class="keyword">end</span>
+0069 
+0070     <span class="keyword">if</span> nargout&gt;3
+0071         output.tMin=tMin;
+0072         output.fMin=fMin;
+0073         output.tBreak1=tBreak1;
+0074         output.tBreak2=tBreak2;
+0075     <span class="keyword">end</span>
+0076 
+0077     <span class="keyword">if</span> ~flagSigned
+0078         [fMin,idxMin]=min(fMin);
+0079         fMin=max(fMin,0);
+0080         tMin=tMin(idxMin);
+0081         Q2Flip=Q2Flip(:,:,idxMin);
+0082         <span class="keyword">if</span> nargout&gt;3
+0083             output.idxMin=idxMin;
+0084         <span class="keyword">end</span>
+0085     <span class="keyword">end</span>
+0086 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

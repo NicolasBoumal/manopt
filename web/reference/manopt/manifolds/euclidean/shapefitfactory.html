@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of shapefitfactory</title>
+  <meta name="keywords" content="shapefitfactory">
+  <meta name="description" content="Linear manifold structure for optimization over the ShapeFit search space">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; shapefitfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>shapefitfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Linear manifold structure for optimization over the ShapeFit search space</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = shapefitfactory(VJt) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Linear manifold structure for optimization over the ShapeFit search space
+
+ function M = shapefitfactory(VJt)
+
+ Input: VJt is a matrix of size dxn, such that VJt * ones(n, 1) = 0.
+
+ Returns M, a structure describing the Euclidean space of d-by-n matrices
+ equipped with the standard Frobenius distance and associated trace inner
+ product, as a manifold for Manopt. Matrices on M, denoted by T, have size
+ dxn and obey T*ones(n, 1) = 0 (centered columns) and &lt;VJt, T&gt; = 1, where
+ &lt;A, B&gt; = Trace(A' * B).
+
+ See this paper: http://arxiv.org/abs/1506.01437
+ ShapeFit: Exact location recovery from corrupted pairwise directions, 2015
+ Paul Hand, Choongbum Lee, Vladislav Voroninski
+
+ See also: shapefit_smoothed</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/shapefit_smoothed.html" class="code" title="function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)">shapefit_smoothed</a>	ShapeFit formulation for sensor network localization from pair directions</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function PU = projection(U)</a></li><li><a href="#_sub2" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub3" class="code">function u = randvec()</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = shapefitfactory(VJt)</a>
+0002 <span class="comment">% Linear manifold structure for optimization over the ShapeFit search space</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = shapefitfactory(VJt)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input: VJt is a matrix of size dxn, such that VJt * ones(n, 1) = 0.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns M, a structure describing the Euclidean space of d-by-n matrices</span>
+0009 <span class="comment">% equipped with the standard Frobenius distance and associated trace inner</span>
+0010 <span class="comment">% product, as a manifold for Manopt. Matrices on M, denoted by T, have size</span>
+0011 <span class="comment">% dxn and obey T*ones(n, 1) = 0 (centered columns) and &lt;VJt, T&gt; = 1, where</span>
+0012 <span class="comment">% &lt;A, B&gt; = Trace(A' * B).</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% See this paper: http://arxiv.org/abs/1506.01437</span>
+0015 <span class="comment">% ShapeFit: Exact location recovery from corrupted pairwise directions, 2015</span>
+0016 <span class="comment">% Paul Hand, Choongbum Lee, Vladislav Voroninski</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% See also: shapefit_smoothed</span>
+0019 
+0020 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0021 <span class="comment">% Original author: Nicolas Boumal, June 18, 2015.</span>
+0022 <span class="comment">% Contributors:</span>
+0023 <span class="comment">% Change log:</span>
+0024     
+0025     [d, n] = size(VJt);
+0026 
+0027     M.name = @() sprintf(<span class="string">'ShapeFit space of size %d x %d'</span>, d, n);
+0028     
+0029     M.dim = @() d*n - d - 1;
+0030     
+0031     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0032     
+0033     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0034     
+0035     M.dist = @(x, y) norm(x-y, <span class="string">'fro'</span>);
+0036     
+0037     M.typicaldist = @() sqrt(d*n);
+0038     
+0039     M.proj = @(T, U) <a href="#_sub1" class="code" title="subfunction PU = projection(U)">projection</a>(U);
+0040     VJt_normed = VJt / norm(VJt, <span class="string">'fro'</span>);
+0041     <a name="_sub1" href="#_subfunctions" class="code">function PU = projection(U)</a>
+0042         <span class="comment">% Center the columns</span>
+0043         PU = bsxfun(@minus, U, mean(U, 2));
+0044         <span class="comment">% Remove component along VJt</span>
+0045         <span class="comment">% Note: these two actions can be executed separately, without</span>
+0046         <span class="comment">% interference, owing to VJt having centered columns itself.</span>
+0047         PU = PU - (VJt_normed(:)'*U(:))*VJt_normed;
+0048     <span class="keyword">end</span>
+0049     
+0050     M.egrad2rgrad = M.proj;
+0051     
+0052     M.ehess2rhess = @(x, eg, eh, d) <a href="#_sub1" class="code" title="subfunction PU = projection(U)">projection</a>(eh);
+0053     
+0054     M.tangent = @(x, d) d;
+0055     
+0056     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0057     <a name="_sub2" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0058         <span class="keyword">if</span> nargin == 3
+0059             y = x + t*d;
+0060         <span class="keyword">else</span>
+0061             y = x + d;
+0062         <span class="keyword">end</span>
+0063     <span class="keyword">end</span>
+0064     
+0065     M.retr = M.exp;
+0066     
+0067     M.log = @(x, y) y-x;
+0068 
+0069     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0070     
+0071     M.randvec = @(x) <a href="#_sub3" class="code" title="subfunction u = randvec()">randvec</a>();
+0072     <a name="_sub3" href="#_subfunctions" class="code">function u = randvec()</a>
+0073         u = <a href="#_sub1" class="code" title="subfunction PU = projection(U)">projection</a>(randn(d, n));
+0074         u = u / norm(u, <span class="string">'fro'</span>);
+0075     <span class="keyword">end</span>
+0076     
+0077     <span class="comment">% We exploit the fact that VJt_normed belongs to the manifold</span>
+0078     M.rand = @() VJt_normed + randn(1) * <a href="#_sub3" class="code" title="subfunction u = randvec()">randvec</a>();
+0079     
+0080     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0081     
+0082     M.zerovec = @(x) zeros(d, n);
+0083     
+0084     M.transp = @(x1, x2, d) d;
+0085     
+0086     M.pairmean = @(x1, x2) .5*(x1+x2);
+0087     
+0088     M.vec = @(x, u_mat) u_mat(:);
+0089     M.mat = @(x, u_vec) reshape(u_vec, [d, n]);
+0090     M.vecmatareisometries = @() true;
+0091 
+0092 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

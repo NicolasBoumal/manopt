@@ -1,0 +1,509 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fixedrankfactory_tucker_preconditioned</title>
+  <meta name="keywords" content="fixedrankfactory_tucker_preconditioned">
+  <meta name="description" content="Manifold of fixed-multilinear-rank tensors.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">fixedranktensors</a> &gt; fixedrankfactory_tucker_preconditioned.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\fixedranktensors&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>fixedrankfactory_tucker_preconditioned
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of fixed-multilinear-rank tensors.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of fixed-multilinear-rank tensors.
+
+ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
+
+ n1 = tensor_size(1);
+ n2 = tensor_size(2);
+ n3 = tensor_size(3);
+ r1 = tensor_rank(1);
+ r2 = tensor_rank(2);
+ r3 = tensor_rank(3);
+
+ A point X on the manifold is represented as a structure with four
+ fields: U1, U2, U3 and G. 
+
+ The matrices U1 (n1-by-r1), U2 (n2-by-r2) and U3 (n3-by-r3) are orthogonal
+ matrices.
+ G (r1-by-r2-r3) is a multidimensional array.
+
+ Tangent vectors are represented as a structure with four fields: U1, U2, U3
+ and G.
+
+ Please cite the Manopt paper as well as the research paper:
+     @TechReport{kasai2015precon,
+       Title   = {{R}iemannian preconditioning for tensor completion},
+       Author  = {Kasai, H. and Mishra, B.},
+       Journal = {Arxiv preprint arXiv:1506.02159},
+       Year    = {2015}
+     }</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/low_rank_tensor_completion.html" class="code" title="function low_rank_tensor_completion()">low_rank_tensor_completion</a>	Given partial observation of a low rank tensor, attempts to complete it.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function X = prepare(X)</a></li><li><a href="#_sub2" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub3" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub4" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub5" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub6" class="code">function AOmegax = compute_residual(Omegax)</a></li><li><a href="#_sub7" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub8" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub9" class="code">function X = random()</a></li><li><a href="#_sub10" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub11" class="code">function d = lincomb(X, a1, d1, a2, d2)</a></li><li><a href="#_sub12" class="code">function U = uf(A)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)</a>
+0002 <span class="comment">% Manifold of fixed-multilinear-rank tensors.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% n1 = tensor_size(1);</span>
+0007 <span class="comment">% n2 = tensor_size(2);</span>
+0008 <span class="comment">% n3 = tensor_size(3);</span>
+0009 <span class="comment">% r1 = tensor_rank(1);</span>
+0010 <span class="comment">% r2 = tensor_rank(2);</span>
+0011 <span class="comment">% r3 = tensor_rank(3);</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% A point X on the manifold is represented as a structure with four</span>
+0014 <span class="comment">% fields: U1, U2, U3 and G.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% The matrices U1 (n1-by-r1), U2 (n2-by-r2) and U3 (n3-by-r3) are orthogonal</span>
+0017 <span class="comment">% matrices.</span>
+0018 <span class="comment">% G (r1-by-r2-r3) is a multidimensional array.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Tangent vectors are represented as a structure with four fields: U1, U2, U3</span>
+0021 <span class="comment">% and G.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0024 <span class="comment">%     @TechReport{kasai2015precon,</span>
+0025 <span class="comment">%       Title   = {{R}iemannian preconditioning for tensor completion},</span>
+0026 <span class="comment">%       Author  = {Kasai, H. and Mishra, B.},</span>
+0027 <span class="comment">%       Journal = {Arxiv preprint arXiv:1506.02159},</span>
+0028 <span class="comment">%       Year    = {2015}</span>
+0029 <span class="comment">%     }</span>
+0030 
+0031 <span class="comment">% Original authors: Hiroyuki Kasai and Bamdev Mishra, June 05, 2015.</span>
+0032 <span class="comment">% Contributors:</span>
+0033 <span class="comment">% Change log:</span>
+0034 
+0035     <span class="keyword">if</span> length(tensor_rank) &gt; 3
+0036         error(<span class="string">'Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.'</span>);
+0037     <span class="keyword">end</span>
+0038     
+0039     <span class="comment">% Tensor size</span>
+0040     n1 = tensor_size(1);
+0041     n2 = tensor_size(2);
+0042     n3 = tensor_size(3);
+0043     
+0044     <span class="comment">% Core size or multilinear rank</span>
+0045     r1 = tensor_rank(1);
+0046     r2 = tensor_rank(2);
+0047     r3 = tensor_rank(3);
+0048     
+0049     
+0050     speyer1 = speye(r1); <span class="comment">% Sparse version of identity that is used in M.proj</span>
+0051     speyer2 = speye(r2);
+0052     speyer3 = speye(r3);
+0053     
+0054 
+0055     M.name = @() sprintf(<span class="string">'G x U1 x U2 x U3 quotient Tucker manifold of %d-by-%d-by-%d tensor of rank %d-by-%d-by-%d.'</span>, n1, n2, n3, r1, r2, r3);
+0056     
+0057     M.dim = @() n1*r1-r1^2 + n2*r2-r2^2 + n3*r3-r3^2 + r1*r2*r3;
+0058     
+0059     <span class="comment">% Some precomputations at point X to be used in the inner product (and</span>
+0060     <span class="comment">% pretty much everywhere else)</span>
+0061     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
+0062         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'G1G1t'</span>,<span class="string">'G1'</span>,<span class="keyword">...</span>
+0063                 <span class="string">'G2G2t'</span>,<span class="string">'G2'</span>, <span class="keyword">...</span>
+0064                 <span class="string">'G3G3t'</span>,<span class="string">'G3'</span>}) == 1)
+0065             
+0066             X.G1 =  reshape(X.G, r1, r2*r3);
+0067             X.G1G1t = X.G1*X.G1'; <span class="comment">% Positive definite</span>
+0068             
+0069             
+0070             X.G2 = reshape(permute(X.G, [2 1 3]), r2, r1*r3); 
+0071             X.G2G2t = X.G2*X.G2'; <span class="comment">% Positive definite</span>
+0072             
+0073             
+0074             X.G3 = reshape(permute(X.G, [3 1 2]), r3, r1*r2);  
+0075             X.G3G3t = X.G3*X.G3'; <span class="comment">% Positive definite</span>
+0076         <span class="keyword">end</span>
+0077         
+0078         
+0079     <span class="keyword">end</span>
+0080     
+0081     <span class="comment">% Choice of metric is motivated by symmetry and tuned to least-squares</span>
+0082     <span class="comment">% cost function</span>
+0083     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0084     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0085         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0086         ip =  trace(X.G1G1t*(eta.U1'*zeta.U1)) <span class="keyword">...</span>
+0087             + trace(X.G2G2t*(eta.U2'*zeta.U2)) <span class="keyword">...</span>
+0088             + trace(X.G3G3t*(eta.U3'*zeta.U3)) <span class="keyword">...</span>
+0089             + (eta.G(:)'*zeta.G(:));
+0090     <span class="keyword">end</span>
+0091     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0092     
+0093     M.dist = @(x, y) error(<span class="string">'fixedrankfactory_tucker_preconditioned.dist not implemented yet.'</span>);
+0094     
+0095     M.typicaldist = @() 10*n1*r1; <span class="comment">% BM: To do</span>
+0096     
+0097     skew = @(X) .5*(X-X');
+0098     symm = @(X) .5*(X+X');
+0099     
+0100     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0101     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0102         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X); <span class="comment">% Reuse already computed terms</span>
+0103         SSU1 = X.G1G1t;
+0104         ASU1 = 2*symm(SSU1*(X.U1' * egrad.U1));
+0105         
+0106         SSU2 = X.G2G2t;
+0107         ASU2 = 2*symm(SSU2*(X.U2' * egrad.U2));
+0108         
+0109         SSU3 = X.G3G3t;
+0110         ASU3 = 2*symm(SSU3*(X.U3' * egrad.U3));
+0111         
+0112         BU1 = lyap(SSU1, -ASU1);
+0113         BU2 = lyap(SSU2, -ASU2);
+0114         BU3 = lyap(SSU3, -ASU3);
+0115         
+0116         <span class="comment">% The Riemannian gradient is on the horization space from</span>
+0117         <span class="comment">% the Riemannian submersion theory.</span>
+0118         <span class="comment">% No need to further project on it.</span>
+0119         rgrad.U1 = (egrad.U1 - X.U1*BU1)/X.G1G1t;
+0120         rgrad.U2 = (egrad.U2 - X.U2*BU2)/X.G2G2t;
+0121         rgrad.U3 = (egrad.U3 - X.U3*BU3)/X.G3G3t;
+0122         rgrad.G = egrad.G;
+0123     <span class="keyword">end</span>
+0124     
+0125     
+0126     
+0127     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta) ">ehess2rhess</a>;
+0128     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta) </a><span class="comment">% To Do</span>
+0129         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X); <span class="comment">% Reuse already computed terms</span>
+0130         
+0131         <span class="comment">% Riemannian gradient</span>
+0132         SSU1 = X.G1G1t;
+0133         ASU1 = 2*symm(SSU1*(X.U1' * egrad.U1));
+0134         SSU2 = X.G2G2t;
+0135         ASU2 = 2*symm(SSU2*(X.U2' * egrad.U2));
+0136         SSU3 = X.G3G3t;
+0137         ASU3 = 2*symm(SSU3*(X.U3' * egrad.U3));
+0138         
+0139         BU1 = lyap(SSU1, -ASU1);
+0140         BU2 = lyap(SSU2, -ASU2);
+0141         BU3 = lyap(SSU3, -ASU3);
+0142         
+0143         rgrad.U1 = (egrad.U1 - X.U1*BU1)/X.G1G1t;
+0144         rgrad.U2 = (egrad.U2 - X.U2*BU2)/X.G2G2t;
+0145         rgrad.U3 = (egrad.U3 - X.U3*BU3)/X.G3G3t;
+0146         rgrad.G = egrad.G;
+0147         
+0148         <span class="comment">% Directional derivative of Riemannian gradient</span>
+0149         
+0150         eta_G1 = reshape(eta.G, r1, r2*r3); <span class="comment">% double(tenmat(eta.G,1));</span>
+0151         eta_G2 = reshape(permute(eta.G, [2 1 3]), r2, r1*r3); <span class="comment">% double(tenmat(eta.G,2));</span>
+0152         eta_G3 = reshape(permute(eta.G, [3 1 2]), r3, r1*r2); <span class="comment">% double(tenmat(eta.G,3));</span>
+0153         egrad_G1 = reshape(egrad.G, r1, r2*r3); <span class="comment">% double(tenmat(egrad.G,1));</span>
+0154         egrad_G2 = reshape(permute(egrad.G, [2 1 3]), r2, r1*r3); <span class="comment">% double(tenmat(egrad.G,2));</span>
+0155         egrad_G3 = reshape(permute(egrad.G, [3 1 2]), r3, r1*r2); <span class="comment">% double(tenmat(egrad.G,3));</span>
+0156         ehess_G1 = reshape(ehess.G, r1, r2*r3); <span class="comment">% double(tenmat(ehess.G,1));</span>
+0157         ehess_G2 = reshape(permute(ehess.G, [2 1 3]), r2, r1*r3); <span class="comment">% double(tenmat(ehess.G,2));</span>
+0158         ehess_G3 = reshape(permute(ehess.G, [3 1 2]), r3, r1*r2); <span class="comment">% double(tenmat(ehess.G,3));</span>
+0159         rgrad_G1 = reshape(rgrad.G, r1, r2*r3); <span class="comment">% double(tenmat(rgrad.G,1));</span>
+0160         rgrad_G2 = reshape(permute(rgrad.G, [2 1 3]), r2, r1*r3); <span class="comment">% double(tenmat(rgrad.G,2));</span>
+0161         rgrad_G3 = reshape(permute(rgrad.G, [3 1 2]), r3, r1*r2); <span class="comment">% double(tenmat(rgrad.G,3));</span>
+0162         
+0163         ASU1dot = 2*symm((2*symm(X.G1*eta_G1')*(egrad_G1*X.G1')) + X.G1G1t*(ehess_G1*X.G1' + egrad_G1*eta_G1')) - 4*symm(symm(eta_G1*X.G1')*BU1);
+0164         ASU2dot = 2*symm((2*symm(X.G2*eta_G2')*(egrad_G2*X.G2')) + X.G2G2t*(ehess_G2*X.G2' + egrad_G2*eta_G2')) - 4*symm(symm(eta_G2*X.G2')*BU2);
+0165         ASU3dot = 2*symm((2*symm(X.G3*eta_G3')*(egrad_G3*X.G3')) + X.G3G3t*(ehess_G3*X.G3' + egrad_G3*eta_G3')) - 4*symm(symm(eta_G3*X.G3')*BU3);
+0166         
+0167         
+0168         SSU1dot = X.G1G1t;
+0169         SSU2dot = X.G2G2t;
+0170         SSU3dot = X.G3G3t;
+0171         BU1dot = lyap(SSU1dot, -ASU1dot);
+0172         BU2dot = lyap(SSU2dot, -ASU2dot);
+0173         BU3dot = lyap(SSU3dot, -ASU3dot);
+0174         
+0175         
+0176         Hess.U1 = (ehess.U1 - eta.U1*BU1 - X.U1*BU1dot - 2*rgrad.U1*symm(eta_G1*X.G1'))/X.G1G1t;
+0177         Hess.U2 = (ehess.U2 - eta.U2*BU2 - X.U2*BU2dot - 2*rgrad.U2*symm(eta_G2*X.G2'))/X.G2G2t;
+0178         Hess.U3 = (ehess.U3 - eta.U3*BU3 - X.U3*BU3dot - 2*rgrad.U3*symm(eta_G3*X.G3'))/X.G3G3t;
+0179         Hess.G = ehess.G;
+0180         
+0181         
+0182         
+0183         <span class="comment">% BM: we need a correction factor for the non-constant metric</span>
+0184         <span class="comment">% The correction factor owes itself to the Koszul formula.</span>
+0185         <span class="comment">% This is the Riemannian connection in the Euclidean space with the</span>
+0186         <span class="comment">% scaled metric.</span>
+0187         
+0188         
+0189         Hess.U1 = Hess.U1 + (eta.U1*symm(rgrad_G1*X.G1') + rgrad.U1*symm(eta_G1*X.G1'))/X.G1G1t;
+0190         Hess.U2 = Hess.U2 + (eta.U2*symm(rgrad_G2*X.G2') + rgrad.U2*symm(eta_G2*X.G2'))/X.G2G2t;
+0191         Hess.U3 = Hess.U3 + (eta.U3*symm(rgrad_G3*X.G3') + rgrad.U3*symm(eta_G3*X.G3'))/X.G3G3t;
+0192         Hess.G = Hess.G  - permute(reshape(symm(rgrad.U1'*eta.U1)*X.G1,r1,r2,r3), [1 2 3]) <span class="keyword">...</span>
+0193             - permute(reshape(symm(rgrad.U2'*eta.U2)*X.G2,r2,r1,r3), [2 1 3]) <span class="keyword">...</span>
+0194             - permute(reshape(symm(rgrad.U3'*eta.U3)*X.G3,r3,r1,r2), [2 3 1]);
+0195         
+0196         <span class="comment">% The Riemannian connection on the quotient space is the</span>
+0197         <span class="comment">% projection on the tangent space of the total space and then onto the horizontal</span>
+0198         <span class="comment">% space. This is accomplished with the following operation.</span>
+0199         
+0200         Hess = M.proj(X, Hess);
+0201         
+0202         
+0203     <span class="keyword">end</span>
+0204     
+0205     
+0206     
+0207     
+0208     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0209     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0210         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X); <span class="comment">% Reuse already computed terms</span>
+0211         
+0212         <span class="comment">% First, projection onto tangent space of total space</span>
+0213         SSU1 = X.G1G1t;
+0214         ASU1 = 2*symm(X.G1G1t*(X.U1'*eta.U1)*X.G1G1t);
+0215         BU1 = lyap(SSU1, -ASU1);
+0216         eta.U1 = eta.U1 - X.U1*(BU1/X.G1G1t);
+0217         
+0218         SSU2 = X.G2G2t;
+0219         ASU2 = 2*symm(X.G2G2t*(X.U2'*eta.U2)*X.G2G2t);
+0220         BU2 = lyap(SSU2, -ASU2);
+0221         eta.U2 = eta.U2 - X.U2*(BU2/X.G2G2t);
+0222         
+0223         SSU3 = X.G3G3t;
+0224         ASU3 = 2*symm(X.G3G3t*(X.U3'*eta.U3)*X.G3G3t);
+0225         BU3 = lyap(SSU3, -ASU3);
+0226         eta.U3 = eta.U3 - X.U3*(BU3/X.G3G3t);
+0227         
+0228 
+0229         eta_G1 = reshape(eta.G, r1, r2*r3); 
+0230         eta_G2 = reshape(permute(eta.G, [2 1 3]), r2, r1*r3); 
+0231         eta_G3 = reshape(permute(eta.G, [3 1 2]), r3, r1*r2);
+0232         
+0233         
+0234         <span class="comment">% Project onto the horizontal space.</span>
+0235         PU1 = skew((X.U1'*eta.U1)*X.G1G1t) + skew(X.G1*eta_G1');
+0236         PU2 = skew((X.U2'*eta.U2)*X.G2G2t) + skew(X.G2*eta_G2');
+0237         PU3 = skew((X.U3'*eta.U3)*X.G3G3t) + skew(X.G3*eta_G3');
+0238         
+0239         <span class="comment">% Calculate Omega1, Omega2, Omega3 that are required in finding the</span>
+0240         <span class="comment">% horizontal component. Currently, we are using a simple iterative</span>
+0241         <span class="comment">% technique to solve the system of equations.</span>
+0242         <span class="comment">%</span>
+0243         <span class="comment">% We use the Matlab's pcg function to solve the system efficiently.</span>
+0244         <span class="comment">% We exploit the structure by designing a good preconditioner as well.</span>
+0245         <span class="comment">% The preconditioner takes the block positive definite part of the</span>
+0246         <span class="comment">% linear system.</span>
+0247         
+0248         <span class="comment">% Options for PCG</span>
+0249         tol_omegax_pcg = 1e-6; <span class="comment">% BM: standard tolerance as suggested in PCG.</span>
+0250         max_iterations_pcg = 15;<span class="comment">% BM: fix this to 15 for simulations. In practice, it requires 7 to 10 iteraions.</span>
+0251         
+0252         <span class="comment">% Preconditioner for PCG</span>
+0253         M1 = kron(speyer1,SSU1) + kron(SSU1, speyer1);
+0254         M2 = kron(speyer2,SSU2) + kron(SSU2, speyer2);
+0255         M3 = kron(speyer3,SSU3) + kron(SSU3, speyer3);
+0256         
+0257         Mprecon_pcg = sparse(zeros(r1^2 + r2^2 + r3^2));
+0258         Mprecon_pcg(1 : r1^2, 1 : r1^2 ) = M1;
+0259         Mprecon_pcg(1 + r1^2 : r1^2 + r2^2, 1 + r1^2 : r1^2 + r2^2) = M2;
+0260         Mprecon_pcg(1 + r1^2 + r2^2 : <span class="keyword">end</span>, 1 + r1^2 + r2^2 : end) = M3;
+0261         
+0262         <span class="comment">% Call PCG</span>
+0263         [Omegaxsol, unused] = pcg(@<a href="#_sub6" class="code" title="subfunction AOmegax = compute_residual(Omegax)">compute_residual</a>, [PU1(:); PU2(:); PU3(:)],  tol_omegax_pcg, max_iterations_pcg, Mprecon_pcg);
+0264         
+0265         Omega1 = reshape(Omegaxsol(1:r1^2), r1, r1);
+0266         Omega2 = reshape(Omegaxsol(1 + r1^2 : r1^2 + r2^2), r2, r2);
+0267         Omega3 = reshape(Omegaxsol(1 + r1^2 + r2^2 : end), r3, r3);
+0268             
+0269         <a name="_sub6" href="#_subfunctions" class="code">function AOmegax = compute_residual(Omegax)</a>
+0270             Omegax1 = reshape(Omegax(1:r1^2), r1, r1);
+0271             Omegax2 = reshape(Omegax(1 + r1^2 : r1^2 + r2^2), r2, r2);
+0272             Omegax3 = reshape(Omegax(1 + r1^2 + r2^2 : end), r3, r3);
+0273             
+0274             OffsetU1 = X.G1*((kron(speyer3,Omegax2) + kron(Omegax3, speyer2))*X.G1');
+0275             OffsetU2 = X.G2*((kron(speyer3,Omegax1) + kron(Omegax3, speyer1))*X.G2');
+0276             OffsetU3 = X.G3*((kron(speyer2,Omegax1) + kron(Omegax2, speyer1))*X.G3');
+0277             
+0278             residual1 = Omegax1*SSU1 + SSU1*Omegax1 - OffsetU1;
+0279             residual2 = Omegax2*SSU2 + SSU2*Omegax2 - OffsetU2;
+0280             residual3 = Omegax3*SSU3 + SSU3*Omegax3 - OffsetU3;
+0281             
+0282             AOmegax = [residual1(:); residual2(:); residual3(:)];
+0283         <span class="keyword">end</span>
+0284         
+0285         
+0286         <span class="comment">% Calculate projection along U1, U2, and U3</span>
+0287         etaproj.U1 = eta.U1 - (X.U1*Omega1);
+0288         etaproj.U2 = eta.U2 - (X.U2*Omega2);
+0289         etaproj.U3 = eta.U3 - (X.U3*Omega3);
+0290         
+0291         <span class="comment">% Calculate projection algong G</span>
+0292         GOmega1 = reshape(Omega1*X.G1, r1, r2, r3);
+0293         GOmega2 = permute(reshape(Omega2*X.G2, r2, r1, r3), [2 1 3]);
+0294         GOmega3 = permute(reshape(Omega3*X.G3, r3, r1, r2), [2 3 1]); 
+0295         etaproj.G = eta.G -(-(GOmega1+GOmega2+GOmega3));
+0296     <span class="keyword">end</span>
+0297     
+0298     
+0299     
+0300     M.tangent = M.proj;
+0301     M.tangent2ambient = @(X, eta) eta;
+0302     
+0303     M.retr = @<a href="#_sub7" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0304     <a name="_sub7" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0305         <span class="keyword">if</span> nargin &lt; 3
+0306             t = 1.0;
+0307         <span class="keyword">end</span>
+0308         
+0309         Y.G = (X.G + t*eta.G);
+0310         Y.U1 = <a href="#_sub12" class="code" title="subfunction U = uf(A) ">uf</a>((X.U1 + t*eta.U1)); <span class="comment">% U factor of Polar factorization</span>
+0311         Y.U2 = <a href="#_sub12" class="code" title="subfunction U = uf(A) ">uf</a>((X.U2 + t*eta.U2));
+0312         Y.U3 = <a href="#_sub12" class="code" title="subfunction U = uf(A) ">uf</a>((X.U3 + t*eta.U3));
+0313         
+0314         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
+0315     <span class="keyword">end</span>
+0316     
+0317     M.exp = @<a href="#_sub8" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0318     <a name="_sub8" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0319         <span class="keyword">if</span> nargin &lt; 3
+0320             t = 1.0;
+0321         <span class="keyword">end</span>
+0322         Y = <a href="#_sub7" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
+0323         warning(<span class="string">'manopt:fixedrankfactory_tucker_preconditioned:exp'</span>, <span class="keyword">...</span>
+0324             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
+0325             <span class="string">'Tucker manifold not implemented yet. Used retraction instead.'</span>]);
+0326     <span class="keyword">end</span>
+0327     
+0328     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([sum(X.U1(:)) ; sum(X.U2(:)); sum(X.U3(:)); sum(X.G(:)) ])]; <span class="comment">% Efficient, suggested by Bart Vandereycken.</span>
+0329     <span class="comment">% M.hash = @(X) ['z' hashmd5([X.U1(:); X.U2(:); X.U3(:); X.G(:)])];</span>
+0330     
+0331     M.rand = @<a href="#_sub9" class="code" title="subfunction X = random()">random</a>;
+0332     <a name="_sub9" href="#_subfunctions" class="code">function X = random()</a>
+0333         <span class="comment">%         % Random generator on the total space</span>
+0334         <span class="comment">%         % Factors U1, U2, and U3 are on Stiefel manifolds, hence we reuse</span>
+0335         <span class="comment">%         % their random generator.</span>
+0336         <span class="comment">%         stiefell = stiefelfactory(n1, r1);</span>
+0337         <span class="comment">%         stiefelm = stiefelfactory(n2, r2);</span>
+0338         <span class="comment">%         stiefeln = stiefelfactory(n3, r3);</span>
+0339         <span class="comment">%</span>
+0340         <span class="comment">%         X.U1 = stiefell.rand();</span>
+0341         <span class="comment">%         X.U2 = stiefelm.rand();</span>
+0342         <span class="comment">%         X.U3 = stiefeln.rand();</span>
+0343         <span class="comment">%</span>
+0344         <span class="comment">%         % Random initialization: generalization of randn(r1, r1 = r2) in the</span>
+0345         <span class="comment">%         % matrix case.</span>
+0346         <span class="comment">%         X.G = randn(r1,r2,r3);</span>
+0347         
+0348         
+0349         <span class="comment">%  Random generator on the fixed-rank space from a uniform distribution on [0, 1].</span>
+0350         [U1, R1] = qr(rand(n1, r1), 0);
+0351         [U2, R2] = qr(rand(n2, r2), 0);
+0352         [U3, R3] = qr(rand(n3, r3), 0);
+0353         C  = rand(r1, r2, r3);
+0354         
+0355         C1 = reshape(C, r1, r2*r3);
+0356         CR1 = reshape(R1*C1, r1, r2, r3); <span class="comment">% Multplication by R1</span>
+0357         
+0358         C2 = reshape(permute(CR1, [2 1 3]), r2, r1*r3);
+0359         CR1R2 = permute(reshape(R2*C2, r2, r1, r3), [2 1 3]); <span class="comment">% Multplication by R2</span>
+0360         
+0361         C3 = reshape(permute(CR1R2, [3 1 2]), r3, r1*r2);
+0362         CR1R2R3 = permute(reshape(R3*C3, r3, r1, r2), [2 3 1]); <span class="comment">% Multplication by R3</span>
+0363         
+0364         X.U1 = U1;
+0365         X.U2 = U2;
+0366         X.U3 = U3;
+0367         X.G = CR1R2R3;
+0368     
+0369         
+0370         
+0371         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0372         
+0373     <span class="keyword">end</span>
+0374     
+0375     M.randvec = @<a href="#_sub10" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0376     <a name="_sub10" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0377         <span class="comment">% A random vector on the horizontal space</span>
+0378         eta.U1 = randn(n1, r1);
+0379         eta.U2 = randn(n2, r2);
+0380         eta.U3 = randn(n3, r3);
+0381         eta.G = randn(r1, r2, r3);
+0382         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0383         nrm = M.norm(X, eta);
+0384         eta.U1 = eta.U1 / nrm;
+0385         eta.U2 = eta.U2 / nrm;
+0386         eta.U3 = eta.U3 / nrm;
+0387         eta.G = eta.G / nrm;
+0388     <span class="keyword">end</span>
+0389     
+0390     M.lincomb = @<a href="#_sub11" class="code" title="subfunction d = lincomb(X, a1, d1, a2, d2) ">lincomb</a>;
+0391     
+0392     M.zerovec = @(X) struct(<span class="string">'U1'</span>, zeros(n1, r1), <span class="string">'U2'</span>, zeros(n2, r2), <span class="keyword">...</span>
+0393         <span class="string">'U3'</span>, zeros(n3, r3), <span class="string">'G'</span>, zeros(r1, r2, r3));
+0394     
+0395     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
+0396     
+0397     <span class="comment">% vec and mat are not isometries, because of scaled metric</span>
+0398     M.vec = @(X, U1) [U1.U1(:); U1.U2(:); U1.U3(:); U1.G(:)];
+0399     M.mat = @(X, u) struct <span class="keyword">...</span>
+0400         (<span class="string">'U1'</span>, reshape(u(1  : n1*r1), n1, r1), <span class="keyword">...</span>
+0401         <span class="string">'U2'</span>, reshape(u(n1*r1 + 1 : n1*r1 + n2*r2), n2, r2), <span class="keyword">...</span>
+0402         <span class="string">'U3'</span>, reshape(u(n1*r1 + n2*r2 + 1 : n1*r1 + n2*r2 + n3*r3), n3, r3), <span class="keyword">...</span>
+0403         <span class="string">'G'</span>, reshape(u(n1*r1 + n2*r2 + n3*r3 + 1 : end), r1, r2, r3));
+0404     M.vecmatareisometries = @() false;
+0405     
+0406 <span class="keyword">end</span>
+0407 
+0408 <span class="comment">% Linear combination of tangent vectors</span>
+0409 <a name="_sub11" href="#_subfunctions" class="code">function d = lincomb(X, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0410     
+0411     <span class="keyword">if</span> nargin == 3
+0412         d.U1 = a1*d1.U1;
+0413         d.U2 = a1*d1.U2;
+0414         d.U3 = a1*d1.U3;
+0415         d.G = a1*d1.G;
+0416     <span class="keyword">elseif</span> nargin == 5
+0417         d.U1 = a1*d1.U1 + a2*d2.U1;
+0418         d.U2 = a1*d1.U2 + a2*d2.U2;
+0419         d.U3 = a1*d1.U3 + a2*d2.U3;
+0420         d.G = a1*d1.G + a2*d2.G;
+0421     <span class="keyword">else</span>
+0422         error(<span class="string">'Bad use of fixedrankfactory_tucker_preconditioned.lincomb.'</span>);
+0423     <span class="keyword">end</span>
+0424     
+0425 <span class="keyword">end</span>
+0426 
+0427 <a name="_sub12" href="#_subfunctions" class="code">function U = uf(A) </a><span class="comment">% U factor of Polar factorization of A</span>
+0428     [L, unused, R] = svd(A, 0); <span class="comment">%#ok</span>
+0429     U = L*R';
+0430 <span class="keyword">end</span>
+0431 
+0432 
+0433</pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

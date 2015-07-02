@@ -1,0 +1,6 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+
+  fixedrankfactory_tucker_preconditioned [URL="fixedrankfactory_tucker_preconditioned.html"];
+  tucker2multiarray [URL="tucker2multiarray.html"];
+}

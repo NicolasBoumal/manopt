@@ -44,7 +44,7 @@
  Note that the code is long because it showcases quite a few features of
  Manopt: most of the code is optional.
 
- Input:  None. This example file generate random data.
+ Input:  None. This example file generates random data.
  
  Output: None.</pre></div>
 
@@ -52,7 +52,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/fixedrank/fixedrankembeddedfactory.html" class="code" title="function M = fixedrankembeddedfactory(m, n, k)">fixedrankembeddedfactory</a>	Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../manopt/manifolds/fixedrank/fixedrankembeddedfactory.html" class="code" title="function M = fixedrankembeddedfactory(m, n, k)">fixedrankembeddedfactory</a>	Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -81,14 +81,14 @@ This function is called by:
 0016 <span class="comment">% Note that the code is long because it showcases quite a few features of</span>
 0017 <span class="comment">% Manopt: most of the code is optional.</span>
 0018 <span class="comment">%</span>
-0019 <span class="comment">% Input:  None. This example file generate random data.</span>
+0019 <span class="comment">% Input:  None. This example file generates random data.</span>
 0020 <span class="comment">%</span>
 0021 <span class="comment">% Output: None.</span>
 0022 
 0023 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
 0024 <span class="comment">%</span>
 0025 <span class="comment">% Main author: Nicolas Boumal, July 15, 2014</span>
-0026 <span class="comment">% Contributors:</span>
+0026 <span class="comment">% Contributors: Bart Vandereycken</span>
 0027 <span class="comment">%</span>
 0028 <span class="comment">% Change log:</span>
 0029 <span class="comment">%</span>
@@ -241,7 +241,7 @@ This function is called by:
 0176     <span class="keyword">end</span>
 0177 
 0178     <span class="comment">% Notice that for this solver, the Hessian is not needed.</span>
-0179     [Xcg, xcost, info, options] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0);
+0179     [Xcg, xcost, info, options] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
 0180     
 0181     fprintf(<span class="string">'Take a look at the options that CG used:\n'</span>);
 0182     disp(options);
@@ -261,7 +261,7 @@ This function is called by:
 0196     <span class="comment">% Remove the linesearch helper from the problem structure.</span>
 0197     problem = rmfield(problem, <span class="string">'linesearch'</span>);
 0198     
-0199     [Xcg, xcost, info, options] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0);
+0199     [Xcg, xcost, info, options] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, X0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
 0200     
 0201     fprintf(<span class="string">'Take a look at the options that CG used:\n'</span>);
 0202     disp(options);
@@ -284,7 +284,7 @@ This function is called by:
 0219     <span class="comment">% should not be relied upon.</span>
 0220     <span class="keyword">if</span> problem.M.dim() &lt; 100
 0221         fprintf(<span class="string">'Computing the spectrum of the Hessian...'</span>);
-0222         s = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, sqrtprec)">hessianspectrum</a>(problem, X);
+0222         s = <a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>(problem, X);
 0223         hist(s);
 0224     <span class="keyword">end</span>
 0225     
@@ -292,6 +292,6 @@ This function is called by:
 0227     
 0228     
 0229 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

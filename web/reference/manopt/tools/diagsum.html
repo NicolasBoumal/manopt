@@ -145,14 +145,14 @@ This function is called by:
 0091     nontracedimensions(d2)=[];
 0092 <span class="keyword">end</span>
 0093 tracedsize=size(tracedtensor);
-0094 <span class="comment">% Next line modified, Nicolas Boumal, April 30, 2012, such that diagsum(A,</span>
-0095 <span class="comment">% 1, 2) would compute the trace of A, a 2D matrix.</span>
+0094 <span class="comment">% Next line modified, Nicolas Boumal, April 30, 2012, such that</span>
+0095 <span class="comment">% diagsum(A, 1, 2) would compute the trace of A, a 2D matrix.</span>
 0096 <span class="keyword">if</span> length(tracedsize)==2 &amp;&amp; tracedsize(2)==1 &amp;&amp; <span class="keyword">...</span>
 0097    (isempty(nontracedimensions) || tracedsize(1)~=nontracedimensions(1))
 0098 
 0099     tracedtensor=tracedtensor.';
 0100     
 0101 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

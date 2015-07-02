@@ -79,16 +79,16 @@ This function is called by:
 0022     residues = zeros(length(x)-window_length, 1);
 0023     polys = zeros(2, length(residues));
 0024     <span class="keyword">for</span> i = 1 : length(residues)
-0025         range = i:i+window_length;
+0025         range = i:(i+window_length);
 0026         [poly, meta] = polyfit(x(range), y(range), 1);
 0027         residues(i) = meta.normr;
 0028         polys(:, i) = poly';
 0029     <span class="keyword">end</span>
 0030     [unused, best] = min(residues); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0031     range = best:best+window_length;
+0031     range = best:(best+window_length);
 0032     poly = polys(:, best)';
 0033 
 0034 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

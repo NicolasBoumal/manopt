@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of handle_light</title>
+  <meta name="keywords" content="handle_light">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; handle_light.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>handle_light
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="handle_light.html" class="code" title="">handle_light</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="handle_light.html" class="code" title="">handle_light</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function lh = addlistener(varargin)</a></li><li><a href="#_sub2" class="code">function notify(varargin)</a></li><li><a href="#_sub3" class="code">function delete(varargin)</a></li><li><a href="#_sub4" class="code">function Hmatch = findobj(varargin)</a></li><li><a href="#_sub5" class="code">function p = findprop(varargin)</a></li><li><a href="#_sub6" class="code">function TF = eq(varargin)</a></li><li><a href="#_sub7" class="code">function TF = ne(varargin)</a></li><li><a href="#_sub8" class="code">function TF = lt(varargin)</a></li><li><a href="#_sub9" class="code">function TF = le(varargin)</a></li><li><a href="#_sub10" class="code">function TF = gt(varargin)</a></li><li><a href="#_sub11" class="code">function TF = ge(varargin)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 classdef <a href="handle_light.html" class="code" title="">handle_light</a> &<a href="#_sub8" class="code" title="subfunction TF = lt(varargin)">lt</a>; handle
+0002 <span class="comment">% Trick class to hide methods inherited from the handle class</span>
+0003 <span class="comment">% when calling methods(myclass).</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Source:</span>
+0006 <span class="comment">% http://stackoverflow.com/questions/6621850/is-it-possible-to-hide-the-methods-inherited-from-the-handle-class-in-matlab</span>
+0007 <span class="comment">% Posted by sclarke81 on StackOverflow on Oct. 24, 2012.</span>
+0008 
+0009 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0010 <span class="comment">% Original author: sclarke81, added April 3, 2013.</span>
+0011 <span class="comment">% Contributors:</span>
+0012 <span class="comment">% Change log:</span>
+0013 
+0014    methods(Hidden)
+0015       <a name="_sub0" href="#_subfunctions" class="code">function lh = addlistener(varargin)</a>
+0016          lh = <a href="#_sub1" class="code" title="subfunction lh = addlistener(varargin)">addlistener</a>@handle(varargin{:});
+0017       <span class="keyword">end</span>
+0018       <a name="_sub1" href="#_subfunctions" class="code">function notify(varargin)</a>
+0019          <a href="#_sub2" class="code" title="subfunction notify(varargin)">notify</a>@handle(varargin{:});
+0020       <span class="keyword">end</span>
+0021       <a name="_sub2" href="#_subfunctions" class="code">function delete(varargin)</a>
+0022          <a href="#_sub3" class="code" title="subfunction delete(varargin)">delete</a>@handle(varargin{:});
+0023       <span class="keyword">end</span>
+0024       <a name="_sub3" href="#_subfunctions" class="code">function Hmatch = findobj(varargin)</a>
+0025          Hmatch = <a href="#_sub4" class="code" title="subfunction Hmatch = findobj(varargin)">findobj</a>@handle(varargin{:});
+0026       <span class="keyword">end</span>
+0027       <a name="_sub4" href="#_subfunctions" class="code">function p = findprop(varargin)</a>
+0028          p = <a href="#_sub5" class="code" title="subfunction p = findprop(varargin)">findprop</a>@handle(varargin{:});
+0029       <span class="keyword">end</span>
+0030       <a name="_sub5" href="#_subfunctions" class="code">function TF = eq(varargin)</a>
+0031          TF = <a href="#_sub6" class="code" title="subfunction TF = eq(varargin)">eq</a>@handle(varargin{:});
+0032       <span class="keyword">end</span>
+0033       <a name="_sub6" href="#_subfunctions" class="code">function TF = ne(varargin)</a>
+0034          TF = <a href="#_sub7" class="code" title="subfunction TF = ne(varargin)">ne</a>@handle(varargin{:});
+0035       <span class="keyword">end</span>
+0036       <a name="_sub7" href="#_subfunctions" class="code">function TF = lt(varargin)</a>
+0037          TF = <a href="#_sub8" class="code" title="subfunction TF = lt(varargin)">lt</a>@handle(varargin{:});
+0038       <span class="keyword">end</span>
+0039       <a name="_sub8" href="#_subfunctions" class="code">function TF = le(varargin)</a>
+0040          TF = <a href="#_sub9" class="code" title="subfunction TF = le(varargin)">le</a>@handle(varargin{:});
+0041       <span class="keyword">end</span>
+0042       <a name="_sub9" href="#_subfunctions" class="code">function TF = gt(varargin)</a>
+0043          TF = <a href="#_sub10" class="code" title="subfunction TF = gt(varargin)">gt</a>@handle(varargin{:});
+0044       <span class="keyword">end</span>
+0045       <a name="_sub10" href="#_subfunctions" class="code">function TF = ge(varargin)</a>
+0046          TF = <a href="#_sub11" class="code" title="subfunction TF = ge(varargin)">ge</a>@handle(varargin{:});
+0047       <span class="keyword">end</span>
+0048    <span class="keyword">end</span>
+0049    
+0050 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

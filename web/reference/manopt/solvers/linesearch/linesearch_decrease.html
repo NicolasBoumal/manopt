@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of linesearch_decrease</title>
+  <meta name="keywords" content="linesearch_decrease">
+  <meta name="description" content="Backtracking line-search aiming merely for a decrease in cost value.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">linesearch</a> &gt; linesearch_decrease.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\linesearch&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>linesearch_decrease
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Backtracking line-search aiming merely for a decrease in cost value.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [stepsize, newx, newkey, lsstats] =linesearch_decrease(problem, x, d, f0, ~, options, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Backtracking line-search aiming merely for a decrease in cost value.
+
+ function [stepsize, newx, newkey, lsstats] = 
+        linesearch_decrease(problem, x, d, f0, df0, options, storedb, key)
+
+ Line-search algorithm based on a simple backtracking method. The search
+ direction provided has to be a descent direction, but needs not be a
+ first-order descent, i.e.: this line-search can be used even if x is a
+ critical point, as long as the cost function is strictly decreasing
+ along the direction d.
+
+ The line-search merely guarantees a decrease in the cost (unless a
+ stopping criterion triggers first, such as exceeding a maximal number of
+ iterations). This is typically useful to escape saddle points (critical
+ points admitting descent directions at the second order). Escape
+ directions can be computed using hessianextreme, for example.
+ 
+ Below, the step is constructed as alpha*d, and the step size is the norm
+ of that vector, thus: stepsize = alpha*norm_d. The step is executed by
+ retracting the vector alpha*d from the current point x, giving newx.
+ An initial stepsize of norm_d thus means the first candidate x is
+ obtained by retracting d at x, as is.
+
+ Options:
+   options.ls_max_steps (25): maximum number of cost evaluations.
+   options.ls_initial_stepsize (norm_d): first stepsize trial.
+   options.ls_contraction_factor (0.5): stepsize reduction per iteration.
+
+
+ Inputs/Outputs : see help for linesearch.
+   f0 is the cost at x.
+   df0 is unused.
+   options, storedb and key are optional.
+   Thus, a simplified calling pattern is (with all outputs still
+   available): linesearch_decrease(problem, x, d, f0)
+
+ See also: steepestdescent <a href="linesearch.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch(problem, x, d, f0, df0, options, storedb, key)">linesearch</a> hessianextreme</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/low_rank_dist_completion.html" class="code" title="function [Y, infos, problem_description] =  low_rank_dist_completion(problem_description)">low_rank_dist_completion</a>	Perform low-rank distance matrix completion w/ automatic rank detection.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stepsize, newx, newkey, lsstats] = </a><span class="keyword">...</span>
+0002            linesearch_decrease(problem, x, d, f0, ~, options, storedb, key)
+0003 <span class="comment">% Backtracking line-search aiming merely for a decrease in cost value.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% function [stepsize, newx, newkey, lsstats] =</span>
+0006 <span class="comment">%        linesearch_decrease(problem, x, d, f0, df0, options, storedb, key)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Line-search algorithm based on a simple backtracking method. The search</span>
+0009 <span class="comment">% direction provided has to be a descent direction, but needs not be a</span>
+0010 <span class="comment">% first-order descent, i.e.: this line-search can be used even if x is a</span>
+0011 <span class="comment">% critical point, as long as the cost function is strictly decreasing</span>
+0012 <span class="comment">% along the direction d.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% The line-search merely guarantees a decrease in the cost (unless a</span>
+0015 <span class="comment">% stopping criterion triggers first, such as exceeding a maximal number of</span>
+0016 <span class="comment">% iterations). This is typically useful to escape saddle points (critical</span>
+0017 <span class="comment">% points admitting descent directions at the second order). Escape</span>
+0018 <span class="comment">% directions can be computed using hessianextreme, for example.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Below, the step is constructed as alpha*d, and the step size is the norm</span>
+0021 <span class="comment">% of that vector, thus: stepsize = alpha*norm_d. The step is executed by</span>
+0022 <span class="comment">% retracting the vector alpha*d from the current point x, giving newx.</span>
+0023 <span class="comment">% An initial stepsize of norm_d thus means the first candidate x is</span>
+0024 <span class="comment">% obtained by retracting d at x, as is.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% Options:</span>
+0027 <span class="comment">%   options.ls_max_steps (25): maximum number of cost evaluations.</span>
+0028 <span class="comment">%   options.ls_initial_stepsize (norm_d): first stepsize trial.</span>
+0029 <span class="comment">%   options.ls_contraction_factor (0.5): stepsize reduction per iteration.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% Inputs/Outputs : see help for linesearch.</span>
+0033 <span class="comment">%   f0 is the cost at x.</span>
+0034 <span class="comment">%   df0 is unused.</span>
+0035 <span class="comment">%   options, storedb and key are optional.</span>
+0036 <span class="comment">%   Thus, a simplified calling pattern is (with all outputs still</span>
+0037 <span class="comment">%   available): linesearch_decrease(problem, x, d, f0)</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% See also: steepestdescent linesearch hessianextreme</span>
+0040 
+0041 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0042 <span class="comment">% Original author: Nicolas Boumal, April 8, 2015.</span>
+0043 <span class="comment">% Contributors:</span>
+0044 <span class="comment">% Change log:</span>
+0045 
+0046 
+0047     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0048     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0049         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0050             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0051         <span class="keyword">end</span>
+0052         key = storedb.getNewKey();
+0053     <span class="keyword">end</span>
+0054     
+0055     norm_d = problem.M.norm(x, d);
+0056 
+0057     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0058     <span class="comment">% options structure which is passed to the solver.</span>
+0059     default_options.ls_contraction_factor = .5;
+0060     default_options.ls_initial_stepsize = norm_d;
+0061     default_options.ls_max_steps = 25;
+0062     
+0063     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0064         options = struct();
+0065     <span class="keyword">end</span>
+0066     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
+0067     
+0068     contraction_factor = options.ls_contraction_factor;
+0069     initial_stepsize = options.ls_initial_stepsize;
+0070     max_ls_steps = options.ls_max_steps;
+0071     
+0072     <span class="comment">% Initial step size as a mutliplier of d.</span>
+0073     alpha = initial_stepsize / norm_d;
+0074     
+0075     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0076     newx = problem.M.retr(x, d, alpha);
+0077     newkey = storedb.getNewKey();
+0078     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0079     cost_evaluations = 1;
+0080     
+0081     <span class="comment">% Backtrack while no cost decrease is obtained.</span>
+0082     <span class="keyword">while</span> newf &gt;= f0
+0083         
+0084         <span class="comment">% Reduce the step size,</span>
+0085         alpha = contraction_factor * alpha;
+0086         
+0087         <span class="comment">% and look closer down the line</span>
+0088         newx = problem.M.retr(x, d, alpha);
+0089         newkey = storedb.getNewKey();
+0090         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0091         cost_evaluations = cost_evaluations + 1;
+0092         
+0093         <span class="comment">% Make sure we don't run out of budget</span>
+0094         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0095             <span class="keyword">break</span>;
+0096         <span class="keyword">end</span>
+0097         
+0098     <span class="keyword">end</span>
+0099     
+0100     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0101     <span class="comment">% Equal cost is accepted, since if x is critical, it is important to</span>
+0102     <span class="comment">% move away from x more than it is important to decrease the cost.</span>
+0103     <span class="keyword">if</span> newf &gt; f0
+0104         alpha = 0;
+0105         newx = x;
+0106         newkey = key;
+0107         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0108     <span class="keyword">end</span>
+0109     
+0110     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0111     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0112     stepsize = alpha * norm_d;
+0113     
+0114     <span class="comment">% Return some statistics also, for possible analysis.</span>
+0115     lsstats.costevals = cost_evaluations;
+0116     lsstats.stepsize = stepsize;
+0117     lsstats.alpha = alpha;
+0118     
+0119 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

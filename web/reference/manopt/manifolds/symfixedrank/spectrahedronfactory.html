@@ -4,7 +4,7 @@
 <head>
   <title>Description of spectrahedronfactory</title>
   <meta name="keywords" content="spectrahedronfactory">
-  <meta name="description" content="Manifold of n-by-n symmetric positive semidefinite natrices of rank k">
+  <meta name="description" content="Manifold of n-by-n symmetric positive semidefinite matrices of rank k">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,34 +21,63 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Manifold of n-by-n symmetric positive semidefinite natrices of rank k</strong></div>
+<div class="box"><strong>Manifold of n-by-n symmetric positive semidefinite matrices of rank k</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function M = spectrahedronfactory(n, k) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Manifold of n-by-n symmetric positive semidefinite natrices of rank k
- with trace (sum of diagonal elements) being 1.
+<div class="fragment"><pre class="comment"> Manifold of n-by-n symmetric positive semidefinite matrices of rank k
+ with trace (sum of diagonal elements) equal to 1.
 
  function M = spectrahedronfactory(n, k)
 
- The goemetry is based on the paper,
- M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
- &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,
- SIOPT, 2010.
-
- Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
-
  A point X on the manifold is parameterized as YY^T where Y is a matrix of
- size nxk. The matrix Y (nxk) is a full colunn-rank natrix. Hence, we deal
- directly with Y. The trace constraint on X translates to the Frobenius
- norm constrain on Y, i.e., trace(X) = || Y ||^2.</pre></div>
+ size nxk. As such, X is symmetric, positive semidefinite. We restrict to
+ full-rank Y's, such that X has rank exactly k. The point X is numerically
+ represented by Y (this is more efficient than working with X, which may
+ be big). Tangent vectors are represented as matrices of the same size as
+ Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y and trace(Xdot) == 0.
+ The metric is the canonical Euclidean metric on Y.
+ 
+ The trace constraint on X (trace(X) == 1) translates to a unit Frobenius
+ norm constraint on Y: trace(X) = norm(Y, 'fro')^2 == 1. The set of such
+ Y's forms the unit sphere in R^(nxk): see spherefactory. But because for
+ any orthogonal Q of size k, it holds that (YQ)(YQ)' = YY', we &quot;group&quot; all
+ matrices of the form YQ in an equivalence class. The set of equivalence
+ classes is a Riemannian quotient manifold, implemented here.
+
+
+ Note that this geometry formally breaks down at rank-deficient Y's.
+ As an alternative, you may use the sphere manifold (it has larger
+ dimension (by 1), but does not break down at rank drop.)
+
+ The geometry is taken from the 2010 paper:
+ M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
+ &quot;Low-Rank Optimization on the Cone of Positive Semidefinite Matrices&quot;.
+ Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
+ 
+ 
+ Please cite the Manopt paper as well as the research paper:
+     @Article{journee2010low,
+       Title   = {Low-rank optimization on the cone of positive semidefinite matrices},
+       Author  = {Journ{\'e}e, M. and Bach, F. and Absil, P.-A. and Sepulchre, R.},
+       Journal = {SIAM Journal on Optimization},
+       Year    = {2010},
+       Number  = {5},
+       Pages   = {2327--2351},
+       Volume  = {20},
+       Doi     = {10.1137/080731359}
+     }
+ 
+
+ See also: spherefactory <a href="elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a> <a href="symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -56,149 +85,163 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function etaproj = projection(Y, eta)</a></li><li><a href="#_sub2" class="code">function Ynew = retraction(Y, eta, t)</a></li><li><a href="#_sub3" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function Ynew = exponential(Y, eta, t)</a></li><li><a href="#_sub5" class="code">function Y = random()</a></li><li><a href="#_sub6" class="code">function eta = randomvec(Y)</a></li><li><a href="#_sub7" class="code">function d = lincomb(Y, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function etaproj = projection(Y, eta)</a></li><li><a href="#_sub2" class="code">function Ynew = retraction(Y, eta, t)</a></li><li><a href="#_sub3" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function Ynew = exponential(Y, eta, t)</a></li><li><a href="#_sub5" class="code">function Y = random()</a></li><li><a href="#_sub6" class="code">function eta = randomvec(Y)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spectrahedronfactory(n, k)</a>
-0002 <span class="comment">% Manifold of n-by-n symmetric positive semidefinite natrices of rank k</span>
-0003 <span class="comment">% with trace (sum of diagonal elements) being 1.</span>
+0002 <span class="comment">% Manifold of n-by-n symmetric positive semidefinite matrices of rank k</span>
+0003 <span class="comment">% with trace (sum of diagonal elements) equal to 1.</span>
 0004 <span class="comment">%</span>
 0005 <span class="comment">% function M = spectrahedronfactory(n, k)</span>
 0006 <span class="comment">%</span>
-0007 <span class="comment">% The goemetry is based on the paper,</span>
-0008 <span class="comment">% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,</span>
-0009 <span class="comment">% &quot;Low-Rank Optinization on the Cone of Positive Semidefinite Matrices&quot;,</span>
-0010 <span class="comment">% SIOPT, 2010.</span>
-0011 <span class="comment">%</span>
-0012 <span class="comment">% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf</span>
-0013 <span class="comment">%</span>
-0014 <span class="comment">% A point X on the manifold is parameterized as YY^T where Y is a matrix of</span>
-0015 <span class="comment">% size nxk. The matrix Y (nxk) is a full colunn-rank natrix. Hence, we deal</span>
-0016 <span class="comment">% directly with Y. The trace constraint on X translates to the Frobenius</span>
-0017 <span class="comment">% norm constrain on Y, i.e., trace(X) = || Y ||^2.</span>
-0018 
-0019 <span class="comment">% This file is part of Manopt: www.nanopt.org.</span>
-0020 <span class="comment">% Original author: Bamdev Mishra, July 11, 2013.</span>
-0021 <span class="comment">% Contributors:</span>
-0022 <span class="comment">% Change log:</span>
-0023     
-0024     
-0025     
-0026     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d PSD matrices of rank %d with trace 1 '</span>, n, k);
-0027     
-0028     M.dim = @() (k*n - 1) - k*(k-1)/2; <span class="comment">% Extra -1 is because of the trace constraint that</span>
-0029     
-0030     <span class="comment">% Euclidean metric on the total space</span>
-0031     M.inner = @(Y, eta, zeta) trace(eta'*zeta);
-0032     
-0033     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
-0034     
-0035     M.dist = @(Y, Z) error(<span class="string">'spectrahedronfactory.dist not implemented yet.'</span>);
-0036     
-0037     M.typicaldist = @() 10*k;
-0038     
-0039     M.proj = @<a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
-0040     <a name="_sub1" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
-0041         <span class="comment">% Projection onto the tangent space, i.e., on the tangent space of</span>
-0042         <span class="comment">% ||Y|| = 1</span>
-0043         
-0044         eta = eta - trace(eta'*Y)*Y;
-0045         
-0046         <span class="comment">% Projection onto the horizontal space</span>
-0047         YtY = Y'*Y;
-0048         SS = YtY;
-0049         AS = Y'*eta - eta'*Y;
-0050         Omega = lyap(SS, -AS);
-0051         etaproj = eta - Y*Omega;
-0052     <span class="keyword">end</span>
-0053     
-0054     M.tangent = M.proj;
-0055     M.tangent2ambient = @(Y, eta) eta;
+0007 <span class="comment">% A point X on the manifold is parameterized as YY^T where Y is a matrix of</span>
+0008 <span class="comment">% size nxk. As such, X is symmetric, positive semidefinite. We restrict to</span>
+0009 <span class="comment">% full-rank Y's, such that X has rank exactly k. The point X is numerically</span>
+0010 <span class="comment">% represented by Y (this is more efficient than working with X, which may</span>
+0011 <span class="comment">% be big). Tangent vectors are represented as matrices of the same size as</span>
+0012 <span class="comment">% Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y and trace(Xdot) == 0.</span>
+0013 <span class="comment">% The metric is the canonical Euclidean metric on Y.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% The trace constraint on X (trace(X) == 1) translates to a unit Frobenius</span>
+0016 <span class="comment">% norm constraint on Y: trace(X) = norm(Y, 'fro')^2 == 1. The set of such</span>
+0017 <span class="comment">% Y's forms the unit sphere in R^(nxk): see spherefactory. But because for</span>
+0018 <span class="comment">% any orthogonal Q of size k, it holds that (YQ)(YQ)' = YY', we &quot;group&quot; all</span>
+0019 <span class="comment">% matrices of the form YQ in an equivalence class. The set of equivalence</span>
+0020 <span class="comment">% classes is a Riemannian quotient manifold, implemented here.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Note that this geometry formally breaks down at rank-deficient Y's.</span>
+0024 <span class="comment">% As an alternative, you may use the sphere manifold (it has larger</span>
+0025 <span class="comment">% dimension (by 1), but does not break down at rank drop.)</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% The geometry is taken from the 2010 paper:</span>
+0028 <span class="comment">% M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,</span>
+0029 <span class="comment">% &quot;Low-Rank Optimization on the Cone of Positive Semidefinite Matrices&quot;.</span>
+0030 <span class="comment">% Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0034 <span class="comment">%     @Article{journee2010low,</span>
+0035 <span class="comment">%       Title   = {Low-rank optimization on the cone of positive semidefinite matrices},</span>
+0036 <span class="comment">%       Author  = {Journ{\'e}e, M. and Bach, F. and Absil, P.-A. and Sepulchre, R.},</span>
+0037 <span class="comment">%       Journal = {SIAM Journal on Optimization},</span>
+0038 <span class="comment">%       Year    = {2010},</span>
+0039 <span class="comment">%       Number  = {5},</span>
+0040 <span class="comment">%       Pages   = {2327--2351},</span>
+0041 <span class="comment">%       Volume  = {20},</span>
+0042 <span class="comment">%       Doi     = {10.1137/080731359}</span>
+0043 <span class="comment">%     }</span>
+0044 <span class="comment">%</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">% See also: spherefactory elliptopefactory symfixedrankYYfactory</span>
+0047 
+0048 <span class="comment">% This file is part of Manopt: www.nanopt.org.</span>
+0049 <span class="comment">% Original author: Bamdev Mishra, July 11, 2013.</span>
+0050 <span class="comment">% Contributors: Nicolas Boumal</span>
+0051 <span class="comment">% Change log:</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">%   April 2, 2015 (NB):</span>
+0054 <span class="comment">%       Replaced trace(A'*B) by A(:)'*B(:) (equivalent but faster).</span>
+0055 <span class="comment">%       Updated documentation.</span>
 0056     
-0057     M.retr = @<a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
-0058     <a name="_sub2" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
-0059         <span class="keyword">if</span> nargin &lt; 3
-0060             t = 1.0;
-0061         <span class="keyword">end</span>
-0062         Ynew = Y + t*eta;
-0063         Ynew = Ynew/norm(Ynew,<span class="string">'fro'</span>);
-0064     <span class="keyword">end</span>
+0057     
+0058     
+0059     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d psd matrices of rank %d with trace 1'</span>, n, k);
+0060     
+0061     M.dim = @() n*k - 1 - k*(k-1)/2;
+0062     
+0063     <span class="comment">% Euclidean metric on the total space</span>
+0064     M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
 0065     
-0066     
-0067     M.egrad2rgrad = @(Y, eta) eta - trace(eta'*Y)*Y;
-0068     
-0069     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction Hess = ehess2rhess(Y, egrad, ehess, eta)">ehess2rhess</a>;
-0070     <a name="_sub3" href="#_subfunctions" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a>
-0071        
-0072         <span class="comment">% Directional derivative of the Riemannian gradient</span>
-0073         Hess = ehess - trace(egrad'*Y)*eta - (trace(ehess'*Y) + trace(egrad'*eta))*Y;      
-0074         Hess = Hess - trace(Hess'*Y)*Y;
-0075         
-0076         <span class="comment">% Project on the horizontal space</span>
-0077         Hess = M.proj(Y, Hess);
+0066     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
+0067     
+0068     M.dist = @(Y, Z) error(<span class="string">'spectrahedronfactory.dist not implemented yet.'</span>);
+0069     
+0070     M.typicaldist = @() 10*k;
+0071     
+0072     M.proj = @<a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
+0073     <a name="_sub1" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
+0074         <span class="comment">% Projection onto the tangent space, i.e., on the tangent space of</span>
+0075         <span class="comment">% ||Y|| = 1</span>
+0076         
+0077         eta = eta - (eta(:)'*Y(:))*Y;
 0078         
-0079     <span class="keyword">end</span>
-0080     
-0081     M.exp = @<a href="#_sub4" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
-0082     <a name="_sub4" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
-0083         <span class="keyword">if</span> nargin &lt; 3
-0084             t = 1.0;
-0085         <span class="keyword">end</span>
-0086         
-0087         Ynew = <a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
-0088         warning(<span class="string">'manopt:spectrahedronfactory:exp'</span>, <span class="keyword">...</span>
-0089             [<span class="string">'Exponential for fixed rank spectrahedron '</span> <span class="keyword">...</span>
-0090             <span class="string">'manifold not implenented yet. Used retraction instead.'</span>]);
-0091     <span class="keyword">end</span>
-0092     
-0093     <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
-0094     M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
-0095     
-0096     M.rand = @<a href="#_sub5" class="code" title="subfunction Y = random()">random</a>;
-0097     
-0098     <a name="_sub5" href="#_subfunctions" class="code">function Y = random()</a>
-0099         Y = randn(n, k);
-0100         Y = Y/norm(Y,<span class="string">'fro'</span>);
-0101     <span class="keyword">end</span>
-0102     
-0103     M.randvec = @<a href="#_sub6" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
-0104     <a name="_sub6" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
-0105         eta = randn(n, k);
-0106         eta = <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
-0107         nrm = M.norm(Y, eta);
-0108         eta = eta / nrm;
-0109     <span class="keyword">end</span>
-0110     
-0111     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(Y, a1, d1, a2, d2) ">lincomb</a>;
-0112     
-0113     M.zerovec = @(Y) zeros(n, k);
-0114     
-0115     M.transp = @(Y1, Y2, d) <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
-0116     
-0117     M.vec = @(Y, u_mat) u_mat(:);
-0118     M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
-0119     M.vecmatareisometries = @() true;
-0120     
-0121 <span class="keyword">end</span>
-0122 
-0123 
-0124 <span class="comment">% Linear conbination of tangent vectors</span>
-0125 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(Y, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0126     
-0127     <span class="keyword">if</span> nargin == 3
-0128         d  = a1*d1;
-0129     <span class="keyword">elseif</span> nargin == 5
-0130         d = a1*d1 + a2*d2;
-0131     <span class="keyword">else</span>
-0132         error(<span class="string">'Bad use of spectrahedronfactory.lincomb.'</span>);
-0133     <span class="keyword">end</span>
-0134     
-0135 <span class="keyword">end</span>
-0136 
-0137 
-0138 
-0139 
-0140</pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0079         <span class="comment">% Projection onto the horizontal space</span>
+0080         YtY = Y'*Y;
+0081         SS = YtY;
+0082         AS = Y'*eta - eta'*Y;
+0083         Omega = lyap(SS, -AS);
+0084         etaproj = eta - Y*Omega;
+0085     <span class="keyword">end</span>
+0086     
+0087     M.tangent = M.proj;
+0088     M.tangent2ambient = @(Y, eta) eta;
+0089     
+0090     M.retr = @<a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
+0091     <a name="_sub2" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
+0092         <span class="keyword">if</span> nargin &lt; 3
+0093             t = 1.0;
+0094         <span class="keyword">end</span>
+0095         Ynew = Y + t*eta;
+0096         Ynew = Ynew/norm(Ynew, <span class="string">'fro'</span>);
+0097     <span class="keyword">end</span>
+0098     
+0099     
+0100     M.egrad2rgrad = @(Y, eta) eta - (eta(:)'*Y(:))*Y;
+0101     
+0102     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction Hess = ehess2rhess(Y, egrad, ehess, eta)">ehess2rhess</a>;
+0103     <a name="_sub3" href="#_subfunctions" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a>
+0104        
+0105         <span class="comment">% Directional derivative of the Riemannian gradient</span>
+0106         Hess = ehess - (egrad(:)'*Y(:))*eta - ( (ehess(:)'*Y(:)) + (eta(:)'*egrad(:)) )*Y;
+0107         Hess = Hess - (Hess(:)'*Y(:))*Y;
+0108         
+0109         <span class="comment">% Project on the horizontal space</span>
+0110         Hess = M.proj(Y, Hess);
+0111         
+0112     <span class="keyword">end</span>
+0113     
+0114     M.exp = @<a href="#_sub4" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
+0115     <a name="_sub4" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
+0116         <span class="keyword">if</span> nargin &lt; 3
+0117             t = 1.0;
+0118         <span class="keyword">end</span>
+0119         
+0120         Ynew = <a href="#_sub2" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
+0121         warning(<span class="string">'manopt:spectrahedronfactory:exp'</span>, <span class="keyword">...</span>
+0122             [<span class="string">'Exponential for fixed rank spectrahedron '</span> <span class="keyword">...</span>
+0123             <span class="string">'manifold not implenented yet. Used retraction instead.'</span>]);
+0124     <span class="keyword">end</span>
+0125     
+0126     <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
+0127     M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
+0128     
+0129     M.rand = @<a href="#_sub5" class="code" title="subfunction Y = random()">random</a>;
+0130     
+0131     <a name="_sub5" href="#_subfunctions" class="code">function Y = random()</a>
+0132         Y = randn(n, k);
+0133         Y = Y/norm(Y,<span class="string">'fro'</span>);
+0134     <span class="keyword">end</span>
+0135     
+0136     M.randvec = @<a href="#_sub6" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
+0137     <a name="_sub6" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
+0138         eta = randn(n, k);
+0139         eta = <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
+0140         nrm = M.norm(Y, eta);
+0141         eta = eta / nrm;
+0142     <span class="keyword">end</span>
+0143     
+0144     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0145     
+0146     M.zerovec = @(Y) zeros(n, k);
+0147     
+0148     M.transp = @(Y1, Y2, d) <a href="#_sub1" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
+0149     
+0150     M.vec = @(Y, u_mat) u_mat(:);
+0151     M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
+0152     M.vecmatareisometries = @() true;
+0153     
+0154 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

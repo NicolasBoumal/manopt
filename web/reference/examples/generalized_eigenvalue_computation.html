@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of generalized_eigenvalue_computation</title>
+  <meta name="keywords" content="generalized_eigenvalue_computation">
+  <meta name="description" content="Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; generalized_eigenvalue_computation.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>generalized_eigenvalue_computation
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.
+
+ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
+
+ Input: A real, symmetric matrix A of size nxn and an integer p &lt; n.
+        B is a symmetric positive definite matrix, same size as A.
+ Output: Xsol: a real, orthonormal matrix X of size nxp such that
+         trace(X'*A*X) is maximized, subject to X'*B*X is identity. 
+         That is, the columns of X form an orthonormal basis of a dominant
+         subspace of dimension p of B^(-1)*A. These are thus eigenvectors
+         associated with the largest eigenvalues of B^(-1)*A  (in no
+         particular order). Sign is important: 2 is deemed a larger
+         eigenvalue than -5.
+         Ssol: the eigenvalues associated with the eigenvectors Xsol.
+ 
+ We intend to solve the homogeneous system A*X = B*X*S,
+ where S is a diagonal matrix of dominant eigenvalues of B^-1 A.
+
+
+ The optimization is performed on the generalized Grassmann manifold, 
+ since only the space spanned by the columns of X matters. 
+
+ The optimization problem that we are solving here is 
+ maximize trace(X'*A*X) subject to X'*B*X = eye(p). 
+ Consequently, the solutions remain invariant to transformation
+ X --&gt; XO, where O is a p-by-p orthogonal matrix. The search space, in
+ essence, is set of equivalence classes
+ [X] = {XO : X'*B*X = I and O is orthogonal matrix}. This space is called
+ the generalized Grassmann manifold.
+
+ See also <a href="dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a> <a href="nonlinear_eigenspace.html" class="code" title="function Xsol = nonlinear_eigenspace(L, k, alpha)">nonlinear_eigenspace</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/grassmann/grassmanngeneralizedfactory.html" class="code" title="function M = grassmanngeneralizedfactory(n, p, B)">grassmanngeneralizedfactory</a>	Returns a manifold struct of "scaled" vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)</a>
+0002 <span class="comment">% Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Input: A real, symmetric matrix A of size nxn and an integer p &lt; n.</span>
+0007 <span class="comment">%        B is a symmetric positive definite matrix, same size as A.</span>
+0008 <span class="comment">% Output: Xsol: a real, orthonormal matrix X of size nxp such that</span>
+0009 <span class="comment">%         trace(X'*A*X) is maximized, subject to X'*B*X is identity.</span>
+0010 <span class="comment">%         That is, the columns of X form an orthonormal basis of a dominant</span>
+0011 <span class="comment">%         subspace of dimension p of B^(-1)*A. These are thus eigenvectors</span>
+0012 <span class="comment">%         associated with the largest eigenvalues of B^(-1)*A  (in no</span>
+0013 <span class="comment">%         particular order). Sign is important: 2 is deemed a larger</span>
+0014 <span class="comment">%         eigenvalue than -5.</span>
+0015 <span class="comment">%         Ssol: the eigenvalues associated with the eigenvectors Xsol.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% We intend to solve the homogeneous system A*X = B*X*S,</span>
+0018 <span class="comment">% where S is a diagonal matrix of dominant eigenvalues of B^-1 A.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% The optimization is performed on the generalized Grassmann manifold,</span>
+0022 <span class="comment">% since only the space spanned by the columns of X matters.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% The optimization problem that we are solving here is</span>
+0025 <span class="comment">% maximize trace(X'*A*X) subject to X'*B*X = eye(p).</span>
+0026 <span class="comment">% Consequently, the solutions remain invariant to transformation</span>
+0027 <span class="comment">% X --&gt; XO, where O is a p-by-p orthogonal matrix. The search space, in</span>
+0028 <span class="comment">% essence, is set of equivalence classes</span>
+0029 <span class="comment">% [X] = {XO : X'*B*X = I and O is orthogonal matrix}. This space is called</span>
+0030 <span class="comment">% the generalized Grassmann manifold.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% See also dominant_invariant_subspace nonlinear_eigenspace</span>
+0033 
+0034 
+0035 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0036 <span class="comment">%</span>
+0037 <span class="comment">% Main author: Bamdev Mishra, June 30, 2015.</span>
+0038 <span class="comment">% Contributors:</span>
+0039 <span class="comment">% Change log:</span>
+0040     
+0041     <span class="comment">% Generate some random data to test the function</span>
+0042     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0043         n = 128;
+0044         A = randn(n);
+0045         A = (A+A')/2;
+0046     <span class="keyword">end</span>
+0047     <span class="keyword">if</span> ~exist(<span class="string">'B'</span>, <span class="string">'var'</span>) || isempty(B)
+0048         n = size(A, 1);
+0049         e = ones(n, 1);
+0050         B = spdiags([-e 2*e -e], -1:1, n, n); <span class="comment">% Symmetric positive definite</span>
+0051     <span class="keyword">end</span>
+0052     
+0053     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0054         p = 3;
+0055     <span class="keyword">end</span>
+0056     
+0057     <span class="comment">% Make sure the input matrix is square and symmetric</span>
+0058     n = size(A, 1);
+0059     assert(isreal(A), <span class="string">'A must be real.'</span>)
+0060     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0061     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
+0062     assert(p &lt;= n, <span class="string">'p must be smaller than n.'</span>);
+0063     
+0064     <span class="comment">% Define the cost and its derivatives on the generalized</span>
+0065     <span class="comment">% Grassmann manifold, i.e., the column space of all X such that</span>
+0066     <span class="comment">% X'*B*X is identity.</span>
+0067     gGr = <a href="../manopt/manifolds/grassmann/grassmanngeneralizedfactory.html" class="code" title="function M = grassmanngeneralizedfactory(n, p, B)">grassmanngeneralizedfactory</a>(n, p, B);
+0068     
+0069     problem.M = gGr;
+0070     problem.cost  = @(X)    -trace(X'*A*X);
+0071     problem.egrad = @(X)    -2*(A*X); <span class="comment">% Only Euclidean gradient needed.</span>
+0072     problem.ehess = @(X, H) -2*(A*H); <span class="comment">% Only Euclidean Hessian needed.</span>
+0073     
+0074     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0075     <span class="comment">% These things can be commented out of course.</span>
+0076     <span class="comment">% checkgradient(problem);</span>
+0077     <span class="comment">% pause;</span>
+0078     <span class="comment">% checkhessian(problem);</span>
+0079     <span class="comment">% pause;</span>
+0080     
+0081     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0082     <span class="comment">% default options are selected except for the ones we specify here.</span>
+0083     options.Delta_bar = 8*sqrt(p);
+0084     [Xsol, costXsol, info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;NASGU,ASGLU&gt;</span>
+0085     
+0086     <span class="comment">% To extract the eigenvalues, solve the small pxp symmetric eigenvalue</span>
+0087     <span class="comment">% problem.</span>
+0088     Ssol = eig(Xsol'*(A*Xsol));
+0089   
+0090 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

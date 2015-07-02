@@ -51,7 +51,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -100,7 +100,7 @@ This function is called by:
 0036         <span class="keyword">for</span> i = 1 : m
 0037             noise = 0.01*randn(n);
 0038             noise = (noise + noise')/2;
-0039             [V D] = eig(ref + noise);
+0039             [V, D] = eig(ref + noise);
 0040             A(:, :, i) = V*diag(max(.01, diag(D)))*V';
 0041         <span class="keyword">end</span>
 0042     <span class="keyword">end</span>
@@ -127,48 +127,51 @@ This function is called by:
 0063     problem.cost = @<a href="#_sub1" class="code" title="subfunction f = cost(X)">cost</a>;
 0064     problem.grad = @<a href="#_sub2" class="code" title="subfunction g = grad(X)">grad</a>;
 0065     
-0066     <span class="comment">% The functions below make many redundant computations. This</span>
-0067     <span class="comment">% performance hit can be alleviated by using the caching system. We go</span>
-0068     <span class="comment">% for a simple implementation here, as a tutorial example.</span>
-0069     
-0070     <span class="comment">% Cost function</span>
-0071     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
-0072         f = 0;
-0073         <span class="keyword">for</span> k = 1 : m
-0074             f = f + M.dist(X, A(:, :, k))^2;
-0075         <span class="keyword">end</span>
-0076         f = f/(2*m);
-0077     <span class="keyword">end</span>
-0078 
-0079     <span class="comment">% Riemannian gradient of the cost function</span>
-0080     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(X)</a>
-0081         g = M.zerovec(X);
-0082         <span class="keyword">for</span> k = 1 : m
-0083             <span class="comment">% Update g in a linear combination of the form</span>
-0084             <span class="comment">% g = g - [something]/m.</span>
-0085             g = M.lincomb(X, 1, g, -1/m, M.log(X, A(:, :, k)));
-0086         <span class="keyword">end</span>
-0087     <span class="keyword">end</span>
-0088     
-0089     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
-0090     <span class="comment">% These things can be commented out of course.</span>
-0091     <span class="comment">% The slopes should agree on part of the plot at least. In this case,</span>
-0092     <span class="comment">% it is sometimes necessary to inspect the plot visually to make the</span>
-0093     <span class="comment">% call, but it is indeed correct.</span>
-0094     <span class="comment">% checkgradient(problem);</span>
-0095     <span class="comment">% pause;</span>
-0096     
-0097     <span class="comment">% Execute this if you want to force using a proper parallel vector</span>
-0098     <span class="comment">% transport. This is not necessary. If you omit this, the default</span>
-0099     <span class="comment">% vector transport is the identity map, which is (of course) cheaper</span>
-0100     <span class="comment">% and seems to perform well in practice.</span>
-0101     <span class="comment">% M.transp = M.paralleltransp;</span>
-0102     
-0103     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
-0104     <span class="comment">% Our initial guess is the first data point.</span>
-0105     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1));
-0106 
-0107 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0066     <span class="comment">% Explicitly pick an approximate Hessian for the trust-region method</span>
+0067     problem.approxhess = <a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>(problem, struct(<span class="string">'stepsize'</span>, 1e-4));
+0068     
+0069     <span class="comment">% The functions below make many redundant computations. This</span>
+0070     <span class="comment">% performance hit can be alleviated by using the caching system. We go</span>
+0071     <span class="comment">% for a simple implementation here, as a tutorial example.</span>
+0072     
+0073     <span class="comment">% Cost function</span>
+0074     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
+0075         f = 0;
+0076         <span class="keyword">for</span> k = 1 : m
+0077             f = f + M.dist(X, A(:, :, k))^2;
+0078         <span class="keyword">end</span>
+0079         f = f/(2*m);
+0080     <span class="keyword">end</span>
+0081 
+0082     <span class="comment">% Riemannian gradient of the cost function</span>
+0083     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(X)</a>
+0084         g = M.zerovec(X);
+0085         <span class="keyword">for</span> k = 1 : m
+0086             <span class="comment">% Update g in a linear combination of the form</span>
+0087             <span class="comment">% g = g - [something]/m.</span>
+0088             g = M.lincomb(X, 1, g, -1/m, M.log(X, A(:, :, k)));
+0089         <span class="keyword">end</span>
+0090     <span class="keyword">end</span>
+0091     
+0092     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0093     <span class="comment">% These things can be commented out of course.</span>
+0094     <span class="comment">% The slopes should agree on part of the plot at least. In this case,</span>
+0095     <span class="comment">% it is sometimes necessary to inspect the plot visually to make the</span>
+0096     <span class="comment">% call, but it is indeed correct.</span>
+0097     <span class="comment">% checkgradient(problem);</span>
+0098     <span class="comment">% pause;</span>
+0099     
+0100     <span class="comment">% Execute this if you want to force using a proper parallel vector</span>
+0101     <span class="comment">% transport. This is not necessary. If you omit this, the default</span>
+0102     <span class="comment">% vector transport is the identity map, which is (of course) cheaper</span>
+0103     <span class="comment">% and seems to perform well in practice.</span>
+0104     <span class="comment">% M.transp = M.paralleltransp;</span>
+0105     
+0106     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
+0107     <span class="comment">% Our initial guess is the first data point.</span>
+0108     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1));
+0109 
+0110 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getEuclideanGradient</title>
+  <meta name="keywords" content="getEuclideanGradient">
+  <meta name="description" content="Computes the Euclidean gradient of the cost function at x.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; getEuclideanGradient.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getEuclideanGradient
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes the Euclidean gradient of the cost function at x.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function egrad = getEuclideanGradient(problem, x, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes the Euclidean gradient of the cost function at x.
+
+ function egrad = getEuclideanGradient(problem, x)
+ function egrad = getEuclideanGradient(problem, x, storedb)
+ function egrad = getEuclideanGradient(problem, x, storedb, key)
+
+ Returns the Euclidean gradient at x of the cost function described in the
+ problem structure.
+
+ storedb is a StoreDB object, key is the StoreDB key to point x.
+
+ Because computing the Hessian based on the Euclidean Hessian will require
+ the Euclidean gradient every time, to avoid overly redundant
+ computations, if the egrad function does not use the store caching
+ capabilites, this implements an automatic caching functionality. Writing
+ egrad to accept the optional store or storedb parameter will disable
+ automatic caching, but allow user controlled caching.
+
+ See also: <a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a> <a href="canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a> <a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function egrad = getEuclideanGradient(problem, x, storedb, key)</a>
+0002 <span class="comment">% Computes the Euclidean gradient of the cost function at x.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function egrad = getEuclideanGradient(problem, x)</span>
+0005 <span class="comment">% function egrad = getEuclideanGradient(problem, x, storedb)</span>
+0006 <span class="comment">% function egrad = getEuclideanGradient(problem, x, storedb, key)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns the Euclidean gradient at x of the cost function described in the</span>
+0009 <span class="comment">% problem structure.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% storedb is a StoreDB object, key is the StoreDB key to point x.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Because computing the Hessian based on the Euclidean Hessian will require</span>
+0014 <span class="comment">% the Euclidean gradient every time, to avoid overly redundant</span>
+0015 <span class="comment">% computations, if the egrad function does not use the store caching</span>
+0016 <span class="comment">% capabilites, this implements an automatic caching functionality. Writing</span>
+0017 <span class="comment">% egrad to accept the optional store or storedb parameter will disable</span>
+0018 <span class="comment">% automatic caching, but allow user controlled caching.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% See also: getGradient canGetGradient canGetEuclideanGradient</span>
+0021 
+0022 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0023 <span class="comment">% Original author: Nicolas Boumal, July 9, 2013.</span>
+0024 <span class="comment">% Contributors:</span>
+0025 <span class="comment">% Change log:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%   April 3, 2015 (NB):</span>
+0028 <span class="comment">%       Works with the new StoreDB class system.</span>
+0029 
+0030     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0031     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0032         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0033             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
+0034         <span class="keyword">end</span>
+0035         key = storedb.getNewKey();
+0036     <span class="keyword">end</span>
+0037 
+0038     
+0039     <span class="keyword">if</span> isfield(problem, <span class="string">'egrad'</span>)
+0040     <span class="comment">%% Compute the Euclidean gradient using egrad.</span>
+0041     
+0042         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0043         <span class="keyword">switch</span> nargin(problem.egrad)
+0044             <span class="keyword">case</span> 1
+0045                 <span class="comment">% If it does not want to deal with the store structure,</span>
+0046                 <span class="comment">% then we do some caching of our own. There is a small</span>
+0047                 <span class="comment">% performance hit for this is some cases, but we expect</span>
+0048                 <span class="comment">% that this is most often the preferred choice.</span>
+0049                 store = storedb.get(key);
+0050                 <span class="keyword">if</span> ~isfield(store, <span class="string">'egrad__'</span>)
+0051                     store.egrad__ = problem.egrad(x);
+0052                     storedb.set(store, key);
+0053                 <span class="keyword">end</span>
+0054                 egrad = store.egrad__;
+0055             <span class="keyword">case</span> 2
+0056                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0057                 <span class="comment">% If the user deals with the store structure, then we don't</span>
+0058                 <span class="comment">% do any automatic caching: the user is in control.</span>
+0059                 store = storedb.getWithShared(key);
+0060                 [egrad, store] = problem.egrad(x, store);
+0061                 storedb.setWithShared(store, key);
+0062             <span class="keyword">case</span> 3
+0063                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0064                 <span class="comment">% Same here: no automatic caching.</span>
+0065                 egrad = problem.egrad(x, storedb, key);
+0066             <span class="keyword">otherwise</span>
+0067                 up = MException(<span class="string">'manopt:getEuclideanGradient:badegrad'</span>, <span class="keyword">...</span>
+0068                     <span class="string">'egrad should accept 1, 2 or 3 inputs.'</span>);
+0069                 throw(up);
+0070         <span class="keyword">end</span>
+0071 
+0072     <span class="keyword">else</span>
+0073     <span class="comment">%% Abandon computing the Euclidean gradient</span>
+0074     
+0075         up = MException(<span class="string">'manopt:getEuclideanGradient:fail'</span>, <span class="keyword">...</span>
+0076             [<span class="string">'The problem description is not explicit enough to '</span> <span class="keyword">...</span>
+0077              <span class="string">'compute the Euclidean gradient of the cost.'</span>]);
+0078         throw(up);
+0079         
+0080     <span class="keyword">end</span>
+0081     
+0082 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -52,15 +52,15 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	MULTITRANSP  Transposing arrays of matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html" class="code" title="function M = fixedrankMNquotientfactory(m, n, k)">fixedrankMNquotientfactory</a>	Manifold of m-by-n matrices of rank k with quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankembeddedfactory.html" class="code" title="function M = fixedrankembeddedfactory(m, n, k)">fixedrankembeddedfactory</a>	Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html" class="code" title="function M = fixedrankfactory_2factors_subspace_projection(m, n, k)">fixedrankfactory_2factors_subspace_projection</a>	Manifold of m-by-n matrices of rank k with quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors.html" class="code" title="function M = fixedrankfactory_3factors(m, n, k)">fixedrankfactory_3factors</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors_preconditioned.html" class="code" title="function M = fixedrankfactory_3factors_preconditioned(m, n, k)">fixedrankfactory_3factors_preconditioned</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li></ul>
+<li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html" class="code" title="function M = fixedrankMNquotientfactory(m, n, k)">fixedrankMNquotientfactory</a>	Manifold of m-by-n matrices of rank k with two factor quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankembeddedfactory.html" class="code" title="function M = fixedrankembeddedfactory(m, n, k)">fixedrankembeddedfactory</a>	Manifold struct to optimize fixed-rank matrices w/ an embedded geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html" class="code" title="function M = fixedrankfactory_2factors_subspace_projection(m, n, k)">fixedrankfactory_2factors_subspace_projection</a>	Manifold of m-by-n matrices of rank k with two factor quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors.html" class="code" title="function M = fixedrankfactory_3factors(m, n, k)">fixedrankfactory_3factors</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li><li><a href="../../../manopt/manifolds/fixedrank/fixedrankfactory_3factors_preconditioned.html" class="code" title="function M = fixedrankfactory_3factors_preconditioned(m, n, k)">fixedrankfactory_3factors_preconditioned</a>	Manifold of m-by-n matrices of rank k with three factor quotient geometry.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub3" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub5" class="code">function X = random()</a></li><li><a href="#_sub6" class="code">function U = randomvec(X)</a></li><li><a href="#_sub7" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub3" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub5" class="code">function X = random()</a></li><li><a href="#_sub6" class="code">function U = randomvec(X)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = stiefelfactory(n, p, k)</a>
@@ -185,7 +185,7 @@ This function is called by:
 0120         
 0121     <span class="keyword">end</span>
 0122 
-0123     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/privatetools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0123     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
 0124     
 0125     M.rand = @<a href="#_sub5" class="code" title="subfunction X = random()">random</a>;
 0126     <a name="_sub5" href="#_subfunctions" class="code">function X = random()</a>
@@ -202,7 +202,7 @@ This function is called by:
 0137         U = U / norm(U(:));
 0138     <span class="keyword">end</span>
 0139     
-0140     M.lincomb = @<a href="#_sub7" class="code" title="subfunction d = lincomb(x, a1, d1, a2, d2) ">lincomb</a>;
+0140     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
 0141     
 0142     M.zerovec = @(x) zeros(n, p, k);
 0143     
@@ -212,20 +212,7 @@ This function is called by:
 0147     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
 0148     M.vecmatareisometries = @() true;
 0149 
-0150 <span class="keyword">end</span>
-0151 
-0152 <span class="comment">% Linear combination of tangent vectors</span>
-0153 <a name="_sub7" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0154 
-0155     <span class="keyword">if</span> nargin == 3
-0156         d = a1*d1;
-0157     <span class="keyword">elseif</span> nargin == 5
-0158         d = a1*d1 + a2*d2;
-0159     <span class="keyword">else</span>
-0160         error(<span class="string">'Bad use of stiefel.lincomb.'</span>);
-0161     <span class="keyword">end</span>
-0162 
-0163 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 12-Aug-2014 11:52:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0150 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

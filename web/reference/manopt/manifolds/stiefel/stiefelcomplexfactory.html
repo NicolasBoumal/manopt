@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stiefelcomplexfactory</title>
+  <meta name="keywords" content="stiefelcomplexfactory">
+  <meta name="description" content="Returns a manifold struct. to optimize over complex orthonormal matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">stiefel</a> &gt; stiefelcomplexfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\stiefel&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>stiefelcomplexfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct. to optimize over complex orthonormal matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = stiefelcomplexfactory(n, p, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct. to optimize over complex orthonormal matrices.
+
+ function M = stiefelcomplexfactory(n, p)
+ function M = stiefelcomplexfactory(n, p, k)
+
+ The complex Stiefel manifold is the set of complex orthonormal nxp
+ matrices. If k is larger than 1, this is the Cartesian product of the
+ complex Stiefel manifold taken k times. The metric is such that the
+ manifold is a Riemannian submanifold of C^nxp equipped with the usual
+ real-trace inner product, that is, it is the usual metric for the complex
+ plane identified with R^2.
+
+ Points are represented as matrices X of size n x p x k (or n x p if k=1,
+ which is the default) such that each complex n x p matrix is orthonormal,
+ i.e., X'*X = eye(p) if k = 1, or X(:, :, i)' * X(:, :, i) = eye(p) for
+ i = 1 : k if k &gt; 1. Tangent vectors are represented as matrices the same
+ size as points.
+
+ By default, k = 1.
+
+
+ Please cite the Manopt paper as well as either of these research papers
+ pertaining to this specific geometry:
+ @InProceedings{sato2013complex,
+   Title        = {A complex singular value decomposition algorithm based on the {R}iemannian {N}ewton method},
+   Author       = {Sato, H. and Iwai, T.},
+   Booktitle    = {Decision and Control ({CDC}), 2013 {IEEE} 52nd Annual Conference on},
+   Year         = {2013},
+   Organization = {IEEE},
+   Pages        = {2972--2978}
+ }
+ @InProceedings{sato2014Riemannian,
+   Title        = {{R}iemannian conjugate gradient method for complex singular value decomposition problem},
+   Author       = {Sato, H.},
+   Booktitle    = {Decision and Control ({CDC}), 2014 {IEEE} 53rd Annual Conference on},
+   Year         = {2014},
+   Organization = {IEEE},
+   Pages        = {5849--5854}
+ }
+
+
+ See also: <a href="stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k)">stiefelfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multihconj.html" class="code" title="function b = multihconj(a, dim)">multihconj</a>	MULTIHCONJ  Hermitian conjugating arrays of matrices.</li><li><a href="../../../manopt/tools/multiherm.html" class="code" title="function Y = multiherm(X)">multiherm</a>	Returns the Hermitian parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function Up = projection(X, U)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a></li><li><a href="#_sub3" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub5" class="code">function X = random()</a></li><li><a href="#_sub6" class="code">function U = randomvec(X)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = stiefelcomplexfactory(n, p, k)</a>
+0002 <span class="comment">% Returns a manifold struct. to optimize over complex orthonormal matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = stiefelcomplexfactory(n, p)</span>
+0005 <span class="comment">% function M = stiefelcomplexfactory(n, p, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% The complex Stiefel manifold is the set of complex orthonormal nxp</span>
+0008 <span class="comment">% matrices. If k is larger than 1, this is the Cartesian product of the</span>
+0009 <span class="comment">% complex Stiefel manifold taken k times. The metric is such that the</span>
+0010 <span class="comment">% manifold is a Riemannian submanifold of C^nxp equipped with the usual</span>
+0011 <span class="comment">% real-trace inner product, that is, it is the usual metric for the complex</span>
+0012 <span class="comment">% plane identified with R^2.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Points are represented as matrices X of size n x p x k (or n x p if k=1,</span>
+0015 <span class="comment">% which is the default) such that each complex n x p matrix is orthonormal,</span>
+0016 <span class="comment">% i.e., X'*X = eye(p) if k = 1, or X(:, :, i)' * X(:, :, i) = eye(p) for</span>
+0017 <span class="comment">% i = 1 : k if k &gt; 1. Tangent vectors are represented as matrices the same</span>
+0018 <span class="comment">% size as points.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% By default, k = 1.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Please cite the Manopt paper as well as either of these research papers</span>
+0024 <span class="comment">% pertaining to this specific geometry:</span>
+0025 <span class="comment">% @InProceedings{sato2013complex,</span>
+0026 <span class="comment">%   Title        = {A complex singular value decomposition algorithm based on the {R}iemannian {N}ewton method},</span>
+0027 <span class="comment">%   Author       = {Sato, H. and Iwai, T.},</span>
+0028 <span class="comment">%   Booktitle    = {Decision and Control ({CDC}), 2013 {IEEE} 52nd Annual Conference on},</span>
+0029 <span class="comment">%   Year         = {2013},</span>
+0030 <span class="comment">%   Organization = {IEEE},</span>
+0031 <span class="comment">%   Pages        = {2972--2978}</span>
+0032 <span class="comment">% }</span>
+0033 <span class="comment">% @InProceedings{sato2014Riemannian,</span>
+0034 <span class="comment">%   Title        = {{R}iemannian conjugate gradient method for complex singular value decomposition problem},</span>
+0035 <span class="comment">%   Author       = {Sato, H.},</span>
+0036 <span class="comment">%   Booktitle    = {Decision and Control ({CDC}), 2014 {IEEE} 53rd Annual Conference on},</span>
+0037 <span class="comment">%   Year         = {2014},</span>
+0038 <span class="comment">%   Organization = {IEEE},</span>
+0039 <span class="comment">%   Pages        = {5849--5854}</span>
+0040 <span class="comment">% }</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">% See also: stiefelfactory</span>
+0044 
+0045 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0046 <span class="comment">% Original author: Hiroyuki Sato, April 27, 2015.</span>
+0047 <span class="comment">% Contributors:</span>
+0048 <span class="comment">% Change log:</span>
+0049     
+0050     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0051         k = 1;
+0052     <span class="keyword">end</span>
+0053     
+0054     <span class="keyword">if</span> k == 1
+0055         M.name = @() sprintf(<span class="string">'Complex Stiefel manifold St(%d, %d)'</span>, n, p);
+0056     <span class="keyword">elseif</span> k &gt; 1
+0057         M.name = @() sprintf(<span class="string">'Product complex Stiefel manifold St(%d, %d)^%d'</span>, n, p, k);
+0058     <span class="keyword">else</span>
+0059         error(<span class="string">'k must be an integer no less than 1.'</span>);
+0060     <span class="keyword">end</span>
+0061     
+0062     M.dim = @() k*(2*n*p - p^2); <span class="comment">%! k*(n*p - .5*p*(p+1)) -&gt; k*(2*n*p - p^2)</span>
+0063     
+0064     M.inner = @(x, d1, d2) real(d1(:)'*d2(:)); <span class="comment">%! trace -&gt; real-trace</span>
+0065     
+0066     M.norm = @(x, d) norm(d(:));
+0067     
+0068     M.dist = @(x, y) error(<span class="string">'stiefel.dist not implemented yet.'</span>);
+0069     
+0070     M.typicaldist = @() sqrt(p*k);
+0071     
+0072     M.proj = @<a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>;
+0073     <a name="_sub1" href="#_subfunctions" class="code">function Up = projection(X, U)</a>
+0074         
+0075         XHU = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multihconj.html" class="code" title="function b = multihconj(a, dim)">multihconj</a>(X), U); <span class="comment">%! XtU -&gt; XHU, multitransp -&gt; multihconj</span>
+0076         herXHU = <a href="../../../manopt/tools/multiherm.html" class="code" title="function Y = multiherm(X)">multiherm</a>(XHU); <span class="comment">%! symXtU -&gt; herXHU, multisym -&gt; multiherm</span>
+0077         Up = U - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, herXHU); <span class="comment">%! symXtU -&gt; herXHU</span>
+0078         
+0079     <span class="keyword">end</span>
+0080     
+0081     M.tangent = M.proj;
+0082     
+0083     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0084     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0085     M.egrad2rgrad = M.proj;
+0086     
+0087     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, H)">ehess2rhess</a>;
+0088     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, H)</a>
+0089         XHG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multihconj.html" class="code" title="function b = multihconj(a, dim)">multihconj</a>(X), egrad); <span class="comment">%! XtG -&gt; XHG, multitransp -&gt; multihconj</span>
+0090         herXHG = <a href="../../../manopt/tools/multiherm.html" class="code" title="function Y = multiherm(X)">multiherm</a>(XHG); <span class="comment">%! symXtG -&gt; herXHG, multisym(XtG) -&gt; multiherm(XHG)</span>
+0091         HherXHG = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, herXHG); <span class="comment">%! HsymXtG -&gt; HherXHG, symXtG -&gt; herXHG</span>
+0092         rhess = <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, ehess - HherXHG); <span class="comment">%! HsymXtG -&gt; HherXHG</span>
+0093     <span class="keyword">end</span>
+0094     
+0095     M.retr = @<a href="#_sub3" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0096     <a name="_sub3" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0097         <span class="keyword">if</span> nargin &lt; 3
+0098             t = 1.0;
+0099         <span class="keyword">end</span>
+0100         Y = X + t*U;
+0101         <span class="keyword">for</span> i = 1 : k
+0102             [Q, R] = qr(Y(:, :, i), 0);
+0103             <span class="comment">% The instruction with R assures we are not flipping signs</span>
+0104             <span class="comment">% of some columns, which should never happen in modern Matlab</span>
+0105             <span class="comment">% versions but may be an issue with older versions.</span>
+0106             Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+0107         <span class="keyword">end</span>
+0108     <span class="keyword">end</span>
+0109     
+0110     M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0111     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0112         <span class="keyword">if</span> nargin == 2
+0113             t = 1;
+0114         <span class="keyword">end</span>
+0115         tU = t*U;
+0116         Y = zeros(size(X));
+0117         <span class="keyword">for</span> i = 1 : k
+0118             <span class="comment">% From a formula by Ross Lippert, Example 5.4.2 in AMS08.</span>
+0119             Xi = X(:, :, i);
+0120             Ui = tU(:, :, i);
+0121             Y(:, :, i) = [Xi Ui] * <span class="keyword">...</span>
+0122                          expm([Xi'*Ui , -Ui'*Ui ; eye(p) , Xi'*Ui]) * <span class="keyword">...</span>
+0123                          [ expm(-Xi'*Ui) ; zeros(p) ];
+0124         <span class="keyword">end</span>
+0125         
+0126     <span class="keyword">end</span>
+0127 
+0128     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([real(X(:)) ; imag(X(:))])]; <span class="comment">%! X(:) -&gt; [real(X(:)) ; imag(X(:))]</span>
+0129     
+0130     M.rand = @<a href="#_sub5" class="code" title="subfunction X = random()">random</a>;
+0131     <a name="_sub5" href="#_subfunctions" class="code">function X = random()</a>
+0132         X = zeros(n, p, k);
+0133         <span class="keyword">for</span> i = 1 : k
+0134             [Q, unused] = qr(randn(n, p) + 1i*randn(n,p), 0); <span class="comment">%#ok&lt;NASGU&gt; %! Complex version</span>
+0135             X(:, :, i) = Q;
+0136         <span class="keyword">end</span>
+0137     <span class="keyword">end</span>
+0138     
+0139     M.randvec = @<a href="#_sub6" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0140     <a name="_sub6" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0141         U = <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(X, randn(n, p, k) + 1i*randn(n, p, k)); <span class="comment">%! Complex version</span>
+0142         U = U / norm(U(:));
+0143     <span class="keyword">end</span>
+0144     
+0145     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0146     
+0147     M.zerovec = @(x) zeros(n, p, k);
+0148     
+0149     M.transp = @(x1, x2, d) <a href="#_sub1" class="code" title="subfunction Up = projection(X, U)">projection</a>(x2, d);
+0150     
+0151     M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
+0152     M.mat = @(x, u_vec) reshape(u_vec(1:(n*p*k)) + 1i*u_vec((n*p*k+1):end), [n, p, k]);
+0153     M.vecmatareisometries = @() true; <span class="comment">% TODO : to check.</span>
+0154 
+0155 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

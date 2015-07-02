@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of radio_interferometric_calibration</title>
+  <meta name="keywords" content="radio_interferometric_calibration">
+  <meta name="description" content="Returns the gain matrices of N stations with K receivers.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; radio_interferometric_calibration.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>radio_interferometric_calibration
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Returns the gain matrices of N stations with K receivers.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function xsol = radio_interferometric_calibration(N, K) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns the gain matrices of N stations with K receivers.
+
+ function xsol = radio_interferometric_calibration(N, K)
+
+ N &gt;= K is always assumed.
+
+ The example considers calibration of an array of N stations.
+ We simulate a system with N stations, each having K receivers.
+ For radio astronomy, K = 2.
+
+ For a detailed exposition of the problem at hand, refer to the paper:
+ &quot;Radio interferometric calibration using a Riemannian manifold&quot;,
+ Sarod Yatawatta, ICASSP, 2013.
+ Available here: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&amp;tag=1
+
+ The source of the signal is unpolarized (given by the matrix C).
+ The measured data is the cross correlation of the signals at each receiver.
+ So there will be N(N-1)/2 possible cross correlations.
+ Noise with given SNR is added to the signal.
+
+ The objective is to estimate the gains of each receiver (K x K) matrix,
+ so the total size of the solutions is N x (K x K), which is written
+ as an NK x K matrix.
+
+ Note that each station gain matrix (KxK) can have a KxK unitary ambiguity,
+ therefore we use the quotient manifold structure.
+
+
+ The unitary ambiguity is common to all stations, so the solution obtained by
+ optimization routine always has an unkown unitary matrix that makes the 
+ solution different from the true solution.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html" class="code" title="function M = symfixedrankYYcomplexfactory(n, k)">symfixedrankYYcomplexfactory</a>	Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function fval = cost(x)</a></li><li><a href="#_sub2" class="code">function grad = egrad(x)</a></li><li><a href="#_sub3" class="code">function hess = ehess(x, eta)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function xsol = radio_interferometric_calibration(N, K)</a>
+0002 <span class="comment">% Returns the gain matrices of N stations with K receivers.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function xsol = radio_interferometric_calibration(N, K)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% N &gt;= K is always assumed.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% The example considers calibration of an array of N stations.</span>
+0009 <span class="comment">% We simulate a system with N stations, each having K receivers.</span>
+0010 <span class="comment">% For radio astronomy, K = 2.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% For a detailed exposition of the problem at hand, refer to the paper:</span>
+0013 <span class="comment">% &quot;Radio interferometric calibration using a Riemannian manifold&quot;,</span>
+0014 <span class="comment">% Sarod Yatawatta, ICASSP, 2013.</span>
+0015 <span class="comment">% Available here: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&amp;tag=1</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% The source of the signal is unpolarized (given by the matrix C).</span>
+0018 <span class="comment">% The measured data is the cross correlation of the signals at each receiver.</span>
+0019 <span class="comment">% So there will be N(N-1)/2 possible cross correlations.</span>
+0020 <span class="comment">% Noise with given SNR is added to the signal.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% The objective is to estimate the gains of each receiver (K x K) matrix,</span>
+0023 <span class="comment">% so the total size of the solutions is N x (K x K), which is written</span>
+0024 <span class="comment">% as an NK x K matrix.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% Note that each station gain matrix (KxK) can have a KxK unitary ambiguity,</span>
+0027 <span class="comment">% therefore we use the quotient manifold structure.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% The unitary ambiguity is common to all stations, so the solution obtained by</span>
+0031 <span class="comment">% optimization routine always has an unkown unitary matrix that makes the</span>
+0032 <span class="comment">% solution different from the true solution.</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%</span>
+0035 
+0036 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0037 <span class="comment">% Original author: Sarod Yatawatta, June 29, 2015.</span>
+0038 <span class="comment">% Contributors: Bamdev Mishra.</span>
+0039 <span class="comment">% Change log:</span>
+0040 <span class="comment">%</span>
+0041 
+0042     <span class="comment">% Generate some random data to test the function</span>
+0043     
+0044     <span class="keyword">if</span> ~exist(<span class="string">'N'</span>, <span class="string">'var'</span>) || isempty(N)
+0045         N = 10; 
+0046     <span class="keyword">end</span>
+0047     <span class="keyword">if</span> ~exist(<span class="string">'K'</span>, <span class="string">'var'</span>) || isempty(K)
+0048         K = 2; 
+0049     <span class="keyword">end</span>
+0050     
+0051     assert(N &gt;= K, <span class="string">'N must be larger than or equal to K.'</span>);
+0052     
+0053     <span class="comment">% Baselines (pairs of correlations)</span>
+0054     B = N*(N-1)/2;
+0055     
+0056     
+0057     
+0058     <span class="comment">% Source coherence, at phase center</span>
+0059     C = eye(K);
+0060     
+0061     <span class="comment">% Random J (gains) of all stations</span>
+0062     J = 0.2*rand(K*N,K) + 1i*rand(K*N,K);
+0063     
+0064     <span class="comment">% Visibilities (cross correlations)</span>
+0065     V = zeros(K*B,K);
+0066     
+0067     ck = 1;
+0068     <span class="keyword">for</span> ci = 1 : N -1,
+0069         <span class="keyword">for</span> cj = ci + 1 : N,
+0070             <span class="comment">% Compute cross correlation of each receiver pair</span>
+0071             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
+0072             ck = ck + 1;
+0073         <span class="keyword">end</span>
+0074     <span class="keyword">end</span>
+0075     
+0076     <span class="comment">% Generate noise</span>
+0077     SNR = 10000;<span class="comment">% inf;</span>
+0078     nn = randn(K*B,K)+1i*randn(K*B,K);
+0079     noise_var = norm(V)^2/(norm(nn)^2*SNR);
+0080     nn = nn*sqrt(noise_var);
+0081     
+0082     <span class="comment">% Add noise to signal</span>
+0083     V = V + nn;
+0084     
+0085     
+0086     <span class="comment">% Optimization part by creating the problem structure.</span>
+0087     <span class="comment">% First, we use the manifold desctription.</span>
+0088     <span class="comment">% Second, we define the problem cost, gradient and Hessian functions.</span>
+0089    
+0090     
+0091     <span class="comment">% Manifold description</span>
+0092     <span class="comment">% Note that the actual dimension is KN x K.</span>
+0093     problem.M = <a href="../manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html" class="code" title="function M = symfixedrankYYcomplexfactory(n, k)">symfixedrankYYcomplexfactory</a>(K*N, K);
+0094     
+0095     
+0096     <span class="comment">% Cost function</span>
+0097     problem.cost = @<a href="#_sub1" class="code" title="subfunction fval = cost(x)">cost</a>;
+0098     <a name="_sub1" href="#_subfunctions" class="code">function fval = cost(x)</a>
+0099         fval = 0.0;
+0100         ck = 1;
+0101         <span class="keyword">for</span> p = 1 : N - 1,
+0102             <span class="keyword">for</span> q = p + 1 : N,
+0103                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
+0104                 fval = fval + real(res(:)'*res(:)); <span class="comment">% Add norm of the residual.</span>
+0105                 ck = ck + 1;
+0106             <span class="keyword">end</span>
+0107         <span class="keyword">end</span>
+0108     <span class="keyword">end</span>
+0109     
+0110     <span class="comment">% Euclidean gradient of the cost function.</span>
+0111     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
+0112     <span class="comment">% The code involves for-loops for readability, but could be vectorized</span>
+0113     <span class="comment">% for improved speed.</span>
+0114     problem.egrad = @<a href="#_sub2" class="code" title="subfunction grad = egrad(x)">egrad</a>;
+0115     <a name="_sub2" href="#_subfunctions" class="code">function grad = egrad(x)</a>
+0116         grad = zeros(K*N, K);
+0117         ck = 1;
+0118         <span class="keyword">for</span> p = 1 : N - 1,
+0119             <span class="keyword">for</span> q = p+1 : N,
+0120                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
+0121                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
+0122                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
+0123                 ck = ck + 1;
+0124             <span class="keyword">end</span>
+0125         <span class="keyword">end</span>
+0126     <span class="keyword">end</span>
+0127     
+0128     <span class="comment">% Euclidean Hessian of the cost function along a search direction eta.</span>
+0129     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
+0130     problem.ehess = @<a href="#_sub3" class="code" title="subfunction hess = ehess(x, eta)">ehess</a>;
+0131     <a name="_sub3" href="#_subfunctions" class="code">function hess = ehess(x, eta)</a>
+0132         hess = zeros(K*N, K);
+0133         ck = 1;
+0134         <span class="keyword">for</span> p = 1:N-1,
+0135             <span class="keyword">for</span> q = p+1:N,
+0136                 res = V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
+0137                 resdot = -x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual derivative</span>
+0138                 
+0139                 hess(K*(p-1)+1:K*p,:) = hess(K*(p-1)+1:K*p,:) - (res*eta(K*(q-1)+1:K*q,:) + resdot*x(K*(q-1)+1:K*q,:))*C';
+0140                 hess(K*(q-1)+1:K*q,:) = hess(K*(q-1)+1:K*q,:) - (res'*eta(K*(p-1)+1:K*p,:) + resdot'*x(K*(p-1)+1:K*p,:))*C;
+0141                 ck = ck + 1;
+0142             <span class="keyword">end</span>
+0143         <span class="keyword">end</span>
+0144     <span class="keyword">end</span>
+0145     
+0146     
+0147     
+0148     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0149     <span class="comment">% checkgradient(problem);</span>
+0150     <span class="comment">% pause;</span>
+0151     <span class="comment">% checkhessian(problem);</span>
+0152     <span class="comment">% pause;</span>
+0153     
+0154     
+0155     <span class="comment">% Solve.</span>
+0156     [xsol,  xcost,  info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem); 
+0157     fprintf(<span class="string">'Final cost: %g.\n'</span>, xcost);
+0158     
+0159     
+0160     <span class="comment">% Display some statistics.</span>
+0161     fs = 11;
+0162     figure;
+0163     semilogy([info.iter], [info.gradnorm], <span class="string">'o-.'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>, <span class="string">'MarkerSize'</span>,6, <span class="string">'LineWidth'</span>,1.1);
+0164     ax1 = gca;
+0165     set(ax1,<span class="string">'FontSize'</span>,fs);
+0166     xlabel(ax1, <span class="string">'Iteration #'</span>, <span class="string">'FontSize'</span>,fs);
+0167     ylabel(ax1, <span class="string">'Gradient norm'</span>, <span class="string">'FontSize'</span>,fs);
+0168     title(<span class="string">'Convergence of the trust-regions algorithm'</span>);
+0169 
+0170     <span class="comment">% Make a plot of estimation error (only for K = 2).</span>
+0171     <span class="keyword">if</span> K == 2,
+0172         <span class="comment">% Find unitary ambiguity first by solving min ||J - xsol U||.</span>
+0173         <span class="comment">% This has a closed-form solution.</span>
+0174         [u, ignore, v] = svd(xsol'*J); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0175 
+0176         <span class="comment">% Error in position</span>
+0177         E = J - xsol*u*v'; 
+0178 
+0179         <span class="comment">% Normalize error</span>
+0180         E = E/norm(J);
+0181 
+0182         <span class="comment">% Plot</span>
+0183         figure;
+0184         ax1 = subplot(1,2,1);
+0185         quiver(real(J(:,1)), imag(J(:,1)),real(E(:,1)),imag(E(:,1)));
+0186         hold all;
+0187         scatter(real(J(:,1)), imag(J(:,1)));
+0188         set(ax1,<span class="string">'FontSize'</span>,fs);
+0189         xlabel(<span class="string">'Real E_1'</span>);
+0190         ylabel(<span class="string">'Imag E_1'</span>);
+0191         title(<span class="string">'Position error 1st coordinate'</span>); 
+0192         axis equal;
+0193         ax2 = subplot(1,2,2);
+0194         quiver(real(J(:,2)),imag(J(:,2)),real(E(:,2)),imag(E(:,2)));
+0195         hold all;
+0196         scatter(real(J(:,2)),imag(J(:,2)));
+0197         set(ax2,<span class="string">'FontSize'</span>,fs);
+0198         xlabel(<span class="string">'Real E_2'</span>);
+0199         ylabel(<span class="string">'Imag E_2'</span>);
+0200         title(<span class="string">'Position error 2nd coordinate'</span>); 
+0201         axis equal;
+0202     <span class="keyword">end</span>
+0203     
+0204 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
