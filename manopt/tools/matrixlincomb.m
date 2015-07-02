@@ -9,7 +9,7 @@ function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>
 % a1*d1 + a2*d2, if d1 and d2 are represented as matrices (or more
 % generally as arrays in Matlab).
 %
-% If a2 and d2 are omitted, the returned tangent vector is a1*v1.
+% If a2 and d2 are omitted, the returned tangent vector is a1*d1.
 %
 % The input x is actually unused.
 %
