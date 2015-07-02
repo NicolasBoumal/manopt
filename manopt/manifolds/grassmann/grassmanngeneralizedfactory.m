@@ -13,7 +13,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % The metric is obtained by making the generalized Grassmannian
 % a Riemannian quotient manifold of the generalized Stiefel manifold, i.e.,
 % the manifold of "sclaed" orthonormal matrices. Specifically, the scaled
-% Stiefel manifold is the set {X : X'*B*X = I}. The genearlized Grassmann
+% Stiefel manifold is the set {X : X'*B*X = I}. The generalized Grassmann
 % manifold is the Grassmannian of the generalized Stiefel manifold.
 %
 % The generalized Stiefel manifold is endowed with a scaled metric
