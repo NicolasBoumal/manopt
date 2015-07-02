@@ -31,15 +31,12 @@ body {
         <div class="container"> <a class="brand" href="index.html">Manopt</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="index.html"><i class="icon-home"></i> Home</a></li>
-              <li><a href="tutorial.html"><i class="icon-road"></i> Tutorial</a></li>
-              <li><a href="downloads.html"><i class="icon-download-alt"></i>
-                  Downloads</a></li>
-              <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
-              <li class="active"><a href="about.html"><i class="icon-user"></i>
-                  About</a></li>
-              <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i>
-                  Contact</a></li>
+              <li><a href="index.html"> Home</a></li>
+              <li><a href="tutorial.html"> Tutorial</a></li>
+              <li><a href="downloads.html"> Downloads</a></li>
+              <li><a href="forum.html"> Forum</a></li>
+              <li class="active"><a href="about.html"> About</a></li>
+              <li><a href="#contactmodal" data-toggle="modal"> Contact</a></li>
             </ul>
           </div>
           <!--/.nav-collapse --> </div>
@@ -80,7 +77,7 @@ body {
                 Absil</a>, <a href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii
                 Nesterov</a> and <a href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe
                 Sepulchre</a>. The purpose of Manopt is to facilitate
-              experimentation with optimization on manifolds as well as sharing
+              experimentation with optimization on manifolds, as well as sharing
               geometries and algorithms. This <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">blog
                 post</a> gives a quick tour.</p>
             <p>A reference book in the field of optimization on manifolds is <a
@@ -127,27 +124,49 @@ body {
                 Borckmans</a>, who also contributed the <abbr title="Particle swarm optimization">PSO</abbr>
               solver.&#160; The main developers are Nicolas and <a target="_blank"
                 href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a>.
-              Bamdev contributed most fixed-rank manifold factories, the
-              conjugate-gradient solver, the adaptive line search algorithm and
+              Bamdev notably contributed most fixed-rank manifold factories, the
+              conjugate gradient solver, the adaptive line search algorithm and
               many other ideas and bug reports. The RANSO group (<a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine
                 Absil</a>, <a href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii
                 Nesterov</a> and <a href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe
                 Sepulchre</a>) provides helpful support and guidance. </p>
-            <p>Though not technically a contribution, the <a target="_blank" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>
+            <p>The <a target="_blank" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/">GenRTR</a>
               code by <a href="http://www.csm.ornl.gov/%7Ecbaker/index.php">Chris
                 Baker</a>, Pierre-Antoine Absil and <a href="http://www.math.fsu.edu/%7Egallivan/">Kyle
-                Gallivan</a>, which was modified to become the <code>trustregions</code>
-              solver, is arguably the most important solver in the toolbox so
-              far and merits special credit.</p>
+                Gallivan</a> was modified to become the <code>trustregions</code>
+              solver. The latter is arguably the most important solver in the
+              toolbox so far, hence Chris and his colleagues merit special
+              credit. We thank them for releasing their excellent software under
+              an open source license, which allowed us to build upon it.</p>
             <p><a target="_blank" href="http://web.math.princeton.edu/%7Ebartv/">Bart
                 Vandereycken</a> helped a lot in revising the geometry file <a
                 href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
                   style="font-family: monospace;">fixedrankembeddedfactory</span></a>,
-              as per his <a href="http://epubs.siam.org/doi/abs/10.1137/110845768">paper</a>.</p>
+              as per his paper, <a target="_blank" href="http://epubs.siam.org/doi/abs/10.1137/110845768">Low-Rank
+                Matrix Completion by Riemannian Optimization</a>.</p>
             <p><a target="_blank" href="https://sites.google.com/site/hiroyukisatoeng/">Hiroyuki
                 Sato</a> contributed the complex version of the Stiefel
               manifold, <a target="_blank" href="reference/manopt/manifolds/stiefel/stiefelcomplexfactory.html"><span
-                  style="font-family: monospace;">stiefelcomplexfactory</span></a>.</p>
+                  style="font-family: monospace;">stiefelcomplexfactory</span></a>
+              as well as the complex Grassmann manifold, <a target="_blank" href="reference/manopt/manifolds/grassmann/grassmanncomplexfactory.html"><span
+                  style="font-family: monospace;">grassmanncomplexfactory</span></a>.
+              These geometries are partly exposed in his paper <a target="_blank"
+                href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=7040305">Riemannian
+                conjugate gradient method for complex singular value
+                decomposition problem</a>.</p>
+            <p><a target="_blank" href="https://fling.seas.upenn.edu/%7Etron/cgi-bin/">Roberto
+                Tron</a> contributed code for Riemannian geometries of <a target="_blank"
+                href="reference/manopt/manifolds/essential/essentialfactory.html">the
+                essential manifold</a>, an important manifold in computer vision
+              to handle relative camera information. He describes this geometry
+              in his paper with Kostas Daniilidis, <a target="_blank" href="http://www.cv-foundation.org/openaccess/content_cvpr_2014/papers/Tron_On_the_Quotient_2014_CVPR_paper.pdf">On
+                the quotient representation for the essential manifold</a>.</p>
+            <p><a target="_blank" href="https://scholar.google.com/citations?user=bT5B64wAAAAJ">Sarod
+                Yatawatta</a> contributed a factory for complex, Hermitian
+              positive semidefinite matrices of fixed rank, <a style="font-family: monospace;"
+                target="_blank" href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html">symfixedrankYYcomplexfactory</a>.
+              This geometry appears in his paper, <a target="_blank" href="http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382">Radio
+                interferometric calibration using a Riemannian manifold</a>.</p>
             <p>Here is a list of open-source code that proved useful to develop
               the toolbox:</p>
             <ul>
@@ -162,14 +181,52 @@ body {
                 anymore). </li>
             </ul>
           </section>
+          <section id="offspring">
+            <div class="page-header">
+              <h1>Things people do with Manopt</h1>
+            </div>
+            <p>We see a growing number of papers in various disciplines where
+              researchers use Manopt. A list is available on <a target="_blank"
+                href="https://scholar.google.fr/scholar?hl=en&amp;as_sdt=2005&amp;cites=16406862999391922406&amp;scipsc=&amp;q=&amp;scisbd=1">Google
+                Scholar</a>. We single out a few projects we think illustrate
+              some of the flexibility of the toolbox:</p>
+            <ul>
+              <li>Artiom Kovnatsky, Klaus Glashoff and Michael M. Bronstein
+                proposed <a target="_blank" href="http://arxiv.org/abs/1505.07676">MADMM:
+                  a generic algorithm for non-smooth optimization on manifolds</a>.
+                This is essentially ADMM, where one of the steps is smooth
+                optimization on a manifold ; that step is performed using
+                Manopt.</li>
+              <li>Reshad Hosseini and Suvrit Sra released a paper entitled <a target="_blank"
+                  href="http://arxiv.org/abs/1506.07677">Manifold Optimization
+                  for Gaussian Mixture Models</a>. They address the important
+                problem of estimating the distribution of data, when it is
+                assumed to be sampled from a mixture (linear combination) of
+                Gaussian distributions. See their <a target="_blank" href="http://visionlab.ut.ac.ir/mixest">MixEst
+                  project page</a> for code and more. The same authors also
+                developed the <a target="_blank" href="http://suvrit.de/work/soft/gopt.html">Geometric
+                  Optimization Toolbox</a> (GOPT), aimed at optimization over
+                the manifold of positive definite matrices. This includes a
+                Riemannian BFGS algorithm.</li>
+              <li>Vris Yuen-Lam Cheung, Dmitriy Drusvyatskiy, Nathan Krislock
+                and Henry Wolkowicz consider a <a target="_blank" href="http://arxiv.org/abs/1410.6852">sensor
+                  network localization problem</a>. They propose a smart way of
+                obtaining a cheap initial guess, then refine this ballpark
+                estimate to high accuracy with Manopt. They find that neither
+                works very well without the other. The general idea of combining
+                smart spectral or convex formulations to obtain rough (but
+                controllable) estimates, then refining these using Manopt, is
+                successful in many applications.</li>
+            </ul>
+          </section>
           <section id="contributing">
             <div class="page-header">
               <h1>How to contribute?</h1>
             </div>
             <p>Manopt is meant to ease the sharing of geometries and solvers. If
               you developed a Riemannian geometry or a solver for optimization
-              on manifolds and would like it to be featured in Manopt, <a href="#contactmodal"
-                data-toggle="modal">contact us</a>.</p>
+              on manifolds and would like it to be featured in Manopt, please <a
+                href="#contactmodal" data-toggle="modal">contact us</a>.</p>
             <p>We will ask for an implementation of your manifold / solver in
               the Manopt format, a documentation page for it (template to come)
               and an example script to illustrate its features. The
@@ -219,6 +276,8 @@ body {
               <li><a target="_blank" href="http://www.math.fsu.edu/%7Ewhuang2/GROPT_htm/Riemannian_Optimization_Package.htm">GROPT</a>
                 is a Riemannian optimization package written in C++ (with mex
                 interface to Matlab), by Wen Huang and Kyle Gallivan ;</li>
+              <li><a target="_blank" href="http://suvrit.de/work/soft/gopt.html">GOPT</a>
+                is designed for optimization over positive definite matrices.</li>
               <li><a target="_blank" href="http://www.cs.ucdavis.edu/%7Ebai/ET/other_methods/overview_SGMIN.html">SGMIN</a>
                 performs Stiefel-Grassmann optimization ;</li>
               <li><a target="_blank" href="http://www.math.umbc.edu/%7Ekofi/GrassmannOptim/">GrassmannOptim</a>
