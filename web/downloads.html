@@ -162,11 +162,17 @@ body {
                   <li>As of Manopt 1.0.6, the inner solver tCG monitors the
                     model cost; an (innocuous) logic bug was corrected there.
                     Theory behind this feature is now better understood (a paper
-                    reference + BibTex entry will be added).</li>
-                  <li>Warns if many TR+ steps are detected, to suggest changing
-                    parameter values.</li>
+                    reference + BibTex was added).</li>
+                  <li>Warns if many TR+ / TR- steps are detected, to suggest
+                    changing parameter values.</li>
                   <li>Uses safe version of tic/toc timers (originally because
                     Octave now supports them).</li>
+                  <li>In case rho evaluates to NaN (which really should not
+                    happen), the code now ensures that the step is rejected and
+                    the radius decreased, thus preventing stagnation. In an
+                    adversely crafted example, this helped the solver escape the
+                    region where NaN's appear (again, this is not supposed to
+                    happen, but it's good to handle it nonetheless).</li>
                   <li>Many more comments inside the code.</li>
                 </ul>
                 <li>New examples:</li>
