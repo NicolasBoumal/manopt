@@ -137,9 +137,6 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
-%
-%   April 21, 2015 (NB):
-%       Saving step information in storedb.internal.cg.
 
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
@@ -274,16 +271,6 @@ while true
     % Execute line search
     [stepsize, newx, newkey, lsstats] = options.linesearch( ...
                    problem, x, desc_dir, cost, df0, options, storedb, key);
-
-    % We make the step available in the shared internal memory. This will
-    % notably serve for preconditioners or Hessian approximations such as
-    % BFGS.
-    storedb.internal.cg.stepdirection = desc_dir;
-    storedb.internal.cg.stepsize = stepsize;
-    storedb.internal.cg.steporigin = x;
-    storedb.internal.cg.steptarget = newx;
-    storedb.internal.cg.steporiginkey = key;
-    storedb.internal.cg.steptargetkey = newkey;
                
     
     % Compute the new cost-related quantities for newx
