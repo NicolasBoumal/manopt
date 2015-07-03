@@ -20,7 +20,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % by making it a Riemannian submanifold of the Euclidean space,
 % again endowed with the scaled inner product.
 %
-% Some notions (not all) are from Section 4.5 of the paper,
+% Some notions (not all) are from Section 4.5 of the paper
 % "The geometry of algorithms with orthogonality constraints",
 % A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.
 %
@@ -56,7 +56,6 @@ function M = grassmanngeneralizedfactory(n, p, B)
     if ~exist('B', 'var') || isempty(B)
         B = speye(n); % Standard Grassmann manifold.
     end
-    B = sparse(B); % Use sparse representation, if possible.
     
     M.name = @() sprintf('Generalized Grassmann manifold Gr(%d, %d)', n, p);
     
