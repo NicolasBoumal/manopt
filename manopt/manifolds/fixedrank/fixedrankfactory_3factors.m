@@ -10,7 +10,7 @@ function M = fixedrankfactory_3factors(m, n, k)
 %
 % Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf.
 %
-% The second-order geometry follows from the paper,
+% The second-order geometry follows from the paper
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
 % B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre,
 % Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
