@@ -45,7 +45,7 @@ function M = spectrahedronfactory(n, k)
 %
 % See also: spherefactory elliptopefactory symfixedrankYYfactory
 
-% This file is part of Manopt: www.nanopt.org.
+% This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, July 11, 2013.
 % Contributors: Nicolas Boumal
 % Change log:
