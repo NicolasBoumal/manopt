@@ -45,7 +45,7 @@ function M = elliptopefactory(n, k)
 %
 % See also: obliquefactory symfixedrankYYfactory spectrahedronfactory
 
-% This file is part of Manopt: www.nanopt.org.
+% This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, July 12, 2013.
 % Contributors:
 % Change log:
