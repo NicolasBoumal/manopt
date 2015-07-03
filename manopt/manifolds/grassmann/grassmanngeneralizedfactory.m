@@ -20,7 +20,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % by making it a Riemannian submanifold of the Euclidean space,
 % again endowed with the scaled inner product.
 %
-% Some notions (not all) are from Section 4.5 of the paper
+% Some notions (not all) are from Section 4.5 of the paper,
 % "The geometry of algorithms with orthogonality constraints",
 % A. Edelman, T. A. Arias, S. T. Smith, SIMAX, 1998.
 %
@@ -56,6 +56,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
     if ~exist('B', 'var') || isempty(B)
         B = speye(n); % Standard Grassmann manifold.
     end
+    B = sparse(B); % Use sparse representation, if possible.
     
     M.name = @() sprintf('Generalized Grassmann manifold Gr(%d, %d)', n, p);
     
@@ -225,14 +226,14 @@ function M = grassmanngeneralizedfactory(n, p, B)
         % Method 1
         [u, ~, v] = svd(Y, 0);
   
-        % Equivalent, but might be expensive
-        % X = u*(sqrtm(u'*(B*u))\(v'));
+        % Instead of the following three steps, an equivalent, but an 
+        % expensive way is to do X = u*(sqrtm(u'*(B*u))\(v')).
         [q, ssquare] = eig(u'*(B*u));
         qsinv = q/sparse(diag(sqrt(diag(ssquare))));
         X = u*((qsinv*q')*v'); % X'*B*X is identity.
         
         
-        % Method2: another computation using restricted_svd
+        % Another computation using restricted_svd
         % [u, ~, v] = restricted_svd(Y);
         % X = u*v'; % X'*B*X is identity.
         

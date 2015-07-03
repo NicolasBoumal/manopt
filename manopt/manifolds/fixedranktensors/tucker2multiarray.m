@@ -1,5 +1,5 @@
-function GU1U2U3 = tucker2multiarray(X)
-% Converts a 3d Tucker form to a multiarray
+function Xtensor = tucker2multiarray(X)
+% Converts a 3d Tucker form tensor to a multiarray.
 %
 % function Xtensor = tucker2multiarray(X)
 %
@@ -9,7 +9,7 @@ function GU1U2U3 = tucker2multiarray(X)
 % orthogonal matrices.
 % G (r1-by-r2-by-r3) is a multidimensional array.
 %
-% See also fixedrankfactory_tucker_preconditioned
+% See also: fixedrankfactory_tucker_preconditioned
 
 % This file is part of Manopt: www.manopt.org.
 % Original authors: Hiroyuki Kasai and Bamdev Mishra, June 05, 2015.
@@ -38,9 +38,9 @@ function GU1U2U3 = tucker2multiarray(X)
     GU1U2 = permute(reshape(U2*G2, n2, n1, r3), [2 1 3]);
     
     % Further multplication by U3
-    G3 = reshape(permute(GU1U2, [3 1 2]), r3, n1*n2);
-    
-    
+    G3 = reshape(permute(GU1U2, [3 1 2]), r3, n1*n2);    
     GU1U2U3 = permute(reshape(U3*G3, n3, n1, n2), [2 3 1]);
+    
+    Xtensor = GU1U2U3;% Full tensor
     
 end

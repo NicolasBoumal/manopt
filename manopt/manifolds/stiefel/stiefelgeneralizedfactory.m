@@ -24,7 +24,7 @@ function M = stiefelgeneralizedfactory(n, p, B)
 % up (typically, by computing a Cholesky factorization of it, then calling
 % an appropriate solver).
 %
-% See also: grassmanngeneralizedfactory grassmannfactory stiefelfactory
+% See also: stiefelfactory  grassmannfactory  grassmanngeneralizedfactory 
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, June 30, 2015.
@@ -37,7 +37,8 @@ function M = stiefelgeneralizedfactory(n, p, B)
     if ~exist('B', 'var') || isempty(B)
         B = speye(n); % Standard Stiefel manifold.
     end
-   
+    B = sparse(B); % Use sparse representation, if possible.
+    
     M.name = @() sprintf('Generalized Stiefel manifold St(%d, %d)', n, p);
     
     M.dim = @() (n*p - .5*p*(p+1));
@@ -150,14 +151,14 @@ function M = stiefelgeneralizedfactory(n, p, B)
         % Method 1
         [u, ~, v] = svd(Y, 0);
   
-        % Equivalent, but might be expensive
-        % X = u*(sqrtm(u'*(B*u))\(v'));
+        % Instead of the following three steps, an equivalent, but an 
+        % expensive way is to do X = u*(sqrtm(u'*(B*u))\(v')).
         [q, ssquare] = eig(u'*(B*u));
         qsinv = q/sparse(diag(sqrt(diag(ssquare))));
         X = u*((qsinv*q')*v'); % X'*B*X is identity.
         
         
-        % Method2: another computation using restricted_svd
+        % Another computation using restricted_svd
         % [u, ~, v] = restricted_svd(Y);
         % X = u*v'; % X'*B*X is identity.
         
@@ -175,6 +176,5 @@ function M = stiefelgeneralizedfactory(n, p, B)
         s = sparse(diag(abs(sqrt(ssquarevec))));
         u = Y*(v/s); % u'*B*u is identity.
     end
-    
 
 end
