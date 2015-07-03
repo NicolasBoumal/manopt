@@ -12,7 +12,7 @@ function xsol = radio_interferometric_calibration(N, K)
 % For a detailed exposition of the problem at hand, refer to the paper:
 % "Radio interferometric calibration using a Riemannian manifold",
 % Sarod Yatawatta, ICASSP, 2013.
-% Available here: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382&tag=1
+% Available at http://dx.doi.org/10.1109/ICASSP.2013.6638382.
 %
 % The source of the signal is unpolarized (given by the matrix C).
 % The measured data is the cross correlation of the signals at each receiver.
@@ -23,14 +23,11 @@ function xsol = radio_interferometric_calibration(N, K)
 % so the total size of the solutions is N x (K x K), which is written
 % as an NK x K matrix.
 %
-% Note that each station gain matrix (KxK) can have a KxK unitary ambiguity,
-% therefore we use the quotient manifold structure.
-%
-%
-% The unitary ambiguity is common to all stations, so the solution obtained by
+% Note: each station gain matrix (KxK) can have a KxK unitary ambiguity,
+% therefore we use the quotient manifold structure. The unitary ambiguity 
+% is common to all stations, so the solution obtained by 
 % optimization routine always has an unkown unitary matrix that makes the 
 % solution different from the true solution.
-%
 %
 
 % This file is part of Manopt: www.manopt.org.
@@ -60,14 +57,14 @@ function xsol = radio_interferometric_calibration(N, K)
     
     % Random J (gains) of all stations
     J = 0.2*rand(K*N,K) + 1i*rand(K*N,K);
-    
+ 
     % Visibilities (cross correlations)
     V = zeros(K*B,K);
     
     ck = 1;
     for ci = 1 : N -1,
         for cj = ci + 1 : N,
-            % Compute cross correlation of each receiver pair
+            % Compute cross correlation of each receiver pair.
             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
             ck = ck + 1;
         end
@@ -131,7 +128,7 @@ function xsol = radio_interferometric_calibration(N, K)
     function hess = ehess(x, eta)
         hess = zeros(K*N, K);
         ck = 1;
-        for p = 1:N-1,
+        for p = 1 : N-1,
             for q = p+1:N,
                 res = V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual
                 resdot = -x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual derivative

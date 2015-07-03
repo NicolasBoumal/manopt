@@ -10,6 +10,11 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %
 % Tangent vectors are represented as a structure with two fields: L, R.
 %
+% Note: L is orthonormal, i.e., columns are orthogonal to each other.
+% Such a geometry might be of interest where the left factor has a
+% subspace interpretation. A motivation is in Sections 3.3 and 6.4 of the
+% paper below.
+%
 % Please cite the Manopt paper as well as the research paper:
 %     @Article{mishra2014fixedrank,
 %       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
@@ -21,13 +26,15 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %       Volume  = {29},
 %       Doi     = {10.1007/s00180-013-0464-z}
 %     }
+%
+% See also: fixedrankfactory_2factors fixedrankembeddedfactory fixedrankfactory_2factors_preconditioned
+
+
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
-    
-    
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -36,9 +43,8 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     % Some precomputations at the point X to be used in the inner product (and
     % pretty much everywhere else).
     function X = prepare(X)
-        if ~all(isfield(X,{'RtR','invRtR'}) == 1)
+        if ~all(isfield(X,{'RtR'}) == 1)
             X.RtR = X.R'*X.R;
-            X.invRtR = eye(size(X.R,2))/ X.RtR;
         end
     end
     
@@ -48,7 +54,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
         
-        ip = eta.L(:).'*zeta.L(:)  + trace(X.invRtR*(eta.R'*zeta.R) );
+        ip = eta.L(:).'*zeta.L(:)  + trace(X.RtR\(eta.R'*zeta.R));
     end
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
@@ -62,11 +68,11 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     stiefel_proj = @(L, H) H - L*symm(L'*H);
     
     M.egrad2rgrad = @egrad2rgrad;
-    function eta = egrad2rgrad(X, eta)
+    function rgrad = egrad2rgrad(X, egrad)
         X = prepare(X);
         
-        eta.L = stiefel_proj(X.L, eta.L);
-        eta.R = eta.R*X.RtR;
+        rgrad.L = stiefel_proj(X.L, egrad.L);
+        rgrad.R = egrad.R*X.RtR;
     end
     
     
@@ -84,7 +90,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
         Hess.R = ehess.R*X.RtR + 2*egrad.R*symm(eta.R'*X.R);
         
         % Correction factor for the non-constant metric on the factor R.
-        Hess.R = Hess.R - rgrad.R*((X.invRtR)*symm(X.R'*eta.R)) - eta.R*(X.invRtR*symm(X.R'*rgrad.R)) + X.R*(X.invRtR*symm(eta.R'*rgrad.R));
+        Hess.R = Hess.R - rgrad.R*(X.RtR\(symm(X.R'*eta.R))) - eta.R*(X.RtR\(symm(X.R'*rgrad.R))) + X.R*(X.RtR\(symm(eta.R'*rgrad.R)));
         
         % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
@@ -161,7 +167,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     
     M.transp = @(x1, x2, d) projection(x2, d);
     
-    % vec and mat are not isometries, because of the unusual inner metric.
+    % vec and mat are not isometries, because of the scaled inner metric.
     M.vec = @(X, U) [U.L(:) ; U.R(:)];
     M.mat = @(X, u) struct('L', reshape(u(1:(m*k)), m, k), ...
         'R', reshape(u((m*k+1):end), n, k));
