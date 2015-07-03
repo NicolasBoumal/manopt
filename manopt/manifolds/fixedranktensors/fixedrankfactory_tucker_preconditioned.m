@@ -11,14 +11,19 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 % r3 = tensor_rank(3);
 %
 % A point X on the manifold is represented as a structure with four
-% fields: U1, U2, U3 and G. 
+% fields: U1, U2, U3 and G. The matrices U1 (n1-by-r1), U2 (n2-by-r2),
+% and U3 (n3-by-r3) are orthogonal matrices. G (r1-by-r2-r3) is a 
+% multidimensional array.
 %
-% The matrices U1 (n1-by-r1), U2 (n2-by-r2) and U3 (n3-by-r3) are orthogonal
-% matrices.
-% G (r1-by-r2-r3) is a multidimensional array.
+% Tangent vectors are represented as a structure with four fields: 
+% U1, U2, U3, and G.
 %
-% Tangent vectors are represented as a structure with four fields: U1, U2, U3
-% and G.
+% We exploit the quotient nature of Tucker decomposition to impose a scaled
+% inner product on the manifold. This suits to least-squares problems.
+% For detials, refer to the technical report:
+% "{R}iemannian preconditioning for tensor completion",
+% H. Kasai and B. Mishra, Arxiv preprint arXiv:1506.02159, 2015.
+%
 %
 % Please cite the Manopt paper as well as the research paper:
 %     @TechReport{kasai2015precon,

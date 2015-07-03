@@ -18,9 +18,10 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
 % rho(X) is the diagonal part of X*X'.
 %
 % This example is motivated in the paper
-% "A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems" by
+% "A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems",
 % Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,
 % SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.
+%
 
 
 % This file is part of Manopt and is copyrighted. See the license file.
@@ -82,11 +83,11 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
     end
     
     
-    %     % Check whether gradient and Hessian computations are correct.
-    %     checkgradient(problem);
-    %     pause;
-    %     checkhessian(problem);
-    %     pause;
+    % Check whether gradient and Hessian computations are correct.
+    % checkgradient(problem);
+    % pause;
+    % checkhessian(problem);
+    % pause;
     
     
     % Initialization as suggested in above referenced paper.
@@ -98,7 +99,7 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
   
     % Call manoptsolve to automatically call an appropriate solver.
     % Note: it calls the trust regions solver as we have all the required
-    % ingredients, namely, gradient and Hessian information.
+    % ingredients, e.g., gradient and Hessian, information.
     Xsol = manoptsolve(problem, X0);
     
 end

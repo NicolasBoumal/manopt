@@ -3,10 +3,11 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
 %
 % function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
 %
-% Input: A real, symmetric matrix A of size nxn and an integer p < n.
-%        B is a symmetric positive definite matrix, same size as A.
+% Input: A is a real, symmetric matrix of size nxn,
+%        B is a symmetric positive definite matrix, same size as A, and
+%        an integer p < n.
 % Output: Xsol: a real, orthonormal matrix X of size nxp such that
-%         trace(X'*A*X) is maximized, subject to X'*B*X is identity. 
+%         trace(X'*A*X) is maximized, subject to X'*B*X being identity. 
 %         That is, the columns of X form an orthonormal basis of a dominant
 %         subspace of dimension p of B^(-1)*A. These are thus eigenvectors
 %         associated with the largest eigenvalues of B^(-1)*A  (in no
@@ -83,8 +84,8 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
     options.Delta_bar = 8*sqrt(p);
     [Xsol, costXsol, info] = trustregions(problem, [], options); %#ok<NASGU,ASGLU>
     
-    % To extract the eigenvalues, solve the small pxp symmetric eigenvalue
-    % problem.
+    % To extract the eigenvalues, solve the small p-by-p symmetric 
+    % eigenvalue problem.
     Ssol = eig(Xsol'*(A*Xsol));
   
 end

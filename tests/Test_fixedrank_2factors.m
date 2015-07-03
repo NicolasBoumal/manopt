@@ -52,12 +52,12 @@ function Test_fixedrank_2factors()
     end
     
     % % Check numerically whether gradient and Ressian are correct
-    % checkgradient(problem);
-    % drawnow;
-    % pause;
-    % checkhessian(problem);
-    % drawnow;
-    % pause;
+    checkgradient(problem);
+    drawnow;
+    pause;
+    checkhessian(problem);
+    drawnow;
+    pause;
     
     % Initialization
     X0 = [];

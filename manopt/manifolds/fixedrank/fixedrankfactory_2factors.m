@@ -3,16 +3,16 @@ function M = fixedrankfactory_2factors(m, n, k)
 %
 % function M = fixedrankfactory_2factors(m, n, k)
 %
-% The first-order geometry follows the balanced quotient geometry described in the paper:
-% G. Meyer, S. Bonnabel and R. Sepulchre,
+% The first-order geometry follows the balanced quotient geometry described 
+% in the paper, 
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
-% ICML 2011.
+% G. Meyer, S. Bonnabel and R. Sepulchre, ICML 2011.
 %
-% Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf
+% Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf.
 %
-% The second-order geometry follows from the reference 
-% B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
+% The second-order geometry follows from the paper,
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
+% B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre,
 % Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
 %
 % A point X on the manifold is represented as a structure with two
@@ -52,31 +52,33 @@ function M = fixedrankfactory_2factors(m, n, k)
 %
 %   July 10, 2013 (NB):
 %       Added vec, mat, tangent, tangent2ambient.
+%
+%	July 03, 2015 (BM):
+%      Cosmetic changes including avoiding storing the inverse of a
+%       k-by-k matrix.
     
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
     M.dim = @() (m+n-k)*k;
     
-    % Some precomputations at the point X to be used in the inner product (and
-    % pretty much everywhere else).
+    % Some precomputations at the point X to be used in the inner product 
+    % (and pretty much everywhere else).
     function X = prepare(X)
-        if ~all(isfield(X,{'LtL','RtR','invRtR','invLtL'}))
+        if ~all(isfield(X,{'LtL','RtR'}))
             L = X.L;
             R = X.R;
             X.LtL = L'*L;
             X.RtR = R'*R;
-            X.invLtL = inv(X.LtL);
-            X.invRtR = inv(X.RtR);
         end
     end
     
     % Choice of the metric is motivated by the symmetry present in the
-    % space.
+    % space. The metric is the natural Grassmannian metric on L and R.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         X = prepare(X);
-        ip = trace(X.invLtL*(eta.L'*zeta.L)) + trace( X.invRtR*(eta.R'*zeta.R));
+        ip = trace(X.LtL\(eta.L'*zeta.L)) + trace( X.RtR\(eta.R'*zeta.R));
     end
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
@@ -88,10 +90,10 @@ function M = fixedrankfactory_2factors(m, n, k)
     symm = @(M) .5*(M+M');
     
     M.egrad2rgrad = @egrad2rgrad;
-    function eta = egrad2rgrad(X, eta)
+    function rgrad = egrad2rgrad(X, egrad)
         X = prepare(X);
-        eta.L = eta.L*X.LtL;
-        eta.R = eta.R*X.RtR;
+        rgrad.L = egrad.L*X.LtL;
+        rgrad.R = egrad.R*X.RtR;
     end
     
     M.ehess2rhess = @ehess2rhess;
@@ -106,8 +108,8 @@ function M = fixedrankfactory_2factors(m, n, k)
         Hess.R = ehess.R*X.RtR + 2*egrad.R*symm(eta.R'*X.R);
         
         % We need a correction term for the non-constant metric.
-        Hess.L = Hess.L - rgrad.L*((X.invLtL)*symm(X.L'*eta.L)) - eta.L*(X.invLtL*symm(X.L'*rgrad.L)) + X.L*(X.invLtL*symm(eta.L'*rgrad.L));
-        Hess.R = Hess.R - rgrad.R*((X.invRtR)*symm(X.R'*eta.R)) - eta.R*(X.invRtR*symm(X.R'*rgrad.R)) + X.R*(X.invRtR*symm(eta.R'*rgrad.R));
+        Hess.L = Hess.L - rgrad.L*(X.LtL\(symm(X.L'*eta.L))) - eta.L*(X.LtL\(symm(X.L'*rgrad.L))) + X.L*(X.LtL\(symm(eta.L'*rgrad.L)));
+        Hess.R = Hess.R - rgrad.R*(X.RtR\(symm(X.R'*eta.R))) - eta.R*(X.RtR\(symm(X.R'*rgrad.R))) + X.R*(X.RtR\(symm(eta.R'*rgrad.R)));
         
         % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);

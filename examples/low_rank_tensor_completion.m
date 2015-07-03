@@ -18,6 +18,14 @@ function low_rank_tensor_completion()
 % Input:  None. This example file generates random data.
 % 
 % Output: None.
+%
+% Please cite the Manopt paper as well as the research paper:
+%     @Techreport{kasai2015,
+%       Title   = {{R}iemannian preconditioning for tensor completion},
+%       Author  = {Kasai, H. and Mishra, B.},
+%       Journal = {Arxiv preprint arXiv:1506.02159},
+%       Year    = {2015}
+%     }
 
 % This file is part of Manopt and is copyrighted. See the license file.
 % 
