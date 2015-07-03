@@ -18,9 +18,9 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 % Tangent vectors are represented as a structure with four fields: 
 % U1, U2, U3, and G.
 %
-% We exploit the quotient nature of Tucker decomposition to impose a scaled
-% inner product on the manifold. This suits to least-squares problems.
-% For detials, refer to the technical report:
+% We exploit the quotient nature of Tucker decompositions to impose a
+% scaled inner product on the manifold. This suits least-squares problems.
+% For details, refer to the technical report:
 % "{R}iemannian preconditioning for tensor completion",
 % H. Kasai and B. Mishra, Arxiv preprint arXiv:1506.02159, 2015.
 %

@@ -99,7 +99,7 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
   
     % Call manoptsolve to automatically call an appropriate solver.
     % Note: it calls the trust regions solver as we have all the required
-    % ingredients, e.g., gradient and Hessian, information.
+    % ingredients, namely, gradient and Hessian, information.
     Xsol = manoptsolve(problem, X0);
     
 end

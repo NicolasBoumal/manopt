@@ -37,7 +37,6 @@ function M = stiefelgeneralizedfactory(n, p, B)
     if ~exist('B', 'var') || isempty(B)
         B = speye(n); % Standard Stiefel manifold.
     end
-    B = sparse(B); % Use sparse representation, if possible.
     
     M.name = @() sprintf('Generalized Stiefel manifold St(%d, %d)', n, p);
     

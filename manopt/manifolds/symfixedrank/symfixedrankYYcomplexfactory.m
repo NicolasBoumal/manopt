@@ -11,7 +11,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 % Paper link: http://dx.doi.org/10.1109/ICASSP.2013.6638382.
 %
 % A point X on the manifold M is parameterized as YY^*, where 
-% Y is a complex matrix of size nxk. Any point Y on the manifold M, 
+% Y is a complex matrix of size nxk. For any point Y on the manifold M, 
 % given any kxk complex unitary matrix U, we say Y*U  is equivalent to Y, 
 % i.e., YY^* does not change. Therefore, M is the set of equivalence 
 % classes and is a Riemannian quotient manifold C^{nk}/SU(k). 
@@ -76,7 +76,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
         distval = real(E(:)'*E(:));
     end
     
-    M.typicaldist = @() 10*k;% BM: To do.
+    M.typicaldist = @() 10*k; % BM: To do.
     
     M.proj = @projection;
     function etaproj = projection(Y, eta)

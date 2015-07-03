@@ -5,13 +5,13 @@ function essential_svd
 % matrices. Essential matrices are used in computer vision to represent the
 % epipolar constraint between projected points in two perspective views.
 %
-% Note: the essentialfactory file uses a a quotient R1/R2 representation to
-% work with essential matrices. On the other hand, from an user point of 
-% view, it is convenient to use the E representation 
-% (a matrix of size 3-by-3) to give cost, gradient, and Hessian 
-% information. To this end, we provide auxiliary files 
-% essential_costE2cost, essential_egradE2egrad, and essential_ehessE2ehess
-% that convert these ingredients to their R1/R2 counterparts.
+% Note: the essentialfactory file uses a quotient R1/R2 representation to
+% work with essential matrices. On the other hand, from a user point of 
+% view, it is convenient to use the E representation  (a matrix of size
+% 3-by-3) to give cost, gradient, and Hessian  information. To this end, we
+% provide auxiliary files essential_costE2cost, essential_egradE2egrad, and
+% essential_ehessE2ehess that convert these ingredients to their R1/R2
+% counterparts.
 %
 % See also: essentialfactory essential_costE2cost essential_egradE2egrad
 % essential_ehessE2ehess
