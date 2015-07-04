@@ -96,7 +96,7 @@ function low_rank_tensor_completion()
         Xmultiarray = tucker2multiarray(X);
         Diffmultiarray = P.*Xmultiarray - PA;
         Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
-        f = .5*norm( Diffmultiarray_flat , 'fro')^2;
+        f = .5*norm(Diffmultiarray_flat , 'fro')^2;
     end
 
 
@@ -105,7 +105,8 @@ function low_rank_tensor_completion()
     % Define the Euclidean gradient of the cost function, that is, the
     % gradient of f(X) seen as a standard function of X.
     % nabla f(X) = P.*(X-A)
-    % We only need to give the Euclidean gradient, Manopt converts it internally
+    % We only need to give the Euclidean gradient. Manopt converts it
+    % internally to the Riemannian counterpart.
     problem.egrad =  @egrad;
     function [g] = egrad(X)
         Xmultiarray = tucker2multiarray(X);
@@ -130,7 +131,8 @@ function low_rank_tensor_completion()
     % represented as a tangent vector: a structure with fields U1, U2, U3, G.
     % This is the directional derivative of nabla f(X) at X along Xdot:
     % nabla^2 f(X)[Xdot] = P.*Xdot
-    % We only need to give the Euclidean Hessian, Manopt converts it internally.
+    % We only need to give the Euclidean Hessian. Manopt converts it
+    % internally to the Riemannian counterpart.
     problem.ehess = @ehess;
     function [Hess] = ehess(X, eta)
 
@@ -263,8 +265,8 @@ function low_rank_tensor_completion()
     % Manopt have generic purpose systems to do this. But for the problem
     % at hand, we could exploit the least-squares structure to compute an
     % approximate stepsize for the line-search problem. The approximation
-    % is obtained by linearizing the nonlinear manifold locally and
-    % approximating it further with a degree 2 polynomial approximation.
+    % is obtained by linearizing the nonlinear manifold locally and further
+    % approximating it with a degree 2 polynomial approximation.
     % The specific derivation is in the paper referenced above.
     
     problem.linesearch = @linesearch_helper;
@@ -294,7 +296,8 @@ function low_rank_tensor_completion()
         term1_mat = P.*X1multiarray;    
         term1 = term1_mat(:);
         
-        % tmin is the solution to the problem argmin a2*t^2 + a1*t.
+        % tmin is the solution to the problem argmin a2*t^2 + a1*t, where
+        % the coefficients a1 and a2 are shown below.
         a2 = (term1'*term1);
         a1 = 2*(term1'*term0);
         tmin = - 0.5*(a1 / a2);

@@ -105,6 +105,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
         X = prepare(X); % Reuse already computed terms
+        
         SSU1 = X.G1G1t;
         ASU1 = 2*symm(SSU1*(X.U1' * egrad.U1));
         
@@ -114,23 +115,28 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         SSU3 = X.G3G3t;
         ASU3 = 2*symm(SSU3*(X.U3' * egrad.U3));
         
+        
         BU1 = lyap(SSU1, -ASU1);
         BU2 = lyap(SSU2, -ASU2);
         BU3 = lyap(SSU3, -ASU3);
         
-        % The Riemannian gradient is on the horization space from 
-        % the Riemannian submersion theory. 
-        % No need to further project on it.
+        % The lyap solutions ensure that the Riemannian gradient rgrad 
+        % is now on the tangent space. From the Riemannian submersion 
+        % theory, it also belongs to the horizontal space. Therefore,
+        % no need to further project it on the horizontal space.
+        
         rgrad.U1 = (egrad.U1 - X.U1*BU1)/X.G1G1t;
         rgrad.U2 = (egrad.U2 - X.U2*BU2)/X.G2G2t;
         rgrad.U3 = (egrad.U3 - X.U3*BU3)/X.G3G3t;
         rgrad.G = egrad.G;
+
+        
     end
     
     
     
     M.ehess2rhess = @ehess2rhess;
-    function Hess = ehess2rhess(X, egrad, ehess, eta) % To Do
+    function Hess = ehess2rhess(X, egrad, ehess, eta) 
         X = prepare(X); % Reuse already computed terms
         
         % Riemannian gradient
@@ -242,9 +248,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         PU3 = skew((X.U3'*eta.U3)*X.G3G3t) + skew(X.G3*eta_G3');
         
         % Calculate Omega1, Omega2, Omega3 that are required in finding the
-        % horizontal component. Currently, we are using a simple iterative
-        % technique to solve the system of equations. 
-        %
+        % horizontal component. 
         % We use the Matlab's pcg function to solve the system efficiently.
         % We exploit the structure by designing a good preconditioner as well.
         % The preconditioner takes the block positive definite part of the
@@ -298,6 +302,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         GOmega2 = permute(reshape(Omega2*X.G2, r2, r1, r3), [2 1 3]);
         GOmega3 = permute(reshape(Omega3*X.G3, r3, r1, r2), [2 3 1]); 
         etaproj.G = eta.G -(-(GOmega1+GOmega2+GOmega3));
+        
     end
     
     
@@ -372,7 +377,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         X.G = CR1R2R3;
     
         
-        
+        % Compute some terms that are used subsequently.
         X = prepare(X);
         
     end
@@ -399,7 +404,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
     
     M.transp = @(x1, x2, d) projection(x2, d);
     
-    % vec and mat are not isometries, because of scaled metric
+    % vec and mat are not isometries, because of the scaled metric.
     M.vec = @(X, U1) [U1.U1(:); U1.U2(:); U1.U3(:); U1.G(:)];
     M.mat = @(X, u) struct ...
         ('U1', reshape(u(1  : n1*r1), n1, r1), ...
@@ -429,7 +434,7 @@ function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
     
 end
 
-function U = uf(A) % U factor of Polar factorization of A
+function U = uf(A) % U factor of Polar factorization of a tall matrix A.
     [L, unused, R] = svd(A, 0); %#ok
     U = L*R';
 end
