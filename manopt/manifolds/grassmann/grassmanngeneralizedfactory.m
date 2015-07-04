@@ -10,15 +10,16 @@ function M = grassmanngeneralizedfactory(n, p, B)
 %
 % When B is identity, the manifold is the standard Grassmann manifold.
 %
-% The metric is obtained by making the generalized Grassmannian
-% a Riemannian quotient manifold of the generalized Stiefel manifold, i.e.,
-% the manifold of "sclaed" orthonormal matrices. Specifically, the scaled
-% Stiefel manifold is the set {X : X'*B*X = I}. The generalized Grassmann
-% manifold is the Grassmannian of the generalized Stiefel manifold.
+% The metric is obtained by viewing the generalized Grassmannian
+% a Riemannian quotient manifold of the generalized Stiefel manifold, 
+% which is the manifold of "sclaed" orthonormal matrices. Specifically, 
+% the scaled Stiefel manifold is the set {X : X'*B*X = I}. 
+% The generalized Grassmann manifold is the Grassmannian of the 
+% generalized Stiefel manifold.
 %
 % The generalized Stiefel manifold is endowed with a scaled metric
-% by making it a Riemannian submanifold of the Euclidean space,
-% again endowed with the scaled inner product.
+% by viewing it as a Riemannian submanifold of the Euclidean space, which
+% is again endowed with the scaled inner product.
 %
 % Some notions (not all) are from Section 4.5 of the paper
 % "The geometry of algorithms with orthogonality constraints",
@@ -29,7 +30,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % 
 % Note: some computations such as restricted_svd, distance, logarithm, and 
 % exponential are new and we believe them to be correct.
-% Also, we hope that the computations are sufficiently stable.
+% Also, we hope that the computations are numerically stable.
 % In case some things do not work out as expected or there is some trouble,
 % please contact us at http://www.manopt.org.
 %
@@ -226,7 +227,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
         [u, ~, v] = svd(Y, 0);
   
         % Instead of the following three steps, an equivalent, but an 
-        % expensive way is to do X = u*(sqrtm(u'*(B*u))\(v')).
+        % expensive, way is to do X = u*(sqrtm(u'*(B*u))\(v')).
         [q, ssquare] = eig(u'*(B*u));
         qsinv = q/sparse(diag(sqrt(diag(ssquare))));
         X = u*((qsinv*q')*v'); % X'*B*X is identity.
@@ -244,6 +245,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
         % with u'*B*u being identity, s is a p-by-p diagonal matrix 
         % with positive entries, and v is a p-by-p orthogonal matrix.
         % Y = u*s*v'.
+        
         [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
         ssquarevec = diag(ssquare);
         
