@@ -24,6 +24,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 % "{R}iemannian preconditioning for tensor completion",
 % H. Kasai and B. Mishra, Arxiv preprint arXiv:1506.02159, 2015.
 %
+% Paper link: http://arxiv.org/abs/1506.02159.
 %
 % Please cite the Manopt paper as well as the research paper:
 %     @TechReport{kasai2015precon,
