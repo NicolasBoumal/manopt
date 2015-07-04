@@ -1,5 +1,5 @@
 function M = symfixedrankYYcomplexfactory(n, k)
-% Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.
+% Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.
 %
 % function M = symfixedrankYYcomplexfactory(n, k)
 %
@@ -57,18 +57,18 @@ function M = symfixedrankYYcomplexfactory(n, k)
 % Change log:
 %    
     
-    M.name = @() sprintf('YY'' quotient manifold of symmetric %dx%d complex matrices of rank %d.', n, n, k);
+    M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
     M.dim = @() 2*k*n - k*k; % SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2).
     
-    % Euclidean metric on the total space
+    % Euclidean metric on the total space.
     % BM: equivalent to 2.0*real(trace(eta'*zeta)), but more efficient.
     M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:));
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     
-    % Find unitary U to minimize ||Y - Z*U||
-    % Procrustes problem with svd(Y'*Z).
+    % Find unitary U to minimize ||Y - Z*U||,
+    % i.e., the Procrustes problem, with svd(Y'*Z).
     M.dist = @(Y, Z) distance;
     function distval = distance(Y, Z)
         [u, ignore, v] = svd(Z'*Y); %#ok<ASGLU>
