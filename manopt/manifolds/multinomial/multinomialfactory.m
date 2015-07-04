@@ -34,7 +34,7 @@ function M = multinomialfactory(n, m)
 % Contributors:
 % Change log:
     
-    M.name = @() sprintf('%dx%d column-stochastic matrices with positive entries', n, m, 1);
+    M.name = @() sprintf('%dx%d column-stochastic matrices with positive entries', n, m);
     
     M.dim = @() (n-1)*m;
     
@@ -140,7 +140,7 @@ function M = multinomialfactory(n, m)
     
     M.transp = @(X1, X2, d) projection(X2, d);
     
-    % vec and mat are not isometries, because of the scaled inner metric.
+    % vec and mat are not isometries, because of the scaled metric.
     M.vec = @(X, U) U(:);
     M.mat = @(X, u) reshape(u, n, m);
     M.vecmatareisometries = @() false;
