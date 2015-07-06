@@ -433,14 +433,14 @@ problem.egrad = @(x) -2*A*x;
                   <td><a target="_blank" href="reference/manopt/manifolds/grassmann/grassmanncomplexfactory.html">Complex
                       Grassmann manifold </a></td>
                   <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
-                    X^TBX = I_p\}^k$ </td>
+                    X^TX = I_p\}^k$ </td>
                   <td><code>grassmanncomplexfactory(n, p, k)</code> </td>
                 </tr>
                 <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/grassmann/grassmanngeneralizedfactory.html">Generalized
                       Grassmann manifold </a></td>
                   <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
-                    X^TX = I_p\}$ for some $B \succ 0$</td>
+                    X^TBX = I_p\}$ for some $B \succ 0$</td>
                   <td><code>grassmannfactory(n, p, B)</code> </td>
                 </tr>
                 <tr>
@@ -677,7 +677,7 @@ problem.egrad = @(x) -2*A*x;
                   <td><code>M.hash(x) </code></td>
                   <td>Computes a string that (almost) uniquely identifies the
                     point $x$ and that can serve as a field name for a
-                    structure. (Not used since version 1.0.8)</td>
+                    structure. (Not heavily used since version 2.0)</td>
                 </tr>
                 <tr>
                   <td>Vector representation</td>
