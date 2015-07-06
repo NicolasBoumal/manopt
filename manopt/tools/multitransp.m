@@ -1,5 +1,6 @@
 function b = multitransp(a, dim)
-%MULTITRANSP  Transposing arrays of matrices.
+% Transposing arrays of matrices.
+% 
 %    B = MULTITRANSP(A) is equivalent to B = MULTITRANSP(A, DIM), where
 %    DIM = 1.
 %

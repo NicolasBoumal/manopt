@@ -1,5 +1,6 @@
 function c = multiprod(a, b, idA, idB)
-%MULTIPROD  Multiplying 1-D or 2-D subarrays contained in two N-D arrays.
+% Multiplying 1-D or 2-D subarrays contained in two N-D arrays.
+% 
 %   C = MULTIPROD(A,B) is equivalent  to C = MULTIPROD(A,B,[1 2],[1 2])
 %   C = MULTIPROD(A,B,[D1 D2]) is eq. to C = MULTIPROD(A,B,[D1 D2],[D1 D2])
 %   C = MULTIPROD(A,B,D1) is equival. to C = MULTIPROD(A,B,D1,D1)
