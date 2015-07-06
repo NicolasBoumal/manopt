@@ -404,16 +404,23 @@ problem.egrad = @(x) -2*A*x;
                   <td><code>stiefelfactory(n, p, k)</code> </td>
                 </tr>
                 <tr>
-                  <td><a href="reference/manopt/manifolds/stiefel/stiefelstackedfactory.html">Stiefel
-                      manifold, stacked </a></td>
-                  <td>$\{X \in \mathbb{R}^{md \times k} : (XX^T)_{ii} = I_d\}$ </td>
-                  <td><code>stiefelstackedfactory(m, d, k)</code> </td>
-                </tr>
-                <tr>
                   <td><a href="reference/manopt/manifolds/stiefel/stiefelcomplexfactory.html">Complex
                       Stiefel manifold </a></td>
                   <td>$\{X \in \mathbb{C}^{n \times p} : X^*X = I_p\}^k$ </td>
                   <td><code>stiefelcomplexfactory(n, p, k)</code> </td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/stiefel/stiefelgeneralizedfactory.html">Generalized
+                      Stiefel manifold </a></td>
+                  <td>$\{X \in \mathbb{R}^{n \times p} : X^TBX = I_p\}$ for some
+                    $B \succ 0$</td>
+                  <td><code>stiefelfactory(n, p, B)</code> </td>
+                </tr>
+                <tr>
+                  <td><a href="reference/manopt/manifolds/stiefel/stiefelstackedfactory.html">Stiefel
+                      manifold, stacked </a></td>
+                  <td>$\{X \in \mathbb{R}^{md \times k} : (XX^T)_{ii} = I_d\}$ </td>
+                  <td><code>stiefelstackedfactory(m, d, k)</code> </td>
                 </tr>
                 <tr>
                   <td><a href="reference/manopt/manifolds/grassmann/grassmannfactory.html">Grassmann
@@ -421,6 +428,20 @@ problem.egrad = @(x) -2*A*x;
                   <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
                     X^TX = I_p\}^k$ </td>
                   <td><code>grassmannfactory(n, p, k)</code> </td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/grassmann/grassmanncomplexfactory.html">Complex
+                      Grassmann manifold </a></td>
+                  <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
+                    X^TBX = I_p\}^k$ </td>
+                  <td><code>grassmanncomplexfactory(n, p, k)</code> </td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/grassmann/grassmanngeneralizedfactory.html">Generalized
+                      Grassmann manifold </a></td>
+                  <td>$\{\operatorname{span}(X) : X \in \mathbb{R}^{n \times p},
+                    X^TX = I_p\}$ for some $B \succ 0$</td>
+                  <td><code>grassmannfactory(n, p, B)</code> </td>
                 </tr>
                 <tr>
                   <td><a href="manifold_documentation_rotations.html">Rotation
@@ -435,6 +456,14 @@ problem.egrad = @(x) -2*A*x;
                   <td>$\{ (R, t) \in \mathbb{R}^{n \times n} \times \mathbb{R}^n
                     : R^TR = I_n, \det(R) = 1 \}^k$</td>
                   <td><code>specialeuclideanfactory(n, k)</code></td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/essential/essentialfactory.html">Essential
+                      manifold</a></td>
+                  <td>Epipolar constraint between projected points in two
+                    perspective views, see <a target="_blank" href="https://fling.seas.upenn.edu/%7Etron">Roberto
+                      Tron</a>'s page</td>
+                  <td><code>essentialfactory(k, '(un)signed')</code></td>
                 </tr>
                 <tr>
                   <td>Fixed-rank </td>
@@ -452,12 +481,13 @@ problem.egrad = @(x) -2*A*x;
                 <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/fixedranktensors/fixedrankfactory_tucker_preconditioned.html">Fixed-rank
                       tensor</a></td>
-                  <td>Tensors in Tucker format of fixed multilinear rank</td>
+                  <td>Tensors of fixed multilinear rank in Tucker format</td>
                   <td><code>fixedrankfactory_tucker_preconditioned</code></td>
                 </tr>
                 <tr>
                   <td><a href="manifold_documentation_symfixedrank.html">Symmetric
-                      positive semidefinite, fixed-rank</a> </td>
+                      positive semidefinite, fixed-rank</a> (<a target="_blank"
+                      href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html">complex</a>)</td>
                   <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0,
                     \operatorname{rank}(X) = k\}$ </td>
                   <td><code>symfixedrankYYfactory(n, k)</code> </td>
