@@ -1,6 +1,7 @@
 /* Created by mdot for Matlab */
 digraph m2html {
 
+  centeredmatrixfactory [URL="centeredmatrixfactory.html"];
   euclideancomplexfactory [URL="euclideancomplexfactory.html"];
   euclideanfactory [URL="euclideanfactory.html"];
   shapefitfactory [URL="shapefitfactory.html"];

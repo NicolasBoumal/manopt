@@ -18,7 +18,13 @@ function M = stiefelgeneralizedfactory(n, p, B)
 %
 % Paper link: http://arxiv.org/abs/physics/9806030.
 %
-% See also: grassmanngeneralizedfactory grassmannfactory stiefelfactory
+% Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If
+% this is a bottleneck for a specific application, then a way forward is to
+% create a modified version of this file which preprocesses B to speed this
+% up (typically, by computing a Cholesky factorization of it, then calling
+% an appropriate solver).
+%
+% See also: stiefelfactory  grassmannfactory  grassmanngeneralizedfactory 
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, June 30, 2015.
@@ -31,7 +37,7 @@ function M = stiefelgeneralizedfactory(n, p, B)
     if ~exist('B', 'var') || isempty(B)
         B = speye(n); % Standard Stiefel manifold.
     end
-   
+    
     M.name = @() sprintf('Generalized Stiefel manifold St(%d, %d)', n, p);
     
     M.dim = @() (n*p - .5*p*(p+1));
@@ -127,6 +133,7 @@ function M = stiefelgeneralizedfactory(n, p, B)
     
     M.zerovec = @(X) zeros(n, p);
     
+    % This transport is compatible with the generalized polar retraction.
     M.transp = @(X1, X2, d) projection(X2, d);
     
     M.vec = @(X, u_mat) u_mat(:);
@@ -136,13 +143,37 @@ function M = stiefelgeneralizedfactory(n, p, B)
     % Some auxiliary functions
     symm = @(D) (D + D')/2;
     
-    function X = guf(D)
-        % Generalized uf polar decomposition.
+    function X = guf(Y)
+        % Generalized polar decomposition of an n-by-p matrix Y.
         % X'*B*X is identity.
         
-        [u, ~, v] = svd(D, 0);
-        X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
+        % Method 1
+        [u, ~, v] = svd(Y, 0);
+  
+        % Instead of the following three steps, an equivalent, but an 
+        % expensive way is to do X = u*(sqrtm(u'*(B*u))\(v')).
+        [q, ssquare] = eig(u'*(B*u));
+        qsinv = q/sparse(diag(sqrt(diag(ssquare))));
+        X = u*((qsinv*q')*v'); % X'*B*X is identity.
+        
+        
+        % Another computation using restricted_svd
+        % [u, ~, v] = restricted_svd(Y);
+        % X = u*v'; % X'*B*X is identity.
+        
     end
     
+    function [u, s, v] = restricted_svd(Y)
+        % We compute a thin svd-like decomposition of an n-by-p matrix Y 
+        % into matrices u, s, and v such that u is an n-by-p matrix
+        % with u'*B*u being identity, s is a p-by-p diagonal matrix 
+        % with positive entries, and v is a p-by-p orthogonal matrix.
+        % Y = u*s*v'.
+        [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
+        ssquarevec = diag(ssquare);
+        
+        s = sparse(diag(abs(sqrt(ssquarevec))));
+        u = Y*(v/s); % u'*B*u is identity.
+    end
 
 end

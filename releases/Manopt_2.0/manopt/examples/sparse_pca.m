@@ -36,8 +36,8 @@ function [Z, P, X, A] = sparse_pca(A, m, gamma)
 % This implementation is not equivalent to the one described in that paper
 % (and is independent from their authors) but is close in spirit
 % nonetheless. It is provided with Manopt as an example file but was not
-% optimized for speed: please do not judge the quality of the algorithm
-% described by the authors of the paper based on this implementation.
+% optimized: please do not judge the quality of the algorithm described by
+% the authors of the paper based on this implementation.
 
 % This file is part of Manopt and is copyrighted. See the license file.
 % 

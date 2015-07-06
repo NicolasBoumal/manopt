@@ -1,20 +1,20 @@
 function M = symfixedrankYYcomplexfactory(n, k)
-% Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.
+% Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.
 %
 % function M = symfixedrankYYcomplexfactory(n, k)
 %
 % Manifold of n-by-n complex Hermitian positive semidefinite matrices of 
 % fixed rank k. This follows the quotient geometry described 
 % in Sarod Yatawatta's 2013 paper:
-% "Radio interferometric calibration using a Riemannian manifold".
+% "Radio interferometric calibration using a Riemannian manifold", ICASSP.
 %
-% Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382
+% Paper link: http://dx.doi.org/10.1109/ICASSP.2013.6638382.
 %
-% A point X on the manifold M is parameterized as YY^* where Y is a complex matrix of
-% size nxk. Any point Y on the manifold M, given any kxk complex unitary matrix U, 
-% we say Y*U  is equivalent to Y, i.e., YY^* does not change.
-% Therefore, M is the set of equivalence classes and
-% is a Riemannian quotient manifold C^{nk}/SU(k). 
+% A point X on the manifold M is parameterized as YY^*, where 
+% Y is a complex matrix of size nxk. For any point Y on the manifold M, 
+% given any kxk complex unitary matrix U, we say Y*U  is equivalent to Y, 
+% i.e., YY^* does not change. Therefore, M is the set of equivalence 
+% classes and is a Riemannian quotient manifold C^{nk}/SU(k). 
 % The metric is the usual real-trace inner product, that is, 
 % it is the usual metric for the complex plane identified with R^2.
 %
@@ -24,7 +24,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 % exactly k. Reduce k if that is not the case.
 %
 % The geometry is based on the following papers (and references therein).
-% Please cite the Manopt paper as well as the research paper:
+% Please cite the Manopt paper as well as the research papers:
 %
 % @INPROCEEDINGS{Yatawatta2013A,
 %  author={Yatawatta, S.},
@@ -48,7 +48,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %  journal = {Monthly Notices of the Royal Astronomical Society} 
 % }
 %
-% See also: symfixedrankYYfactory   sympositivedefinitefactory
+% See also: symfixedrankYYfactory sympositivedefinitefactory
 
 
 % This file is part of Manopt: www.manopt.org.
@@ -57,18 +57,18 @@ function M = symfixedrankYYcomplexfactory(n, k)
 % Change log:
 %    
     
-    M.name = @() sprintf('YY'' quotient manifold of symmetric %dx%d complex matrices of rank %d.', n, n, k);
+    M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
-    M.dim = @() 2*k*n - k*k; % SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2)
+    M.dim = @() 2*k*n - k*k; % SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2).
     
-    % Euclidean metric on the total space
+    % Euclidean metric on the total space.
     % BM: equivalent to 2.0*real(trace(eta'*zeta)), but more efficient.
     M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:));
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     
-    % Find unitary U to minimize ||Y - Z*U||
-    % Procrustes problem with svd(Y'*Z).
+    % Find unitary U to minimize ||Y - Z*U||,
+    % i.e., the Procrustes problem, with svd(Y'*Z).
     M.dist = @(Y, Z) distance;
     function distval = distance(Y, Z)
         [u, ignore, v] = svd(Z'*Y); %#ok<ASGLU>

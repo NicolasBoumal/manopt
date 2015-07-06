@@ -3,6 +3,9 @@ digraph m2html {
   checkdiff -> identify_linear_piece;
   checkgradient -> checkdiff;
   checkhessian -> identify_linear_piece;
+  dexpm -> dfunm;
+  dlogm -> dfunm;
+  dsqrtm -> dfunm;
   hessianextreme -> manoptsolve;
   hessianextreme -> tangentspherefactory;
   multihconj -> multitransp;
@@ -18,7 +21,11 @@ digraph m2html {
   checkdiff [URL="checkdiff.html"];
   checkgradient [URL="checkgradient.html"];
   checkhessian [URL="checkhessian.html"];
+  dexpm [URL="dexpm.html"];
+  dfunm [URL="dfunm.html"];
   diagsum [URL="diagsum.html"];
+  dlogm [URL="dlogm.html"];
+  dsqrtm [URL="dsqrtm.html"];
   hashmd5 [URL="hashmd5.html"];
   hessianextreme [URL="hessianextreme.html"];
   hessianspectrum [URL="hessianspectrum.html"];

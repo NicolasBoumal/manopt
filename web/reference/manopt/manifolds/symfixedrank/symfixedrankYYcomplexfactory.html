@@ -4,7 +4,7 @@
 <head>
   <title>Description of symfixedrankYYcomplexfactory</title>
   <meta name="keywords" content="symfixedrankYYcomplexfactory">
-  <meta name="description" content="Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.">
+  <meta name="description" content="Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,28 +21,28 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.</strong></div>
+<div class="box"><strong>Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function M = symfixedrankYYcomplexfactory(n, k) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.
+<div class="fragment"><pre class="comment"> Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.
 
  function M = symfixedrankYYcomplexfactory(n, k)
 
  Manifold of n-by-n complex Hermitian positive semidefinite matrices of 
  fixed rank k. This follows the quotient geometry described 
  in Sarod Yatawatta's 2013 paper:
- &quot;Radio interferometric calibration using a Riemannian manifold&quot;.
+ &quot;Radio interferometric calibration using a Riemannian manifold&quot;, ICASSP.
 
- Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382
+ Paper link: http://dx.doi.org/10.1109/ICASSP.2013.6638382.
 
- A point X on the manifold M is parameterized as YY^* where Y is a complex matrix of
- size nxk. Any point Y on the manifold M, given any kxk complex unitary matrix U, 
- we say Y*U  is equivalent to Y, i.e., YY^* does not change.
- Therefore, M is the set of equivalence classes and
- is a Riemannian quotient manifold C^{nk}/SU(k). 
+ A point X on the manifold M is parameterized as YY^*, where 
+ Y is a complex matrix of size nxk. For any point Y on the manifold M, 
+ given any kxk complex unitary matrix U, we say Y*U  is equivalent to Y, 
+ i.e., YY^* does not change. Therefore, M is the set of equivalence 
+ classes and is a Riemannian quotient manifold C^{nk}/SU(k). 
  The metric is the usual real-trace inner product, that is, 
  it is the usual metric for the complex plane identified with R^2.
 
@@ -52,7 +52,7 @@
  exactly k. Reduce k if that is not the case.
 
  The geometry is based on the following papers (and references therein).
- Please cite the Manopt paper as well as the research paper:
+ Please cite the Manopt paper as well as the research papers:
 
  @INPROCEEDINGS{Yatawatta2013A,
   author={Yatawatta, S.},
@@ -76,7 +76,7 @@
   journal = {Monthly Notices of the Royal Astronomical Society} 
  }
 
- See also: <a href="symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>   <a href="sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a></pre></div>
+ See also: <a href="symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a> <a href="sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -94,22 +94,22 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = symfixedrankYYcomplexfactory(n, k)</a>
-0002 <span class="comment">% Manifold of n-by-n complex symm. pos. semidefinite matrices of rank k.</span>
+0002 <span class="comment">% Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function M = symfixedrankYYcomplexfactory(n, k)</span>
 0005 <span class="comment">%</span>
 0006 <span class="comment">% Manifold of n-by-n complex Hermitian positive semidefinite matrices of</span>
 0007 <span class="comment">% fixed rank k. This follows the quotient geometry described</span>
 0008 <span class="comment">% in Sarod Yatawatta's 2013 paper:</span>
-0009 <span class="comment">% &quot;Radio interferometric calibration using a Riemannian manifold&quot;.</span>
+0009 <span class="comment">% &quot;Radio interferometric calibration using a Riemannian manifold&quot;, ICASSP.</span>
 0010 <span class="comment">%</span>
-0011 <span class="comment">% Paper link: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6638382</span>
+0011 <span class="comment">% Paper link: http://dx.doi.org/10.1109/ICASSP.2013.6638382.</span>
 0012 <span class="comment">%</span>
-0013 <span class="comment">% A point X on the manifold M is parameterized as YY^* where Y is a complex matrix of</span>
-0014 <span class="comment">% size nxk. Any point Y on the manifold M, given any kxk complex unitary matrix U,</span>
-0015 <span class="comment">% we say Y*U  is equivalent to Y, i.e., YY^* does not change.</span>
-0016 <span class="comment">% Therefore, M is the set of equivalence classes and</span>
-0017 <span class="comment">% is a Riemannian quotient manifold C^{nk}/SU(k).</span>
+0013 <span class="comment">% A point X on the manifold M is parameterized as YY^*, where</span>
+0014 <span class="comment">% Y is a complex matrix of size nxk. For any point Y on the manifold M,</span>
+0015 <span class="comment">% given any kxk complex unitary matrix U, we say Y*U  is equivalent to Y,</span>
+0016 <span class="comment">% i.e., YY^* does not change. Therefore, M is the set of equivalence</span>
+0017 <span class="comment">% classes and is a Riemannian quotient manifold C^{nk}/SU(k).</span>
 0018 <span class="comment">% The metric is the usual real-trace inner product, that is,</span>
 0019 <span class="comment">% it is the usual metric for the complex plane identified with R^2.</span>
 0020 <span class="comment">%</span>
@@ -119,7 +119,7 @@ This function is called by:
 0024 <span class="comment">% exactly k. Reduce k if that is not the case.</span>
 0025 <span class="comment">%</span>
 0026 <span class="comment">% The geometry is based on the following papers (and references therein).</span>
-0027 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0027 <span class="comment">% Please cite the Manopt paper as well as the research papers:</span>
 0028 <span class="comment">%</span>
 0029 <span class="comment">% @INPROCEEDINGS{Yatawatta2013A,</span>
 0030 <span class="comment">%  author={Yatawatta, S.},</span>
@@ -143,7 +143,7 @@ This function is called by:
 0048 <span class="comment">%  journal = {Monthly Notices of the Royal Astronomical Society}</span>
 0049 <span class="comment">% }</span>
 0050 <span class="comment">%</span>
-0051 <span class="comment">% See also: symfixedrankYYfactory   sympositivedefinitefactory</span>
+0051 <span class="comment">% See also: symfixedrankYYfactory sympositivedefinitefactory</span>
 0052 
 0053 
 0054 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
@@ -152,18 +152,18 @@ This function is called by:
 0057 <span class="comment">% Change log:</span>
 0058 <span class="comment">%</span>
 0059     
-0060     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of symmetric %dx%d complex matrices of rank %d.'</span>, n, n, k);
+0060     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.'</span>, n, n, k);
 0061     
-0062     M.dim = @() 2*k*n - k*k; <span class="comment">% SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2)</span>
+0062     M.dim = @() 2*k*n - k*k; <span class="comment">% SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2).</span>
 0063     
-0064     <span class="comment">% Euclidean metric on the total space</span>
+0064     <span class="comment">% Euclidean metric on the total space.</span>
 0065     <span class="comment">% BM: equivalent to 2.0*real(trace(eta'*zeta)), but more efficient.</span>
 0066     M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:));
 0067     
 0068     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
 0069     
-0070     <span class="comment">% Find unitary U to minimize ||Y - Z*U||</span>
-0071     <span class="comment">% Procrustes problem with svd(Y'*Z).</span>
+0070     <span class="comment">% Find unitary U to minimize ||Y - Z*U||,</span>
+0071     <span class="comment">% i.e., the Procrustes problem, with svd(Y'*Z).</span>
 0072     M.dist = @(Y, Z) <a href="#_sub1" class="code" title="subfunction distval = distance(Y, Z)">distance</a>;
 0073     <a name="_sub1" href="#_subfunctions" class="code">function distval = distance(Y, Z)</a>
 0074         [u, ignore, v] = svd(Z'*Y); <span class="comment">%#ok&lt;ASGLU&gt;</span>
@@ -237,6 +237,6 @@ This function is called by:
 0142     M.vecmatareisometries = @() true; 
 0143     
 0144 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

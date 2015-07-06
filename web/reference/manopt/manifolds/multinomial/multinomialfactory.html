@@ -4,7 +4,7 @@
 <head>
   <title>Description of multinomialfactory</title>
   <meta name="keywords" content="multinomialfactory">
-  <meta name="description" content="Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.">
+  <meta name="description" content="Manifold of n-by-m column-stochastic matrices with positive entries.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,13 +21,13 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.</strong></div>
+<div class="box"><strong>Manifold of n-by-m column-stochastic matrices with positive entries.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function M = multinomialfactory(n, m) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.
+<div class="fragment"><pre class="comment"> Manifold of n-by-m column-stochastic matrices with positive entries.
 
  function M = multinomialfactory(n, m)
 
@@ -53,7 +53,7 @@
      @Techreport{sun2014multinomial,
        Title   = {Heterogeneous tensor decomposition for clustering via manifold optimization},
        Author  = {Sun, Y. and Gao, J. and Hong, X. and Mishra, B. and Yin, B.},
-       Journal = {arXiv:1504.01777},
+       Journal = {Arxiv preprint arXiv:1504.01777},
        Year    = {2014}
      }</pre></div>
 
@@ -73,7 +73,7 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = multinomialfactory(n, m)</a>
-0002 <span class="comment">% Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.</span>
+0002 <span class="comment">% Manifold of n-by-m column-stochastic matrices with positive entries.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function M = multinomialfactory(n, m)</span>
 0005 <span class="comment">%</span>
@@ -99,7 +99,7 @@ This function is called by:
 0025 <span class="comment">%     @Techreport{sun2014multinomial,</span>
 0026 <span class="comment">%       Title   = {Heterogeneous tensor decomposition for clustering via manifold optimization},</span>
 0027 <span class="comment">%       Author  = {Sun, Y. and Gao, J. and Hong, X. and Mishra, B. and Yin, B.},</span>
-0028 <span class="comment">%       Journal = {arXiv:1504.01777},</span>
+0028 <span class="comment">%       Journal = {Arxiv preprint arXiv:1504.01777},</span>
 0029 <span class="comment">%       Year    = {2014}</span>
 0030 <span class="comment">%     }</span>
 0031 
@@ -108,11 +108,11 @@ This function is called by:
 0034 <span class="comment">% Contributors:</span>
 0035 <span class="comment">% Change log:</span>
 0036     
-0037     M.name = @() sprintf(<span class="string">'%dx%d column-stochastic matrices with positive entries'</span>, n, m, 1);
+0037     M.name = @() sprintf(<span class="string">'%dx%d column-stochastic matrices with positive entries'</span>, n, m);
 0038     
 0039     M.dim = @() (n-1)*m;
 0040     
-0041     <span class="comment">% We impose the Fisher metric as proposed.</span>
+0041     <span class="comment">% We impose the Fisher metric.</span>
 0042     M.inner = @<a href="#_sub1" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
 0043     <a name="_sub1" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
 0044         ip = sum((eta(:).*zeta(:))./X(:));
@@ -214,11 +214,11 @@ This function is called by:
 0140     
 0141     M.transp = @(X1, X2, d) <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X2, d);
 0142     
-0143     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0143     <span class="comment">% vec and mat are not isometries, because of the scaled metric.</span>
 0144     M.vec = @(X, U) U(:);
 0145     M.mat = @(X, u) reshape(u, n, m);
 0146     M.vecmatareisometries = @() false;
 0147 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

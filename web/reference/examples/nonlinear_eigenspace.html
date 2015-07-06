@@ -46,7 +46,7 @@
  rho(X) is the diagonal part of X*X'.
 
  This example is motivated in the paper
- &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot; by
+ &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot;,
  Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,
  SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.</pre></div>
 
@@ -85,90 +85,91 @@ This function is called by:
 0018 <span class="comment">% rho(X) is the diagonal part of X*X'.</span>
 0019 <span class="comment">%</span>
 0020 <span class="comment">% This example is motivated in the paper</span>
-0021 <span class="comment">% &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot; by</span>
+0021 <span class="comment">% &quot;A Riemannian Newton Algorithm for Nonlinear Eigenvalue Problems&quot;,</span>
 0022 <span class="comment">% Zhi Zhao, Zheng-Jian Bai, and Xiao-Qing Jin,</span>
 0023 <span class="comment">% SIAM Journal on Matrix Analysis and Applications, 36(2), 752-774, 2015.</span>
-0024 
+0024 <span class="comment">%</span>
 0025 
-0026 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
-0027 <span class="comment">%</span>
-0028 <span class="comment">% Main author: Bamdev Mishra, June 19, 2015.</span>
-0029 <span class="comment">% Contributors:</span>
-0030 <span class="comment">%</span>
-0031 <span class="comment">% Change log:</span>
-0032 
+0026 
+0027 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Main author: Bamdev Mishra, June 19, 2015.</span>
+0030 <span class="comment">% Contributors:</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% Change log:</span>
 0033 
-0034     <span class="comment">% If no inputs are provided, generate a  discrete Laplacian operator.</span>
-0035     <span class="comment">% This is for illustration purposes only.</span>
-0036     <span class="comment">% The default example corresponds to Case (c) of Example 6.2 of the</span>
-0037     <span class="comment">% above referenced paper.</span>
-0038     
-0039     <span class="keyword">if</span> ~exist(<span class="string">'L'</span>, <span class="string">'var'</span>) || isempty(L)
-0040         n = 100;
-0041         L = gallery(<span class="string">'tridiag'</span>, n, -1, 2, -1);
-0042     <span class="keyword">end</span>
-0043     
-0044     n = size(L, 1);
-0045     assert(size(L, 2) == n, <span class="string">'L must be square.'</span>);
-0046     
-0047     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k) || k &gt; n
-0048         k = 10;
-0049     <span class="keyword">end</span>
-0050     
-0051     <span class="keyword">if</span> ~exist(<span class="string">'alpha'</span>, <span class="string">'var'</span>) || isempty(alpha)
-0052         alpha = 1;
-0053     <span class="keyword">end</span>
-0054     
+0034 
+0035     <span class="comment">% If no inputs are provided, generate a  discrete Laplacian operator.</span>
+0036     <span class="comment">% This is for illustration purposes only.</span>
+0037     <span class="comment">% The default example corresponds to Case (c) of Example 6.2 of the</span>
+0038     <span class="comment">% above referenced paper.</span>
+0039     
+0040     <span class="keyword">if</span> ~exist(<span class="string">'L'</span>, <span class="string">'var'</span>) || isempty(L)
+0041         n = 100;
+0042         L = gallery(<span class="string">'tridiag'</span>, n, -1, 2, -1);
+0043     <span class="keyword">end</span>
+0044     
+0045     n = size(L, 1);
+0046     assert(size(L, 2) == n, <span class="string">'L must be square.'</span>);
+0047     
+0048     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k) || k &gt; n
+0049         k = 10;
+0050     <span class="keyword">end</span>
+0051     
+0052     <span class="keyword">if</span> ~exist(<span class="string">'alpha'</span>, <span class="string">'var'</span>) || isempty(alpha)
+0053         alpha = 1;
+0054     <span class="keyword">end</span>
 0055     
-0056     <span class="comment">% Grassmann manifold description</span>
-0057     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, k);
-0058     problem.M = Gr;
-0059     
-0060     <span class="comment">% Cost function evaluation</span>
-0061     problem.cost =  @<a href="#_sub1" class="code" title="subfunction val = cost(X)">cost</a>;
-0062     <a name="_sub1" href="#_subfunctions" class="code">function val = cost(X)</a>
-0063         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
-0064         val = 0.5*trace(X'*(L*X)) + (alpha/4)*(rhoX'*(L\rhoX));
-0065     <span class="keyword">end</span>
-0066     
-0067     <span class="comment">% Euclidean gradient evaluation</span>
-0068     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
-0069     problem.egrad = @<a href="#_sub2" class="code" title="subfunction g = egrad(X)">egrad</a>;
-0070     <a name="_sub2" href="#_subfunctions" class="code">function g = egrad(X)</a>
-0071         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
-0072         g = L*X + alpha*diag(L\rhoX)*X;
-0073     <span class="keyword">end</span>
-0074     
-0075     <span class="comment">% Euclidean Hessian evaluation</span>
-0076     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
-0077     problem.ehess = @<a href="#_sub3" class="code" title="subfunction h = ehess(X, U)">ehess</a>;
-0078     <a name="_sub3" href="#_subfunctions" class="code">function h = ehess(X, U)</a>
-0079         rhoX = sum(X.^2, 2); <span class="comment">%diag(X*X');</span>
-0080         rhoXdot = 2*sum(X.*U, 2); 
-0081         h = L*U + alpha*diag(L\rhoXdot)*X + alpha*diag(L\rhoX)*U;
-0082     <span class="keyword">end</span>
-0083     
+0056     
+0057     <span class="comment">% Grassmann manifold description</span>
+0058     Gr = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, k);
+0059     problem.M = Gr;
+0060     
+0061     <span class="comment">% Cost function evaluation</span>
+0062     problem.cost =  @<a href="#_sub1" class="code" title="subfunction val = cost(X)">cost</a>;
+0063     <a name="_sub1" href="#_subfunctions" class="code">function val = cost(X)</a>
+0064         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
+0065         val = 0.5*trace(X'*(L*X)) + (alpha/4)*(rhoX'*(L\rhoX));
+0066     <span class="keyword">end</span>
+0067     
+0068     <span class="comment">% Euclidean gradient evaluation</span>
+0069     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
+0070     problem.egrad = @<a href="#_sub2" class="code" title="subfunction g = egrad(X)">egrad</a>;
+0071     <a name="_sub2" href="#_subfunctions" class="code">function g = egrad(X)</a>
+0072         rhoX = sum(X.^2, 2); <span class="comment">% diag(X*X');</span>
+0073         g = L*X + alpha*diag(L\rhoX)*X;
+0074     <span class="keyword">end</span>
+0075     
+0076     <span class="comment">% Euclidean Hessian evaluation</span>
+0077     <span class="comment">% Note: Manopt automatically converts it to the Riemannian counterpart.</span>
+0078     problem.ehess = @<a href="#_sub3" class="code" title="subfunction h = ehess(X, U)">ehess</a>;
+0079     <a name="_sub3" href="#_subfunctions" class="code">function h = ehess(X, U)</a>
+0080         rhoX = sum(X.^2, 2); <span class="comment">%diag(X*X');</span>
+0081         rhoXdot = 2*sum(X.*U, 2); 
+0082         h = L*U + alpha*diag(L\rhoXdot)*X + alpha*diag(L\rhoX)*U;
+0083     <span class="keyword">end</span>
 0084     
-0085     <span class="comment">%     % Check whether gradient and Hessian computations are correct.</span>
-0086     <span class="comment">%     checkgradient(problem);</span>
-0087     <span class="comment">%     pause;</span>
-0088     <span class="comment">%     checkhessian(problem);</span>
-0089     <span class="comment">%     pause;</span>
-0090     
+0085     
+0086     <span class="comment">% Check whether gradient and Hessian computations are correct.</span>
+0087     <span class="comment">% checkgradient(problem);</span>
+0088     <span class="comment">% pause;</span>
+0089     <span class="comment">% checkhessian(problem);</span>
+0090     <span class="comment">% pause;</span>
 0091     
-0092     <span class="comment">% Initialization as suggested in above referenced paper.</span>
-0093     X = randn(n, k);
-0094     [U, S, V] = svd(X, 0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0095     X = U*V';
-0096     [U0, S0, V0] = eigs(L + alpha*diag(L\(sum(X.^2, 2))), k,<span class="string">'sm'</span>); <span class="comment">%#ok&lt;NASGU,ASGLU&gt;</span>
-0097     X0 = U0;
-0098   
-0099     <span class="comment">% Call manoptsolve to automatically call an appropriate solver.</span>
-0100     <span class="comment">% Note: it calls the trust regions solver as we have all the required</span>
-0101     <span class="comment">% ingredients, namely, gradient and Hessian information.</span>
-0102     Xsol = <a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(problem, X0);
-0103     
-0104 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0092     
+0093     <span class="comment">% Initialization as suggested in above referenced paper.</span>
+0094     X = randn(n, k);
+0095     [U, S, V] = svd(X, 0); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0096     X = U*V';
+0097     [U0, S0, V0] = eigs(L + alpha*diag(L\(sum(X.^2, 2))), k,<span class="string">'sm'</span>); <span class="comment">%#ok&lt;NASGU,ASGLU&gt;</span>
+0098     X0 = U0;
+0099   
+0100     <span class="comment">% Call manoptsolve to automatically call an appropriate solver.</span>
+0101     <span class="comment">% Note: it calls the trust regions solver as we have all the required</span>
+0102     <span class="comment">% ingredients, namely, gradient and Hessian, information.</span>
+0103     Xsol = <a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(problem, X0);
+0104     
+0105 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

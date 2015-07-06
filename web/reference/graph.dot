@@ -62,8 +62,6 @@ digraph m2html {
   sparse_pca -> trustregions;
   truncated_svd -> grassmannfactory;
   truncated_svd -> trustregions;
-  truncated_svd -> checkgradient;
-  truncated_svd -> checkhessian;
   truncated_svd -> hessianspectrum;
   truncated_svd -> productmanifold;
   StoreDB -> StoreDB;
@@ -135,6 +133,8 @@ digraph m2html {
   essential_distMinAnglePair_ftFromQ -> essential_distMinAnglePair_ft;
   essential_distMinAnglePair_test -> essential_distMinAnglePair;
   essential_distMinAnglePair_test -> modAngle;
+  centeredmatrixfactory -> hashmd5;
+  centeredmatrixfactory -> matrixlincomb;
   euclideancomplexfactory -> hashmd5;
   euclideancomplexfactory -> matrixlincomb;
   euclideanfactory -> hashmd5;
@@ -319,6 +319,9 @@ digraph m2html {
   checkhessian -> getDirectionalDerivative;
   checkhessian -> getHessian;
   checkhessian -> identify_linear_piece;
+  dexpm -> dfunm;
+  dlogm -> dfunm;
+  dsqrtm -> dfunm;
   hessianextreme -> StoreDB;
   hessianextreme -> canGetGradient;
   hessianextreme -> getCostGrad;
@@ -424,6 +427,7 @@ digraph m2html {
   essential_distMinAnglePair_ftFromQ [URL="manopt/manifolds/essential/privateessential/essential_distMinAnglePair_ftFromQ.html"];
   essential_distMinAnglePair_test [URL="manopt/manifolds/essential/privateessential/essential_distMinAnglePair_test.html"];
   modAngle [URL="manopt/manifolds/essential/privateessential/modAngle.html"];
+  centeredmatrixfactory [URL="manopt/manifolds/euclidean/centeredmatrixfactory.html"];
   euclideancomplexfactory [URL="manopt/manifolds/euclidean/euclideancomplexfactory.html"];
   euclideanfactory [URL="manopt/manifolds/euclidean/euclideanfactory.html"];
   shapefitfactory [URL="manopt/manifolds/euclidean/shapefitfactory.html"];
@@ -474,7 +478,11 @@ digraph m2html {
   checkdiff [URL="manopt/tools/checkdiff.html"];
   checkgradient [URL="manopt/tools/checkgradient.html"];
   checkhessian [URL="manopt/tools/checkhessian.html"];
+  dexpm [URL="manopt/tools/dexpm.html"];
+  dfunm [URL="manopt/tools/dfunm.html"];
   diagsum [URL="manopt/tools/diagsum.html"];
+  dlogm [URL="manopt/tools/dlogm.html"];
+  dsqrtm [URL="manopt/tools/dsqrtm.html"];
   hashmd5 [URL="manopt/tools/hashmd5.html"];
   hessianextreme [URL="manopt/tools/hessianextreme.html"];
   hessianspectrum [URL="manopt/tools/hessianspectrum.html"];

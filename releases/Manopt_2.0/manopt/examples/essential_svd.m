@@ -1,18 +1,28 @@
 function essential_svd
 % Sample solution of an optimization problem on the essential manifold.
+%
 % Solves the problem \sum_{i=1}^N ||E_i-A_i||^2, where E_i are essential
 % matrices. Essential matrices are used in computer vision to represent the
 % epipolar constraint between projected points in two perspective views.
 %
-% See also essentialfactory
-
+% Note: the essentialfactory file uses a quotient R1/R2 representation to
+% work with essential matrices. On the other hand, from a user point of 
+% view, it is convenient to use the E representation  (a matrix of size
+% 3-by-3) to give cost, gradient, and Hessian  information. To this end, we
+% provide auxiliary files essential_costE2cost, essential_egradE2egrad, and
+% essential_ehessE2ehess that convert these ingredients to their R1/R2
+% counterparts.
+%
+% See also: essentialfactory essential_costE2cost essential_egradE2egrad
+% essential_ehessE2ehess
+ 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
 % Contributors: Bamdev Mishra, May 15, 2015.
 
 
     % Make data for the test
-    N = 2;    % number of matrices to process in parallel
+    N = 2;    % Number of matrices to process in parallel.
     A = multiprod(multiprod(randrot(3, N), essential_hat3([0; 0; 1])), randrot(3, N));
     
     % The essential manifold

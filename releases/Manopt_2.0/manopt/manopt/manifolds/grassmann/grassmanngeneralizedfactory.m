@@ -10,15 +10,16 @@ function M = grassmanngeneralizedfactory(n, p, B)
 %
 % When B is identity, the manifold is the standard Grassmann manifold.
 %
-% The metric is obtained by making the generalized Grassmannian
-% a Riemannian quotient manifold of the generalized Stiefel manifold, i.e.,
-% the manifold of "sclaed" orthonormal matrices. Specifically, the scaled
-% Stiefel manifold is the set {X : X'*B*X = I}. The generalized Grassmann
-% manifold is the Grassmannian of the generalized Stiefel manifold.
+% The metric is obtained by viewing the generalized Grassmannian
+% a Riemannian quotient manifold of the generalized Stiefel manifold, 
+% which is the manifold of "scaled" orthonormal matrices. Specifically, 
+% the scaled Stiefel manifold is the set {X : X'*B*X = I}. 
+% The generalized Grassmann manifold is the Grassmannian of the 
+% generalized Stiefel manifold.
 %
 % The generalized Stiefel manifold is endowed with a scaled metric
-% by making it a Riemannian submanifold of the Euclidean space,
-% again endowed with the scaled inner product.
+% by viewing it as a Riemannian submanifold of the Euclidean space, which
+% is again endowed with the scaled inner product.
 %
 % Some notions (not all) are from Section 4.5 of the paper
 % "The geometry of algorithms with orthogonality constraints",
@@ -29,12 +30,12 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % 
 % Note: some computations such as restricted_svd, distance, logarithm, and 
 % exponential are new and we believe them to be correct.
-% Also, we hope that the computations are sufficiently stable.
+% Also, we hope that the computations are numerically stable.
 % In case some things do not work out as expected or there is some trouble,
 % please contact us at http://www.manopt.org.
 %
 % Note: egrad2rgrad and ehess2rhess involve solving linear systems in B. If
-% you find that this is a bottleneck for your application, you may want to
+% this is a bottleneck for a specific application, then a way forward is to
 % create a modified version of this file which preprocesses B to speed this
 % up (typically, by computing a Cholesky factorization of it, then calling
 % an appropriate solver).
@@ -61,7 +62,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
     
     M.dim = @() p*(n - p);   
     
-    M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); % Scaled metric, but horizontally invaraiant.
+    M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); % Scaled metric, but horizontally invariant.
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
@@ -215,31 +216,40 @@ function M = grassmanngeneralizedfactory(n, p, B)
     M.mat = @(X, u_vec) reshape(u_vec, [n, p]);
     M.vecmatareisometries = @() false;
     
-    
     % Some auxiliary functions
     symm = @(D) (D + D')/2;
     
-    function X = guf(D)
-        % Generalized polar decomposition.
+    function X = guf(Y)
+        % Generalized polar decomposition of an n-by-p matrix Y.
         % X'*B*X is identity.
         
-        % More stable computation
-        [u, ~, v] = svd(D, 0);
-        X = u*(sqrtm(u'*(B*u))\(v')); % X'*B*X is identity.
+        % Method 1
+        [u, ~, v] = svd(Y, 0);
+  
+        % Instead of the following three steps, an equivalent, but an 
+        % expensive, way is to do X = u*(sqrtm(u'*(B*u))\(v')).
+        [q, ssquare] = eig(u'*(B*u));
+        qsinv = q/sparse(diag(sqrt(diag(ssquare))));
+        X = u*((qsinv*q')*v'); % X'*B*X is identity.
+        
         
         % Another computation using restricted_svd
-        % [u, ~, v] = restricted_svd(D);
+        % [u, ~, v] = restricted_svd(Y);
         % X = u*v'; % X'*B*X is identity.
         
     end
     
     function [u, s, v] = restricted_svd(Y)
-        % We compute thin svd usv' of Y such that
-        % u'*B*u is identity.        
+        % We compute a thin svd-like decomposition of an n-by-p matrix Y 
+        % into matrices u, s, and v such that u is an n-by-p matrix
+        % with u'*B*u being identity, s is a p-by-p diagonal matrix 
+        % with positive entries, and v is a p-by-p orthogonal matrix.
+        % Y = u*s*v'.
+        
         [v, ssquare] = eig(symm(Y'*(B*Y))); % Y*B*Y is positive definite
         ssquarevec = diag(ssquare);
         
-        s = diag(abs(sqrt(ssquarevec)));
+        s = sparse(diag(abs(sqrt(ssquarevec))));
         u = Y*(v/s); % u'*B*u is identity.
     end
     

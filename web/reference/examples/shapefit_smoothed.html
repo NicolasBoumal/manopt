@@ -257,98 +257,99 @@ This function is called by:
 0169     <span class="comment">%</span>
 0170     <span class="comment">% Actual ShapeFit cost (nonsmooth), with CVX.</span>
 0171     <span class="comment">% You can get CVX from http://cvxr.com/.</span>
-0172     <span class="keyword">if</span> exist(<span class="string">'cvx_version'</span>, <span class="string">'file'</span>)
-0173         T_cvx = <a href="#_sub2" class="code" title="subfunction T_cvx = shapefit_cvx(V, J)">shapefit_cvx</a>(V, J);
-0174     <span class="keyword">else</span>
-0175         T_cvx = NaN(d, n);
-0176     <span class="keyword">end</span>
-0177     
+0172     use_cvx_if_available = false;
+0173     <span class="keyword">if</span> use_cvx_if_available &amp;&amp; exist(<span class="string">'cvx_version'</span>, <span class="string">'file'</span>)
+0174         T_cvx = <a href="#_sub2" class="code" title="subfunction T_cvx = shapefit_cvx(V, J)">shapefit_cvx</a>(V, J);
+0175     <span class="keyword">else</span>
+0176         T_cvx = NaN(d, n);
+0177     <span class="keyword">end</span>
 0178     
 0179     
-0180     <span class="comment">% VISUALIZATION</span>
-0181     <span class="comment">%</span>
-0182     <span class="comment">% If T_true is available, for display, we scale the estimators to match</span>
-0183     <span class="comment">% the norm of the target. The scaling factor is obtained by minimizing</span>
-0184     <span class="comment">% the norm of the discrepancy : norm(T_tru - scale*T_xxx, 'fro').</span>
-0185     <span class="comment">% A plot is produced if d is 2 or 3.</span>
-0186     <span class="keyword">if</span> exist(<span class="string">'T_tru'</span>, <span class="string">'var'</span>) &amp;&amp; (d == 2 || d == 3)
-0187         
-0188         T_lsq = T_lsq * trace(T_tru'*T_lsq) / norm(T_lsq, <span class="string">'fro'</span>)^2;
-0189         T_hub = T_hub * trace(T_tru'*T_hub) / norm(T_hub, <span class="string">'fro'</span>)^2;
-0190         T_cvx = T_cvx * trace(T_tru'*T_cvx) / norm(T_cvx, <span class="string">'fro'</span>)^2;
-0191 
-0192     
-0193         <span class="keyword">switch</span> d
-0194             <span class="keyword">case</span> 2
-0195                 plot(T_tru(1, :), T_tru(2, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
-0196                      T_lsq(1, :), T_lsq(2, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
-0197                      T_hub(1, :), T_hub(2, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
-0198                      T_cvx(1, :), T_cvx(2, :), <span class="string">'g.'</span>);
-0199             <span class="keyword">case</span> 3
-0200                 plot3(T_tru(1, :), T_tru(2, :), T_tru(3, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
-0201                       T_lsq(1, :), T_lsq(2, :), T_lsq(3, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
-0202                       T_hub(1, :), T_hub(2, :), T_hub(3, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
-0203                       T_cvx(1, :), T_cvx(2, :), T_cvx(3, :), <span class="string">'g.'</span>);
-0204         <span class="keyword">end</span>
-0205 
-0206         legend(<span class="string">'ground truth'</span>, <span class="string">'least squares'</span>, <span class="keyword">...</span>
-0207                sprintf(<span class="string">'pseudo-huber, \\delta = %.1e'</span>, delta), <span class="keyword">...</span>
-0208                <span class="string">'CVX ShapeFit'</span>);
-0209            
-0210         title(sprintf([<span class="string">'ShapeFit problem : d = %d, n = %d, edge '</span> <span class="keyword">...</span>
-0211                        <span class="string">'fraction = %.2g, sigma = %.2g, outlier '</span> <span class="keyword">...</span>
-0212                        <span class="string">'fraction = %.2g'</span>], d, n, edge_fraction, sigma, <span class="keyword">...</span>
-0213                        outlier_fraction));
-0214         axis equal;
-0215     
-0216     <span class="keyword">end</span>
-0217 
-0218 <span class="keyword">end</span>
-0219 
+0180     
+0181     <span class="comment">% VISUALIZATION</span>
+0182     <span class="comment">%</span>
+0183     <span class="comment">% If T_true is available, for display, we scale the estimators to match</span>
+0184     <span class="comment">% the norm of the target. The scaling factor is obtained by minimizing</span>
+0185     <span class="comment">% the norm of the discrepancy : norm(T_tru - scale*T_xxx, 'fro').</span>
+0186     <span class="comment">% A plot is produced if d is 2 or 3.</span>
+0187     <span class="keyword">if</span> exist(<span class="string">'T_tru'</span>, <span class="string">'var'</span>) &amp;&amp; (d == 2 || d == 3)
+0188         
+0189         T_lsq = T_lsq * trace(T_tru'*T_lsq) / norm(T_lsq, <span class="string">'fro'</span>)^2;
+0190         T_hub = T_hub * trace(T_tru'*T_hub) / norm(T_hub, <span class="string">'fro'</span>)^2;
+0191         T_cvx = T_cvx * trace(T_tru'*T_cvx) / norm(T_cvx, <span class="string">'fro'</span>)^2;
+0192 
+0193     
+0194         <span class="keyword">switch</span> d
+0195             <span class="keyword">case</span> 2
+0196                 plot(T_tru(1, :), T_tru(2, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
+0197                      T_lsq(1, :), T_lsq(2, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
+0198                      T_hub(1, :), T_hub(2, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
+0199                      T_cvx(1, :), T_cvx(2, :), <span class="string">'g.'</span>);
+0200             <span class="keyword">case</span> 3
+0201                 plot3(T_tru(1, :), T_tru(2, :), T_tru(3, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
+0202                       T_lsq(1, :), T_lsq(2, :), T_lsq(3, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
+0203                       T_hub(1, :), T_hub(2, :), T_hub(3, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
+0204                       T_cvx(1, :), T_cvx(2, :), T_cvx(3, :), <span class="string">'g.'</span>);
+0205         <span class="keyword">end</span>
+0206 
+0207         legend(<span class="string">'ground truth'</span>, <span class="string">'least squares'</span>, <span class="keyword">...</span>
+0208                sprintf(<span class="string">'pseudo-huber, \\delta = %.1e'</span>, delta), <span class="keyword">...</span>
+0209                <span class="string">'CVX ShapeFit'</span>);
+0210            
+0211         title(sprintf([<span class="string">'ShapeFit problem : d = %d, n = %d, edge '</span> <span class="keyword">...</span>
+0212                        <span class="string">'fraction = %.2g, sigma = %.2g, outlier '</span> <span class="keyword">...</span>
+0213                        <span class="string">'fraction = %.2g'</span>], d, n, edge_fraction, sigma, <span class="keyword">...</span>
+0214                        outlier_fraction));
+0215         axis equal;
+0216     
+0217     <span class="keyword">end</span>
+0218 
+0219 <span class="keyword">end</span>
 0220 
-0221 <span class="comment">% If CVX is available, it can be used to solve the nonsmooth problem</span>
-0222 <span class="comment">% directly, very elegantly.</span>
-0223 <a name="_sub2" href="#_subfunctions" class="code">function T_cvx = shapefit_cvx(V, J)</a>
-0224     d = size(V, 1);
-0225     n = size(J, 1); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0226     VJt = full(V*J');
-0227     cvx_begin
-0228         variable T_cvx(d, n)
-0229         <span class="comment">% We want to minimize this:</span>
-0230         <span class="comment">% minimize sum( norms( A(T_cvx), 2, 1 ) )</span>
-0231         <span class="comment">% But unfortunately, CVX doesn't handle bsxfun. Instead, we use</span>
-0232         <span class="comment">% repmat, which is slower, and hence hurts the comparison in</span>
-0233         <span class="comment">% disfavor of CVX.</span>
-0234         minimize sum( norms( T_cvx*J - V .* repmat(sum(V .* (T_cvx*J), 1), [d, 1])  , 2, 1 ) )
-0235         sum(T_cvx, 2) == zeros(d, 1); <span class="comment">%#ok&lt;NODEF,EQEFF&gt;</span>
-0236         VJt(:).' * T_cvx(:) == 1; <span class="comment">%#ok&lt;EQEFF&gt;</span>
-0237     cvx_end
-0238 <span class="keyword">end</span>
-0239 
+0221 
+0222 <span class="comment">% If CVX is available, it can be used to solve the nonsmooth problem</span>
+0223 <span class="comment">% directly, very elegantly.</span>
+0224 <a name="_sub2" href="#_subfunctions" class="code">function T_cvx = shapefit_cvx(V, J)</a>
+0225     d = size(V, 1);
+0226     n = size(J, 1); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0227     VJt = full(V*J');
+0228     cvx_begin
+0229         variable T_cvx(d, n)
+0230         <span class="comment">% We want to minimize this:</span>
+0231         <span class="comment">% minimize sum( norms( A(T_cvx), 2, 1 ) )</span>
+0232         <span class="comment">% But unfortunately, CVX doesn't handle bsxfun. Instead, we use</span>
+0233         <span class="comment">% repmat, which is slower, and hence hurts the comparison in</span>
+0234         <span class="comment">% disfavor of CVX.</span>
+0235         minimize sum( norms( T_cvx*J - V .* repmat(sum(V .* (T_cvx*J), 1), [d, 1])  , 2, 1 ) )
+0236         sum(T_cvx, 2) == zeros(d, 1); <span class="comment">%#ok&lt;NODEF,EQEFF&gt;</span>
+0237         VJt(:).' * T_cvx(:) == 1; <span class="comment">%#ok&lt;EQEFF&gt;</span>
+0238     cvx_end
+0239 <span class="keyword">end</span>
 0240 
-0241 <a name="_sub3" href="#_subfunctions" class="code">function [I, J, A] = erdosrenyi(n, p)</a>
-0242 <span class="comment">% Generate a random Erdos-Renyi graph with n nodes and edge probability p.</span>
-0243 <span class="comment">%</span>
-0244 <span class="comment">% [I, J, A] = erdosrenyi(n, p)</span>
-0245 <span class="comment">%</span>
-0246 <span class="comment">% Returns a list of edges (I(k), J(k)) for a random, undirected Erdos-Renyi</span>
-0247 <span class="comment">% graph with n nodes and edge probability p. A is the adjacency matrix.</span>
-0248 <span class="comment">%</span>
-0249 <span class="comment">% I(k) &lt;= J(k) for all k, i.e., all(I&lt;=J) is true.</span>
-0250 
-0251     X = rand(n);
-0252     mask = X &lt;= p;
-0253     X( mask) = 1;
-0254     X(~mask) = 0;
-0255     X = triu(X, 1);
-0256 
-0257     <span class="comment">% A is the adjacency matrix</span>
-0258     <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a> = X + X';
-0259     
-0260     [I, J] = find(X);
-0261 
-0262 <span class="keyword">end</span>
-0263</pre></div>
-<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0241 
+0242 <a name="_sub3" href="#_subfunctions" class="code">function [I, J, A] = erdosrenyi(n, p)</a>
+0243 <span class="comment">% Generate a random Erdos-Renyi graph with n nodes and edge probability p.</span>
+0244 <span class="comment">%</span>
+0245 <span class="comment">% [I, J, A] = erdosrenyi(n, p)</span>
+0246 <span class="comment">%</span>
+0247 <span class="comment">% Returns a list of edges (I(k), J(k)) for a random, undirected Erdos-Renyi</span>
+0248 <span class="comment">% graph with n nodes and edge probability p. A is the adjacency matrix.</span>
+0249 <span class="comment">%</span>
+0250 <span class="comment">% I(k) &lt;= J(k) for all k, i.e., all(I&lt;=J) is true.</span>
+0251 
+0252     X = rand(n);
+0253     mask = X &lt;= p;
+0254     X( mask) = 1;
+0255     X(~mask) = 0;
+0256     X = triu(X, 1);
+0257 
+0258     <span class="comment">% A is the adjacency matrix</span>
+0259     <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a> = X + X';
+0260     
+0261     [I, J] = find(X);
+0262 
+0263 <span class="keyword">end</span>
+0264</pre></div>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

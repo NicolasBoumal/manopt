@@ -3,19 +3,17 @@ function M = fixedrankfactory_3factors(m, n, k)
 %
 % function M = fixedrankfactory_3factors(m, n, k)
 %
-% The first-order geometry follows the polar quotient geometry described in the following paper:
-% G. Meyer, S. Bonnabel and R. Sepulchre,
+% The first-order geometry follows the balanced quotient geometry described 
+% in the paper, 
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
-% ICML 2011.
+% G. Meyer, S. Bonnabel and R. Sepulchre, ICML 2011.
 %
-% Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf
+% Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf.
 %
-% The second-order geometry follows the reference
-% B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre
+% The second-order geometry follows from the paper
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
+% B. Mishra, R. Meyer, S. Bonnabel and R. Sepulchre,
 % Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
-%
-% Paper link: http://arxiv.org/abs/1209.0430
 %
 % A point X on the manifold is represented as a structure with three
 % fields: L, S and R. The matrices L (mxk) and R (nxk) are orthonormal,
@@ -74,10 +72,10 @@ function M = fixedrankfactory_3factors(m, n, k)
     stiefel_proj = @(L, H) H - L*symm(L'*H);
     
     M.egrad2rgrad = @egrad2rgrad;
-    function eta = egrad2rgrad(X, eta)
-        eta.L = stiefel_proj(X.L, eta.L);
-        eta.S = X.S*symm(eta.S)*X.S;
-        eta.R = stiefel_proj(X.R, eta.R);
+    function rgrad = egrad2rgrad(X, egrad)
+        rgrad.L = stiefel_proj(X.L, egrad.L);
+        rgrad.S = X.S*symm(egrad.S)*X.S;
+        rgrad.R = stiefel_proj(X.R, egrad.R);
     end
     
     
@@ -150,8 +148,8 @@ function M = fixedrankfactory_3factors(m, n, k)
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.S(:) ; X.R(:)])];
     
     M.rand = @random;
-    % Factors L and R live on Stiefel manifolds, hence we will reuse
-    % their random generator.
+    % Factors L and R are on Stiefel manifolds, hence we reuse
+    % their random generators.
     stiefelm = stiefelfactory(m, k);
     stiefeln = stiefelfactory(n, k);
     function X = random()
@@ -180,7 +178,7 @@ function M = fixedrankfactory_3factors(m, n, k)
     
     M.transp = @(x1, x2, d) projection(x2, d);
     
-    % vec and mat are not isometries, because of the unusual inner metric.
+    % vec and mat are not isometries, because of the scaled inner metric.
     M.vec = @(X, U) [U.L(:) ; U.S(:); U.R(:)];
     M.mat = @(X, u) struct('L', reshape(u(1:(m*k)), m, k), ...
         'S', reshape(u((m*k+1): m*k + k*k), k, k), ...

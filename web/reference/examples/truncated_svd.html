@@ -66,7 +66,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li><li><a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li><li><a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li><li><a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -199,10 +199,10 @@ This function is called by:
 0120     
 0121     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
 0122     <span class="comment">% These things can be commented out of course.</span>
-0123     <a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>(problem);
-0124     pause;
-0125     <a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>(problem);
-0126     pause;
+0123     <span class="comment">% checkgradient(problem);</span>
+0124     <span class="comment">% pause;</span>
+0125     <span class="comment">% checkhessian(problem);</span>
+0126     <span class="comment">% pause;</span>
 0127     
 0128     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
 0129     <span class="comment">% default options are selected. Here, we specify a maximum trust</span>
@@ -244,6 +244,6 @@ This function is called by:
 0165     <span class="keyword">end</span>
 0166 
 0167 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 02-Jul-2015 18:56:12 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

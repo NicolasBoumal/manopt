@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of centeredmatrixfactory</title>
+  <meta name="keywords" content="centeredmatrixfactory">
+  <meta name="description" content="Linear manifold struct. for optimization over matrices with centered cols">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; centeredmatrixfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>centeredmatrixfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Linear manifold struct. for optimization over matrices with centered cols</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = centeredmatrixfactory(m, n, rows_or_cols) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Linear manifold struct. for optimization over matrices with centered cols
+
+ function M = centeredmatrixfactory(m, n)
+ function M = centeredmatrixfactory(m, n, 'cols')
+ function M = centeredmatrixfactory(m, n, 'rows')
+
+ Returns M, a structure for Manopt describing the Euclidean space of
+ m-by-n matrices whose columns sum to zero (or whose rows sum to zero,
+ if 'rows' is passed as last input).
+
+ The metric is the standard Frobenius distance and associated trace inner
+ product. Matrices on M, denoted by X, have size mxn and obey
+ X*ones(n, 1) = 0 (centered columns) or ones(1, m)*X = 0 (centered rows).
+
+ See also: <a href="euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function U = randvec()</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = centeredmatrixfactory(m, n, rows_or_cols)</a>
+0002 <span class="comment">% Linear manifold struct. for optimization over matrices with centered cols</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = centeredmatrixfactory(m, n)</span>
+0005 <span class="comment">% function M = centeredmatrixfactory(m, n, 'cols')</span>
+0006 <span class="comment">% function M = centeredmatrixfactory(m, n, 'rows')</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns M, a structure for Manopt describing the Euclidean space of</span>
+0009 <span class="comment">% m-by-n matrices whose columns sum to zero (or whose rows sum to zero,</span>
+0010 <span class="comment">% if 'rows' is passed as last input).</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% The metric is the standard Frobenius distance and associated trace inner</span>
+0013 <span class="comment">% product. Matrices on M, denoted by X, have size mxn and obey</span>
+0014 <span class="comment">% X*ones(n, 1) = 0 (centered columns) or ones(1, m)*X = 0 (centered rows).</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% See also: euclideanfactory</span>
+0017 
+0018 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0019 <span class="comment">% Original author: Nicolas Boumal, July 3, 2015.</span>
+0020 <span class="comment">% Contributors:</span>
+0021 <span class="comment">% Change log:</span>
+0022 
+0023     <span class="keyword">if</span> ~exist(<span class="string">'rows_or_cols'</span>, <span class="string">'var'</span>) || isempty(rows_or_cols)
+0024         rows_or_cols = <span class="string">'cols'</span>;
+0025     <span class="keyword">end</span>
+0026     
+0027     <span class="comment">% Define a centering operator: it subtracts the mean column or row.</span>
+0028     <span class="keyword">switch</span> lower(rows_or_cols)
+0029         <span class="keyword">case</span> <span class="string">'cols'</span>
+0030             center = @(X) bsxfun(@minus, X, mean(X, 2));
+0031             M.dim = @() m*n - m;
+0032         <span class="keyword">case</span> <span class="string">'rows'</span>
+0033             center = @(X) bsxfun(@minus, X, mean(X, 1));
+0034             M.dim = @() m*n - n;
+0035         <span class="keyword">otherwise</span>
+0036             error(<span class="string">'The third input must be either ''rows'' or ''cols''.'</span>);
+0037     <span class="keyword">end</span>
+0038     
+0039     <span class="comment">% This is a non-standard function to have in a Manopt manifold.</span>
+0040     <span class="comment">% It is included because it might be helpful in some situations.</span>
+0041     M.center = center;
+0042 
+0043     M.name = @() sprintf(<span class="string">'Space of size %d x %d matrices with centered %s'</span>, <span class="keyword">...</span>
+0044                          m, n, lower(rows_or_cols));
+0045     
+0046     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0047     
+0048     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0049     
+0050     M.dist = @(x, y) norm(x-y, <span class="string">'fro'</span>);
+0051     
+0052     M.typicaldist = @() sqrt(M.dim());
+0053     
+0054     M.proj = @(X, U) center(U);
+0055     
+0056     M.egrad2rgrad = M.proj;
+0057     
+0058     M.ehess2rhess = @(x, eg, eh, d) center(eh);
+0059     
+0060     M.tangent = @(x, d) d;
+0061     
+0062     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0063     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0064         <span class="keyword">if</span> nargin == 3
+0065             y = x + t*d;
+0066         <span class="keyword">else</span>
+0067             y = x + d;
+0068         <span class="keyword">end</span>
+0069     <span class="keyword">end</span>
+0070     
+0071     M.retr = M.exp;
+0072     
+0073     M.log = @(x, y) y-x;
+0074 
+0075     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0076     
+0077     M.randvec = @(X) <a href="#_sub2" class="code" title="subfunction U = randvec()">randvec</a>();
+0078     <a name="_sub2" href="#_subfunctions" class="code">function U = randvec()</a>
+0079         U = center(randn(m, n));
+0080         U = U / norm(U, <span class="string">'fro'</span>);
+0081     <span class="keyword">end</span>
+0082     
+0083     M.rand = @() center(randn(m, n));
+0084     
+0085     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0086     
+0087     M.zerovec = @(x) zeros(m, n);
+0088     
+0089     M.transp = @(x1, x2, d) d;
+0090     
+0091     M.pairmean = @(x1, x2) .5*(x1+x2);
+0092     
+0093     M.vec = @(x, u_mat) u_mat(:);
+0094     M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
+0095     M.vecmatareisometries = @() true;
+0096 
+0097 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 06-Jul-2015 21:55:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

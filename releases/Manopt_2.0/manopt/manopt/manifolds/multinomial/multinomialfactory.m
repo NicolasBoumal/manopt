@@ -1,5 +1,5 @@
 function M = multinomialfactory(n, m)
-% Manifold struct. for n-by-m column-stochastic matrices w/ positive entries.
+% Manifold of n-by-m column-stochastic matrices with positive entries.
 %
 % function M = multinomialfactory(n, m)
 %
@@ -25,7 +25,7 @@ function M = multinomialfactory(n, m)
 %     @Techreport{sun2014multinomial,
 %       Title   = {Heterogeneous tensor decomposition for clustering via manifold optimization},
 %       Author  = {Sun, Y. and Gao, J. and Hong, X. and Mishra, B. and Yin, B.},
-%       Journal = {arXiv:1504.01777},
+%       Journal = {Arxiv preprint arXiv:1504.01777},
 %       Year    = {2014}
 %     }
 
@@ -34,11 +34,11 @@ function M = multinomialfactory(n, m)
 % Contributors:
 % Change log:
     
-    M.name = @() sprintf('%dx%d column-stochastic matrices with positive entries', n, m, 1);
+    M.name = @() sprintf('%dx%d column-stochastic matrices with positive entries', n, m);
     
     M.dim = @() (n-1)*m;
     
-    % We impose the Fisher metric as proposed.
+    % We impose the Fisher metric.
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         ip = sum((eta(:).*zeta(:))./X(:));
@@ -140,7 +140,7 @@ function M = multinomialfactory(n, m)
     
     M.transp = @(X1, X2, d) projection(X2, d);
     
-    % vec and mat are not isometries, because of the unusual inner metric.
+    % vec and mat are not isometries, because of the scaled metric.
     M.vec = @(X, U) U(:);
     M.mat = @(X, u) reshape(u, n, m);
     M.vecmatareisometries = @() false;
