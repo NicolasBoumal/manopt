@@ -1,5 +1,5 @@
 function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
-% Manifold of fixed-multilinear-rank tensors.
+% Manifold of fixed multilinear rank tensors in Tucker format.
 %
 % function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %
@@ -12,7 +12,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %
 % A point X on the manifold is represented as a structure with four
 % fields: U1, U2, U3 and G. The matrices U1 (n1-by-r1), U2 (n2-by-r2),
-% and U3 (n3-by-r3) are orthogonal matrices. G (r1-by-r2-r3) is a 
+% and U3 (n3-by-r3) are orthogonal matrices. G (r1-by-r2-by-r3) is a 
 % multidimensional array.
 %
 % Tangent vectors are represented as a structure with four fields: 
@@ -34,7 +34,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %       Year    = {2015}
 %     }
 
-% Original authors: Hiroyuki Kasai and Bamdev Mishra, June 05, 2015.
+% Original authors: Hiroyuki Kasai and Bamdev Mishra, June 5, 2015.
 % Contributors: 
 % Change log:
 
