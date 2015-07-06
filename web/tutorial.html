@@ -363,7 +363,7 @@ problem.egrad = @(x) -2*A*x;
                 <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/euclidean/centeredmatrixfactory.html">Centered
                       matrices</a></td>
-                  <td>$\{ X \in \mathbb{R}^{m\times n} : X{1}_n = 0_m \}$</td>
+                  <td>$\{ X \in \mathbb{R}^{m\times n} : X\mathds{1}_n = 0_m \}$</td>
                   <td><code>centeredmatrixfactory(m, n)</code></td>
                 </tr>
                 <tr>
@@ -448,6 +448,12 @@ problem.egrad = @(x) -2*A*x;
                     <a href="reference/manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html">(ref)</a><br>
                     <code>fixedrankfactory_3factors(m, n, k)</code> <a href="reference/manopt/manifolds/fixedrank/fixedrankfactory_3factors.html">(ref)</a><br>
                     <code>fixedrankMNquotientfactory(m, n, k)</code> <a href="reference/manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html">(ref)</a></td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/fixedranktensors/fixedrankfactory_tucker_preconditioned.html">Fixed-rank
+                      tensor</a></td>
+                  <td>Tensors in Tucker format of fixed multilinear rank</td>
+                  <td><code>fixedrankfactory_tucker_preconditioned</code></td>
                 </tr>
                 <tr>
                   <td><a href="manifold_documentation_symfixedrank.html">Symmetric
