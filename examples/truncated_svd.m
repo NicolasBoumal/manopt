@@ -120,10 +120,10 @@ function [U, S, V, info] = truncated_svd(A, p)
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.
-    checkgradient(problem);
-    pause;
-    checkhessian(problem);
-    pause;
+    % checkgradient(problem);
+    % pause;
+    % checkhessian(problem);
+    % pause;
     
     % Issue a call to a solver. A random initial guess will be chosen and
     % default options are selected. Here, we specify a maximum trust

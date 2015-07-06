@@ -169,7 +169,8 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
     %
     % Actual ShapeFit cost (nonsmooth), with CVX.
     % You can get CVX from http://cvxr.com/.
-    if exist('cvx_version', 'file')
+    use_cvx_if_available = false;
+    if use_cvx_if_available && exist('cvx_version', 'file')
         T_cvx = shapefit_cvx(V, J);
     else
         T_cvx = NaN(d, n);
