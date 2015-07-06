@@ -12,7 +12,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
 %
 % The metric is obtained by viewing the generalized Grassmannian
 % a Riemannian quotient manifold of the generalized Stiefel manifold, 
-% which is the manifold of "sclaed" orthonormal matrices. Specifically, 
+% which is the manifold of "scaled" orthonormal matrices. Specifically, 
 % the scaled Stiefel manifold is the set {X : X'*B*X = I}. 
 % The generalized Grassmann manifold is the Grassmannian of the 
 % generalized Stiefel manifold.
@@ -62,7 +62,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
     
     M.dim = @() p*(n - p);   
     
-    M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); % Scaled metric, but horizontally invaraiant.
+    M.inner = @(X, eta, zeta) trace(eta'*(B*zeta)); % Scaled metric, but horizontally invariant.
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
