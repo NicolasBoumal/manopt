@@ -5,8 +5,8 @@ function M = stiefelgeneralizedfactory(n, p, B)
 % function M = stiefelgeneralizedfactory(n, p, B)
 %
 % The generalized Stiefel manifold is the set of "scaled" orthonormal 
-% nxp matrices X such that X'*B*X is identity. If B is identity, then this
-% is the standard Stiefel manifold.
+% nxp matrices X such that X'*B*X is identity. B must be positive definite.
+% If B is identity, then this is the standard Stiefel manifold.
 %
 % The generalized Stiefel manifold is endowed with a scaled metric
 % by making it a Riemannian submanifold of the Euclidean space,
