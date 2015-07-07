@@ -1,0 +1,30 @@
+Dear Igor,
+
+Bamdev (cc) and I develop Manopt, a Matlab toolbox for optimization on manifolds.
+
+You featured a nice post about it on Nuit Blanche on May 28, 2013:
+http://nuit-blanche.blogspot.fr/2013/05/manopt-matlab-toolbox-for-optimization.html
+
+
+
+Over the last two years, the toolbox has improved vastly, in part thanks to our great contributors, and we just released Manopt 2.0 yesterday:
+http://www.manopt.org/downloads.html
+http://www.manopt.org/about.html#contributors
+
+We would be delighted if you could announce this major release on your blog once again.
+
+Manopt is a toolbox for optimization on manifolds, that is, on smooth nonlinear spaces. This is ideal to handle rank constraints and orthogonality constraints, to name a few, with major applications in large-scale machine learning, computer vision, numerical linear algebra and scientific computing. Generically, it is an excellent paradigm to handle symmetry and invariance in optimization. Of course, Manopt can also optimize over linear spaces (and it's quite good at it). It is also a powerful way to refine ballpark estimates obtained from relaxations.
+
+The toolbox is user friendly, requiring little knowledge about manifolds to get started. See our tutorial and the many examples in the release:
+http://www.manopt.org/tutorial.html
+
+For a brief overview of what optimization on manifolds is about, this blog post may be a good start:
+https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/
+
+
+
+We hope you may find this to be of interest for Nuit Blanche's readership.
+
+Thank you for your time,
+
+Nicolas
