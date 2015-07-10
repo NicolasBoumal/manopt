@@ -49,6 +49,12 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
 % Change log: 
 
 
+    % Generic useful functions
+    center_cols = @(A) bsxfun(@minus, A, mean(A, 2));
+    normalize_cols = @(A) bsxfun(@times, A, 1./sqrt(sum(A.^2, 1)));
+    sqnorm_cols = @(A) sum(A.^2, 1);
+
+    
     % DATA GENERATION
     %
     % If no inputs are specified, generate some random data for
@@ -59,11 +65,6 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         d =   2;
         n = 500;
 
-        % Generic useful functions
-        center_cols = @(A) bsxfun(@minus, A, mean(A, 2));
-        normalize_cols = @(A) bsxfun(@times, A, 1./sqrt(sum(A.^2, 1)));
-        sqnorm_cols = @(A) sum(A.^2, 1);
-
         % Those points are the columns of T : they are what we need to
         % estimate, up to scaling and translation. We center T for
         % convenience.
@@ -72,9 +73,10 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         % We get a measurement of some pairs of relative directions.
         % Which pairs is encoded in this graph, with J being the (signed,
         % transposed) incidence matrix. J is n x m, sparse.
-        % There are roughly edge_fraction * n * (n+1) / 2 measurements.
-        edge_fraction = 0.1;
-        [ii, jj] = erdosrenyi(n, edge_fraction);
+        % There are roughly edge_fraction * n * (n-1) / 2 measurements.
+        edge_fraction = 0.10;
+        % [ii, jj] = erdosrenyi(n, edge_fraction);
+        [ii, jj] = randomgraph(n, edge_fraction*nchoosek(n, 2));
         m = length(ii);
         J = sparse([ii ; jj], [(1:m)' ; (1:m)'], ...
                    [ones(m, 1), -ones(m, 1)], n, m, 2*m);
@@ -239,7 +241,7 @@ function T_cvx = shapefit_cvx(V, J)
 end
 
 
-function [I, J, A] = erdosrenyi(n, p)
+function [I, J, A] = erdosrenyi(n, p) %#ok<DEFNU>
 % Generate a random Erdos-Renyi graph with n nodes and edge probability p.
 %
 % [I, J, A] = erdosrenyi(n, p)
@@ -247,7 +249,9 @@ function [I, J, A] = erdosrenyi(n, p)
 % Returns a list of edges (I(k), J(k)) for a random, undirected Erdos-Renyi
 % graph with n nodes and edge probability p. A is the adjacency matrix.
 %
-% I(k) <= J(k) for all k, i.e., all(I<=J) is true.
+% I(k) < J(k) for all k, i.e., all(I<J) is true.
+%
+% The memory requirements for this simple implementation scale as O(n^2).
 
     X = rand(n);
     mask = X <= p;
@@ -262,3 +266,34 @@ function [I, J, A] = erdosrenyi(n, p)
 
 end
 
+
+function [I, J, A] = randomgraph(n, m)
+% Generates a random graph over n nodes with at most m edges.
+%
+% function [I, J, A] = randomgraph(n, m)
+%
+% Selects m (undirected) edges from a graph over n nodes, uniformly at
+% random, with replacement. The self edges and repeated edges are then
+% discarded. The remaining number of edges is at most m, and should be
+% close to m if m is much smaller than nchoosek(n, 2).
+%
+% The output satisfies all(I < J). A is the corresponding adjacency matrix.
+%
+% Uses O(m) memory (not O(n^2)), making it fit for large, sparse graphs.
+
+    % Generate m edges at random, with replacement, and remove repetitions.
+    IJ = unique(sort(randi(n, m, 2), 2), 'rows');
+    
+    % Remove self-edges if any.
+    IJ = IJ(IJ(:, 1) ~= IJ(:, 2), :);
+    
+    % Actual number of selected edges
+    k = size(IJ, 1);
+    
+    I = IJ(:, 1);
+    J = IJ(:, 2);
+    
+    % Build the adjacency matrix of the graph.
+    A = sparse([I ; J], [J ; I], ones(2*k, 1), n, n, 2*k);
+
+end
