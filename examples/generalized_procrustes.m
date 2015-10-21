@@ -1,4 +1,4 @@
-function [A R] = generalized_procrustes(A_measure)
+function [A, R] = generalized_procrustes(A_measure)
 % Rotationally align clouds of points (generalized Procrustes problem)
 %
 % function X = generalized_procrustes(A_measure)
@@ -56,7 +56,7 @@ function [A R] = generalized_procrustes(A_measure)
     % is used to keep the residue matrix E in memory, as it is also used in
     % the computation of the gradient and of the Hessian. This way, we
     % prevent redundant computations.
-    function [f store] = cost(X, store)
+    function [f, store] = cost(X, store)
         if ~isfield(store, 'E')
             R = X.R;
             A = X.A;
@@ -67,7 +67,7 @@ function [A R] = generalized_procrustes(A_measure)
     end
 
     % Riemannian gradient of the cost function.
-    function [g store] = grad(X, store)
+    function [g, store] = grad(X, store)
         R = X.R;
         A = X.A;
         if ~isfield(store, 'E')
@@ -87,7 +87,7 @@ function [A R] = generalized_procrustes(A_measure)
     % It is not necessary to define the Hessian of the cost. We do it
     % mostly to illustrate how to do it and to study the spectrum of the
     % Hessian at the solution (see further down).
-    function [h store] = hess(X, Xdot, store)
+    function [h, store] = hess(X, Xdot, store)
         R = X.R;
         A = X.A;
         % Careful: tangent vectors on the rotation group are represented as
