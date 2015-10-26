@@ -8,6 +8,6 @@ function [version, released] = manopt_version()
 % date() function in Matlab.
 
     version = [2, 0, 0];
-    released = '06-Jul-2014';
+    released = '06-Jul-2015';
 
 end
