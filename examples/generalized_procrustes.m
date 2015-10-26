@@ -33,7 +33,7 @@ function [A, R] = generalized_procrustes(A_measure)
         N = 50;
         % The reference cloud
         Atrue = randn(n, m);
-        % A 3D meatrix containing the N measured clouds
+        % A 3D matrix containing the N measured clouds
         sigma = .3;
         A_measure = multiprod(randrot(n, N), Atrue) + sigma*randn(n, m, N);
     else
