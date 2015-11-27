@@ -21,6 +21,10 @@ function N = tangentspherefactory(M, x)
 % Original author: Nicolas Boumal, March 16, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Nov 27, 2015 (NB):
+%       Extra projection added in the retraction, to prevent numerical
+%       drift.
 
     % N is the manifold we build. y will be a point on N, thus also a
     % tangent vector to M at x. This is a typical Riemannian submanifold of
@@ -46,6 +50,15 @@ function N = tangentspherefactory(M, x)
             t = 1;
         end
         y_plus_tu = M.lincomb(x, 1, y, t, u);
+        % This extra projection is not required mathematically,
+        % but appears to be necessary numerically, sometimes.
+        % The reason is that, as many retractions are operated,
+        % there is a risk that the points generated would leave
+        % the tangent space. If this proves to be a huge slow down,
+        % one could consider adding a type of counter that only
+        % executes this extra projection every so often, instead
+        % of at every call.
+        y_plus_tu = M.proj(x, y_plus_tu);
         nrm = M.norm(x, y_plus_tu);
         yy = M.lincomb(x, 1/nrm, y_plus_tu);
     end
