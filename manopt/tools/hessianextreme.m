@@ -1,12 +1,12 @@
-function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, key)
+function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)
 % Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.
 %
-% [u, lambda] = hessianextreme(problem, x)
-% [u, lambda] = hessianextreme(problem, x, side)
-% [u, lambda] = hessianextreme(problem, x, side, u0)
-% [u, lambda] = hessianextreme(problem, x, side, u0, options)
-% [u, lambda] = hessianextreme(problem, x, side, u0, options, storedb)
-% [u, lambda] = hessianextreme(problem, x, side, u0, options, storedb, key)
+% [u, lambda, info] = hessianextreme(problem, x)
+% [u, lambda, info] = hessianextreme(problem, x, side)
+% [u, lambda, info] = hessianextreme(problem, x, side, u0)
+% [u, lambda, info] = hessianextreme(problem, x, side, u0, options)
+% [u, lambda, info] = hessianextreme(problem, x, side, u0, options, storedb)
+% [u, lambda, info] = hessianextreme(problem, x, side, u0, options, storedb, key)
 % 
 % (For side, u0 and options, pass [] to omit any.)
 %
@@ -41,6 +41,8 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, ke
 %
 % storedb is a StoreDB object, key is the StoreDB key to point x.
 %
+% info is the info struct-array returned by the solver.
+%
 % See also: hessianspectrum manoptsolve tangentspherefactory
 
 % This file is part of Manopt: www.manopt.org.
@@ -53,6 +55,9 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, ke
 %
 %   May 7, 2015 (NB):
 %       Default solver options: verbosity = 0 and defaults to trustregions.
+%
+%   Nov 27, 2015 (NB):
+%       The function now also returns the info struct-array.
 
     
     % By default, minimize
@@ -159,7 +164,7 @@ function [y, lambda] = hessianextreme(problem, x, side, y0, options, storedb, ke
     
     % Call a Manopt solver to solve the quadratic optimization problem on
     % the abstract sphere N.
-    [y, lambda] = manoptsolve(new_problem, y0, options);
+    [y, lambda, info] = manoptsolve(new_problem, y0, options);
     lambda = sign*lambda;
 
 end
