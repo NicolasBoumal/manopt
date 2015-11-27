@@ -132,8 +132,7 @@ function M = obliquefactory(n, m, transposed)
         if nargin < 3
             t = 1.0;
         end
-
-        m = size(x, 2);
+        
         if t ~= 0
 			y = normalize_columns(x + t*d);
         else
