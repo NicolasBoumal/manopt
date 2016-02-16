@@ -16,6 +16,12 @@ function M = spherefactory(n, m)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   Feb. 4, 2016 (NB)
+%       Should we simplify the exponential code, here and everywhere else
+%       this branching on the step size occurs for sphere-like
+%       exponentials? Try this on practical problem to see if this was
+%       truly necessary in practice.
 
     
     if ~exist('m', 'var')
@@ -91,6 +97,35 @@ function M = spherefactory(n, m)
 end
 
 % Exponential on the sphere
+% Note: it is not clear whether the if-else branching on the size of the
+% step is truly necessary or not. sin(x)/x behaves quite well, actually.
+% This code seems to show that removing the if-else would not adversely
+% affect the behavior of this factory:
+% % S = spherefactory(1000);
+% % x = S.rand();
+% % u = S.randvec(x);
+% % t = logspace(-16, 0, 101);
+% % p1 = zeros(size(t));
+% % p2 = zeros(size(t));
+% % for k = 1 : numel(t)
+% %     nrm_td = norm(t(k)*u, 'fro');
+% %     p1(k) = S.dist(x, x*cos(nrm_td) + (t(k)*u)*(sin(nrm_td)/nrm_td));
+% %     p2(k) = S.dist(x, S.exp(x, u, t(k)));
+% % end
+% % loglog(t, p1, t, p2);
+% And same thing if we plot the nom of the output to make sure it's one:
+% % S = spherefactory(1000);
+% % x = S.rand();
+% % u = S.randvec(x);
+% % t = logspace(-16, 0, 101);
+% % p1 = zeros(size(t));
+% % p2 = zeros(size(t));
+% % for k = 1 : numel(t)
+% %     nrm_td = norm(t(k)*u, 'fro');
+% %     p1(k) = norm(x*cos(nrm_td) + (t(k)*u)*(sin(nrm_td)/nrm_td), 'fro');
+% %     p2(k) = norm(S.exp(x, u, t(k)), 'fro');
+% % end
+% % loglog(t, abs(p1-1), t, abs(p2-1));
 function y = exponential(x, d, t)
 
     if nargin == 2
