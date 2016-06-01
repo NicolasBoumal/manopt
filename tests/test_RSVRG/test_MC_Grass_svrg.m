@@ -71,15 +71,15 @@ function  test_MC_Grass_svrg()
     
     
     % Creat the cells
-    data.x(m).colnumber = []; % Preallocate memory.
+    samples(m).colnumber = []; % Preallocate memory.
     for k = 1 : m,
         % Pull out the relevant indices and revealed entries for this column
         idx = find(indicator(:, k)); % find known row indices
         values_col = values(idx, k); % the non-zero entries of the column
         
-        data.x(k).indicator = idx;
-        data.x(k).values = values_col;
-        data.x(k).colnumber = k;
+        samples(k).indicator = idx;
+        samples(k).values = values_col;
+        samples(k).colnumber = k;
     end
     
     
@@ -94,15 +94,15 @@ function  test_MC_Grass_svrg()
     values_test = sparse(I_test, J_test, S_test, n, m);
     indicator_test = sparse(I_test, J_test, 1, n, m);
     
-    data_test.x(m).colnumber = [];
+    samples_test(m).colnumber = [];
     for k = 1 : m,
         % Pull out the relevant indices and revealed entries for this column
         idx = find(indicator_test(:, k)); % find known row indices
         values_col = values_test(idx, k); % the non-zero entries of the column
         
-        data_test.x(k).indicator = idx;
-        data_test.x(k).values = values_col;
-        data_test.x(k).colnumber = k;
+        samples_test(k).indicator = idx;
+        samples_test(k).values = values_col;
+        samples_test(k).colnumber = k;
     end
     
     
@@ -112,33 +112,34 @@ function  test_MC_Grass_svrg()
     
     
     
+    
     %% Set data
-    problem.data = data;
+    problem.samples = samples;
    
     
     %% Define problem definitions
     problem.cost = @cost;
     function f = cost(U)
-        W = mylsqfit(U, data.x);
+        W = mylsqfit(U, samples);
         f = 0.5*norm(indicator.*(U*W') - values, 'fro')^2;
         f = f/m;
     end
     
     problem.egrad = @egrad;
     function g = egrad(U)
-        W = mylsqfit(U, data.x);
+        W = mylsqfit(U, samples);
         g = (indicator.*(U*W') - values)*W;
         g = g/m;
     end
     
     
     problem.egrad_batchsize = @egrad_batchsize;
-    function g = egrad_batchsize(U, data_batchsize)
+    function g = egrad_batchsize(U, samples_batchsize)
         g = zeros(n, r);
-        m_batchsize = length([data_batchsize.x.colnumber]);
+        m_batchsize = length([samples_batchsize.colnumber]);
         for ii = 1 : m_batchsize
-            colnum = data_batchsize.x(ii).colnumber;
-            w = mylsqfit(U, data_batchsize.x(ii));
+            colnum = samples_batchsize(ii).colnumber;
+            w = mylsqfit(U, samples_batchsize(ii));
             indicator_vec = indicator(:, colnum);
             values_vec = values(:, colnum);
             g = g + (indicator_vec.*(U*w') - values_vec)*w;
@@ -149,7 +150,7 @@ function  test_MC_Grass_svrg()
     
     
     %     function stats = mystatsfun(problem, U, stats)
-    %         W = mylsqfit(U, data_test.x);
+    %         W = mylsqfit(U, samples_test);
     %         f_test = 0.5*norm(indicator_test.*(U*W') - values_test, 'fro')^2;
     %         f_test = f_test/m;
     %         stats.cost_test = f_test;
@@ -198,6 +199,22 @@ function  test_MC_Grass_svrg()
     options.stepsize_type = 'decay'; % 'fix' or 'hybrid.
     
     [~, ~, infos_svrg, options_svrg] = Riemannian_svrg(problem, Uinit, options);
+    
+    
+    
+    function W = mylsqfit(U, currentsamples)
+        W = zeros(length(currentsamples), size(U, 2));
+        for ii = 1 : length(currentsamples)
+            % Pull out the relevant indices and revealed entries for this column
+            IDX = currentsamples(ii).indicator;
+            values_Omega = currentsamples(ii).values;
+            U_Omega = U(IDX,:);
+            
+            % Solve a simple least squares problem to populate U
+            W(ii,:) = (U_Omega\values_Omega)';
+        end
+    end
+
     
     
     
