@@ -1,25 +1,24 @@
-function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
+function [x, cost, info, options] = Riemannian_svrg(problem, x_init, options)
 % The Riemannian SVRG/SGD algorithms. 
 %
-% function [U, cost, info, options] = Riemannian_svrg(problem)
-% function [U, cost, info, options] = Riemannian_svrg(problem, U_init)
-% function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
-% function [U, cost, info, options] = Riemannian_svrg(problem, [], options)
+% function [x, cost, info, options] = Riemannian_svrg(problem)
+% function [x, cost, info, options] = Riemannian_svrg(problem, x_init)
+% function [x, cost, info, options] = Riemannian_svrg(problem, x_init, options)
+% function [x, cost, info, options] = Riemannian_svrg(problem, [], options)
 % 
 % Apply the Riemannian SVRG/SGD algorithm to the problem defined
-% in the problem structure, starting at U_init if it is provided (otherwise, at
+% in the problem structure, starting at x_init if it is provided (otherwise, at
 % a random point on the manifold). To specify options whilst not specifying
-% an initial guess, give U_init as [] (the empty matrix).
+% an initial guess, give x_init as [] (the empty matrix).
 % 
 % The solver mimics other solvers of Manopt with two additonal input
 % requirements: problem.data and problem.egrad_batchsize. 
 %
-% problem.data should contain a structure 'x' that correpsonds to the all
-% the data samples. For example, problem.data.x should be a struct array of
-% N samples.
+% problem.samples is a structure array to the all the data samples. 
+% For example, problem.samples should be a struct array of N samples.
 %
 % problem.egrad_batchsize takes input a current point of the manifold and
-% data_batchsize that contains the 'x' samples only for the current
+% samples_batchsize that contains the 'samples' samples only for the current
 % batchsize.
 %
 % Some of the options of the solver are specifict to this file. Please have
@@ -37,21 +36,17 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
 %                   Hiroyuki Sato <hsato@ms.kagu.tus.ac.jp>, 22 April 2016.
     
     % Initialization
-    if isempty(U_init)
-        U_init =  problem.M.rand();
+    if isempty(x_init)
+        x_init =  problem.M.rand();
     end
-    U = U_init;
+    x = x_init;
     
     % Data
-    x = problem.data.x; % struct array .
-    if ~isfield(problem.data,'y')
-        problem.data.y = [];
-    end
-    y = problem.data.y; % An additional problem.data structure if need be.
+    samples = problem.samples; % struct array .
     
     
     % Total number of samples
-    N = length(x);
+    N = length(samples);
     
     % Extract options
     if ~isfield(options, 'maxepoch'); options.maxepoch = 100; end; % Maximum number of epochs.
@@ -67,7 +62,7 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
     if ~isfield(options, 'update_type'); options.update_type = 'svrg';  end % Update type. Other possibility is 'sgd', which is the standard SGD.
     if ~isfield(options, 'store_innerinfo'); options.store_innerinfo = false; end % Store information at each update. High memory requirements. Only to be used for debugging.
     if ~isfield(options, 'statsfun'); options.statsfun = []; end % A function handle that gets exectued at every epoch.
-    if ~isfield(options, 'svrg_type'); options.svrg_type = 1; end % To implement both the options that are used to define U0.
+    if ~isfield(options, 'svrg_type'); options.svrg_type = 1; end % To implement both the options that are used to define x0.
     
     
     stepsize0 = options.stepsize;
@@ -80,10 +75,10 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
     
     
     % Computations at initialization
-    cost = problem.cost(U);
-    egrad = problem.egrad(U);
-    rgrad = problem.M.proj(U, egrad);
-    gradnorm = problem.M.norm(U, rgrad);
+    cost = problem.cost(x);
+    egrad = problem.egrad(x);
+    rgrad = problem.M.proj(x, egrad);
+    gradnorm = problem.M.norm(x, rgrad);
     
     % Save stats in a struct array info, and preallocate.
     epoch = 0;
@@ -117,7 +112,7 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
     end
     
     
-    U0 = U;
+    x0 = x;
     rgrad0 = rgrad;
     toggle = 0; % To check boosting.
     % Main loop over epoch.
@@ -125,11 +120,7 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
         
         % Draw the samples with replacement.
         perm_idx = randi(N, 1, options.maxinneriter);
-        x_perm = x(perm_idx);
-        y_perm = [];
-        if  ~isempty(y)
-            y_perm = y(perm_idx);
-        end
+        samples_perm = samples(perm_idx);
         
         
         % Check if boost is required for svrg
@@ -141,7 +132,7 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
         if strcmp(options.update_type, 'svrg') && options.svrg_type == 2
             update_instance = randi(totalbatches, 1) - 1; % pick a number uniformly between 0 to m - 1.
             if update_instance == 0
-                Usave = U0;
+                Usave = x0;
                 rgradsave = rgrad0;
             end
         end
@@ -158,17 +149,12 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
             start_index = (inneriter - 1)* batchsize + 1;
             end_index = min(inneriter * batchsize, options.maxinneriter);
             
-            x_batchsize = x_perm(start_index : end_index); % An array.
-            y_batchsize = [];
-            if ~isempty(y)
-                y_batchsize = y_perm(start_index : end_index); % BM
-            end
+            samples_batchsize = samples_perm(start_index : end_index); % An array.
+            
             
             % Compute gradient on this batch.
-            data_batchsize.x = x_batchsize;
-            data_batchsize.y = y_batchsize;
-            egrad_batchsize = problem.egrad_batchsize(U, data_batchsize); % BM: per batchsize
-            rgrad_batchsize = problem.M.egrad2rgrad(U, egrad_batchsize); % BM
+            egrad_batchsize = problem.egrad_batchsize(x, samples_batchsize); % BM: per batchsize
+            rgrad_batchsize = problem.M.egrad2rgrad(x, egrad_batchsize); % BM
             
             % Update stepsize
             if strcmp(options.stepsize_type, 'decay')
@@ -192,37 +178,37 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
             
             if strcmp(options.update_type, 'svrg')
                 
-                % Caclculate transported full batch gradient from U0 to U.
+                % Caclculate transported full batch gradient from x0 to x.
                 if strcmp(options.transport, 'parallel')
                     % Logarithm map
-                    logmapU0toU = problem.M.log(U0, U);
+                    logmapU0toU = problem.M.log(x0, x);
                     
-                    % Parallel translate from U0 to U.
-                    rgrad_transported = problem.M.paratransp(U0, logmapU0toU, rgrad0); % BM: this is in _mod file.
+                    % Parallel translate from x0 to x.
+                    rgrad_transported = problem.M.paratransp(x0, logmapU0toU, rgrad0); % BM: this is in _mod file.
                     
                 else 
-                    rgrad_transported = problem.M.transp(U0, U, rgrad0); % Vector transport.
+                    rgrad_transported = problem.M.transp(x0, x, rgrad0); % Vector transport.
                 end
                 
-                % Caclculate egrad_batchsize and rgrad_batchsize at U0
-                egrad0_batchsize = problem.egrad_batchsize(U0, data_batchsize);
-                rgrad0_batchsize = problem.M.egrad2rgrad(U0, egrad0_batchsize);
+                % Caclculate egrad_batchsize and rgrad_batchsize at x0
+                egrad0_batchsize = problem.egrad_batchsize(x0, samples_batchsize);
+                rgrad0_batchsize = problem.M.egrad2rgrad(x0, egrad0_batchsize);
                 
                 
-                % Caclculate transported rgrad_batchsize from U0 to U
+                % Caclculate transported rgrad_batchsize from x0 to x
                 if strcmp(options.transport, 'parallel')
-                    % parallel translate from U0 to U
-                    rgrad0_batchsize_transported = problem.M.paratransp(U0, logmapU0toU, rgrad0_batchsize);
+                    % parallel translate from x0 to x
+                    rgrad0_batchsize_transported = problem.M.paratransp(x0, logmapU0toU, rgrad0_batchsize);
                     
                 else
-                    rgrad0_batchsize_transported = problem.M.transp(U0, U, rgrad0_batchsize); % Vector transport.
+                    rgrad0_batchsize_transported = problem.M.transp(x0, x, rgrad0_batchsize); % Vector transport.
                     
                 end
                 
                 % Update rgrad_batchsize to reduce variance by
                 % taking a linear combination with old gradients.
-                rgrad_batchsize = problem.M.lincomb(U, 1, rgrad_transported, 1, rgrad_batchsize);
-                rgrad_batchsize = problem.M.lincomb(U, 1, rgrad_batchsize, -1, rgrad0_batchsize_transported);
+                rgrad_batchsize = problem.M.lincomb(x, 1, rgrad_transported, 1, rgrad_batchsize);
+                rgrad_batchsize = problem.M.lincomb(x, 1, rgrad_batchsize, -1, rgrad0_batchsize_transported);
                 
                 
             elseif strcmp(options.update_type, 'sgd')
@@ -234,8 +220,8 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
                 
             end
             
-            % Update U
-            U = problem.M.exp(U, rgrad_batchsize, -stepsize);
+            % Update x
+            x = problem.M.exp(x, rgrad_batchsize, -stepsize);
             
             % Elapsed time
             elapsed_time = elapsed_time + toc(start_time);
@@ -243,16 +229,16 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
             iter = iter + 1; % Total number updates.
             
             if strcmp(options.update_type, 'svrg') && options.svrg_type == 2 && inneriter == update_instance
-                Usave = U;
-                egrad = problem.egrad(U);
-                rgrad = problem.M.egrad2rgrad(U, egrad);
+                Usave = x;
+                egrad = problem.egrad(x);
+                rgrad = problem.M.egrad2rgrad(x, egrad);
                 rgradsave = rgrad;
             end
             
             
             if options.store_innerinfo
-                cost = problem.cost(U);
-                gradnorm = problem.M.norm(U, rgrad_batchsize);
+                cost = problem.cost(x);
+                gradnorm = problem.M.norm(x, rgrad_batchsize);
                 innerstats = saveinnerstats();
                 innerinfo(inneriter) = innerstats;
                 if options.verbosity > 1
@@ -263,24 +249,24 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
         end
         
         % Calculate cost, rgrad, and gradnorm
-        cost = problem.cost(U);
+        cost = problem.cost(x);
         if strcmp(options.update_type, 'svrg') && options.svrg_type == 2
-            U0 = Usave;
+            x0 = Usave;
             rgrad0 = rgradsave;
         else
             if strcmp(options.update_type, 'svrg')
                 tsvrg = tic;
             end
-            egrad = problem.egrad(U);
-            rgrad = problem.M.egrad2rgrad(U, egrad);
+            egrad = problem.egrad(x);
+            rgrad = problem.M.egrad2rgrad(x, egrad);
             if strcmp(options.update_type, 'svrg')
                 elapsed_time = elapsed_time + toc(tsvrg);
             end
-            U0 = U;
+            x0 = x;
             rgrad0 = rgrad;
         end
         
-        gradnorm = problem.M.norm(U, rgrad);
+        gradnorm = problem.M.norm(x, rgrad);
         
         % Log statistics for freshly executed iteration
         stats = savestats();
@@ -326,7 +312,7 @@ function [U, cost, info, options] = Riemannian_svrg(problem, U_init, options)
         end
         
         if  ~isempty(options.statsfun)
-            stats = options.statsfun(problem, U, stats);
+            stats = options.statsfun(problem, x, stats);
         end
     end
     

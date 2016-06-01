@@ -3,20 +3,20 @@ function  test_Karcher_mean_Grass_svrg()
     clc; close all; clear;
     
     N   = 10;    
-    n   = 500;     
+    n   = 50;     
     r   = 5;      
     
     
     % Set manifold
-    problem.M = grassmannfactory_modified(n, r);
+    problem.M = grassmannfactory(n, r);
     
     % Data
     for ii = 1 : N
-        data.x{ii} = problem.M.rand();
+        samples{ii} = problem.M.rand();
     end
    
     % Set data
-    problem.data = data;
+    problem.samples = samples;
     
     
     % Define problem definitions
@@ -24,7 +24,7 @@ function  test_Karcher_mean_Grass_svrg()
     function f = cost(U)
         f = 0;
         for jj = 1 : N
-            f = f + 0.5*(problem.M.norm(U, problem.M.log(U,  data.x{jj})))^2;
+            f = f + 0.5*(problem.M.norm(U, problem.M.log(U,  samples{jj})))^2;
         end
         f = f/N;
     end
@@ -33,19 +33,18 @@ function  test_Karcher_mean_Grass_svrg()
     function g = egrad(U)
         g = zeros(n, r);
         for jj = 1 : N
-            g = g - problem.M.log(U,  data.x{jj});
+            g = g - problem.M.log(U, samples{jj});
         end
         g = g/N;
     end
     
     
     problem.egrad_batchsize = @egrad_batchsize;
-    function g = egrad_batchsize(U, data_batchsize)
-        x_sample_batchsize = data_batchsize.x;
-        N_batchsize = length(x_sample_batchsize);
+    function g = egrad_batchsize(U, samples_batchsize)
+        N_batchsize = length(samples_batchsize);
         g = zeros(n, r);
         for jj = 1 : N_batchsize
-            g = g - problem.M.log(U,  x_sample_batchsize{jj});
+            g = g - problem.M.log(U,  samples_batchsize{jj});
         end
         g = g/N_batchsize;
     end
