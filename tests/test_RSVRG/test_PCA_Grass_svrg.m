@@ -2,22 +2,10 @@ function  test_PCA_Grass_svrg()
     
     clc; close all; clear;
     
-    % Load input data
-    NumSamples  = 500;     % {500, 1000}
-    dimValue    = 20;      % {100}
-    rankvalue   = 5;       % {5}
-    
-    
-    input_filename = sprintf('./data/pca/pca_samples_%d_d_%d_r_%d.mat', NumSamples, dimValue, rankvalue);
-    input_data = load(input_filename);
-    
-    d = input_data.d;
-    r = input_data.r;
-    x_sample = input_data.x_sample;
-    
-    
-    
-    N = size(x_sample, 2); % Total number of samples.
+    N = 500;
+    d = 20;
+    r = 5;
+    samples_mat = randn(d, N);
 
     
     % Set manifold
@@ -25,14 +13,13 @@ function  test_PCA_Grass_svrg()
     
     
     
-    
     % Data for input as cell
-    data.x = mat2cell(x_sample, dimValue, ones( NumSamples, 1)); % BM: okay.
+    samples = mat2cell(samples_mat, d, ones(N, 1)); % BM: okay.
     
     
     
     %Set data
-    problem.data = data;
+    problem.samples = samples;
     
     
     
@@ -40,22 +27,22 @@ function  test_PCA_Grass_svrg()
     % Define problem definitions
     problem.cost = @cost;
     function f = cost(U)
-        f = -0.5*norm(U'*x_sample, 'fro')^2;
+        f = -0.5*norm(U'*samples_mat, 'fro')^2;
         f = f/N;
     end
     
     problem.egrad = @egrad;
     function g = egrad(U)
-        g = - x_sample*(x_sample'*U);
+        g = - samples_mat*(samples_mat'*U);
         g = g/N;
     end
     
     
     problem.egrad_batchsize = @egrad_batchsize;
-    function g = egrad_batchsize(U, data_batchsize)
-        x_sample_batchsize = cell2mat(data_batchsize.x);        
-        N_batchsize = size(x_sample_batchsize, 2);
-        g = - x_sample_batchsize*(x_sample_batchsize'*U);
+    function g = egrad_batchsize(U, samples_batchsize)
+        samples_batchsize = cell2mat(samples_batchsize);        
+        N_batchsize = size(samples_batchsize, 2);
+        g = - samples_batchsize*(samples_batchsize'*U);
         g = g/N_batchsize;
     end
     
@@ -73,7 +60,7 @@ function  test_PCA_Grass_svrg()
     % Run SD
     clear options;
     options.maxiter = 100;
-    [~, ~, infos_sd, options_sd] = steepestdescent(problem, Uinit, options);    
+    [~, ~, infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
     
     
     
@@ -84,7 +71,7 @@ function  test_PCA_Grass_svrg()
     options.update_type='sgd';
     options.maxepochs = 100;
     options.stepsize = 1e-3;
-    options.stepsize_type = 'hybrid';
+    options.stepsize_type = 'decay';
     [~, ~, infos_sgd, options_sgd] = Riemannian_svrg(problem, Uinit, options);
     
     
@@ -94,15 +81,16 @@ function  test_PCA_Grass_svrg()
     options.batchsize = 10;
     options.update_type='svrg';
     options.maxepochs = 100;
-    options.stepsize = 1e-2;
+    options.stepsize = 1e-1;
     options.svrg_type = 2;
     options.stepsize_type = 'hybrid';
     [~, ~, infos_svrg, options_svrg] = Riemannian_svrg(problem, Uinit, options);
     
     
+    
     %% Plots
-    x_star = input_data.x_star;
-    f_sol = problem.cost(x_star);
+    [U_star, ~, ~] = svds(samples_mat, r);
+    f_sol = problem.cost(U_star);
     
     
     error_sd = abs([infos_sd.cost] - f_sol);
