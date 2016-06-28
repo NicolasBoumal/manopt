@@ -19,6 +19,9 @@ function grad = getGradient(problem, x, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%  June 28, 2016 (NB):
+%       Works with getPartialGradient.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -76,6 +79,12 @@ function grad = getGradient(problem, x, storedb, key)
         
         egrad = getEuclideanGradient(problem, x, storedb, key);
         grad = problem.M.egrad2rgrad(x, egrad);
+    
+    elseif canGetPartialGradient(problem)
+    %% Compute the gradient using a full partial gradient.
+        
+        d = problem.ncostterms;
+        grad = getPartialGradient(problem, x, 1:d, storedb, key);
 
     else
     %% Abandon computing the gradient.
