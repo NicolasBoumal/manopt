@@ -2,7 +2,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.
 % 
 % function x = maxcut(L)
-% function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
+% function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
 % L is the Laplacian matrix describing the graph to cut. The Laplacian of a
 % graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the
@@ -48,12 +48,12 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % Goemans and Williamson, 1995
 % Improved approximation algorithms for maximum cut and satisfiability
 % problems using semidefinite programming.
+% 
+% See also: elliptope_SDP
 
-% This file is part of Manopt and is copyrighted. See the license file.
-%
-% Main author: Nicolas Boumal, July 18, 2013
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, July 18, 2013
 % Contributors:
-%
 % Change log:
 %   
 %   April 3, 2015 (NB):
