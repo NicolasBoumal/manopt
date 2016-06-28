@@ -55,15 +55,18 @@ function M = symfixedrankYYcomplexfactory(n, k)
 % Original author: Sarod Yatawatta, June 29, 2015.
 % Contributors: Bamdev Mishra.
 % Change log:
-%    
+%
+%   June 28, 2016 (NB):
+%       Metric scaled down by factor 2 to match the metric used in
+%       euclideancomplexfactory.
     
     M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
     M.dim = @() 2*k*n - k*k; % SY: dim of ambient space (2*k*n) - dim of kxk unitary matrix  (k^2).
     
     % Euclidean metric on the total space.
-    % BM: equivalent to 2.0*real(trace(eta'*zeta)), but more efficient.
-    M.inner = @(Y, eta, zeta) 2*real(eta(:)'*zeta(:));
+    % BM: equivalent to real(trace(eta'*zeta)), but more efficient.
+    M.inner = @(Y, eta, zeta) real(eta(:)'*zeta(:));
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     
