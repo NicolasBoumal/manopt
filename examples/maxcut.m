@@ -41,7 +41,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % give a cut that respects this statement -- it's usually worse though).
 %
 % The algorithm is essentially that of:
-% Journee, Bach, Absil and Sepulchre, 2010
+% Journee, Bach, Absil and Sepulchre, SIAM 2010
 % Low-rank optimization on the cone of positive semidefinite matrices.
 %
 % It is itself based on the famous SDP relaxation of MAX CUT:
