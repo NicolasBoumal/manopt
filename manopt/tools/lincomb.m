@@ -12,7 +12,7 @@ function vec = lincomb(M, x, vecs, coeffs)
 %
 %    vec = coeffs(1)*vecs{1} + ... + coeffs(n)*vecs{n}
 %
-% See also: grammatrix
+% See also: grammatrix gramschmidt tangentorthobasis
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.
