@@ -12,8 +12,11 @@ function candoit = canGetGradient(problem)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   June 28, 2016 (NB):
+%       Added support for getPartialGradient
 
     candoit = isfield(problem, 'grad') || isfield(problem, 'costgrad') || ...
-              canGetEuclideanGradient(problem);
+              canGetEuclideanGradient(problem) || canGetPartialGradient(problem);
     
 end
