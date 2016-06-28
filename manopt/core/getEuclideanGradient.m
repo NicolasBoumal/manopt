@@ -26,6 +26,9 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   June 28, 2016 (NB):
+%       Added support for getPartialEuclideanGradient
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -68,6 +71,12 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
                     'egrad should accept 1, 2 or 3 inputs.');
                 throw(up);
         end
+        
+    elseif canGetPartialEuclideanGradient(problem)
+    %% Compute the Euclidean gradient using a full partial Euclidean gradient.
+        
+        d = problem.ncostterms;
+        egrad = getPartialEuclideanGradient(problem, x, 1:d, storedb, key);
 
     else
     %% Abandon computing the Euclidean gradient
