@@ -35,7 +35,12 @@ function xsol = radio_interferometric_calibration(N, K)
 % Contributors: Bamdev Mishra.
 % Change log:
 %    
-
+%   June 28, 2016 (BM):
+%       Modified the egrad and ehess operations according to 
+%       the modified metric in the symfixedrankYYcomplexfactory file, 
+%       where a factor of 2 was removede from the metric. Subsequently, 
+%       a factor of 2 was multiplied to egrad and ehess operations.
+    
     % Generate some random data to test the function
     
     if ~exist('N', 'var') || isempty(N)
@@ -114,7 +119,7 @@ function xsol = radio_interferometric_calibration(N, K)
         ck = 1;
         for p = 1 : N - 1,
             for q = p+1 : N,
-                res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual
+                res = 2*(V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
                 ck = ck + 1;
@@ -130,8 +135,8 @@ function xsol = radio_interferometric_calibration(N, K)
         ck = 1;
         for p = 1 : N-1,
             for q = p+1:N,
-                res = V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual
-                resdot = -x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual derivative
+                res = 2*(V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
+                resdot = 2*(-x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual derivative
                 
                 hess(K*(p-1)+1:K*p,:) = hess(K*(p-1)+1:K*p,:) - (res*eta(K*(q-1)+1:K*q,:) + resdot*x(K*(q-1)+1:K*q,:))*C';
                 hess(K*(q-1)+1:K*q,:) = hess(K*(q-1)+1:K*q,:) - (res'*eta(K*(p-1)+1:K*p,:) + resdot'*x(K*(p-1)+1:K*p,:))*C;
