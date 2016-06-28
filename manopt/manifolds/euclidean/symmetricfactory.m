@@ -7,6 +7,7 @@ function M = symmetricfactory(n, k)
 % Returns M, a structure describing the Euclidean space of n-by-n symmetric
 % matrices equipped with the standard Frobenius distance and associated
 % trace inner product, as a manifold for Manopt.
+% 
 % By default, k = 1. If k > 1, points and vectors are stored in 3D matrices
 % X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is
 % symmetric.
