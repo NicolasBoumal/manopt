@@ -8,26 +8,26 @@ function c = multiprod(a, b, idA, idB)
 %   MULTIPROD performs multiple matrix products, with array expansion (AX)
 %   enabled. Its first two arguments A and B are "block arrays" of any
 %   size, containing one or more 1-D or 2-D subarrays, called "blocks" (*).
-%   For instance, a 5×6×3 array may be viewed as an array containing five
-%   6×3 blocks. In this case, its size is denoted by 5×(6×3). The 1 or 2
+%   For instance, a 5x6x3 array may be viewed as an array containing five
+%   6x3 blocks. In this case, its size is denoted by 5x(6x3). The 1 or 2
 %   adjacent dimensions along which the blocks are contained are called the
 %   "internal dimensions" (IDs) of the array (°).
 %
 %   1) 2-D by 2-D BLOCK(S) (*)
 %         C = MULTIPROD(A, B, [DA1 DA2], [DB1 DB2]) contains the products
-%         of the P×Q matrices in A by the R×S matrices in B. [DA1 DA2] are
+%         of the PxQ matrices in A by the RxS matrices in B. [DA1 DA2] are
 %         the IDs of A; [DB1 DB2] are the IDs of B.
 %
 %   2) 2-D by 1-D BLOCK(S) (*)
 %         C = MULTIPROD(A, B, [DA1 DA2], DB1) contains the products of the
-%         P×Q matrices in A by the R-element vectors in B. The latter are
-%         considered to be R×1 matrices. [DA1 DA2] are the IDs of A; DB1 is
+%         PxQ matrices in A by the R-element vectors in B. The latter are
+%         considered to be Rx1 matrices. [DA1 DA2] are the IDs of A; DB1 is
 %         the ID of B.
 %
 %   3) 1-D by 2-D BLOCK(S) (*)
 %         C = MULTIPROD(A, B, DA1, [DB1 DB2]) contains the products of the 
-%         Q-element vectors in A by the R×S matrices in B. The vectors in A
-%         are considered to be 1×Q matrices. DA1 is the ID of A; [DB1 DB2]
+%         Q-element vectors in A by the RxS matrices in B. The vectors in A
+%         are considered to be 1xQ matrices. DA1 is the ID of A; [DB1 DB2]
 %         are the IDs of B.
 %
 %   4) 1-D BY 1-D BLOCK(S) (*)
@@ -37,13 +37,13 @@ function c = multiprod(a, b, idA, idB)
 %      (b) If SIZE(A, DA1) == SIZE(B, DB1), 
 %             C = MULTIPROD(A, B, [0 DA1], [DB1 0]) or 
 %             C = MULTIPROD(A, B, DA1, DB1) virtually turns the vectors
-%             contained in A and B into 1×P and P×1 matrices, respectively,
+%             contained in A and B into 1xP and Px1 matrices, respectively,
 %             then returns their products, similar to scalar products.
 %             Namely, C = DOT2(A, B, DA1, DB1) is equivalent to 
 %             C = MULTIPROD(CONJ(A), B, [0 DA1], [DB1 0]).
 %      (c) Without limitations on the length of the vectors in A and B,
 %             C = MULTIPROD(A, B, [DA1 0], [0 DB1]) turns the vectors
-%             contained in A and B into P×1 and 1×Q matrices, respectively,
+%             contained in A and B into Px1 and 1xQ matrices, respectively,
 %             then returns their products, similar to outer products.
 %             Namely, C = OUTER(A, B, DA1, DB1) is equivalent to
 %             C = MULTIPROD(CONJ(A), B, [DA1 0], [0 DB1]).
@@ -83,27 +83,27 @@ function c = multiprod(a, b, idA, idB)
 %   performed by DOT2, OUTER, and CROSS2 (MATLAB Central, file #8782).
 %   Elementwise multiplications (see TIMES) and other elementwise binary
 %   operations with AX enabled are performed by BAXFUN (MATLAB Central,
-%   file #23084). Together, these functions make up the “ARRAYLAB toolbox”.
+%   file #23084). Together, these functions make up the "ARRAYLAB toolbox".
 %
 %   Input and output format:
 %      The size of the EDs of C is determined by AX. Block size is
 %      determined as follows, for each of the above-listed syntaxes:
-%      1) C contains P×S matrices along IDs MAX([DA1 DA2], [DB1 DB2]).
+%      1) C contains PxS matrices along IDs MAX([DA1 DA2], [DB1 DB2]).
 %      2) Array     Block size     ID(s)
 %         ----------------------------------------------------
-%         A         P×Q  (2-D)     [DA1 DA2]
+%         A         PxQ  (2-D)     [DA1 DA2]
 %         B         R    (1-D)     DB1
 %         C (a)     P    (1-D)     MAX(DA1, DB1)
-%         C (b)     P×Q  (2-D)     MAX([DA1 DA2], [DB1 DB1+1])
+%         C (b)     PxQ  (2-D)     MAX([DA1 DA2], [DB1 DB1+1])
 %         ----------------------------------------------------
 %         (a) The 1-D blocks in B are not scalars (R > 1).
 %         (b) The 1-D blocks in B are scalars (R = 1).
 %      3) Array     Block size     ID(s)
 %         ----------------------------------------------------
 %         A           Q  (1-D)     DA1
-%         B         R×S  (2-D)     [DB1 DB2]
+%         B         RxS  (2-D)     [DB1 DB2]
 %         C (a)       S  (1-D)     MAX(DA1, DB1)
-%         C (b)     R×S  (2-D)     MAX([DA1 DA1+1], [DB1 DB2])
+%         C (b)     RxS  (2-D)     MAX([DA1 DA1+1], [DB1 DB2])
 %         ----------------------------------------------------
 %         (a) The 1-D blocks in A are not scalars (Q > 1).
 %         (b) The 1-D blocks in A are scalars (Q = 1).
@@ -119,46 +119,46 @@ function c = multiprod(a, b, idA, idB)
 %         --------------------------------------------------------------
 %         (c) A         P        (1-D)     DA1
 %             B         Q        (1-D)     DB1
-%             C         P×Q      (2-D)     MAX([DA1 DA1+1], [DB1 DB1+1])
+%             C         PxQ      (2-D)     MAX([DA1 DA1+1], [DB1 DB1+1])
 %         --------------------------------------------------------------
 %
 %   Terminological notes:
 %   (*) 1-D and 2-D blocks are generically referred to as "vectors" and 
 %       "matrices", respectively. However, both may be also called
-%       “scalars” if they have a single element. Moreover, matrices with a
-%       single row or column (e.g. 1×3 or 3×1) may be also called “row
-%       vectors” or “column vectors”.
+%       "scalars" if they have a single element. Moreover, matrices with a
+%       single row or column (e.g. 1x3 or 3x1) may be also called "row
+%       vectors" or "column vectors".
 %   (°) Not to be confused with the "inner dimensions" of the two matrices
 %       involved in a product X * Y, defined as the 2nd dimension of X and
 %       the 1st of Y (DA2 and DB1 in syntaxes 1, 2, 3).
 %
 %   Examples:
-%    1) If  A is .................... a 5×(6×3)×2 array,
-%       and B is .................... a 5×(3×4)×2 array,
-%       C = MULTIPROD(A, B, [2 3]) is a 5×(6×4)×2 array.
+%    1) If  A is .................... a 5x(6x3)x2 array,
+%       and B is .................... a 5x(3x4)x2 array,
+%       C = MULTIPROD(A, B, [2 3]) is a 5x(6x4)x2 array.
 %
 %       A single matrix A pre-multiplies each matrix in B
-%       If  A is ........................... a (1×3)    single matrix,
-%       and B is ........................... a 10×(3×4) 3-D array,
-%       C = MULTIPROD(A, B, [1 2], [3 4]) is a 10×(1×4) 3-D array.
+%       If  A is ........................... a (1x3)    single matrix,
+%       and B is ........................... a 10x(3x4) 3-D array,
+%       C = MULTIPROD(A, B, [1 2], [3 4]) is a 10x(1x4) 3-D array.
 %
 %       Each matrix in A pre-multiplies each matrix in B (all possible
 %       combinations)
-%       If  A is .................... a (6×3)×5   array,
-%       and B is .................... a (3×4)×1×2 array,
-%       C = MULTIPROD(A, B, [1 2]) is a (6×4)×5×2 array.
+%       If  A is .................... a (6x3)x5   array,
+%       and B is .................... a (3x4)x1x2 array,
+%       C = MULTIPROD(A, B, [1 2]) is a (6x4)x5x2 array.
 %
-%   2a) If  A is ........................... a 5×(6×3)×2 4-D array,
-%       and B is ........................... a 5×(3)×2   3-D array,
-%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6)×2   3-D array.
+%   2a) If  A is ........................... a 5x(6x3)x2 4-D array,
+%       and B is ........................... a 5x(3)x2   3-D array,
+%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5x(6)x2   3-D array.
 %
-%   2b) If  A is ........................... a 5×(6×3)×2 4-D array,
-%       and B is ........................... a 5×(1)×2   3-D array,
-%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5×(6×3)×2 4-D array.
+%   2b) If  A is ........................... a 5x(6x3)x2 4-D array,
+%       and B is ........................... a 5x(1)x2   3-D array,
+%       C = MULTIPROD(A, B, [2 3], [2]) is   a 5x(6x3)x2 4-D array.
 %
-%   4a) If both A and B are .................. 5×(6)×2   3-D arrays,
-%       C = MULTIPROD(A, B, 2) is .......... a 5×(1)×2   3-D array, while
-%   4b) C = MULTIPROD(A, B, [2 0], [0 2]) is a 5×(6×6)×2 4-D array
+%   4a) If both A and B are .................. 5x(6)x2   3-D arrays,
+%       C = MULTIPROD(A, B, 2) is .......... a 5x(1)x2   3-D array, while
+%   4b) C = MULTIPROD(A, B, [2 0], [0 2]) is a 5x(6x6)x2 4-D array
 %
 %   See also DOT2, OUTER, CROSS2, BAXFUN, MULTITRANSP, MULTITRACE, MULTISCALE.
 
@@ -171,7 +171,9 @@ function c = multiprod(a, b, idA, idB)
 % OUTPUT    tested by:     Paolo de Leva                        2009 Feb 24
 % -------------------------------------------------------------------------
 
-narginchk(2, 4) ; % Allow 2 to 4 input arguments
+% In older versions of Matlab, use this line instead of the following:
+% error( nargchk(2, 4, nargin) );
+narginchk(2, 4); % Allow 2 to 4 input arguments
 switch nargin % Setting IDA and/or IDB
     case 2, idA = [1 2]; idB = [1 2];
     case 3, idB = idA;
@@ -214,7 +216,7 @@ end
 
 % MAIN 3 - Reshaping C (by inserting or removing singleton dimensions)
 
-     [sizeC, sizeCisnew] = adjustsize(size(c), shiftC, false, delC, false);
+     [sizeC sizeCisnew] = adjustsize(size(c), shiftC, false, delC, false);
      if sizeCisnew, c = reshape(c, sizeC); end
 
 
@@ -233,7 +235,7 @@ function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)
         nd = length(sizeA);
         d2 = idA(2);    
         order = [1:(d2-1) (d2+1):nd d2]; % Partial shifting
-        a = permute(a, order); % ...×Q
+        a = permute(a, order); % ...xQ
 
         % STEP 2 - Squashing A from N-D to 2-D  
         q = sizeB(1);
@@ -241,7 +243,7 @@ function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)
         lengthorder = length(order);
         collapsedsize = sizeA(order(1:lengthorder-1)); 
         n = prod(collapsedsize);
-        a = reshape(a, [n, q]); % N×Q    
+        a = reshape(a, [n, q]); % NxQ    
         fullsize = [collapsedsize s]; % Size to reshape C back to N-D
 
     else % B is multi-block, A is single-block (squashing B)
@@ -250,7 +252,7 @@ function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)
         nd = length(sizeB);
         d1 = idB(1);    
         order = [d1 1:(d1-1) (d1+1):nd]; % Partial shifting
-        b = permute(b, order); % Q×...
+        b = permute(b, order); % Qx...
 
         % STEP 2 - Squashing B from N-D to 2-D  
         p = sizeA(1);
@@ -258,7 +260,7 @@ function c = squash2D_mtimes(a, b, idA, idB, sizeA, sizeB, squashOK)
         lengthorder = length(order);
         collapsedsize = sizeB(order(2:lengthorder)); 
         n = prod(collapsedsize);
-        b = reshape(b, [q, n]); % Q×N
+        b = reshape(b, [q, n]); % QxN
         fullsize = [p collapsedsize]; % Size to reshape C back to N-D
 
     end
@@ -574,8 +576,8 @@ function [newsize, flag] = delsing(size0, dim, ns)
 function [newsize, flag] = swapdim(size0, dim)
 %SWAPDIM   Swapping two adjacent dimensions of an array (DIM and DIM+1).
 %   Used only when both A and B are multi-block arrays with 2-D blocks.
-%   Example: If the size of A is .......... 5×(6×3)
-%            NEWSIZE = SWAPIDS(SIZE0, 2) is 5×(3×6)
+%   Example: If the size of A is .......... 5x(6x3)
+%            NEWSIZE = SWAPIDS(SIZE0, 2) is 5x(3x6)
 
     newsize = [size0 1]; % Guarantees that dimension DIM+1 exists.
     newsize = newsize([1:dim-1, dim+1, dim, dim+2:end]);
