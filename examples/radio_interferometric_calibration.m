@@ -35,7 +35,12 @@ function xsol = radio_interferometric_calibration(N, K)
 % Contributors: Bamdev Mishra.
 % Change log:
 %    
-
+%   June 28, 2016 (BM):
+%       Modified the egrad and ehess operations according to 
+%       the modified metric in the symfixedrankYYcomplexfactory file, 
+%       where a factor of 2 was removede from the metric. Subsequently, 
+%       a factor of 2 was multiplied to egrad and ehess operations.
+    
     % Generate some random data to test the function
     
     if ~exist('N', 'var') || isempty(N)
