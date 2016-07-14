@@ -52,6 +52,14 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % Change log:
 
 
+    % If no inputs are provided, since this is an example file, generate
+    % an random Erdos-Renyi graph. This is for illustration purposes only.
+    if ~exist('A', 'var') || isempty(A)
+        n = 100;
+        A = triu(randn(n) <= .1, 1);
+        A = A+A';
+    end
+
     n = size(A, 1);
     assert(n >= 2, 'A must be at least 2x2.');
     assert(size(A, 2) == n, 'A must be square.');
