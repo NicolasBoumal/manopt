@@ -110,7 +110,8 @@ function checkhessian(problem, x, d)
              'the Hessian might be erroneous.\n']);
     fprintf(['Note: if the exponential map is only approximate, and it '...
              'is not a second-order approximation,\nthen it is normal ' ...
-             'for the slope test to fail. Check the factory for this.\n']);
+             'for the slope test to reach 2 instead of 3. Check the ' ...
+             'factory for this.\n']);
 
     
     %% Check that the Hessian at x along direction d is a tangent vector.
