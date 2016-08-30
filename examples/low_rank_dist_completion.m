@@ -122,7 +122,10 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, April 06, 2015.
 % Contributors: Nicolas Boumal.
-% Change log:
+% Change log:  
+%   August 30 2016 (BM): 
+%                   Corrected some logic flaws while plotting and storing
+%                   rank information. A typo was also corrected.
 
     
     % Check problem description
@@ -202,7 +205,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         
         % Fixed-rank optimization with Manopt
         [Y, infos_fixedrank] = low_rank_dist_completion_fixedrank(data_train, data_test, Y, params);
-        
+
         % Some info logging
         thistime = [infos_fixedrank.time];
         if ~isempty(time)
@@ -374,7 +377,6 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
         xij = EIJ_test'*Y;
         estimDists_test = sum(xij.^2,2);
         stats.test_error = 0.5*mean((estimDists_test - data_test.entries).^2);
-        stats.rank = r;
     end
     
     
@@ -390,7 +392,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     % Call appropriate algorithm
     options.solver = params.solver;
     [Yopt, ~, infos] = manoptsolve(problem, Y_initial, options);
-    
+    [infos.rank] = deal(r);
 end
 
 
@@ -549,7 +551,7 @@ function checked_problem_description = check_problem_description(problem_descrip
     else
         params = struct();
     end
-    params = mergeOptions(localdefaults, params);
+    params = mergeOptions(getlocaldefaults, params);
     checked_problem_description.params = params;
      
 end
@@ -559,7 +561,7 @@ end
 
 %% Show plots
 function  show_plots(problem_description, infos)
-    
+   
     solver = problem_description.params.solver;
     rank_change_stats = infos.rank_change_stats;
     rank_change_stats_rank = [rank_change_stats.rank];
@@ -588,8 +590,8 @@ function  show_plots(problem_description, infos)
     
     set(ax2,'FontSize',fs);
     line(1:length([infos.cost]),log10([infos.cost]),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5,'Parent',ax2);
-    set(ax2,'XTick',rank_change_stats_iter(1:end-1),...
-        'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(end-1) + 1,...
+    set(ax2,'XTick',rank_change_stats_iter(1:max(1,end-1)),...
+        'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,...
         'YTick',[]);
     
     set(ax2,'XGrid','on');
@@ -599,7 +601,7 @@ function  show_plots(problem_description, infos)
     
     
     % Plot: test error
-    if isfield(infos, 'test_error')
+    if isfield(infos, 'test_error') && ~isempty(infos.test_error)
         Yo = problem_description.Yo;
         
         fs = 20;
@@ -620,8 +622,8 @@ function  show_plots(problem_description, infos)
         
         set(ax2,'FontSize',fs);
         line(1:length([infos.test_error]),log10([infos.test_error]),'Marker','O','LineStyle','-','Color','blue','LineWidth',1.5,'Parent',ax2);
-        set(ax2,'XTick',rank_change_stats_iter(1:end-1),...
-            'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(end-1) + 1,...
+        set(ax2,'XTick',rank_change_stats_iter(1:max(1,end-1)),...
+            'XTickLabel',rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,...
             'YTick',[]);
         
         set(ax2,'XGrid','on');
