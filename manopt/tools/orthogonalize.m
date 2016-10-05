@@ -1,7 +1,7 @@
-function orthobasis = orthogonalize(M, x, basis)
+function [orthobasis, L] = orthogonalize(M, x, basis)
 % Orthonormalizes a basis of tangent vectors in the Manopt framework.
 %
-% function orthobasis = orthogonalize(M, x, basis)
+% function [orthobasis, L] = orthogonalize(M, x, basis)
 %
 % M is a Manopt manifold structure obtained from a factory.
 % x is a point on the manifold M.
@@ -10,10 +10,13 @@ function orthobasis = orthogonalize(M, x, basis)
 % orthobasis is a cell of same size as basis which contains an orthonormal
 % basis for the same subspace as that spanned by basis. Orthonormality is
 % assessed with respect to the metric on the tangent space to M at x.
+% L is upper triangular of size n x n if basis has n vectors, such that,
+% basis{k} = sum_j=1^k orthobasis{j} * L(j, k) (akin to R in a QR
+% factorization.)
 %
 % See also: grammatrix tangentorthobasis
 
-% This file is part of Manopt: www.manopt.org. 
+% This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.
 % Contributors: 
 % Change log: 
@@ -39,8 +42,10 @@ function orthobasis = orthogonalize(M, x, basis)
     % in the actual setting V is not available; the only simple object
     % available is G.
 	%
-	% If it proves necessary, it may be good to try to avoid calling
-	% the inv function on L explicitly.
+	% If this simple code turns out not to be satisfactory (most likely
+	% because of numerical instability), it may be good to consider
+	% implementing a modified Gram-Schmidt algorithm instead, and even to
+	% provide a helper function which calls it twice.
     L = chol(G);
     R = inv(L);
     
