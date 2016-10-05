@@ -11,7 +11,7 @@ function G = grammatrix(M, x, vectors)
 % is the inner product between vectors{i} and vectors{j}, with respect to
 % the metric on the tangent space to M at x.
 %
-% See also: gramschmidt tangentorthobasis
+% See also: orthogonalize tangentorthobasis
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.

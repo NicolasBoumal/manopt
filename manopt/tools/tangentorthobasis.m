@@ -15,7 +15,7 @@ function orthobasis = tangentorthobasis(M, x, n)
 %   G = grammatrix(orthobasis)
 % and verifying that G is invertible.
 %
-% See also: grammatrix gramschmidt lincomb plotprofile
+% See also: grammatrix orthogonalize lincomb plotprofile
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.
@@ -39,6 +39,6 @@ function orthobasis = tangentorthobasis(M, x, n)
     
     % The Gram-Schmidt process transforms any n linearly independent
     % vectors into n orthonormal vectors spanning the same subspace.
-    orthobasis = gramschmidt(M, x, basis);
+    orthobasis = orthogonalize(M, x, basis);
     
 end

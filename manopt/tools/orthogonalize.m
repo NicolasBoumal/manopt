@@ -1,7 +1,7 @@
-function orthobasis = gramschmidt(M, x, basis)
+function orthobasis = orthogonalize(M, x, basis)
 % Orthonormalizes a basis of tangent vectors in the Manopt framework.
 %
-% function orthobasis = gramschmidt(M, x, basis)
+% function orthobasis = orthogonalize(M, x, basis)
 %
 % M is a Manopt manifold structure obtained from a factory.
 % x is a point on the manifold M.
