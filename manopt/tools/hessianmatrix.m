@@ -21,7 +21,7 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % solvers. To access the spectrum of the Hessian, it may be more practical
 % to call hessianextreme or hessianspectrum.
 %
-% See also: hessianspectrum hessianextreme tangentorthobasis gramschmidt
+% See also: hessianspectrum hessianextreme tangentorthobasis orthogonalize
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 14, 2016.
