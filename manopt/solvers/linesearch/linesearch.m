@@ -81,6 +81,11 @@ function [stepsize, newx, newkey, lsstats] = ...
 %
 %   April 8, 2015 (NB):
 %       Got rid of lsmem input/output: now maintained in storedb.internal.
+%
+%   Oct. 7, 2016 (NB):
+%       Thanks to Wen Huang, a bug was corrected in the logic around
+%       lsmem handling. Specifically, lsmem = storedb.internal.lsmem;
+%       was erroneously coded as lsmem = storedb.internal;
 
 
     % Allow omission of the key, and even of storedb.
@@ -125,7 +130,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     % that to compute an initial guess for the step size, as inspired from
     % Nocedal&Wright, p59.
     if isfield(storedb.internal, 'lsmem')
-        lsmem = storedb.internal;
+        lsmem = storedb.internal.lsmem;
         if isfield(lsmem, 'f0')
             % Pick initial step size based on where we were last time,
             alpha = 2*(f0 - lsmem.f0) / df0;
