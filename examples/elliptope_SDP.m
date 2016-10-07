@@ -117,7 +117,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 
     % Call your favorite solver.
     opts = struct();
-    opts.verbosity = 0;
+    opts.verbosity = 0;     % Set to 0 for no output, 2 for normal output
     opts.maxinner = 500;
     Y = trustregions(problem, Y0, opts);
     
