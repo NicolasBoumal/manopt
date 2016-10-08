@@ -104,16 +104,16 @@ body {
                     problem.partialgrad or problem.partialegrad coupled with
                     problem.ncostterms. This is an important step to simplify
                     the future addition of stochastic gradient methods. Use
-                    cases are: if problem.cost is expresed as a sum of problem.ncostterms
-                    terms, then problem.partialgrad accepts a point x and an
-                    index set I so that only the gradient with respect to terms
-                    indexed in I is computed and returned.</li>
+                    cases are: if problem.cost is expressed as a sum of
+                    problem.ncostterms terms, then problem.partialgrad accepts a
+                    point x and an index set I so that only the gradient with
+                    respect to terms indexed in I is computed and returned.</li>
                 </ul>
                 <li>New tools</li>
                 <ul>
                   <li>lincomb for a generic way of computing a long linear
                     combination of tangent vectors.</li>
-                  <li>grammmatrix to compute the Gram matrix of a collection of
+                  <li>grammatrix to compute the Gram matrix of a collection of
                     tangent vectors.</li>
                   <li>orthogonalize to orthogonalize a basis of tangent vectors.</li>
                   <li>tangentorthobasis to obtain a random orthonormal basis of
