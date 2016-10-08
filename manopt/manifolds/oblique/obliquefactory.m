@@ -37,6 +37,10 @@ function M = obliquefactory(n, m, transposed)
 %
 %	April 13, 2015 (NB) :
 %       Exponential now without for-loops.
+%
+%   Oct. 8, 2016 (NB)
+%       Code for exponential was simplified to only treat the zero vector
+%       as a particular case.
 
     
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -89,18 +93,21 @@ function M = obliquefactory(n, m, transposed)
         x = trnsp(x);
         d = trnsp(d);
         
-        if nargin < 3
-            t = 1.0;
+        if nargin == 2
+            % t = 1;
+            td = d;
+        else
+            td = t*d;
         end
 
-        td = t*d;
         nrm_td = sqrt(sum(td.^2, 1));
 
-        y = bsxfun(@times, x, cos(nrm_td)) + bsxfun(@times, td, sin(nrm_td) ./ nrm_td);
+        y = bsxfun(@times, x, cos(nrm_td)) + ...
+            bsxfun(@times, td, sin(nrm_td) ./ nrm_td);
         
-        % For those columns where the step is too small, use a retraction.
-        exclude = (nrm_td <= 4.5e-8);
-        y(:, exclude) = normalize_columns(x(:, exclude) + td(:, exclude));
+        % For those columns where the step is 0, replace y by x
+        exclude = (nrm_td == 0);
+        y(:, exclude) = x(:, exclude);
 
         y = trnsp(y);
     end

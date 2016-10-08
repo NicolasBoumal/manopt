@@ -24,6 +24,9 @@ function M = complexcirclefactory(n)
 %
 %   April 13, 2015 (NB): Fixed logarithm.
 %
+%   Oct. 8, 2016 (NB)
+%       Code for exponential was simplified to only treat the zero vector
+%       as a particular case.
     
     if ~exist('n', 'var')
         n = 1;
@@ -56,33 +59,35 @@ function M = complexcirclefactory(n)
     
     M.exp = @exponential;
     function y = exponential(z, v, t)
-        if nargin <= 2
-            t = 1.0;
+        
+        if nargin == 2
+            % t = 1;
+            tv = v;
+        else
+            tv = t*v;
         end
 
-        y = zeros(n, 1);        
-        tv = t*v;
+        y = zeros(n, 1);
 
         nrm_tv = abs(tv);
         
-        % We need to distinguish between very small steps and the others.
-        % For very small steps, we use a a limit version of the exponential
-        % (which actually coincides with the retraction), so as to not
-        % divide by very small numbers.
-        mask = nrm_tv > 4.5e-8;
+        % We need to be careful for zero steps.
+        mask = (nrm_tv > 0);
         y(mask) = z(mask).*cos(nrm_tv(mask)) + ...
                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
-        y(~mask) = z(~mask) + tv(~mask);
-        y(~mask) = y(~mask) ./ abs(y(~mask));
+        y(~mask) = z(~mask);
         
     end
     
     M.retr = @retraction;
     function y = retraction(z, v, t)
-        if nargin <= 2
-            t = 1.0;
+        if nargin == 2
+            % t = 1;
+            tv = v;
+        else
+            tv = t*v;
         end
-        y = z+t*v;
+        y = z+tv;
         y = y ./ abs(y);
     end
 
