@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-            <html lang="en">
-              <head>
-                <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-                <title>Manopt, tutorial</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta name="description" content="">
-                <meta name="author" content="Nicolas Boumal">
-                <link href="favicon.ico" rel="icon" type="image/x-icon">
-                <!-- Le styles -->
-                <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-                <style type="text/css">
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Manopt, tutorial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Nicolas Boumal">
+    <link href="favicon.ico" rel="icon" type="image/x-icon">
+    <!-- Le styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
 body {
         padding-top: 80px;
         padding-bottom: 40px;
@@ -18,205 +18,181 @@ body {
         font-weight: bold;
       }
     </style>
-                <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-                <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-                <!--[if lt IE 9]>
+    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>    <![endif]-->
-                <link href="bootstrap/css/prettify.css" type="text/css" rel="stylesheet">
-                <link href="bootstrap/css/lang-matlab.css" type="text/css" rel="stylesheet">
-              </head>
-              <body onload="prettyPrint()" data-spy="scroll" data-target=".sidebar">
-                <div class="navbar navbar-fixed-top">
-                  <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
-
-                      data-target=".nav-collapse"> <span class="icon-bar"></span>
-                      <span class="icon-bar"></span> <span class="icon-bar"></span>
-                    </a>
-                    <div class="container"> <a class="brand" href="index.html">Manopt</a>
-                      <div class="nav-collapse collapse">
-                        <ul class="nav">
-                          <li><a href="index.html"> Home</a></li>
-                          <li class="active"><a href="tutorial.html"> Tutorial</a></li>
-                          <li><a href="downloads.html"> Downloads</a></li>
-                          <li><a href="forum.html"> Forum</a></li>
-                          <li><a href="about.html"> About</a></li>
-                          <li><a href="#contactmodal" data-toggle="modal">
-                              Contact</a></li>
-                        </ul>
-                      </div>
-                      <!--/.nav-collapse --> </div>
-                  </div>
-                </div>
-                <!-- Contact modal Begin -->
-                <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog"
-
-                  aria-labelledby="myModalLabel" aria-hidden="true">
-                  <div class="modal-header"> <button type="button" class="close"
-
-                      data-dismiss="modal" aria-hidden="true">&#215;</button>
-                    <h3 id="myModalLabel">To contact us</h3>
-                  </div>
-                  <div class="modal-body">
-                    <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
-                    <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
-                    <p>We are happy to receive feedback and bug reports or
-                      requests for more features, to discuss the toolbox in
-                      general as well as its documentation and to help you use
-                      it.</p>
-                    <p>We would also love to know how you use the toolbox, and
-                      if you built nice manifold factories, solvers or tools
-                      that could benefit others.</p>
-                  </div>
-                  <div class="modal-footer"> <button class="btn" data-dismiss="modal"
-
-                      aria-hidden="true">Close</button> </div>
-                </div>
-                <!-- Contact modal End -->
-                <div class="container">
-                  <div class="row">
-                    <div class="span3 sidebar" style="min-height: 1px">
-                      <!--Sidebar content-->
-                      <!-- class="nav nav-tabs nav-stacked mysidebar" -->
-                      <ul class="nav nav-list mysidebar" data-spy="affix">
-                        <li class="nav-header">Tutorial</li>
-                        <li><a href="#gettingstarted">Getting started</a></li>
-                        <li><a href="#firstexample">A first example</a></li>
-                        <li><a href="#manifolds">Manifolds</a></li>
-                        <li><a href="#solvers">Solvers</a></li>
-                        <li><a href="#costdescription">Describing the cost</a></li>
-                        <li><a href="#tools">Helpful tools</a></li>
-                        <li><a href="#core">Core tools</a></li>
-                        <li><a href="#reference">Reference</a></li>
-                      </ul>
-                    </div>
-                    <div class="span9">
-                      <!--Body content-->
-                      <section id="gettingstarted">
-                        <div class="page-header">
-                          <h1>Getting started with Manopt </h1>
-                        </div>
-                        <h3>Foreword</h3>
-                        <p><strong>With Manopt, you can solve optimization
-                            problems on manifolds</strong> using
-                          state-of-the-art algorithms, with minimal effort. The
-                          toolbox targets great flexibility in the problem
-                          description and comes with advanced features, such as
-                          caching.</p>
-                        <p>The toolbox architecture is based on a <strong>separation
-                            of the manifolds, the solvers and the problem
-                            descriptions</strong>. For basic use, one only needs
-                          to pick a manifold from the library, describe the cost
-                          function (and possible derivatives) on this manifold
-                          and pass it on to a solver. Accompanying tools help
-                          the user in common tasks such as numerically checking
-                          whether the cost function agrees with its derivatives
-                          up to the appropriate order etc.</p>
-                        <p><strong>This is a </strong><strong>prototyping
-                            toolbox</strong>, designed based on the idea that
-                          the costly part of solving an optimization problem is
-                          querying the cost function, and not the inner
-                          machinery of the solver. It is also work in progress:
-                          <strong> feedback and contributions are welcome</strong>!</p>
-                        <p><a href="reference/examples/index.html">Examples are
-                            available in the reference</a>. </p>
-                        <p>This short blog post gives an <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">informal
-                            overview of optimization on manifolds</a>. It may be
-                          a good start to get a general feeling.</p>
-                        <p>It helps us to know our users. If you'd like to,
-                          please <a target="_blank" href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow
-                            this link to be on our user list</a>. Thanks!</p>
-                        <h3>Download </h3>
-                        <p><a target="_blank" class="btn btn-primary" href="download.html">Download
-                            </a>&#160;&#160; The current version is 2.0 and was
-                          packaged on July 6th, 2015. The file is about 300 Kb.</p>
-                        <h3>Install</h3>
-                        <blockquote>
-                          <ol>
-                            <li>Unzip and copy the whole <tt>manopt</tt>
-                              directory you just downloaded in a location of
-                              your choice on disk, say, in <tt>/my/directory/</tt>.</li>
-                            <li>Go to <tt>/my/directory/manopt/</tt> at the
-                              command prompt and execute <code>importmanopt</code>.
-                              You may save this path for your next Matlab
-                              sessions: follow the menu <tt>File &#187; Set
-                                Path...</tt> and <span style="font-family: monospace;">save</span>.
-                            </li>
-                          </ol>
-                        </blockquote>
-                        <h3>Check</h3>
-                        <p> Go to <tt>/my/directory/manopt/checkinstall/</tt>
-                          and run the script <tt>basicexample.m</tt>. If there
-                          are no errors, you are done! Otherwise, feel free to <a
-
-                            href="#contactmodal">contact us</a>. </p>
-                      </section>
-                      <section id="firstexample">
-                        <div class="page-header">
-                          <h1>A first example</h1>
-                        </div>
-                        <h3>The math</h3>
-                        <p>In this first example, we will compute a dominant
-                          eigenvector of a symmetric matrix $A \in
-                          \mathbb{R}^{n\times n}$. Let $\lambda_1 \geq \cdots
-                          \geq \lambda_n$ be its eigenvalues. The largest
-                          eigenvalue, $\lambda_1$, <a target="_blank" href="http://en.wikipedia.org/wiki/Rayleigh_quotient"
-
-                            rel="tooltip" title="Search for 'Rayleigh quotient' if need be.">is
-                            known to be</a> the optimal value for the following
-                          optimization problem:</p>
-                        <p>$$\max\limits_{x\in\mathbb{R}^n, x \neq 0} \frac{x^T
-                          A x}{x^T x}.$$</p>
-                        <p>This can be rewritten as follows:</p>
-                        <p>$$\min\limits_{x\in\mathbb{R}^n, \|x\| = 1} -x^T A
-                          x.$$</p>
-                        <p>The cost function and its gradient in $\mathbb{R}^n$
-                          read:</p>
-                        <p>$$<br>
-                          \begin{align}<br>
-                          &#160;&#160;&#160; f(x) &amp; = -x^T A x,\\<br>
-                          &#160;&#160;&#160; \nabla f(x) &amp; = -2Ax.<br>
-                          \end{align}<br>
-                          $$</p>
-                        <p>The constraint on the vector $x$ requires that $x$ be
-                          of unit 2-norm, that is, $x$ is a point on the sphere
-                          (one of the nicest manifolds):</p>
-                        <p>$$\mathbb{S}^{n-1} = \{x \in \mathbb{R}^n : x^Tx =
-                          1\}.$$</p>
-                        <p>This is all the information we need to apply Manopt
-                          to our problem.</p>
-                        <p>Users interested in how optimization on manifolds
-                          works will be interested in the following too: the
-                          cost function is smooth on $\mathbb{S}^{n-1}$. Its
-                          Riemannian gradient on $\mathbb{S}^{n-1}$ at $x$ is a
-                          tangent vector to the sphere at $x$. It can be
-                          computed as the projection from the usual gradient
-                          $\nabla f(x)$ to that tangent space using the
-                          orthogonal projector $\mathrm{Proj}_x u = (I-xx^T)u$:</p>
-                        <p>$$\mathrm{grad}\,f(x) = \mathrm{Proj}_x \nabla f(x) =
-                          -2(I-xx^T)Ax.$$</p>
-                        <p>This is an example of a mathematical relationship
-                          between the Euclidean gradient $\nabla f$, which we
-                          often already know how to compute from calculus
-                          courses, and the Riemannian gradient
-                          $\mathrm{grad}\,f$, which is needed for the
-                          optimization. Fortunately, for most manifolds in
-                          Manopt the conversion happens behind the scenes via a
-                          function called <code>egrad2rgrad</code> and we only
-                          need to compute $\nabla f$.</p>
-                        <p>We will solve this simple optimization problem using
-                          Manopt to illustrate the most basic usage of the
-                          toolbox. For additional theory, see [AMS08], section
-                          4.6.</p>
-                        <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a
-
-                            target="_blank" href="http://press.princeton.edu/chapters/absil/">Optimization
-                            Algorithms on Matrix Manifolds</a> (open access),
-                          Princeton University Press, 2008.</p>
-                        <h3>The code</h3>
-                        <p>Solving this optimization problem using Manopt
-                          requires little code: </p>
-                        <!--  pre-scrollable -->
-                        <pre class="prettyprint lang-matlab linenums">% Generate random problem data.
+    <link href="bootstrap/css/prettify.css" type="text/css" rel="stylesheet">
+    <link href="bootstrap/css/lang-matlab.css" type="text/css" rel="stylesheet">
+  </head>
+  <body onload="prettyPrint()" data-spy="scroll" data-target=".sidebar">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
+          data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span>
+          <span class="icon-bar"></span> </a>
+        <div class="container"> <a class="brand" href="index.html">Manopt</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="index.html"> Home</a></li>
+              <li class="active"><a href="tutorial.html"> Tutorial</a></li>
+              <li><a href="downloads.html"> Downloads</a></li>
+              <li><a href="forum.html"> Forum</a></li>
+              <li><a href="about.html"> About</a></li>
+              <li><a href="#contactmodal" data-toggle="modal"> Contact</a></li>
+            </ul>
+          </div>
+          <!--/.nav-collapse --> </div>
+      </div>
+    </div>
+    <!-- Contact modal Begin -->
+    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+      aria-hidden="true">
+      <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
+          aria-hidden="true">&#215;</button>
+        <h3 id="myModalLabel">To contact us</h3>
+      </div>
+      <div class="modal-body">
+        <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
+        <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
+        <p>We are happy to receive feedback and bug reports or requests for more
+          features, to discuss the toolbox in general as well as its
+          documentation and to help you use it.</p>
+        <p>We would also love to know how you use the toolbox, and if you built
+          nice manifold factories, solvers or tools that could benefit others.</p>
+      </div>
+      <div class="modal-footer"> <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      </div>
+    </div>
+    <!-- Contact modal End -->
+    <div class="container">
+      <div class="row">
+        <div class="span3 sidebar" style="min-height: 1px">
+          <!--Sidebar content-->
+          <!-- class="nav nav-tabs nav-stacked mysidebar" -->
+          <ul class="nav nav-list mysidebar" data-spy="affix">
+            <li class="nav-header">Tutorial</li>
+            <li><a href="#gettingstarted">Getting started</a></li>
+            <li><a href="#firstexample">A first example</a></li>
+            <li><a href="#manifolds">Manifolds</a></li>
+            <li><a href="#solvers">Solvers</a></li>
+            <li><a href="#costdescription">Describing the cost</a></li>
+            <li><a href="#tools">Helpful tools</a></li>
+            <li><a href="#core">Core tools</a></li>
+            <li><a href="#reference">Reference</a></li>
+          </ul>
+        </div>
+        <div class="span9">
+          <!--Body content-->
+          <section id="gettingstarted">
+            <div class="page-header">
+              <h1>Getting started with Manopt </h1>
+            </div>
+            <h3>Foreword</h3>
+            <p><strong>With Manopt, you can solve optimization problems on
+                manifolds</strong> using state-of-the-art algorithms, with
+              minimal effort. The toolbox targets great flexibility in the
+              problem description and comes with advanced features, such as
+              caching.</p>
+            <p>The toolbox architecture is based on a <strong>separation of the
+                manifolds, the solvers and the problem descriptions</strong>.
+              For basic use, one only needs to pick a manifold from the library,
+              describe the cost function (and possible derivatives) on this
+              manifold and pass it on to a solver. Accompanying tools help the
+              user in common tasks such as numerically checking whether the cost
+              function agrees with its derivatives up to the appropriate order
+              etc.</p>
+            <p><strong>This is a </strong><strong>prototyping toolbox</strong>,
+              designed based on the idea that the costly part of solving an
+              optimization problem is querying the cost function, and not the
+              inner machinery of the solver. It is also work in progress: <strong>
+                feedback and contributions are welcome</strong>!</p>
+            <p><a href="reference/examples/index.html">Examples are available in
+                the reference</a>. </p>
+            <p>This short blog post gives an <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">informal
+                overview of optimization on manifolds</a>. It may be a good
+              start to get a general feeling.</p>
+            <p>It helps us to know our users. If you'd like to, please <a target="_blank"
+                href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow
+                this link to be on our user list</a>. Thanks!</p>
+            <h3>Download </h3>
+            <p><a target="_blank" class="btn btn-primary" href="download.html">Download
+                </a>&#160;&#160; The current version is 2.0 and was packaged on
+              July 6th, 2015. The file is about 300 Kb.</p>
+            <h3>Install</h3>
+            <blockquote>
+              <ol>
+                <li>Unzip and copy the whole <tt>manopt</tt> directory you just
+                  downloaded in a location of your choice on disk, say, in <tt>/my/directory/</tt>.</li>
+                <li>Go to <tt>/my/directory/manopt/</tt> at the command prompt
+                  and execute <code>importmanopt</code>. You may save this path
+                  for your next Matlab sessions: follow the menu <tt>File
+                    &#187; Set Path...</tt> and <span style="font-family: monospace;">save</span>.
+                </li>
+              </ol>
+            </blockquote>
+            <h3>Check</h3>
+            <p> Go to <tt>/my/directory/manopt/checkinstall/</tt> and run the
+              script <tt>basicexample.m</tt>. If there are no errors, you are
+              done! Otherwise, feel free to <a href="#contactmodal">contact us</a>.
+            </p>
+          </section>
+          <section id="firstexample">
+            <div class="page-header">
+              <h1>A first example</h1>
+            </div>
+            <h3>The math</h3>
+            <p>In this first example, we will compute a dominant eigenvector of
+              a symmetric matrix $A \in \mathbb{R}^{n\times n}$. Let $\lambda_1
+              \geq \cdots \geq \lambda_n$ be its eigenvalues. The largest
+              eigenvalue, $\lambda_1$, <a target="_blank" href="http://en.wikipedia.org/wiki/Rayleigh_quotient"
+                rel="tooltip" title="Search for 'Rayleigh quotient' if need be.">is
+                known to be</a> the optimal value for the following optimization
+              problem:</p>
+            <p>$$\max\limits_{x\in\mathbb{R}^n, x \neq 0} \frac{x^T A x}{x^T
+              x}.$$</p>
+            <p>This can be rewritten as follows:</p>
+            <p>$$\min\limits_{x\in\mathbb{R}^n, \|x\| = 1} -x^T A x.$$</p>
+            <p>The cost function and its gradient in $\mathbb{R}^n$ read:</p>
+            <p>$$<br>
+              \begin{align}<br>
+              &#160;&#160;&#160; f(x) &amp; = -x^T A x,\\<br>
+              &#160;&#160;&#160; \nabla f(x) &amp; = -2Ax.<br>
+              \end{align}<br>
+              $$</p>
+            <p>The constraint on the vector $x$ requires that $x$ be of unit
+              2-norm, that is, $x$ is a point on the sphere (one of the nicest
+              manifolds):</p>
+            <p>$$\mathbb{S}^{n-1} = \{x \in \mathbb{R}^n : x^Tx = 1\}.$$</p>
+            <p>This is all the information we need to apply Manopt to our
+              problem.</p>
+            <p>Users interested in how optimization on manifolds works will be
+              interested in the following too: the cost function is smooth on
+              $\mathbb{S}^{n-1}$. Its Riemannian gradient on $\mathbb{S}^{n-1}$
+              at $x$ is a tangent vector to the sphere at $x$. It can be
+              computed as the projection from the usual gradient $\nabla f(x)$
+              to that tangent space using the orthogonal projector
+              $\mathrm{Proj}_x u = (I-xx^T)u$:</p>
+            <p>$$\mathrm{grad}\,f(x) = \mathrm{Proj}_x \nabla f(x) =
+              -2(I-xx^T)Ax.$$</p>
+            <p>This is an example of a mathematical relationship between the
+              Euclidean gradient $\nabla f$, which we often already know how to
+              compute from calculus courses, and the Riemannian gradient
+              $\mathrm{grad}\,f$, which is needed for the optimization.
+              Fortunately, for most manifolds in Manopt the conversion happens
+              behind the scenes via a function called <code>egrad2rgrad</code>
+              and we only need to compute $\nabla f$.</p>
+            <p>We will solve this simple optimization problem using Manopt to
+              illustrate the most basic usage of the toolbox. For additional
+              theory, see [AMS08], section 4.6.</p>
+            <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
+                href="http://press.princeton.edu/chapters/absil/">Optimization
+                Algorithms on Matrix Manifolds</a> (open access), Princeton
+              University Press, 2008.</p>
+            <h3>The code</h3>
+            <p>Solving this optimization problem using Manopt requires little
+              code: </p>
+            <!--  pre-scrollable -->
+            <pre class="prettyprint lang-matlab linenums">% Generate random problem data.
 n = 1000;
 A = randn(n);
 A = .5*(A+A.');
@@ -257,8 +233,7 @@ problem.M = manifold;
 problem.egrad = @(x) -2*A*x;
 </pre>
             <p>The cost function (to be <em>minimized</em>: Manopt always
-              minimizes) and its derivatives are specified as <a target="_blank"
-
+              minimizes) and its derivatives are specified as <a target="_blank"
 href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function
                 handles</a>. Notice how the gradient was specified as the <em>Euclidean</em>
               gradient of $f$, i.e., $\nabla f(x) = -2Ax$ in the function <code>egrad</code>
@@ -326,8 +301,7 @@ href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function
             <pre class="prettyprint lang-matlab linenumsoffset linenums:22">semilogy([info.iter], [info.gradnorm], '.-');<br>xlabel('Iteration number');<br>ylabel('Norm of the gradient of f');
 </pre>
             <p>This generates the following figure:</p>
-            <p><img title="Gradient norm converging to zero" alt="Gradient norm converging to zero"
-
+            <p><img title="Gradient norm converging to zero" alt="Gradient norm converging to zero"
 src="tutorial-gradientnorm.png"></p>
             <p>For more information on what data is stored in <code>info</code>,
               see the <a href="#solvers">solvers</a> section.</p>
@@ -341,8 +315,7 @@ src="tutorial-gradientnorm.png"></p>
             <div class="page-header">
               <h1>Manifolds </h1>
             </div>
-            <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
-
+            <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
 width="26"> </h3>
             <p>Manifolds in Manopt are represented as structures and are
               obtained by calling a factory. Built-in factories are located in <tt>/manopt/manifolds</tt>.
@@ -502,19 +475,16 @@ width="26"> </h3>
                   <td>Fixed-rank </td>
                   <td>$\{X \in \mathbb{R}^{m \times n} : \operatorname{rank}(X)
                     = k\}$ </td>
-                  <td> <code>fixedrankembeddedfactory(m, n, k)</code> <a target="_blank"
-
+                  <td> <code>fixedrankembeddedfactory(m, n, k)</code> <a target="_blank"
 href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html">(ref)</a><br>
                     <code>fixedrankfactory_2factors(m, n, k)</code> <a href="manifold_documentation_fixedrank_2factors.html">(doc)</a><br>
                     <code>fixedrankfactory_2factors_preconditioned(m, n, k)</code>
                     <a target="_blank" href="reference/manopt/manifolds/fixedrank/fixedrankfactory_2factors_preconditioned.html">(ref)</a><br>
                     <code>fixedrankfactory_2factors_subspace_projection(m, n, k)</code>
                     <a target="_blank" href="reference/manopt/manifolds/fixedrank/fixedrankfactory_2factors_subspace_projection.html">(ref)</a><br>
-                    <code>fixedrankfactory_3factors(m, n, k)</code> <a target="_blank"
-
+                    <code>fixedrankfactory_3factors(m, n, k)</code> <a target="_blank"
 href="reference/manopt/manifolds/fixedrank/fixedrankfactory_3factors.html">(ref)</a><br>
-                    <code>fixedrankMNquotientfactory(m, n, k)</code> <a target="_blank"
-
+                    <code>fixedrankMNquotientfactory(m, n, k)</code> <a target="_blank"
 href="reference/manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html">(ref)</a></td>
                 </tr>
                 <tr>
@@ -532,8 +502,7 @@ href="reference/manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html">(ref
                 </tr>
                 <tr>
                   <td><a target="_blank" href="manifold_documentation_symfixedrank.html">Symmetric
-                      positive semidefinite, fixed-rank</a> (<a target="_blank"
-
+                      positive semidefinite, fixed-rank</a> (<a target="_blank"
 href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html">complex</a>)</td>
                   <td>$\{X \in \mathbb{R}^{n \times n} : X = X^T \succeq 0,
                     \operatorname{rank}(X) = k\}$ </td>
@@ -765,8 +734,7 @@ href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html"
             <div class="page-header">
               <h1>Solvers </h1>
             </div>
-            <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
-
+            <h3>General description <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
 width="26"> </h3>
             <p>Solvers, or optimization algorithms, are functions in Manopt.
               Built-in solvers are located in <span style="font-family: monospace;">/manopt/solvers</span>.
@@ -809,10 +777,8 @@ width="26"> </h3>
               execution. </p>
             <h3>Available solvers </h3>
             <p>The toolbox comes with a handful of
-              solvers. The most trust-worthy is the trust-regions algorithm. It is a modification of the code of <a
-
-title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/"
-
+              solvers. The most trust-worthy is the trust-regions algorithm. It is a modification of the code of <a
+title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/"
 target="_blank">GenRTR</a>.
               The toolbox was designed to accommodate many more solvers though,
               and we expect to propose BFGS-style solvers, stochastic gradient
@@ -834,8 +800,7 @@ target="_blank">GenRTR</a>.
                   </td>
                   <td>Cost, gradient (Hessian, approximate Hessian,
                     preconditioner) </td>
-                  <td>#1 choice for smooth optimization; uses <abbr title="Finite differences"
-
+                  <td>#1 choice for smooth optimization; uses <abbr title="Finite differences"
 class="initialism">FD</abbr> of the gradient in the
                     absence of Hessian. </td>
                   <td><code>trustregions(...)</code> </td>
@@ -1076,8 +1041,7 @@ end</pre>
             <h3>The info struct-array </h3>
             <p>The various solvers will log information at each iteration about
               their progress. This information is returned in the output <code>info</code>,
-              a struct-array, that is, an array of structures. Read this <a href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/"
-
+              a struct-array, that is, an array of structures. Read this <a href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/"
 target="_blank">MathWorks blog post</a> for help on dealing with
               this data container in Matlab. For example, to extract a vector containing the cost value at each iteration, call <code>[info.cost]</code> with the brackets. Here are the typical indicators
               that might be present in the <code>info</code> output:</p>
@@ -1133,8 +1097,7 @@ target="_blank">MathWorks blog post</a> for help on dealing with
             <div class="page-header">
               <h1>Describing the cost function</h1>
             </div>
-            <h3>General philosophy <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
-
+            <h3>General philosophy <img alt="" src="icon_salute.gif" style="vertical-align: baseline"
 width="26"></h3>
             <p>An optimization problem in Manopt is represented as a <code>problem</code>
               structure. The latter must include a field <code>problem.M</code>
@@ -1322,8 +1285,7 @@ width="26"></h3>
                     Riemannian metric) on the tangent space at $x$, and applying
                     it twice should amount to applying $\operatorname{Prec}(x)$
                     once. Solvers typically use <code>precon</code> rather than
-                    <code>sqrtprecon</code>, but some tools (such as <a style="font-family: monospace;"
-
+                    <code>sqrtprecon</code>, but some tools (such as <a style="font-family: monospace;"
 href="reference/manopt/tools/hessianspectrum.html">hessianspectrum</a>)
                     can use <code>sqrtprecon</code> to speed up computations.</td>
                 </tr>
@@ -1395,8 +1357,7 @@ end
               to cache (to store) some of the previously computed objects, or
               intermediate calculations.</p>
             <p>For that purpose, Manopt manages a database of <code>store</code>
-              structures, with a class called <a href="reference/manopt/core/StoreDB.html"><span
-
+              structures, with a class called <a href="reference/manopt/core/StoreDB.html"><span
 style="font-family: monospace;">StoreDB</span></a>. For each
               visited point $x$, a <code>store</code> structure is stored in
               the database. Only the structures pertaining to the most recently
@@ -1522,8 +1483,7 @@ end
             to show yet. Check out these folders if you are interested:
             <ul>
               <li><a style="font-family: monospace;" href="reference/manopt/solvers/hessianapproximations/index.html">/solvers/hessianapproximations</a>.</li>
-              <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li></ul>In any case, the trust-regions solver by default works with a finite-difference approximation of the Hessian based on the gradient which has proven effective and robust over the years. See <a
-
+              <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li></ul>In any case, the trust-regions solver by default works with a finite-difference approximation of the Hessian based on the gradient which has proven effective and robust over the years. See <a
 target="_blank" href="https://link.springer.com/chapter/10.1007/978-3-319-25040-3_50#">this paper</a> for a proof of global convergence with this approximation.<br><ul>
             </ul>
           </section>
@@ -1552,8 +1512,7 @@ target="_blank" href="https://link.springer.com/chapter/10.1007/978-3-319-25040-
               <td colspan="2" rowspan="1"><strong>Diagnostics tools</strong> </td>
             </tr>
             <tr>
-              <td style="text-align: center;"><a href="reference/manopt/tools/checkdiff.html"><i
-
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkdiff.html"><i
 class="icon-book">&#160;</i></a></td>
               <td><nobr><code>checkdiff(problem, x, u)</code></nobr> </td>
               <td>Numerical check of the directional derivatives of the cost
@@ -1570,8 +1529,7 @@ class="icon-book">&#160;</i></a></td>
                 are omitted, they are picked at random. </td>
             </tr>
             <tr>
-              <td style="text-align: center;"><a href="reference/manopt/tools/checkgradient.html"><i
-
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkgradient.html"><i
 class="icon-book">&#160;</i></a></td>
               <td><nobr><code>checkgradient(problem, x, u)</code></nobr> </td>
               <td>Numerical check of the gradient of the cost function. Based on
@@ -1585,8 +1543,7 @@ class="icon-book">&#160;</i></a></td>
                 projector is available). Of course, this should be zero. </td>
             </tr>
             <tr>
-              <td style="text-align: center;"><a href="reference/manopt/tools/checkhessian.html"><i
-
+              <td style="text-align: center;"><a href="reference/manopt/tools/checkhessian.html"><i
 class="icon-book">&#160;</i></a></td>
               <td><nobr><code>checkhessian(problem, x, u)</code></nobr> </td>
               <td>
@@ -1618,8 +1575,7 @@ class="icon-book">&#160;</i></a></td>
               </td>
             </tr>
             <tr>
-              <td style="text-align: center;"><a href="reference/manopt/tools/plotprofile.html"><i
-
+              <td style="text-align: center;"><a href="reference/manopt/tools/plotprofile.html"><i
 class="icon-book">&#160;</i></a></td>
               <td><code>plotprofile(problem, x, d, t)</code></td>
               <td>Plots the cost function along a geodesic or a retraction path
@@ -1627,8 +1583,7 @@ class="icon-book">&#160;</i></a></td>
                   plotprofile</span> for more information.</td>
             </tr>
             <tr>
-              <td style="text-align: center;"><a href="reference/manopt/tools/surfprofile.html"><i
-
+              <td style="text-align: center;"><a href="reference/manopt/tools/surfprofile.html"><i
 class="icon-book">&#160;</i></a></td>
               <td><code>surfprofile(problem, x, d1, d2, t1, t2)</code></td>
               <td>Plots the cost function, lifted and restricted to a
@@ -1640,8 +1595,7 @@ class="icon-book">&#160;</i></a></td>
             <td colspan="2" rowspan="1"><strong>Cost analysis</strong></td>
           </tr>
           <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/hessianspectrum.html"><i
-
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianspectrum.html"><i
 class="icon-book">&#160;</i></a></td>
             <td><code>lambdas = hessianspectrum(problem, x, useprecon, storedb,
                 key)</code></td>
@@ -1675,14 +1629,12 @@ class="icon-book">&#160;</i></a></td>
                 spectrum of $HP$. Typically, the square root of the
                 preconditioner is given via <code>problem.sqrtprecon</code>
                 (see <a href="#costdescription">cost description</a>).</p>
-              <p><code>storedb</code> and <code>key</code> are optional (see <a
-
+              <p><code>storedb</code> and <code>key</code> are optional (see <a
 href="#cachingsystem">caching system</a>).</p>
             </td>
           </tr>
           <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/hessianextreme.html"><i
-
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianextreme.html"><i
 class="icon-book">&#160;</i></a></td>
             <td><code>[u, lambda] = hessianextreme(problem, x, side, u0,
                 options, storedb, key)</code></td>
@@ -1698,14 +1650,12 @@ class="icon-book">&#160;</i></a></td>
                 solver that ultimately computes the eigenpair, by means of
                 Rayleigh quotient optimization over the sphere in the tangent
                 space at <code>x</code>.</p>
-              <p><code>storedb</code> and <code>key</code> are optional (see <a
-
+              <p><code>storedb</code> and <code>key</code> are optional (see <a
 href="#cachingsystem">caching system</a>).</p>
             </td>
           </tr>
           <tr>
-            <td style="text-align: center;"><a href="reference/manopt/tools/hessianmatrix.html"><i
-
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianmatrix.html"><i
 class="icon-book">&#160;</i></a></td>
             <td><code>[H, basis] = hessianmatrix(problem, x, basis)</code></td>
             <td>
@@ -1717,8 +1667,7 @@ class="icon-book">&#160;</i></a></td>
           <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multiscale.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiscale.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>B = multiscale(scale, A)</code></nobr> </td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt> and a
@@ -1728,8 +1677,7 @@ class="icon-book">&#160;</i></a></td>
           </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multitrace.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multitrace.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>tr = multitrace(A)</code></nobr> </td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
@@ -1737,8 +1685,7 @@ class="icon-book">&#160;</i></a></td>
                 = trace(A(:, :, k))</code></nobr> for each <code>k</code>. </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multisqnorm.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multisqnorm.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>sq = multisqnorm(A)</code></nobr> </td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns a
@@ -1747,8 +1694,7 @@ class="icon-book">&#160;</i></a></td>
           </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multitransp.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multitransp.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>B = multitransp(A)</code></nobr> </td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxmxN</tt>, returns <code>B</code>,
@@ -1756,8 +1702,7 @@ class="icon-book">&#160;</i></a></td>
                 k) = A(:, :, k).'</code></nobr> for each <code>k</code>. </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multihconj.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multihconj.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>B = multihconj(A)</code></nobr> </td>
           <td>For a complex 3D matrix <code>A</code> of size <tt>nxmxN</tt>,
@@ -1766,8 +1711,7 @@ class="icon-book">&#160;</i></a></td>
             each <code>k</code>. </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multiprod.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiprod.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><nobr><code>C = multiprod(A, B)</code></nobr> </td>
           <td>For 3D matrices <code>A</code> of size <tt>nxpxN</tt> and B of
@@ -1776,8 +1720,7 @@ class="icon-book">&#160;</i></a></td>
             for each <code>k</code>. </td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multiskew.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiskew.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><code>B = multiskew(A)</code></td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
@@ -1787,8 +1730,7 @@ class="icon-book">&#160;</i></a></td>
               :, i)')/2</code>.</td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multisym.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multisym.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><code>B = multisym(A)</code></td>
           <td>For a 3D matrix <code>A</code> of size <tt>nxnxN</tt>, returns a
@@ -1798,8 +1740,7 @@ class="icon-book">&#160;</i></a></td>
               i).')/2</code>.</td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/multiherm.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/multiherm.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><code>B = multiherm(A)</code></td>
           <td>For a complex 3D matrix <code>A</code> of size <tt>nxnxN</tt>,
@@ -1809,8 +1750,7 @@ class="icon-book">&#160;</i></a></td>
               i)+A(:, :, i)')/2</code>.</td>
         </tr>
         <tr>
-          <td style="text-align: center;"><a href="reference/manopt/tools/dfunm.html"><i
-
+          <td style="text-align: center;"><a href="reference/manopt/tools/dfunm.html"><i
 class="icon-book">&#160;</i></a></td>
           <td><code>dfunm</code>, <code>dlogm</code>, <code>dexpm</code>, <code>dsqrtm</code></td>
           <td>Fr&#233;chet derivatives of the (built-in) matrix functions <code>logm</code>,
@@ -1821,8 +1761,7 @@ class="icon-book">&#160;</i></a></td>
         <td colspan="2" rowspan="1"><strong>Manifold utilities</strong> </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/powermanifold.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/powermanifold.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><nobr><code>Mn = powermanifold(M, n)</code></nobr> </td>
         <td>Given <code>M</code>, a structure representing a manifold
@@ -1832,8 +1771,7 @@ class="icon-book">&#160;</i></a></td>
           are represented as cells of length <code>n</code>. </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/productmanifold.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/productmanifold.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><nobr><code>M = productmanifold(elements)</code></nobr> </td>
         <td>Given <code>elements</code>, a structure with fields <code>A, B,
@@ -1846,20 +1784,17 @@ class="icon-book">&#160;</i></a></td>
           same field names as <code>elements</code>. </td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspherefactory.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspherefactory.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>N = tangentspherefactory(M, x)</code></td>
         <td>Given a manifold structure <code>M</code> and a point on that
           manifold <code>x</code>, returns a manifold structure <code>N</code>
           representing the unit sphere on the tangent space to <code>M</code>
-          at <code>x</code>. This is notably used by the <a href="reference/manopt/tools/hessianextreme.html"><span
-
+          at <code>x</code>. This is notably used by the <a href="reference/manopt/tools/hessianextreme.html"><span
 style="font-family: monospace;">hessianextreme</span></a> tool.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspacefactory.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentspacefactory.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>N = tangentspacefactory(M, x)</code></td>
         <td>Given a manifold structure <code>M</code> and a point on that
@@ -1869,36 +1804,31 @@ class="icon-book">&#160;</i></a></td>
           preconditioner.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/lincomb.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/lincomb.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>vec = lincomb(M, x, vecs, coeffs)</code></td>
         <td>Given a cell <code>vecs</code> of $n$ tangent vectors to the manifold <code>M</code> at <code>x</code> and a vector <code>coeffs</code> of $n$ real coefficients, returns the linear combination of the given vectors with the given coefficients. The empty linear combination is the zero vector at <code>x</code>.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/grammatrix.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/grammatrix.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>G = grammatrix(M, x, vectors)</code></td>
         <td>Given $n$ tangent vectors $v_1, \ldots, v_n$ in a cell <code>vectors</code> to the manifold <code>M</code> at point <code>x</code>, returns a symmetric, positive semidefinite matrix <code>G</code> of size $n\times n$ such that $G_{ij} = \langle v_i, v_j \rangle_x$.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/orthogonalize.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/orthogonalize.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>[orthobasis, L] = orthogonalize(M, x, basis)</code></td>
         <td>Given a cell <code>basis</code> which contains linearly independent tangent vectors to the manifold <code>M</code> at <code>x</code>, returns an orthogonal basis of the subspace spanned by the give basis. <code>L</code> is an upper triangular matrix containing the coefficients of the linear combinations needed to transform <code>basis</code> into <code>orthobasis</code>.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/tangentorthobasis.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentorthobasis.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>obasis = tangentorthobasis(M, x, n)</code></td>
         <td>Given a point <code>x</code> on the manifold <code>M</code>, generates <code>n</code> unit-norm, pairwise orthogonal vectors in the tangent space at <code>x</code> to <code>M</code>, in a cell.</td>
       </tr>
       <tr>
-        <td style="text-align: center;"><a href="reference/manopt/tools/smallestinconvexhull.html"><i
-
+        <td style="text-align: center;"><a href="reference/manopt/tools/smallestinconvexhull.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>[u_norm, coeffs, u] = smallestinconvexhull(M, x, U)</code></td>
         <td>Computes <code>u</code>, a tangent vector to <code>M</code> at <code>x</code> contained in the convex hull spanned by the $n$ vectors in the cell <code>U</code>, with minimal norm (according to the Riemannian metric on <code>M</code>). This is obtained by solving a convex quadratic program involving the Gram matrix of the given tangent vectors. The quadratic program is solved using Matlab's built-in <code>quadprog</code>, which requires the optimization toolbox.</td>
@@ -1908,8 +1838,7 @@ class="icon-book">&#160;</i></a></td>
       <td colspan="2" rowspan="1"><strong>Solver utilities</strong></td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="reference/manopt/tools/manoptsolve.html"><i
-
+      <td style="text-align: center;"><a href="reference/manopt/tools/manoptsolve.html"><i
 class="icon-book">&#160;</i></a></td>
       <td><code>[x, cost, info, options] = manoptsolve(problem, x0, options)</code></td>
       <td>Gateway function to call a Manopt solver. You may specify which solver
@@ -1920,15 +1849,13 @@ class="icon-book">&#160;</i></a></td>
         leave the decision of which solver to use up to the final user.</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="reference/manopt/tools/statsfunhelper.html"><i
-
+      <td style="text-align: center;"><a href="reference/manopt/tools/statsfunhelper.html"><i
 class="icon-book">&#160;</i></a></td>
       <td><code>statsfun = statsfunhelper(name, fun)</code><br>
         <code>statsfun = statsfunhelper(S)</code></td>
       <td>Helper function to place a function handle in the field <code>options.statsfun</code>.
         See the help about the statsfun option <a href="#statsfunhelp">earlier
-          in this tutorial</a>, and/or the help for <a style="font-family: monospace;"
-
+          in this tutorial</a>, and/or the help for <a style="font-family: monospace;"
 href="reference/manopt/tools/statsfunhelper.html">statsfunhelper</a>
         from the command line.</td>
     </tr>
@@ -1973,80 +1900,67 @@ href="reference/manopt/tools/statsfunhelper.html">statsfunhelper</a>
         quantities)</strong> </td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getCost.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getCost.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>cost = getCost(problem, x, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getCostGrad.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getCostGrad.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>[cost, grad] = getCostGrad(problem, x, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getGradient.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getGradient.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>grad = getGradient(problem, x, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getPartialGradient.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getPartialGradient.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>pgrad = getPartialGradient(problem, x, I, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getEuclideanGradient.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getEuclideanGradient.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>egrad = getEuclideanGradient(problem, x, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getPartialEuclideanGradient.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getPartialEuclideanGradient.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>pgrad = getPartialEuclideanGradient(problem, x, I, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getDirectionalDerivative.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getDirectionalDerivative.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>diff = getDirectionalDerivative(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getHessian.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getHessian.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>hess = getHessian(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getHessianFD.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getHessianFD.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>hessfd = getHessianFD(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getApproxHessian.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getApproxHessian.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>approxhess = getApproxHessian(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getLinesearch.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getLinesearch.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>t = getLinesearch(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getPrecon.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getPrecon.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>Pd = getPrecon(problem, x, d, storedb, key)</code></td>
   </tr>
   <tr>
-    <td style="text-align: center;"><a href="reference/manopt/core/getSqrtPrecon.html"><i
-
+    <td style="text-align: center;"><a href="reference/manopt/core/getSqrtPrecon.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)</code></td>
   </tr>
@@ -2056,68 +1970,57 @@ class="icon-book">&#160;</i></a></td>
       whether the user explicitly specified these)</strong></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetCost.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetCost.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetCost(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetDirectionalDerivative.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetDirectionalDerivative.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetDirectionalDerivative(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetGradient.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetGradient.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetGradient(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialGradient.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialGradient.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetPartialGradient(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetEuclideanGradient.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetEuclideanGradient.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetEuclideanGradient(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialEuclideanGradient.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialEuclideanGradient.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetPartialEuclideanGradient(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetHessian.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetHessian.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetHessian(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetApproxHessian.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetApproxHessian.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetApproxHessian(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetPrecon.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetPrecon.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetPrecon(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetSqrtPrecon.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetSqrtPrecon.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetSqrtPrecon(problem)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/canGetLinesearch.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetLinesearch.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetLinesearch(problem)</code></td>
 </tr>
@@ -2126,26 +2029,22 @@ class="icon-book">&#160;</i></a></td>
 <td colspan="1" rowspan="1"><strong>Solver helpers</strong></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/applyStatsfun.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/applyStatsfun.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>stats = applyStatsfun(problem, x, storedb, key, options, stats)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/stoppingcriterion.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/stoppingcriterion.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>[stop, reason] = stoppingcriterion(problem, x, options, info, last)</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/getGlobalDefaults.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/getGlobalDefaults.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>opts = getGlobalDefaults()</code></td>
 </tr>
 <tr>
-  <td style="text-align: center;"><a href="reference/manopt/core/mergeOptions.html"><i
-
+  <td style="text-align: center;"><a href="reference/manopt/core/mergeOptions.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>opts = mergeOptions(opts1, opts2)</code></td>
 </tr>
