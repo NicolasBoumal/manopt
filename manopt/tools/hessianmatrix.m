@@ -8,8 +8,10 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % x is a point on the manifold problem.M.
 % basis (optional) is an orthonormal basis for the tangent space to the
 % manifold at x. If no basis is supplied, one will be generated at random.
+% If the basis spans only a subspace of the tangent space at x,
+% then the returned matrix represents the Hessian restricted to that subspace.
 %
-% H is an n-by-n symmetric matrix (with n the dimension of the manifold)
+% H is an n-by-n symmetric matrix (with n the number of vectors in the basis)
 % such that H(i, j) is the inner product between basis{i}
 % and Hess(basis{j}), with respect to the metric on the tangent space to
 % problem.M at x, where Hess(basis{j}) is the vector obtained after
@@ -19,7 +21,7 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % as this quickly becomes expensive. This tool is provided mostly for
 % exploration and debugging rather than to be used algorithmically in
 % solvers. To access the spectrum of the Hessian, it may be more practical
-% to call hessianextreme or hessianspectrum.
+% to call hessianextreme or hessianspectrum. This should coincide with eig(H).
 %
 % See also: hessianspectrum hessianextreme tangentorthobasis orthogonalize
 
@@ -28,12 +30,14 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % Contributors: 
 % Change log: 
 
-    n = problem.M.dim();
 
     % Unless an orthonormal basis for the tangent space at x is provided,
     % pick a random one.
     if ~exist('basis', 'var') || isempty(basis)
+	    n = problem.M.dim();
         basis = tangentorthobasis(problem.M, x, n);
+	else
+	    n = numel(basis);
     end
     
     % Create a store database and get a key for x
