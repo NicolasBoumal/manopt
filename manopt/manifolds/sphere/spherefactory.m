@@ -113,7 +113,7 @@ end
 % %     p2(k) = S.dist(x, S.exp(x, u, t(k)));
 % % end
 % % loglog(t, p1, t, p2);
-% And same thing if we plot the nom of the output to make sure it's one:
+% And same thing if we plot the norm of the output to make sure it's one:
 % % S = spherefactory(1000);
 % % x = S.rand();
 % % u = S.randvec(x);
