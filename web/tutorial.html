@@ -388,6 +388,12 @@ width="26"> </h3>
                   <td><code>symmetricfactory(n, k)</code> </td>
                 </tr>
                 <tr>
+                  <td><a target="_blank" href="reference/manopt/manifolds/euclidean/skewsymmetricfactory.html">Skew-symmetric
+                      matrices</a> </td>
+                  <td>$\{ X \in \mathbb{R}^{n\times n} : X + X^T = 0\}^k$ </td>
+                  <td><code>skewsymmetricfactory(n, k)</code> </td>
+                </tr>
+                <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/euclidean/centeredmatrixfactory.html">Centered
                       matrices</a></td>
                   <td>$\{ X \in \mathbb{R}^{m\times n} : X\mathbf{1}_n = 0_m \}$</td>
@@ -522,7 +528,7 @@ href="reference/manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html">(ref
                       positive definite matrices</a></td>
                   <td>$\{ X \in \mathbb{R}^{n\times n} : X = X^T, X \succ 0\}^k$
                   </td>
-                  <td><code>sympositivedefinitefactory<a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"></a>(n)</code></td>
+                  <td><code>sympositivedefinitefactory(n)</code></td>
                 </tr>
                 <tr>
                   <td><a target="_blank" href="manifold_documentation_symfixedrank.html">Symmetric
@@ -778,7 +784,7 @@ width="26"> </h3>
               <code>x</code> will be a critical point (typically a local
               minimizer, but even that is usually not guaranteed in all cases:
               this is a fundamental limitation of nonlinear optimization). </p>
-            <div class="alert alert-info"><strong>Heads up!</strong> All
+            <div class="alert alert-info"><strong>Min or max?</strong> All
               provided solvers are <em>minimization</em> algorithms. If you
               want to <em>maximize </em>your objective function, multiply it
               by -1 (and accordingly for the derivatives of the objective
@@ -802,11 +808,12 @@ width="26"> </h3>
               information needs to be displayed and / or logged during
               execution. </p>
             <h3>Available solvers </h3>
-            <p>The toolbox is fairly young and comes with only a handful of
-              solvers, the most trust-worthy being the trust-regions algorithm
-              as it is a modification of the code of <a title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan"
+            <p>The toolbox comes with a handful of
+              solvers. The most trust-worthy is the trust-regions algorithm. It is a modification of the code of <a
 
-href="http://www.math.fsu.edu/%7Ecbaker/genrtr/" target="_blank">GenRTR</a>.
+title="GenRTR, by Chris Baker, P.-A. Absil and Kyle Gallivan" href="http://www.math.fsu.edu/%7Ecbaker/genrtr/"
+
+target="_blank">GenRTR</a>.
               The toolbox was designed to accommodate many more solvers though,
               and we expect to propose BFGS-style solvers, stochastic gradient
               descents and many more in the future. In particular, we look
@@ -1072,7 +1079,7 @@ end</pre>
               a struct-array, that is, an array of structures. Read this <a href="http://blogs.mathworks.com/loren/2007/04/19/vectorizing-access-to-an-array-of-structures/"
 
 target="_blank">MathWorks blog post</a> for help on dealing with
-              this data container in Matlab. Here are the typical indicators
+              this data container in Matlab. For example, to extract a vector containing the cost value at each iteration, call <code>[info.cost]</code> with the brackets. Here are the typical indicators
               that might be present in the <code>info</code> output:</p>
             <table style="width: 100%;" class="table table-striped table-bordered">
               <thead>
@@ -1145,10 +1152,7 @@ width="26"></h3>
               the toolbox and new ways of describing the cost function become
               necessary, it suffices to update the core <code>get*</code> tools
               to take these new ways into account. We seldom have to modify the
-              solvers.</p>
-            <p>For now, there are only a few ways to describe the cost and its
-              derivatives, but there will be more as the needs grow. </p>
-            <h3>Cost describing fields </h3>
+              solvers.</p><h3>Cost describing fields</h3>
             <p> You may specify as many of the following fields as you wish in
               the <code>problem</code> structure. If you specify some function
               more than once (for example, if you define <code>diff</code> <em>and</em>
@@ -1212,6 +1216,29 @@ width="26"></h3>
                       Euclidean space. This will be passed to <code>M.egrad2rgrad</code>.</p>
                     <p>Function <code>egrad</code> involves automatic caching
                       for use with <code>ehess</code>.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>partialgrad</code> </td>
+                  <td><code>pg = partialgrad(x, I)</code><br>
+                    <nobr><code>[pg, store] = partialgrad(x, I, store)</code></nobr><br>
+                    <nobr><code>pg = partialgrad(x, I, storedb, key)</code></nobr> </td>
+                  <td>
+                    <p>Assume the cost function <code>problem.cost</code> is a sum of many terms,
+                      as $f(x) = \sum_{i=1}^{d} f_i(x)$ where $d$ is specified as <code>problem.ncostterms = d</code>.
+                      For a subset $I$ of $1\ldots d$, <code>partialgrad(x, I)</code> returns the Riemannian gradient of the
+											partial cost function $f_I(x) = \sum_{i \in I} f_i(x)$.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>partialegrad</code> </td>
+                  <td><code>peg = partialegrad(x, I)</code><br>
+                    <nobr><code>[peg, store] = partialegrad(x, I, store)</code></nobr><br>
+                    <nobr><code>peg = partialegrad(x, I, storedb, key)</code></nobr> </td>
+                  <td>
+                    <p>Same as <code>partialgrad</code> but returns the Euclidean partial gradient. This will automatially be transformed into a Riemannian partial gradient by Manopt.
+                    </p>
                   </td>
                 </tr>
                 <tr>
@@ -1427,7 +1454,7 @@ style="font-family: monospace;">StoreDB</span></a>. For each
               function will see the changes too (without need to explicitly
               return the storedb object). Thus, each storedb object exists only
               <em>once</em> in memory. This makes for cleaner calling patterns
-              and avoids unnecessary copies.</div>
+              and avoids unnecessary copies. This is not the case for the store structures though, which are passed by copy and thus must be returned if the changes are to be permanent.</div>
             <p>Here is an example of how we can modify the <a href="#firstexample">first
                 example</a> to avoid redundant computations, using the caching
               mechanism:</p>
@@ -1495,7 +1522,9 @@ end
             to show yet. Check out these folders if you are interested:
             <ul>
               <li><a style="font-family: monospace;" href="reference/manopt/solvers/hessianapproximations/index.html">/solvers/hessianapproximations</a>.</li>
-              <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li>
+              <li><a style="font-family: monospace;" href="reference/manopt/solvers/preconditioners/index.html">/solvers/preconditioners</a>.</li></ul>In any case, the trust-regions solver by default works with a finite-difference approximation of the Hessian based on the gradient which has proven effective and robust over the years. See <a
+
+target="_blank" href="https://link.springer.com/chapter/10.1007/978-3-319-25040-3_50#">this paper</a> for a proof of global convergence with this approximation.<br><ul>
             </ul>
           </section>
           <section id="tools">
@@ -1675,6 +1704,15 @@ href="#cachingsystem">caching system</a>).</p>
             </td>
           </tr>
           <tr>
+            <td style="text-align: center;"><a href="reference/manopt/tools/hessianmatrix.html"><i
+
+class="icon-book">&#160;</i></a></td>
+            <td><code>[H, basis] = hessianmatrix(problem, x, basis)</code></td>
+            <td>
+              <p>Given a <code>problem</code> structure, a point <code>x</code> on <code>problem.M</code> and a cell <code>basis</code> containing an orthonormal basis of (a subspace of) the tangent space to <code>M</code> at <code>x</code>, returns a matrix <code>H</code> which represents the Hessian of <code>problem.cost</code> at <code>x</code> in the given basis (possibly restricted to the given subspace). If no basis is given, a random orthonormal basis is generated for the full tangent space. In all cases, the used basis is returned as second output.</p>
+            </td>
+          </tr>
+          <tr>
             <td style="text-align: center;"> <br></td>
           <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
         </tr>
@@ -1831,6 +1869,41 @@ class="icon-book">&#160;</i></a></td>
           preconditioner.</td>
       </tr>
       <tr>
+        <td style="text-align: center;"><a href="reference/manopt/tools/lincomb.html"><i
+
+class="icon-book">&#160;</i></a></td>
+        <td><code>vec = lincomb(M, x, vecs, coeffs)</code></td>
+        <td>Given a cell <code>vecs</code> of $n$ tangent vectors to the manifold <code>M</code> at <code>x</code> and a vector <code>coeffs</code> of $n$ real coefficients, returns the linear combination of the given vectors with the given coefficients. The empty linear combination is the zero vector at <code>x</code>.</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;"><a href="reference/manopt/tools/grammatrix.html"><i
+
+class="icon-book">&#160;</i></a></td>
+        <td><code>G = grammatrix(M, x, vectors)</code></td>
+        <td>Given $n$ tangent vectors $v_1, \ldots, v_n$ in a cell <code>vectors</code> to the manifold <code>M</code> at point <code>x</code>, returns a symmetric, positive semidefinite matrix <code>G</code> of size $n\times n$ such that $G_{ij} = \langle v_i, v_j \rangle_x$.</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;"><a href="reference/manopt/tools/orthogonalize.html"><i
+
+class="icon-book">&#160;</i></a></td>
+        <td><code>[orthobasis, L] = orthogonalize(M, x, basis)</code></td>
+        <td>Given a cell <code>basis</code> which contains linearly independent tangent vectors to the manifold <code>M</code> at <code>x</code>, returns an orthogonal basis of the subspace spanned by the give basis. <code>L</code> is an upper triangular matrix containing the coefficients of the linear combinations needed to transform <code>basis</code> into <code>orthobasis</code>.</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;"><a href="reference/manopt/tools/tangentorthobasis.html"><i
+
+class="icon-book">&#160;</i></a></td>
+        <td><code>obasis = tangentorthobasis(M, x, n)</code></td>
+        <td>Given a point <code>x</code> on the manifold <code>M</code>, generates <code>n</code> unit-norm, pairwise orthogonal vectors in the tangent space at <code>x</code> to <code>M</code>, in a cell.</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;"><a href="reference/manopt/tools/smallestinconvexhull.html"><i
+
+class="icon-book">&#160;</i></a></td>
+        <td><code>[u_norm, coeffs, u] = smallestinconvexhull(M, x, U)</code></td>
+        <td>Computes <code>u</code>, a tangent vector to <code>M</code> at <code>x</code> contained in the convex hull spanned by the $n$ vectors in the cell <code>U</code>, with minimal norm (according to the Riemannian metric on <code>M</code>). This is obtained by solving a convex quadratic program involving the Gram matrix of the given tangent vectors. The quadratic program is solved using Matlab's built-in <code>quadprog</code>, which requires the optimization toolbox.</td>
+      </tr>
+      <tr>
         <td style="text-align: center;"> <br></td>
       <td colspan="2" rowspan="1"><strong>Solver utilities</strong></td>
     </tr>
@@ -1918,10 +1991,22 @@ class="icon-book">&#160;</i></a></td>
     <td><code>grad = getGradient(problem, x, storedb, key)</code></td>
   </tr>
   <tr>
+    <td style="text-align: center;"><a href="reference/manopt/core/getPartialGradient.html"><i
+
+class="icon-book">&#160;</i></a></td>
+    <td><code>pgrad = getPartialGradient(problem, x, I, storedb, key)</code></td>
+  </tr>
+  <tr>
     <td style="text-align: center;"><a href="reference/manopt/core/getEuclideanGradient.html"><i
 
 class="icon-book">&#160;</i></a></td>
     <td><code>egrad = getEuclideanGradient(problem, x, storedb, key)</code></td>
+  </tr>
+  <tr>
+    <td style="text-align: center;"><a href="reference/manopt/core/getPartialEuclideanGradient.html"><i
+
+class="icon-book">&#160;</i></a></td>
+    <td><code>pgrad = getPartialEuclideanGradient(problem, x, I, storedb, key)</code></td>
   </tr>
   <tr>
     <td style="text-align: center;"><a href="reference/manopt/core/getDirectionalDerivative.html"><i
@@ -1989,10 +2074,22 @@ class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetGradient(problem)</code></td>
 </tr>
 <tr>
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialGradient.html"><i
+
+class="icon-book">&#160;</i></a></td>
+  <td><code>candoit = canGetPartialGradient(problem)</code></td>
+</tr>
+<tr>
   <td style="text-align: center;"><a href="reference/manopt/core/canGetEuclideanGradient.html"><i
 
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetEuclideanGradient(problem)</code></td>
+</tr>
+<tr>
+  <td style="text-align: center;"><a href="reference/manopt/core/canGetPartialEuclideanGradient.html"><i
+
+class="icon-book">&#160;</i></a></td>
+  <td><code>candoit = canGetPartialEuclideanGradient(problem)</code></td>
 </tr>
 <tr>
   <td style="text-align: center;"><a href="reference/manopt/core/canGetHessian.html"><i
