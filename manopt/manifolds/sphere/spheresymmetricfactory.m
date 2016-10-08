@@ -14,6 +14,10 @@ function M = spheresymmetricfactory(n)
 % Original author: Nicolas Boumal, April 17, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Oct. 8, 2016 (NB)
+%       Code for exponential was simplified to only treat the zero vector
+%       as a particular case.
 
 
     M.name = @() sprintf('Sphere of symmetric matrices of size %d', n);
@@ -92,20 +96,18 @@ end
 function y = exponential(x, d, t)
 
     if nargin == 2
-        t = 1;
+        % t = 1;
+        td = d;
+    else
+        td = t*d;
     end
-    
-    td = t*d;
     
     nrm_td = norm(td, 'fro');
     
-    if nrm_td > 4.5e-8
+    if nrm_td > 0
         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
     else
-        % If the step is too small to accurately evaluate sin(x)/x,
-        % then sin(x)/x is almost indistinguishable from 1.
-        y = x + td;
-        y = y / norm(y, 'fro');
+        y = x;
     end
 
 end
