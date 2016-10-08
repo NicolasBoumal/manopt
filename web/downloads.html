@@ -72,7 +72,7 @@ body {
             </div>
             &#160; <a target="_blank" class="btn btn-primary" href="download.html">Download
               </a>&#160;&#160; The current version is 2.0 and was packaged on
-            July 6th, 2015. The file is less than 300 Kb.<br>
+            July 6th, 2015. The file is under 300 Kb.<br>
             <br>
             Go to the <a href="tutorial.html">tutorial page</a> for the simple
             installation instructions and a first example.<br>
@@ -84,7 +84,78 @@ body {
               <h1>Previous releases and change logs</h1>
             </div>
             <ul>
-              <li><a href="download.html">Manopt 2.0</a>, packaged July 6, 2015.</li>
+              <li><a href="download.html">Manopt 2.1</a>, packaged Xxxx YY,
+                2016.</li>
+              <ul>
+                <li>Bugs caught</li>
+                <ul>
+                  <li>Logic bug in linesearch: lsmem handling corrected thanks
+                    to Wen Huang. The default line-search algorithm for steepest
+                    descent should now be much faster.</li>
+                  <li>Logic bug in getGradient when using problem.grad with a
+                    different number of inputs compared to problem.cost.</li>
+                  <li>Corrected logic in plotting step of example
+                    low_rank_dist_completion</li>
+                </ul>
+                <li>Modifications to core engine</li>
+                <ul>
+                  <li>Added capability to obtain a partial gradient (Euclidean
+                    or Riemannian) of a cost function by specifying
+                    problem.partialgrad or problem.partialegrad coupled with
+                    problem.ncostterms. This is an important step to simplify
+                    the future addition of stochastic gradient methods. Use
+                    cases are: if problem.cost is expresed as a sum of problem.ncostterms
+                    terms, then problem.partialgrad accepts a point x and an
+                    index set I so that only the gradient with respect to terms
+                    indexed in I is computed and returned.</li>
+                </ul>
+                <li>New tools</li>
+                <ul>
+                  <li>lincomb for a generic way of computing a long linear
+                    combination of tangent vectors.</li>
+                  <li>grammmatrix to compute the Gram matrix of a collection of
+                    tangent vectors.</li>
+                  <li>orthogonalize to orthogonalize a basis of tangent vectors.</li>
+                  <li>tangentorthobasis to obtain a random orthonormal basis of
+                    a tangent space, generically.</li>
+                  <li>smallestinconvexhull to compute the smallest tangent
+                    vector in the convex hull of a given collection of tangent
+                    vectors.</li>
+                  <li>hessianmatrix to get a matrix representing the Hessian at
+                    a point in an orthonormal tangent basis.</li>
+                </ul>
+                <li>New examples</li>
+                <ul>
+                  <li>elliptope_SDP solves SDP's over positive semidefinite
+                    matrices with diagonal of 1's. This should run faster than
+                    the Max-Cut example for quite a few things.</li>
+                </ul>
+                <li>New geometries</li>
+                <ul>
+                  <li>skewsymmetricfactory for skew-symmetric matrices
+                    (Euclidean geometry</li>
+                </ul>
+                <li>Modifications to previous behavior</li>
+                <ul>
+                  <li>symfixedrankYYcomplexfactory now has a Riemannian metric
+                    matching that of euclideanfactory (it was scaled down by 2
+                    as compared to previous Manopt versions.) This makes it
+                    easier to switch between those two geometries. Relevant
+                    changes propagated to radio_interferometric_calibration.</li>
+                  <li>hessianextreme now returns the info structure returned by
+                    the internal solver call. The helper tool
+                    tangentspherefactory now incorporates extra projections to
+                    ensure the vector returned by hessianextreme is indeed a
+                    tangent vector (former version could suffer from numerical
+                    drift.)</li>
+                  <li>At the end of generalized_eigenvalue_computation, added a
+                    rotation of Xsol to match the definition of generalized
+                    eigenvectors (the eigenvalues were fine.)</li>
+                </ul>
+                <li>Numerous minor improvements</li>
+              </ul>
+              <li><a href="downloads/Manopt_2.0.zip">Manopt 2.0</a>, packaged
+                July 6, 2015.</li>
               <ul>
                 <li>Revamped the internal hashing system used for caching: <em>Manopt
                     no longer uses hashing</em>, which leads to speed-ups and
