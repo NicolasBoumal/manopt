@@ -53,7 +53,7 @@ function M = spherecomplexfactory(n, m)
     
     M.dist = @dist;
     function d = dist(x, y)
-        d = real(acos(real(x(:).'*y(:))));
+        d = real(acos(real(x(:)'*y(:))));
         % The above formula is numerically inaccurate if x and y are too
         % close together. In that case, norm is a much better proxy.
         if d < 1e-7
