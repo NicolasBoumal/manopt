@@ -50,9 +50,25 @@ function M = spherefactory(n, m)
     
     M.dist = @dist;
     function d = dist(x, y)
+        
+        % This computation cannot be accurate below an output of 2e-8.
+        % The reason is: if two unit-norm vectors x and y are very close to
+        % one another, their inner product is about 1. The machine
+        % precision at 1 is eps(1) = 2e-16. The correct value for
+        % acos(1-eps(1)) is about 2e-8. This can be checked with the
+        % syms toolbox: syms x; f = acos(1-x); vpa(subs(f, x, eps(1)), 32)
+        % Thus, if x and y are actually closer to each other than 2e-8,
+        % their inner product will be even closer to 1, but that cannot be
+        % represented in IEEE arithmetic. Thus, their inner product will be
+        % rounded to either 1 (giving 0 distance) or to 1-eps(1), which
+        % gives a distance of 2e-8, or to something even further from 1. No
+        % distance between 0 and 2e-8 can thus be computed this way.
         d = real(acos(x(:).'*y(:)));
-        % The above formula is numerically inaccurate if x and y are too
-        % close together. In that case, norm is a much better proxy.
+        
+        % Hence, if the distance proves dangerously small so that it is
+        % possible that we suffered from round-off, we compute the distance
+        % in the embedding space instead. At this scale, this is quite
+        % accurate.
         if d < 1e-7
             d = norm(x-y, 'fro');
         end
