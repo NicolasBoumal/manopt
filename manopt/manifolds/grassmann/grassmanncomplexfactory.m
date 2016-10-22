@@ -58,12 +58,6 @@ function M = grassmanncomplexfactory(n, p, k)
         XHY = multiprod(multihconj(x), y); %! XtY -> XHY, multitransp -> multihconj
         for i = 1 : k
             cos_princ_angle = svd(XHY(:, :, i));
-            % Two next instructions not necessary: the imaginary parts that
-            % would appear if the cosines are not between -1 and 1 when
-            % passed to the acos function would be very small, and would
-            % thus vanish when the norm is taken.
-            % cos_princ_angle = min(cos_princ_angle,  1);
-            % cos_princ_angle = max(cos_princ_angle, -1);
             principal_angles(:, i) = acos(cos_princ_angle);
         end
         d = norm(real(principal_angles), 'fro');
@@ -99,16 +93,19 @@ function M = grassmanncomplexfactory(n, p, k)
             t = 1.0;
         end
         Y = X + t*U;
-        for i = 1 : k
-            % We do not need to worry about flipping signs of columns here,
-            % since only the column space is important, not the actual
-            % columns. Compare this with the Stiefel manifold.
-            % [Q, unused] = qr(Y(:, :, i), 0); %#ok
-            % Y(:, :, i) = Q;
-            
+        for i = 1 : k 
+		
             % Compute the polar factorization of Y = X+tU
             [u, s, v] = svd(Y(:, :, i), 'econ'); %#ok
             Y(:, :, i) = u*v';
+			
+            % Another popular retraction uses QR instead of SVD.
+            % As compared with the Stiefel factory, we do not need to
+			% worry about flipping signs of columns here, since only
+			% the column space is important, not the actual columns.
+            % [Q, unused] = qr(Y(:, :, i), 0); %#ok
+            % Y(:, :, i) = Q;
+			
         end
     end
     
