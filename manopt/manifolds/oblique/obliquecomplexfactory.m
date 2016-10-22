@@ -129,7 +129,7 @@ function M = obliquecomplexfactory(n, m, transposed)
         d = trnsp(d);
         
         if nargin < 3
-            td = t;
+            td = d;
         else
             td = t*d;
         end
