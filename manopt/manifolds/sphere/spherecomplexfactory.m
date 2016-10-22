@@ -57,7 +57,7 @@ function M = spherecomplexfactory(n, m)
         % The above formula is numerically inaccurate if x and y are too
         % close together. In that case, norm is a much better proxy.
         if d < 1e-7
-            d = norm(x-y);
+            d = norm(x-y, 'fro');
         end
     end
     
