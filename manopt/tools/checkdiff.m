@@ -73,8 +73,8 @@ function checkdiff(problem, x, d)
     % And plot it.
     loglog(h, err);
     title(sprintf(['Directional derivative check.\nThe slope of the '...
-                   'continuous line should match that of the dashed '...
-                   '(reference) line\nover at least a few orders of '...
+                   'continuous line should match that of the dashed\n'...
+                   '(reference) line over at least a few orders of '...
                    'magnitude for h.']));
     xlabel('h');
     ylabel('Approximation error');
@@ -89,9 +89,8 @@ function checkdiff(problem, x, d)
     % should have a slope of 2.
     window_len = 10;
     [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
-    hold on;
-        loglog(h(range), 10.^polyval(poly, log10(h(range))), ...
-               'r-', 'LineWidth', 3);
+    hold all;
+    loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
     fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));

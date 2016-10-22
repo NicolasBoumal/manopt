@@ -17,7 +17,7 @@ function checkhessian(problem, x, d)
 % 
 % Both x and d are optional and will be sampled at random if omitted.
 %
-% See also: checkdiff checkgradient
+% See also: checkdiff checkgradient checkretraction
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -86,7 +86,7 @@ function checkhessian(problem, x, d)
     % And plot it.
     loglog(h, err);
     title(sprintf(['Hessian check.\nThe slope of the continuous line ' ...
-                   'should match that of the dashed (reference) line\n' ...
+                   'should match that of the dashed\n(reference) line ' ...
                    'over at least a few orders of magnitude for h.']));
     xlabel('h');
     ylabel('Approximation error');
@@ -100,9 +100,8 @@ function checkhessian(problem, x, d)
     % should have a slope of 3.
     window_len = 10;
     [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
-    hold on;
-        loglog(h(range), 10.^polyval(poly, log10(h(range))), ...
-               'r-', 'LineWidth', 3);
+    hold all;
+    loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
     fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
