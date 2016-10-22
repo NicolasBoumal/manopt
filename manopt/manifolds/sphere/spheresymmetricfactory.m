@@ -37,8 +37,8 @@ function M = spheresymmetricfactory(n)
         d = real(acos(x(:).'*y(:)));
         % The above formula is numerically inaccurate if x and y are too
         % close together. In that case, norm is a much better proxy.
-        if d < 1e-7
-            d = norm(x-y);
+        if d < 1e-6
+            d = norm(x-y, 'fro');
         end
     end
     
