@@ -23,7 +23,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % why Manopt is appropriate software to solve this problem. An optional
 % initial guess can be specified via the input Y0.
 %
-% See the following paper for theory, specifically, for a proof that, for
+% See the paper below for theory, specifically, for a proof that, for
 % almost all A, second-order critical points of the problem in Y are
 % globally optimal. In other words: there are no local traps in Y, despite
 % non-convexity.
