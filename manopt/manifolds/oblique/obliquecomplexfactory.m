@@ -21,6 +21,9 @@ function M = obliquecomplexfactory(n, m, transposed)
 % semidefinite matrix of size m and of rank at most n, such that all the
 % diagonal entries are equal to 1.
 %
+% Note: obliquecomplexfactory(1, n, true) is equivalent to (but potentially
+% slower than) complexcirclefactory(n).
+%
 % See also: spherecomplexfactory complexcirclefactory obliquefactory
 
 % This file is part of Manopt: www.manopt.org.
@@ -50,7 +53,7 @@ function M = obliquecomplexfactory(n, m, transposed)
     
     M.norm = @(x, d) norm(d(:));
     
-    M.dist = @(x, y) real(acos(real(sum(conj(trnsp(x)).*trnsp(y), 1))));
+    M.dist = @(x, y) real(acos(sum(real(conj(trnsp(x)).*trnsp(y)), 1)));
     
     M.typicaldist = @() pi*sqrt(m);
     
@@ -70,7 +73,7 @@ function M = obliquecomplexfactory(n, m, transposed)
         U = trnsp(U);
         
         PXehess = projection(X, ehess);
-        inners = real(sum(conj(X).*egrad, 1));
+        inners = sum(real(conj(X).*egrad), 1);
         rhess = PXehess - bsxfun(@times, U, inners);
         
         rhess = trnsp(rhess);
@@ -89,7 +92,7 @@ function M = obliquecomplexfactory(n, m, transposed)
             td = t*d;
         end
 
-        nrm_td = sqrt(sum(real(td.*conj(td)), 1));
+        nrm_td = sqrt(sum(real(td).^2 + imag(td).^2, 1));
 
         y = bsxfun(@times, x, cos(nrm_td)) + ...
             bsxfun(@times, td, sin(nrm_td) ./ nrm_td);
@@ -108,7 +111,7 @@ function M = obliquecomplexfactory(n, m, transposed)
         
         v = projection(x1, x2 - x1);
         dists = real(acos(sum(real(conj(x1).*x2), 1)));
-        norms = sqrt(sum(real(v.*conj(v)), 1));
+        norms = sqrt(sum(real(v).^2 + imag(v).^2, 1));
 		factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
         % because they are both almost zero, the division above can return
@@ -173,7 +176,7 @@ end
 % Given a matrix X, returns the same matrix but with each column scaled so
 % that they have unit 2-norm.
 function X = normalize_columns(X)
-	norms = sqrt(sum(real(X.*conj(X)), 1));
+	norms = sqrt(sum(real(X).^2 + imag(X).^2, 1));
 	X = bsxfun(@times, X, 1./norms);
 end
 
