@@ -15,7 +15,7 @@ function M = obliquefactory(n, m, transposed)
 % each row has unit 2-norm. It is the same geometry, just a different
 % representation.
 %
-% See also: spherefactory
+% See also: spherefactory obliquecomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -41,6 +41,14 @@ function M = obliquefactory(n, m, transposed)
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
+%
+%  Oct. 21, 2016 (NB)
+%       Bug caught in M.log: the function called v = M.proj(x1, x2 - x1),
+%       which internally applies transp to inputs and outputs. But since
+%       M.log had already taken care of transposing things, this introduced
+%       a bug (which only triggered if using M.log in transposed mode.)
+%       The code no calls "v = projection(x1, x2 - x1);" since projection
+%       assumes the inputs and outputs do not need to be transposed.
 
     
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -48,7 +56,7 @@ function M = obliquefactory(n, m, transposed)
     end
     
     if transposed
-        trnsp = @(X) X';
+        trnsp = @(X) X.';
     else
         trnsp = @(X) X;
     end
@@ -93,7 +101,7 @@ function M = obliquefactory(n, m, transposed)
         x = trnsp(x);
         d = trnsp(d);
         
-        if nargin == 2
+        if nargin < 3
             % t = 1;
             td = d;
         else
@@ -117,8 +125,8 @@ function M = obliquefactory(n, m, transposed)
         x1 = trnsp(x1);
         x2 = trnsp(x2);
         
-        v = M.proj(x1, x2 - x1);
-        dists = acos(sum(x1.*x2, 1));
+        v = projection(x1, x2 - x1);
+        dists = real(acos(sum(x1.*x2, 1)));
         norms = real(sqrt(sum(v.^2, 1)));
 		factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
@@ -137,15 +145,14 @@ function M = obliquefactory(n, m, transposed)
         d = trnsp(d);
         
         if nargin < 3
-            t = 1.0;
+            % t = 1;
+            td = d;
+        else
+            td = t*d;
         end
         
-        if t ~= 0
-			y = normalize_columns(x + t*d);
-        else
-            y = x;
-        end
-
+        y = normalize_columns(x + td);
+        
         y = trnsp(y);
     end
 
