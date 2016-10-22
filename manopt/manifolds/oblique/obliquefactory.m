@@ -129,9 +129,10 @@ function M = obliquefactory(n, m, transposed)
         dists = real(acos(sum(x1.*x2, 1)));
         norms = real(sqrt(sum(v.^2, 1)));
 		factors = dists./norms;
-        % For very close points, dists is almost equal to norms, but
-        % because they are both almost zero, the division above can return
-        % NaN's. To avoid that, we force those ratios to 1.
+        % For very close points, dists and norms should be almost equal, so
+        % that their ratio approaches zero. But in practice, dist can be
+        % inaccurate for nearby points. Thus, below a certain threshold, we
+        % force the ratio to 1. This also avoids issues of divisions by 0.
 		factors(dists <= 1e-6) = 1;
 		v = bsxfun(@times, v, factors);
         
