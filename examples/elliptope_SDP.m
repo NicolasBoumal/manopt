@@ -14,8 +14,8 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % In practice, the symmetric matrix X of size n is parameterized
 % as X = Y*Y', where Y has size n x p. By default, p is taken large enough
 % (about sqrt(2n)) to ensure that there exists an optimal X whose rank is
-% smaller than p. This ensures that the new problem in Y is equivalent to
-% the SDP:
+% smaller than p. This ensures that the SDP is equivalent to the new
+% problem in Y:
 %
 %   min_Y  trace(Y'*A*Y)  s.t.  diag(Y*Y') = 1.
 %
