@@ -53,7 +53,7 @@ function M = obliquecomplexfactory(n, m, transposed)
     
     M.norm = @(x, d) norm(d(:));
     
-    M.dist = @(x, y) real(acos(sum(real(conj(trnsp(x)).*trnsp(y)), 1)));
+    M.dist = @(x, y) norm(real(acos(sum(real(conj(trnsp(x)).*trnsp(y)), 1))));
     
     M.typicaldist = @() pi*sqrt(m);
     
