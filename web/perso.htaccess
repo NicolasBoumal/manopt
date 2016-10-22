@@ -1,5 +1,0 @@
-AuthName "Restricted Area" 
-AuthType Basic 
-AuthUserFile /var/www/perso/nicolas.boumal/manopt/.htpasswd 
-AuthGroupFile /dev/null 
-require valid-user

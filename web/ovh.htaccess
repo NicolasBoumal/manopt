@@ -1,5 +1,0 @@
-AuthName "Restricted Area" 
-AuthType Basic 
-AuthUserFile /homez.151/manopt/.htpasswd 
-AuthGroupFile /dev/null 
-require valid-user
