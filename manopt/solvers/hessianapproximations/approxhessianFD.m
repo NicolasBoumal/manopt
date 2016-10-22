@@ -82,7 +82,7 @@ function hessfun = approxhessianFD(problem, options)
     end
 
     % Set local defaults here, and merge with user options, if any.
-    localdefaults.stepsize = 1e-4;
+    localdefaults.stepsize = 2^-14;
     if ~exist('options', 'var') || isempty(options)
         options = struct();
     end
