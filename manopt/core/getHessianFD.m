@@ -57,8 +57,10 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
     end
     
     % Parameter: how far do we look?
-    % (Use approxhessianFD explicitly to gain access to this parameter.)
-    epsilon = 1e-4;
+    % If you need to change this parameter, use approxhessianFD explicitly.
+    % A power of 2 is chosen so that scaling by epsilon does not incur any
+    % round-off error in IEEE arithmetic.
+    epsilon = 2^-14;
         
     c = epsilon/norm_d;
     
