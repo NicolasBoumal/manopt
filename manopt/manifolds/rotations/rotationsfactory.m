@@ -18,6 +18,11 @@ function M = rotationsfactory(n, k)
 % from the Lie algebra representation to the embedding space
 % representation.
 %
+% By default, the retraction is only a first-order approximation of the
+% exponential. To force the use of a second-order approximation, call
+% M.retr = M.retr2 after creating M. This switches from a QR-based
+% computation to an SVD-based computation.
+%
 % By default, k = 1.
 %
 % See also: stiefelfactory
@@ -26,7 +31,10 @@ function M = rotationsfactory(n, k)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log:
-%     Jan. 31, 2013, NB : added egrad2rgrad and ehess2rhess
+%   Jan. 31, 2013 (NB)
+%       Added egrad2rgrad and ehess2rhess
+%   Oct. 21, 2016 (NB)
+%       Added M.retr2: a second-order retraction based on SVD.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -77,7 +85,9 @@ function M = rotationsfactory(n, k)
         end
         Y = X + multiprod(X, tU);
         for i = 1 : k
-            [Q R] = qr(Y(:, :, i));
+            % This QR-based retraction is only a first-order approximation
+            % of the exponential map, not a second-order one.
+            [Q, R] = qr(Y(:, :, i));
             % The instruction with R ensures we are not flipping signs
             % of some columns, which should never happen in modern Matlab
             % versions but may be an issue with older versions.
@@ -87,6 +97,22 @@ function M = rotationsfactory(n, k)
             % symmetric matrix, than at those of identity plus that matrix,
             % and compute their product for the determinant: it's stricly
             % positive in all cases.
+        end
+    end
+    
+    % A second order retraction is implemented here. To force its use,
+    % after creating the factory M, execute M.retr = M.retr2.
+    M.retr2 = @retraction2;
+    function Y = retraction2(X, U, t)
+        if nargin == 3
+            tU = t*U;
+        else
+            tU = U;
+        end
+        Y = X + multiprod(X, tU);
+        for i = 1 : k
+            [Uk, ~, Vk] = svd(Y(:, :, k));
+            Y(:, :, k) = Uk*Vk';
         end
     end
     
