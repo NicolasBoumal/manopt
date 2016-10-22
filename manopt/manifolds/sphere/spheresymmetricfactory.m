@@ -18,6 +18,10 @@ function M = spheresymmetricfactory(n)
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
+%
+%   Oct. 22, 2016 (NB)
+%       Distance function dist now significantly more accurate for points
+%       within 1e-7 and less from each other.
 
 
     M.name = @() sprintf('Sphere of symmetric matrices of size %d', n);
@@ -28,7 +32,15 @@ function M = spheresymmetricfactory(n)
     
     M.norm = @(x, d) norm(d, 'fro');
     
-    M.dist = @(x, y) real(acos(x(:).'*y(:)));
+    M.dist = @dist;
+    function d = dist(x, y)
+        d = real(acos(x(:).'*y(:)));
+        % The above formula is numerically inaccurate if x and y are too
+        % close together. In that case, norm is a much better proxy.
+        if d < 1e-7
+            d = norm(x-y);
+        end
+    end
     
     M.typicaldist = @() pi;
     

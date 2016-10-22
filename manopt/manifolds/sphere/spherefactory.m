@@ -26,6 +26,10 @@ function M = spherefactory(n, m)
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
+%
+%   Oct. 22, 2016 (NB)
+%       Distance function dist now significantly more accurate for points
+%       within 1e-7 and less from each other.
 
     
     if ~exist('m', 'var')
@@ -44,7 +48,15 @@ function M = spherefactory(n, m)
     
     M.norm = @(x, d) norm(d, 'fro');
     
-    M.dist = @(x, y) real(acos(x(:).'*y(:)));
+    M.dist = @dist;
+    function d = dist(x, y)
+        d = real(acos(x(:).'*y(:)));
+        % The above formula is numerically inaccurate if x and y are too
+        % close together. In that case, norm is a much better proxy.
+        if d < 1e-7
+            d = norm(x-y);
+        end
+    end
     
     M.typicaldist = @() pi;
     
@@ -127,10 +139,13 @@ end
 function y = retraction(x, d, t)
 
     if nargin == 2
-        t = 1;
+        % t = 1;
+        td = d;
+    else
+        td = t*d;
     end
     
-    y = x + t*d;
+    y = x + td;
     y = y / norm(y, 'fro');
 
 end
@@ -139,7 +154,7 @@ end
 function x = random(n, m)
 
     x = randn(n, m);
-    x = x/norm(x, 'fro');
+    x = x / norm(x, 'fro');
 
 end
 
