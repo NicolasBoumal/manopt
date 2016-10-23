@@ -2,10 +2,17 @@
 
 Manopt is a Matlab toolbox for optimization on manifolds. For a description of the project, documentation, examples and more, see:
 
-[http://www.manopt.org](http://www.manopt.org)
+[http://www.manopt.org](http://www.manopt.org).
 
 ### How do I get the latest code? ###
 
-This GIT repository was just recently set up. For now, download the toolbox directly from the official website linked above. More information on how to get code from here will follow.
+Manopt is released in numbered versions from time to time. For most users, it is easiest to download the latest numbered version from
 
-Cheers!
+[http://www.manopt.org/downloads.html](http://www.manopt.org/downloads.html).
+
+Alternatively, you can get the latest version of the code from GitHub directly of course.
+
+Contributions are welcome!
+
+Cheers,
+Nicolas and Bamdev
