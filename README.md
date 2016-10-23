@@ -15,4 +15,5 @@ Alternatively, you can get the latest version of the code from GitHub directly o
 Contributions are welcome!
 
 Cheers,
+
 Nicolas and Bamdev
