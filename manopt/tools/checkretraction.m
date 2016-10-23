@@ -1,6 +1,6 @@
 function checkretraction(M, x, v)
 % Check the order of agreement of a retraction with an exponential.
-%
+% 
 % function checkretraction(problem)
 % function checkretraction(problem, x)
 % function checkretraction(problem, x, v)
