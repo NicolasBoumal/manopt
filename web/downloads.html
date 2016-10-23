@@ -91,9 +91,12 @@ body {
               <h1>Previous releases and change logs</h1>
             </div>
             <ul>
-              <li><a href="download.html">Manopt 2.1</a>, packaged Xxxx YY,
+              <li><a href="download.html">Manopt 3.0</a>, packaged Xxxx YY,
                 2016.</li>
               <ul>
+                <li>Code moved to <a target="_blank" href="https://github.com/NicolasBoumal/manopt">GitHub</a>!
+                  Now accepting pull requests, and accelerating distribution of
+                  patches.</li>
                 <li>Bugs caught</li>
                 <ul>
                   <li>Logic bug in linesearch: lsmem handling corrected thanks
@@ -103,6 +106,7 @@ body {
                     different number of inputs compared to problem.cost.</li>
                   <li>Corrected logic in plotting step of example
                     low_rank_dist_completion</li>
+                  <li>obliquefactory, in transposed mode, had an incorrect M.log</li>
                 </ul>
                 <li>Modifications to core engine</li>
                 <ul>
@@ -130,17 +134,27 @@ body {
                     vectors.</li>
                   <li>hessianmatrix to get a matrix representing the Hessian at
                     a point in an orthonormal tangent basis.</li>
+                  <li>checkretraction allows, for manifolds which have a correct
+                    exponential implemented, to verify the order of agreement
+                    between the retraction and the exponential, in order to
+                    determine numerically if the retraction is first- or
+                    second-order.</li>
                 </ul>
                 <li>New examples</li>
                 <ul>
                   <li>elliptope_SDP solves SDP's over positive semidefinite
                     matrices with diagonal of 1's. This should run faster than
                     the Max-Cut example for quite a few things.</li>
+                  <li>elliptope_SDP_complex, same as above for complex matrices.
+                    This solves the SDP which appears in PhaseCut and phase
+                    synchronization, for example.</li>
                 </ul>
                 <li>New geometries</li>
                 <ul>
                   <li>skewsymmetricfactory for skew-symmetric matrices
                     (Euclidean geometry</li>
+                  <li>obliquecomplexfactory, to work with complex matrices whose
+                    columns (or rows) all have unit norm</li>
                 </ul>
                 <li>Modifications to previous behavior</li>
                 <ul>
@@ -159,7 +173,14 @@ body {
                     rotation of Xsol to match the definition of generalized
                     eigenvectors (the eigenvalues were fine.)</li>
                 </ul>
-                <li>Numerous minor improvements</li>
+                <li>Numerous minor improvements; highlights:</li>
+                <ul>
+                  <li>rotationsfactory now has a function M.retr2 which is a
+                    second-order retraction.</li>
+                  <li>spherefactory and related sphere geometries now have a
+                    distance function M.dist which is orders of magnitude more
+                    accurate for close-by points.</li>
+                </ul>
               </ul>
               <br>
               <li><a href="downloads/Manopt_2.0.zip">Manopt 2.0</a>, packaged
@@ -498,6 +519,5 @@ body {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>
