@@ -17,12 +17,6 @@ function M = spherefactory(n, m)
 % Contributors: 
 % Change log: 
 %
-%   Feb. 4, 2016 (NB)
-%       Should we simplify the exponential code, here and everywhere else
-%       this branching on the step size occurs for sphere-like
-%       exponentials? Try this on practical problem to see if this was
-%       truly necessary in practice.
-%
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
