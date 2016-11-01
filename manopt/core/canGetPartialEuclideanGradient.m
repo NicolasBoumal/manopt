@@ -15,4 +15,10 @@ function candoit = canGetPartialEuclideanGradient(problem)
 
     candoit = (isfield(problem, 'partialegrad') && isfield(problem, 'ncostterms'));
     
+    if isfield(problem, 'partialegrad') && ~isfield(problem, 'ncostterms')
+        warning('manopt:partialegrad', ...
+               ['If problem.partialegrad is specified, indicate the number n\n' ...
+                'of terms in the cost function with problem.ncostterms = n.']);
+    end
+    
 end
