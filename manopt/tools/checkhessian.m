@@ -26,6 +26,9 @@ function checkhessian(problem, x, d)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Nov. 1, 2016 (NB):
+%       Issues a call to getGradient rather than getDirectionalDerivative.
 
         
     % Verify that the problem description is sufficient.
@@ -64,7 +67,7 @@ function checkhessian(problem, x, d)
     storedb = StoreDB();
     xkey = storedb.getNewKey();
     f0 = getCost(problem, x, storedb, xkey);
-    df0 = getDirectionalDerivative(problem, x, d, storedb, xkey);
+    df0 = problem.M.inner(x, d, getGradient(problem, x, storedb, xkey));
     d2f0 = problem.M.inner(x, d, getHessian(problem, x, d, storedb, xkey));
     
     % Compute the value of f at points on the geodesic (or approximation
