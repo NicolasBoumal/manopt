@@ -31,6 +31,10 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Nov. 1, 2016 (NB):
+%       Removed exception in case of unavailable gradient, as getGradient
+%       now knows to fall back to an approximate gradient if need be.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -40,13 +44,6 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
         key = storedb.getNewKey();
     end
 
-    
-    if ~canGetGradient(problem)
-        up = MException('manopt:getHessianFD:nogradient', ...
-            'getHessianFD requires the gradient to be computable.');
-        throw(up);
-    end
-	
 	% Step size
     norm_d = problem.M.norm(x, d);
     
