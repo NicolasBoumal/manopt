@@ -1895,12 +1895,11 @@ href="reference/manopt/tools/statsfunhelper.html">statsfunhelper</a>
     description, the cost, gradient, Hessian etc. can be specified in a number
     of different ways in a problem structure. Thus, to evaluate cost-related
     quantities, it is best to use the functions below, rather than to
-    immediately use (for example) <code>problem.cost</code>. Use <a href="reference/manopt/core/getCost.html">getCost</a>
-    instead.</p>
+    immediately use fields in the problem structure. For example, call <a href="reference/manopt/core/getCost.html">getCost</a> rather than <code>problem.cost</code>.</p>
   <p>These tools are specifically useful for solver developers.</p>
   <p>The inputs <code>storedb</code> and <code>key</code> are usually
     optional. It is a good idea to pass them if they are available, as this
-    allows for caching to be used.</p>
+    allows for caching to be used.</p><p>Functions called <code>canGet***</code> return true if the <code>problem</code> structure provides sufficient information for Manopt to compute <code>***</code> exactly; they return false otherwise. If false is returned, that does <em>not</em> imply a call to <code>get***</code> will fail. For example, if the problem structure specifies the gradient via <code>problem.grad</code> but it does not provide the Hessian, there is not enough information to compute the exact Hessian. Hence, <code>canGetHessian</code> will return false. Yet, a call to <code>getHessian</code> will return something; namely, a finite difference approximation of the Hessian for the provided inputs. Typically, solver and tool developers will call <code>canGet***</code> functions to assess what can be done with the given problem structure, and issue appropriate warnings as needed; then proceed to call the <code>get***</code> functions anyway. The general philosophy is that Manopt will try to do its best to answer the question asked (with the caveat that it might be slow or inaccurate.)</p>
   <table style="width: 100%;" class="table table-striped table-bordered">
     <thead>
       <tr>
