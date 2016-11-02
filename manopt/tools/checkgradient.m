@@ -27,10 +27,10 @@ function checkgradient(problem, x, d)
     
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
-        error('It seems no cost was provided.');  
+        error('It seems no cost was provided.');
     end
     if ~canGetGradient(problem)
-        error('It seems no gradient provided.');    
+        error('It seems no gradient provided.');
     end
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
