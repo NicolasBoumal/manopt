@@ -23,6 +23,12 @@ function checkgradient(problem, x, d)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Nov. 1, 2016 (NB):
+%       Now calls checkdiff with force_gradient = true, instead of doing an
+%       rmfield of problem.diff. This became necessary after getGradient
+%       was updated to know how to compute the gradient from directional
+%       derivatives.
 
     
     % Verify that the problem description is sufficient.
@@ -51,13 +57,9 @@ function checkgradient(problem, x, d)
 
     %% Check that the gradient yields a first order model of the cost.
     
-    % By removing the 'directional derivative' function, it should be so
-    % (?) that the checkdiff function will use the gradient to compute
-    % directional derivatives.
-    if isfield(problem, 'diff')
-        problem = rmfield(problem, 'diff');
-    end
-    checkdiff(problem, x, d);
+    % Call checkdiff with force_gradient set to true, to force that
+    % function to make a gradient call.
+    checkdiff(problem, x, d, true);
     title(sprintf(['Gradient check.\nThe slope of the continuous line ' ...
                    'should match that of the dashed\n(reference) line ' ...
                    'over at least a few orders of magnitude for h.']));
