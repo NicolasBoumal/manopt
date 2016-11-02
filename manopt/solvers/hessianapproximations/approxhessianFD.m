@@ -9,7 +9,7 @@ function hessfun = approxhessianFD(problem, options)
 % A Manopt problem structure (already containing the manifold and enough
 % information to compute the cost gradient) and an options structure
 % (optional), containing one option:
-%    options.stepsize (positive double; default: 1e-4).
+%    options.stepsize (positive double; default: 2^-14).
 %
 % If the gradient cannot be computed on 'problem', a warning is issued.
 %
