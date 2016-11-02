@@ -1,4 +1,4 @@
-function checkdiff(problem, x, d)
+function checkdiff(problem, x, d, force_gradient)
 % Checks the consistency of the cost function and directional derivatives.
 %
 % function checkdiff(problem)
@@ -14,6 +14,10 @@ function checkdiff(problem, x, d)
 %
 % See also: checkgradient checkhessian
 
+% If force_gradient = true (hidden parameter), then the function will call
+% getGradient and infer the directional derivative, rather than call
+% getDirectionalDerivative directly. This is used by checkgradient.
+
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
@@ -22,13 +26,21 @@ function checkdiff(problem, x, d)
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 
+    if ~exist('force_gradient', 'var')
+        force_gradient = false;
+    end
         
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
         error('It seems no cost was provided.');
     end
-    if ~canGetDirectionalDerivative(problem)
+    if ~force_gradient && ~canGetDirectionalDerivative(problem)
         error('It seems no directional derivatives were provided.');
+    end
+    if force_gradient && ~canGetGradient(problem)
+        % Would normally issue a warning, but this function should only be
+        % called with force_gradient on by checkgradient, which will
+        % already have issued a warning.
     end
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
@@ -50,7 +62,13 @@ function checkdiff(problem, x, d)
     storedb = StoreDB();
     xkey = storedb.getNewKey();
     f0 = getCost(problem, x, storedb, xkey);
-    df0 = getDirectionalDerivative(problem, x, d, storedb, xkey);
+    
+    if ~force_gradient
+        df0 = getDirectionalDerivative(problem, x, d, storedb, xkey);
+    else
+        grad = getGradient(problem, x, storedb, xkey);
+        df0 = problem.M.inner(x, grad, d);
+    end
     
     % Compute the value of f at points on the geodesic (or approximation
     % of it) originating from x, along direction d, for stepsizes in a
