@@ -11,7 +11,8 @@ function hessfun = approxhessianFD(problem, options)
 % (optional), containing one option:
 %    options.stepsize (positive double; default: 2^-14).
 %
-% If the gradient cannot be computed on 'problem', a warning is issued.
+% If the gradient cannot be computed or approximated on 'problem',
+% a warning is issued.
 %
 % Output:
 % 
@@ -76,7 +77,7 @@ function hessfun = approxhessianFD(problem, options)
 
     % This Hessian approximation is based on the gradient:
     % check availability.
-    if ~canGetGradient(problem)
+    if ~canGetGradient(problem) && ~canGetApproxGradient(problem)
         warning('manopt:approxhessianFD:nogradient', ...
                 'approxhessianFD requires the gradient to be computable.');
     end
