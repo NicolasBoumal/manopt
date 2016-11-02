@@ -25,10 +25,10 @@ function checkdiff(problem, x, d)
         
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
-        error('It seems no cost was provided.');  
+        error('It seems no cost was provided.');
     end
     if ~canGetDirectionalDerivative(problem)
-        error('It seems no directional derivatives were provided.');    
+        error('It seems no directional derivatives were provided.');
     end
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
