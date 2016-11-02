@@ -15,7 +15,9 @@ function candoit = canGetHessian(problem)
 
     candoit = isfield(problem, 'hess') || ...
               (isfield(problem, 'ehess') && canGetEuclideanGradient(problem));
-          
+    
+    % Display an extra warning message to the user in anticipation of
+    % common mistakes.
     if ~candoit && ...
            (isfield(problem, 'ehess') && ~canGetEuclideanGradient(problem))
         warning('manopt:canGetHessian', ...
