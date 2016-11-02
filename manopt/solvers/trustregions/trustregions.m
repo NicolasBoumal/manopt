@@ -14,6 +14,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % Hessian based on the gradient will be computed. If a preconditioner for
 % the Hessian is provided, it will be used.
 %
+% If no gradient is provided, an approximation of the gradient is computed,
+% but this can be slow for manifolds of high dimension.
+%
 % For a description of the algorithm and theorems offering convergence
 % guarantees, see the references below. Documentation for this solver is
 % available online at:
@@ -290,6 +293,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %
 %   NB April 8, 2015:
 %       No Hessian warning if approximate Hessian explicitly available.
+%
+%   NB Nov. 1, 2016:
+%       Now uses approximate gradient via finite differences if need be.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -297,9 +303,14 @@ if ~canGetCost(problem)
     warning('manopt:getCost', ...
             'No cost provided. The algorithm will likely abort.');  
 end
-if ~canGetGradient(problem)
-    warning('manopt:getGradient', ...
-            'No gradient provided. The algorithm will likely abort.');
+if ~canGetGradient(problem) && ~canGetApproxGradient(problem)
+    % Note: we do not give a warning if an approximate Hessian is
+    % explicitly given in the problem description, as in that case the user
+    % seems to be aware of the issue.
+    warning('manopt:getGradient:approx', ...
+           ['No gradient provided. Using an FD approximation instead.\n' ...
+            'To disable this warning: warning(''off'', ''manopt:getGradient:approx'')']);
+    problem.approxgrad = approxgradientFD(problem);
 end
 if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
     % Note: we do not give a warning if an approximate Hessian is
