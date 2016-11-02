@@ -33,10 +33,12 @@ function checkhessian(problem, x, d)
         error('It seems no cost was provided.');
     end
     if ~canGetGradient(problem)
-        error('It seems no gradient provided.');
+        warning('manopt:checkhessian:nograd', ...
+                'It seems no gradient was provided.');
     end
     if ~canGetHessian(problem)
-        error('It seems no Hessian was provided.');
+        warning('manopt:checkhessian:nohess', ...
+                'It seems no Hessian was provided.');
     end
     
     x_isprovided = exist('x', 'var') && ~isempty(x);
