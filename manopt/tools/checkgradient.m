@@ -30,7 +30,8 @@ function checkgradient(problem, x, d)
         error('It seems no cost was provided.');
     end
     if ~canGetGradient(problem)
-        error('It seems no gradient provided.');
+        warning('manopt:checkgradient:nograd', ...
+                'It seems no gradient was provided.');
     end
         
     x_isprovided = exist('x', 'var') && ~isempty(x);
