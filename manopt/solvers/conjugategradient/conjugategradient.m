@@ -145,7 +145,7 @@ if ~canGetCost(problem)
 end
 if ~canGetGradient(problem)
     warning('manopt:getGradient', ...
-        'No gradient provided. The algorithm will likely abort.');
+            'No gradient provided. Will use approximate gradient (slow).');
 end
 
 % Set local defaults here
