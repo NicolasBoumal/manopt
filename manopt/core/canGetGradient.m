@@ -15,8 +15,21 @@ function candoit = canGetGradient(problem)
 %
 %   June 28, 2016 (NB):
 %       Added support for getPartialGradient
+%
+%   Nov. 1, 2016 (NB):
+%       Added support for gradient from directional derivatives
 
     candoit = isfield(problem, 'grad') || isfield(problem, 'costgrad') || ...
-              canGetEuclideanGradient(problem) || canGetPartialGradient(problem);
+              canGetEuclideanGradient(problem) || ...
+              canGetPartialGradient(problem) || ...
+              ... % Check if directional derivatives can be obtained, since
+              ... % it is possible to compute the gradient from directional
+              ... % derivatives (expensively). Here, it is not possile to
+              ... % call canGetDirectionalDerivative, because that function
+              ... % would then potentially call canGetGradient, thus 
+              ... % starting an infinite loop. As a result, we have some
+              ... % code redundancy: the check below needs to be kept
+              ... % equivalent to the check in canGetDirectionalDerivative.
+              isfield(problem, 'diff');
     
 end
