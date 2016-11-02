@@ -18,7 +18,7 @@ function M = specialeuclideanfactory(n, k)
 % that rotational components of the tangent vectors are represented in the
 % Lie algebra, i.e., each slice Xdot.R(:, :, i) is a skew-symmetric matrix.
 % Use M.tangent2ambient(X, Xdot) to obtain a representation in the ambient
-% space.
+% space. This is often necessary when defining problem.ehess(X, Xdot).
 %
 % This is a description of SE(n)^k with the induced metric from the
 % embedding space (R^nxn)^k x (R^n)^k, i.e., this manifold is a Riemannian

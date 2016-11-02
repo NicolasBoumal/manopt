@@ -16,7 +16,8 @@ function M = rotationsfactory(n, k)
 % Tangent vectors are represented in the Lie algebra, i.e., as skew
 % symmetric matrices. Use the function M.tangent2ambient(X, H) to switch
 % from the Lie algebra representation to the embedding space
-% representation.
+% representation. This is often necessary when defining
+% problem.ehess(X, H).
 %
 % By default, the retraction is only a first-order approximation of the
 % exponential. To force the use of a second-order approximation, call
