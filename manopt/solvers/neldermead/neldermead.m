@@ -48,6 +48,9 @@ function [x, cost, info, options] = neldermead(problem, x, options)
 %   April 4, 2015 (NB):
 %       Working with the new StoreDB class system.
 %       Clarified interactions with statsfun and store.
+%
+%   Nov. 11, 2016 (NB):
+%       If options.verbosity is < 2, prints minimal output.
 
     
     % Verify that the problem description is sufficient for the solver.
@@ -168,7 +171,9 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         % If the reflected point is honorable, drop the worst point,
         % replace it by the reflected point and start new iteration.
         if costr >= costs(1) && costr < costs(end-1)
-            fprintf('Reflection\n');
+            if options.verbosity >= 2
+                fprintf('Reflection\n');
+            end
             costs(end) = costr;
             x{end} = xr;
             key{end} = keyr;
@@ -182,13 +187,17 @@ function [x, cost, info, options] = neldermead(problem, x, options)
             coste = getCost(problem, xe, storedb, keye);
             costevals = costevals + 1;
             if coste < costr
-                fprintf('Expansion\n');
+                if options.verbosity >= 2
+                    fprintf('Expansion\n');
+                end
                 costs(end) = coste;
                 x{end} = xe;
                 key{end} = keye;
                 continue;
             else
-                fprintf('Reflection (failed expansion)\n');
+                if options.verbosity >= 2
+                    fprintf('Reflection (failed expansion)\n');
+                end
                 costs(end) = costr;
                 x{end} = xr;
                 key{end} = keyr;
@@ -206,7 +215,9 @@ function [x, cost, info, options] = neldermead(problem, x, options)
                 costoc = getCost(problem, xoc, storedb, keyoc);
                 costevals = costevals + 1;
                 if costoc <= costr
-                    fprintf('Outside contraction\n');
+                    if options.verbosity >= 2
+                        fprintf('Outside contraction\n');
+                    end
                     costs(end) = costoc;
                     x{end} = xoc;
                     key{end} = keyoc;
@@ -219,7 +230,9 @@ function [x, cost, info, options] = neldermead(problem, x, options)
                 costic = getCost(problem, xic, storedb, keyic);
                 costevals = costevals + 1;
                 if costic <= costs(end)
-                    fprintf('Inside contraction\n');
+                    if options.verbosity >= 2
+                        fprintf('Inside contraction\n');
+                    end
                     costs(end) = costic;
                     x{end} = xic;
                     key{end} = keyic;
@@ -229,7 +242,9 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         end
         
         % If we get here, shrink the simplex around x{1}.
-        fprintf('Shrinkage\n');
+        if options.verbosity >= 2
+            fprintf('Shrinkage\n');
+        end
         for i = 2 : dim+1
             x{i} = problem.M.pairmean(x{1}, x{i});
             key{i} = storedb.getNewKey();
