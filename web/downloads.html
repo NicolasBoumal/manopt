@@ -85,6 +85,9 @@ body {
             <br>
             It helps us to know our users: please <a target="_blank" href="https://docs.google.com/forms/d/1U9Ntex_rWI8NfCLPP_b8uE5xDnKXgXG-HVvpHdq1PFo/viewform?usp=send_form">follow
               this link to hear about updates</a>. Thanks!<br>
+            <br>
+            <strong>Do you use Manopt for teaching?</strong> Please get in
+            touch! We'd love to know about this and get feedback.<br>
           </section>
           <section id="previousandlogs">
             <div class="page-header">
@@ -119,6 +122,23 @@ body {
                     problem.ncostterms terms, then problem.partialgrad accepts a
                     point x and an index set I so that only the gradient with
                     respect to terms indexed in I is computed and returned.</li>
+                  <li>Added possibility to define problem.approxgrad, to provide
+                    an approximation of the gradient. This can be populated with
+                    a generic gradient approximation based on finite differences
+                    via approxgradientFD. Solvers do this by default if they
+                    need a gradient and none is given. This feature is slow, but
+                    may be useful for prototyping. It is slow because Manopt
+                    generates an orthonormal basis of the tangent space, and
+                    compute a finite difference approximation of the directional
+                    derivative along each basis vector to get an approximate
+                    gradient (see also next item and new example thomson_problem.)</li>
+                  <li>getGradient now knows how to compute the gradient if the
+                    directional derivatives are accessible. This involves
+                    generating an orthonormal basis of the tangent space at the
+                    current point, then evaluating the directional derivative
+                    along each basis vector and taking the appropriate linear
+                    combination. This is very slow, especially for high
+                    dimensional manifolds.</li>
                 </ul>
                 <li>New tools</li>
                 <ul>
@@ -148,6 +168,9 @@ body {
                   <li>elliptope_SDP_complex, same as above for complex matrices.
                     This solves the SDP which appears in PhaseCut and phase
                     synchronization, for example.</li>
+                  <li>thomson_problem to illustrate the new features that allow
+                    to not specify the gradient of the cost (slow, but good for
+                    prototyping.)</li>
                 </ul>
                 <li>New geometries</li>
                 <ul>
@@ -180,6 +203,7 @@ body {
                   <li>spherefactory and related sphere geometries now have a
                     distance function M.dist which is orders of magnitude more
                     accurate for close-by points.</li>
+                  <li>neldermead now respects options.verbosity &lt; 2.</li>
                 </ul>
               </ul>
               <br>
