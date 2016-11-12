@@ -32,7 +32,7 @@ function doxywrite(filename, kw, statinfo, docinfo)
 
 %  See <http://www.doxygen.org/> for more details.
 
-error(nargchk(4,4,nargin));
+narginchk(4,4);
 
 %- Open the search index file
 [fid, errmsg] = fopen(filename,'w','ieee-be');

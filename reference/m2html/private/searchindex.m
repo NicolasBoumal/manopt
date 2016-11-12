@@ -13,7 +13,7 @@ function [s, freq] = searchindex(mfile, szmin)
 %  Copyright (C) 2003 Guillaume Flandin <Guillaume@artefact.tk>
 %  $Revision: 1.0 $Date: 2003/04/10 18:32:48 $
 
-error(nargchk(1,2,nargin));
+narginchk(1,2);
 if nargin == 1, szmin = 2; end
 
 %- Delimiters used in strtok

@@ -31,7 +31,7 @@ function mwizard(file)
 %  guarantee is made whether and when they will be implemented.
 %  Send requests to Guillaume@artefact.tk
 
-error(nargchk(0,1,nargin));
+narginchk(0,1);
 
 disp('This is a beta version of mwizard.');
 disp('Please use the online version m2html instead.');
