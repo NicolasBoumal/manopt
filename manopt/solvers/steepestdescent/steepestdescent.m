@@ -86,9 +86,15 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         warning('manopt:getCost', ...
                 'No cost provided. The algorithm will likely abort.');
     end
-    if ~canGetGradient(problem)
-        warning('manopt:getGradient', ...
-                'No gradient provided. Will use approximate gradient (slow).');
+    if ~canGetGradient(problem) && ~canGetApproxGradient(problem)
+        % Note: we do not give a warning if an approximate Hessian is
+        % explicitly given in the problem description, as in that case the user
+        % seems to be aware of the issue.
+        warning('manopt:getGradient:approx', ...
+               ['No gradient provided. Using an FD approximation instead (slow).\n' ...
+                'It may be necessary to increase options.tolgradnorm.\n' ...
+                'To disable this warning: warning(''off'', ''manopt:getGradient:approx'')']);
+        problem.approxgrad = approxgradientFD(problem);
     end
     
     % Set local defaults here
