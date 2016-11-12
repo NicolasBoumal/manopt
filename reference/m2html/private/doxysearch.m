@@ -29,7 +29,7 @@ function result = doxysearch(query,filename)
 
 %  See <http://www.doxygen.org/> for more details.
 
-error(nargchk(1,2,nargin));
+narginchk(1,2);
 if nargin == 1,
 	filename = 'search.idx';
 end

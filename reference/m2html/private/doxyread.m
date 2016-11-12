@@ -31,7 +31,7 @@ function [statlist, docinfo] = doxyread(filename)
 
 %  See <http://www.doxygen.org/> for more details.
 
-error(nargchk(0,1,nargin));
+narginchk(0,1);
 if nargin == 0,
 	filename = 'search.idx';
 end

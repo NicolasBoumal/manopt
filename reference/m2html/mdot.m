@@ -18,7 +18,7 @@ function mdot(mmat, dotfile,f)
 %  Copyright (C) 2004 Guillaume Flandin <Guillaume@artefact.tk>
 %  $Revision: 1.1 $Date: 2004/05/05 17:14:09 $
 
-error(nargchk(2,3,nargin));
+narginchk(2,3);
 
 if ischar(mmat)
 	load(mmat);
