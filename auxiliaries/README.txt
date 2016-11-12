@@ -47,4 +47,7 @@ http://jmlr.org/papers/v15/boumal14a.html
 For more info or help: http://www.manopt.org -- we are active on the forum!
 
 This version:
-Manopt 2.0, released July 6, 2015.
+Manopt 3.0, released Nov. 12, 2016.
+
+GitHub: https://github.com/NicolasBoumal/manopt
+

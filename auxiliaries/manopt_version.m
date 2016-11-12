@@ -7,7 +7,7 @@ function [version, released] = manopt_version()
 % released is the date this version was released, in the same format as the
 % date() function in Matlab.
 
-    version = [2, 0, 0];
-    released = '06-Jul-2015';
+    version = [3, 0, 0];
+    released = '12-Nov-2016';
 
 end
