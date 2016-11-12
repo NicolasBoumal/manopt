@@ -40,7 +40,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-</ul>
+<li><a href="canGetPartialEuclideanGradient.html" class="code" title="function candoit = canGetPartialEuclideanGradient(problem)">canGetPartialEuclideanGradient</a>	Checks whether the partial Euclidean gradient can be computed for a problem.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 <li><a href="canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li></ul>
@@ -63,11 +63,14 @@ This function is called by:
 0012 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
 0013 <span class="comment">% Contributors:</span>
 0014 <span class="comment">% Change log:</span>
-0015 
-0016 
-0017     candoit = isfield(problem, <span class="string">'egrad'</span>);
-0018     
-0019 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   June 28, 2016 (NB):</span>
+0017 <span class="comment">%       Added support for getPartialEuclideanGradient</span>
+0018 
+0019 
+0020     candoit = isfield(problem, <span class="string">'egrad'</span>) || <a href="canGetPartialEuclideanGradient.html" class="code" title="function candoit = canGetPartialEuclideanGradient(problem)">canGetPartialEuclideanGradient</a>(problem);
+0021     
+0022 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

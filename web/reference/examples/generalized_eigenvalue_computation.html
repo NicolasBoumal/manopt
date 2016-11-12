@@ -32,31 +32,36 @@
  function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
 
  Input: A is a real, symmetric matrix of size nxn,
-        B is a symmetric positive definite matrix, same size as A, and
-        an integer p &lt; n.
- Output: Xsol: a real, orthonormal matrix X of size nxp such that
-         trace(X'*A*X) is maximized, subject to X'*B*X being identity. 
-         That is, the columns of X form an orthonormal basis of a dominant
-         subspace of dimension p of B^(-1)*A. These are thus eigenvectors
-         associated with the largest eigenvalues of B^(-1)*A  (in no
-         particular order). Sign is important: 2 is deemed a larger
-         eigenvalue than -5.
-         Ssol: the eigenvalues associated with the eigenvectors Xsol.
+        B is a symmetric positive definite matrix, same size as A
+        p is an integer such that p &lt;= n.
+
+ Output: Xsol: a real, B-orthonormal matrix X of size nxp such that
+         trace(X'*A*X) is maximized, subject to X'*B*X = identity. 
+         That is, the columns of X form a B-orthonormal basis of a
+         dominant subspace of dimension p of B^(-1)*A. These are thus
+         generalized eigenvectors associated with the largest generalized
+         eigenvalues of B^(-1)*A  (in no particular order). Sign is
+         important: 2 is deemed a larger eigenvalue than -5.
+         Ssol: the eigenvalues associated with the eigenvectors Xsol, in a
+         vector.
  
  We intend to solve the homogeneous system A*X = B*X*S,
  where S is a diagonal matrix of dominant eigenvalues of B^-1 A.
 
 
  The optimization is performed on the generalized Grassmann manifold, 
- since only the space spanned by the columns of X matters. 
+ since only the space spanned by the columns of X matters in the
+ optimization problem.
 
  The optimization problem that we are solving here is 
  maximize trace(X'*A*X) subject to X'*B*X = eye(p). 
  Consequently, the solutions remain invariant to transformation
- X --&gt; XO, where O is a p-by-p orthogonal matrix. The search space, in
+ X --&gt; XQ, where Q is a p-by-p orthogonal matrix. The search space, in
  essence, is set of equivalence classes
- [X] = {XO : X'*B*X = I and O is orthogonal matrix}. This space is called
+ [X] = {XQ : X'*B*X = I and Q is orthogonal matrix}. This space is called
  the generalized Grassmann manifold.
+ Before returning, Q is chosen such that Xsol = Xq matches the output one
+ would expect from eigs.
 
  See also <a href="dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a> <a href="nonlinear_eigenspace.html" class="code" title="function Xsol = nonlinear_eigenspace(L, k, alpha)">nonlinear_eigenspace</a></pre></div>
 
@@ -79,91 +84,110 @@ This function is called by:
 0004 <span class="comment">% function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)</span>
 0005 <span class="comment">%</span>
 0006 <span class="comment">% Input: A is a real, symmetric matrix of size nxn,</span>
-0007 <span class="comment">%        B is a symmetric positive definite matrix, same size as A, and</span>
-0008 <span class="comment">%        an integer p &lt; n.</span>
-0009 <span class="comment">% Output: Xsol: a real, orthonormal matrix X of size nxp such that</span>
-0010 <span class="comment">%         trace(X'*A*X) is maximized, subject to X'*B*X being identity.</span>
-0011 <span class="comment">%         That is, the columns of X form an orthonormal basis of a dominant</span>
-0012 <span class="comment">%         subspace of dimension p of B^(-1)*A. These are thus eigenvectors</span>
-0013 <span class="comment">%         associated with the largest eigenvalues of B^(-1)*A  (in no</span>
-0014 <span class="comment">%         particular order). Sign is important: 2 is deemed a larger</span>
-0015 <span class="comment">%         eigenvalue than -5.</span>
-0016 <span class="comment">%         Ssol: the eigenvalues associated with the eigenvectors Xsol.</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">% We intend to solve the homogeneous system A*X = B*X*S,</span>
-0019 <span class="comment">% where S is a diagonal matrix of dominant eigenvalues of B^-1 A.</span>
-0020 <span class="comment">%</span>
-0021 <span class="comment">%</span>
-0022 <span class="comment">% The optimization is performed on the generalized Grassmann manifold,</span>
-0023 <span class="comment">% since only the space spanned by the columns of X matters.</span>
-0024 <span class="comment">%</span>
-0025 <span class="comment">% The optimization problem that we are solving here is</span>
-0026 <span class="comment">% maximize trace(X'*A*X) subject to X'*B*X = eye(p).</span>
-0027 <span class="comment">% Consequently, the solutions remain invariant to transformation</span>
-0028 <span class="comment">% X --&gt; XO, where O is a p-by-p orthogonal matrix. The search space, in</span>
-0029 <span class="comment">% essence, is set of equivalence classes</span>
-0030 <span class="comment">% [X] = {XO : X'*B*X = I and O is orthogonal matrix}. This space is called</span>
-0031 <span class="comment">% the generalized Grassmann manifold.</span>
-0032 <span class="comment">%</span>
-0033 <span class="comment">% See also dominant_invariant_subspace nonlinear_eigenspace</span>
-0034 
-0035 
-0036 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0007 <span class="comment">%        B is a symmetric positive definite matrix, same size as A</span>
+0008 <span class="comment">%        p is an integer such that p &lt;= n.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% Output: Xsol: a real, B-orthonormal matrix X of size nxp such that</span>
+0011 <span class="comment">%         trace(X'*A*X) is maximized, subject to X'*B*X = identity.</span>
+0012 <span class="comment">%         That is, the columns of X form a B-orthonormal basis of a</span>
+0013 <span class="comment">%         dominant subspace of dimension p of B^(-1)*A. These are thus</span>
+0014 <span class="comment">%         generalized eigenvectors associated with the largest generalized</span>
+0015 <span class="comment">%         eigenvalues of B^(-1)*A  (in no particular order). Sign is</span>
+0016 <span class="comment">%         important: 2 is deemed a larger eigenvalue than -5.</span>
+0017 <span class="comment">%         Ssol: the eigenvalues associated with the eigenvectors Xsol, in a</span>
+0018 <span class="comment">%         vector.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% We intend to solve the homogeneous system A*X = B*X*S,</span>
+0021 <span class="comment">% where S is a diagonal matrix of dominant eigenvalues of B^-1 A.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% The optimization is performed on the generalized Grassmann manifold,</span>
+0025 <span class="comment">% since only the space spanned by the columns of X matters in the</span>
+0026 <span class="comment">% optimization problem.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% The optimization problem that we are solving here is</span>
+0029 <span class="comment">% maximize trace(X'*A*X) subject to X'*B*X = eye(p).</span>
+0030 <span class="comment">% Consequently, the solutions remain invariant to transformation</span>
+0031 <span class="comment">% X --&gt; XQ, where Q is a p-by-p orthogonal matrix. The search space, in</span>
+0032 <span class="comment">% essence, is set of equivalence classes</span>
+0033 <span class="comment">% [X] = {XQ : X'*B*X = I and Q is orthogonal matrix}. This space is called</span>
+0034 <span class="comment">% the generalized Grassmann manifold.</span>
+0035 <span class="comment">% Before returning, Q is chosen such that Xsol = Xq matches the output one</span>
+0036 <span class="comment">% would expect from eigs.</span>
 0037 <span class="comment">%</span>
-0038 <span class="comment">% Main author: Bamdev Mishra, June 30, 2015.</span>
-0039 <span class="comment">% Contributors:</span>
-0040 <span class="comment">% Change log:</span>
-0041     
-0042     <span class="comment">% Generate some random data to test the function</span>
-0043     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
-0044         n = 128;
-0045         A = randn(n);
-0046         A = (A+A')/2;
-0047     <span class="keyword">end</span>
-0048     <span class="keyword">if</span> ~exist(<span class="string">'B'</span>, <span class="string">'var'</span>) || isempty(B)
-0049         n = size(A, 1);
-0050         e = ones(n, 1);
-0051         B = spdiags([-e 2*e -e], -1:1, n, n); <span class="comment">% Symmetric positive definite</span>
-0052     <span class="keyword">end</span>
-0053     
-0054     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
-0055         p = 3;
+0038 <span class="comment">% See also dominant_invariant_subspace nonlinear_eigenspace</span>
+0039 
+0040 
+0041 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">% Main author: Bamdev Mishra, June 30, 2015.</span>
+0044 <span class="comment">% Contributors:</span>
+0045 <span class="comment">% Change log:</span>
+0046 <span class="comment">%</span>
+0047 <span class="comment">%     Aug. 10, 2016 (NB): the eigenvectors Xsol are now rotated by Vsol</span>
+0048 <span class="comment">%     before they are returned, to ensure the output matches what you would</span>
+0049 <span class="comment">%     normally expect calling eigs.</span>
+0050     
+0051     <span class="comment">% Generate some random data to test the function</span>
+0052     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0053         n = 128;
+0054         A = randn(n);
+0055         A = (A+A')/2;
 0056     <span class="keyword">end</span>
-0057     
-0058     <span class="comment">% Make sure the input matrix is square and symmetric</span>
-0059     n = size(A, 1);
-0060     assert(isreal(A), <span class="string">'A must be real.'</span>)
-0061     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
-0062     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
-0063     assert(p &lt;= n, <span class="string">'p must be smaller than n.'</span>);
-0064     
-0065     <span class="comment">% Define the cost and its derivatives on the generalized</span>
-0066     <span class="comment">% Grassmann manifold, i.e., the column space of all X such that</span>
-0067     <span class="comment">% X'*B*X is identity.</span>
-0068     gGr = <a href="../manopt/manifolds/grassmann/grassmanngeneralizedfactory.html" class="code" title="function M = grassmanngeneralizedfactory(n, p, B)">grassmanngeneralizedfactory</a>(n, p, B);
-0069     
-0070     problem.M = gGr;
-0071     problem.cost  = @(X)    -trace(X'*A*X);
-0072     problem.egrad = @(X)    -2*(A*X); <span class="comment">% Only Euclidean gradient needed.</span>
-0073     problem.ehess = @(X, H) -2*(A*H); <span class="comment">% Only Euclidean Hessian needed.</span>
-0074     
-0075     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
-0076     <span class="comment">% These things can be commented out of course.</span>
-0077     <span class="comment">% checkgradient(problem);</span>
-0078     <span class="comment">% pause;</span>
-0079     <span class="comment">% checkhessian(problem);</span>
-0080     <span class="comment">% pause;</span>
-0081     
-0082     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
-0083     <span class="comment">% default options are selected except for the ones we specify here.</span>
-0084     options.Delta_bar = 8*sqrt(p);
-0085     [Xsol, costXsol, info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;NASGU,ASGLU&gt;</span>
-0086     
-0087     <span class="comment">% To extract the eigenvalues, solve the small p-by-p symmetric</span>
-0088     <span class="comment">% eigenvalue problem.</span>
-0089     Ssol = eig(Xsol'*(A*Xsol));
-0090   
-0091 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0057     <span class="keyword">if</span> ~exist(<span class="string">'B'</span>, <span class="string">'var'</span>) || isempty(B)
+0058         n = size(A, 1);
+0059         e = ones(n, 1);
+0060         B = spdiags([-e 2*e -e], -1:1, n, n); <span class="comment">% Symmetric positive definite</span>
+0061     <span class="keyword">end</span>
+0062     
+0063     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0064         p = 3;
+0065     <span class="keyword">end</span>
+0066     
+0067     <span class="comment">% Make sure the input matrix is square and symmetric</span>
+0068     n = size(A, 1);
+0069     assert(isreal(A), <span class="string">'A must be real.'</span>)
+0070     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0071     assert(norm(A-A', <span class="string">'fro'</span>) &lt; n*eps, <span class="string">'A must be symmetric.'</span>);
+0072     assert(p &lt;= n, <span class="string">'p must be smaller than n.'</span>);
+0073     
+0074     <span class="comment">% Define the cost and its derivatives on the generalized</span>
+0075     <span class="comment">% Grassmann manifold, i.e., the column space of all X such that</span>
+0076     <span class="comment">% X'*B*X is identity.</span>
+0077     gGr = <a href="../manopt/manifolds/grassmann/grassmanngeneralizedfactory.html" class="code" title="function M = grassmanngeneralizedfactory(n, p, B)">grassmanngeneralizedfactory</a>(n, p, B);
+0078     
+0079     problem.M = gGr;
+0080     problem.cost  = @(X)    -trace(X'*A*X);
+0081     problem.egrad = @(X)    -2*(A*X); <span class="comment">% Only Euclidean gradient needed.</span>
+0082     problem.ehess = @(X, H) -2*(A*H); <span class="comment">% Only Euclidean Hessian needed.</span>
+0083     
+0084     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0085     <span class="comment">% These things can be commented out of course.</span>
+0086     <span class="comment">% checkgradient(problem);</span>
+0087     <span class="comment">% pause;</span>
+0088     <span class="comment">% checkhessian(problem);</span>
+0089     <span class="comment">% pause;</span>
+0090     
+0091     <span class="comment">% Issue a call to a solver. A random initial guess will be chosen and</span>
+0092     <span class="comment">% default options are selected except for the ones we specify here.</span>
+0093     options.Delta_bar = 8*sqrt(p);
+0094     options.tolgradnorm = 1e-7;
+0095     options.verbosity = 2; <span class="comment">% set to 0 to silence the solver, 2 for normal output.</span>
+0096     [Xsol, costXsol, info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0097     
+0098     <span class="comment">% To extract the eigenvalues, solve the small p-by-p symmetric</span>
+0099     <span class="comment">% eigenvalue problem.</span>
+0100     [Vsol, Dsol] = eig(Xsol'*(A*Xsol));
+0101     Ssol = diag(Dsol);
+0102     
+0103     <span class="comment">% To extract the eigenvectors, rotate Xsol by the p-by-p orthogonal</span>
+0104     <span class="comment">% matrix Vsol.</span>
+0105     Xsol = Xsol*Vsol;
+0106     
+0107     <span class="comment">% This quantity should be small.</span>
+0108     <span class="comment">% norm(A*Xsol - B*Xsol*diag(Ssol));</span>
+0109   
+0110 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

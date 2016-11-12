@@ -24,7 +24,7 @@
 <div class="box"><strong>Rotationally align clouds of points (generalized Procrustes problem)</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function [A R] = generalized_procrustes(A_measure) </strong></div>
+<div class="box"><strong>function [A, R] = generalized_procrustes(A_measure) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Rotationally align clouds of points (generalized Procrustes problem)
@@ -54,10 +54,10 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function [f store] = cost(X, store)</a></li><li><a href="#_sub2" class="code">function [g store] = grad(X, store)</a></li><li><a href="#_sub3" class="code">function [h store] = hess(X, Xdot, store)</a></li></ul>
+<li><a href="#_sub1" class="code">function [f, store] = cost(X, store)</a></li><li><a href="#_sub2" class="code">function [g, store] = grad(X, store)</a></li><li><a href="#_sub3" class="code">function [h, store] = hess(X, Xdot, store)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [A R] = generalized_procrustes(A_measure)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [A, R] = generalized_procrustes(A_measure)</a>
 0002 <span class="comment">% Rotationally align clouds of points (generalized Procrustes problem)</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function X = generalized_procrustes(A_measure)</span>
@@ -92,7 +92,7 @@ This function is called by:
 0033         N = 50;
 0034         <span class="comment">% The reference cloud</span>
 0035         Atrue = randn(n, m);
-0036         <span class="comment">% A 3D meatrix containing the N measured clouds</span>
+0036         <span class="comment">% A 3D matrix containing the N measured clouds</span>
 0037         sigma = .3;
 0038         A_measure = <a href="../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../manopt/manifolds/rotations/randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(n, N), Atrue) + sigma*randn(n, m, N);
 0039     <span class="keyword">else</span>
@@ -115,7 +115,7 @@ This function is called by:
 0056     <span class="comment">% is used to keep the residue matrix E in memory, as it is also used in</span>
 0057     <span class="comment">% the computation of the gradient and of the Hessian. This way, we</span>
 0058     <span class="comment">% prevent redundant computations.</span>
-0059     <a name="_sub1" href="#_subfunctions" class="code">function [f store] = cost(X, store)</a>
+0059     <a name="_sub1" href="#_subfunctions" class="code">function [f, store] = cost(X, store)</a>
 0060         <span class="keyword">if</span> ~isfield(store, <span class="string">'E'</span>)
 0061             R = X.R;
 0062             A = X.A;
@@ -126,11 +126,11 @@ This function is called by:
 0067     <span class="keyword">end</span>
 0068 
 0069     <span class="comment">% Riemannian gradient of the cost function.</span>
-0070     <a name="_sub2" href="#_subfunctions" class="code">function [g store] = grad(X, store)</a>
+0070     <a name="_sub2" href="#_subfunctions" class="code">function [g, store] = grad(X, store)</a>
 0071         R = X.R;
 0072         A = X.A;
 0073         <span class="keyword">if</span> ~isfield(store, <span class="string">'E'</span>)
-0074             [~, store] = <a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>(X, store);
+0074             [~, store] = <a href="#_sub1" class="code" title="subfunction [f, store] = cost(X, store)">cost</a>(X, store);
 0075         <span class="keyword">end</span>
 0076         E = store.E;
 0077         <span class="comment">% Compute the Euclidean gradient of the cost wrt the rotations R</span>
@@ -146,7 +146,7 @@ This function is called by:
 0087     <span class="comment">% It is not necessary to define the Hessian of the cost. We do it</span>
 0088     <span class="comment">% mostly to illustrate how to do it and to study the spectrum of the</span>
 0089     <span class="comment">% Hessian at the solution (see further down).</span>
-0090     <a name="_sub3" href="#_subfunctions" class="code">function [h store] = hess(X, Xdot, store)</a>
+0090     <a name="_sub3" href="#_subfunctions" class="code">function [h, store] = hess(X, Xdot, store)</a>
 0091         R = X.R;
 0092         A = X.A;
 0093         <span class="comment">% Careful: tangent vectors on the rotation group are represented as</span>
@@ -160,7 +160,7 @@ This function is called by:
 0101         Rdot = tuple.R.tangent2ambient(R, Xdot.R);
 0102         Adot = Xdot.A;
 0103         <span class="keyword">if</span> ~isfield(store, <span class="string">'egrad'</span>)
-0104             [~, store] = <a href="#_sub2" class="code" title="subfunction [g store] = grad(X, store)">grad</a>(X, store);
+0104             [~, store] = <a href="#_sub2" class="code" title="subfunction [g, store] = grad(X, store)">grad</a>(X, store);
 0105         <span class="keyword">end</span>
 0106         E = store.E;
 0107         egrad = store.egrad;
@@ -175,9 +175,9 @@ This function is called by:
 0116 
 0117     <span class="comment">% Setup the problem structure with manifold M and cost+grad functions.</span>
 0118     problem.M = M;
-0119     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f store] = cost(X, store)">cost</a>;
-0120     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g store] = grad(X, store)">grad</a>;
-0121     problem.hess = @<a href="#_sub3" class="code" title="subfunction [h store] = hess(X, Xdot, store)">hess</a>;
+0119     problem.cost = @<a href="#_sub1" class="code" title="subfunction [f, store] = cost(X, store)">cost</a>;
+0120     problem.grad = @<a href="#_sub2" class="code" title="subfunction [g, store] = grad(X, store)">grad</a>;
+0121     problem.hess = @<a href="#_sub3" class="code" title="subfunction [h, store] = hess(X, Xdot, store)">hess</a>;
 0122 
 0123     <span class="comment">% For debugging, it's always nice to check the gradient a few times.</span>
 0124     <span class="comment">% checkgradient(problem);</span>
@@ -218,6 +218,6 @@ This function is called by:
 0159     <span class="keyword">end</span>
 0160     
 0161 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of elliptope_SDP</title>
+  <meta name="keywords" content="elliptope_SDP">
+  <meta name="description" content="Solver for semidefinite programs (SDP's) with unit diagonal constraints.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; elliptope_SDP.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>elliptope_SDP
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Solver for semidefinite programs (SDP's) with unit diagonal constraints.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Y, problem, S] = elliptope_SDP(A, p, Y0) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Solver for semidefinite programs (SDP's) with unit diagonal constraints.
+ 
+ function [Y, problem, S] = elliptope_SDP(A)
+ function [Y, problem, S] = elliptope_SDP(A, p)
+ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
+
+ A is a real, symmetric matrix of size n.
+
+ This function uses a local optimization method in Manopt to solve the SDP
+
+   min_X  trace(A*X)  s.t.  diag(X) = 1 and X is positive semidefinite.
+
+ In practice, the symmetric matrix X of size n is parameterized
+ as X = Y*Y', where Y has size n x p. By default, p is taken large enough
+ (about sqrt(2n)) to ensure that there exists an optimal X whose rank is
+ smaller than p. This ensures that the SDP is equivalent to the new
+ problem in Y:
+
+   min_Y  trace(Y'*A*Y)  s.t.  diag(Y*Y') = 1.
+
+ The constraints on Y require each row of Y to have unit norm, which is
+ why Manopt is appropriate software to solve this problem. An optional
+ initial guess can be specified via the input Y0.
+
+ See the paper below for theory, specifically, for a proof that, for
+ almost all A, second-order critical points of the problem in Y are
+ globally optimal. In other words: there are no local traps in Y, despite
+ non-convexity.
+
+ Outputs:
+
+       Y: is the best point found (an nxp matrix with unit norm rows.)
+          To find X, form Y*Y' (or, more efficiently, study X through Y.)
+ 
+       problem: is the Manopt problem structure used to produce Y.
+ 
+       S: is a dual optimality certificate (a symmetric matrix of size n,
+          sparse if A is sparse). The optimality gap (in the cost
+          function) is at most n*min(eig(S)), for both Y and X = Y*Y'.
+          Hence, if min(eig(S)) is close to zero, Y is close to globally
+          optimal. This can be computed via eigs(S, 1, 'SR').
+ 
+ Paper: https://arxiv.org/abs/1606.04970
+
+ @inproceedings{boumal2016bmapproach,
+   author  = {Boumal, N. and Voroninski, V. and Bandeira, A.S.},
+   title   = {The non-convex {B}urer-{M}onteiro approach works on smooth semidefinite programs},
+   booktitle={Neural Information Processing Systems (NIPS 2016)},
+   year    = {2016}
+ }
+ 
+ See also: <a href="maxcut.html" class="code" title="function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)">maxcut</a> <a href="elliptope_SDP_complex.html" class="code" title="function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)">elliptope_SDP_complex</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function store = prepare(Y, store)</a></li><li><a href="#_sub2" class="code">function [f, store] = cost(Y, store)</a></li><li><a href="#_sub3" class="code">function [G, store] = grad(Y, store)</a></li><li><a href="#_sub4" class="code">function [H, store] = hess(Y, Ydot, store)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Y, problem, S] = elliptope_SDP(A, p, Y0)</a>
+0002 <span class="comment">% Solver for semidefinite programs (SDP's) with unit diagonal constraints.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [Y, problem, S] = elliptope_SDP(A)</span>
+0005 <span class="comment">% function [Y, problem, S] = elliptope_SDP(A, p)</span>
+0006 <span class="comment">% function [Y, problem, S] = elliptope_SDP(A, p, Y0)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% A is a real, symmetric matrix of size n.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% This function uses a local optimization method in Manopt to solve the SDP</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   min_X  trace(A*X)  s.t.  diag(X) = 1 and X is positive semidefinite.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% In practice, the symmetric matrix X of size n is parameterized</span>
+0015 <span class="comment">% as X = Y*Y', where Y has size n x p. By default, p is taken large enough</span>
+0016 <span class="comment">% (about sqrt(2n)) to ensure that there exists an optimal X whose rank is</span>
+0017 <span class="comment">% smaller than p. This ensures that the SDP is equivalent to the new</span>
+0018 <span class="comment">% problem in Y:</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   min_Y  trace(Y'*A*Y)  s.t.  diag(Y*Y') = 1.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% The constraints on Y require each row of Y to have unit norm, which is</span>
+0023 <span class="comment">% why Manopt is appropriate software to solve this problem. An optional</span>
+0024 <span class="comment">% initial guess can be specified via the input Y0.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% See the paper below for theory, specifically, for a proof that, for</span>
+0027 <span class="comment">% almost all A, second-order critical points of the problem in Y are</span>
+0028 <span class="comment">% globally optimal. In other words: there are no local traps in Y, despite</span>
+0029 <span class="comment">% non-convexity.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">% Outputs:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%       Y: is the best point found (an nxp matrix with unit norm rows.)</span>
+0034 <span class="comment">%          To find X, form Y*Y' (or, more efficiently, study X through Y.)</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">%       problem: is the Manopt problem structure used to produce Y.</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%       S: is a dual optimality certificate (a symmetric matrix of size n,</span>
+0039 <span class="comment">%          sparse if A is sparse). The optimality gap (in the cost</span>
+0040 <span class="comment">%          function) is at most n*min(eig(S)), for both Y and X = Y*Y'.</span>
+0041 <span class="comment">%          Hence, if min(eig(S)) is close to zero, Y is close to globally</span>
+0042 <span class="comment">%          optimal. This can be computed via eigs(S, 1, 'SR').</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">% Paper: https://arxiv.org/abs/1606.04970</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">% @inproceedings{boumal2016bmapproach,</span>
+0047 <span class="comment">%   author  = {Boumal, N. and Voroninski, V. and Bandeira, A.S.},</span>
+0048 <span class="comment">%   title   = {The non-convex {B}urer-{M}onteiro approach works on smooth semidefinite programs},</span>
+0049 <span class="comment">%   booktitle={Neural Information Processing Systems (NIPS 2016)},</span>
+0050 <span class="comment">%   year    = {2016}</span>
+0051 <span class="comment">% }</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">% See also: maxcut elliptope_SDP_complex</span>
+0054 
+0055 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0056 <span class="comment">% Original author: Nicolas Boumal, June 28, 2016</span>
+0057 <span class="comment">% Contributors:</span>
+0058 <span class="comment">% Change log:</span>
+0059 
+0060 
+0061     <span class="comment">% If no inputs are provided, since this is an example file, generate</span>
+0062     <span class="comment">% a random Erdos-Renyi graph. This is for illustration purposes only.</span>
+0063     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
+0064         n = 100;
+0065         A = triu(rand(n) &lt;= .1, 1);
+0066         A = (A+A.')/(2*n);
+0067     <span class="keyword">end</span>
+0068 
+0069     n = size(A, 1);
+0070     assert(n &gt;= 2, <span class="string">'A must be at least 2x2.'</span>);
+0071     assert(isreal(A), <span class="string">'A must be real.'</span>);
+0072     assert(size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0073     
+0074     <span class="comment">% Force A to be symmetric</span>
+0075     A = (A+A.')/2;
+0076     
+0077     <span class="comment">% By default, pick a sufficiently large p (number of columns of Y).</span>
+0078     <span class="keyword">if</span> ~exist(<span class="string">'p'</span>, <span class="string">'var'</span>) || isempty(p)
+0079         p = ceil(sqrt(8*n+1)/2);
+0080     <span class="keyword">end</span>
+0081     
+0082     assert(p &gt;= 2 &amp;&amp; p == round(p), <span class="string">'p must be an integer &gt;= 2.'</span>);
+0083 
+0084     <span class="comment">% Pick the manifold of n-by-p matrices with unit norm rows.</span>
+0085     manifold = <a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>(p, n, true);
+0086     
+0087     problem.M = manifold;
+0088     
+0089     
+0090     <span class="comment">% These three, quick commented lines of code are sufficient to define</span>
+0091     <span class="comment">% the cost function and its derivatives. This is good code to write</span>
+0092     <span class="comment">% when prototyping. Below, a more advanced use of Manopt is shown,</span>
+0093     <span class="comment">% where the redundant computation A*Y is avoided between the gradient</span>
+0094     <span class="comment">% and the cost evaluation.</span>
+0095     <span class="comment">% % problem.cost  = @(Y) .5*sum(sum((A*Y).*Y));</span>
+0096     <span class="comment">% % problem.egrad = @(Y) A*Y;</span>
+0097     <span class="comment">% % problem.ehess = @(Y, Ydot) A*Ydot;</span>
+0098     
+0099     <span class="comment">% Products with A dominate the cost, hence we store the result.</span>
+0100     <span class="comment">% This allows to share the results among cost, grad and hess.</span>
+0101     <span class="comment">% This is completely optional.</span>
+0102     <a name="_sub1" href="#_subfunctions" class="code">function store = prepare(Y, store)</a>
+0103         <span class="keyword">if</span> ~isfield(store, <span class="string">'AY'</span>)
+0104             AY = A*Y;
+0105             store.AY = AY;
+0106             store.diagAYYt = sum(AY .* Y, 2);
+0107         <span class="keyword">end</span>
+0108     <span class="keyword">end</span>
+0109     
+0110     <span class="comment">% Define the cost function to be /minimized/.</span>
+0111     problem.cost = @<a href="#_sub2" class="code" title="subfunction [f, store] = cost(Y, store)">cost</a>;
+0112     <a name="_sub2" href="#_subfunctions" class="code">function [f, store] = cost(Y, store)</a>
+0113         store = <a href="#_sub1" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0114         f = .5*sum(store.diagAYYt);
+0115     <span class="keyword">end</span>
+0116 
+0117     <span class="comment">% Define the Riemannian gradient.</span>
+0118     problem.grad = @<a href="#_sub3" class="code" title="subfunction [G, store] = grad(Y, store)">grad</a>;
+0119     <a name="_sub3" href="#_subfunctions" class="code">function [G, store] = grad(Y, store)</a>
+0120         store = <a href="#_sub1" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0121         G = store.AY - bsxfun(@times, Y, store.diagAYYt);
+0122     <span class="keyword">end</span>
+0123 
+0124     <span class="comment">% If you want to, you can specify the Riemannian Hessian as well.</span>
+0125     problem.hess = @<a href="#_sub4" class="code" title="subfunction [H, store] = hess(Y, Ydot, store)">hess</a>;
+0126     <a name="_sub4" href="#_subfunctions" class="code">function [H, store] = hess(Y, Ydot, store)</a>
+0127         store = <a href="#_sub1" class="code" title="subfunction store = prepare(Y, store)">prepare</a>(Y, store);
+0128         SYdot = A*Ydot - bsxfun(@times, Ydot, store.diagAYYt);
+0129         H = manifold.proj(Y, SYdot);
+0130     <span class="keyword">end</span>
+0131 
+0132 
+0133     <span class="comment">% If no initial guess is available, tell Manopt to use a random one.</span>
+0134     <span class="keyword">if</span> ~exist(<span class="string">'Y0'</span>, <span class="string">'var'</span>) || isempty(Y0)
+0135         Y0 = [];
+0136     <span class="keyword">end</span>
+0137 
+0138     <span class="comment">% Call your favorite solver.</span>
+0139     opts = struct();
+0140     opts.verbosity = 0;      <span class="comment">% Set to 0 for no output, 2 for normal output</span>
+0141     opts.maxinner = 500;     <span class="comment">% maximum Hessian calls per iteration</span>
+0142     opts.tolgradnorm = 1e-6; <span class="comment">% tolerance on gradient norm</span>
+0143     Y = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, Y0, opts);
+0144     
+0145     <span class="comment">% If required, produce an optimality certificate.</span>
+0146     <span class="keyword">if</span> nargout &gt;= 3
+0147         S = A - spdiags(sum((A*Y).*Y, 2), 0, n, n);
+0148     <span class="keyword">end</span>
+0149 
+0150 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

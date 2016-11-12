@@ -44,7 +44,12 @@
  If the function is called with an output, the plot is not drawn and the
  values of the cost are returned in a matrix of size
  length(t1)*length(t2). To plot a surf, call surf(t1, t2, costs.') (notice
- the transpose).</pre></div>
+ the transpose).
+
+ If x is omitted, a point is generated at random. If d1 is omitted, a
+ random tangent vector at x is generated. If d2 is omitted, a random
+ tangent vector at x is generated, orthogonally to d1. If t1, t2 are
+ omitted, they are generated with linspace's in [-1, 1].</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -78,48 +83,81 @@ This function is called by:
 0017 <span class="comment">% values of the cost are returned in a matrix of size</span>
 0018 <span class="comment">% length(t1)*length(t2). To plot a surf, call surf(t1, t2, costs.') (notice</span>
 0019 <span class="comment">% the transpose).</span>
-0020 
-0021 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0022 <span class="comment">% Original author: Nicolas Boumal, Sep. 1, 2014.</span>
-0023 <span class="comment">% Contributors:</span>
-0024 <span class="comment">% Change log:</span>
-0025 <span class="comment">%</span>
-0026 <span class="comment">%   April 3, 2015 (NB):</span>
-0027 <span class="comment">%       Works with the new StoreDB class system.</span>
-0028 
-0029     <span class="comment">% Verify that the problem description is sufficient.</span>
-0030     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0031         error(<span class="string">'It seems no cost was provided.'</span>);  
-0032     <span class="keyword">end</span>
-0033     
-0034     <span class="keyword">if</span> isfield(problem.M, <span class="string">'exp'</span>)
-0035         expo = problem.M.exp;
-0036         str = <span class="string">'Exp'</span>;
-0037     <span class="keyword">else</span>
-0038         expo = problem.M.retr;
-0039         str = <span class="string">'Retr'</span>;
+0020 <span class="comment">%</span>
+0021 <span class="comment">% If x is omitted, a point is generated at random. If d1 is omitted, a</span>
+0022 <span class="comment">% random tangent vector at x is generated. If d2 is omitted, a random</span>
+0023 <span class="comment">% tangent vector at x is generated, orthogonally to d1. If t1, t2 are</span>
+0024 <span class="comment">% omitted, they are generated with linspace's in [-1, 1].</span>
+0025 
+0026 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0027 <span class="comment">% Original author: Nicolas Boumal, Sep. 1, 2014.</span>
+0028 <span class="comment">% Contributors:</span>
+0029 <span class="comment">% Change log:</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   April 3, 2015 (NB):</span>
+0032 <span class="comment">%       Works with the new StoreDB class system.</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%   Nov. 12, 2016 (NB):</span>
+0035 <span class="comment">%       Most inputs are now optional.</span>
+0036 
+0037     <span class="comment">% Verify that the problem description is sufficient.</span>
+0038     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0039         error(<span class="string">'It seems no cost was provided.'</span>);  
 0040     <span class="keyword">end</span>
 0041     
-0042     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0043     linesearch_fun = @(ta, tb) <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, <span class="keyword">...</span>
-0044                          expo(x, problem.M.lincomb(x, ta, d1, tb, d2)), <span class="keyword">...</span>
-0045                          storedb);
-0046     
-0047     costs = zeros(length(t1), length(t2));
-0048     <span class="keyword">for</span> i = 1 : length(t1)
-0049         <span class="keyword">for</span> j = 1 : length(t2)
-0050             costs(i, j) = linesearch_fun(t1(i), t2(j));
-0051         <span class="keyword">end</span>
+0042 
+0043     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0044         x = problem.M.rand();
+0045         <span class="keyword">if</span> (exist(<span class="string">'d1'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d1)) || <span class="keyword">...</span>
+0046            (exist(<span class="string">'d2'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d2))
+0047             error(<span class="string">'If x is omitted, d1, d2 should not be specified.'</span>);
+0048         <span class="keyword">end</span>
+0049     <span class="keyword">end</span>
+0050     <span class="keyword">if</span> ~exist(<span class="string">'d1'</span>, <span class="string">'var'</span>) || isempty(d1)
+0051         d1 = problem.M.randvec(x);
 0052     <span class="keyword">end</span>
-0053     
-0054     <span class="keyword">if</span> nargout == 0
-0055         surf(t1, t2, costs.');
-0056         xlabel(<span class="string">'t1'</span>);
-0057         ylabel(<span class="string">'t2'</span>);
-0058         zlabel([<span class="string">'f('</span> str <span class="string">'_x(t1*d1+t2*d2))'</span>]);
-0059     <span class="keyword">end</span>
-0060     
-0061 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0053     <span class="keyword">if</span> ~exist(<span class="string">'d2'</span>, <span class="string">'var'</span>) || isempty(d2)
+0054         d2 = problem.M.randvec(x);
+0055         <span class="comment">% Make it orthogonal to d1</span>
+0056         coeff = problem.M.inner(x, d1, d2) / problem.M.inner(x, d1, d1);
+0057         d2 = problem.M.lincomb(x, 1, d2, -coeff, d1);
+0058     <span class="keyword">end</span>
+0059     <span class="keyword">if</span> ~exist(<span class="string">'t1'</span>, <span class="string">'var'</span>) || isempty(t1)
+0060         t1 = linspace(-1, 1, 51);
+0061     <span class="keyword">end</span>
+0062     <span class="keyword">if</span> ~exist(<span class="string">'t2'</span>, <span class="string">'var'</span>) || isempty(t2)
+0063         t2 = linspace(-1, 1, 51);
+0064     <span class="keyword">end</span>
+0065     
+0066     
+0067     <span class="keyword">if</span> isfield(problem.M, <span class="string">'exp'</span>)
+0068         expo = problem.M.exp;
+0069         str = <span class="string">'Exp'</span>;
+0070     <span class="keyword">else</span>
+0071         expo = problem.M.retr;
+0072         str = <span class="string">'Retr'</span>;
+0073     <span class="keyword">end</span>
+0074     
+0075     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0076     linesearch_fun = @(ta, tb) <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, <span class="keyword">...</span>
+0077                          expo(x, problem.M.lincomb(x, ta, d1, tb, d2)), <span class="keyword">...</span>
+0078                          storedb);
+0079     
+0080     costs = zeros(length(t1), length(t2));
+0081     <span class="keyword">for</span> i = 1 : length(t1)
+0082         <span class="keyword">for</span> j = 1 : length(t2)
+0083             costs(i, j) = linesearch_fun(t1(i), t2(j));
+0084         <span class="keyword">end</span>
+0085     <span class="keyword">end</span>
+0086     
+0087     <span class="keyword">if</span> nargout == 0
+0088         surf(t1, t2, costs.');
+0089         xlabel(<span class="string">'t1'</span>);
+0090         ylabel(<span class="string">'t2'</span>);
+0091         zlabel([<span class="string">'f('</span> str <span class="string">'_x(t1*d1+t2*d2))'</span>]);
+0092     <span class="keyword">end</span>
+0093     
+0094 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -44,7 +44,13 @@
  Tangent vectors are represented in the Lie algebra, i.e., as skew
  symmetric matrices. Use the function M.tangent2ambient(X, H) to switch
  from the Lie algebra representation to the embedding space
- representation.
+ representation. This is often necessary when defining
+ problem.ehess(X, H).
+
+ By default, the retraction is only a first-order approximation of the
+ exponential. To force the use of a second-order approximation, call
+ M.retr = M.retr2 after creating M. This switches from a QR-based
+ computation to an SVD-based computation.
 
  By default, k = 1.
 
@@ -57,12 +63,12 @@ This function calls:
 <li><a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>	Generates uniformly random rotation matrices.</li><li><a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>	Generates random skew symmetric matrices with normal entries.</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>	Multiplying 1-D or 2-D subarrays contained in two N-D arrays.</li><li><a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>	Returns the skew-symmetric parts of the matrices in the 3D matrix X.</li><li><a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>	Returns the symmetric parts of the matrices in the 3D matrix X</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	Transposing arrays of matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../manopt/manifolds/specialeuclidean/specialeuclideanfactory.html" class="code" title="function M = specialeuclideanfactory(n, k)">specialeuclideanfactory</a>	Returns a manifold structure to optimize over the special Euclidean group</li></ul>
+<li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A, R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../manopt/manifolds/specialeuclidean/specialeuclideanfactory.html" class="code" title="function M = specialeuclideanfactory(n, k)">specialeuclideanfactory</a>	Returns a manifold structure to optimize over the special Euclidean group</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub3" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub4" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub5" class="code">function U = randomvec(X)</a></li><li><a href="#_sub6" class="code">function Y = pairmean(X1, X2)</a></li></ul>
+<li><a href="#_sub1" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a></li><li><a href="#_sub2" class="code">function Y = retraction(X, U, t)</a></li><li><a href="#_sub3" class="code">function Y = retraction2(X, U, t)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, U, t)</a></li><li><a href="#_sub5" class="code">function U = logarithm(X, Y)</a></li><li><a href="#_sub6" class="code">function U = randomvec(X)</a></li><li><a href="#_sub7" class="code">function Y = pairmean(X1, X2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = rotationsfactory(n, k)</a>
@@ -83,135 +89,162 @@ This function is called by:
 0016 <span class="comment">% Tangent vectors are represented in the Lie algebra, i.e., as skew</span>
 0017 <span class="comment">% symmetric matrices. Use the function M.tangent2ambient(X, H) to switch</span>
 0018 <span class="comment">% from the Lie algebra representation to the embedding space</span>
-0019 <span class="comment">% representation.</span>
-0020 <span class="comment">%</span>
-0021 <span class="comment">% By default, k = 1.</span>
-0022 <span class="comment">%</span>
-0023 <span class="comment">% See also: stiefelfactory</span>
-0024 
-0025 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0026 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0027 <span class="comment">% Contributors:</span>
-0028 <span class="comment">% Change log:</span>
-0029 <span class="comment">%     Jan. 31, 2013, NB : added egrad2rgrad and ehess2rhess</span>
+0019 <span class="comment">% representation. This is often necessary when defining</span>
+0020 <span class="comment">% problem.ehess(X, H).</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% By default, the retraction is only a first-order approximation of the</span>
+0023 <span class="comment">% exponential. To force the use of a second-order approximation, call</span>
+0024 <span class="comment">% M.retr = M.retr2 after creating M. This switches from a QR-based</span>
+0025 <span class="comment">% computation to an SVD-based computation.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% By default, k = 1.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% See also: stiefelfactory</span>
 0030 
-0031     
-0032     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
-0033         k = 1;
-0034     <span class="keyword">end</span>
-0035     
-0036     <span class="keyword">if</span> k == 1
-0037         M.name = @() sprintf(<span class="string">'Rotations manifold SO(%d)'</span>, n);
-0038     <span class="keyword">elseif</span> k &gt; 1
-0039         M.name = @() sprintf(<span class="string">'Product rotations manifold SO(%d)^%d'</span>, n, k);
-0040     <span class="keyword">else</span>
-0041         error(<span class="string">'k must be an integer no less than 1.'</span>);
-0042     <span class="keyword">end</span>
-0043     
-0044     M.dim = @() k*nchoosek(n, 2);
-0045     
-0046     M.inner = @(x, d1, d2) d1(:).'*d2(:);
-0047     
-0048     M.norm = @(x, d) norm(d(:));
-0049     
-0050     M.typicaldist = @() pi*sqrt(n*k);
-0051     
-0052     M.proj = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), H));
-0053     
-0054     M.tangent = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(H);
-0055     
-0056     M.tangent2ambient = @(X, U) <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, U);
-0057     
-0058     M.egrad2rgrad = M.proj;
-0059     
-0060     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction Rhess = ehess2rhess(X, Egrad, Ehess, H)">ehess2rhess</a>;
-0061     <a name="_sub1" href="#_subfunctions" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a>
-0062         <span class="comment">% Reminder : H contains skew-symmeric matrices. The actual</span>
-0063         <span class="comment">% direction that the point X is moved along is X*H.</span>
-0064         Xt = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X);
-0065         XtEgrad = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Egrad);
-0066         symXtEgrad = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(XtEgrad);
-0067         XtEhess = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Ehess);
-0068         Rhess = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>( XtEhess - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, symXtEgrad) );
-0069     <span class="keyword">end</span>
-0070     
-0071     M.retr = @<a href="#_sub2" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
-0072     <a name="_sub2" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
-0073         <span class="keyword">if</span> nargin == 3
-0074             tU = t*U;
-0075         <span class="keyword">else</span>
-0076             tU = U;
-0077         <span class="keyword">end</span>
-0078         Y = X + <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, tU);
-0079         <span class="keyword">for</span> i = 1 : k
-0080             [Q R] = qr(Y(:, :, i));
-0081             <span class="comment">% The instruction with R ensures we are not flipping signs</span>
-0082             <span class="comment">% of some columns, which should never happen in modern Matlab</span>
-0083             <span class="comment">% versions but may be an issue with older versions.</span>
-0084             Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
-0085             <span class="comment">% This is guaranteed to always yield orthogonal matrices with</span>
-0086             <span class="comment">% determinant +1. Simply look at the eigenvalues of a skew</span>
-0087             <span class="comment">% symmetric matrix, than at those of identity plus that matrix,</span>
-0088             <span class="comment">% and compute their product for the determinant: it's stricly</span>
-0089             <span class="comment">% positive in all cases.</span>
-0090         <span class="keyword">end</span>
-0091     <span class="keyword">end</span>
-0092     
-0093     M.exp = @<a href="#_sub3" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
-0094     <a name="_sub3" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
-0095         <span class="keyword">if</span> nargin == 3
-0096             exptU = t*U;
-0097         <span class="keyword">else</span>
-0098             exptU = U;
-0099         <span class="keyword">end</span>
-0100         <span class="keyword">for</span> i = 1 : k
-0101             exptU(:, :, i) = expm(exptU(:, :, i));
-0102         <span class="keyword">end</span>
-0103         Y = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, exptU);
-0104     <span class="keyword">end</span>
-0105     
-0106     M.log = @<a href="#_sub4" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
-0107     <a name="_sub4" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
-0108         U = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), Y);
-0109         <span class="keyword">for</span> i = 1 : k
-0110             <span class="comment">% The result of logm should be real in theory, but it is</span>
-0111             <span class="comment">% numerically useful to force it.</span>
-0112             U(:, :, i) = real(logm(U(:, :, i)));
-0113         <span class="keyword">end</span>
-0114         <span class="comment">% Ensure the tangent vector is in the Lie algebra.</span>
-0115         U = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(U);
-0116     <span class="keyword">end</span>
-0117 
-0118     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0031 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0032 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0033 <span class="comment">% Contributors:</span>
+0034 <span class="comment">% Change log:</span>
+0035 <span class="comment">%   Jan. 31, 2013 (NB)</span>
+0036 <span class="comment">%       Added egrad2rgrad and ehess2rhess</span>
+0037 <span class="comment">%   Oct. 21, 2016 (NB)</span>
+0038 <span class="comment">%       Added M.retr2: a second-order retraction based on SVD.</span>
+0039 
+0040     
+0041     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0042         k = 1;
+0043     <span class="keyword">end</span>
+0044     
+0045     <span class="keyword">if</span> k == 1
+0046         M.name = @() sprintf(<span class="string">'Rotations manifold SO(%d)'</span>, n);
+0047     <span class="keyword">elseif</span> k &gt; 1
+0048         M.name = @() sprintf(<span class="string">'Product rotations manifold SO(%d)^%d'</span>, n, k);
+0049     <span class="keyword">else</span>
+0050         error(<span class="string">'k must be an integer no less than 1.'</span>);
+0051     <span class="keyword">end</span>
+0052     
+0053     M.dim = @() k*nchoosek(n, 2);
+0054     
+0055     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0056     
+0057     M.norm = @(x, d) norm(d(:));
+0058     
+0059     M.typicaldist = @() pi*sqrt(n*k);
+0060     
+0061     M.proj = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), H));
+0062     
+0063     M.tangent = @(X, H) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(H);
+0064     
+0065     M.tangent2ambient = @(X, U) <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, U);
+0066     
+0067     M.egrad2rgrad = M.proj;
+0068     
+0069     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction Rhess = ehess2rhess(X, Egrad, Ehess, H)">ehess2rhess</a>;
+0070     <a name="_sub1" href="#_subfunctions" class="code">function Rhess = ehess2rhess(X, Egrad, Ehess, H)</a>
+0071         <span class="comment">% Reminder : H contains skew-symmeric matrices. The actual</span>
+0072         <span class="comment">% direction that the point X is moved along is X*H.</span>
+0073         Xt = <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X);
+0074         XtEgrad = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Egrad);
+0075         symXtEgrad = <a href="../../../manopt/tools/multisym.html" class="code" title="function Y = multisym(X)">multisym</a>(XtEgrad);
+0076         XtEhess = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(Xt, Ehess);
+0077         Rhess = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>( XtEhess - <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(H, symXtEgrad) );
+0078     <span class="keyword">end</span>
+0079     
+0080     M.retr = @<a href="#_sub2" class="code" title="subfunction Y = retraction(X, U, t)">retraction</a>;
+0081     <a name="_sub2" href="#_subfunctions" class="code">function Y = retraction(X, U, t)</a>
+0082         <span class="keyword">if</span> nargin == 3
+0083             tU = t*U;
+0084         <span class="keyword">else</span>
+0085             tU = U;
+0086         <span class="keyword">end</span>
+0087         Y = X + <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, tU);
+0088         <span class="keyword">for</span> i = 1 : k
+0089             <span class="comment">% This QR-based retraction is only a first-order approximation</span>
+0090             <span class="comment">% of the exponential map, not a second-order one.</span>
+0091             [Q, R] = qr(Y(:, :, i));
+0092             <span class="comment">% The instruction with R ensures we are not flipping signs</span>
+0093             <span class="comment">% of some columns, which should never happen in modern Matlab</span>
+0094             <span class="comment">% versions but may be an issue with older versions.</span>
+0095             Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+0096             <span class="comment">% This is guaranteed to always yield orthogonal matrices with</span>
+0097             <span class="comment">% determinant +1. Simply look at the eigenvalues of a skew</span>
+0098             <span class="comment">% symmetric matrix, than at those of identity plus that matrix,</span>
+0099             <span class="comment">% and compute their product for the determinant: it's stricly</span>
+0100             <span class="comment">% positive in all cases.</span>
+0101         <span class="keyword">end</span>
+0102     <span class="keyword">end</span>
+0103     
+0104     <span class="comment">% A second order retraction is implemented here. To force its use,</span>
+0105     <span class="comment">% after creating the factory M, execute M.retr = M.retr2.</span>
+0106     M.retr2 = @<a href="#_sub3" class="code" title="subfunction Y = retraction2(X, U, t)">retraction2</a>;
+0107     <a name="_sub3" href="#_subfunctions" class="code">function Y = retraction2(X, U, t)</a>
+0108         <span class="keyword">if</span> nargin == 3
+0109             tU = t*U;
+0110         <span class="keyword">else</span>
+0111             tU = U;
+0112         <span class="keyword">end</span>
+0113         Y = X + <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, tU);
+0114         <span class="keyword">for</span> i = 1 : k
+0115             [Uk, ~, Vk] = svd(Y(:, :, k));
+0116             Y(:, :, k) = Uk*Vk';
+0117         <span class="keyword">end</span>
+0118     <span class="keyword">end</span>
 0119     
-0120     M.rand = @() <a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(n, k);
-0121     
-0122     M.randvec = @<a href="#_sub5" class="code" title="subfunction U = randomvec(X) ">randomvec</a>;
-0123     <a name="_sub5" href="#_subfunctions" class="code">function U = randomvec(X) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
-0124         U = <a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>(n, k);
-0125         nrmU = sqrt(U(:).'*U(:));
-0126         U = U / nrmU;
-0127     <span class="keyword">end</span>
-0128     
-0129     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0130     
-0131     M.zerovec = @(x) zeros(n, n, k);
+0120     M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, U, t)">exponential</a>;
+0121     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, U, t)</a>
+0122         <span class="keyword">if</span> nargin == 3
+0123             exptU = t*U;
+0124         <span class="keyword">else</span>
+0125             exptU = U;
+0126         <span class="keyword">end</span>
+0127         <span class="keyword">for</span> i = 1 : k
+0128             exptU(:, :, i) = expm(exptU(:, :, i));
+0129         <span class="keyword">end</span>
+0130         Y = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X, exptU);
+0131     <span class="keyword">end</span>
 0132     
-0133     M.transp = @(x1, x2, d) d;
-0134     
-0135     M.pairmean = @<a href="#_sub6" class="code" title="subfunction Y = pairmean(X1, X2)">pairmean</a>;
-0136     <a name="_sub6" href="#_subfunctions" class="code">function Y = pairmean(X1, X2)</a>
-0137         V = M.log(X1, X2);
-0138         Y = M.exp(X1, .5*V);
-0139     <span class="keyword">end</span>
-0140     
-0141     M.dist = @(x, y) M.norm(x, M.log(x, y));
-0142     
-0143     M.vec = @(x, u_mat) u_mat(:);
-0144     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
-0145     M.vecmatareisometries = @() true;
-0146 
-0147 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0133     M.log = @<a href="#_sub5" class="code" title="subfunction U = logarithm(X, Y)">logarithm</a>;
+0134     <a name="_sub5" href="#_subfunctions" class="code">function U = logarithm(X, Y)</a>
+0135         U = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X), Y);
+0136         <span class="keyword">for</span> i = 1 : k
+0137             <span class="comment">% The result of logm should be real in theory, but it is</span>
+0138             <span class="comment">% numerically useful to force it.</span>
+0139             U(:, :, i) = real(logm(U(:, :, i)));
+0140         <span class="keyword">end</span>
+0141         <span class="comment">% Ensure the tangent vector is in the Lie algebra.</span>
+0142         U = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(U);
+0143     <span class="keyword">end</span>
+0144 
+0145     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0146     
+0147     M.rand = @() <a href="randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(n, k);
+0148     
+0149     M.randvec = @<a href="#_sub6" class="code" title="subfunction U = randomvec(X) ">randomvec</a>;
+0150     <a name="_sub6" href="#_subfunctions" class="code">function U = randomvec(X) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0151         U = <a href="randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>(n, k);
+0152         nrmU = sqrt(U(:).'*U(:));
+0153         U = U / nrmU;
+0154     <span class="keyword">end</span>
+0155     
+0156     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0157     
+0158     M.zerovec = @(x) zeros(n, n, k);
+0159     
+0160     M.transp = @(x1, x2, d) d;
+0161     
+0162     M.pairmean = @<a href="#_sub7" class="code" title="subfunction Y = pairmean(X1, X2)">pairmean</a>;
+0163     <a name="_sub7" href="#_subfunctions" class="code">function Y = pairmean(X1, X2)</a>
+0164         V = M.log(X1, X2);
+0165         Y = M.exp(X1, .5*V);
+0166     <span class="keyword">end</span>
+0167     
+0168     M.dist = @(x, y) M.norm(x, M.log(x, y));
+0169     
+0170     M.vec = @(x, u_mat) u_mat(:);
+0171     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
+0172     M.vecmatareisometries = @() true;
+0173 
+0174 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

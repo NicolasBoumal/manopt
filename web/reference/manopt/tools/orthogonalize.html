@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of orthogonalize</title>
+  <meta name="keywords" content="orthogonalize">
+  <meta name="description" content="Orthonormalizes a basis of tangent vectors in the Manopt framework.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; orthogonalize.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>orthogonalize
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Orthonormalizes a basis of tangent vectors in the Manopt framework.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [orthobasis, L] = orthogonalize(M, x, basis) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Orthonormalizes a basis of tangent vectors in the Manopt framework.
+
+ function [orthobasis, L] = orthogonalize(M, x, basis)
+
+ M is a Manopt manifold structure obtained from a factory.
+ x is a point on the manifold M.
+ basis is a cell containing n linearly independent tangent vectors at x.
+
+ orthobasis is a cell of same size as basis which contains an orthonormal
+ basis for the same subspace as that spanned by basis. Orthonormality is
+ assessed with respect to the metric on the tangent space to M at x.
+ L is upper triangular of size n x n if basis has n vectors, such that,
+ basis{k} = sum_j=1^k orthobasis{j} * L(j, k) (akin to R in a QR
+ factorization.)
+
+ See also: <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a> <a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a>	Computes the Gram matrix of tangent vectors in the Manopt framework.</li><li><a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>	Computes a linear combination of tangent vectors in the Manopt framework.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a>	Returns an orthonormal basis of tangent vectors in the Manopt framework.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [orthobasis, L] = orthogonalize(M, x, basis)</a>
+0002 <span class="comment">% Orthonormalizes a basis of tangent vectors in the Manopt framework.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [orthobasis, L] = orthogonalize(M, x, basis)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% M is a Manopt manifold structure obtained from a factory.</span>
+0007 <span class="comment">% x is a point on the manifold M.</span>
+0008 <span class="comment">% basis is a cell containing n linearly independent tangent vectors at x.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% orthobasis is a cell of same size as basis which contains an orthonormal</span>
+0011 <span class="comment">% basis for the same subspace as that spanned by basis. Orthonormality is</span>
+0012 <span class="comment">% assessed with respect to the metric on the tangent space to M at x.</span>
+0013 <span class="comment">% L is upper triangular of size n x n if basis has n vectors, such that,</span>
+0014 <span class="comment">% basis{k} = sum_j=1^k orthobasis{j} * L(j, k) (akin to R in a QR</span>
+0015 <span class="comment">% factorization.)</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% See also: grammatrix tangentorthobasis</span>
+0018 
+0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0020 <span class="comment">% Original author: Nicolas Boumal, April 28, 2016.</span>
+0021 <span class="comment">% Contributors:</span>
+0022 <span class="comment">% Change log:</span>
+0023 
+0024 
+0025     n = numel(basis);
+0026     orthobasis = cell(size(basis));
+0027     
+0028     <span class="comment">% Build the Gram matrix of the basis vectors.</span>
+0029     G = <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a>(M, x, basis);
+0030     
+0031     <span class="comment">% If the vectors in 'basis' were the columns of V, and the inner</span>
+0032     <span class="comment">% product were the classical dot product, then G = V'*V. We are looking</span>
+0033     <span class="comment">% for R, an invertible matrix such that V*R is orthogonal. Thus, R</span>
+0034     <span class="comment">% satisfies R'*V'*V*R = eye(n); equivalently:</span>
+0035     <span class="comment">%  G = inv(R)'*inv(R).</span>
+0036     <span class="comment">% Computing a Cholesky factorization of G yields L such that G = L'*L.</span>
+0037     <span class="comment">% Thus, R = inv(L). Each column of R states exactly which linear</span>
+0038     <span class="comment">% combinations of the vectors in 'basis' must be computed to produce</span>
+0039     <span class="comment">% the orthonormal basis.</span>
+0040     <span class="comment">%</span>
+0041     <span class="comment">% Of course, in that formalism, we could directly take a qr of V, but</span>
+0042     <span class="comment">% in the actual setting V is not available; the only simple object</span>
+0043     <span class="comment">% available is G.</span>
+0044     <span class="comment">%</span>
+0045     <span class="comment">% If this simple code turns out not to be satisfactory (most likely</span>
+0046     <span class="comment">% because of numerical instability), it may be good to consider</span>
+0047     <span class="comment">% implementing a modified Gram-Schmidt algorithm instead, and even to</span>
+0048     <span class="comment">% provide a helper function which calls it twice.</span>
+0049     L = chol(G);
+0050     R = inv(L);
+0051     
+0052     <span class="comment">% Note that R is upper triangular.</span>
+0053     <span class="comment">% We now compute the n linear combinations.</span>
+0054     
+0055     <span class="keyword">for</span> k = 1 : n
+0056         
+0057         orthobasis{k} = <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(M, x, basis(1:k), R(1:k, k));
+0058         
+0059     <span class="keyword">end</span>
+0060 
+0061 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

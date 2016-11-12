@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of hessianmatrix</title>
+  <meta name="keywords" content="hessianmatrix">
+  <meta name="description" content="Computes a matrix which represents the Hessian in some tangent basis.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; hessianmatrix.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>hessianmatrix
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes a matrix which represents the Hessian in some tangent basis.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [H, basis] = hessianmatrix(problem, x, basis) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes a matrix which represents the Hessian in some tangent basis.
+
+ [H, basis] = hessianmatrix(problem, x)
+ [H, basis] = hessianmatrix(problem, x, basis)
+
+ problem is a Manopt problem structure with a manifold and cost function.
+ x is a point on the manifold problem.M.
+ basis (optional) is an orthonormal basis for the tangent space to the
+ manifold at x. If no basis is supplied, one will be generated at random.
+ If the basis spans only a subspace of the tangent space at x,
+ then the returned matrix represents the Hessian restricted to that subspace.
+
+ H is an n-by-n symmetric matrix (with n the number of vectors in the basis)
+ such that H(i, j) is the inner product between basis{i}
+ and Hess(basis{j}), with respect to the metric on the tangent space to
+ problem.M at x, where Hess(basis{j}) is the vector obtained after
+ applying the Hessian at x to basis{j}.
+
+ For optimization, it is usually not useful to compute the Hessian matrix,
+ as this quickly becomes expensive. This tool is provided mostly for
+ exploration and debugging rather than to be used algorithmically in
+ solvers. To access the spectrum of the Hessian, it may be more practical
+ to call hessianextreme or hessianspectrum. This should coincide with eig(H).
+
+ See also: <a href="hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a> <a href="hessianextreme.html" class="code" title="function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)">hessianextreme</a> <a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a> <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a>	Returns an orthonormal basis of tangent vectors in the Manopt framework.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [H, basis] = hessianmatrix(problem, x, basis)</a>
+0002 <span class="comment">% Computes a matrix which represents the Hessian in some tangent basis.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [H, basis] = hessianmatrix(problem, x)</span>
+0005 <span class="comment">% [H, basis] = hessianmatrix(problem, x, basis)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% problem is a Manopt problem structure with a manifold and cost function.</span>
+0008 <span class="comment">% x is a point on the manifold problem.M.</span>
+0009 <span class="comment">% basis (optional) is an orthonormal basis for the tangent space to the</span>
+0010 <span class="comment">% manifold at x. If no basis is supplied, one will be generated at random.</span>
+0011 <span class="comment">% If the basis spans only a subspace of the tangent space at x,</span>
+0012 <span class="comment">% then the returned matrix represents the Hessian restricted to that subspace.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% H is an n-by-n symmetric matrix (with n the number of vectors in the basis)</span>
+0015 <span class="comment">% such that H(i, j) is the inner product between basis{i}</span>
+0016 <span class="comment">% and Hess(basis{j}), with respect to the metric on the tangent space to</span>
+0017 <span class="comment">% problem.M at x, where Hess(basis{j}) is the vector obtained after</span>
+0018 <span class="comment">% applying the Hessian at x to basis{j}.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% For optimization, it is usually not useful to compute the Hessian matrix,</span>
+0021 <span class="comment">% as this quickly becomes expensive. This tool is provided mostly for</span>
+0022 <span class="comment">% exploration and debugging rather than to be used algorithmically in</span>
+0023 <span class="comment">% solvers. To access the spectrum of the Hessian, it may be more practical</span>
+0024 <span class="comment">% to call hessianextreme or hessianspectrum. This should coincide with eig(H).</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% See also: hessianspectrum hessianextreme tangentorthobasis orthogonalize</span>
+0027 
+0028 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0029 <span class="comment">% Original author: Nicolas Boumal, July 14, 2016.</span>
+0030 <span class="comment">% Contributors:</span>
+0031 <span class="comment">% Change log:</span>
+0032 
+0033 
+0034     <span class="comment">% Unless an orthonormal basis for the tangent space at x is provided,</span>
+0035     <span class="comment">% pick a random one.</span>
+0036     <span class="keyword">if</span> ~exist(<span class="string">'basis'</span>, <span class="string">'var'</span>) || isempty(basis)
+0037         n = problem.M.dim();
+0038         basis = <a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a>(problem.M, x, n);
+0039     <span class="keyword">else</span>
+0040         n = numel(basis);
+0041     <span class="keyword">end</span>
+0042     
+0043     <span class="comment">% Create a store database and get a key for x</span>
+0044     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(1);
+0045     key = storedb.getNewKey();
+0046     
+0047     <span class="comment">% Apply the Hessian at x to each basis vector</span>
+0048     Hbasis = cell(n, 1);
+0049     <span class="keyword">for</span> k = 1 : numel(Hbasis)
+0050         Hbasis{k} = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, basis{k}, storedb, key);
+0051     <span class="keyword">end</span>
+0052     
+0053     <span class="comment">% H is the matrix which contains the inner products of</span>
+0054     <span class="comment">% the ((basis vectors)) with the ((Hessian applied to basis vectors)).</span>
+0055     H = zeros(n);
+0056     <span class="keyword">for</span> i = 1 : n
+0057         H(i, i) = problem.M.inner(x, basis{i}, Hbasis{i});
+0058         <span class="keyword">for</span> j = (i+1) : n
+0059             H(i, j) = problem.M.inner(x, basis{i}, Hbasis{j});
+0060             H(j, i) = H(i, j);
+0061         <span class="keyword">end</span>
+0062     <span class="keyword">end</span>
+0063 
+0064 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

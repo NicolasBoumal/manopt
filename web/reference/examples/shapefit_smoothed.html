@@ -83,7 +83,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function AT = A(T)</a></li><li><a href="#_sub2" class="code">function T_cvx = shapefit_cvx(V, J)</a></li><li><a href="#_sub3" class="code">function [I, J, A] = erdosrenyi(n, p)</a></li></ul>
+<li><a href="#_sub1" class="code">function AT = A(T)</a></li><li><a href="#_sub2" class="code">function T_cvx = shapefit_cvx(V, J)</a></li><li><a href="#_sub3" class="code">function [I, J, A] = erdosrenyi(n, p)</a></li><li><a href="#_sub4" class="code">function [I, J, A] = randomgraph(n, m)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)</a>
@@ -137,219 +137,254 @@ This function is called by:
 0049 <span class="comment">% Change log:</span>
 0050 
 0051 
-0052     <span class="comment">% DATA GENERATION</span>
-0053     <span class="comment">%</span>
-0054     <span class="comment">% If no inputs are specified, generate some random data for</span>
-0055     <span class="comment">% illustration purposes.</span>
-0056     <span class="keyword">if</span> nargin == 0
-0057 
-0058         <span class="comment">% We estimate n points in R^d</span>
-0059         d =   2;
-0060         n = 500;
-0061 
-0062         <span class="comment">% Generic useful functions</span>
-0063         center_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) bsxfun(@minus, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, mean(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, 2));
-0064         normalize_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) bsxfun(@times, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, 1./sqrt(sum(A.^2, 1)));
-0065         sqnorm_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) sum(A.^2, 1);
-0066 
-0067         <span class="comment">% Those points are the columns of T : they are what we need to</span>
-0068         <span class="comment">% estimate, up to scaling and translation. We center T for</span>
-0069         <span class="comment">% convenience.</span>
-0070         T_tru = center_cols(rand(d, n));
-0071 
-0072         <span class="comment">% We get a measurement of some pairs of relative directions.</span>
-0073         <span class="comment">% Which pairs is encoded in this graph, with J being the (signed,</span>
-0074         <span class="comment">% transposed) incidence matrix. J is n x m, sparse.</span>
-0075         <span class="comment">% There are roughly edge_fraction * n * (n+1) / 2 measurements.</span>
-0076         edge_fraction = 0.1;
-0077         [ii, jj] = <a href="#_sub3" class="code" title="subfunction [I, J, A] = erdosrenyi(n, p)">erdosrenyi</a>(n, edge_fraction);
-0078         m = length(ii);
-0079         J = sparse([ii ; jj], [(1:m)' ; (1:m)'], <span class="keyword">...</span>
-0080                    [ones(m, 1), -ones(m, 1)], n, m, 2*m);
-0081 
-0082         <span class="comment">% The measurements give the directions from one point to another.</span>
-0083         <span class="comment">% That is: we get the position difference, normalized. Here, with</span>
-0084         <span class="comment">% Gaussian noise. Least-squares will be well-suited for this.</span>
-0085         sigma = .0;
-0086         V = normalize_cols(T_tru*J + sigma*randn(d, m)); <span class="comment">% d x m</span>
-0087 
-0088         <span class="comment">% Outliers: we replace some of the direction measurements by</span>
-0089         <span class="comment">% uniformly random unit-norm vectors.</span>
-0090         outlier_fraction = .3;
-0091         outliers = rand(1, m) &lt; outlier_fraction;
-0092         V(:, outliers) = normalize_cols(randn(d, sum(outliers)));
-0093         
-0094     <span class="keyword">end</span> <span class="comment">% done generating random data</span>
-0095     
-0096     
+0052     <span class="comment">% Generic useful functions</span>
+0053     center_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) bsxfun(@minus, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, mean(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, 2));
+0054     normalize_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) bsxfun(@times, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>, 1./sqrt(sum(A.^2, 1)));
+0055     sqnorm_cols = @(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>) sum(A.^2, 1);
+0056 
+0057     
+0058     <span class="comment">% DATA GENERATION</span>
+0059     <span class="comment">%</span>
+0060     <span class="comment">% If no inputs are specified, generate some random data for</span>
+0061     <span class="comment">% illustration purposes.</span>
+0062     <span class="keyword">if</span> nargin == 0
+0063 
+0064         <span class="comment">% We estimate n points in R^d</span>
+0065         d =   2;
+0066         n = 500;
+0067 
+0068         <span class="comment">% Those points are the columns of T : they are what we need to</span>
+0069         <span class="comment">% estimate, up to scaling and translation. We center T for</span>
+0070         <span class="comment">% convenience.</span>
+0071         T_tru = center_cols(rand(d, n));
+0072 
+0073         <span class="comment">% We get a measurement of some pairs of relative directions.</span>
+0074         <span class="comment">% Which pairs is encoded in this graph, with J being the (signed,</span>
+0075         <span class="comment">% transposed) incidence matrix. J is n x m, sparse.</span>
+0076         <span class="comment">% There are roughly edge_fraction * n * (n-1) / 2 measurements.</span>
+0077         edge_fraction = 0.10;
+0078         <span class="comment">% [ii, jj] = erdosrenyi(n, edge_fraction);</span>
+0079         [ii, jj] = <a href="#_sub4" class="code" title="subfunction [I, J, A] = randomgraph(n, m)">randomgraph</a>(n, edge_fraction*nchoosek(n, 2));
+0080         m = length(ii);
+0081         J = sparse([ii ; jj], [(1:m)' ; (1:m)'], <span class="keyword">...</span>
+0082                    [ones(m, 1), -ones(m, 1)], n, m, 2*m);
+0083 
+0084         <span class="comment">% The measurements give the directions from one point to another.</span>
+0085         <span class="comment">% That is: we get the position difference, normalized. Here, with</span>
+0086         <span class="comment">% Gaussian noise. Least-squares will be well-suited for this.</span>
+0087         sigma = .0;
+0088         V = normalize_cols(T_tru*J + sigma*randn(d, m)); <span class="comment">% d x m</span>
+0089 
+0090         <span class="comment">% Outliers: we replace some of the direction measurements by</span>
+0091         <span class="comment">% uniformly random unit-norm vectors.</span>
+0092         outlier_fraction = .3;
+0093         outliers = rand(1, m) &lt; outlier_fraction;
+0094         V(:, outliers) = normalize_cols(randn(d, sum(outliers)));
+0095         
+0096     <span class="keyword">end</span> <span class="comment">% done generating random data</span>
 0097     
 0098     
 0099     
-0100     [d, m] = size(V);
-0101     n = size(J, 1);
-0102     assert(size(J, 2) == m, <span class="string">'J must be n x m, with V of size d x m.'</span>);
-0103 
-0104     VJt = full(V*J');
+0100     
+0101     
+0102     [d, m] = size(V);
+0103     n = size(J, 1);
+0104     assert(size(J, 2) == m, <span class="string">'J must be n x m, with V of size d x m.'</span>);
 0105 
-0106     <span class="comment">% This &quot;manifold&quot; describes the Euclidean space of matrices T of size</span>
-0107     <span class="comment">% d x n such that &lt;VJt, T&gt; = 1 and T has centered columns: T1 = 0.</span>
-0108     problem.M = <a href="../manopt/manifolds/euclidean/shapefitfactory.html" class="code" title="function M = shapefitfactory(VJt)">shapefitfactory</a>(VJt);
-0109 
-0110     <span class="comment">% This linear operator computes the orthogonal projection of each</span>
-0111     <span class="comment">% difference ti - tj on the orthogonal space to v_ij.</span>
-0112     <span class="comment">% If the alignment is compatible with the data, then this is zero.</span>
-0113     <span class="comment">% A(T) is a d x m matrix.</span>
-0114     <a name="_sub1" href="#_subfunctions" class="code">function AT = A(T)</a>
-0115         TJ = T*J;
-0116         AT = TJ - bsxfun(@times, V, sum(V .* TJ, 1));
-0117     <span class="keyword">end</span>
-0118 
-0119     <span class="comment">% Need the adjoint of A, too. Input is d x m, output is d x n.</span>
-0120     Astar = @(W) (W - bsxfun(@times, V, sum(V.*W, 1)))*J';
-0121 
-0122     
-0123     
-0124     <span class="comment">% LEAST-SQUARES</span>
-0125     <span class="comment">%</span>
-0126     <span class="comment">% First, work with a least-squares formulation of the problem.</span>
-0127     <span class="comment">% That is, we minimize a (very nice) convex cost over an affine space.</span>
-0128     <span class="comment">% Since the smooth solvers in Manopt converge to critical points, this</span>
-0129     <span class="comment">% means they converge to global optimizers.</span>
-0130     problem.cost  = @(T) 0.5*norm(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T), <span class="string">'fro'</span>)^2;
-0131     problem.egrad = @(T) Astar(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T));
-0132     problem.ehess = @(T, Tdot) Astar(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(Tdot));
-0133 
-0134     T_lsq = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem);
-0135     
-0136 
+0106     VJt = full(V*J');
+0107 
+0108     <span class="comment">% This &quot;manifold&quot; describes the Euclidean space of matrices T of size</span>
+0109     <span class="comment">% d x n such that &lt;VJt, T&gt; = 1 and T has centered columns: T1 = 0.</span>
+0110     problem.M = <a href="../manopt/manifolds/euclidean/shapefitfactory.html" class="code" title="function M = shapefitfactory(VJt)">shapefitfactory</a>(VJt);
+0111 
+0112     <span class="comment">% This linear operator computes the orthogonal projection of each</span>
+0113     <span class="comment">% difference ti - tj on the orthogonal space to v_ij.</span>
+0114     <span class="comment">% If the alignment is compatible with the data, then this is zero.</span>
+0115     <span class="comment">% A(T) is a d x m matrix.</span>
+0116     <a name="_sub1" href="#_subfunctions" class="code">function AT = A(T)</a>
+0117         TJ = T*J;
+0118         AT = TJ - bsxfun(@times, V, sum(V .* TJ, 1));
+0119     <span class="keyword">end</span>
+0120 
+0121     <span class="comment">% Need the adjoint of A, too. Input is d x m, output is d x n.</span>
+0122     Astar = @(W) (W - bsxfun(@times, V, sum(V.*W, 1)))*J';
+0123 
+0124     
+0125     
+0126     <span class="comment">% LEAST-SQUARES</span>
+0127     <span class="comment">%</span>
+0128     <span class="comment">% First, work with a least-squares formulation of the problem.</span>
+0129     <span class="comment">% That is, we minimize a (very nice) convex cost over an affine space.</span>
+0130     <span class="comment">% Since the smooth solvers in Manopt converge to critical points, this</span>
+0131     <span class="comment">% means they converge to global optimizers.</span>
+0132     problem.cost  = @(T) 0.5*norm(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T), <span class="string">'fro'</span>)^2;
+0133     problem.egrad = @(T) Astar(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T));
+0134     problem.ehess = @(T, Tdot) Astar(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(Tdot));
+0135 
+0136     T_lsq = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem);
 0137     
-0138     <span class="comment">% PSEUDO-HUBER SMOOTHED SHAPEFIT</span>
-0139     <span class="comment">%</span>
-0140     <span class="comment">% Now solve the same, but with a pseudo-Huber loss instead of</span>
-0141     <span class="comment">% least-squares.</span>
-0142     <span class="comment">% We iteratively sharpen the Huber function, i.e., reduce delta.</span>
-0143     <span class="comment">% It is important to warm start in such a fashion: trying to optimize</span>
-0144     <span class="comment">% with a random initial guess and a very small delta is typically slow.</span>
-0145     <span class="comment">% How fast one should decrease delta, and how accurately one should</span>
-0146     <span class="comment">% optimize at each intermediate stage, is open for research.</span>
-0147     delta = 1;
-0148     T_hub = []; <span class="comment">% We could use T_lsq as initial guess, too.</span>
-0149     problem = rmfield(problem, <span class="string">'ehess'</span>);
-0150     warning(<span class="string">'off'</span>, <span class="string">'manopt:getHessian:approx'</span>);
-0151     <span class="keyword">for</span> iter = 1 : 12
-0152         
-0153         delta = delta / 2;
+0138 
+0139     
+0140     <span class="comment">% PSEUDO-HUBER SMOOTHED SHAPEFIT</span>
+0141     <span class="comment">%</span>
+0142     <span class="comment">% Now solve the same, but with a pseudo-Huber loss instead of</span>
+0143     <span class="comment">% least-squares.</span>
+0144     <span class="comment">% We iteratively sharpen the Huber function, i.e., reduce delta.</span>
+0145     <span class="comment">% It is important to warm start in such a fashion: trying to optimize</span>
+0146     <span class="comment">% with a random initial guess and a very small delta is typically slow.</span>
+0147     <span class="comment">% How fast one should decrease delta, and how accurately one should</span>
+0148     <span class="comment">% optimize at each intermediate stage, is open for research.</span>
+0149     delta = 1;
+0150     T_hub = []; <span class="comment">% We could use T_lsq as initial guess, too.</span>
+0151     problem = rmfield(problem, <span class="string">'ehess'</span>);
+0152     warning(<span class="string">'off'</span>, <span class="string">'manopt:getHessian:approx'</span>);
+0153     <span class="keyword">for</span> iter = 1 : 12
 0154         
-0155         h = @(x2) sqrt(x2 + delta^2) - delta; <span class="comment">% pseudo-Huber loss</span>
-0156 
-0157         problem.cost  = @(T) sum(h(sqnorm_cols(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T))));
-0158         problem.egrad = @(T) Astar(bsxfun(@times, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T), <span class="keyword">...</span>
-0159                                     1./sqrt(sqnorm_cols(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T)) + delta^2)));
-0160 
-0161         <span class="comment">% Solve, using the previous solution as initial guess.</span>
-0162         T_hub = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, T_hub);
-0163         
-0164     <span class="keyword">end</span>
-0165     
-0166     
+0155         delta = delta / 2;
+0156         
+0157         h = @(x2) sqrt(x2 + delta^2) - delta; <span class="comment">% pseudo-Huber loss</span>
+0158 
+0159         problem.cost  = @(T) sum(h(sqnorm_cols(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T))));
+0160         problem.egrad = @(T) Astar(bsxfun(@times, <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T), <span class="keyword">...</span>
+0161                                     1./sqrt(sqnorm_cols(<a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a>(T)) + delta^2)));
+0162 
+0163         <span class="comment">% Solve, using the previous solution as initial guess.</span>
+0164         T_hub = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, T_hub);
+0165         
+0166     <span class="keyword">end</span>
 0167     
-0168     <span class="comment">% CVX SHAPEFIT</span>
-0169     <span class="comment">%</span>
-0170     <span class="comment">% Actual ShapeFit cost (nonsmooth), with CVX.</span>
-0171     <span class="comment">% You can get CVX from http://cvxr.com/.</span>
-0172     use_cvx_if_available = false;
-0173     <span class="keyword">if</span> use_cvx_if_available &amp;&amp; exist(<span class="string">'cvx_version'</span>, <span class="string">'file'</span>)
-0174         T_cvx = <a href="#_sub2" class="code" title="subfunction T_cvx = shapefit_cvx(V, J)">shapefit_cvx</a>(V, J);
-0175     <span class="keyword">else</span>
-0176         T_cvx = NaN(d, n);
-0177     <span class="keyword">end</span>
-0178     
-0179     
+0168     
+0169     
+0170     <span class="comment">% CVX SHAPEFIT</span>
+0171     <span class="comment">%</span>
+0172     <span class="comment">% Actual ShapeFit cost (nonsmooth), with CVX.</span>
+0173     <span class="comment">% You can get CVX from http://cvxr.com/.</span>
+0174     use_cvx_if_available = false;
+0175     <span class="keyword">if</span> use_cvx_if_available &amp;&amp; exist(<span class="string">'cvx_version'</span>, <span class="string">'file'</span>)
+0176         T_cvx = <a href="#_sub2" class="code" title="subfunction T_cvx = shapefit_cvx(V, J)">shapefit_cvx</a>(V, J);
+0177     <span class="keyword">else</span>
+0178         T_cvx = NaN(d, n);
+0179     <span class="keyword">end</span>
 0180     
-0181     <span class="comment">% VISUALIZATION</span>
-0182     <span class="comment">%</span>
-0183     <span class="comment">% If T_true is available, for display, we scale the estimators to match</span>
-0184     <span class="comment">% the norm of the target. The scaling factor is obtained by minimizing</span>
-0185     <span class="comment">% the norm of the discrepancy : norm(T_tru - scale*T_xxx, 'fro').</span>
-0186     <span class="comment">% A plot is produced if d is 2 or 3.</span>
-0187     <span class="keyword">if</span> exist(<span class="string">'T_tru'</span>, <span class="string">'var'</span>) &amp;&amp; (d == 2 || d == 3)
-0188         
-0189         T_lsq = T_lsq * trace(T_tru'*T_lsq) / norm(T_lsq, <span class="string">'fro'</span>)^2;
-0190         T_hub = T_hub * trace(T_tru'*T_hub) / norm(T_hub, <span class="string">'fro'</span>)^2;
-0191         T_cvx = T_cvx * trace(T_tru'*T_cvx) / norm(T_cvx, <span class="string">'fro'</span>)^2;
-0192 
-0193     
-0194         <span class="keyword">switch</span> d
-0195             <span class="keyword">case</span> 2
-0196                 plot(T_tru(1, :), T_tru(2, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
-0197                      T_lsq(1, :), T_lsq(2, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
-0198                      T_hub(1, :), T_hub(2, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
-0199                      T_cvx(1, :), T_cvx(2, :), <span class="string">'g.'</span>);
-0200             <span class="keyword">case</span> 3
-0201                 plot3(T_tru(1, :), T_tru(2, :), T_tru(3, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
-0202                       T_lsq(1, :), T_lsq(2, :), T_lsq(3, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
-0203                       T_hub(1, :), T_hub(2, :), T_hub(3, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
-0204                       T_cvx(1, :), T_cvx(2, :), T_cvx(3, :), <span class="string">'g.'</span>);
-0205         <span class="keyword">end</span>
-0206 
-0207         legend(<span class="string">'ground truth'</span>, <span class="string">'least squares'</span>, <span class="keyword">...</span>
-0208                sprintf(<span class="string">'pseudo-huber, \\delta = %.1e'</span>, delta), <span class="keyword">...</span>
-0209                <span class="string">'CVX ShapeFit'</span>);
-0210            
-0211         title(sprintf([<span class="string">'ShapeFit problem : d = %d, n = %d, edge '</span> <span class="keyword">...</span>
-0212                        <span class="string">'fraction = %.2g, sigma = %.2g, outlier '</span> <span class="keyword">...</span>
-0213                        <span class="string">'fraction = %.2g'</span>], d, n, edge_fraction, sigma, <span class="keyword">...</span>
-0214                        outlier_fraction));
-0215         axis equal;
-0216     
-0217     <span class="keyword">end</span>
-0218 
-0219 <span class="keyword">end</span>
+0181     
+0182     
+0183     <span class="comment">% VISUALIZATION</span>
+0184     <span class="comment">%</span>
+0185     <span class="comment">% If T_true is available, for display, we scale the estimators to match</span>
+0186     <span class="comment">% the norm of the target. The scaling factor is obtained by minimizing</span>
+0187     <span class="comment">% the norm of the discrepancy : norm(T_tru - scale*T_xxx, 'fro').</span>
+0188     <span class="comment">% A plot is produced if d is 2 or 3.</span>
+0189     <span class="keyword">if</span> exist(<span class="string">'T_tru'</span>, <span class="string">'var'</span>) &amp;&amp; (d == 2 || d == 3)
+0190         
+0191         T_lsq = T_lsq * trace(T_tru'*T_lsq) / norm(T_lsq, <span class="string">'fro'</span>)^2;
+0192         T_hub = T_hub * trace(T_tru'*T_hub) / norm(T_hub, <span class="string">'fro'</span>)^2;
+0193         T_cvx = T_cvx * trace(T_tru'*T_cvx) / norm(T_cvx, <span class="string">'fro'</span>)^2;
+0194 
+0195     
+0196         <span class="keyword">switch</span> d
+0197             <span class="keyword">case</span> 2
+0198                 plot(T_tru(1, :), T_tru(2, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
+0199                      T_lsq(1, :), T_lsq(2, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
+0200                      T_hub(1, :), T_hub(2, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
+0201                      T_cvx(1, :), T_cvx(2, :), <span class="string">'g.'</span>);
+0202             <span class="keyword">case</span> 3
+0203                 plot3(T_tru(1, :), T_tru(2, :), T_tru(3, :), <span class="string">'bo'</span>, <span class="keyword">...</span>
+0204                       T_lsq(1, :), T_lsq(2, :), T_lsq(3, :), <span class="string">'rx'</span>, <span class="keyword">...</span>
+0205                       T_hub(1, :), T_hub(2, :), T_hub(3, :), <span class="string">'k.'</span>, <span class="keyword">...</span>
+0206                       T_cvx(1, :), T_cvx(2, :), T_cvx(3, :), <span class="string">'g.'</span>);
+0207         <span class="keyword">end</span>
+0208 
+0209         legend(<span class="string">'ground truth'</span>, <span class="string">'least squares'</span>, <span class="keyword">...</span>
+0210                sprintf(<span class="string">'pseudo-huber, \\delta = %.1e'</span>, delta), <span class="keyword">...</span>
+0211                <span class="string">'CVX ShapeFit'</span>);
+0212            
+0213         title(sprintf([<span class="string">'ShapeFit problem : d = %d, n = %d, edge '</span> <span class="keyword">...</span>
+0214                        <span class="string">'fraction = %.2g, sigma = %.2g, outlier '</span> <span class="keyword">...</span>
+0215                        <span class="string">'fraction = %.2g'</span>], d, n, edge_fraction, sigma, <span class="keyword">...</span>
+0216                        outlier_fraction));
+0217         axis equal;
+0218     
+0219     <span class="keyword">end</span>
 0220 
-0221 
-0222 <span class="comment">% If CVX is available, it can be used to solve the nonsmooth problem</span>
-0223 <span class="comment">% directly, very elegantly.</span>
-0224 <a name="_sub2" href="#_subfunctions" class="code">function T_cvx = shapefit_cvx(V, J)</a>
-0225     d = size(V, 1);
-0226     n = size(J, 1); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0227     VJt = full(V*J');
-0228     cvx_begin
-0229         variable T_cvx(d, n)
-0230         <span class="comment">% We want to minimize this:</span>
-0231         <span class="comment">% minimize sum( norms( A(T_cvx), 2, 1 ) )</span>
-0232         <span class="comment">% But unfortunately, CVX doesn't handle bsxfun. Instead, we use</span>
-0233         <span class="comment">% repmat, which is slower, and hence hurts the comparison in</span>
-0234         <span class="comment">% disfavor of CVX.</span>
-0235         minimize sum( norms( T_cvx*J - V .* repmat(sum(V .* (T_cvx*J), 1), [d, 1])  , 2, 1 ) )
-0236         sum(T_cvx, 2) == zeros(d, 1); <span class="comment">%#ok&lt;NODEF,EQEFF&gt;</span>
-0237         VJt(:).' * T_cvx(:) == 1; <span class="comment">%#ok&lt;EQEFF&gt;</span>
-0238     cvx_end
-0239 <span class="keyword">end</span>
-0240 
-0241 
-0242 <a name="_sub3" href="#_subfunctions" class="code">function [I, J, A] = erdosrenyi(n, p)</a>
-0243 <span class="comment">% Generate a random Erdos-Renyi graph with n nodes and edge probability p.</span>
-0244 <span class="comment">%</span>
-0245 <span class="comment">% [I, J, A] = erdosrenyi(n, p)</span>
+0221 <span class="keyword">end</span>
+0222 
+0223 
+0224 <span class="comment">% If CVX is available, it can be used to solve the nonsmooth problem</span>
+0225 <span class="comment">% directly, very elegantly.</span>
+0226 <a name="_sub2" href="#_subfunctions" class="code">function T_cvx = shapefit_cvx(V, J)</a>
+0227     d = size(V, 1);
+0228     n = size(J, 1); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0229     VJt = full(V*J');
+0230     cvx_begin
+0231         variable T_cvx(d, n)
+0232         <span class="comment">% We want to minimize this:</span>
+0233         <span class="comment">% minimize sum( norms( A(T_cvx), 2, 1 ) )</span>
+0234         <span class="comment">% But unfortunately, CVX doesn't handle bsxfun. Instead, we use</span>
+0235         <span class="comment">% repmat, which is slower, and hence hurts the comparison in</span>
+0236         <span class="comment">% disfavor of CVX.</span>
+0237         minimize sum( norms( T_cvx*J - V .* repmat(sum(V .* (T_cvx*J), 1), [d, 1])  , 2, 1 ) )
+0238         sum(T_cvx, 2) == zeros(d, 1); <span class="comment">%#ok&lt;NODEF,EQEFF&gt;</span>
+0239         VJt(:).' * T_cvx(:) == 1; <span class="comment">%#ok&lt;EQEFF&gt;</span>
+0240     cvx_end
+0241 <span class="keyword">end</span>
+0242 
+0243 
+0244 <a name="_sub3" href="#_subfunctions" class="code">function [I, J, A] = erdosrenyi(n, p) </a><span class="comment">%#ok&lt;DEFNU&gt;</span>
+0245 <span class="comment">% Generate a random Erdos-Renyi graph with n nodes and edge probability p.</span>
 0246 <span class="comment">%</span>
-0247 <span class="comment">% Returns a list of edges (I(k), J(k)) for a random, undirected Erdos-Renyi</span>
-0248 <span class="comment">% graph with n nodes and edge probability p. A is the adjacency matrix.</span>
-0249 <span class="comment">%</span>
-0250 <span class="comment">% I(k) &lt;= J(k) for all k, i.e., all(I&lt;=J) is true.</span>
-0251 
-0252     X = rand(n);
-0253     mask = X &lt;= p;
-0254     X( mask) = 1;
-0255     X(~mask) = 0;
-0256     X = triu(X, 1);
-0257 
-0258     <span class="comment">% A is the adjacency matrix</span>
-0259     <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a> = X + X';
-0260     
-0261     [I, J] = find(X);
-0262 
-0263 <span class="keyword">end</span>
-0264</pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0247 <span class="comment">% [I, J, A] = erdosrenyi(n, p)</span>
+0248 <span class="comment">%</span>
+0249 <span class="comment">% Returns a list of edges (I(k), J(k)) for a random, undirected Erdos-Renyi</span>
+0250 <span class="comment">% graph with n nodes and edge probability p. A is the adjacency matrix.</span>
+0251 <span class="comment">%</span>
+0252 <span class="comment">% I(k) &lt; J(k) for all k, i.e., all(I&lt;J) is true.</span>
+0253 <span class="comment">%</span>
+0254 <span class="comment">% The memory requirements for this simple implementation scale as O(n^2).</span>
+0255 
+0256     X = rand(n);
+0257     mask = X &lt;= p;
+0258     X( mask) = 1;
+0259     X(~mask) = 0;
+0260     X = triu(X, 1);
+0261 
+0262     <span class="comment">% A is the adjacency matrix</span>
+0263     <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a> = X + X';
+0264     
+0265     [I, J] = find(X);
+0266 
+0267 <span class="keyword">end</span>
+0268 
+0269 
+0270 <a name="_sub4" href="#_subfunctions" class="code">function [I, J, A] = randomgraph(n, m)</a>
+0271 <span class="comment">% Generates a random graph over n nodes with at most m edges.</span>
+0272 <span class="comment">%</span>
+0273 <span class="comment">% function [I, J, A] = randomgraph(n, m)</span>
+0274 <span class="comment">%</span>
+0275 <span class="comment">% Selects m (undirected) edges from a graph over n nodes, uniformly at</span>
+0276 <span class="comment">% random, with replacement. The self edges and repeated edges are then</span>
+0277 <span class="comment">% discarded. The remaining number of edges is at most m, and should be</span>
+0278 <span class="comment">% close to m if m is much smaller than nchoosek(n, 2).</span>
+0279 <span class="comment">%</span>
+0280 <span class="comment">% The output satisfies all(I &lt; J). A is the corresponding adjacency matrix.</span>
+0281 <span class="comment">%</span>
+0282 <span class="comment">% Uses O(m) memory (not O(n^2)), making it fit for large, sparse graphs.</span>
+0283 
+0284     <span class="comment">% Generate m edges at random, with replacement, and remove repetitions.</span>
+0285     IJ = unique(sort(randi(n, m, 2), 2), <span class="string">'rows'</span>);
+0286     
+0287     <span class="comment">% Remove self-edges if any.</span>
+0288     IJ = IJ(IJ(:, 1) ~= IJ(:, 2), :);
+0289     
+0290     <span class="comment">% Actual number of selected edges</span>
+0291     k = size(IJ, 1);
+0292     
+0293     I = IJ(:, 1);
+0294     J = IJ(:, 2);
+0295     
+0296     <span class="comment">% Build the adjacency matrix of the graph.</span>
+0297     <a href="#_sub1" class="code" title="subfunction AT = A(T)">A</a> = sparse([I ; J], [J ; I], ones(2*k, 1), n, n, 2*k);
+0298 
+0299 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -37,7 +37,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li></ul>
+<li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>	Computes a linear combination of tangent vectors in the Manopt framework.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
@@ -129,7 +129,7 @@ This function is called by:
 0081 <span class="comment">% [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.</span>
 0082 
 0083 inner = problem.M.inner;
-0084 lincomb = problem.M.lincomb;
+0084 <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a> = problem.M.lincomb;
 0085 
 0086 theta = options.theta;
 0087 kappa = options.kappa;
@@ -141,7 +141,7 @@ This function is called by:
 0093 <span class="keyword">else</span> <span class="comment">% and therefore, no preconditioner</span>
 0094     <span class="comment">% eta (presumably) ~= 0 was provided by the caller.</span>
 0095     Heta = <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, eta, storedb, key);
-0096     r = lincomb(x, 1, grad, 1, Heta);
+0096     r = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1, grad, 1, Heta);
 0097     e_Pe = inner(x, eta, eta);
 0098 <span class="keyword">end</span>
 0099 r_r = inner(x, r, r);
@@ -160,7 +160,7 @@ This function is called by:
 0112 d_Pd = z_r;
 0113 
 0114 <span class="comment">% Initial search direction.</span>
-0115 delta  = lincomb(x, -1, z);
+0115 delta  = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, -1, z);
 0116 <span class="keyword">if</span> ~options.useRand <span class="comment">% and therefore, eta == 0</span>
 0117     e_Pd = 0;
 0118 <span class="keyword">else</span> <span class="comment">% and therefore, no preconditioner</span>
@@ -219,11 +219,11 @@ This function is called by:
 0171         <span class="keyword">if</span> options.debug &gt; 2,
 0172             fprintf(<span class="string">'DBG:     tau  : %e\n'</span>, tau);
 0173         <span class="keyword">end</span>
-0174         eta  = lincomb(x, 1,  eta, tau,  delta);
+0174         eta  = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1,  eta, tau,  delta);
 0175         
 0176         <span class="comment">% If only a nonlinear Hessian approximation is available, this is</span>
 0177         <span class="comment">% only approximately correct, but saves an additional Hessian call.</span>
-0178         Heta = lincomb(x, 1, Heta, tau, Hdelta);
+0178         Heta = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1, Heta, tau, Hdelta);
 0179         
 0180         <span class="comment">% Technically, we may want to verify that this new eta is indeed</span>
 0181         <span class="comment">% better than the previous eta before returning it (this is always</span>
@@ -242,11 +242,11 @@ This function is called by:
 0194     
 0195     <span class="comment">% No negative curvature and eta_prop inside TR: accept it.</span>
 0196     e_Pe = e_Pe_new;
-0197     new_eta  = lincomb(x, 1,  eta, alpha,  delta);
+0197     new_eta  = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1,  eta, alpha,  delta);
 0198     
 0199     <span class="comment">% If only a nonlinear Hessian approximation is available, this is</span>
 0200     <span class="comment">% only approximately correct, but saves an additional Hessian call.</span>
-0201     new_Heta = lincomb(x, 1, Heta, alpha, Hdelta);
+0201     new_Heta = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1, Heta, alpha, Hdelta);
 0202     
 0203     <span class="comment">% Verify that the model cost decreased in going from eta to new_eta. If</span>
 0204     <span class="comment">% it did not (which can only occur if the Hessian approximation is</span>
@@ -264,7 +264,7 @@ This function is called by:
 0216     model_value = new_model_value; <span class="comment">%% added Feb. 17, 2015</span>
 0217     
 0218     <span class="comment">% Update the residual.</span>
-0219     r = lincomb(x, 1, r, alpha, Hdelta);
+0219     r = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, 1, r, alpha, Hdelta);
 0220     
 0221     <span class="comment">% Compute new norm of r.</span>
 0222     r_r = inner(x, r, r);
@@ -299,7 +299,7 @@ This function is called by:
 0251     
 0252     <span class="comment">% Compute new search direction.</span>
 0253     beta = z_r/zold_rold;
-0254     delta = lincomb(x, -1, z, beta, delta);
+0254     delta = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(x, -1, z, beta, delta);
 0255     
 0256     <span class="comment">% Update new P-norms and P-dots [CGT2000, eq. 7.5.6 &amp; 7.5.7].</span>
 0257     e_Pd = beta*(e_Pd + alpha*d_Pd);
@@ -309,6 +309,6 @@ This function is called by:
 0261 inner_it = j;
 0262 
 0263 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

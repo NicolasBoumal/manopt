@@ -30,7 +30,7 @@
 <div class="fragment"><pre class="comment"> Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.
  
  function x = maxcut(L)
- function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)
+ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 
  L is the Laplacian matrix describing the graph to cut. The Laplacian of a
  graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the
@@ -69,13 +69,15 @@
  give a cut that respects this statement -- it's usually worse though).
 
  The algorithm is essentially that of:
- Journee, Bach, Absil and Sepulchre, 2010
- Low-rank optimization on the code of positive semidefinite matrices.
+ Journee, Bach, Absil and Sepulchre, SIAM 2010
+ Low-rank optimization on the cone of positive semidefinite matrices.
 
  It is itself based on the famous SDP relaxation of MAX CUT:
  Goemans and Williamson, 1995
  Improved approximation algorithms for maximum cut and satisfiability
- problems using semidefinite programming.</pre></div>
+ problems using semidefinite programming.
+ 
+ See also: <a href="elliptope_SDP.html" class="code" title="function [Y, problem, S] = elliptope_SDP(A, p, Y0)">elliptope_SDP</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -96,7 +98,7 @@ This function is called by:
 0002 <span class="comment">% Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function x = maxcut(L)</span>
-0005 <span class="comment">% function [x cutvalue cutvalue_upperbound Y] = maxcut(L, r)</span>
+0005 <span class="comment">% function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)</span>
 0006 <span class="comment">%</span>
 0007 <span class="comment">% L is the Laplacian matrix describing the graph to cut. The Laplacian of a</span>
 0008 <span class="comment">% graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the</span>
@@ -135,19 +137,19 @@ This function is called by:
 0041 <span class="comment">% give a cut that respects this statement -- it's usually worse though).</span>
 0042 <span class="comment">%</span>
 0043 <span class="comment">% The algorithm is essentially that of:</span>
-0044 <span class="comment">% Journee, Bach, Absil and Sepulchre, 2010</span>
-0045 <span class="comment">% Low-rank optimization on the code of positive semidefinite matrices.</span>
+0044 <span class="comment">% Journee, Bach, Absil and Sepulchre, SIAM 2010</span>
+0045 <span class="comment">% Low-rank optimization on the cone of positive semidefinite matrices.</span>
 0046 <span class="comment">%</span>
 0047 <span class="comment">% It is itself based on the famous SDP relaxation of MAX CUT:</span>
 0048 <span class="comment">% Goemans and Williamson, 1995</span>
 0049 <span class="comment">% Improved approximation algorithms for maximum cut and satisfiability</span>
 0050 <span class="comment">% problems using semidefinite programming.</span>
-0051 
-0052 <span class="comment">% This file is part of Manopt and is copyrighted. See the license file.</span>
-0053 <span class="comment">%</span>
-0054 <span class="comment">% Main author: Nicolas Boumal, July 18, 2013</span>
-0055 <span class="comment">% Contributors:</span>
-0056 <span class="comment">%</span>
+0051 <span class="comment">%</span>
+0052 <span class="comment">% See also: elliptope_SDP</span>
+0053 
+0054 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0055 <span class="comment">% Original author: Nicolas Boumal, July 18, 2013</span>
+0056 <span class="comment">% Contributors:</span>
 0057 <span class="comment">% Change log:</span>
 0058 <span class="comment">%</span>
 0059 <span class="comment">%   April 3, 2015 (NB):</span>
@@ -401,6 +403,6 @@ This function is called by:
 0307     fprintf(<span class="string">'Products with L: %d\n'</span>, max([info.Lproducts]));
 0308 
 0309 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -82,110 +82,115 @@ This function is called by:
 0024 <span class="comment">%</span>
 0025 <span class="comment">%   April 13, 2015 (NB): Fixed logarithm.</span>
 0026 <span class="comment">%</span>
-0027     
-0028     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>)
-0029         n = 1;
-0030     <span class="keyword">end</span>
-0031 
-0032     M.name = @() sprintf(<span class="string">'Complex circle (S^1)^%d'</span>, n);
-0033     
-0034     M.dim = @() n;
-0035     
-0036     M.inner = @(z, v, w) real(v'*w);
-0037     
-0038     M.norm = @(x, v) norm(v);
-0039     
-0040     M.dist = @(x, y) norm(acos(real(conj(x) .* y)));
-0041     
-0042     M.typicaldist = @() pi*sqrt(n);
-0043     
-0044     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;    
-0045     
-0046     M.tangent = M.proj;
-0047     
-0048     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
-0049     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
-0050     M.egrad2rgrad = M.proj;
-0051     
-0052     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction rhess = ehess2rhess(z, egrad, ehess, zdot)">ehess2rhess</a>;
-0053     <a name="_sub1" href="#_subfunctions" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a>
-0054         rhess = M.proj(z, ehess - real(z.*conj(egrad)).*zdot);
-0055     <span class="keyword">end</span>
-0056     
-0057     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exponential(z, v, t)">exponential</a>;
-0058     <a name="_sub2" href="#_subfunctions" class="code">function y = exponential(z, v, t)</a>
-0059         <span class="keyword">if</span> nargin &lt;= 2
-0060             t = 1.0;
-0061         <span class="keyword">end</span>
-0062 
-0063         y = zeros(n, 1);        
-0064         tv = t*v;
-0065 
-0066         nrm_tv = abs(tv);
-0067         
-0068         <span class="comment">% We need to distinguish between very small steps and the others.</span>
-0069         <span class="comment">% For very small steps, we use a a limit version of the exponential</span>
-0070         <span class="comment">% (which actually coincides with the retraction), so as to not</span>
-0071         <span class="comment">% divide by very small numbers.</span>
-0072         mask = nrm_tv &gt; 4.5e-8;
-0073         y(mask) = z(mask).*cos(nrm_tv(mask)) + <span class="keyword">...</span>
-0074                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
-0075         y(~mask) = z(~mask) + tv(~mask);
-0076         y(~mask) = y(~mask) ./ abs(y(~mask));
-0077         
-0078     <span class="keyword">end</span>
-0079     
-0080     M.retr = @<a href="#_sub3" class="code" title="subfunction y = retraction(z, v, t)">retraction</a>;
-0081     <a name="_sub3" href="#_subfunctions" class="code">function y = retraction(z, v, t)</a>
-0082         <span class="keyword">if</span> nargin &lt;= 2
-0083             t = 1.0;
-0084         <span class="keyword">end</span>
-0085         y = z+t*v;
-0086         y = y ./ abs(y);
-0087     <span class="keyword">end</span>
-0088 
-0089     M.log = @<a href="#_sub4" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
-0090     <a name="_sub4" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
-0091         v = M.proj(x1, x2 - x1);
-0092         di = real(acos(real(conj(x1) .* x2)));
-0093         nv = abs(v);
-0094         factors = di ./ nv;
-0095         factors(di &lt;= 1e-6) = 1;
-0096         v = v .* factors;
-0097     <span class="keyword">end</span>
-0098     
-0099     M.hash = @(z) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>( [real(z(:)) ; imag(z(:))] ) ];
-0100     
-0101     M.rand = @<a href="#_sub5" class="code" title="subfunction z = random()">random</a>;
-0102     <a name="_sub5" href="#_subfunctions" class="code">function z = random()</a>
-0103         z = randn(n, 1) + 1i*randn(n, 1);
-0104         z = z ./ abs(z);
-0105     <span class="keyword">end</span>
-0106     
-0107     M.randvec = @<a href="#_sub6" class="code" title="subfunction v = randomvec(z)">randomvec</a>;
-0108     <a name="_sub6" href="#_subfunctions" class="code">function v = randomvec(z)</a>
-0109         <span class="comment">% i*z(k) is a basis vector of the tangent vector to the k-th circle</span>
-0110         v = randn(n, 1) .* (1i*z);
-0111         v = v / norm(v);
-0112     <span class="keyword">end</span>
-0113     
-0114     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0115     
-0116     M.zerovec = @(x) zeros(n, 1);
-0117     
-0118     M.transp = @(x1, x2, d) M.proj(x2, d);
-0119     
-0120     M.pairmean = @<a href="#_sub7" class="code" title="subfunction z = pairmean(z1, z2)">pairmean</a>;
-0121     <a name="_sub7" href="#_subfunctions" class="code">function z = pairmean(z1, z2)</a>
-0122         z = z1+z2;
-0123         z = z ./ abs(z);
-0124     <span class="keyword">end</span>
-0125 
-0126     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
-0127     M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
-0128     M.vecmatareisometries = @() true;
-0129 
-0130 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0027 <span class="comment">%   Oct. 8, 2016 (NB)</span>
+0028 <span class="comment">%       Code for exponential was simplified to only treat the zero vector</span>
+0029 <span class="comment">%       as a particular case.</span>
+0030     
+0031     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>)
+0032         n = 1;
+0033     <span class="keyword">end</span>
+0034 
+0035     M.name = @() sprintf(<span class="string">'Complex circle (S^1)^%d'</span>, n);
+0036     
+0037     M.dim = @() n;
+0038     
+0039     M.inner = @(z, v, w) real(v'*w);
+0040     
+0041     M.norm = @(x, v) norm(v);
+0042     
+0043     M.dist = @(x, y) norm(acos(real(conj(x) .* y)));
+0044     
+0045     M.typicaldist = @() pi*sqrt(n);
+0046     
+0047     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;    
+0048     
+0049     M.tangent = M.proj;
+0050     
+0051     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0052     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0053     M.egrad2rgrad = M.proj;
+0054     
+0055     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction rhess = ehess2rhess(z, egrad, ehess, zdot)">ehess2rhess</a>;
+0056     <a name="_sub1" href="#_subfunctions" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a>
+0057         rhess = M.proj(z, ehess - real(z.*conj(egrad)).*zdot);
+0058     <span class="keyword">end</span>
+0059     
+0060     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exponential(z, v, t)">exponential</a>;
+0061     <a name="_sub2" href="#_subfunctions" class="code">function y = exponential(z, v, t)</a>
+0062         
+0063         <span class="keyword">if</span> nargin == 2
+0064             <span class="comment">% t = 1;</span>
+0065             tv = v;
+0066         <span class="keyword">else</span>
+0067             tv = t*v;
+0068         <span class="keyword">end</span>
+0069 
+0070         y = zeros(n, 1);
+0071 
+0072         nrm_tv = abs(tv);
+0073         
+0074         <span class="comment">% We need to be careful for zero steps.</span>
+0075         mask = (nrm_tv &gt; 0);
+0076         y(mask) = z(mask).*cos(nrm_tv(mask)) + <span class="keyword">...</span>
+0077                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
+0078         y(~mask) = z(~mask);
+0079         
+0080     <span class="keyword">end</span>
+0081     
+0082     M.retr = @<a href="#_sub3" class="code" title="subfunction y = retraction(z, v, t)">retraction</a>;
+0083     <a name="_sub3" href="#_subfunctions" class="code">function y = retraction(z, v, t)</a>
+0084         <span class="keyword">if</span> nargin == 2
+0085             <span class="comment">% t = 1;</span>
+0086             tv = v;
+0087         <span class="keyword">else</span>
+0088             tv = t*v;
+0089         <span class="keyword">end</span>
+0090         y = z+tv;
+0091         y = y ./ abs(y);
+0092     <span class="keyword">end</span>
+0093 
+0094     M.log = @<a href="#_sub4" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0095     <a name="_sub4" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0096         v = M.proj(x1, x2 - x1);
+0097         di = real(acos(real(conj(x1) .* x2)));
+0098         nv = abs(v);
+0099         factors = di ./ nv;
+0100         factors(di &lt;= 1e-6) = 1;
+0101         v = v .* factors;
+0102     <span class="keyword">end</span>
+0103     
+0104     M.hash = @(z) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>( [real(z(:)) ; imag(z(:))] ) ];
+0105     
+0106     M.rand = @<a href="#_sub5" class="code" title="subfunction z = random()">random</a>;
+0107     <a name="_sub5" href="#_subfunctions" class="code">function z = random()</a>
+0108         z = randn(n, 1) + 1i*randn(n, 1);
+0109         z = z ./ abs(z);
+0110     <span class="keyword">end</span>
+0111     
+0112     M.randvec = @<a href="#_sub6" class="code" title="subfunction v = randomvec(z)">randomvec</a>;
+0113     <a name="_sub6" href="#_subfunctions" class="code">function v = randomvec(z)</a>
+0114         <span class="comment">% i*z(k) is a basis vector of the tangent vector to the k-th circle</span>
+0115         v = randn(n, 1) .* (1i*z);
+0116         v = v / norm(v);
+0117     <span class="keyword">end</span>
+0118     
+0119     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0120     
+0121     M.zerovec = @(x) zeros(n, 1);
+0122     
+0123     M.transp = @(x1, x2, d) M.proj(x2, d);
+0124     
+0125     M.pairmean = @<a href="#_sub7" class="code" title="subfunction z = pairmean(z1, z2)">pairmean</a>;
+0126     <a name="_sub7" href="#_subfunctions" class="code">function z = pairmean(z1, z2)</a>
+0127         z = z1+z2;
+0128         z = z ./ abs(z);
+0129     <span class="keyword">end</span>
+0130 
+0131     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
+0132     M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
+0133     M.vecmatareisometries = @() true;
+0134 
+0135 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

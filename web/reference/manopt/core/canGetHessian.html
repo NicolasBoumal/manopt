@@ -66,15 +66,17 @@ This function is called by:
 0015 
 0016     candoit = isfield(problem, <span class="string">'hess'</span>) || <span class="keyword">...</span>
 0017               (isfield(problem, <span class="string">'ehess'</span>) &amp;&amp; <a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a>(problem));
-0018           
-0019     <span class="keyword">if</span> ~candoit &amp;&amp; <span class="keyword">...</span>
-0020            (isfield(problem, <span class="string">'ehess'</span>) &amp;&amp; ~<a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a>(problem))
-0021         warning(<span class="string">'manopt:canGetHessian'</span>, <span class="keyword">...</span>
-0022                [<span class="string">'If the Hessian is supplied as a Euclidean Hessian (ehess), '</span> <span class="keyword">...</span>
-0023                 <span class="string">'then the Euclidean gradient must also be supplied (egrad).'</span>]);
-0024     <span class="keyword">end</span>
-0025     
-0026 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0018     
+0019     <span class="comment">% Display an extra warning message to the user in anticipation of</span>
+0020     <span class="comment">% common mistakes.</span>
+0021     <span class="keyword">if</span> ~candoit &amp;&amp; <span class="keyword">...</span>
+0022            (isfield(problem, <span class="string">'ehess'</span>) &amp;&amp; ~<a href="canGetEuclideanGradient.html" class="code" title="function candoit = canGetEuclideanGradient(problem)">canGetEuclideanGradient</a>(problem))
+0023         warning(<span class="string">'manopt:canGetHessian'</span>, <span class="keyword">...</span>
+0024                [<span class="string">'If the Hessian is supplied as a Euclidean Hessian (ehess),\n'</span> <span class="keyword">...</span>
+0025                 <span class="string">'then the Euclidean gradient must also be supplied (egrad).'</span>]);
+0026     <span class="keyword">end</span>
+0027     
+0028 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

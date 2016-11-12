@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getApproxGradient</title>
+  <meta name="keywords" content="getApproxGradient">
+  <meta name="description" content="Computes an approximation of the gradient of the cost function at x.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">core</a> &gt; getApproxGradient.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\core&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getApproxGradient
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes an approximation of the gradient of the cost function at x.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function approxgrad = getApproxGradient(problem, x, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes an approximation of the gradient of the cost function at x.
+
+ function approxgrad = getApproxGradient(problem, x)
+ function approxgrad = getApproxGradient(problem, x, storedb)
+ function approxgrad = getApproxGradient(problem, x, storedb, key)
+
+ Returns an approximation of the gradient at x for the cost function
+ described in the problem structure.
+
+ storedb is a StoreDB object, key is the StoreDB key to point x.
+
+ If no approximate gradient was provided, this call is redirected to
+ getGradientFD.
+ 
+ See also: <a href="getGradientFD.html" class="code" title="function gradfd = getGradientFD(problem, x, storedb, key)">getGradientFD</a> <a href="canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="getGradientFD.html" class="code" title="function gradfd = getGradientFD(problem, x, storedb, key)">getGradientFD</a>	Computes an approx. of the gradient w/ finite differences of the cost.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function approxgrad = getApproxGradient(problem, x, storedb, key)</a>
+0002 <span class="comment">% Computes an approximation of the gradient of the cost function at x.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function approxgrad = getApproxGradient(problem, x)</span>
+0005 <span class="comment">% function approxgrad = getApproxGradient(problem, x, storedb)</span>
+0006 <span class="comment">% function approxgrad = getApproxGradient(problem, x, storedb, key)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns an approximation of the gradient at x for the cost function</span>
+0009 <span class="comment">% described in the problem structure.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% storedb is a StoreDB object, key is the StoreDB key to point x.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% If no approximate gradient was provided, this call is redirected to</span>
+0014 <span class="comment">% getGradientFD.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% See also: getGradientFD canGetApproxGradient</span>
+0017 
+0018 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0019 <span class="comment">% Original author: Nicolas Boumal, Nov. 1, 2016.</span>
+0020 <span class="comment">% Contributors:</span>
+0021 <span class="comment">% Change log:</span>
+0022 
+0023     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0024     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0025         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0026             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
+0027         <span class="keyword">end</span>
+0028         key = storedb.getNewKey();
+0029     <span class="keyword">end</span>
+0030 
+0031 
+0032     <span class="keyword">if</span> isfield(problem, <span class="string">'approxgrad'</span>)
+0033     <span class="comment">%% Compute the approximate gradient using approxgrad.</span>
+0034         
+0035         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0036         <span class="keyword">switch</span> nargin(problem.approxgrad);
+0037             <span class="keyword">case</span> 1
+0038                 approxgrad = problem.approxgrad(x);
+0039             <span class="keyword">case</span> 2
+0040                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
+0041                 store = storedb.getWithShared(key);
+0042                 [approxgrad, store] = problem.approxgrad(x, store);
+0043                 storedb.setWithShared(store, key);
+0044             <span class="keyword">case</span> 3
+0045                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0046                 approxgrad = problem.approxgrad(x, storedb, key);
+0047             <span class="keyword">otherwise</span>
+0048                 up = MException(<span class="string">'manopt:getApproxGradient:badapproxgrad'</span>, <span class="keyword">...</span>
+0049                     <span class="string">'approxgrad should accept 1, 2 or 3 inputs.'</span>);
+0050                 throw(up);
+0051         <span class="keyword">end</span>
+0052         
+0053     <span class="keyword">else</span>
+0054     <span class="comment">%% Try to fall back to a standard FD approximation.</span>
+0055     
+0056         approxgrad = <a href="getGradientFD.html" class="code" title="function gradfd = getGradientFD(problem, x, storedb, key)">getGradientFD</a>(problem, x, storedb, key);
+0057         
+0058     <span class="keyword">end</span>
+0059     
+0060 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

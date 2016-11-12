@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of skewsymmetricfactory</title>
+  <meta name="keywords" content="skewsymmetricfactory">
+  <meta name="description" content="Returns a manifold struct to optimize over k skew-symmetric matrices of size n">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">euclidean</a> &gt; skewsymmetricfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\euclidean&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>skewsymmetricfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over k skew-symmetric matrices of size n</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = skewsymmetricfactory(n, k) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over k skew-symmetric matrices of size n
+
+ function M = skewsymmetricfactory(n)
+ function M = skewsymmetricfactory(n, k)
+
+ Returns M, a structure describing the Euclidean space of n-by-n
+ skew-symmetric matrices equipped with the standard Frobenius distance and
+ associated trace inner product, as a manifold for Manopt.
+
+ By default, k = 1. If k &gt; 1, points and vectors are stored in 3D matrices
+ X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is
+ skew-symmetric.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li><li><a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>	Returns the skew-symmetric parts of the matrices in the 3D matrix X.</li><li><a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>	Transposing arrays of matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = exp(x, d, t)</a></li><li><a href="#_sub2" class="code">function u = randvec(x)</a></li><li><a href="#_sub3" class="code">function u_mat = matricize(X, u_vec)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = skewsymmetricfactory(n, k)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over k skew-symmetric matrices of size n</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = skewsymmetricfactory(n)</span>
+0005 <span class="comment">% function M = skewsymmetricfactory(n, k)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Returns M, a structure describing the Euclidean space of n-by-n</span>
+0008 <span class="comment">% skew-symmetric matrices equipped with the standard Frobenius distance and</span>
+0009 <span class="comment">% associated trace inner product, as a manifold for Manopt.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% By default, k = 1. If k &gt; 1, points and vectors are stored in 3D matrices</span>
+0012 <span class="comment">% X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is</span>
+0013 <span class="comment">% skew-symmetric.</span>
+0014 
+0015 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0016 <span class="comment">% Original author: Nicolas Boumal, June 28, 2016.</span>
+0017 <span class="comment">% Contributors:</span>
+0018 <span class="comment">% Change log:</span>
+0019     
+0020     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0021         k = 1;
+0022     <span class="keyword">end</span>
+0023 
+0024     M.name = @() sprintf(<span class="string">'(Skew-symmetric matrices of size %d)^%d'</span>, n, k);
+0025     
+0026     M.dim = @() k*n*(n-1)/2;
+0027     
+0028     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0029     
+0030     M.norm = @(x, d) norm(d(:), <span class="string">'fro'</span>);
+0031     
+0032     M.dist = @(x, y) norm(x(:)-y(:), <span class="string">'fro'</span>);
+0033     
+0034     M.typicaldist = @() sqrt(k)*n;
+0035     
+0036     M.proj = @(x, d) <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(d);
+0037     
+0038     M.egrad2rgrad = M.proj;
+0039     
+0040     M.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
+0041     
+0042     M.tangent = @(x, d) d;
+0043     
+0044     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0045     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0046         <span class="keyword">if</span> nargin == 3
+0047             y = x + t*d;
+0048         <span class="keyword">else</span>
+0049             y = x + d;
+0050         <span class="keyword">end</span>
+0051     <span class="keyword">end</span>
+0052     
+0053     M.retr = M.exp;
+0054     
+0055     M.log = @(x, y) y-x;
+0056 
+0057     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0058     
+0059     M.rand = @() <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(randn(n, n, k));
+0060     
+0061     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
+0062     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0063         u = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(randn(n, n, k));
+0064         u = u / norm(u(:), <span class="string">'fro'</span>);
+0065     <span class="keyword">end</span>
+0066     
+0067     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0068     
+0069     M.zerovec = @(x) zeros(n, n, k);
+0070     
+0071     M.transp = @(x1, x2, d) d;
+0072     
+0073     M.pairmean = @(x1, x2) .5*(x1+x2);
+0074     
+0075     
+0076     <span class="comment">% Elaborate list of indices of strictly upper-triangular entries.</span>
+0077     single_upper_triangle = find(triu(ones(n), 1));
+0078     all_upper_triangle = bsxfun(@plus, single_upper_triangle, n^2*(0:(k-1)));
+0079     all_upper_triangle = all_upper_triangle(:);
+0080     
+0081     <span class="comment">% To vectorize a matrix, we extract all upper-triangular entries and</span>
+0082     <span class="comment">% scale by sqrt(2) to ensure isometry, that is: given two tangent</span>
+0083     <span class="comment">% vectors U and V at a point X, M.inner(X, U, V) is equal to u'*v,</span>
+0084     <span class="comment">% where u = M.vec(X, U) and likewise for v. This construction has the</span>
+0085     <span class="comment">% advantage of providing a vectorized representation of matrices that</span>
+0086     <span class="comment">% has the same length as the intrinsic dimension of the space they live</span>
+0087     <span class="comment">% in.</span>
+0088     M.vec = @(x, u_mat) sqrt(2)*u_mat(all_upper_triangle);
+0089     M.mat = @<a href="#_sub3" class="code" title="subfunction u_mat = matricize(X, u_vec) ">matricize</a>;
+0090     <a name="_sub3" href="#_subfunctions" class="code">function u_mat = matricize(X, u_vec) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0091         u_mat = zeros(n, n, k);
+0092         u_mat(all_upper_triangle) = u_vec((k*n+1):end) / sqrt(2);
+0093         u_mat = u_mat - <a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(u_mat);
+0094     <span class="keyword">end</span>
+0095     M.vecmatareisometries = @() true;
+0096 
+0097 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

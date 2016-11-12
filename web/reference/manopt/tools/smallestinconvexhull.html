@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of smallestinconvexhull</title>
+  <meta name="keywords" content="smallestinconvexhull">
+  <meta name="description" content="Computes a minimal norm convex combination of given tangent vectors in Manopt.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; smallestinconvexhull.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>smallestinconvexhull
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Computes a minimal norm convex combination of given tangent vectors in Manopt.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Computes a minimal norm convex combination of given tangent vectors in Manopt.
+
+ function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)
+
+ M is a manifold as returned by a Manopt factory.
+ x is a point on this manifold.
+ U is a cell containing N tangent vectors U{1} to U{N} at x.
+ 
+ This function computes u, a tangent vector at x contained in the convex
+ hull spanned by the N vectors U{i}, with minimal norm (according to the
+ Riemannian metric on M). This is obtained by solving a convex quadratic
+ program involving the Gram matrix of the given tangent vectors.
+ The quadratic program is solved using Matlab's built-in quadprog,
+ which requires the optimization toolbox. If this toolbox is not
+ available, consider replacing with CVX for example.
+
+
+ u_norm is the norm of the smallest vector u.
+ coeffs is a vector of length N with entries in [0, 1] summing to 1.
+ u is the sought vector: u = coeffs(1)*U{1} + ... + coeffs(N)*U{N}.
+
+ Nicolas Boumal, Feb. 19, 2013
+ Modified April 6, 2016 to work with Manopt.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a>	Computes the Gram matrix of tangent vectors in the Manopt framework.</li><li><a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>	Computes a linear combination of tangent vectors in the Manopt framework.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)</a>
+0002 <span class="comment">% Computes a minimal norm convex combination of given tangent vectors in Manopt.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% M is a manifold as returned by a Manopt factory.</span>
+0007 <span class="comment">% x is a point on this manifold.</span>
+0008 <span class="comment">% U is a cell containing N tangent vectors U{1} to U{N} at x.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% This function computes u, a tangent vector at x contained in the convex</span>
+0011 <span class="comment">% hull spanned by the N vectors U{i}, with minimal norm (according to the</span>
+0012 <span class="comment">% Riemannian metric on M). This is obtained by solving a convex quadratic</span>
+0013 <span class="comment">% program involving the Gram matrix of the given tangent vectors.</span>
+0014 <span class="comment">% The quadratic program is solved using Matlab's built-in quadprog,</span>
+0015 <span class="comment">% which requires the optimization toolbox. If this toolbox is not</span>
+0016 <span class="comment">% available, consider replacing with CVX for example.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% u_norm is the norm of the smallest vector u.</span>
+0020 <span class="comment">% coeffs is a vector of length N with entries in [0, 1] summing to 1.</span>
+0021 <span class="comment">% u is the sought vector: u = coeffs(1)*U{1} + ... + coeffs(N)*U{N}.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Nicolas Boumal, Feb. 19, 2013</span>
+0024 <span class="comment">% Modified April 6, 2016 to work with Manopt.</span>
+0025 
+0026 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0027 <span class="comment">% Original author: Nicolas Boumal, June 28, 2016.</span>
+0028 <span class="comment">% Contributors:</span>
+0029 <span class="comment">% Change log:</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   June 28, 2016 (NB):</span>
+0032 <span class="comment">%       Adapted for Manopt from original code by same author (Feb. 19, 2013)</span>
+0033 
+0034 <span class="comment">% Example code: pick a manifold, a point, and a collection of tangent</span>
+0035 <span class="comment">% vectors at that point, then get the smallest vector in the convex hull</span>
+0036 <span class="comment">% of those:</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">% M = spherefactory(5);</span>
+0039 <span class="comment">% x = M.rand();</span>
+0040 <span class="comment">% N = 3;</span>
+0041 <span class="comment">% U = cell(N,1);</span>
+0042 <span class="comment">% for k = 1 : N, U{k} = M.randvec(x); end</span>
+0043 <span class="comment">% [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)</span>
+0044 
+0045     <span class="comment">% We simply need to solve the following quadratic program:</span>
+0046     <span class="comment">% minimize ||u||^2 such that u = sum_i s_i U_i, 0 &lt;= s_i &lt;= 1</span>
+0047     <span class="comment">%                            and sum_i s_i = 1</span>
+0048     <span class="comment">%</span>
+0049     <span class="comment">% This is equivalent to solving:</span>
+0050     <span class="comment">%  min s'*G*s s.t. 0 &lt;= s &lt;= 1, s'*ones = 1, with G(i, j) = &lt;U_i, U_j&gt; (Gram matrix)</span>
+0051     <span class="comment">% Then our solution is s_1 U_1 + ... + s_N U_N.</span>
+0052     
+0053     
+0054     <span class="comment">% Compute the Gram matrix of the given tangent vectors</span>
+0055     N = numel(U);
+0056     G = <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a>(M, x, U);
+0057     
+0058     <span class="comment">% Solve the quadratic program.</span>
+0059     <span class="comment">% If the optimization toolbox is not available, consider replacing with</span>
+0060     <span class="comment">% CVX.</span>
+0061     
+0062     opts = optimset(<span class="string">'Display'</span>, <span class="string">'off'</span>);
+0063     [s_opt, cost_opt] <span class="keyword">...</span>
+0064           = quadprog(G, zeros(N, 1),     <span class="keyword">...</span><span class="comment">  % objective (squared norm)</span>
+0065                      [], [],             <span class="keyword">...</span><span class="comment">  % inequalities (none)</span>
+0066                      ones(1, N), 1,      <span class="keyword">...</span><span class="comment">  % equality (sum to 1)</span>
+0067                      zeros(N, 1),        <span class="keyword">...</span><span class="comment">  % lower bounds (s_i &gt;= 0)</span>
+0068                      ones(N, 1),         <span class="keyword">...</span><span class="comment">  % upper bounds (s_i &lt;= 1)</span>
+0069                      [],                 <span class="keyword">...</span><span class="comment">  % we do not specify an initial guess</span>
+0070                      opts);
+0071 
+0072     <span class="comment">% Norm of the smallest tangent vector in the convex hull:</span>
+0073     u_norm = real(sqrt(2*cost_opt));
+0074 
+0075     <span class="comment">% Keep track of optimal coefficients</span>
+0076     coeffs = s_opt;
+0077     
+0078     <span class="comment">% If required, construct the vector explicitly.</span>
+0079     <span class="keyword">if</span> nargout &gt;= 3
+0080         u = <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(M, x, U, coeffs);
+0081     <span class="keyword">end</span>
+0082                  
+0083 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

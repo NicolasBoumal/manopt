@@ -3,6 +3,8 @@ digraph m2html {
 
   dominant_invariant_subspace [URL="dominant_invariant_subspace.html"];
   dominant_invariant_subspace_complex [URL="dominant_invariant_subspace_complex.html"];
+  elliptope_SDP [URL="elliptope_SDP.html"];
+  elliptope_SDP_complex [URL="elliptope_SDP_complex.html"];
   essential_svd [URL="essential_svd.html"];
   generalized_eigenvalue_computation [URL="generalized_eigenvalue_computation.html"];
   generalized_procrustes [URL="generalized_procrustes.html"];
@@ -17,5 +19,6 @@ digraph m2html {
   robust_pca [URL="robust_pca.html"];
   shapefit_smoothed [URL="shapefit_smoothed.html"];
   sparse_pca [URL="sparse_pca.html"];
+  thomson_problem [URL="thomson_problem.html"];
   truncated_svd [URL="truncated_svd.html"];
 }

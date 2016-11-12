@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of tangentorthobasis</title>
+  <meta name="keywords" content="tangentorthobasis">
+  <meta name="description" content="Returns an orthonormal basis of tangent vectors in the Manopt framework.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; tangentorthobasis.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>tangentorthobasis
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Returns an orthonormal basis of tangent vectors in the Manopt framework.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function orthobasis = tangentorthobasis(M, x, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns an orthonormal basis of tangent vectors in the Manopt framework.
+
+ function orthobasis = tangentorthobasis(M, x)
+ function orthobasis = tangentorthobasis(M, x, n)
+
+ M is a Manopt manifold structure obtained from a factory.
+ x is a point on the manifold M.
+ n (optional) is the dimension of the random subspace to span; by default,
+   n = M.dim() so that the returned basis spans the whole tangent space.
+
+ orthobasis is a cell of n tangent vectors at x.
+ With high probability, they form an orthonormal basis of the tangent
+ space at x. If necessary, this can be checked by calling
+   G = grammatrix(orthobasis)
+ and verifying that G is invertible.
+
+ See also: <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a> <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a> <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a> <a href="plotprofile.html" class="code" title="function cost = plotprofile(problem, x, d, t)">plotprofile</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a>	Orthonormalizes a basis of tangent vectors in the Manopt framework.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="../../manopt/core/getGradientFD.html" class="code" title="function gradfd = getGradientFD(problem, x, storedb, key)">getGradientFD</a>	Computes an approx. of the gradient w/ finite differences of the cost.</li><li><a href="../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>	Gradient approx. fnctn handle based on finite differences of the cost.</li><li><a href="hessianmatrix.html" class="code" title="function [H, basis] = hessianmatrix(problem, x, basis)">hessianmatrix</a>	Computes a matrix which represents the Hessian in some tangent basis.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function orthobasis = tangentorthobasis(M, x, n)</a>
+0002 <span class="comment">% Returns an orthonormal basis of tangent vectors in the Manopt framework.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function orthobasis = tangentorthobasis(M, x)</span>
+0005 <span class="comment">% function orthobasis = tangentorthobasis(M, x, n)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% M is a Manopt manifold structure obtained from a factory.</span>
+0008 <span class="comment">% x is a point on the manifold M.</span>
+0009 <span class="comment">% n (optional) is the dimension of the random subspace to span; by default,</span>
+0010 <span class="comment">%   n = M.dim() so that the returned basis spans the whole tangent space.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% orthobasis is a cell of n tangent vectors at x.</span>
+0013 <span class="comment">% With high probability, they form an orthonormal basis of the tangent</span>
+0014 <span class="comment">% space at x. If necessary, this can be checked by calling</span>
+0015 <span class="comment">%   G = grammatrix(orthobasis)</span>
+0016 <span class="comment">% and verifying that G is invertible.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% See also: grammatrix orthogonalize lincomb plotprofile</span>
+0019 
+0020 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0021 <span class="comment">% Original author: Nicolas Boumal, April 28, 2016.</span>
+0022 <span class="comment">% Contributors:</span>
+0023 <span class="comment">% Change log:</span>
+0024 
+0025     dim = M.dim();
+0026     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0027         n = dim;
+0028     <span class="keyword">end</span>
+0029     assert(n &gt;= 0 &amp;&amp; n &lt;= dim &amp;&amp; n == round(n), <span class="keyword">...</span>
+0030            <span class="string">'n must be an integer between 0 and M.dim().'</span>);
+0031     
+0032     basis = cell(n, 1);
+0033     
+0034     <span class="comment">% With high probability, n vectors taken at random in the tangent space</span>
+0035     <span class="comment">% are linearly independent.</span>
+0036     <span class="keyword">for</span> k = 1 : n
+0037         basis{k} = M.randvec(x);
+0038     <span class="keyword">end</span>
+0039     
+0040     <span class="comment">% The Gram-Schmidt process transforms any n linearly independent</span>
+0041     <span class="comment">% vectors into n orthonormal vectors spanning the same subspace.</span>
+0042     orthobasis = <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a>(M, x, basis);
+0043     
+0044 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

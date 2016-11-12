@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of checkretraction</title>
+  <meta name="keywords" content="checkretraction">
+  <meta name="description" content="Check the order of agreement of a retraction with an exponential.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; checkretraction.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>checkretraction
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Check the order of agreement of a retraction with an exponential.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function checkretraction(M, x, v) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Check the order of agreement of a retraction with an exponential.
+ 
+ function checkretraction(problem)
+ function checkretraction(problem, x)
+ function checkretraction(problem, x, v)
+
+ checkretraction performs a numerical test to check the order of agreement
+ between the retraction and the exponential map in a given Manopt
+ manifold structure M. The test is performed at the point x if it is
+ provided (otherwise, the point is picked at random) and along the tangent
+ vector v at x if one is provided (otherwise, a tangent vector at x is
+ picked at random.)
+
+ See also: <a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d, force_gradient)">checkdiff</a> <a href="checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a> <a href="checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>	Identify a segment of the curve (x, y) that appears to be linear.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function checkretraction(M, x, v)</a>
+0002 <span class="comment">% Check the order of agreement of a retraction with an exponential.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function checkretraction(problem)</span>
+0005 <span class="comment">% function checkretraction(problem, x)</span>
+0006 <span class="comment">% function checkretraction(problem, x, v)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% checkretraction performs a numerical test to check the order of agreement</span>
+0009 <span class="comment">% between the retraction and the exponential map in a given Manopt</span>
+0010 <span class="comment">% manifold structure M. The test is performed at the point x if it is</span>
+0011 <span class="comment">% provided (otherwise, the point is picked at random) and along the tangent</span>
+0012 <span class="comment">% vector v at x if one is provided (otherwise, a tangent vector at x is</span>
+0013 <span class="comment">% picked at random.)</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% See also: checkdiff checkgradient checkhessian</span>
+0016 
+0017 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0018 <span class="comment">% Original author: Nicolas Boumal, Oct. 21, 2016.</span>
+0019 <span class="comment">% Contributors:</span>
+0020 <span class="comment">% Change log:</span>
+0021 
+0022     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0023         x = M.rand();
+0024         v = M.randvec(x);
+0025     <span class="keyword">end</span>
+0026     
+0027     <span class="keyword">if</span> ~exist(<span class="string">'v'</span>, <span class="string">'var'</span>) || isempty(v)
+0028         v = M.randvec(x);
+0029     <span class="keyword">end</span>
+0030     
+0031     <span class="comment">% Compare the retraction and the exponential over steps of varying</span>
+0032     <span class="comment">% length, on a wide log-scale.</span>
+0033     tt = logspace(-12, 0, 251);
+0034     ee = zeros(size(tt));
+0035     <span class="keyword">for</span> k = 1 : numel(tt)
+0036         t = tt(k);
+0037         ee(k) = M.dist(M.exp(x, v, t), M.retr(x, v, t));
+0038     <span class="keyword">end</span>
+0039     
+0040     <span class="comment">% Plot the difference between the exponential and the retration over</span>
+0041     <span class="comment">% that span of steps, in log-log scale.</span>
+0042     loglog(tt, ee);
+0043     
+0044     <span class="comment">% We hope to see a slope of 3, to confirm a second-order retraction. If</span>
+0045     <span class="comment">% the slope is only 2, we have a first-order retration. If the slope is</span>
+0046     <span class="comment">% less than 2, this is not a retraction.</span>
+0047     <span class="comment">% Slope 3</span>
+0048     line(<span class="string">'xdata'</span>, [1e-12 1e0], <span class="string">'ydata'</span>, [1e-30 1e6], <span class="keyword">...</span>
+0049          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
+0050          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0051     <span class="comment">% Slope 2</span>
+0052     line(<span class="string">'xdata'</span>, [1e-14 1e0], <span class="string">'ydata'</span>, [1e-20 1e8], <span class="keyword">...</span>
+0053          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">':'</span>, <span class="keyword">...</span>
+0054          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0055      
+0056 
+0057     <span class="comment">% Figure out the slope of the error in log-log, by identifying a piece</span>
+0058     <span class="comment">% of the error curve which is mostly linear.</span>
+0059     window_len = 10;
+0060     [range, poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(tt), log10(ee), window_len);
+0061     hold all;
+0062     loglog(tt(range), 10.^polyval(poly, log10(tt(range))), <span class="string">'LineWidth'</span>, 3);
+0063     hold off;
+0064     
+0065     xlabel(<span class="string">'Step size multiplier t'</span>);
+0066     ylabel(<span class="string">'Distance between Exp(x, v, t) and Retr(x, v, t)'</span>);
+0067     title(sprintf(<span class="string">'Retraction check.\nA slope of 2 is required, 3 is desired.'</span>));
+0068     
+0069     fprintf(<span class="string">'Check agreement between M.exp and M.retr. Please check the\n'</span>);
+0070     fprintf(<span class="string">'factory file of M to ensure M.exp is a proper exponential.\n'</span>);
+0071     fprintf(<span class="string">'The slope must be at least 2 to have a proper retraction.\n'</span>);
+0072     fprintf(<span class="string">'For the retraction to be second order, the slope should be 3.\n'</span>);
+0073     fprintf(<span class="string">'It appears the slope is: %g.\n'</span>, poly(1));
+0074 
+0075 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

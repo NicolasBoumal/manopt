@@ -5,5 +5,6 @@ digraph m2html {
   euclideancomplexfactory [URL="euclideancomplexfactory.html"];
   euclideanfactory [URL="euclideanfactory.html"];
   shapefitfactory [URL="shapefitfactory.html"];
+  skewsymmetricfactory [URL="skewsymmetricfactory.html"];
   symmetricfactory [URL="symmetricfactory.html"];
 }

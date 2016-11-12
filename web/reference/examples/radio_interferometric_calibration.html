@@ -109,170 +109,175 @@ This function is called by:
 0035 <span class="comment">% Contributors: Bamdev Mishra.</span>
 0036 <span class="comment">% Change log:</span>
 0037 <span class="comment">%</span>
-0038 
-0039     <span class="comment">% Generate some random data to test the function</span>
-0040     
-0041     <span class="keyword">if</span> ~exist(<span class="string">'N'</span>, <span class="string">'var'</span>) || isempty(N)
-0042         N = 10; 
-0043     <span class="keyword">end</span>
-0044     <span class="keyword">if</span> ~exist(<span class="string">'K'</span>, <span class="string">'var'</span>) || isempty(K)
-0045         K = 2; 
-0046     <span class="keyword">end</span>
-0047     
-0048     assert(N &gt;= K, <span class="string">'N must be larger than or equal to K.'</span>);
-0049     
-0050     <span class="comment">% Baselines (pairs of correlations)</span>
-0051     B = N*(N-1)/2;
+0038 <span class="comment">%   June 28, 2016 (BM):</span>
+0039 <span class="comment">%       Modified the egrad and ehess operations according to</span>
+0040 <span class="comment">%       the modified metric in the symfixedrankYYcomplexfactory file,</span>
+0041 <span class="comment">%       where a factor of 2 was removed from the metric. Accordingly,</span>
+0042 <span class="comment">%       a factor of 2 was added to egrad and ehess operations.</span>
+0043     
+0044     <span class="comment">% Generate some random data to test the function</span>
+0045     
+0046     <span class="keyword">if</span> ~exist(<span class="string">'N'</span>, <span class="string">'var'</span>) || isempty(N)
+0047         N = 10; 
+0048     <span class="keyword">end</span>
+0049     <span class="keyword">if</span> ~exist(<span class="string">'K'</span>, <span class="string">'var'</span>) || isempty(K)
+0050         K = 2; 
+0051     <span class="keyword">end</span>
 0052     
-0053     
+0053     assert(N &gt;= K, <span class="string">'N must be larger than or equal to K.'</span>);
 0054     
-0055     <span class="comment">% Source coherence, at phase center</span>
-0056     C = eye(K);
+0055     <span class="comment">% Baselines (pairs of correlations)</span>
+0056     B = N*(N-1)/2;
 0057     
-0058     <span class="comment">% Random J (gains) of all stations</span>
-0059     J = 0.2*rand(K*N,K) + 1i*rand(K*N,K);
-0060  
-0061     <span class="comment">% Visibilities (cross correlations)</span>
-0062     V = zeros(K*B,K);
-0063     
-0064     ck = 1;
-0065     <span class="keyword">for</span> ci = 1 : N -1,
-0066         <span class="keyword">for</span> cj = ci + 1 : N,
-0067             <span class="comment">% Compute cross correlation of each receiver pair.</span>
-0068             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
-0069             ck = ck + 1;
-0070         <span class="keyword">end</span>
-0071     <span class="keyword">end</span>
-0072     
-0073     <span class="comment">% Generate noise</span>
-0074     SNR = 10000;<span class="comment">% inf;</span>
-0075     nn = randn(K*B,K)+1i*randn(K*B,K);
-0076     noise_var = norm(V)^2/(norm(nn)^2*SNR);
-0077     nn = nn*sqrt(noise_var);
-0078     
-0079     <span class="comment">% Add noise to signal</span>
-0080     V = V + nn;
-0081     
-0082     
-0083     <span class="comment">% Optimization part by creating the problem structure.</span>
-0084     <span class="comment">% First, we use the manifold desctription.</span>
-0085     <span class="comment">% Second, we define the problem cost, gradient and Hessian functions.</span>
-0086    
+0058     
+0059     
+0060     <span class="comment">% Source coherence, at phase center</span>
+0061     C = eye(K);
+0062     
+0063     <span class="comment">% Random J (gains) of all stations</span>
+0064     J = 0.2*rand(K*N,K) + 1i*rand(K*N,K);
+0065  
+0066     <span class="comment">% Visibilities (cross correlations)</span>
+0067     V = zeros(K*B,K);
+0068     
+0069     ck = 1;
+0070     <span class="keyword">for</span> ci = 1 : N -1,
+0071         <span class="keyword">for</span> cj = ci + 1 : N,
+0072             <span class="comment">% Compute cross correlation of each receiver pair.</span>
+0073             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
+0074             ck = ck + 1;
+0075         <span class="keyword">end</span>
+0076     <span class="keyword">end</span>
+0077     
+0078     <span class="comment">% Generate noise</span>
+0079     SNR = 10000;<span class="comment">% inf;</span>
+0080     nn = randn(K*B,K)+1i*randn(K*B,K);
+0081     noise_var = norm(V)^2/(norm(nn)^2*SNR);
+0082     nn = nn*sqrt(noise_var);
+0083     
+0084     <span class="comment">% Add noise to signal</span>
+0085     V = V + nn;
+0086     
 0087     
-0088     <span class="comment">% Manifold description</span>
-0089     <span class="comment">% Note that the actual dimension is KN x K.</span>
-0090     problem.M = <a href="../manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html" class="code" title="function M = symfixedrankYYcomplexfactory(n, k)">symfixedrankYYcomplexfactory</a>(K*N, K);
-0091     
+0088     <span class="comment">% Optimization part by creating the problem structure.</span>
+0089     <span class="comment">% First, we use the manifold desctription.</span>
+0090     <span class="comment">% Second, we define the problem cost, gradient and Hessian functions.</span>
+0091    
 0092     
-0093     <span class="comment">% Cost function</span>
-0094     problem.cost = @<a href="#_sub1" class="code" title="subfunction fval = cost(x)">cost</a>;
-0095     <a name="_sub1" href="#_subfunctions" class="code">function fval = cost(x)</a>
-0096         fval = 0.0;
-0097         ck = 1;
-0098         <span class="keyword">for</span> p = 1 : N - 1,
-0099             <span class="keyword">for</span> q = p + 1 : N,
-0100                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
-0101                 fval = fval + real(res(:)'*res(:)); <span class="comment">% Add norm of the residual.</span>
-0102                 ck = ck + 1;
-0103             <span class="keyword">end</span>
-0104         <span class="keyword">end</span>
-0105     <span class="keyword">end</span>
-0106     
-0107     <span class="comment">% Euclidean gradient of the cost function.</span>
-0108     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
-0109     <span class="comment">% The code involves for-loops for readability, but could be vectorized</span>
-0110     <span class="comment">% for improved speed.</span>
-0111     problem.egrad = @<a href="#_sub2" class="code" title="subfunction grad = egrad(x)">egrad</a>;
-0112     <a name="_sub2" href="#_subfunctions" class="code">function grad = egrad(x)</a>
-0113         grad = zeros(K*N, K);
-0114         ck = 1;
-0115         <span class="keyword">for</span> p = 1 : N - 1,
-0116             <span class="keyword">for</span> q = p+1 : N,
-0117                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
-0118                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
-0119                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
-0120                 ck = ck + 1;
-0121             <span class="keyword">end</span>
-0122         <span class="keyword">end</span>
-0123     <span class="keyword">end</span>
-0124     
-0125     <span class="comment">% Euclidean Hessian of the cost function along a search direction eta.</span>
-0126     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
-0127     problem.ehess = @<a href="#_sub3" class="code" title="subfunction hess = ehess(x, eta)">ehess</a>;
-0128     <a name="_sub3" href="#_subfunctions" class="code">function hess = ehess(x, eta)</a>
-0129         hess = zeros(K*N, K);
-0130         ck = 1;
-0131         <span class="keyword">for</span> p = 1 : N-1,
-0132             <span class="keyword">for</span> q = p+1:N,
-0133                 res = V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
-0134                 resdot = -x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual derivative</span>
-0135                 
-0136                 hess(K*(p-1)+1:K*p,:) = hess(K*(p-1)+1:K*p,:) - (res*eta(K*(q-1)+1:K*q,:) + resdot*x(K*(q-1)+1:K*q,:))*C';
-0137                 hess(K*(q-1)+1:K*q,:) = hess(K*(q-1)+1:K*q,:) - (res'*eta(K*(p-1)+1:K*p,:) + resdot'*x(K*(p-1)+1:K*p,:))*C;
-0138                 ck = ck + 1;
-0139             <span class="keyword">end</span>
-0140         <span class="keyword">end</span>
-0141     <span class="keyword">end</span>
-0142     
-0143     
-0144     
-0145     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
-0146     <span class="comment">% checkgradient(problem);</span>
-0147     <span class="comment">% pause;</span>
-0148     <span class="comment">% checkhessian(problem);</span>
-0149     <span class="comment">% pause;</span>
-0150     
-0151     
-0152     <span class="comment">% Solve.</span>
-0153     [xsol,  xcost,  info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem); 
-0154     fprintf(<span class="string">'Final cost: %g.\n'</span>, xcost);
+0093     <span class="comment">% Manifold description</span>
+0094     <span class="comment">% Note that the actual dimension is KN x K.</span>
+0095     problem.M = <a href="../manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html" class="code" title="function M = symfixedrankYYcomplexfactory(n, k)">symfixedrankYYcomplexfactory</a>(K*N, K);
+0096     
+0097     
+0098     <span class="comment">% Cost function</span>
+0099     problem.cost = @<a href="#_sub1" class="code" title="subfunction fval = cost(x)">cost</a>;
+0100     <a name="_sub1" href="#_subfunctions" class="code">function fval = cost(x)</a>
+0101         fval = 0.0;
+0102         ck = 1;
+0103         <span class="keyword">for</span> p = 1 : N - 1,
+0104             <span class="keyword">for</span> q = p + 1 : N,
+0105                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; <span class="comment">% Residual</span>
+0106                 fval = fval + real(res(:)'*res(:)); <span class="comment">% Add norm of the residual.</span>
+0107                 ck = ck + 1;
+0108             <span class="keyword">end</span>
+0109         <span class="keyword">end</span>
+0110     <span class="keyword">end</span>
+0111     
+0112     <span class="comment">% Euclidean gradient of the cost function.</span>
+0113     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
+0114     <span class="comment">% The code involves for-loops for readability, but could be vectorized</span>
+0115     <span class="comment">% for improved speed.</span>
+0116     problem.egrad = @<a href="#_sub2" class="code" title="subfunction grad = egrad(x)">egrad</a>;
+0117     <a name="_sub2" href="#_subfunctions" class="code">function grad = egrad(x)</a>
+0118         grad = zeros(K*N, K);
+0119         ck = 1;
+0120         <span class="keyword">for</span> p = 1 : N - 1,
+0121             <span class="keyword">for</span> q = p+1 : N,
+0122                 res = 2*(V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); <span class="comment">% Residual</span>
+0123                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
+0124                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
+0125                 ck = ck + 1;
+0126             <span class="keyword">end</span>
+0127         <span class="keyword">end</span>
+0128     <span class="keyword">end</span>
+0129     
+0130     <span class="comment">% Euclidean Hessian of the cost function along a search direction eta.</span>
+0131     <span class="comment">% Manopt automatically converts it to the Riemannian couterpart.</span>
+0132     problem.ehess = @<a href="#_sub3" class="code" title="subfunction hess = ehess(x, eta)">ehess</a>;
+0133     <a name="_sub3" href="#_subfunctions" class="code">function hess = ehess(x, eta)</a>
+0134         hess = zeros(K*N, K);
+0135         ck = 1;
+0136         <span class="keyword">for</span> p = 1 : N-1,
+0137             <span class="keyword">for</span> q = p+1:N,
+0138                 res = 2*(V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); <span class="comment">% Residual</span>
+0139                 resdot = 2*(-x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); <span class="comment">% Residual derivative</span>
+0140                 
+0141                 hess(K*(p-1)+1:K*p,:) = hess(K*(p-1)+1:K*p,:) - (res*eta(K*(q-1)+1:K*q,:) + resdot*x(K*(q-1)+1:K*q,:))*C';
+0142                 hess(K*(q-1)+1:K*q,:) = hess(K*(q-1)+1:K*q,:) - (res'*eta(K*(p-1)+1:K*p,:) + resdot'*x(K*(p-1)+1:K*p,:))*C;
+0143                 ck = ck + 1;
+0144             <span class="keyword">end</span>
+0145         <span class="keyword">end</span>
+0146     <span class="keyword">end</span>
+0147     
+0148     
+0149     
+0150     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0151     <span class="comment">% checkgradient(problem);</span>
+0152     <span class="comment">% pause;</span>
+0153     <span class="comment">% checkhessian(problem);</span>
+0154     <span class="comment">% pause;</span>
 0155     
 0156     
-0157     <span class="comment">% Display some statistics.</span>
-0158     fs = 11;
-0159     figure;
-0160     semilogy([info.iter], [info.gradnorm], <span class="string">'o-.'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>, <span class="string">'MarkerSize'</span>,6, <span class="string">'LineWidth'</span>,1.1);
-0161     ax1 = gca;
-0162     set(ax1,<span class="string">'FontSize'</span>,fs);
-0163     xlabel(ax1, <span class="string">'Iteration #'</span>, <span class="string">'FontSize'</span>,fs);
-0164     ylabel(ax1, <span class="string">'Gradient norm'</span>, <span class="string">'FontSize'</span>,fs);
-0165     title(<span class="string">'Convergence of the trust-regions algorithm'</span>);
-0166 
-0167     <span class="comment">% Make a plot of estimation error (only for K = 2).</span>
-0168     <span class="keyword">if</span> K == 2,
-0169         <span class="comment">% Find unitary ambiguity first by solving min ||J - xsol U||.</span>
-0170         <span class="comment">% This has a closed-form solution.</span>
-0171         [u, ignore, v] = svd(xsol'*J); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0172 
-0173         <span class="comment">% Error in position</span>
-0174         E = J - xsol*u*v'; 
-0175 
-0176         <span class="comment">% Normalize error</span>
-0177         E = E/norm(J);
-0178 
-0179         <span class="comment">% Plot</span>
-0180         figure;
-0181         ax1 = subplot(1,2,1);
-0182         quiver(real(J(:,1)), imag(J(:,1)),real(E(:,1)),imag(E(:,1)));
-0183         hold all;
-0184         scatter(real(J(:,1)), imag(J(:,1)));
-0185         set(ax1,<span class="string">'FontSize'</span>,fs);
-0186         xlabel(<span class="string">'Real E_1'</span>);
-0187         ylabel(<span class="string">'Imag E_1'</span>);
-0188         title(<span class="string">'Position error 1st coordinate'</span>); 
-0189         axis equal;
-0190         ax2 = subplot(1,2,2);
-0191         quiver(real(J(:,2)),imag(J(:,2)),real(E(:,2)),imag(E(:,2)));
-0192         hold all;
-0193         scatter(real(J(:,2)),imag(J(:,2)));
-0194         set(ax2,<span class="string">'FontSize'</span>,fs);
-0195         xlabel(<span class="string">'Real E_2'</span>);
-0196         ylabel(<span class="string">'Imag E_2'</span>);
-0197         title(<span class="string">'Position error 2nd coordinate'</span>); 
-0198         axis equal;
-0199     <span class="keyword">end</span>
-0200     
-0201 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 07-Jul-2015 09:52:38 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0157     <span class="comment">% Solve.</span>
+0158     [xsol,  xcost,  info] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem); 
+0159     fprintf(<span class="string">'Final cost: %g.\n'</span>, xcost);
+0160     
+0161     
+0162     <span class="comment">% Display some statistics.</span>
+0163     fs = 11;
+0164     figure;
+0165     semilogy([info.iter], [info.gradnorm], <span class="string">'o-.'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>, <span class="string">'MarkerSize'</span>,6, <span class="string">'LineWidth'</span>,1.1);
+0166     ax1 = gca;
+0167     set(ax1,<span class="string">'FontSize'</span>,fs);
+0168     xlabel(ax1, <span class="string">'Iteration #'</span>, <span class="string">'FontSize'</span>,fs);
+0169     ylabel(ax1, <span class="string">'Gradient norm'</span>, <span class="string">'FontSize'</span>,fs);
+0170     title(<span class="string">'Convergence of the trust-regions algorithm'</span>);
+0171 
+0172     <span class="comment">% Make a plot of estimation error (only for K = 2).</span>
+0173     <span class="keyword">if</span> K == 2,
+0174         <span class="comment">% Find unitary ambiguity first by solving min ||J - xsol U||.</span>
+0175         <span class="comment">% This has a closed-form solution.</span>
+0176         [u, ignore, v] = svd(xsol'*J); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0177 
+0178         <span class="comment">% Error in position</span>
+0179         E = J - xsol*u*v'; 
+0180 
+0181         <span class="comment">% Normalize error</span>
+0182         E = E/norm(J);
+0183 
+0184         <span class="comment">% Plot</span>
+0185         figure;
+0186         ax1 = subplot(1,2,1);
+0187         quiver(real(J(:,1)), imag(J(:,1)),real(E(:,1)),imag(E(:,1)));
+0188         hold all;
+0189         scatter(real(J(:,1)), imag(J(:,1)));
+0190         set(ax1,<span class="string">'FontSize'</span>,fs);
+0191         xlabel(<span class="string">'Real E_1'</span>);
+0192         ylabel(<span class="string">'Imag E_1'</span>);
+0193         title(<span class="string">'Position error 1st coordinate'</span>); 
+0194         axis equal;
+0195         ax2 = subplot(1,2,2);
+0196         quiver(real(J(:,2)),imag(J(:,2)),real(E(:,2)),imag(E(:,2)));
+0197         hold all;
+0198         scatter(real(J(:,2)),imag(J(:,2)));
+0199         set(ax2,<span class="string">'FontSize'</span>,fs);
+0200         xlabel(<span class="string">'Real E_2'</span>);
+0201         ylabel(<span class="string">'Imag E_2'</span>);
+0202         title(<span class="string">'Position error 2nd coordinate'</span>); 
+0203         axis equal;
+0204     <span class="keyword">end</span>
+0205     
+0206 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
