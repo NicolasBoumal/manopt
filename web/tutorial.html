@@ -1214,6 +1214,29 @@ width="26"></h3>
                   </td>
                 </tr>
                 <tr>
+                  <td><code>approxgrad</code> </td>
+                  <td><code>g = approxgrad(x)</code><br>
+                    <nobr><code>[g, store] = approxgrad(x, store)</code></nobr><br>
+                    <nobr><code>g = approxgrad(x, storedb, key)</code></nobr>
+                  </td>
+                  <td>
+                    <p>Approximation for the gradient of the cost at $x$. Solvers asking for the gradient when
+                      one is not provided will automatically fall back to this
+                      approximation. If it is not provided either, a
+                      standard finite-difference approximation of the gradient
+                      based on the cost is built-in.</p>
+                    <p>This is slow because it involves generatin an orthonormal basis of the tangent space at $x$ and computing a finite difference of the cost along each basis vector. This is useful almost exclusively for prototyping. Because of the limited accuracy, it may be necessary to increase <code>options.tolgradnorm</code> when using this feature.</p>
+                    <p>See <a style="font-family: monospace;" href="reference/manopt/solvers/gradientapproximations/index.html">/solvers/gradientapproximations</a>.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>diff</code> </td>
+                  <td><code>d = diff(x, u)</code><br>
+                    <nobr><code>[d, store] = diff(x, u, store)</code></nobr><br>
+                    <nobr><code>d = diff(x, u, storedb, key)</code></nobr></td>
+                  <td>$d = \operatorname{D}\! f(x)[u]$ defines directional derivatives. If the gradient exists, it can be computed from this (slowly.)</td>
+                </tr>
+                <tr>
                   <td><code>hess</code> </td>
                   <td><code>h = hess(x, u)</code><br>
                     <nobr><code>[h, store] = hess(x, u, store)</code></nobr><br>
@@ -1235,13 +1258,6 @@ width="26"></h3>
                     <p>Function <code>egrad</code> involves automatic caching
                       for use with <code>ehess</code>.</p>
                   </td>
-                </tr>
-                <tr>
-                  <td><code>diff</code> </td>
-                  <td><code>d = diff(x, u)</code><br>
-                    <nobr><code>[d, store] = diff(x, u, store)</code></nobr><br>
-                    <nobr><code>d = diff(x, u, storedb, key)</code></nobr></td>
-                  <td>$d = \operatorname{D}\! f(x)[u]$ </td>
                 </tr>
                 <tr>
                   <td><code>approxhess</code> </td>
