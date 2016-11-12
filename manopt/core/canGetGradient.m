@@ -24,7 +24,7 @@ function candoit = canGetGradient(problem)
               canGetPartialGradient(problem) || ...
               ... % Check if directional derivatives can be obtained, since
               ... % it is possible to compute the gradient from directional
-              ... % derivatives (expensively). Here, it is not possile to
+              ... % derivatives (expensively). Here, it is not possible to
               ... % call canGetDirectionalDerivative, because that function
               ... % would then potentially call canGetGradient, thus 
               ... % starting an infinite loop. As a result, we have some
