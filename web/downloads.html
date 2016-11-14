@@ -25,8 +25,7 @@ body {
   </head>
   <body>
     <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
-
+      <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
           data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span>
           <span class="icon-bar"></span> </a>
         <div class="container"> <a class="brand" href="index.html">Manopt</a>
@@ -47,11 +46,9 @@ body {
       </div>
     </div>
     <!-- Contact modal Begin -->
-    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-
+    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
       aria-hidden="true">
-      <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-
+      <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
           aria-hidden="true">&#215;</button>
         <h3 id="myModalLabel">To contact us</h3>
       </div>
@@ -81,8 +78,7 @@ body {
             Nov. 12th, 2016. The file is under 300 Kb.<br>
             <br>
             &#160; <a target="_blank" class="btn btn-default" href="https://github.com/NicolasBoumal/manopt">GitHub
-              </a>&#160;&#160; <a target="_blank" href="https://github.com/NicolasBoumal/manopt"><img
-
+              </a>&#160;&#160; <a target="_blank" href="https://github.com/NicolasBoumal/manopt"><img
                 style="width: 24px; height: 24px;" alt="" src="github_icon.png"></a>
             Latest code available on GitHub at all times, and accepting pull
             requests.<br>
@@ -183,7 +179,7 @@ body {
                 <li>New geometries</li>
                 <ul>
                   <li>skewsymmetricfactory for skew-symmetric matrices
-                    (Euclidean geometry</li>
+                    (Euclidean geometry)</li>
                   <li>obliquecomplexfactory, to work with complex matrices whose
                     columns (or rows) all have unit norm</li>
                 </ul>
@@ -341,8 +337,7 @@ body {
                     grassmanngeneralizedfactory to solve generalized eigenvalue
                     problems.</li>
                   <li>shapefit_smoothed, does sensor network localization from
-                    pairwise direction measurements, following the <a target="_blank"
-
+                    pairwise direction measurements, following the <a target="_blank"
                       href="http://arxiv.org/abs/1506.01437">ShapeFit</a> paper.</li>
                 </ul>
                 <li>New cost description function: sqrtprecon, for the square
@@ -354,19 +349,15 @@ body {
               <li><a href="downloads/Manopt_1.0.7.zip">Manopt 1.0.7</a>,
                 packaged August 12, 2014.</li>
               <ul>
-                <li>Added the <code>ehess2rhess</code> function to <a style="font-family: monospace;"
-
+                <li>Added the <code>ehess2rhess</code> function to <a style="font-family: monospace;"
                     href="reference/manopt/manifolds/complexcircle/complexcirclefactory.html">complexcirclefactory</a>.</li>
-                <li>Major revision of <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
-
+                <li>Major revision of <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
                       style="font-family: monospace;">fixedrankembeddedfactory</span></a>
                   for support of optimization over fixed-rank matrices. It is
-                  now better documented, comes with an example called <a style="font-family: monospace;"
-
+                  now better documented, comes with an example called <a style="font-family: monospace;"
                     href="reference/examples/low_rank_matrix_completion.html">low_rank_matrix_completion</a>,
                   and now has support for <code>ehess2rhess</code> and <code>tangent2ambient</code>,
-                  a proper vector transport, works with the <a style="font-family: monospace;"
-
+                  a proper vector transport, works with the <a style="font-family: monospace;"
                     href="reference/manopt/tools/hessianspectrum.html">hessianspectrum</a>
                   tool, ... This revision was executed with the precious and
                   frequent help of Bart Vandereycken, who first described this
@@ -377,8 +368,7 @@ body {
                 <li>It is now possible to specify a line-search hint function in
                   the <code>problem</code> structure; the result of that
                   function will be used as a first guess in an Armijo
-                  backtracking line-search procedure, <a style="font-family: monospace;"
-
+                  backtracking line-search procedure, <a style="font-family: monospace;"
                     href="reference/manopt/solvers/linesearch/linesearch_hint.html">linesearch_hint</a>.
                   This is very useful if, for a given problem, you are able to
                   make a good guess at how far along the search line one should
@@ -403,13 +393,11 @@ body {
                   the model cost decreases with (inner) iterations. If an
                   increase is witnessed (which is bad), tCG now returns the best
                   step so far, which is always at least the Cauchy step.</li>
-                <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-
+                <li>The <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
                       style="font-family: monospace;">sympositivedefinitefactory</span></a>
                   geometry for positive definite matrices was revised. It had a
                   number of mistakes in it due to an incorrect assumption. You
-                  can access the file before 1.0.6 is released on <a target="_blank"
-
+                  can access the file before 1.0.6 is released on <a target="_blank"
                     href="https://groups.google.com/forum/embed/?place=forum%2Fmanopttoolbox&amp;showsearch=true&amp;showtabs=false&amp;theme=default#%21topic/manopttoolbox/nyX2rhKB9x4">the
                     forum</a>.</li>
                 <li>Small bug fix in <a style="font-family: monospace;" href="reference/examples/packing_on_the_sphere.html">packing_on_the_sphere</a>
@@ -417,13 +405,11 @@ body {
                   computed numerically.</li>
                 <li>Added a Riemannian Hessian conversion tool for the <a href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel
                     manifold</a>, ehess2rhess.</li>
-                <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
-
+                <li>Added a new (Euclidean) manifold, <a style="font-family: monospace;"
                     href="reference/manopt/manifolds/euclidean/symmetricfactory.html">symmetricfactory</a>,
                   to deal with symmetric matrices.</li>
                 <li>Multiple enhancements and bug fixes for the embedded
-                  geometry of fixed rank matrices <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
-
+                  geometry of fixed rank matrices <a href="reference/manopt/manifolds/fixedrank/fixedrankembeddedfactory.html"><span
                       style="font-family: monospace;">fixedrankembeddedfactory</span></a>:
                   now works with <a style="font-family: monospace;" href="reference/manopt/tools/checkgradient.html">checkgradient</a>,
                   changed hash and typical dist, and the vector transport is now
@@ -459,12 +445,10 @@ body {
                   correctly. Their values are different from earlier Manopt
                   versions as a result. if you get a lot of TR+ or TR- for the
                   first few iterations, you may want to tweak those options.</li>
-                <li>New geometry: <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
-
+                <li>New geometry: <a href="reference/manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"><span
                       style="font-family: monospace;">sympositivedefinitefactory</span></a>,
                   for symmetric, positive definite matrices. Related example
-                  script: <a href="reference/examples/positive_definite_karcher_mean.html"><span
-
+                  script: <a href="reference/examples/positive_definite_karcher_mean.html"><span
                       style="font-family: monospace;">positive_definite_karcher_mean.m</span></a>.</li>
                 <li>Line search algorithms have been heavily modified. The basic
                   line search for example is now invariant under shifting and
@@ -478,8 +462,7 @@ body {
                   search direction.</li>
                 <li>New example for <a href="reference/examples/sparse_pca.html">sparse
                     PCA</a> via optimization on the Stiefel manifold.</li>
-                <li>Potential bug (that never triggered) with <a style="font-family: monospace;"
-
+                <li>Potential bug (that never triggered) with <a style="font-family: monospace;"
                     href="reference/manopt/privatetools/purgeStoredb.html">purgeStoredb</a>
                   corrected.<br>
                   &#160;</li>
@@ -567,6 +550,5 @@ body {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>
