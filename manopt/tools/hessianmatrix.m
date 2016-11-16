@@ -31,6 +31,18 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % Change log: 
 
 
+    % No warning if an approximate Hessian is available, as then the user
+    % is presumably aware of what they are doing.
+    if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
+        warning('manopt:hessianmatrix:nohessian', ...
+                ['The Hessian appears to be unavailable.\n' ...
+                 'Will try to use an approximate Hessian instead.\n'...
+                 'Since this approximation may not be linear or '...
+                 'symmetric,\nthe computation might fail and the '...
+                 'results (if any)\nmight make no sense.']);
+    end
+    
+
     % Unless an orthonormal basis for the tangent space at x is provided,
     % pick a random one.
     if ~exist('basis', 'var') || isempty(basis)

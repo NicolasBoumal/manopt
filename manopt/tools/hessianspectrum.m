@@ -115,7 +115,9 @@ function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)
             error('Input useprecon must be either ''precon'' or ''noprecon''.');
     end
 
-    if ~canGetHessian(problem)
+    % No warning if an approximate Hessian is available, as then the user
+    % is presumably aware of what they are doing.
+    if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
         warning('manopt:hessianspectrum:nohessian', ...
                 ['The Hessian appears to be unavailable.\n' ...
                  'Will try to use an approximate Hessian instead.\n'...
