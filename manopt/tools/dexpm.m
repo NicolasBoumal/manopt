@@ -7,6 +7,10 @@ function D = dexpm(X, H)
 % along H (square matrices).
 %
 % Thus, D = lim_(t -> 0) (expm(X + tH) - expm(X)) / t.
+%
+% Note: the adjoint of dexpm(X, .) is dexpm(X', .), which is a fact often
+% useful to derive gradients of matrix functions involving expm(X).
+% (This is wrt the inner product inner = @(A, B) real(trace(A'*B))).
 % 
 % See also: dfunm dlogm dsqrtm
 
