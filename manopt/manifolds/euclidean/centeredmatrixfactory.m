@@ -19,6 +19,11 @@ function M = centeredmatrixfactory(m, n, rows_or_cols)
 % Original author: Nicolas Boumal, July 3, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Jan. 6, 2017 (NB):
+%       M.tangent = M.proj now, instead of being identity. This is notably
+%       necessary so that checkgradient will pick up on gradients that do
+%       not lie in the appropriate tangent space.
 
     if ~exist('rows_or_cols', 'var') || isempty(rows_or_cols)
         rows_or_cols = 'cols';
@@ -51,13 +56,13 @@ function M = centeredmatrixfactory(m, n, rows_or_cols)
     
     M.typicaldist = @() sqrt(M.dim());
     
-    M.proj = @(X, U) center(U);
+    M.proj = @(x, d) center(d);
     
     M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @(x, eg, eh, d) center(eh);
     
-    M.tangent = @(x, d) d;
+    M.tangent = M.proj;
     
     M.exp = @exp;
     function y = exp(x, d, t)
