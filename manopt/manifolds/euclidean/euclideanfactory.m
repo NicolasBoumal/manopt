@@ -59,7 +59,7 @@ function M = euclideanfactory(m, n)
     
     M.ehess2rhess = @(x, eg, eh, d) eh; % BM: okay.
     
-    M.tangent = M.proj; 
+    M.tangent = M.proj;
     
     M.exp = @exp;
     function y = exp(x, d, t)
