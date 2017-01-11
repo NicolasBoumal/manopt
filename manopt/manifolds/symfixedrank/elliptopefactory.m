@@ -73,7 +73,12 @@ function M = elliptopefactory(n, k)
 				'be available. This may slow down optimization over this ' ...
 				'manifold significantly. lyap is part of the control system ' ...
 				'toolbox.']);
-	end
+    end
+    
+    if k < 2
+        warning('manopt:elliptopefactory:lowk', ...
+                'k should be an integer >= 2. At k = 1, the set is discrete.');
+    end
     
     
     M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1', n, k);
