@@ -21,6 +21,11 @@ function M = shapefitfactory(VJt)
 % Original author: Nicolas Boumal, June 18, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Jan. 25, 2017 (NB):
+%       M.tangent = M.proj now, instead of being identity. This is notably
+%       necessary so that checkgradient will pick up on gradients that do
+%       not lie in the appropriate tangent space.
     
     [d, n] = size(VJt);
 
@@ -51,7 +56,7 @@ function M = shapefitfactory(VJt)
     
     M.ehess2rhess = @(x, eg, eh, d) projection(eh);
     
-    M.tangent = @(x, d) d;
+    M.tangent = M.proj;
     
     M.exp = @exp;
     function y = exp(x, d, t)
