@@ -1,7 +1,9 @@
 function M = euclideanfactory(m, n)
 % Returns a manifold struct to optimize over m-by-n matrices.
 %
+% function M = euclideanfactory(m)
 % function M = euclideanfactory(m, n)
+% function M = euclideanfactory([n1, n2, ...])
 %
 % Returns M, a structure describing the Euclidean space of m-by-n matrices,
 % equipped with the standard Frobenius distance and associated trace inner
@@ -29,7 +31,7 @@ function M = euclideanfactory(m, n)
 
     % The size can be defined using both m and n, or simply with m.
     % If m is a scalar, then n is implicitly 1.
-    % This mimicks the use of built-in Matlab functions such as zeros(...).
+    % This mimics the use of built-in Matlab functions such as zeros(...).
     if ~exist('n', 'var') || isempty(n)
         if numel(m) == 1
             n = 1;
