@@ -9,9 +9,9 @@ function N = tangentspacefactory(M, x)
 %
 % This is chiefly useful to solve optimization problems involving tangent
 % vectors to M at x, which notably comes up when solving linear systems
-% involving, for example, the Hessian of the cost on M at x. The Riemannian
-% (actually, Euclidean) structure on N is that of the tangent space to M,
-% that is, the inner product is inherited.
+% involving, for example, the Hessian of the cost on M at x (think of the
+% Newton equations.) The Riemannian (actually, Euclidean) structure on N is
+% that of the tangent space to M, that is, the inner product is inherited.
 %
 % See also: preconhessiansolve
 
@@ -19,6 +19,11 @@ function N = tangentspacefactory(M, x)
 % Original author: Nicolas Boumal, April 9, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Jan. 25, 2017 (NB):
+%       Following a comment by Jesus Briales on the Manopt forum, the
+%       functions N.egrad2rgrad, N.ehess2rhess and N.tangent now include a
+%       projection (they were formerly identities.)
 
     % N is the manifold we build. y will be a point on N, thus also a
     % tangent vector to M at x. This is a typical Euclidean space, hence it
@@ -33,10 +38,10 @@ function N = tangentspacefactory(M, x)
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
     N.norm  = @(y, u) M.norm(x, u);
     N.proj  = M.proj;
-    N.typicaldist = @() N.dim();
-    N.tangent = @(y, u) u;
-    N.egrad2rgrad = @(x, g) g;
-    N.ehess2rhess = @(x, eg, eh, d) eh;
+    N.typicaldist = @() sqrt(N.dim());
+    N.tangent = N.proj;
+    N.egrad2rgrad = N.proj;
+    N.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
     N.exp = @exponential;
     N.retr = @exponential;
     N.log = @(y1, y2) M.lincomb(x, 1, y2, -1, y1);
