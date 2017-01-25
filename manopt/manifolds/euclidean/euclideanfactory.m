@@ -42,7 +42,7 @@ function M = euclideanfactory(m, n)
     
     dimensions_vec = [m(:)', n(:)']; % We have a row vector.
     
-    M.size = dimensions_vec;
+    M.size = @() dimensions_vec;
     
     M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec));
     
