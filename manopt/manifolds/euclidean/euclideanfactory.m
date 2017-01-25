@@ -43,59 +43,59 @@ function M = euclideanfactory(m, n)
     dimensions_vec = [m(:)', n(:)']; % We have a row vector.
     
     
-    M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec)); % BM: okay.
+    M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec));
     
-    M.dim = @() prod(dimensions_vec);% BM: replacing m*n;
+    M.dim = @() prod(dimensions_vec);
     
-    M.inner = @(x, d1, d2) d1(:).'*d2(:); % BM: okay.
+    M.inner = @(x, d1, d2) d1(:).'*d2(:);
     
-    M.norm = @(x, d) norm(d(:), 'fro');% BM: replacing norm(d, 'fro');
+    M.norm = @(x, d) norm(d(:), 'fro');
     
-    M.dist = @(x, y) norm(x(:) - y(:), 'fro');% BM: replacing norm(x-y, 'fro');
+    M.dist = @(x, y) norm(x(:) - y(:), 'fro');
     
-    M.typicaldist = @() sqrt(prod(dimensions_vec));% BM: replacing sqrt(m*n);
+    M.typicaldist = @() sqrt(prod(dimensions_vec));
     
-    M.proj = @(x, d) d; % BM: okay.
+    M.proj = @(x, d) d;
     
-    M.egrad2rgrad = @(x, g) g; % BM: okay.
+    M.egrad2rgrad = @(x, g) g;
     
-    M.ehess2rhess = @(x, eg, eh, d) eh; % BM: okay.
+    M.ehess2rhess = @(x, eg, eh, d) eh;
     
     M.tangent = M.proj;
     
     M.exp = @exp;
     function y = exp(x, d, t)
         if nargin == 3
-            y = x + t*d; % BM: okay.
+            y = x + t*d;
         else
-            y = x + d; % BM: okay.
+            y = x + d;
         end
     end
     
     M.retr = M.exp;
 	
-	M.log = @(x, y) y-x; % BM: okay.
+	M.log = @(x, y) y-x;
 
-    M.hash = @(x) ['z' hashmd5(x(:))]; % BM: okay.
+    M.hash = @(x) ['z' hashmd5(x(:))];
     
-    M.rand = @() randn(dimensions_vec);% BM: replacing randn(m, n);
+    M.rand = @() randn(dimensions_vec);
     
     M.randvec = @randvec;
     function u = randvec(x) %#ok<INUSD>
-        u = randn(dimensions_vec);% BM: replacing randn(m, n);
-        u = u / norm(u(:), 'fro');% BM: replacing u / norm(u, 'fro');
+        u = randn(dimensions_vec);
+        u = u / norm(u(:), 'fro');
     end
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(dimensions_vec);% BM: replacing zeros(m, n);
+    M.zerovec = @(x) zeros(dimensions_vec);
     
     M.transp = @(x1, x2, d) d;
     
-    M.pairmean = @(x1, x2) .5*(x1+x2); % BM: okay.
+    M.pairmean = @(x1, x2) .5*(x1+x2);
     
-    M.vec = @(x, u_mat) u_mat(:); % BM: okay.
-    M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);% BM: replacing reshape(u_vec, [m, n]);
+    M.vec = @(x, u_mat) u_mat(:);
+    M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
     M.vecmatareisometries = @() true;
 
 end
