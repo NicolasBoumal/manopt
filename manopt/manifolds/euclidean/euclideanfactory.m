@@ -1,11 +1,11 @@
 function M = euclideanfactory(m, n)
-% Returns a manifold struct to optimize over m-by-n matrices.
+% Returns a manifold struct to optimize over real matrices.
 %
 % function M = euclideanfactory(m)
 % function M = euclideanfactory(m, n)
 % function M = euclideanfactory([n1, n2, ...])
 %
-% Returns M, a structure describing the Euclidean space of m-by-n matrices,
+% Returns M, a structure describing the Euclidean space of real matrices,
 % equipped with the standard Frobenius distance and associated trace inner
 % product, as a manifold for Manopt.
 %
@@ -42,6 +42,7 @@ function M = euclideanfactory(m, n)
     
     dimensions_vec = [m(:)', n(:)']; % We have a row vector.
     
+    M.size = dimensions_vec;
     
     M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec));
     
