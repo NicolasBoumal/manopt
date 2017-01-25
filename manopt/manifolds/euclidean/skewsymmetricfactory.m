@@ -16,6 +16,11 @@ function M = skewsymmetricfactory(n, k)
 % Original author: Nicolas Boumal, June 28, 2016.
 % Contributors: 
 % Change log: 
+%
+%   Jan. 25, 2017 (NB):
+%       M.tangent = M.proj now, instead of being identity. This is notably
+%       necessary so that checkgradient will pick up on gradients that do
+%       not lie in the appropriate tangent space.
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
@@ -39,7 +44,7 @@ function M = skewsymmetricfactory(n, k)
     
     M.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
     
-    M.tangent = @(x, d) d;
+    M.tangent = M.proj;
     
     M.exp = @exp;
     function y = exp(x, d, t)
