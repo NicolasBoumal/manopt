@@ -52,9 +52,8 @@ function problem_critpt = criticalpointfinder(problem)
 % problem.ehess = @(x, xdot) -2*A*xdot;
 % problem_critpt = criticalpointfinder(problem);
 % opts.tolcost = .5*(1e-5)^2; % aim for a gradient smaller than 1e-5
-% x = trustregions(problem_critpt, [], opts); % random initial guess
-% fprintf('Norm of the gradient at x: %g\n', ...
-%         problem.M.norm(x, getGradient(problem, x)));
+% [x, fx] = trustregions(problem_critpt, [], opts); % random initial guess
+% fprintf('Norm of the gradient at x: %g\n', sqrt(2*fx));
 % fprintf('This is small if x is close to being an eigenvector: %g\n',...
 %         norm((x'*A*x)*x - A*x));
 % % The two displayed numbers are equal up to a factor 2.
