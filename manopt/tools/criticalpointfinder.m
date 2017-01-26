@@ -67,6 +67,18 @@ function problem_critpt = criticalpointfinder(problem)
 % Contributors: 
 % Change log: 
 
+% TODO: Determine a safe way of using the caching functionalities of Manopt
+%       with this tool. The issue in passing along storedb and key in the
+%       costgrad and approxhess functions is that the storedb will be
+%       associated to problem_critpt, not to problem. This may cause bugs
+%       that would be very difficult to catch. To be on the safe side,
+%       caching is not used at all here, but this may cause running times
+%       to be longer than necessary. To create a local storedb associated
+%       to problem and to only use the key seems to also not be a viable
+%       solution, since there is no clear way of resetting it to zero
+%       everytime a solver is called on problem_critpt.
+%       -- Jan. 26, 2017 (NB)
+
     problem_critpt.M = problem.M;
     problem_critpt.costgrad = @costgrad;
     
@@ -78,10 +90,10 @@ function problem_critpt = criticalpointfinder(problem)
         problem_critpt.approxhess = @approxhess;
     end
     
-    function [g, gradg] = costgrad(x, storedb, key)
+    function [g, gradg] = costgrad(x)
         
-        gradf = getGradient(problem, x, storedb, key);
-        Hessf_gradf = getHessian(problem, x, gradf, storedb, key);
+        gradf = getGradient(problem, x);
+        Hessf_gradf = getHessian(problem, x, gradf);
         
         g = .5*problem.M.norm(x, gradf)^2;
         gradg = Hessf_gradf;
@@ -93,10 +105,10 @@ function problem_critpt = criticalpointfinder(problem)
     % (where grad f(x) = 0 for the f of problem.cost) this Hessian is
     % exact, so it will allow for superlinear local convergence in
     % algorithms such as trustregions.
-    function HHu = approxhess(x, u, storedb, key)
+    function HHu = approxhess(x, u)
         
-        Hu  = getHessian(problem, x, u,  storedb, key);
-        HHu = getHessian(problem, x, Hu, storedb, key);
+        Hu  = getHessian(problem, x, u);
+        HHu = getHessian(problem, x, Hu);
         
     end
 
