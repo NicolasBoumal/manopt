@@ -12,8 +12,8 @@ function orthobasis = tangentorthobasis(M, x, n)
 % orthobasis is a cell of n tangent vectors at x.
 % With high probability, they form an orthonormal basis of the tangent
 % space at x. If necessary, this can be checked by calling
-%   G = grammatrix(orthobasis)
-% and verifying that G is invertible.
+%   G = grammatrix(M, x, orthobasis)
+% and verifying that G is (close to) the identity matrix.
 %
 % See also: grammatrix orthogonalize lincomb plotprofile
 
