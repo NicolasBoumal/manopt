@@ -24,6 +24,11 @@ function N = tangentspacefactory(M, x)
 %       Following a comment by Jesus Briales on the Manopt forum, the
 %       functions N.egrad2rgrad, N.ehess2rhess and N.tangent now include a
 %       projection (they were formerly identities.)
+%
+%   Feb. 2, 2017 (NB):
+%       Following a comment by Jesus Briales on the Manopt forum, the
+%       function N.proj now calls M.proj(x, .) instead of M.proj(y, .).
+%       Furthermore, N.ehess2rhess was corrected in the same way.
 
     % N is the manifold we build. y will be a point on N, thus also a
     % tangent vector to M at x. This is a typical Euclidean space, hence it
@@ -37,11 +42,11 @@ function N = tangentspacefactory(M, x)
     N.dim   = @() M.dim();
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
     N.norm  = @(y, u) M.norm(x, u);
-    N.proj  = M.proj;
+    N.proj  = @(y, u) M.proj(x, u);
     N.typicaldist = @() sqrt(N.dim());
     N.tangent = N.proj;
     N.egrad2rgrad = N.proj;
-    N.ehess2rhess = @(x, eg, eh, d) M.proj(x, eh);
+    N.ehess2rhess = @(y, eg, eh, d) M.proj(x, eh);
     N.exp = @exponential;
     N.retr = @exponential;
     N.log = @(y1, y2) M.lincomb(x, 1, y2, -1, y1);
