@@ -166,6 +166,7 @@ function M = stiefelstackedfactory(m, d, k)
     M.transp = @(x1, x2, u) projection(x2, u);
     
     M.vec = @(x, u_mat) u_mat(:);
+    M.veclen = m*d*k;
     M.mat = @(x, u_vec) reshape(u_vec, [n, k]);
     M.vecmatareisometries = @() true;
 
