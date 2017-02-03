@@ -114,5 +114,7 @@ function checkdiff(problem, x, d, force_gradient)
     fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 2, then directional derivatives ' ...
              'might be erroneous.\n']);
+    fprintf(['If it is very close to 0, then the modeled funtion is '...
+             'probably linear and the approximate model is exact.\n']);
     
 end
