@@ -87,8 +87,7 @@ function M = complexcirclefactory(n)
         else
             tv = t*v;
         end
-        y = z+tv;
-        y = y ./ abs(y);
+        y = sign(z+tv);
     end
 
     M.log = @logarithm;
@@ -105,8 +104,7 @@ function M = complexcirclefactory(n)
     
     M.rand = @random;
     function z = random()
-        z = randn(n, 1) + 1i*randn(n, 1);
-        z = z ./ abs(z);
+        z = sign(randn(n, 1) + 1i*randn(n, 1));
     end
     
     M.randvec = @randomvec;
@@ -124,8 +122,7 @@ function M = complexcirclefactory(n)
     
     M.pairmean = @pairmean;
     function z = pairmean(z1, z2)
-        z = z1+z2;
-        z = z ./ abs(z);
+        z = sign(z1+z2);
     end
 
     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
