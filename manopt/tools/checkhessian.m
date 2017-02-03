@@ -100,18 +100,31 @@ function checkhessian(problem, x, d)
          'color', 'k', 'LineStyle', '--', ...
          'YLimInclude', 'off', 'XLimInclude', 'off');
     
-    % In a numerically reasonable neighborhood, the error should decrease
-    % as the cube of the stepsize, i.e., in loglog scale, the error
-    % should have a slope of 3.
-    window_len = 10;
-    [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    if all( err < 1e-10 ) % hard-coded threshold for now
+      % The 2nd order model is exact: error is zero everywhere
+      % Fit line from all points, use log scale only in h
+      range = 1:numel(h);
+      poly = polyfit(log10(h), err, 1);
+      poly(end) = log10(poly(end)); % Set mean error in log scale for plot
+      warning('The model seems exact! Error is zero (near numerical precision) everywhere')
+    else
+      % In a numerically reasonable neighborhood, the error should decrease
+      % as the cube of the stepsize, i.e., in loglog scale, the error
+      % should have a slope of 3.
+      % Find neighborhood for interp of trend
+      window_len = 10;
+      [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    end
     hold all;
-    loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
+        loglog(h(range), 10.^polyval(poly, log10(h(range))), ...
+               'r-', 'LineWidth', 3);
     hold off;
     
     fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 3, then directional derivatives or ' ...
              'the Hessian might be erroneous.\n']);
+    fprintf(['If it is very close to 0, then the modeled funtion is '...
+             'probably quadratic and the approximate model is exact.\n']);
     fprintf(['Note: if the exponential map is only approximate, and it '...
              'is not a second-order approximation,\nthen it is normal ' ...
              'for the slope test to reach 2 instead of 3. Check the ' ...
