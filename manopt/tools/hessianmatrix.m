@@ -23,7 +23,23 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % solvers. To access the spectrum of the Hessian, it may be more practical
 % to call hessianextreme or hessianspectrum. This should coincide with eig(H).
 %
-% See also: hessianspectrum hessianextreme tangentorthobasis orthogonalize
+%
+% Example of equivalence:
+%
+%     Hu = getHessian(problem, x, u)
+%
+% is equivalent to (but much faster than):
+%
+%     B = tangentorthobasis(M, x);
+%     H = hessianmatrix(problem, x, B);
+%     u_vec = tangent2vec(M, x, B, u);
+%     Hu_vec = H*u_vec;
+%     Hu = lincomb(M, x, B, Hu_vec);
+%
+% Note that there will be some error due to numerical round-off.
+% 
+%
+% See also: hessianspectrum hessianextreme tangentorthobasis orthogonalize tangent2vec
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 14, 2016.
