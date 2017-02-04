@@ -12,7 +12,10 @@ function vec = lincomb(M, x, vecs, coeffs)
 %
 %    vec = coeffs(1)*vecs{1} + ... + coeffs(n)*vecs{n}
 %
-% See also: grammatrix orthogonalize tangentorthobasis
+% If vecs is an orthonormal basis, then tangent2vec is the inverse of
+% lincomb.
+%
+% See also: grammatrix orthogonalize tangentorthobasis tangent2vec
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.
