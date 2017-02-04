@@ -13,7 +13,12 @@ function orthobasis = tangentorthobasis(M, x, n)
 % With high probability, they form an orthonormal basis of the tangent
 % space at x. If necessary, this can be checked by calling
 %   G = grammatrix(M, x, orthobasis)
-% and verifying that G is (close to) the identity matrix.
+% and verifying that norm(G - eye(size(G))) is close to zero.
+%
+% Note: if extra accuracy is required, it may help to re-orthogonalize the
+% basis returned by this function once, as follows:
+%  B = tangentorthobasis(M, x, n);
+%  B = orthogonalize(M, x, B);
 %
 % See also: grammatrix orthogonalize lincomb plotprofile
 
