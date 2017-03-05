@@ -1,5 +1,5 @@
 function [x, info, options] = stochasticgradient(problem, x, options)
-% Stochastic gradient (SGD) minimization algorithm for Manopt
+% Stochastic gradient (SG) minimization algorithm for Manopt.
 %
 % function [x, info, options] = stochasticgradient(problem)
 % function [x, info, options] = stochasticgradient(problem, x)
@@ -14,14 +14,13 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 % The solver mimics other solvers of Manopt with two additonal input
 % requirements: problem.ncostterms and problem.partialegrad.
 %
-% problem.ncostterms has the number of samples, e.g., N samples.
+% problem.ncostterms has the number of samples, e.g., problem.ncostterms samples.
 %
 % problem.partialegrad takes input a current point of the manifold and
 % index of batchsize.
 %
 % Some of the options of the solver are specifict to this file. Please have
 % a look below.
-
 
     % Original authors: Bamdev Mishra <bamdevm@gmail.com>,
     %                   Hiroyuki Kasai <kasai@is.uec.ac.jp>, and
@@ -38,11 +37,7 @@ function [x, info, options] = stochasticgradient(problem, x, options)
         x = problem.M.rand();
     end
     
-    
-    
-    % Total number of samples
-    N = problem.ncostterms;
-    
+   
     % Set local defaults
     localdefaults.maxiter = 100;  % Maximum number of iterations.
     localdefaults.stepsize = 0.1;  % Initial stepsize guess.
@@ -100,12 +95,12 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     
     if options.verbosity > 0 && canGetCost(problem) && canGetGradient(problem)
         fprintf('-------------------------------------------------------\n');
-        fprintf('R-SGD:  iter\t               cost val\t    grad. norm\t stepsize\n');
-        fprintf('R-SGD:  %5d\t%+.16e\t%.8e\t%.8e\n', 0, cost, gradnorm, stepsize0);
+        fprintf('iter\t               cost val\t    grad. norm\t stepsize\n');
+        fprintf('%5d\t%+.16e\t%.8e\t%.8e\n', 0, cost, gradnorm, stepsize0);
     end
     
     % Draw the samples with replacement.
-    perm_idx = randi(N, 1, batchsize*options.maxiter);
+    perm_idx = randi(problem.ncostterms, 1, batchsize*options.maxiter);
     
     
     % Main loop over samples.
@@ -179,9 +174,7 @@ function [x, info, options] = stochasticgradient(problem, x, options)
             % Print output
             if options.verbosity > 0
                 if canGetCost(problem) && canGetGradient(problem)
-                    fprintf('R-SGD:  %5d\t%+.16e\t%.8e\t%.8e\n', iter, cost, gradnorm, stepsize);
-                elseif canGetCost(problem)
-                    fprintf('R-SGD:  %5d\t%+.16e\t          \t%.8e\n', iter, cost, stepsize);
+                    fprintf('%5d\t%+.16e\t%.8e\t  %.8e\n', iter, cost, gradnorm, stepsize);
                 end
             end
             
