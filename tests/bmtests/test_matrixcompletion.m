@@ -1,4 +1,9 @@
 function test_matrixcompletion()
+    
+    cd proposed;
+    addpath(genpath(pwd));
+    cd ..;
+    
     clear; clc; close all;
     
     %% Sample data geneteration and problem specifications and options
@@ -108,7 +113,7 @@ function test_matrixcompletion()
     Uinit = problem.M.rand();
     
     
-    % For SVRG: no cost/gradient provided. Only partial gradient provided.   
+    % For SG/SVRG: no cost/gradient are needed. 
     problem.partialegrad = @partialegrad;
          
     % Run SG: no cost/gradient provided. Only partial gradient provided.   
