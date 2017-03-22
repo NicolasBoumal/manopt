@@ -52,8 +52,9 @@ function test_matrixcompletion()
     idx = unique(ceil(m*n*rand(1,(10*M))));
     idx = idx(randperm(length(idx)));
     
-    [I, J] = ind2sub([n, m],idx(1:M));
-    [J, inxs] = sort(J); I=I(inxs)';
+    [I, J] = ind2sub([n, m], idx(1:M));
+    [J, inxs] = sort(J);
+    I = I(inxs)';
     
     % Values of Y at the locations indexed by I and J.
     S = sum(YL(I,:).*YR(J,:), 2);
@@ -113,11 +114,12 @@ function test_matrixcompletion()
     Uinit = problem.M.rand();
     
     
-    % For SG/SVRG: no cost/gradient are needed. 
+    % For SG/SVRG: no cost/full gradient are needed: only need a partial
+    % gradient, which gives the gradient for a selected term of the cost.
     problem.partialegrad = @partialegrad;
          
     % Run SG: no cost/gradient provided. Only partial gradient provided.   
-    fprintf('\nRiemannian stochastic gradients algorithm.\n')
+    fprintf('\nRiemannian stochastic gradient algorithm.\n')
     clear options;
     options.verbosity = 1;
     options.batchsize = 10;
@@ -129,7 +131,7 @@ function test_matrixcompletion()
     [~, infos_sg, options_sg] = stochasticgradient(problem, Uinit, options);
     
     % Run SVRG
-    fprintf('\nRiemannian stochastic variance reduced gradients algorithm.\n')
+    fprintf('\nRiemannian stochastic variance reduced gradient algorithm.\n')
     clear options;
     options.verbosity = 1;
     options.batchsize = 1;
@@ -149,33 +151,37 @@ function test_matrixcompletion()
     problem.egrad = @egrad;
     
     % Sanity checks for gradient computation.
-    checkgradient(problem)
+    checkgradient(problem);
     
-    fprintf('\nRiemanniang steepest descent algorithm.\n')
+    fprintf('\nRiemannian steepest descent algorithm.\n')
     clear options;
     options.maxiter = 100;
     options.statsfun = @mystatsfun;
     [~, ~,infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
     
+    keyboard;
     
     %% Plots
-    num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
-    num_grads_sg = ceil((options_sg.batchsize*options_sg.savestatsiter*(1 : length([infos_sg.iter])))/m) - 1; 
+    %%%num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
+    num_grads_sd = [infos_sd.iter];
+    %%%num_grads_sg = ceil((options_sg.batchsize*options_sg.savestatsiter*(1 : length([infos_sg.iter])))/m) - 1; 
+    num_grads_sg = (options_sg.batchsize*[infos_sg.iter])/m;
+    %%%next one to be checked went checked SVRG code
     num_grads_svrg = ceil((m + options_svrg.batchsize*options_svrg.maxinneriter)/m)*((1:length([infos_svrg.epoch])) - 1); 
 
     
     % Training loss versus #grads
     fs = 20;
     figure;
-    semilogy(num_grads_sd, [infos_sd.cost_test],'-O','Color','m','LineWidth',2, 'MarkerSize',13);
-    hold on;
-    semilogy(num_grads_sg, [infos_sg.cost_test],'-s','Color','r','LineWidth',2, 'MarkerSize',13);
-    semilogy(num_grads_svrg, [infos_svrg.cost_test],'-*','Color','b','LineWidth',2, 'MarkerSize',13);
+    semilogy(num_grads_sd, [infos_sd.cost_test], '-O', 'LineWidth', 2, 'MarkerSize', 13);
+    hold all;
+    semilogy(num_grads_sg, [infos_sg.cost_test], '-s', 'LineWidth', 2, 'MarkerSize', 13);
+    semilogy(num_grads_svrg, [infos_svrg.cost_test], '-*', 'LineWidth', 2, 'MarkerSize', 13);
     hold off;
     ax1 = gca;
     set(ax1,'FontSize',fs);
-    xlabel(ax1,'Number of batch gradients','FontSize',fs);
-    ylabel(ax1,'Mean square error on the test set','FontSize',fs);
+    xlabel(ax1,'Number of batch gradients (equivalent)', 'FontSize',fs);
+    ylabel(ax1,'Mean square error on the test set', 'FontSize',fs);
     legend('SD', 'SG', 'SVRG');
     legend 'boxoff';
     box off;
@@ -228,7 +234,7 @@ function test_matrixcompletion()
             values_Omega = currentsamples(ii).values;
             U_Omega = U(IDX,:);
             
-            % Solve a simple least squares problem to populate U
+            % Solve a simple least squares problem to populate W
             W(ii,:) = (U_Omega\values_Omega)';
         end
     end
