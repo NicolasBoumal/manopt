@@ -159,8 +159,6 @@ function test_matrixcompletion()
     options.statsfun = @mystatsfun;
     [~, ~,infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
     
-    keyboard;
-    
     %% Plots
     %%%num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
     num_grads_sd = [infos_sd.iter];
