@@ -126,7 +126,7 @@ function checkhessian(problem, x, d)
         loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
-    if ~exist('isModelExact','var') || ~isModelExact
+    if ~isModelExact
     fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 3, then directional derivatives or ' ...
              'the Hessian might be erroneous.\n']);
