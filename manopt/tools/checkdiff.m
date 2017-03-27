@@ -23,6 +23,10 @@ function checkdiff(problem, x, d, force_gradient)
 % Contributors: 
 % Change log: 
 %
+%   March 26, 2017 (JB):
+%       Detects if the approximated linear model is exact
+%       and provides the user with the corresponding feedback.
+% 
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 
