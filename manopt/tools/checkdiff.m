@@ -126,7 +126,7 @@ function checkdiff(problem, x, d, force_gradient)
     loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
-    if ~exist('isModelExact','var') || ~isModelExact
+    if ~isModelExact
     fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 2, then directional derivatives ' ...
              'might be erroneous.\n']);
