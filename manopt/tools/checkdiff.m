@@ -23,6 +23,10 @@ function checkdiff(problem, x, d, force_gradient)
 % Contributors: 
 % Change log: 
 %
+%   March 26, 2017 (JB):
+%       Detects if the approximated linear model is exact
+%       and provides the user with the corresponding feedback.
+% 
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 
@@ -101,18 +105,39 @@ function checkdiff(problem, x, d, force_gradient)
          'color', 'k', 'LineStyle', '--', ...
          'YLimInclude', 'off', 'XLimInclude', 'off');
     
-    
-    % In a numerically reasonable neighborhood, the error should decrease
-    % as the square of the stepsize, i.e., in loglog scale, the error
-    % should have a slope of 2.
-    window_len = 10;
-    [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+     
+    if all( err < 1e-12 ) % threshold for numerical errors
+        % The 1st order model is exact: all errors are (numerically) zero
+        % Fit line from all points, use log scale only in h
+        isModelExact = true;
+        range = 1:numel(h);
+        poly = polyfit(log10(h), err, 1);
+        poly(end) = log10(poly(end)); % Set mean error in log scale for plot
+        % Change title to something more descriptive for the special case at hand
+        title(sprintf(...
+              ['Directional derivative check.\n'...
+               'It seems the linear model is exact:\n'...
+               'Model error is numerically zero for all h.']));
+    else
+        % In a numerically reasonable neighborhood, the error should decrease
+        % as the square of the stepsize, i.e., in loglog scale, the error
+        % should have a slope of 2.
+        isModelExact = false;
+        window_len = 10;
+        [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    end
     hold all;
     loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
+    if ~isModelExact
     fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 2, then directional derivatives ' ...
              'might be erroneous.\n']);
+    else
+    fprintf(['The linear model appears to be exact ' ...
+             '(within numerical precision), '...
+             'so the slope computation is irrelevant.\n']);
+    end
     
 end
