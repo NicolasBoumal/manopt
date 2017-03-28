@@ -24,6 +24,10 @@ function checkhessian(problem, x, d)
 % Contributors: 
 % Change log: 
 %
+%   March 26, 2017 (JB):
+%       Detects if the approximated quadratic model is exact
+%       and provides the user with the corresponding feedback.
+% 
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 %
@@ -100,15 +104,33 @@ function checkhessian(problem, x, d)
          'color', 'k', 'LineStyle', '--', ...
          'YLimInclude', 'off', 'XLimInclude', 'off');
     
-    % In a numerically reasonable neighborhood, the error should decrease
-    % as the cube of the stepsize, i.e., in loglog scale, the error
-    % should have a slope of 3.
-    window_len = 10;
-    [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    
+    if all( err < 1e-12 ) % threshold for numerical errors
+        % The 2nd order model is exact: all errors are (numerically) zero
+        % Fit line from all points, use log scale only in h
+        isModelExact = true;
+        range = 1:numel(h);
+        poly = polyfit(log10(h), err, 1);
+        poly(end) = log10(poly(end)); % Set mean error in log scale for plot
+        % Change title to something more descriptive for the special case at hand
+        title(sprintf(...
+              ['Hessian check.\n'...
+               'It seems the quadratic model is exact:\n'...
+               'Model error is numerically zero for all h.']));
+    else
+        % In a numerically reasonable neighborhood, the error should decrease
+        % as the cube of the stepsize, i.e., in loglog scale, the error
+        % should have a slope of 3.
+        % Find neighborhood for interp of trend
+        isModelExact = false;
+        window_len = 10;
+        [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+    end
     hold all;
-    loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
+        loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
     hold off;
     
+    if ~isModelExact
     fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
     fprintf(['If it is far from 3, then directional derivatives or ' ...
              'the Hessian might be erroneous.\n']);
@@ -118,6 +140,11 @@ function checkhessian(problem, x, d)
              'factory for this.\n' ...
              'If tested at a critical point, then even for a first-order '...
              'retraction the slope test should yield 3.\n']);
+    else
+    fprintf(['The quadratic model appears to be exact ' ...
+             '(within numerical precision), '...
+             'so the slope computation is irrelevant.\n']);
+    end
 
     
     %% Check that the Hessian at x along direction d is a tangent vector.
