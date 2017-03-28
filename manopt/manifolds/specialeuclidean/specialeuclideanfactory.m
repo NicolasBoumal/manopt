@@ -6,7 +6,7 @@ function M = specialeuclideanfactory(n, k)
 %
 % The special Euclidean group (the manifold of rigid transformations):
 % This is a product manifold of the rotations group SO(n) and the
-% translation group R^n, copied k times.
+% translation group R^n, copied k times. (See note below.)
 %
 % Points on the manifold are represented as structures X with two fields.
 % X.R is a 3D array of size nxnxk such that each slice X.R(:, :, i)
@@ -27,8 +27,13 @@ function M = specialeuclideanfactory(n, k)
 %
 % By default, k = 1.
 %
-% This is a test geometry: it may not be the "appropriate" geometry to give
-% to SE(n).
+% Note: this is a product geometry: it may not be the "appropriate"
+% geometry to give to SE(n) for your application. In particular, this is
+% not the Lie geometry of SE(n), because SE(n) is not a direct product of
+% SO(n) and R^n: it is only a semidirect product. Following a comment by
+% Martijn Zeestraten on the Manopt forum, see this file for more
+% information about the Lie geometry:
+%   http://ethaneade.com/lie.pdf
 %
 % See rotationsfactory and euclideanfactory for details.
 %
