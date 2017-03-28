@@ -1,23 +1,22 @@
-function  test_MC_Grass_svrg()
+function test_matrixcompletion()
+    
+    cd proposed;
+    addpath(genpath(pwd));
+    cd ..;
     
     clear; clc; close all;
     
-    
-    %% Sample data geneteration
-    
-    % Problem specifications and options
+    %% Sample data geneteration and problem specifications and options
     n = 100;
     m = 500;
     true_rank = 5;
     over_sampling = 5;
-    
     r = true_rank;
     noiseFac = 1e-6;
-    condition_number = 0; % 0 for well-conditioned data; > 0 for ill-conditioned data.
+    condition_number = 0; % 0 for well-conditioned data and > 0 for ill-conditioned data.
     
-  
+    % Print the problem instance information.
     fprintf('Rank %i matrix of size %i times %i and over-sampling = %i\n', true_rank, n, m, over_sampling);
-      
     
     % Generate well-conditioned or ill-conditioned data
     M = over_sampling*true_rank*(m + n -true_rank); % total entries
@@ -53,8 +52,9 @@ function  test_MC_Grass_svrg()
     idx = unique(ceil(m*n*rand(1,(10*M))));
     idx = idx(randperm(length(idx)));
     
-    [I, J] = ind2sub([n, m],idx(1:M));
-    [J, inxs] = sort(J); I=I(inxs)';
+    [I, J] = ind2sub([n, m], idx(1:M));
+    [J, inxs] = sort(J);
+    I = I(inxs)';
     
     % Values of Y at the locations indexed by I and J.
     S = sum(YL(I,:).*YR(J,:), 2);
@@ -64,11 +64,8 @@ function  test_MC_Grass_svrg()
     noise = noiseFac*max(S)*randn(size(S));
     S = S + noise;
     
-    
     values = sparse(I, J, S, n, m);
     indicator = sparse(I, J, 1, n, m);
-    
-    
     
     % Creat the cells
     samples(m).colnumber = []; % Preallocate memory.
@@ -106,40 +103,110 @@ function  test_MC_Grass_svrg()
     end
     
     
+    %% Call algorithms
     
-    %% Set manifold
+    % Set manifold and number of cost terms
     problem.M = grassmannfactory(n, r);
+    problem.ncostterms = m;
     
     
+    % Initialization
+    Uinit = problem.M.rand();
     
     
-    %% Set data
-    problem.samples = samples;
-   
+    % For SG/SVRG: no cost/full gradient are needed: only need a partial
+    % gradient, which gives the gradient for a selected term of the cost.
+    problem.partialegrad = @partialegrad;
+         
+    % Run SG: no cost/gradient provided. Only partial gradient provided.   
+    fprintf('\nRiemannian stochastic gradient algorithm.\n')
+    clear options;
+    options.verbosity = 1;
+    options.batchsize = 10;
+    options.maxiter = floor(100*m/10);
+    options.savestatsiter = floor(5*m/10);
+    options.stepsize = 1e-3;
+    options.stepsize_type = 'decay';
+    options.statsfun = @mystatsfun;
+    [~, infos_sg, options_sg] = stochasticgradient(problem, Uinit, options);
     
-    %% Define problem definitions
+    % Run SVRG
+    fprintf('\nRiemannian stochastic variance reduced gradient algorithm.\n')
+    clear options;
+    options.verbosity = 1;
+    options.batchsize = 1;
+    options.update_type='svrg';
+    options.maxinneriter = 2*m;
+    options.maxepoch = 100;
+    options.stepsize = 1e-4;
+    options.svrg_type = 1;
+    options.stepsize_type = 'fix';%'decay' or 'fix' or 'hybrid.
+    options.statsfun = @mystatsfun;
+    
+    [~, infos_svrg, options_svrg] = stochasticvariancereducedgradient(problem, Uinit, options);
+       
+
+    % Run SD: cost and gradient provided.
     problem.cost = @cost;
+    problem.egrad = @egrad;
+    
+    % Sanity checks for gradient computation.
+    checkgradient(problem);
+    
+    fprintf('\nRiemannian steepest descent algorithm.\n')
+    clear options;
+    options.maxiter = 100;
+    options.statsfun = @mystatsfun;
+    [~, ~,infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
+    
+    %% Plots
+    %%%num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
+    num_grads_sd = [infos_sd.iter];
+    %%%num_grads_sg = ceil((options_sg.batchsize*options_sg.savestatsiter*(1 : length([infos_sg.iter])))/m) - 1; 
+    num_grads_sg = (options_sg.batchsize*[infos_sg.iter])/m;
+    %%%next one to be checked went checked SVRG code
+    num_grads_svrg = ceil((m + options_svrg.batchsize*options_svrg.maxinneriter)/m)*((1:length([infos_svrg.epoch])) - 1); 
+
+    
+    % Training loss versus #grads
+    fs = 20;
+    figure;
+    semilogy(num_grads_sd, [infos_sd.cost_test], '-O', 'LineWidth', 2, 'MarkerSize', 13);
+    hold all;
+    semilogy(num_grads_sg, [infos_sg.cost_test], '-s', 'LineWidth', 2, 'MarkerSize', 13);
+    semilogy(num_grads_svrg, [infos_svrg.cost_test], '-*', 'LineWidth', 2, 'MarkerSize', 13);
+    hold off;
+    ax1 = gca;
+    set(ax1,'FontSize',fs);
+    xlabel(ax1,'Number of batch gradients (equivalent)', 'FontSize',fs);
+    ylabel(ax1,'Mean square error on the test set', 'FontSize',fs);
+    legend('SD', 'SG', 'SVRG');
+    legend 'boxoff';
+    box off;
+    
+    %% Problem definitions
+    
+    % Cost
     function f = cost(U)
         W = mylsqfit(U, samples);
         f = 0.5*norm(indicator.*(U*W') - values, 'fro')^2;
         f = f/m;
     end
     
-    problem.egrad = @egrad;
+    % Gradient
     function g = egrad(U)
         W = mylsqfit(U, samples);
         g = (indicator.*(U*W') - values)*W;
         g = g/m;
     end
     
-    
-    problem.egrad_batchsize = @egrad_batchsize;
-    function g = egrad_batchsize(U, samples_batchsize)
+    % Partial gradient: required for Riemannian SGD.
+    function g = partialegrad(U, idx_batchsize)
         g = zeros(n, r);
-        m_batchsize = length([samples_batchsize.colnumber]);
+        m_batchsize = length(idx_batchsize);
         for ii = 1 : m_batchsize
-            colnum = samples_batchsize(ii).colnumber;
-            w = mylsqfit(U, samples_batchsize(ii));
+            colnum = idx_batchsize(ii);
+            w = mylsqfit(U, samples(colnum));
             indicator_vec = indicator(:, colnum);
             values_vec = values(:, colnum);
             g = g + (indicator_vec.*(U*w') - values_vec)*w;
@@ -148,60 +215,15 @@ function  test_MC_Grass_svrg()
         
     end
     
-    
-    %     function stats = mystatsfun(problem, U, stats)
-    %         W = mylsqfit(U, samples_test);
-    %         f_test = 0.5*norm(indicator_test.*(U*W') - values_test, 'fro')^2;
-    %         f_test = f_test/m;
-    %         stats.cost_test = f_test;
-    %     end
-    
-    
-    %     % Consistency checks
-    %     checkgradient(problem)
-    %     pause;
+    function stats = mystatsfun(problem, U, stats)
+        W = mylsqfit(U, samples_test);
+        f_test = 0.5*norm(indicator_test.*(U*W') - values_test, 'fro')^2;
+        f_test = f_test/m;
+        stats.cost_test = f_test;
+    end
     
     
-    % Initialization
-    Uinit = problem.M.rand();
-    
-    
-    % Run SD
-    clear options;
-    options.maxiter = 100;
-    %     options.statsfun = @mystatsfun;
-    
-    [~, ~,infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
-    
-    
-    % Run SGD
-    clear options;
-    options.verbosity = 1;
-    options.batchsize = 10;
-    options.update_type='sgd';
-    options.maxepochs = 100;
-    options.stepsize = 1e-3;
-    options.stepsize_type = 'decay';
-    %     options.statsfun = @mystatsfun;
-    
-    [~, ~, infos_sgd, options_sgd] = Riemannian_svrg(problem, Uinit, options);
-    
-    
-    % Run SVRG
-    clear options;
-    options.verbosity = 1;
-    options.batchsize = 10;
-    options.update_type='svrg';
-    options.maxepochs = 100;
-    options.stepsize = 9e-4;
-    %     options.statsfun = @mystatsfun;
-    options.svrg_type = 1;
-    options.stepsize_type = 'decay'; % 'fix' or 'hybrid.
-    
-    [~, ~, infos_svrg, options_svrg] = Riemannian_svrg(problem, Uinit, options);
-    
-    
-    
+    % Compute the least-squares fit.
     function W = mylsqfit(U, currentsamples)
         W = zeros(length(currentsamples), size(U, 2));
         for ii = 1 : length(currentsamples)
@@ -210,57 +232,10 @@ function  test_MC_Grass_svrg()
             values_Omega = currentsamples(ii).values;
             U_Omega = U(IDX,:);
             
-            % Solve a simple least squares problem to populate U
+            % Solve a simple least squares problem to populate W
             W(ii,:) = (U_Omega\values_Omega)';
         end
     end
-
-    
-    
-    
-    %% Plots
-    num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
-    num_grads_sgd = ceil(options_sgd.maxinneriter/m)*((1:length([infos_sgd.cost])) - 1); % options.maxepoch*(options_sgd.maxinneriter);
-    num_grads_svrg = ceil((m + options_svrg.maxinneriter)/m)*((1:length([infos_svrg.cost])) - 1); %options.maxepoch*(N + options_svrg.maxinneriter); % Per epoch we compute equivalent of 2 batch grads.
-    
-    
-    
-    % Training loss versus #grads
-    fs = 20;
-    figure;
-    semilogy(num_grads_sd, [infos_sd.cost],'-O','Color','m','LineWidth',2, 'MarkerSize',13);
-    hold on;
-    semilogy(num_grads_sgd, [infos_sgd.cost],'-s','Color','r','LineWidth',2, 'MarkerSize',13);
-    semilogy(num_grads_svrg, [infos_svrg.cost],'-*','Color','b','LineWidth',2, 'MarkerSize',13);
-    hold off;
-    ax1 = gca;
-    set(ax1,'FontSize',fs);
-    xlabel(ax1,'Number of batch gradients','FontSize',fs);
-    ylabel(ax1,'Mean square error on training set','FontSize',fs);
-    legend('SD', 'SGD','SVRG');
-    legend 'boxoff';
-    box off;
-    
-    
-    
-    
-    
-    % Gradient norm versus #grads
-    fs = 20;
-    figure;
-    semilogy(num_grads_sd, [infos_sd.gradnorm],'-O','Color','m','LineWidth',2, 'MarkerSize',13);
-    hold on;
-    semilogy(num_grads_sgd, [infos_sgd.gradnorm],'-s','Color','r','LineWidth',2, 'MarkerSize',13);
-    semilogy(num_grads_svrg, [infos_svrg.gradnorm],'-*','Color','b','LineWidth',2, 'MarkerSize',13);
-    hold off;
-    ax1 = gca;
-    set(ax1,'FontSize',fs);
-    xlabel(ax1,'Number of batch gradients','FontSize',fs);
-    ylabel(ax1,'Norm of gradient','FontSize',fs);
-    legend('SD', 'SGD','SVRG');
-    legend 'boxoff';
-    box off;
-    
-    
+    %%
 end
 
