@@ -127,14 +127,26 @@ function test_matrixcompletion()
     options.checkperiod = floor(5*m/10);
     options.stepsize_init = 1e-3;
     options.stepsize_type = 'decay';
-    options.statsfun = @mystatsfun;
+
+    % Example of how to use statsfunhelper
+    metrics.cost_test = @mystatsfun;
+    record_cost_grad = true;
+    if record_cost_grad
+        problem.cost = @cost;
+        problem.egrad = @egrad;
+        metrics.cost = @(problem, x) getCost(problem, x);
+        metrics.gradnorm = @(problem, x) problem.M.norm(x, getGradient(problem, x));
+    end
+    options.statsfun = statsfunhelper(metrics);
+    
+    % for stats
     
 %     profile clear;
 %     profile on;
     [~, info_sg, options_sg] = stochasticgradient(problem, Uinit, options);
 %     profile off;
 %     profile report;
-%     return;
+%     return;    
     
     % Run SVRG
     fprintf('\nRiemannian stochastic variance reduced gradient algorithm.\n')
@@ -147,7 +159,7 @@ function test_matrixcompletion()
     options.stepsize = 1e-4;
     options.svrg_type = 1;
     options.stepsize_type = 'fix';%'decay' or 'fix' or 'hybrid.
-    options.statsfun = @mystatsfun;
+    options.statsfun = statsfunhelper('cost_test', @mystatsfun);
     
     [~, info_svrg, options_svrg] = stochasticvariancereducedgradient(problem, Uinit, options);
        
@@ -162,7 +174,7 @@ function test_matrixcompletion()
     fprintf('\nRiemannian steepest descent algorithm.\n')
     clear options;
     options.maxiter = 100;
-    options.statsfun = @mystatsfun;
+    options.statsfun = statsfunhelper('cost_test', @mystatsfun);
     [~, ~,info_sd, options_sd] = steepestdescent(problem, Uinit, options);
     
     %% Plots
@@ -221,11 +233,10 @@ function test_matrixcompletion()
         
     end
     
-    function stats = mystatsfun(problem, U, stats)
+    function f_test = mystatsfun(problem, U)
         W = mylsqfit(U, samples_test);
         f_test = 0.5*norm(indicator_test.*(U*W') - values_test, 'fro')^2;
         f_test = f_test/m;
-        stats.cost_test = f_test;
     end
     
     
