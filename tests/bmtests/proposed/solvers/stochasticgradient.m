@@ -68,7 +68,7 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     %%% We can then have a default function handle here. But then it is a
     %%% bit more complicated to keep the same type of step choice while
     %%% only changing the rate. Let's talk about this. Could simplify code.
-    localdefaults.stepsize = 0.1;  % Initial stepsize guess.
+    localdefaults.stepsize_init = 0.1;  % Initial stepsize guess.
     localdefaults.stepsize_type = 'decay'; % Stepsize type. Other possibilities are 'fix' and 'hybrid'.
     localdefaults.stepsize_lambda = 0.1; % lambda is a weighting factor while using stepsize_typ='decay'.
     
@@ -80,7 +80,7 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     options = mergeOptions(localdefaults, options);
     
     
-    stepsize0 = options.stepsize;
+    stepsize_init = options.stepsize_init;
     batchsize = options.batchsize;
     
     
@@ -137,7 +137,7 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     if options.verbosity > 0 && canGetCost(problem) && canGetGradient(problem)
         fprintf('-------------------------------------------------------\n');
         fprintf('iter\t               cost val\t    grad. norm\t stepsize\n');
-        fprintf('%5d\t%+.16e\t%.8e\t%.8e\n', 0, cost, gradnorm, stepsize0);
+        fprintf('%5d\t%+.16e\t%.8e\t%.8e\n', 0, cost, gradnorm, stepsize_init);
     end
     
     
@@ -156,14 +156,14 @@ function [x, info, options] = stochasticgradient(problem, x, options)
         % Update stepsize
         switch lower(options.stepsize_type)
             case 'decay' % Decay as O(1/iter).
-                stepsize = stepsize0 / (1  + stepsize0 * options.stepsize_lambda * iter);
+                stepsize = stepsize_init / (1  + stepsize_init * options.stepsize_lambda * iter);
             
             case {'fix', 'fixed'} % Fixed stepsize.
-                stepsize = stepsize0;
+                stepsize = stepsize_init;
                 
             case 'hybrid'
                 if numupdates < 5 % Decay stepsize only for the initial few iterations.
-                    stepsize = stepsize0 / (1  + stepsize0 * options.stepsize_lambda * iter);
+                    stepsize = stepsize_init / (1  + stepsize_init * options.stepsize_lambda * iter);
                 end
                 
             otherwise
