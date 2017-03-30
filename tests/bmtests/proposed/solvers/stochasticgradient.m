@@ -34,6 +34,14 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 % Some of the options of the solver are specific to this file. Please have
 % a look inside the code.
 %
+% To record the value of the cost function or the norm of the gradient for
+% example (which are statistics the algorithm does not require and hence
+% does not compute by default), one can set the following options:
+%
+%   metrics.cost = @(problem, x) getCost(problem, x);
+%   metrics.gradnorm = @(problem, x) problem.M.norm(x, getGradient(problem, x));
+%   options.statsfun = statsfunhelper(metrics);
+%
 % See also: steepestdescent
 
 % This file is part of Manopt: www.manopt.org.
