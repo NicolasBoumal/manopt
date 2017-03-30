@@ -31,46 +31,39 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 %
 % Importantly, the cost function itself needs not be specified.
 %
-% Some of the options of the solver are specifict to this file. Please have
+% Some of the options of the solver are specific to this file. Please have
 % a look inside the code.
 %
-% See also: steepestdescent stochasticvariancereducedgradient
+% See also: steepestdescent
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Bamdev Mishra <bamdevm@gmail.com>,
-%                  Hiroyuki Kasai <kasai@is.uec.ac.jp>, and
-%                  Hiroyuki Sato <hsato@ms.kagu.tus.ac.jp>, 22 April 2016.
+% Original authors: Bamdev Mishra <bamdevm@gmail.com>,
+%                   Hiroyuki Kasai <kasai@is.uec.ac.jp>, and
+%                   Hiroyuki Sato <hsato@ms.kagu.tus.ac.jp>, 22 April 2016.
 % Contributors: Nicolas Boumal
 % Change log: 
     
+
     % Verify that the problem description is sufficient for the solver.
     if ~canGetPartialGradient(problem)
         warning('manopt:getPartialGradient', ...
-            'No partial gradient provided. The algorithm will likely abort.');
-    end
-    
-    % If no initial point x is given by the user, generate one at random.
-    if ~exist('x', 'var') || isempty(x)
-        x = problem.M.rand();
+         'No partial gradient provided. The algorithm will likely abort.');
     end
     
    
     % Set local defaults
-    localdefaults.maxiter = 1000;     % Maximum number of iterations.
-    localdefaults.tolgradnorm = 1e-6; % Batch gradient norm tolerance.
-    localdefaults.batchsize = 1;      % Batchsize.
-    localdefaults.verbosity = 0;      % Output verbosity (higher -> more output)
-    localdefaults.savestatsiter = 1;  % Save stats every # iteration.
+    localdefaults.maxiter = 1000;       % Maximum number of iterations.
+    localdefaults.batchsize = 1;        % Batchsize (#cost terms per iter).
+    localdefaults.verbosity = 2;        % Output verbosity (0, 1 or 2).
+    localdefaults.storedepth = 20;      % Limit amount of caching.
     
-    %%% QUESTION OF NICOLAS: Can we make this a lot more flexible and just
-    %%% have stepsize be a function handle that takes as input the
-    %%% iteration and batch number, and perhaps the previous value?
-    %%% We can then have a default function handle here. But then it is a
-    %%% bit more complicated to keep the same type of step choice while
-    %%% only changing the rate. Let's talk about this. Could simplify code.
-    localdefaults.stepsize_init = 0.1;  % Initial stepsize guess.
-    localdefaults.stepsize_type = 'decay'; % Stepsize type. Other possibilities are 'fix' and 'hybrid'.
-    localdefaults.stepsize_lambda = 0.1; % lambda is a weighting factor while using stepsize_typ='decay'.
+    % Check stopping criteria and save stats every checkperiod iterations.
+    localdefaults.checkperiod = 100;
+    
+    % stepsizefun is a function implementing a step size selection
+    % algorithm. See that function for help with options, which can be
+    % specified in the options structure passed to the solver directly.
+    localdefaults.stepsizefun = @stepsize_sg;
     
     % Merge global and local defaults, then merge w/ user options, if any.
     localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -80,179 +73,145 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     options = mergeOptions(localdefaults, options);
     
     
-    stepsize_init = options.stepsize_init;
-    batchsize = options.batchsize;
-    
+    % If no initial point x is given by the user, generate one at random.
+    if ~exist('x', 'var') || isempty(x)
+        x = problem.M.rand();
+    end
     
     % Create a store database and get a key for the current x
     storedb = StoreDB(options.storedepth);
     key = storedb.getNewKey();
     
-    % Compute objective-related quantities for x
-    %%% NICOLAS: I do not think this should be the default behavior.
-    if canGetCost(problem)
-        [cost, grad] = getCostGrad(problem, x, storedb, key);
-        gradnorm = problem.M.norm(x, grad);
-    elseif canGetGradient(problem)
-        % NICOLAS: this will always be true, because partialgrad is enough
-        % to compute the gradient. Also think this shouldn't be default
-        % behavior.
-        grad = getGradient(problem, x, storedb, key);
-        gradnorm = problem.M.norm(x, grad);
-    end
     
+    % Elapsed time for the current set of iterations, where a set of
+    % iterations comprises options.checkperiod iterations. We do not
+    % count time spent for such things as logging statistics, as these are
+    % not relevant to the actual optimization process.
     elapsed_time = 0;
     
-    % Iteration counter
-    iter = 0; % Total number of updates.
-    savestatsitercount = 0; % Total number of saved stats at this point.
-    %%% The semantics for savestatsitercount was wrong, because we compute
-    %%% stats just below and we do not increment it. I think it should be
-    %%% incremented AND there are modifications below to be implemented
-    %%% too.
+    % Total number of completed steps
+    iter = 0;
     
-    % Save stats in a struct array info, and preallocate.
-    %%% NICOLAS: I simplified here to always allocate 100000 and never less;
-    %%% after all, if we're doing SGD, there is a big dataset somewhere in
-    %%% RAM already, so this is inconsequential (we may need more,
-    %%% actually.) This here will be a few Mb..
+    
+    % Total number of saved stats at this point.
+    savedstats = 0;
+    
+    % Collect and save stats in a struct array info, and preallocate.
     stats = savestats();
     info(1) = stats;
-    savestatsitercount = savestatsitercount+1; %%% NICO added
-    
-    info(100000).iter = [];
-    info(100000).time = [];
-    if canGetCost(problem)
-        info(100000).cost = []; %%% NICOLAS to be checked if still needed
+    savedstats = savedstats + 1;
+    if isinf(options.maxiter)
+        % We trust that if the user set maxiter = inf, then they defined
+        % another stopping criterion.
+        preallocate = 1e6;
+    else
+        preallocate = options.maxiter + 1;
     end
-    if canGetGradient(problem) %%% NICOLAS also to be checked if still needed
-        info(100000).gradnorm = [];
-    end
+    info(preallocate).iter = [];
     
     
-    %%% NICOLAS: in my view, by default, the solver should output
-    %%% statistics that are inherent to its own functioning, so that it
-    %%% doesn't add significantly to the computational load. Let's talk
-    %%% about what should be displayed.
-    if options.verbosity > 0 && canGetCost(problem) && canGetGradient(problem)
-        fprintf('-------------------------------------------------------\n');
-        fprintf('iter\t               cost val\t    grad. norm\t stepsize\n');
-        fprintf('%5d\t%+.16e\t%.8e\t%.8e\n', 0, cost, gradnorm, stepsize_init);
+    % Display information header for the user.
+    if options.verbosity >= 2
+        fprintf('    iter       time [s]       step size\n');
     end
     
     
-    % Main loop over samples.
-    for numupdates = 1 : options.maxiter
+    % Main loop.
+    stop = false;
+    while iter < options.maxiter
         
-        % Set start time
-        start_time = tic;
+        % Record start time.
+        start_time = tic();
         
         % Draw the samples with replacement.
-        idx_batch = randi(problem.ncostterms, batchsize, 1);
+        idx_batch = randi(problem.ncostterms, options.batchsize, 1);
         
-        % Compute gradient on this batch.
-        partialgrad = getPartialGradient(problem, x, idx_batch, storedb, key);
+        % Compute partial gradient on this batch.
+        pgrad = getPartialGradient(problem, x, idx_batch, storedb, key);
         
-        % Update stepsize
-        switch lower(options.stepsize_type)
-            case 'decay' % Decay as O(1/iter).
-                stepsize = stepsize_init / (1  + stepsize_init * options.stepsize_lambda * iter);
-            
-            case {'fix', 'fixed'} % Fixed stepsize.
-                stepsize = stepsize_init;
-                
-            case 'hybrid'
-                if numupdates < 5 % Decay stepsize only for the initial few iterations.
-                    stepsize = stepsize_init / (1  + stepsize_init * options.stepsize_lambda * iter);
-                end
-                
-            otherwise
-                error('Unknown options.stepsize_type. Should be ''fix'' or ''decay''.');
-        end
+        % Compute a step size and the corresponding new point x.
+        [stepsize, newx, newkey, ssstats] = ...
+                           options.stepsizefun(problem, x, pgrad, iter, ...
+                                               options, storedb, key);
         
-        
-        % Compute the new point and give it a key
-        xnew = problem.M.retr(x, partialgrad, -stepsize);
-        newkey = storedb.getNewKey();
-        
-        % Make the step
-        x = xnew;
+        % Make the step.
+        x = newx;
         key = newkey;
         
-        % Total number of completed steps
+        % Total number of completed steps.
         iter = iter + 1;
         
-        % Elapsed time
+        % Make sure we do not use too much memory for the store database.
+        storedb.purge();
+        
+        % Elapsed time doing actual optimization work so far in this
+        % set of options.checkperiod iterations.
         elapsed_time = elapsed_time + toc(start_time);
         
         
-        % Save statistics only every savestatsiter iterations.
-        if mod(iter, options.savestatsiter) == 0
+        % Check stopping criteria and save stats every checkperiod iters.
+        if mod(iter, options.checkperiod) == 0
             
-            %%%NICOLAS same discussion
-            % Calculate cost, grad, and gradnorm
-            if canGetCost(problem)
-                [newcost, newgrad] = getCostGrad(problem, xnew, storedb, newkey);
-                cost = newcost;
-                newgradnorm = problem.M.norm(xnew, newgrad);
-                gradnorm = newgradnorm;
-            elseif canGetGradient(problem)
-                newgrad = getGradient(problem, xnew, storedb, newkey);
-                newgradnorm = problem.M.norm(xnew, newgrad);
-                gradnorm = newgradnorm;
-            end
-            
-            
-            
-            % Log statistics for freshly executed iteration
+            % Log statistics for freshly executed iteration.
             stats = savestats();
-            info(savestatsitercount+1) = stats;
-            savestatsitercount = savestatsitercount+1;
+            info(savedstats+1) = stats;
+            savedstats = savedstats + 1;
             
-            elapsed_time = 0; % Reset timer
+            % Reset timer.
+            elapsed_time = 0;
             
-            % Print output
-            if options.verbosity > 0
-                if canGetCost(problem) && canGetGradient(problem)
-                    fprintf('%5d\t%+.16e\t%.8e\t  %.8e\n', iter, cost, gradnorm, stepsize);
-                end
+            % Print output.
+            if options.verbosity >= 2
+                fprintf('%8d     %10.2f       %.3e\n', ...
+                                               iter, stats.time, stepsize);
             end
-
-            % Run standard stopping criterion checks
+            
+            % Run standard stopping criterion checks.
             [stop, reason] = stoppingcriterion(problem, x, ...
-                                        options, info, savestatsitercount);
+                                               options, info, savedstats);
             if stop
                 if options.verbosity >= 1
                     fprintf([reason '\n']);
                 end
                 break;
             end
-        end
         
+        end
+
     end
     
-    info = info(1:savestatsitercount);
+    
+    % Keep only the relevant portion of the info struct-array.
+    info = info(1:savedstats);
     
     
-    % Helper function to collect statistics to be saved at index
-    % savestatsitercount+1 in info.
+    % Display a final information message.
+    if options.verbosity >= 1
+        if ~stop
+            % We stopped not because of stoppingcriterion but because the
+            % loop came to an end, which means maxiter triggered.
+            msg = 'Max iteration count reached; options.maxiter = %g.\n';
+            fprintf(msg, options.maxiter);
+        end
+        fprintf('Total time is %f [s] (excludes statsfun)\n', ...
+                info(end).time + elapsed_time);
+    end
+    
+    
+    % Helper function to collect statistics to be saved at
+    % index checkperiodcount+1 in info.
     function stats = savestats()
         stats.iter = iter;
-        if canGetCost(problem)
-            stats.cost = cost;
-        end
-        if canGetGradient(problem)
-            stats.gradnorm = gradnorm;
-        end
-        if savestatsitercount == 0
+        if savedstats == 0
             stats.time = 0;
+            stats.stepsize = NaN;
+            stats.stepsize_stats = [];
         else
-            stats.time = info(savestatsitercount).time + elapsed_time;
+            stats.time = info(savedstats).time + elapsed_time;
+            stats.stepsize = stepsize;
+            stats.stepsize_stats = ssstats;
         end
-        
         stats = applyStatsfun(problem, x, storedb, key, options, stats);
     end
     
 end
-
-
