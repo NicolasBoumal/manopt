@@ -121,19 +121,25 @@ function test_matrixcompletion()
     % Run SG: no cost/gradient provided. Only partial gradient provided.   
     fprintf('\nRiemannian stochastic gradient algorithm.\n')
     clear options;
-    options.verbosity = 1;
+    options.verbosity = 2;
     options.batchsize = 10;
     options.maxiter = floor(100*m/10);
-    options.savestatsiter = floor(5*m/10);
-    options.stepsize = 1e-3;
+    options.checkperiod = floor(5*m/10);
+    options.stepsize_init = 1e-3;
     options.stepsize_type = 'decay';
     options.statsfun = @mystatsfun;
-    [~, infos_sg, options_sg] = stochasticgradient(problem, Uinit, options);
+    
+%     profile clear;
+%     profile on;
+    [~, info_sg, options_sg] = stochasticgradient(problem, Uinit, options);
+%     profile off;
+%     profile report;
+%     return;
     
     % Run SVRG
     fprintf('\nRiemannian stochastic variance reduced gradient algorithm.\n')
     clear options;
-    options.verbosity = 1;
+    options.verbosity = 2;
     options.batchsize = 1;
     options.update_type='svrg';
     options.maxinneriter = 2*m;
@@ -143,7 +149,7 @@ function test_matrixcompletion()
     options.stepsize_type = 'fix';%'decay' or 'fix' or 'hybrid.
     options.statsfun = @mystatsfun;
     
-    [~, infos_svrg, options_svrg] = stochasticvariancereducedgradient(problem, Uinit, options);
+    [~, info_svrg, options_svrg] = stochasticvariancereducedgradient(problem, Uinit, options);
        
 
     % Run SD: cost and gradient provided.
@@ -157,24 +163,24 @@ function test_matrixcompletion()
     clear options;
     options.maxiter = 100;
     options.statsfun = @mystatsfun;
-    [~, ~,infos_sd, options_sd] = steepestdescent(problem, Uinit, options);
+    [~, ~,info_sd, options_sd] = steepestdescent(problem, Uinit, options);
     
     %% Plots
     %%%num_grads_sd = (1:length([infos_sd.cost])) - 1; % N*options_sd.maxiter;
-    num_grads_sd = [infos_sd.iter];
+    num_grads_sd = [info_sd.iter];
     %%%num_grads_sg = ceil((options_sg.batchsize*options_sg.savestatsiter*(1 : length([infos_sg.iter])))/m) - 1; 
-    num_grads_sg = (options_sg.batchsize*[infos_sg.iter])/m;
+    num_grads_sg = (options_sg.batchsize*[info_sg.iter])/m;
     %%%next one to be checked went checked SVRG code
-    num_grads_svrg = ceil((m + options_svrg.batchsize*options_svrg.maxinneriter)/m)*((1:length([infos_svrg.epoch])) - 1); 
+    num_grads_svrg = ceil((m + options_svrg.batchsize*options_svrg.maxinneriter)/m)*((1:length([info_svrg.epoch])) - 1); 
 
     
     % Training loss versus #grads
     fs = 20;
     figure;
-    semilogy(num_grads_sd, [infos_sd.cost_test], '-O', 'LineWidth', 2, 'MarkerSize', 13);
+    semilogy(num_grads_sd, [info_sd.cost_test], '-O', 'LineWidth', 2, 'MarkerSize', 13);
     hold all;
-    semilogy(num_grads_sg, [infos_sg.cost_test], '-s', 'LineWidth', 2, 'MarkerSize', 13);
-    semilogy(num_grads_svrg, [infos_svrg.cost_test], '-*', 'LineWidth', 2, 'MarkerSize', 13);
+    semilogy(num_grads_sg, [info_sg.cost_test], '-s', 'LineWidth', 2, 'MarkerSize', 13);
+    semilogy(num_grads_svrg, [info_svrg.cost_test], '-*', 'LineWidth', 2, 'MarkerSize', 13);
     hold off;
     ax1 = gca;
     set(ax1,'FontSize',fs);
