@@ -81,6 +81,10 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     options = mergeOptions(localdefaults, options);
     
     
+    assert(options.checkperiod >= 1, ...
+                 'options.checkperiod must be a positive integer (>= 1).');
+    
+    
     % If no initial point x is given by the user, generate one at random.
     if ~exist('x', 'var') || isempty(x)
         x = problem.M.rand();
@@ -111,9 +115,9 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     if isinf(options.maxiter)
         % We trust that if the user set maxiter = inf, then they defined
         % another stopping criterion.
-        preallocate = 1e6;
+        preallocate = 1e5;
     else
-        preallocate = options.maxiter + 1;
+        preallocate = ceil(options.maxiter / options.checkperiod) + 1;
     end
     info(preallocate).iter = [];
     
