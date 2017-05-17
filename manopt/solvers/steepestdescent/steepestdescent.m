@@ -203,7 +203,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         
         % Log statistics for freshly executed iteration
         stats = savestats();
-        info(iter+1) = stats; %#ok<AGROW>
+        info(iter+1) = stats;
         
     end
     
