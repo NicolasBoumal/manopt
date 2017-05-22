@@ -59,11 +59,11 @@ function [x, info, options] = stochasticgradient(problem, x, options)
     end
     
    
-    % Set local defaults
-    localdefaults.maxiter = 1000;       % Maximum number of iterations.
-    localdefaults.batchsize = 1;        % Batchsize (#cost terms per iter).
-    localdefaults.verbosity = 2;        % Output verbosity (0, 1 or 2).
-    localdefaults.storedepth = 20;      % Limit amount of caching.
+    % Set local default
+    localdefaults.maxiter = 1000;       % Maximum number of iterations
+    localdefaults.batchsize = 1;        % Batchsize (# cost terms per iter)
+    localdefaults.verbosity = 2;        % Output verbosity (0, 1 or 2)
+    localdefaults.storedepth = 20;      % Limit amount of caching
     
     % Check stopping criteria and save stats every checkperiod iterations.
     localdefaults.checkperiod = 100;
