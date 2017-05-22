@@ -2,14 +2,14 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 % Stochastic gradient (SG) minimization algorithm for Manopt.
 %
 % function [x, info, options] = stochasticgradient(problem)
-% function [x, info, options] = stochasticgradient(problem, x)
-% function [x, info, options] = stochasticgradient(problem, x, options)
+% function [x, info, options] = stochasticgradient(problem, x0)
+% function [x, info, options] = stochasticgradient(problem, x0, options)
 % function [x, info, options] = stochasticgradient(problem, [], options)
 %
 % Apply the Riemannian stochastic gradient algorithm to the problem defined
-% in the problem structure, starting at x if it is provided (otherwise, at
+% in the problem structure, starting at x0 if it is provided (otherwise, at
 % a random point on the manifold). To specify options whilst not specifying
-% an initial guess, give x as [] (the empty matrix).
+% an initial guess, give x0 as [] (the empty matrix).
 %
 % The problem structure must contain the following fields:
 %
