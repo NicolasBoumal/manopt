@@ -18,17 +18,16 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 % In most of the examples bundled with the toolbox (see link below), the
 % solver can be replaced by the present one if need be.
 %
-% %%% NB NB : check that the next comment is correct, since the line-search
-%             is non-monotone
-%
-% The outputs x and cost are the best reached point on the manifold and its
-% cost. The struct-array info contains information about the iterations:
+% The outputs x and cost are the last reached point on the manifold and its
+% cost. This is not necessarily the best point generated since the method
+% is not monotone. The struct-array info contains information about the
+% iterations:
 %   iter : the iteration number (0 for the initial guess)
 %   cost : cost value
 %   time : elapsed time in seconds
 %   gradnorm : Riemannian norm of the gradient
 %   stepsize : norm of the last tangent vector retracted
-%   linesearch : information logged by options.linesearch
+%   linesearch : information logged by the line-search algorithm
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached.
@@ -49,7 +48,7 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 %       The algorithm terminates if the linesearch returns a displacement
 %       vector (to be retracted) smaller in norm than this value.
 %   linesearch (@linesearch_hint)
-%       This option should not be changed, as the present solver has its
+%       This option may not be changed, as the present solver has its
 %       own dedicated line-search strategy.
 %   lambdamax (1e3)
 %       The maximum stepsize allowed by the Barzilai-Borwein method
@@ -91,7 +90,7 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Margherita Porcelli, Feb. 1, 2017
-% Contributors: Nicolas Boumal
+% Contributors: Nicolas Boumal and Bruno Iannazzo
 % Change log: 
 
     
@@ -237,7 +236,14 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
                             -lambda * gradnorm^2, options, storedb, key);
 
         % Updates the value of lambda
-        lambda = lambda * lsstats.alpha; % NB: overwrites here; see what that means
+        lambda = lambda * lsstats.alpha;
+
+        
+        val = problem.M.dist(newx, problem.M.retr(x, desc_dir, stepsize/problem.M.norm(x, desc_dir)));
+        if val > 1e-7
+            fprintf('Check stepsize: %g\n', val);
+            pause;
+        end
 
         % Compute the new cost-related quantities for newx
         [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
