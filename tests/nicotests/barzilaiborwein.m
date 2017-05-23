@@ -1,4 +1,4 @@
-function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
+function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 % Riemannian Barzilai-Borwein solver with non-monotone line-search.
 %
 % function [x, cost, info, options] = barzilaiborwein(problem)
@@ -51,6 +51,15 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
 %   linesearch (@linesearch_hint)
 %       This option should not be changed, as the present solver has its
 %       own dedicated line-search strategy.
+%   lambdamax (1e3)
+%       The maximum stepsize allowed by the Barzilai-Borwein method
+%   lambdamin (1e-3)
+%       The minimum stepsize allowed by the Barzilai-Borwein method
+%   lambda0 (1/10)
+%       The initial stepsize of the Barzilai-Borwein method
+%   ls_nmsteps (10)
+%       The non-monotone line-search checks a sufficient decrease with respect
+%       to the previous ls_nmsteps objective function values.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -81,7 +90,7 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
 % See also: steepestdescent conjugategradient trustregions
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Margherita Porcelli and Bruno Iannazzo, Feb. 1, 2017
+% Original author: Margherita Porcelli, Feb. 1, 2017
 % Contributors: Nicolas Boumal
 % Change log: 
 
@@ -112,9 +121,11 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
 
-    % Upper and lower bounds for the Barzilai-Browein stepsize
+    % Upper and lower bound for the Barzilai-Browein stepsize
     localdefaults.lambdamax = 1e3;
     localdefaults.lambdamin = 1e-3;
+    % Initial Barzilai-Borwein stepsize
+    localdefaults.lambda0 = 1/10;
 
     % Line-search parameters
     % 1) Make sure the user didn't try to define a line search
@@ -129,8 +140,8 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
     options.linesearch = @linesearch_hint;
     % The Armijo sufficient decrease parameter
     localdefaults.ls_suff_decr = 1e-4;
-    % The memory parameter for the non-monotone line-search strategy
-    localdefaults.ls_memoryobj = 10;
+    % The previous steps checked in the non-monotone line-search strategy
+    localdefaults.ls_nmsteps = 10;
     
     
     % Merge global and local defaults, then merge w/ user options, if any.
@@ -141,7 +152,7 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
     % Shorthands for some parameters
     lambdamax = options.lambdamax;
     lambdamin = options.lambdamin;
-    
+    lambda0 = options.lambda0;
     
     timetic = tic();
     
@@ -182,7 +193,7 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
     end
 
     % Set the initial Barzilai-Borwein stepsize
-    lambda = 10;
+    lambda = lambda0;
 
     % Start iterating until stopping criterion triggers
     while true
@@ -215,18 +226,19 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
         end
 
         % Pick the descent direction as minus the gradient (scaled)
-        desc_dir = problem.M.lincomb(x, -1/lambda, grad);
+        desc_dir = problem.M.lincomb(x, -lambda, grad);
 
         % Execute the nonmonotone line search
         k = iter + 1; 
-        start = max(1, k - options.ls_memoryobj + 1);
+        start = max(1, k - options.ls_nmsteps + 1);
         
         [stepsize, newx, newkey, lsstats] = ...
             options.linesearch(problem, x, desc_dir, max(f(start:k)), ...
-                            -(1/lambda)*gradnorm^2, options, storedb, key);
+                            -lambda * gradnorm^2, options, storedb, key);
 
-        stepsize = lsstats.alpha / lambda; % NB: overwrites here; see what that means
-              
+        % Updates the value of lambda
+        lambda = lambda * lsstats.alpha; % NB: overwrites here; see what that means
+
         % Compute the new cost-related quantities for newx
         [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
         newgradnorm = problem.M.norm(newx, newgrad);
@@ -244,17 +256,17 @@ function [x, cost, info, options] = mybarzilaiborwein(problem, x, options)
         Y = problem.M.lincomb(newx, 1, newgrad, -1, grad_transp);
 
         % Compute the transported step
-        Stransp =  problem.M.lincomb(x, -stepsize, grad_transp); 
+        Stransp =  problem.M.lincomb(x, -lambda, grad_transp); 
 
         % Compute scalar products
-        SY = problem.M.inner(newx, Stransp, Y);
-        SS = problem.M.norm(newx, Stransp)^2; 
+        num = problem.M.norm(newx, Stransp)^2; 
+        den = problem.M.inner(newx, Stransp, Y);
 
         % Compute the new Barzilai-Borwein step
-        if SY > 0
-            lambda = min( lambdamax, max(lambdamin, SY/SS) );
+        if den > 0
+            lambda = min( lambdamax, max(lambdamin, num/den) );
         else
-            lambda = lambdamin;
+            lambda = lambdamax;
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
