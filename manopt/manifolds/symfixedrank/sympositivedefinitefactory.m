@@ -54,6 +54,13 @@ function M = sympositivedefinitefactory(n)
 %   April 3, 2015 (NB):
 %       Replaced trace(A*B) by a faster equivalent that does not compute
 %       the whole product A*B, for inner product, norm and distance.
+%
+%   May 23, 2017 (NB):
+%       As seen in a talk of Wen Huang at the SIAM Optimization Conference
+%       today, replaced the retraction of this factory (which was simply
+%       equal to the exponential map) with a simpler, second-order
+%       retraction. That this retraction is second order can be verified
+%       numerically with checkretraction(sympositivedefinitefactory(5));
     
     symm = @(X) .5*(X+X');
     
@@ -107,7 +114,17 @@ function M = sympositivedefinitefactory(n)
     M.tangent = M.proj;
     M.tangent2ambient = @(X, eta) eta;
     
-    M.retr = @exponential;
+    M.retr = @retraction;
+    function Y = retraction(X, eta, t)
+        if nargin < 3
+            teta = eta;
+        else
+            teta = t*eta;
+        end
+        % The symm() call is mathematically unnecessary but numerically
+        % necessary.
+        Y = symm(X + teta + .5*teta*(X\teta));
+    end
     
     M.exp = @exponential;
     function Y = exponential(X, eta, t)
