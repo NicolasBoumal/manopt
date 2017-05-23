@@ -61,6 +61,10 @@ function M = sympositivedefinitefactory(n)
 %       equal to the exponential map) with a simpler, second-order
 %       retraction. That this retraction is second order can be verified
 %       numerically with checkretraction(sympositivedefinitefactory(5));
+%       Notice that, for this retraction, it would be cheap to evaluate for
+%       many values of t, that is, it is cheap to retract many points along
+%       the same tangent direction. This could in principle be exploited to
+%       speed up line-searches.
     
     symm = @(X) .5*(X+X');
     
