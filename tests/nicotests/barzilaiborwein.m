@@ -238,13 +238,6 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
         % Updates the value of lambda
         lambda = lambda * lsstats.alpha;
 
-        
-        val = problem.M.dist(newx, problem.M.retr(x, desc_dir, stepsize/problem.M.norm(x, desc_dir)));
-        if val > 1e-7
-            fprintf('Check stepsize: %g\n', val);
-            pause;
-        end
-
         % Compute the new cost-related quantities for newx
         [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
         newgradnorm = problem.M.norm(newx, newgrad);
