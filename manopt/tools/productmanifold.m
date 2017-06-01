@@ -235,7 +235,9 @@ function M = productmanifold(elements)
     vec_lens = zeros(nelems, 1);
     for ii = 1 : nelems
         Mi = elements.(elems{ii});
-        if isfield(Mi, 'vec')
+        if isfield(Mi, 'veclen')
+            vec_lens(ii) = Mi.veclen;
+        elseif isfield(Mi, 'vec')
             rand_x = Mi.rand();
             zero_u = Mi.zerovec(rand_x);
             vec_lens(ii) = length(Mi.vec(rand_x, zero_u));
