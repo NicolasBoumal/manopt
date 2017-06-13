@@ -1,9 +1,9 @@
 function checkretraction(M, x, v)
 % Check the order of agreement of a retraction with an exponential.
 % 
-% function checkretraction(problem)
-% function checkretraction(problem, x)
-% function checkretraction(problem, x, v)
+% function checkretraction(M)
+% function checkretraction(M, x)
+% function checkretraction(M, x, v)
 %
 % checkretraction performs a numerical test to check the order of agreement
 % between the retraction and the exponential map in a given Manopt
