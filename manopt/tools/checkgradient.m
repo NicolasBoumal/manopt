@@ -33,7 +33,15 @@ function checkgradient(problem, x, d)
     
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
-        error('It seems no cost was provided.');
+        % The call to canGetPartialGradient will readily issue a warning if
+        % problem.ncostterms is not defined even though it is expected.
+        if ~canGetPartialGradient(problem)
+            error('getCost:checkgradient', 'It seems no cost was provided.');
+        else
+            error('getCost:stochastic', ['It seems no cost was provided.\n' ...
+                  'If you intend to use a stochastic solver, you still\n' ...
+                  'need to define problem.cost to use checkgradient.']);
+        end
     end
     if ~canGetGradient(problem)
         warning('manopt:checkgradient:nograd', ...
