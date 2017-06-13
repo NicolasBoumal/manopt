@@ -1,8 +1,8 @@
 function test_matrixcompletion()
     
-    cd proposed;
-    addpath(genpath(pwd));
-    cd ..;
+%     cd proposed;
+%     addpath(genpath(pwd));
+%     cd ..;
     
     clear; clc; close all;
     
