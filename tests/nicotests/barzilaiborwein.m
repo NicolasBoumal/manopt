@@ -48,8 +48,13 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 %       The algorithm terminates if the linesearch returns a displacement
 %       vector (to be retracted) smaller in norm than this value.
 %   linesearch (@linesearch_hint)
-%       This option may not be changed, as the present solver has its
+%       This option should not be changed, as the present solver has its
 %       own dedicated line-search strategy.
+%   strategy ('direct')
+%       The strategy used for the Barzilai-Borwein stepsize
+%       'direct', compute the direct step <s_k,s_k>/<s_k,y_k>
+%       'inverse', compute the inverse step <s_k,y_k>/<y_k,y_k>
+%       'alternate', alternates between direct and inverse step
 %   lambdamax (1e3)
 %       The maximum stepsize allowed by the Barzilai-Borwein method
 %   lambdamin (1e-3)
@@ -84,13 +89,13 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 %
 % B. Iannazzo, M. Porcelli, "The Riemannian Barzilai-Borwein method with 
 % nonmonotone line-search and the matrix geometric mean computation",
-% accepted for publication in IMA Journal of Numerical Analysis, 2017.
+% IMA Journal of Numerical Analysis, to appear, https://doi.org/10.1093/imanum/drx015.
 %
 % See also: steepestdescent conjugategradient trustregions
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Margherita Porcelli, Feb. 1, 2017
-% Contributors: Nicolas Boumal and Bruno Iannazzo
+% Original author: Margherita Porcelli, May 31, 2017
+% Contributors: Nicolas Boumal, Bruno Iannazzo
 % Change log: 
 
     
@@ -120,11 +125,14 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
 
-    % Upper and lower bound for the Barzilai-Browein stepsize
+    % Upper and lower bound for the Barzilai-Borwein stepsize
     localdefaults.lambdamax = 1e3;
     localdefaults.lambdamin = 1e-3;
     % Initial Barzilai-Borwein stepsize
     localdefaults.lambda0 = 1/10;
+
+    % Barzilai-Borwein strategy (direct, inverse or alternate)
+    localdefaults.strategy = 'direct';
 
     % Line-search parameters
     % 1) Make sure the user didn't try to define a line search
@@ -149,6 +157,7 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 
     
     % Shorthands for some parameters
+    strategy = options.strategy;
     lambdamax = options.lambdamax;
     lambdamin = options.lambdamin;
     lambda0 = options.lambda0;
@@ -257,15 +266,44 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
         % Compute the transported step
         Stransp =  problem.M.lincomb(x, -lambda, grad_transp); 
 
-        % Compute scalar products
-        num = problem.M.norm(newx, Stransp)^2; 
-        den = problem.M.inner(newx, Stransp, Y);
-
-        % Compute the new Barzilai-Borwein step
-        if den > 0
+        % Compute the new Barzilai-Borwein step following the strategy
+        % direct strategy
+        if strcmp(strategy, 'direct')
+          num = problem.M.norm(newx, Stransp)^2; 
+          den = problem.M.inner(newx, Stransp, Y);
+          if den > 0
             lambda = min( lambdamax, max(lambdamin, num/den) );
-        else
+          else
             lambda = lambdamax;
+          end
+        end
+
+        % inverse strategy
+        if strcmp(strategy, 'inverse')
+          num = problem.M.inner(newx, Stransp, Y);
+          den = problem.M.norm(newx, Y)^2;
+
+          if num > 0  
+            lambda = min( lambdamax, max(lambdamin, num/den) );
+          else
+            lambda = lambdamax;
+          end
+        end
+
+        % alternate strategy
+        if strcmp(strategy, 'alternate')
+          num = problem.M.norm(newx, Stransp)^2; 
+          den = problem.M.inner(newx, Stransp, Y);
+          den2 = problem.M.norm(newx, Y)^2;
+          if (den > 0)  
+            if mod(iter,2)==0
+            	lambda = min( lambdamax, max(lambdamin, num/den) );
+	    else
+                lambda = min( lambdamax, max(lambdamin, den/den2) );
+            end
+          else
+            lambda = lambdamax;
+          end
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
