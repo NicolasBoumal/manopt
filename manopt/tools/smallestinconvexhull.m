@@ -1,11 +1,13 @@
-function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)
+function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U, tol)
 % Computes a minimal norm convex combination of given tangent vectors in Manopt.
 %
 % function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)
+% function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U, tol)
 %
 % M is a manifold as returned by a Manopt factory.
 % x is a point on this manifold.
 % U is a cell containing N tangent vectors U{1} to U{N} at x.
+% tol (default: 1e-10): tolerance for solving the quadratic program.
 % 
 % This function computes u, a tangent vector at x contained in the convex
 % hull spanned by the N vectors U{i}, with minimal norm (according to the
@@ -59,7 +61,11 @@ function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U)
     % If the optimization toolbox is not available, consider replacing with
     % CVX.
     
-    opts = optimset('Display', 'off');
+    if  exist('tol', 'var') || isempty(tol)
+        tol = 1e-8;
+    end
+    
+    opts = optimset('Display', 'off', 'TolFun', tol);
     [s_opt, cost_opt] ...
           = quadprog(G, zeros(N, 1),     ...  % objective (squared norm)
                      [], [],             ...  % inequalities (none)
