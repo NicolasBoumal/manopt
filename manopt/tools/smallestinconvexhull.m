@@ -61,7 +61,7 @@ function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U, tol)
     % If the optimization toolbox is not available, consider replacing with
     % CVX.
     
-    if  exist('tol', 'var') || isempty(tol)
+    if ~exist('tol', 'var') || isempty(tol)
         tol = 1e-8;
     end
     
