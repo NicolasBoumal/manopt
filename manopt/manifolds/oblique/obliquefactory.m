@@ -47,8 +47,13 @@ function M = obliquefactory(n, m, transposed)
 %       which internally applies transp to inputs and outputs. But since
 %       M.log had already taken care of transposing things, this introduced
 %       a bug (which only triggered if using M.log in transposed mode.)
-%       The code no calls "v = projection(x1, x2 - x1);" since projection
+%       The code now calls "v = projection(x1, x2 - x1);" since projection
 %       assumes the inputs and outputs do not need to be transposed.
+%
+%   July 20, 2017 (NB)
+%       Distance function is now accurate for close-by points. See notes
+%       inside the spherefactory file for details. Also improvies distances
+%       computation as part of the log function.
 
     
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -69,7 +74,7 @@ function M = obliquefactory(n, m, transposed)
     
     M.norm = @(x, d) norm(d(:));
     
-    M.dist = @(x, y) norm(real(acos(sum(trnsp(x).*trnsp(y), 1))));
+    M.dist = @(x, y) norm(real(2*asin(.5*sqrt(sum(trnsp(x - y).^2, 1)))));
     
     M.typicaldist = @() pi*sqrt(m);
     
@@ -126,14 +131,13 @@ function M = obliquefactory(n, m, transposed)
         x2 = trnsp(x2);
         
         v = projection(x1, x2 - x1);
-        dists = real(acos(sum(x1.*x2, 1)));
+        dists = real(2*asin(.5*sqrt(sum((x1 - x2).^2, 1))));
         norms = real(sqrt(sum(v.^2, 1)));
 		factors = dists./norms;
-        % For very close points, dists and norms should be almost equal, so
-        % that their ratio approaches zero. But in practice, dist can be
-        % inaccurate for nearby points. Thus, below a certain threshold, we
-        % force the ratio to 1. This also avoids issues of divisions by 0.
-		factors(dists <= 1e-6) = 1;
+        % For very close points, dists is almost equal to norms, but
+        % because they are both almost zero, the division above can return
+        % NaN's. To avoid that, we force those ratios to 1.
+		factors(dists <= 1e-10) = 1;
 		v = bsxfun(@times, v, factors);
         
         v = trnsp(v);

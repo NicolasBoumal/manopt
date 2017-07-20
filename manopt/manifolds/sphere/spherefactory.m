@@ -24,6 +24,10 @@ function M = spherefactory(n, m)
 %   Oct. 22, 2016 (NB)
 %       Distance function dist now significantly more accurate for points
 %       within 1e-7 and less from each other.
+%
+%   July 20, 2017 (NB)
+%       Following conversations with Bruno Iannazzo and P.-A. Absil,
+%       the distance function is now even more accurate.
 
     
     if ~exist('m', 'var')
@@ -45,27 +49,23 @@ function M = spherefactory(n, m)
     M.dist = @dist;
     function d = dist(x, y)
         
-        % This computation cannot be accurate below an output of 2e-8.
-        % The reason is: if two unit-norm vectors x and y are very close to
-        % one another, their inner product is about 1. The machine
-        % precision at 1 is eps(1) = 2e-16. The correct value for
-        % acos(1-eps(1)) is about 2e-8. This can be checked with the
-        % syms toolbox: syms x; f = acos(1-x); vpa(subs(f, x, eps(1)), 32)
-        % Thus, if x and y are actually closer to each other than 2e-8,
-        % their inner product will be even closer to 1, but that cannot be
-        % represented in IEEE arithmetic. Thus, their inner product will be
-        % rounded to either 1 (giving 0 distance) or to 1-eps(1), which
-        % gives a distance of 2e-8, or to something even further from 1. No
-        % distance between 0 and 2e-8 can thus be computed this way.
-        d = real(acos(x(:).'*y(:)));
+        % The following code is mathematically equivalent to the
+        % computation d = acos(x(:)'*y(:)) but is much more accurate when
+        % x and y are close.
         
-        % Hence, if the distance proves dangerously small so that it is
-        % possible that we suffered from round-off, we compute the distance
-        % in the embedding space instead. At this scale, this is quite
-        % accurate.
-        if d < 1e-7
-            d = norm(x-y, 'fro');
-        end
+        chordal_distance = norm(x - y, 'fro');
+        d = real(2*asin(.5*chordal_distance));
+        
+        % Note: for x and y almost antipodal, the accuracy is good but not
+        % as good as possible. One way to improve it is by using the
+        % following branching:
+        % % if chordal_distance > 1.9
+        % %     d = pi - dist(x, -y);
+        % % end
+        % It is rarely necessary to compute distance between
+        % almost-antipodal points with full accuracy in Manopt, hence we
+        % favor a simpler code.
+        
     end
     
     M.typicaldist = @() pi;

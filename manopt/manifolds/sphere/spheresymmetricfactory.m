@@ -22,6 +22,9 @@ function M = spheresymmetricfactory(n)
 %   Oct. 22, 2016 (NB)
 %       Distance function dist now significantly more accurate for points
 %       within 1e-7 and less from each other.
+%
+%   July 20, 2017 (NB)
+%       The distance function is now even more accurate.
 
 
     M.name = @() sprintf('Sphere of symmetric matrices of size %d', n);
@@ -32,15 +35,7 @@ function M = spheresymmetricfactory(n)
     
     M.norm = @(x, d) norm(d, 'fro');
     
-    M.dist = @dist;
-    function d = dist(x, y)
-        d = real(acos(x(:).'*y(:)));
-        % The above formula is numerically inaccurate if x and y are too
-        % close together. In that case, norm is a much better proxy.
-        if d < 1e-6
-            d = norm(x-y, 'fro');
-        end
-    end
+    M.dist = @(x, y) real(2*asin(.5*norm(x - y, 'fro')));
     
     M.typicaldist = @() pi;
     
