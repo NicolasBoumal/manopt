@@ -33,9 +33,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % because this solver is not forced to be a descent method. In particular,
 % very close to convergence, it is sometimes preferable to accept very
 % slight increases in the cost value (on the order of the machine epsilon)
-% in the process of reaching fine convergence. In practice, this is not a
-% limiting factor, as normally one does not need fine enough convergence
-% that this becomes an issue.
+% in the process of reaching fine convergence.
 % 
 % The output 'info' is a struct-array which contains information about the
 % iterations:
