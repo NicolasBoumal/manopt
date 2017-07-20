@@ -172,7 +172,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       caching features of Manopt are not used, this is irrelevant. If
 %       memory usage is an issue, you may try to lower this number.
 %       Profiling may then help to investigate if a performance hit was
-%       incured as a result.
+%       incurred as a result.
 %
 % Notice that statsfun is called with the point x that was reached last,
 % after the accept/reject decision. Hence: if the step was accepted, we get
