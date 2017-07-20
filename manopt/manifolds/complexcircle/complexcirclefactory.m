@@ -27,6 +27,10 @@ function M = complexcirclefactory(n)
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
+%
+%   July 20, 2017 (NB)
+%       The distance function is now even more accurate. Improved logarithm
+%       accordingly.
     
     if ~exist('n', 'var')
         n = 1;
@@ -40,7 +44,7 @@ function M = complexcirclefactory(n)
     
     M.norm = @(x, v) norm(v);
     
-    M.dist = @(x, y) norm(acos(real(conj(x) .* y)));
+    M.dist = @(x, y) norm(real(2*asin(.5*abs(x - y))));
     
     M.typicaldist = @() pi*sqrt(n);
     
@@ -93,10 +97,10 @@ function M = complexcirclefactory(n)
     M.log = @logarithm;
     function v = logarithm(x1, x2)
         v = M.proj(x1, x2 - x1);
-        di = real(acos(real(conj(x1) .* x2)));
+        di = real(2*asin(.5*abs(x1 - x2)));
         nv = abs(v);
         factors = di ./ nv;
-        factors(di <= 1e-6) = 1;
+        factors(di <= 1e-10) = 1;
 		v = v .* factors;
     end
     

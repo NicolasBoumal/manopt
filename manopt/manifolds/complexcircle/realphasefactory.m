@@ -50,6 +50,10 @@ function M = realphasefactory(n, z0, zmax)
 % Original author: Nicolas Boumal, Feb. 2, 2017.
 % Contributors: joint work with Tamir Bendory, Zhizhen Zhao and Amit Singer
 % Change log: 
+%
+%   July 20, 2017 (NB)
+%       The distance function is now more accurate. Improved logarithm
+%       accordingly.
 
     assert(n == round(n) && n >= 3, 'n must be an integer >= 3.');
     
@@ -77,7 +81,7 @@ function M = realphasefactory(n, z0, zmax)
     
     M.norm = @(z, u) norm(u);
     
-    M.dist = @(z1, z2) norm(acos(real(conj(z1) .* z2)));
+    M.dist = @(z1, z2) norm(real(2*asin(.5*abs(z1 - z2))));
     
     M.typicaldist = @() pi*sqrt(n/2);
     
@@ -146,7 +150,7 @@ function M = realphasefactory(n, z0, zmax)
     M.log = @logarithm;
     function v = logarithm(x1, x2)
         v = M.proj(x1, x2 - x1);
-        di = real(acos(real(conj(x1) .* x2)));
+        di = real(2*asin(.5*abs(x1 - x2)));
         nv = abs(v);
         factors = di ./ nv;
         factors(di <= 1e-6) = 1;
