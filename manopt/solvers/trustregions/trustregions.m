@@ -636,7 +636,7 @@ while true
         Delta = Delta/4;
         consecutive_TRplus = 0;
         consecutive_TRminus = consecutive_TRminus + 1;
-        if consecutive_TRminus >= 5 && options.verbosity >= 1
+        if consecutive_TRminus >= 5 && options.verbosity >= 2
             consecutive_TRminus = -inf;
             fprintf(' +++ Detected many consecutive TR- (radius decreases).\n');
             fprintf(' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n');
