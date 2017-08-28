@@ -66,11 +66,11 @@ function [stepsize, newx, newkey, lsstats] = ...
     % Obtain an initial guess at alpha from the problem structure. It is
     % assumed that the present line-search is only called when the problem
     % structure provides enough information for the call here to work.
-	if canGetLinesearch(problem)
+    if canGetLinesearch(problem)
         alpha = getLinesearch(problem, x, d, storedb, key);
-	else
-	    alpha = 1;
-	end
+    else
+        alpha = 1;
+    end
     
     % Make the chosen step and compute the cost there.
     newx = problem.M.retr(x, d, alpha);
