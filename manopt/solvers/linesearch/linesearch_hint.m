@@ -38,6 +38,12 @@ function [stepsize, newx, newkey, lsstats] = ...
 %
 %   July 20, 2017 (NB):
 %       Now using alpha = 1 by default.
+%
+%   Aug. 28, 2017 (NB):
+%       Adding two options: ls_backtrack and ls_force_decrease, both true
+%       by default. Setting them to false can disable parts of the line
+%       search that, respectively, execute an Armijo backtracking and
+%       reject a cost increasing step.
 
 
     % Allow omission of the key, and even of storedb.
@@ -53,6 +59,8 @@ function [stepsize, newx, newkey, lsstats] = ...
     default_options.ls_contraction_factor = .5;
     default_options.ls_suff_decr = 1e-4;
     default_options.ls_max_steps = 25;
+    default_options.ls_backtrack = true;
+    default_options.ls_force_decrease = true;
     
     if ~exist('options', 'var') || isempty(options)
         options = struct();
@@ -79,7 +87,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     cost_evaluations = 1;
     
     % Backtrack while the Armijo criterion is not satisfied
-    while newf > f0 + suff_decr*alpha*df0
+    while options.ls_backtrack && newf > f0 + suff_decr*alpha*df0
         
         % Reduce the step size,
         alpha = contraction_factor * alpha;
@@ -98,7 +106,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     end
     
     % If we got here without obtaining a decrease, we reject the step.
-    if newf > f0
+    if options.ls_force_decrease && newf > f0
         alpha = 0;
         newx = x;
         newkey = key;
