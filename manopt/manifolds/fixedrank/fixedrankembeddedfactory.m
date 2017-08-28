@@ -25,7 +25,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % Vectors in the ambient space are best represented as mxn matrices. If
 % these are low-rank, they may also be represented as structures with
-% U, S, V fields, such that Z = U*S*V'. Their are no resitrictions on what
+% U, S, V fields, such that Z = U*S*V'. There are no resitrictions on what
 % U, S and V are, as long as their product as indicated yields a real, mxn
 % matrix.
 %
