@@ -38,10 +38,13 @@ problem.cost = @(X) sum(sum(triu(1./(1-X'*X), 1))) / n^2;
 % at each iterate.
 %
 % Note that it is difficult to reach high accuracy critical points with an
-% approximate gradient, hence the need to set a less ambitious value for
-% the gradient norm tolerance.
-opts.tolgradnorm = 1e-3;
-X = conjugategradient(problem, [], opts);
+% approximate gradient, hence it may be required to set a less ambitious
+% value for the gradient norm tolerance.
+opts.tolgradnorm = 1e-4;
+
+% Pick a solver. Both work fairly well on this problem.
+% X = conjugategradient(problem, [], opts);
+X = rlbfgs(problem, [], opts);
 
 % Plot the points on a translucid sphere
 if nargout == 0 && d == 3
