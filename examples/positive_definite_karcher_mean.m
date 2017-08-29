@@ -30,7 +30,7 @@ function X = positive_definite_karcher_mean(A)
     % Generate some random data to test the function if none is given.
     if ~exist('A', 'var') || isempty(A)
         n = 5;
-        m = 10;
+        m = 50;
         A = zeros(n, n, m);
         ref = diag(max(.1, 1+.1*randn(n, 1)));
         for i = 1 : m
@@ -104,7 +104,8 @@ function X = positive_definite_karcher_mean(A)
     % M.transp = M.paralleltransp;
     
     % Issue a call to a solver. Default options are selected.
-    % Our initial guess is the first data point.
-    X = trustregions(problem, A(:, :, 1));
+    % Our initial guess is the first data point. Most solvers work well
+    % with this problem. Limited-memory BFGS is one good example:
+    X = rlbfgs(problem, A(:, :, 1));
 
 end
