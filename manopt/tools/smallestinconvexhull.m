@@ -7,7 +7,7 @@ function [u_norm, coeffs, u] = smallestinconvexhull(M, x, U, tol)
 % M is a manifold as returned by a Manopt factory.
 % x is a point on this manifold.
 % U is a cell containing N tangent vectors U{1} to U{N} at x.
-% tol (default: 1e-10): tolerance for solving the quadratic program.
+% tol (default: 1e-8): tolerance for solving the quadratic program.
 % 
 % This function computes u, a tangent vector at x contained in the convex
 % hull spanned by the N vectors U{i}, with minimal norm (according to the

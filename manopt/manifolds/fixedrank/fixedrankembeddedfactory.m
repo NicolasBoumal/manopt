@@ -206,6 +206,35 @@ function M = fixedrankembeddedfactory(m, n, k)
         % Y.U = U; Y.V = V; Y.S = S;
         
     end
+
+
+    % Orthographic retraction provided by Teng Zhang. One interst of the
+    % orthographic retraction is that if matrices are represented in full
+    % size, it can be computed without any SVDs. If for an application it
+    % makes sense to represent the matrices in full size, this may be a
+    % good idea, but it won't shine in the present implementation of the
+    % manifold.
+    M.retr_ortho = @retraction_orthographic;
+    function Y = retraction_orthographic(X, Z, t)
+        if nargin < 3
+            t = 1.0;
+        end
+        
+        % First, write Y (the output) as U1*S0*V1', where U1 and V1 are
+        % orthogonal matrices and S0 is of size r by r.
+        [U1, ~] = qr(t*(X.U*Z.M  + Z.Up) + X.U*X.S, 0);
+        [V1, ~] = qr(t*(X.V*Z.M' + Z.Vp) + X.V*X.S, 0);
+        S0 = (U1'*X.U)*(X.S + t*Z.M)*(X.V'*V1) + ...
+             t*((U1'*Z.Up)*(X.V'*V1) + (U1'*X.U)*(Z.Vp'*V1));
+        
+        % Then, obtain the singular value decomposition of Y.
+        [U2, S2, V2] = svd(S0);
+        Y.U = U1*U2;
+        Y.S = S2;
+        Y.V = V1*V2;
+        
+    end
+
     
     M.exp = @exponential;
     function Y = exponential(X, Z, t)
