@@ -1,5 +1,5 @@
 function [x, cost, info, options] = rlbfgs(problem, x0, options)
-% Riemannian BFGS solver for smooth objective function.
+% Riemannian limited memory BFGS solver for smooth objective functions.
 %
 % function [x, cost, info, options] = rlbfgs(problem)
 % function [x, cost, info, options] = rlbfgs(problem, x0)
@@ -7,11 +7,14 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % function [x, cost, info, options] = rlbfgs(problem, [], options)
 %
 %
-% This is Riemannian Limited memory BFGS solver (quasi-Newton method), 
-% which aims to minimize the cost function in problem structure problem.cost. 
-% It needs gradient of the cost function. There is an filed in options called
-% options.memory to specifiy the memory size (number of iteration that the 
-% algorithm remembers), and for non-limited memory, simply put options.memory = Inf
+% This is a Riemannian limited memory BFGS solver (quasi-Newton method), 
+% which aims to minimize the cost function in the given problem structure.
+% It requires access to the gradient of the cost function.
+%
+% Parameter options.memory can be used to specify the number of iterations
+% the algorithm remembers and uses to approximate the inverse Hessian of
+% the cost. Default value is 30.
+% For unlimited memory, set options.memory = Inf.
 %
 %
 % For a description of the algorithm and theorems offering convergence
@@ -41,7 +44,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       1 if the current step is accepted in the cautious update. 0 otherwise
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
-% gradient norms reached at each (outer) iteration.
+% gradient norms reached at each iteration.
 %
 % The options structure is used to overwrite the default values. All
 % options have a default value and are hence optional. To force an option
@@ -68,29 +71,25 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %     point to the next point. If the norm is less than minstepsize, the 
 %     program will terminate.
 %   memory (30)
-%     The number of previous iterations the program remembers in LBFGS. This is used 
-%     to approximate the Hessian at the current point. Because of difficulty
-%     of maintaining a representation of hessian in terms of coordinates, and
-%     thus a recursive computation for the direction pointing to the next
-%     point is done by considering approximating Hessian as an operator that takes
-%     a vector and outputs a vector in the tangent space. Theoretically, a
-%     vector recurse back memory size number of times and thus memory size 
-%     is linear with the time taken to compute directions towards the next
-%     point.
-%     It can take any value >= 0, or Inf (which will then take value options.maxiter. If
-%     options.maxiter has value Inf, then it will take value 10000 with
-%     warning displayed).
+%     The number of previous iterations the program remembers. This is used 
+%     to approximate the inverse Hessian at the current point. Because of
+%     difficulty of maintaining a representation of operators in terms of
+%     coordinates, a recursive method is used. The number of steps in the
+%     recursion is at most options.memory. This parameter can take any
+%     integer value >= 0, or Inf, which is taken to be options.maxiter. If
+%     options.maxiter has value Inf, then it will take value 10000 and a
+%     warning will be displayed.
 %   linesearch (@linesearch_hint)
 %       Function handle to a line search function. The options structure is
 %       passed to the line search too, so you can pass it parameters. See
 %       each line search's documentation for info.
-%       By default, the intial multiplier tried is alpha = 1. This can be changed
-%       with options.linesearch: see the documentation of linesearch_hint.
-%   strict_inc_func (@(x) x)
-%     The Cautious step needs a real function that has value 0 at x = 0, and 
-%     strictly increasing. See details in Wen Huang's paper
+%       By default, the intial multiplier tried is alpha = 1. This can be
+%       changed with options.linesearch: see help of linesearch_hint.
+%   strict_inc_func (@(t) t)
+%     The Cautious step needs a real function that has value 0 at t = 0,
+%     and  is strictly increasing. See details in Wen Huang's paper
 %     "A Riemannian BFGS Method without Differentiated Retraction for 
-%     Nonconvex Optimization Problems
+%     Nonconvex Optimization Problems"
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -122,20 +121,20 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       memory usage is an issue, you may try to lower this number.
 %       Profiling may then help to investigate if a performance hit was
 %       incurred as a result.
-% 
-%       For a comment about how the info struct-array and statsfun interact 
-%       with the notion of accepted / rejected step, see the documention of 
-%       trustregions.
 %
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @TECHREPORT{HAG2017,
-%     author = "Wen Huang and P.-A. Absil and K. A. Gallivan",
-%     title = "A Riemannian BFGS Method without Differentiated Retraction for Nonconvex Optimization Problems",
-%     institution = "U.C.Louvain",
-%     number = "UCL-INMA-2017.04",
-%     year = 2017,
-%     }
+% @InBook{Huang2016,
+%   title     = {A {R}iemannian {BFGS} Method for Nonconvex Optimization Problems},
+%   author    = {Huang, W. and Absil, P.-A. and Gallivan, K.A.},
+%   year      = {2016},
+%   publisher = {Springer International Publishing},
+%   editor    = {Karas{\"o}zen, B{\"u}lent and Manguo{\u{g}}lu, Murat and Tezer-Sezgin, M{\"u}nevver and G{\"o}ktepe, Serdar and U{\u{g}}ur, {\"O}m{\"u}r},
+%   address   = {Cham},
+%   booktitle = {Numerical Mathematics and Advanced Applications ENUMATH 2015},
+%   pages     = {627--634},
+%   doi       = {10.1007/978-3-319-39929-4_60}
+% }
 %
 
 
@@ -143,9 +142,6 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % Original author: Changshuo Liu, July 19, 2017.
 % Contributors: Nicolas Boumal
 % Change log: 
-%
-%   CL, NB July 19, 2017:
-%        Finished the first released version
 
 
     % Verify that the problem description is sufficient for the solver.
@@ -170,7 +166,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
     localdefaults.memory = 30;
-    localdefaults.strict_inc_func = @(x) x;
+    localdefaults.strict_inc_func = @(t) t;
     localdefaults.ls_max_steps  = 25;
     localdefaults.storedepth = 30;
     localdefaults.linesearch = @linesearch_hint;
@@ -187,9 +183,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     if options.memory == Inf
         if isinf(options.maxiter)
             options.memory = 10000;
-            warning('rlbfgs:memory',['options.memory and options.maxiter '...
-                'are both Inf. This might be too greedy. '...
-                'options.memory is now limited to 10000']);
+            warning('rlbfgs:memory', ['options.memory and options.maxiter' ...
+              ' are both Inf; options.memory has been changed to 10000.']);
         else
             options.memory = options.maxiter;
         end
@@ -197,8 +192,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     
     M = problem.M;
     
-    % Create a random starting point if no starting point
-    % is provided.
+    % Create a random starting point if no starting point is provided.
     if ~exist('x0', 'var')|| isempty(x0)
         xCur = M.rand(); 
     else
@@ -214,43 +208,53 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     % __________Initialization of variables______________
     % Number of iterations since the last restart
     k = 0;  
-    % Number of total iteration in BFGS
+    % Total number of BFGS iterations
     iter = 0; 
-    % Saves step vectors that points to x_{t+1} from x_{t}
-    % for t in range (max(0, iter - min{k, options.memory}), iter].
-    % That is, saves up to options.memory number of most 
-    % current step vectors. 
-    % However, the implementation below does not need stepvectors 
-    % in their respective tangent spaces at x_{t}'s, but rather, having 
-    % them transported to the most current point's tangent space by vector tranport.
-    % For detail of the requirement on the the vector tranport, see the reference. 
-    % In implementation, those step vectors are iteratively 
-    % transported to most current point's tangent space after every iteration.
-    % So at every iteration, it will have this list of vectors in tangent plane
-    % of current point.
+    
+    % This cell stores step vectors which point from x_{t} to x_{t+1} for t
+    % indexing the last iterations, capped at options.memory.
+    % That is, it stores up to options.memory of the most recent step
+    % vectors. However, the implementation below does not need step vectors 
+    % in their respective tangent spaces at x_{t}'s. Rather, it requires
+    % them transported to the current point's tangent space by vector
+    % tranport. For details regarding the requirements on the the vector
+    % tranport, see the reference paper by Huang et al.
+    % In this implementation, those step vectors are iteratively 
+    % transported to the current point's tangent space after every
+    % iteration. Thus, at every iteration, vectors in sHistory are in the
+    % current point's tangent space.
     sHistory = cell(1, options.memory);
-    % Saves the difference between gradient of x_{t+1} and the
-    % gradient of x_{t} by transported to x_{t+1}'s tangent space.
-    % where t is in range (max(0, iter - min{k, options.memory}), iter].
-    % That is, saves up to options.memory number of most 
-    % current gradient differences.
-    % The implementation process is similar to sHistory.
+    
+    % This cell stores the differences for latest t's of the gradient at
+    % x_{t+1} and the gradient at x_{t}, transported to x_{t+1}'s tangent
+    % space. The memory is also capped at options.memory.
     yHistory = cell(1, options.memory);
-    % rhoHistory{t} is the innerproduct of sHistory{t} and yHistory{t}
+    
+    % rhoHistory{t} stores the reciprocal of the inner product between
+    % sHistory{t} and yHistory{t}.
     rhoHistory = cell(1, options.memory);
+    
     % Scaling of direction given by getDirection for acceptable step
     alpha = 1; 
+    
     % Scaling of initial matrix, Barzilai-Borwein.
     scaleFactor = 1;
+    
     % Norm of the step
     stepsize = 1;
+    
     % Boolean for whether the step is accepted by Cautious update check
     accepted = 1;
     
+    % Query the cost function and its gradient
     [xCurCost, xCurGradient] = getCostGrad(problem, xCur, storedb, key);
+    
     xCurGradNorm = M.norm(xCur, xCurGradient);
+    
+    % Line-search statistics for recording in info.
     lsstats = [];
-    %A variable to control restarting scheme, see comment below.
+    
+    % Flag to control restarting scheme to avoid infinite loops (see below)
     ultimatum = 0;
     
     % Save stats in a struct array info, and preallocate.
@@ -262,13 +266,13 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         fprintf(' iter                   cost val            grad. norm           alpha\n');
     end
     
-    while (1)
-        %------------------------ROUTINE----------------------------
+    % Main iteration
+    while true
 
         % Display iteration information
         if options.verbosity >= 2
-        %_______Print Information and stop information________
-        fprintf('%5d    %+.16e        %.8e      %.4e\n', iter, xCurCost, xCurGradNorm, alpha);
+        fprintf('%5d    %+.16e        %.8e      %.4e\n', ...
+                iter, xCurCost, xCurGradNorm, alpha);
         end
         
         % Start timing this iteration
@@ -276,7 +280,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         
         % Run standard stopping criterion checks
         [stop, reason] = stoppingcriterion(problem, xCur, options, ...
-            info, iter+1);
+                                           info, iter+1);
         
         % If none triggered, run specific stopping criterion check
         if ~stop 
@@ -287,21 +291,22 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
                 % In this way, it starts off like a steepest descent.
                 % If even steepest descent does not work, then it is 
                 % hopeless and we will terminate.
-                if ultimatum == 0
-                    if (options.verbosity >= 2)
-                        fprintf(['stepsize is too small, restart the bfgs procedure ' ...
-                            'with the current point\n']);
+                if ~ultimatum
+                    if options.verbosity >= 2
+                        fprintf(['stepsize is too small, restarting ' ...
+                            'the bfgs procedure at the current point.\n']);
                     end
                     k = 0;
-                    ultimatum = 1;
+                    ultimatum = true;
                 else
                     stop = true;
-                    reason = sprintf(['Last stepsize smaller than minimum '  ...
-                        'allowed; options.minstepsize = %g.'], ...
+                    reason = sprintf(['Last stepsize smaller than '  ...
+                        'minimum allowed; options.minstepsize = %g.'], ...
                         options.minstepsize);
                 end
             else
-                ultimatum = 0;
+                % We are not in trouble: lift the ultimatum if it was on.
+                ultimatum = false;
             end
         end  
         
@@ -312,58 +317,78 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
             break;
         end
 
-        %--------------------Get Direction-----------------------
-
-        p = getDirection(M, xCur, xCurGradient, sHistory,...
-            yHistory, rhoHistory, scaleFactor, min(k, options.memory));
-
-        %--------------------Line Search--------------------------
-        [stepsize, xNext, newkey, lsstats] = ...
-            linesearch_hint(problem, xCur, p, xCurCost, M.inner(xCur,xCurGradient,p), options, storedb, key);
         
+        % Compute BFGS direction
+        p = getDirection(M, xCur, xCurGradient, sHistory,...
+                yHistory, rhoHistory, scaleFactor, min(k, options.memory));
+
+        % Execute line-search
+        [stepsize, xNext, newkey, lsstats] = ...
+            linesearch_hint(problem, xCur, p, xCurCost, ...
+                            M.inner(xCur, xCurGradient, p), ...
+                            options, storedb, key);
+        
+        % Record the BFGS step-multiplier alpha which as effectively
+        % selected. Toward convergence, we hope to see alpha = 1.
         alpha = stepsize/M.norm(xCur, p);
         step = M.lincomb(xCur, alpha, p);
         
         
-        %----------------Updating the next iteration---------------
-        [xNextCost, xNextGradient] = getCostGrad(problem, xNext, storedb, newkey);
+        % Query cost and gradient at the candidate new point.
+        [xNextCost, xNextGrad] = getCostGrad(problem, xNext, storedb, newkey);
+        
+        % Compute sk and yk
         sk = M.transp(xCur, xNext, step);
-        yk = M.lincomb(xNext, 1, xNextGradient,...
-            -1, M.transp(xCur, xNext, xCurGradient));
+        yk = M.lincomb(xNext, 1, xNextGrad, ...
+                             -1, M.transp(xCur, xNext, xCurGradient));
 
-        inner_sk_yk = M.inner(xNext, yk, sk);
-        inner_sk_sk = M.inner(xNext, sk, sk);
-        % If cautious step is not accepted, then we do no take the
-        % current sk, yk into account. Otherwise, we record it 
-        % and use it in approximating hessian.
-        % sk, yk are maintained in the most recent point's 
-        % tangent space by transport.
-        if inner_sk_sk ~= 0 && (inner_sk_yk / inner_sk_sk)>= options.strict_inc_func(xCurGradNorm)
+        inner_sk_yk = M.inner(xNext, sk, yk);
+        inner_sk_sk = M.norm(xNext, sk)^2;    % ensures nonnegativity
+        
+        
+        % If the cautious step is accepted (which is the intended
+        % behavior), we record sk, yk and rhok and need to do some
+        % housekeeping. If the cautious step is rejected, these are not
+        % recorded.
+        cap = options.strict_inc_func(xCurGradNorm);
+        if inner_sk_sk ~= 0 && (inner_sk_yk / inner_sk_sk) >= cap
+            
             accepted = 1;
+            
             rhok = 1/inner_sk_yk;
-            scaleFactor = inner_sk_yk / M.inner(xNext, yk, yk);
-            if (k>= options.memory)
-                % sk and yk are saved from 1 to the end
-                % with the most currently recorded to the 
-                % rightmost hand side of the cells that are
-                % occupied. When memory is full, do a shift
-                % so that the rightmost is earliest and replace
-                % it with the most recent sk, yk.
-                for  i = 2:options.memory
+            
+            scaleFactor = inner_sk_yk / M.norm(xNext, yk)^2;
+            
+            % Time to store the vectors sk, yk and the scalar rhok.
+            % Remember: we need to transport all vectors to the most
+            % current tangent space.
+            
+            % If we are out of memory
+            if k >= options.memory
+                
+                % sk and yk are saved from 1 to the end with the most 
+                % current recorded to the rightmost hand side of the cells
+                % that are occupied. When memory is full, do a shift so
+                % that the rightmost is earliest and replace it with the
+                % most recent sk, yk.
+                for  i = 2 : options.memory
                     sHistory{i} = M.transp(xCur, xNext, sHistory{i});
                     yHistory{i} = M.transp(xCur, xNext, yHistory{i});
                 end
                 if options.memory > 1
-                sHistory = sHistory([2:end, 1]);
-                yHistory = yHistory([2:end, 1]);
-                rhoHistory = rhoHistory([2:end 1]);
+                    sHistory = sHistory([2:end, 1]);
+                    yHistory = yHistory([2:end, 1]);
+                    rhoHistory = rhoHistory([2:end 1]);
                 end
                 if options.memory > 0
                     sHistory{options.memory} = sk;
                     yHistory{options.memory} = yk;
                     rhoHistory{options.memory} = rhok;
                 end
+                
+            % If we are not out of memory
             else
+                
                 for  i = 1:k
                     sHistory{i} = M.transp(xCur, xNext, sHistory{i});
                     yHistory{i} = M.transp(xCur, xNext, yHistory{i});
@@ -371,23 +396,36 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
                 sHistory{k+1} = sk;
                 yHistory{k+1} = yk;
                 rhoHistory{k+1} = rhok;
+                
             end
-            k = k+1;
+            
+            k = k + 1;
+            
+        % The cautious step is rejected: we do not store sk, yk, rhok but
+        % we still need to transport stored vectors to the new tangent
+        % space.
         else
+            
             accepted = 0;
-            for  i = 1:min(k, options.memory)
+            
+            for  i = 1 : min(k, options.memory)
                 sHistory{i} = M.transp(xCur, xNext, sHistory{i});
                 yHistory{i} = M.transp(xCur, xNext, yHistory{i});
             end
+            
         end
+        
+        % Update variables to new iterate
         iter = iter + 1;
         xCur = xNext;
         key = newkey;
-        xCurGradient = xNextGradient;
-        xCurGradNorm = M.norm(xNext, xNextGradient);
+        xCurGradient = xNextGrad;
+        xCurGradNorm = M.norm(xNext, xNextGrad);
         xCurCost = xNextCost;
         
+        
         % Make sure we don't use too much memory for the store database
+        % (this is independent from the BFGS memory.)
         storedb.purge();
         
         
@@ -397,6 +435,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         
     end
 
+    
+    % Housekeeping before we return
     info = info(1:iter+1);
     x = xCur;
     cost = xCurCost;
@@ -406,6 +446,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
                 info(end).time);
     end
 
+    
     % Routine in charge of collecting the current iteration stats
     function stats = savestats()
         stats.iter = iter;
@@ -426,27 +467,41 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 
 end
 
-% BFGS step, see Wen's paper for details. This functon basically takes in
-% a vector g, and operate inverse approximate Hessian P on it to get 
-% Pg, and take negative of it. Due to isometric transport and locking condition
-% (see paper), this implementation operates in tangent spaces of the most
-% recent point instead of transport this vector iteratively backwards to operate 
-% in tangent planes of previous points. Notice that these two conditions are hard
-% or expensive to enforce. However, in practice, there is no observed difference
-% in them, if your problem requires isotransp, it may be good
-% to replace transp with isotransp. There are built in isotransp
-% for spherefactory and obliquefactory
-function dir = getDirection(M, xCur, xCurGradient, sHistory, yHistory, rhoHistory, scaleFactor, k)
+
+
+
+% BFGS step, see Wen's paper for details. This functon takes in a tangent
+% vector g, and applies an approximate inverse Hessian P to it to get Pg.
+% Then, -Pg is returned.
+%
+% Theory requires the vector transport to be isometric and to satisfy the
+% locking condition (see paper), but these properties do not seem to be
+% crucial in practice. If your manifold provides M.isotransp, it may be
+% good to replace M.transp with M.isotransp. There are built in M.isotransp
+% for spherefactory and obliquefactory.
+%
+% This implementation operates in the tangent space of the most recent
+% point since all vectors in sHistory and yHistory have been transported
+% there.
+function dir = getDirection(M, xCur, xCurGradient, sHistory, yHistory, ...
+                            rhoHistory, scaleFactor, k)
+    
     q = xCurGradient;
+    
     inner_s_q = zeros(1, k);
+    
     for i = k : -1 : 1
         inner_s_q(1, i) = rhoHistory{i} * M.inner(xCur, sHistory{i}, q);
         q = M.lincomb(xCur, 1, q, -inner_s_q(1, i), yHistory{i});
     end
+    
     r = M.lincomb(xCur, scaleFactor, q);
+    
     for i = 1 : k
          omega = rhoHistory{i} * M.inner(xCur, yHistory{i}, r);
          r = M.lincomb(xCur, 1, r, inner_s_q(1, i)-omega, sHistory{i});
     end
+    
     dir = M.lincomb(xCur, -1, r);
+    
 end
