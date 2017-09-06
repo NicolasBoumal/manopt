@@ -208,41 +208,26 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
 
 
-    % Orthographic retraction provided by Teng Zhang. Still waiting to
-    % confirm if bug-free. One interst of the orthographic retraction is
-    % that if matrices are represented in full size, it can be computed
-    % without any SVDs. If for an application it makes sense to represent
-    % the matrices in full size, this may be a good idea, but it won't
-    % really shine in the present implementation of the manifold. Unless
-    % there is another good reason to want to use it? At any rate, it's
-    % basically the same price as the retraction we already have.
-    %
-    % The following code convinces me:
-    % % M = fixedrankembeddedfactory(20, 100, 6);
-    % % X = M.rand();
-    % % V = M.randvec(X);
-    % % h = logspace(-10, 2, 101);
-    % % dist = @(X, Y) norm(X.U*X.S*X.V' - Y.U*Y.S*Y.V', 'fro');
-    % % g = zeros(size(h));
-    % % for k = 1 : numel(g), g(k) = dist(M.retr(X, V, h(k)), M.retr_ortho(X, V, h(k))); end
-    % % loglog(h, g); grid on;
-    % % axis equal
-    % It shows an error growing like h^3, which suggests both retractions
-    % agree up to order 2 (so, they should be second-order retractions.)
+    % Orthographic retraction provided by Teng Zhang. One interst of the
+    % orthographic retraction is that if matrices are represented in full
+    % size, it can be computed without any SVDs. If for an application it
+    % makes sense to represent the matrices in full size, this may be a
+    % good idea, but it won't shine in the present implementation of the
+    % manifold.
     M.retr_ortho = @retraction_orthographic;
     function Y = retraction_orthographic(X, Z, t)
         if nargin < 3
             t = 1.0;
         end
         
-        % First, write Y as U1*S0*V1', where U1 and V1 are orthogonal
-        % matrices and S0 is of size r by r
+        % First, write Y (the output) as U1*S0*V1', where U1 and V1 are
+        % orthogonal matrices and S0 is of size r by r.
         [U1, ~] = qr(t*(X.U*Z.M  + Z.Up) + X.U*X.S, 0);
         [V1, ~] = qr(t*(X.V*Z.M' + Z.Vp) + X.V*X.S, 0);
         S0 = (U1'*X.U)*(X.S + t*Z.M)*(X.V'*V1) + ...
              t*((U1'*Z.Up)*(X.V'*V1) + (U1'*X.U)*(Z.Vp'*V1));
         
-        % Obtain the singular value decomposition of Y
+        % Then, obtain the singular value decomposition of Y.
         [U2, S2, V2] = svd(S0);
         Y.U = U1*U2;
         Y.S = S2;
