@@ -254,7 +254,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     lsstats = [];
     
     % Flag to control restarting scheme to avoid infinite loops (see below)
-    ultimatum = 0;
+    ultimatum = false;
     
     % Save stats in a struct array info, and preallocate.
     stats = savestats();
