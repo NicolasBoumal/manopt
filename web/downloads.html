@@ -74,8 +74,8 @@ body {
               <h1>Get the latest release</h1>
             </div>
             &#160; <a target="_blank" class="btn btn-primary" href="download.html">Download
-              </a>&#160;&#160; The current version is 3.0 and was packaged on
-            Nov. 12th, 2016. The file is under 300 Kb.<br>
+              </a>&#160;&#160; The current version is 4.0 and was packaged on
+            Xxx. YYth, ZZZZ. The file is under 300 Kb.<br>
             <br>
             &#160; <a target="_blank" class="btn btn-default" href="https://github.com/NicolasBoumal/manopt">GitHub
               </a>&#160;&#160; <a target="_blank" href="https://github.com/NicolasBoumal/manopt"><img
@@ -97,8 +97,73 @@ body {
               <h1>Previous releases and change logs</h1>
             </div>
             <ul>
-              <li><a href="download.html">Manopt 3.0</a>, packaged November 12,
-                2016.</li>
+              <li><a href="download.html">Manopt 4.0</a>, packaged xxx</li>
+              <ul>
+                <li>New solvers</li>
+                <ul>
+                  <li>stochasticgradient: stochastic gradient algorithm on
+                    manifolds, together with its step-size selection algorithm
+                    stepsize_sg and a new example: PCA_stochastic.</li>
+                  <li>barzilaiborwein: a gradient method with step-size
+                    selection based on a Barzilai-Borwein heuristic and
+                    line-search, contributed by Margherita Porcelli and Bruno
+                    Iannazzo.</li>
+                </ul>
+                <li>New tools</li>
+                <ul>
+                  <li>tangent2vec: given a tangent vector and an orthogonal
+                    basis on the corresponding tangent space, returns the
+                    coordinates of the vector in that basis.</li>
+                  <li>criticalpointfinder: allows to find critical points of an
+                    optimization problem (useful to study saddle points of a
+                    non-convex problem for example.)</li>
+                </ul>
+                <li>New geometries</li>
+                <ul>
+                  <li>realphasefactory: to optimize over vectors with
+                    unit-modulus complex entries (phases) with symmetries such
+                    that they could be the phases of the DFT (fft) of a real
+                    vector.</li>
+                </ul>
+                <li>Modifications to core engine</li>
+                <ul>
+                  <li>Added the capacity to provide a subgradient in a problem
+                    description, and to call for it in a solver. This, together
+                    with the tool smallestinconvexhull, is an important step
+                    toward integrating nonsmooth solvers in Manopt. See canGetSubgradient
+                    and getSubgradient. Define with problem.subgrad(x, tol),
+                    where x is a point on a manifold problem.M and tol
+                    (nonnegative) is a tolerance in computing the subgradient (0
+                    by default).</li>
+                </ul>
+                <li>Bug fixes</li>
+                <ul>
+                  <li>tangentspacefactory now has correct tangent, egrad2rgrad
+                    and ehess2rhess tools, including projections (thanks to a
+                    comment by Jesus Briales on the forum.)</li>
+                  <li>For Euclidean manifolds, M.tangent functions were changed
+                    from identity to M.proj.</li>
+                </ul>
+                <li>Smaller things</li>
+                <ul>
+                  <li>sympositivedefinitefactory now has a cheaper yet
+                    second-order retraction, as suggested by Wen Huang.</li>
+                  <li>euclideancomplexfactory now also handles multidimensional
+                    arrays, just like its real counterpart.</li>
+                  <li>smallestinconvexhull tool now accepts a tolerance as
+                    optional input.</li>
+                  <li>Further improved accuracy of distance function
+                    computations in all sphere / oblique manifolds with asin
+                    function instead of acos without branching, following
+                    discussions with Bruno Iannazzo and P.-A. Absil.</li>
+                  <li>Two new options for linesearch_hint: allows to disable
+                    backtracking and allows to disable forcing of a
+                    non-increasing cost.</li>
+                  <li>Many, many smaller improvements to code and documentation</li>
+                </ul>
+              </ul>
+              <li><a href="downloads/Manopt_3.0.zip">Manopt 3.0</a>, packaged
+                November 12, 2016.</li>
               <ul>
                 <li>Code moved to <a target="_blank" href="https://github.com/NicolasBoumal/manopt">GitHub</a>!
                   Now accepting pull requests, and accelerating distribution of
@@ -123,8 +188,9 @@ body {
                     the future addition of stochastic gradient methods. Use
                     cases are: if problem.cost is expressed as a sum of
                     problem.ncostterms terms, then problem.partialgrad accepts a
-                    point x and an index set I so that only the gradient with
-                    respect to terms indexed in I is computed and returned.</li>
+                    point x and an index set <samp>sample</samp> so that only
+                    the gradient with respect to terms indexed in <samp>sample</samp>
+                    is computed and returned.</li>
                   <li>Added possibility to define problem.approxgrad, to provide
                     an approximation of the gradient. This can be populated with
                     a generic gradient approximation based on finite differences
@@ -550,5 +616,6 @@ body {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script> </body>
+</script>
+  </body>
 </html>
