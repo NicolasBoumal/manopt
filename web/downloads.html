@@ -108,6 +108,9 @@ body {
                     selection based on a Barzilai-Borwein heuristic and
                     line-search, contributed by Margherita Porcelli and Bruno
                     Iannazzo.</li>
+                  <li>Limited-memory BFGS: a Riemannian version of the quasi-Newton
+                    solver, implemented by Changshuo Liu based on work by Wen
+                    Huang et al.</li>
                 </ul>
                 <li>New tools</li>
                 <ul>
@@ -130,11 +133,11 @@ body {
                   <li>Added the capacity to provide a subgradient in a problem
                     description, and to call for it in a solver. This, together
                     with the tool smallestinconvexhull, is an important step
-                    toward integrating nonsmooth solvers in Manopt. See canGetSubgradient
-                    and getSubgradient. Define with problem.subgrad(x, tol),
-                    where x is a point on a manifold problem.M and tol
-                    (nonnegative) is a tolerance in computing the subgradient (0
-                    by default).</li>
+                    toward integrating nonsmooth solvers in Manopt. See
+                    canGetSubgradient and getSubgradient. Define with
+                    problem.subgrad(x, tol), where x is a point on a manifold
+                    problem.M and tol (nonnegative) is a tolerance in computing
+                    the subgradient (0 by default).</li>
                 </ul>
                 <li>Bug fixes</li>
                 <ul>
@@ -159,6 +162,8 @@ body {
                   <li>Two new options for linesearch_hint: allows to disable
                     backtracking and allows to disable forcing of a
                     non-increasing cost.</li>
+                  <li>fixedrankembeddedfactory now has an orthographic
+                    retraction provided by Teng Zhang as M.retr_ortho.</li>
                   <li>Many, many smaller improvements to code and documentation</li>
                 </ul>
               </ul>
@@ -616,6 +621,5 @@ body {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>
