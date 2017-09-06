@@ -216,6 +216,19 @@ function M = fixedrankembeddedfactory(m, n, k)
     % really shine in the present implementation of the manifold. Unless
     % there is another good reason to want to use it? At any rate, it's
     % basically the same price as the retraction we already have.
+    %
+    % The following code convinces me:
+    % % M = fixedrankembeddedfactory(20, 100, 6);
+    % % X = M.rand();
+    % % V = M.randvec(X);
+    % % h = logspace(-10, 2, 101);
+    % % dist = @(X, Y) norm(X.U*X.S*X.V' - Y.U*Y.S*Y.V', 'fro');
+    % % g = zeros(size(h));
+    % % for k = 1 : numel(g), g(k) = dist(M.retr(X, V, h(k)), M.retr_ortho(X, V, h(k))); end
+    % % loglog(h, g); grid on;
+    % % axis equal
+    % It shows an error growing like h^3, which suggests both retractions
+    % agree up to order 2 (so, they should be second-order retractions.)
     M.retr_ortho = @retraction_orthographic;
     function Y = retraction_orthographic(X, Z, t)
         if nargin < 3
