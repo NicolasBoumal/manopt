@@ -117,14 +117,15 @@ function M = spherefactory(n, m)
     % Isometric vector transport of d from the tangent space at x1 to x2.
     M.isotransp = @(x1, x2, d) isometricTransp(x1, x2, d);
     function dir = isometricTransp(x1, x2, d)
-        if x1 == x2
-            dir = d;
-        else
-            v = logarithm(x1, x2);
-            dist_x1x2 = norm(v, 'fro');
+        v = logarithm(x1, x2);
+        dist_x1x2 = norm(v, 'fro');
+        if dist_x1x2 > 0
             u = v / dist_x1x2;
             dir = d + (cos(dist_x1x2)-1)*(u.'*d)*u ...
                     -  sin(dist_x1x2)   *(u.'*d)*x1;
+        else
+            % x1 == x2, so the transport is identity
+            dir = d;
         end
     end
     
