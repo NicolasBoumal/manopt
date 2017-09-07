@@ -28,6 +28,10 @@ function M = spherefactory(n, m)
 %   July 20, 2017 (NB)
 %       Following conversations with Bruno Iannazzo and P.-A. Absil,
 %       the distance function is now even more accurate.
+%
+%   Sep. 7, 2017 (NB)
+%       New isometric vector transport available in M.isotransp,
+%       contributed by Changshuo Liu.
 
     
     if ~exist('m', 'var')
@@ -109,6 +113,20 @@ function M = spherefactory(n, m)
     M.zerovec = @(x) zeros(n, m);
     
     M.transp = @(x1, x2, d) M.proj(x2, d);
+    
+    % Isometric vector transport of d from the tangent space at x1 to x2.
+    M.isotransp = @(x1, x2, d) isometricTransp(x1, x2, d);
+    function dir = isometricTransp(x1, x2, d)
+        if x1 == x2
+            dir = d;
+        else
+            v = logarithm(x1, x2);
+            dist_x1x2 = norm(v, 'fro');
+            u = v / dist_x1x2;
+            dir = d + (cos(dist_x1x2)-1)*(u.'*d)*u ...
+                    -  sin(dist_x1x2)   *(u.'*d)*x1;
+        end
+    end
     
     M.pairmean = @pairmean;
     function y = pairmean(x1, x2)
