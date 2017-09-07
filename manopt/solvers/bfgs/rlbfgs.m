@@ -30,8 +30,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % The output 'info' is a struct-array which contains information about the
 % iterations:
 %   iter (integer)
-%       The iteration number, or number of steps considered
-%       (whether accepted or rejected). The initial guess is 0.
+%       The iteration number. The initial guess is 0.
 %	cost (double)
 %       The corresponding cost value.
 %	gradnorm (double)
@@ -40,8 +39,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       The total elapsed time in seconds to reach the corresponding cost.
 %	stepsize (double)
 %       The size of the step from the previous to the new iterate.
-%   accepted (boolean)
-%       1 if current step is accepted in the cautious update. 0 otherwise.
+%   accepted (Boolean)
+%       true if step is accepted in the cautious update. 0 otherwise.
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each iteration.
@@ -95,8 +94,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       iteration to provide the opportunity to log additional statistics.
 %       They will be returned in the info struct. See the generic Manopt
 %       documentation about solvers for further information. statsfun is
-%       called with the point x that was reached last, after the
-%       accept/reject decision. See comment below.
+%       called with the point x that was reached last.
 %   stopfun (none)
 %       Function handle to a function that will be called at each iteration
 %       to provide the opportunity to specify additional stopping criteria.
@@ -242,8 +240,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     % Norm of the step
     stepsize = 1;
     
-    % Boolean for whether the step is accepted by Cautious update check
-    accepted = 1;
+    % Stores whether the step is accepted by the cautious update check.
+    accepted = true;
     
     % Query the cost function and its gradient
     [xCurCost, xCurGradient] = getCostGrad(problem, xCur, storedb, key);
@@ -355,11 +353,13 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         % If the cautious step is accepted (which is the intended
         % behavior), we record sk, yk and rhok and need to do some
         % housekeeping. If the cautious step is rejected, these are not
-        % recorded.
+        % recorded. In all cases, xNext is the next iterate: the notion of
+        % accept/reject here is limited to whether or not we keep track of
+        % sk, yk, rhok to update the BFGS operator.
         cap = options.strict_inc_func(xCurGradNorm);
         if inner_sk_sk ~= 0 && (inner_sk_yk / inner_sk_sk) >= cap
             
-            accepted = 1;
+            accepted = true;
             
             rhok = 1/inner_sk_yk;
             
@@ -412,7 +412,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         % space.
         else
             
-            accepted = 0;
+            accepted = false;
             
             for  i = 1 : min(k, options.memory)
                 sHistory{i} = M.transp(xCur, xNext, sHistory{i});
