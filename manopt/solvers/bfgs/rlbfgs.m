@@ -41,7 +41,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %	stepsize (double)
 %       The size of the step from the previous to the new iterate.
 %   accepted (boolean)
-%       1 if the current step is accepted in the cautious update. 0 otherwise
+%       1 if current step is accepted in the cautious update. 0 otherwise.
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each iteration.
@@ -341,6 +341,13 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         yk = M.lincomb(xNext, 1, xNextGrad, ...
                              -1, M.transp(xCur, xNext, xCurGradient));
 
+        % Computation of the BFGS step is invariant under scaling of sk and
+        % yk by a common factor. For numerical reasons, we scale sk and yk
+        % so that sk is a unit norm vector.
+        norm_sk = M.norm(xNext, sk);
+        sk = M.lincomb(xNext, 1/norm_sk, sk);
+        yk = M.lincomb(xNext, 1/norm_sk, yk);
+        
         inner_sk_yk = M.inner(xNext, sk, yk);
         inner_sk_sk = M.norm(xNext, sk)^2;    % ensures nonnegativity
         
