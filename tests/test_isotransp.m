@@ -3,7 +3,8 @@ M = spherefactory(5);
 
 x = M.rand();
 v = M.randvec(x);
-y = M.retr(x, v, .3);
+t = .1;
+y = M.retr(x, v, t);
 
 u1 = M.randvec(x);
 u2 = M.randvec(x);
