@@ -42,6 +42,14 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 %   metrics.gradnorm = @(problem, x) problem.M.norm(x, getGradient(problem, x));
 %   options.statsfun = statsfunhelper(metrics);
 %
+% Important caveat: stochastic algorithms usually return an average of the
+% last few iterates. Computing averages on manifolds can be expensive.
+% Currently, this solver does not compute averages and simply returns the
+% last iterate. Using options.statsfun, it is possible for the user to
+% compute averages manually. If you have ideas on how to do this
+% generically, we welcome feedback. In particular, approximate means could
+% be computed with M.pairmean which is available in many geometries.
+%
 % See also: steepestdescent
 
 % This file is part of Manopt: www.manopt.org.
