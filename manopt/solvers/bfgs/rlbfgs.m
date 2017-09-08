@@ -460,8 +460,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         stats.gradnorm = xCurGradNorm;
         if iter == 0
             stats.stepsize = NaN;
-            stats.accepted = NaN;
             stats.time = toc(timetic);
+            stats.accepted = NaN;
         else
             stats.stepsize = stepsize;
             stats.time = info(iter).time + toc(timetic);
