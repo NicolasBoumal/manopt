@@ -34,7 +34,7 @@
 
  The special Euclidean group (the manifold of rigid transformations):
  This is a product manifold of the rotations group SO(n) and the
- translation group R^n, copied k times.
+ translation group R^n, copied k times. (See note below.)
 
  Points on the manifold are represented as structures X with two fields.
  X.R is a 3D array of size nxnxk such that each slice X.R(:, :, i)
@@ -55,8 +55,13 @@
 
  By default, k = 1.
 
- This is a test geometry: it may not be the &quot;appropriate&quot; geometry to give
- to SE(n).
+ Note: this is a product geometry: it may not be the &quot;appropriate&quot;
+ geometry to give to SE(n) for your application. In particular, this is
+ not the Lie geometry of SE(n), because SE(n) is not a direct product of
+ SO(n) and R^n: it is only a semidirect product. Following a comment by
+ Martijn Zeestraten on the Manopt forum, see this file for more
+ information about the Lie geometry:
+   http://ethaneade.com/lie.pdf
 
  See rotationsfactory and euclideanfactory for details.
 
@@ -66,7 +71,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>	Returns a manifold struct to optimize over m-by-n matrices.</li><li><a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>	Returns a manifold structure to optimize over rotation matrices.</li><li><a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
+<li><a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>	Returns a manifold struct to optimize over real matrices.</li><li><a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>	Returns a manifold structure to optimize over rotation matrices.</li><li><a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -83,7 +88,7 @@ This function is called by:
 0006 <span class="comment">%</span>
 0007 <span class="comment">% The special Euclidean group (the manifold of rigid transformations):</span>
 0008 <span class="comment">% This is a product manifold of the rotations group SO(n) and the</span>
-0009 <span class="comment">% translation group R^n, copied k times.</span>
+0009 <span class="comment">% translation group R^n, copied k times. (See note below.)</span>
 0010 <span class="comment">%</span>
 0011 <span class="comment">% Points on the manifold are represented as structures X with two fields.</span>
 0012 <span class="comment">% X.R is a 3D array of size nxnxk such that each slice X.R(:, :, i)</span>
@@ -104,30 +109,35 @@ This function is called by:
 0027 <span class="comment">%</span>
 0028 <span class="comment">% By default, k = 1.</span>
 0029 <span class="comment">%</span>
-0030 <span class="comment">% This is a test geometry: it may not be the &quot;appropriate&quot; geometry to give</span>
-0031 <span class="comment">% to SE(n).</span>
-0032 <span class="comment">%</span>
-0033 <span class="comment">% See rotationsfactory and euclideanfactory for details.</span>
-0034 <span class="comment">%</span>
-0035 <span class="comment">% See also: rotationsfactory euclideanfactory</span>
-0036 
-0037 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0038 <span class="comment">% Original author: Nicolas Boumal, Sep. 23, 2014.</span>
-0039 <span class="comment">% Contributors:</span>
-0040 <span class="comment">% Change log:</span>
+0030 <span class="comment">% Note: this is a product geometry: it may not be the &quot;appropriate&quot;</span>
+0031 <span class="comment">% geometry to give to SE(n) for your application. In particular, this is</span>
+0032 <span class="comment">% not the Lie geometry of SE(n), because SE(n) is not a direct product of</span>
+0033 <span class="comment">% SO(n) and R^n: it is only a semidirect product. Following a comment by</span>
+0034 <span class="comment">% Martijn Zeestraten on the Manopt forum, see this file for more</span>
+0035 <span class="comment">% information about the Lie geometry:</span>
+0036 <span class="comment">%   http://ethaneade.com/lie.pdf</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">% See rotationsfactory and euclideanfactory for details.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">% See also: rotationsfactory euclideanfactory</span>
 0041 
-0042     
-0043     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
-0044         k = 1;
-0045     <span class="keyword">end</span>
-0046     
-0047     elements = struct();
-0048     elements.R = <a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>(n, k);
-0049     elements.t = <a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>(n, k);
-0050     
-0051     M = <a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>(elements);
-0052 
-0053 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0042 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0043 <span class="comment">% Original author: Nicolas Boumal, Sep. 23, 2014.</span>
+0044 <span class="comment">% Contributors:</span>
+0045 <span class="comment">% Change log:</span>
+0046 
+0047     
+0048     <span class="keyword">if</span> ~exist(<span class="string">'k'</span>, <span class="string">'var'</span>) || isempty(k)
+0049         k = 1;
+0050     <span class="keyword">end</span>
+0051     
+0052     elements = struct();
+0053     elements.R = <a href="../../../manopt/manifolds/rotations/rotationsfactory.html" class="code" title="function M = rotationsfactory(n, k)">rotationsfactory</a>(n, k);
+0054     elements.t = <a href="../../../manopt/manifolds/euclidean/euclideanfactory.html" class="code" title="function M = euclideanfactory(m, n)">euclideanfactory</a>(n, k);
+0055     
+0056     M = <a href="../../../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>(elements);
+0057 
+0058 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

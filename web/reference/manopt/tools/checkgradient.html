@@ -48,7 +48,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d, force_gradient)">checkdiff</a>	Checks the consistency of the cost function and directional derivatives.</li></ul>
+<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetPartialGradient.html" class="code" title="function candoit = canGetPartialGradient(problem)">canGetPartialGradient</a>	Checks whether the partial gradient can be computed for a given problem.</li><li><a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d, force_gradient)">checkdiff</a>	Checks the consistency of the cost function and directional derivatives.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 </ul>
@@ -92,57 +92,65 @@ This function is called by:
 0033     
 0034     <span class="comment">% Verify that the problem description is sufficient.</span>
 0035     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0036         error(<span class="string">'It seems no cost was provided.'</span>);
-0037     <span class="keyword">end</span>
-0038     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0039         warning(<span class="string">'manopt:checkgradient:nograd'</span>, <span class="keyword">...</span>
-0040                 <span class="string">'It seems no gradient was provided.'</span>);
-0041     <span class="keyword">end</span>
-0042         
-0043     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
-0044     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
-0045     
-0046     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
-0047         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
-0048     <span class="keyword">end</span>
-0049     
-0050     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
-0051     <span class="keyword">if</span> ~x_isprovided
-0052         x = problem.M.rand();
-0053     <span class="keyword">end</span>
-0054     <span class="keyword">if</span> ~d_isprovided
-0055         d = problem.M.randvec(x);
+0036         <span class="comment">% The call to canGetPartialGradient will readily issue a warning if</span>
+0037         <span class="comment">% problem.ncostterms is not defined even though it is expected.</span>
+0038         <span class="keyword">if</span> ~<a href="../../manopt/core/canGetPartialGradient.html" class="code" title="function candoit = canGetPartialGradient(problem)">canGetPartialGradient</a>(problem)
+0039             error(<span class="string">'getCost:checkgradient'</span>, <span class="string">'It seems no cost was provided.'</span>);
+0040         <span class="keyword">else</span>
+0041             error(<span class="string">'getCost:stochastic'</span>, [<span class="string">'It seems no cost was provided.\n'</span> <span class="keyword">...</span>
+0042                   <span class="string">'If you intend to use a stochastic solver, you still\n'</span> <span class="keyword">...</span>
+0043                   <span class="string">'need to define problem.cost to use checkgradient.'</span>]);
+0044         <span class="keyword">end</span>
+0045     <span class="keyword">end</span>
+0046     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0047         warning(<span class="string">'manopt:checkgradient:nograd'</span>, <span class="keyword">...</span>
+0048                 <span class="string">'It seems no gradient was provided.'</span>);
+0049     <span class="keyword">end</span>
+0050         
+0051     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
+0052     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
+0053     
+0054     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
+0055         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
 0056     <span class="keyword">end</span>
-0057 
-0058     <span class="comment">%% Check that the gradient yields a first order model of the cost.</span>
-0059     
-0060     <span class="comment">% Call checkdiff with force_gradient set to true, to force that</span>
-0061     <span class="comment">% function to make a gradient call.</span>
-0062     <a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d, force_gradient)">checkdiff</a>(problem, x, d, true);
-0063     title(sprintf([<span class="string">'Gradient check.\nThe slope of the continuous line '</span> <span class="keyword">...</span>
-0064                    <span class="string">'should match that of the dashed\n(reference) line '</span> <span class="keyword">...</span>
-0065                    <span class="string">'over at least a few orders of magnitude for h.'</span>]));
-0066     xlabel(<span class="string">'h'</span>);
-0067     ylabel(<span class="string">'Approximation error'</span>);
-0068     
-0069     <span class="comment">%% Try to check that the gradient is a tangent vector.</span>
-0070     <span class="keyword">if</span> isfield(problem.M, <span class="string">'tangent'</span>)
-0071         storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0072         key = storedb.getNewKey();
-0073         grad = <a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
-0074         pgrad = problem.M.tangent(x, grad);
-0075         residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
-0076         err = problem.M.norm(x, residual);
-0077         fprintf(<span class="string">'The residual should be 0, or very close. Residual: %g.\n'</span>, err);
-0078         fprintf(<span class="string">'If it is far from 0, then the gradient is not in the tangent space.\n'</span>);
-0079     <span class="keyword">else</span>
-0080         fprintf([<span class="string">'Unfortunately, Manopt was unable to verify that the '</span><span class="keyword">...</span>
-0081                  <span class="string">'gradient is indeed a tangent vector.\nPlease verify '</span> <span class="keyword">...</span>
-0082                  <span class="string">'this manually or implement the ''tangent'' function '</span> <span class="keyword">...</span>
-0083                  <span class="string">'in your manifold structure.'</span>]);
-0084     <span class="keyword">end</span>
-0085 
-0086 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0057     
+0058     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
+0059     <span class="keyword">if</span> ~x_isprovided
+0060         x = problem.M.rand();
+0061     <span class="keyword">end</span>
+0062     <span class="keyword">if</span> ~d_isprovided
+0063         d = problem.M.randvec(x);
+0064     <span class="keyword">end</span>
+0065 
+0066     <span class="comment">%% Check that the gradient yields a first order model of the cost.</span>
+0067     
+0068     <span class="comment">% Call checkdiff with force_gradient set to true, to force that</span>
+0069     <span class="comment">% function to make a gradient call.</span>
+0070     <a href="checkdiff.html" class="code" title="function checkdiff(problem, x, d, force_gradient)">checkdiff</a>(problem, x, d, true);
+0071     title(sprintf([<span class="string">'Gradient check.\nThe slope of the continuous line '</span> <span class="keyword">...</span>
+0072                    <span class="string">'should match that of the dashed\n(reference) line '</span> <span class="keyword">...</span>
+0073                    <span class="string">'over at least a few orders of magnitude for h.'</span>]));
+0074     xlabel(<span class="string">'h'</span>);
+0075     ylabel(<span class="string">'Approximation error'</span>);
+0076     
+0077     <span class="comment">%% Try to check that the gradient is a tangent vector.</span>
+0078     <span class="keyword">if</span> isfield(problem.M, <span class="string">'tangent'</span>)
+0079         storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0080         key = storedb.getNewKey();
+0081         grad = <a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
+0082         pgrad = problem.M.tangent(x, grad);
+0083         residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
+0084         err = problem.M.norm(x, residual);
+0085         fprintf(<span class="string">'The residual should be 0, or very close. Residual: %g.\n'</span>, err);
+0086         fprintf(<span class="string">'If it is far from 0, then the gradient is not in the tangent space.\n'</span>);
+0087     <span class="keyword">else</span>
+0088         fprintf([<span class="string">'Unfortunately, Manopt was unable to verify that the '</span><span class="keyword">...</span>
+0089                  <span class="string">'gradient is indeed a tangent vector.\nPlease verify '</span> <span class="keyword">...</span>
+0090                  <span class="string">'this manually or implement the ''tangent'' function '</span> <span class="keyword">...</span>
+0091                  <span class="string">'in your manifold structure.'</span>]);
+0092     <span class="keyword">end</span>
+0093 
+0094 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

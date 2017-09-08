@@ -40,8 +40,13 @@
  orthobasis is a cell of n tangent vectors at x.
  With high probability, they form an orthonormal basis of the tangent
  space at x. If necessary, this can be checked by calling
-   G = grammatrix(orthobasis)
- and verifying that G is invertible.
+   G = grammatrix(M, x, orthobasis)
+ and verifying that norm(G - eye(size(G))) is close to zero.
+
+ Note: if extra accuracy is required, it may help to re-orthogonalize the
+ basis returned by this function once, as follows:
+  B = tangentorthobasis(M, x, n);
+  B = orthogonalize(M, x, B);
 
  See also: <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a> <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a> <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a> <a href="plotprofile.html" class="code" title="function cost = plotprofile(problem, x, d, t)">plotprofile</a></pre></div>
 
@@ -72,36 +77,41 @@ This function is called by:
 0012 <span class="comment">% orthobasis is a cell of n tangent vectors at x.</span>
 0013 <span class="comment">% With high probability, they form an orthonormal basis of the tangent</span>
 0014 <span class="comment">% space at x. If necessary, this can be checked by calling</span>
-0015 <span class="comment">%   G = grammatrix(orthobasis)</span>
-0016 <span class="comment">% and verifying that G is invertible.</span>
+0015 <span class="comment">%   G = grammatrix(M, x, orthobasis)</span>
+0016 <span class="comment">% and verifying that norm(G - eye(size(G))) is close to zero.</span>
 0017 <span class="comment">%</span>
-0018 <span class="comment">% See also: grammatrix orthogonalize lincomb plotprofile</span>
-0019 
-0020 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0021 <span class="comment">% Original author: Nicolas Boumal, April 28, 2016.</span>
-0022 <span class="comment">% Contributors:</span>
-0023 <span class="comment">% Change log:</span>
+0018 <span class="comment">% Note: if extra accuracy is required, it may help to re-orthogonalize the</span>
+0019 <span class="comment">% basis returned by this function once, as follows:</span>
+0020 <span class="comment">%  B = tangentorthobasis(M, x, n);</span>
+0021 <span class="comment">%  B = orthogonalize(M, x, B);</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% See also: grammatrix orthogonalize lincomb plotprofile</span>
 0024 
-0025     dim = M.dim();
-0026     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
-0027         n = dim;
-0028     <span class="keyword">end</span>
-0029     assert(n &gt;= 0 &amp;&amp; n &lt;= dim &amp;&amp; n == round(n), <span class="keyword">...</span>
-0030            <span class="string">'n must be an integer between 0 and M.dim().'</span>);
-0031     
-0032     basis = cell(n, 1);
-0033     
-0034     <span class="comment">% With high probability, n vectors taken at random in the tangent space</span>
-0035     <span class="comment">% are linearly independent.</span>
-0036     <span class="keyword">for</span> k = 1 : n
-0037         basis{k} = M.randvec(x);
-0038     <span class="keyword">end</span>
-0039     
-0040     <span class="comment">% The Gram-Schmidt process transforms any n linearly independent</span>
-0041     <span class="comment">% vectors into n orthonormal vectors spanning the same subspace.</span>
-0042     orthobasis = <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a>(M, x, basis);
-0043     
-0044 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0025 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0026 <span class="comment">% Original author: Nicolas Boumal, April 28, 2016.</span>
+0027 <span class="comment">% Contributors:</span>
+0028 <span class="comment">% Change log:</span>
+0029 
+0030     dim = M.dim();
+0031     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0032         n = dim;
+0033     <span class="keyword">end</span>
+0034     assert(n &gt;= 0 &amp;&amp; n &lt;= dim &amp;&amp; n == round(n), <span class="keyword">...</span>
+0035            <span class="string">'n must be an integer between 0 and M.dim().'</span>);
+0036     
+0037     basis = cell(n, 1);
+0038     
+0039     <span class="comment">% With high probability, n vectors taken at random in the tangent space</span>
+0040     <span class="comment">% are linearly independent.</span>
+0041     <span class="keyword">for</span> k = 1 : n
+0042         basis{k} = M.randvec(x);
+0043     <span class="keyword">end</span>
+0044     
+0045     <span class="comment">% The Gram-Schmidt process transforms any n linearly independent</span>
+0046     <span class="comment">% vectors into n orthonormal vectors spanning the same subspace.</span>
+0047     orthobasis = <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a>(M, x, basis);
+0048     
+0049 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

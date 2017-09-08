@@ -44,7 +44,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li></ul>
+<li><a href="../manopt/manifolds/oblique/obliquefactory.html" class="code" title="function M = obliquefactory(n, m, transposed)">obliquefactory</a>	Returns a manifold struct to optimize over matrices w/ unit-norm columns.</li><li><a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -93,31 +93,34 @@ This function is called by:
 0038 <span class="comment">% at each iterate.</span>
 0039 <span class="comment">%</span>
 0040 <span class="comment">% Note that it is difficult to reach high accuracy critical points with an</span>
-0041 <span class="comment">% approximate gradient, hence the need to set a less ambitious value for</span>
-0042 <span class="comment">% the gradient norm tolerance.</span>
-0043 opts.tolgradnorm = 1e-3;
-0044 X = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, [], opts);
-0045 
-0046 <span class="comment">% Plot the points on a translucid sphere</span>
-0047 <span class="keyword">if</span> nargout == 0 &amp;&amp; d == 3
-0048     [x, y, z] = sphere(50);
-0049     surf(x, y, z, <span class="string">'FaceAlpha'</span>, .5);
-0050     hold all;
-0051     plot3(X(1, :), X(2, :), X(3, :), <span class="string">'.'</span>, <span class="string">'MarkerSize'</span>, 20);
-0052     axis equal;
-0053     box off;
-0054     axis off;
-0055 <span class="keyword">end</span>
-0056 
-0057 <span class="comment">% For much better performance, after an early prototyping phase, the</span>
-0058 <span class="comment">% gradient of the cost function should be specified, typically in</span>
-0059 <span class="comment">% problem.grad or problem.egrad. See the online document at</span>
-0060 <span class="comment">%</span>
-0061 <span class="comment">%   http://www.manopt.org</span>
-0062 <span class="comment">%</span>
-0063 <span class="comment">% for more information.</span>
-0064 
-0065 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0041 <span class="comment">% approximate gradient, hence it may be required to set a less ambitious</span>
+0042 <span class="comment">% value for the gradient norm tolerance.</span>
+0043 opts.tolgradnorm = 1e-4;
+0044 
+0045 <span class="comment">% Pick a solver. Both work fairly well on this problem.</span>
+0046 <span class="comment">% X = conjugategradient(problem, [], opts);</span>
+0047 X = <a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>(problem, [], opts);
+0048 
+0049 <span class="comment">% Plot the points on a translucid sphere</span>
+0050 <span class="keyword">if</span> nargout == 0 &amp;&amp; d == 3
+0051     [x, y, z] = sphere(50);
+0052     surf(x, y, z, <span class="string">'FaceAlpha'</span>, .5);
+0053     hold all;
+0054     plot3(X(1, :), X(2, :), X(3, :), <span class="string">'.'</span>, <span class="string">'MarkerSize'</span>, 20);
+0055     axis equal;
+0056     box off;
+0057     axis off;
+0058 <span class="keyword">end</span>
+0059 
+0060 <span class="comment">% For much better performance, after an early prototyping phase, the</span>
+0061 <span class="comment">% gradient of the cost function should be specified, typically in</span>
+0062 <span class="comment">% problem.grad or problem.egrad. See the online document at</span>
+0063 <span class="comment">%</span>
+0064 <span class="comment">%   http://www.manopt.org</span>
+0065 <span class="comment">%</span>
+0066 <span class="comment">% for more information.</span>
+0067 
+0068 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

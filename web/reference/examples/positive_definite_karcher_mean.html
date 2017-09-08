@@ -51,7 +51,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../manopt/manifolds/symfixedrank/sympositivedefinitefactory.html" class="code" title="function M = sympositivedefinitefactory(n)">sympositivedefinitefactory</a>	Manifold of n-by-n symmetric positive definite matrices with</li><li><a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -94,7 +94,7 @@ This function is called by:
 0030     <span class="comment">% Generate some random data to test the function if none is given.</span>
 0031     <span class="keyword">if</span> ~exist(<span class="string">'A'</span>, <span class="string">'var'</span>) || isempty(A)
 0032         n = 5;
-0033         m = 10;
+0033         m = 50;
 0034         A = zeros(n, n, m);
 0035         ref = diag(max(.1, 1+.1*randn(n, 1)));
 0036         <span class="keyword">for</span> i = 1 : m
@@ -168,10 +168,11 @@ This function is called by:
 0104     <span class="comment">% M.transp = M.paralleltransp;</span>
 0105     
 0106     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
-0107     <span class="comment">% Our initial guess is the first data point.</span>
-0108     X = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, A(:, :, 1));
-0109 
-0110 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0107     <span class="comment">% Our initial guess is the first data point. Most solvers work well</span>
+0108     <span class="comment">% with this problem. Limited-memory BFGS is one good example:</span>
+0109     X = <a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>(problem, A(:, :, 1));
+0110 
+0111 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,6 +1,7 @@
 /* Created by mdot for Matlab */
 digraph m2html {
 
+  PCA_stochastic [URL="PCA_stochastic.html"];
   dominant_invariant_subspace [URL="dominant_invariant_subspace.html"];
   dominant_invariant_subspace_complex [URL="dominant_invariant_subspace_complex.html"];
   elliptope_SDP [URL="elliptope_SDP.html"];

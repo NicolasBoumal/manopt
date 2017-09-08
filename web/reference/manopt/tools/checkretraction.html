@@ -29,9 +29,9 @@
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Check the order of agreement of a retraction with an exponential.
  
- function checkretraction(problem)
- function checkretraction(problem, x)
- function checkretraction(problem, x, v)
+ function checkretraction(M)
+ function checkretraction(M, x)
+ function checkretraction(M, x, v)
 
  checkretraction performs a numerical test to check the order of agreement
  between the retraction and the exponential map in a given Manopt
@@ -58,9 +58,9 @@ This function is called by:
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function checkretraction(M, x, v)</a>
 0002 <span class="comment">% Check the order of agreement of a retraction with an exponential.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function checkretraction(problem)</span>
-0005 <span class="comment">% function checkretraction(problem, x)</span>
-0006 <span class="comment">% function checkretraction(problem, x, v)</span>
+0004 <span class="comment">% function checkretraction(M)</span>
+0005 <span class="comment">% function checkretraction(M, x)</span>
+0006 <span class="comment">% function checkretraction(M, x, v)</span>
 0007 <span class="comment">%</span>
 0008 <span class="comment">% checkretraction performs a numerical test to check the order of agreement</span>
 0009 <span class="comment">% between the retraction and the exponential map in a given Manopt</span>
@@ -130,6 +130,6 @@ This function is called by:
 0073     fprintf(<span class="string">'It appears the slope is: %g.\n'</span>, poly(1));
 0074 
 0075 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

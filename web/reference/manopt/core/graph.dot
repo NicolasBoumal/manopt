@@ -9,6 +9,7 @@ digraph m2html {
   canGetHessian -> canGetEuclideanGradient;
   canGetPartialGradient -> canGetPartialEuclideanGradient;
   canGetPrecon -> canGetSqrtPrecon;
+  canGetSubgradient -> canGetGradient;
   getApproxGradient -> StoreDB;
   getApproxGradient -> getGradientFD;
   getApproxHessian -> StoreDB;
@@ -49,6 +50,9 @@ digraph m2html {
   getPrecon -> canGetSqrtPrecon;
   getPrecon -> getSqrtPrecon;
   getSqrtPrecon -> StoreDB;
+  getSubgradient -> StoreDB;
+  getSubgradient -> canGetGradient;
+  getSubgradient -> getGradient;
   handle_light -> handle_light;
 
   StoreDB [URL="StoreDB.html"];
@@ -65,6 +69,7 @@ digraph m2html {
   canGetPartialGradient [URL="canGetPartialGradient.html"];
   canGetPrecon [URL="canGetPrecon.html"];
   canGetSqrtPrecon [URL="canGetSqrtPrecon.html"];
+  canGetSubgradient [URL="canGetSubgradient.html"];
   getApproxGradient [URL="getApproxGradient.html"];
   getApproxHessian [URL="getApproxHessian.html"];
   getCost [URL="getCost.html"];
@@ -82,6 +87,7 @@ digraph m2html {
   getPrecon [URL="getPrecon.html"];
   getSqrtPrecon [URL="getSqrtPrecon.html"];
   getStore [URL="getStore.html"];
+  getSubgradient [URL="getSubgradient.html"];
   handle_light [URL="handle_light.html"];
   mergeOptions [URL="mergeOptions.html"];
   purgeStoredb [URL="purgeStoredb.html"];

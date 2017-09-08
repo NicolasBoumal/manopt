@@ -1,0 +1,7 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  stochasticgradient -> stepsize_sg;
+
+  stepsize_sg [URL="stepsize_sg.html"];
+  stochasticgradient [URL="stochasticgradient.html"];
+}

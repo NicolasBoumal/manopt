@@ -86,131 +86,158 @@ This function is called by:
 0024 <span class="comment">% Contributors:</span>
 0025 <span class="comment">% Change log:</span>
 0026 <span class="comment">%</span>
-0027 <span class="comment">%   April 3, 2015 (NB):</span>
-0028 <span class="comment">%       Works with the new StoreDB class system.</span>
-0029 <span class="comment">%</span>
-0030 <span class="comment">%   Nov. 1, 2016 (NB):</span>
-0031 <span class="comment">%       Issues a call to getGradient rather than getDirectionalDerivative.</span>
-0032 
-0033         
-0034     <span class="comment">% Verify that the problem description is sufficient.</span>
-0035     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0036         error(<span class="string">'It seems no cost was provided.'</span>);
-0037     <span class="keyword">end</span>
-0038     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0039         warning(<span class="string">'manopt:checkhessian:nograd'</span>, <span class="keyword">...</span>
-0040                 <span class="string">'It seems no gradient was provided.'</span>);
+0027 <span class="comment">%   March 26, 2017 (JB):</span>
+0028 <span class="comment">%       Detects if the approximated quadratic model is exact</span>
+0029 <span class="comment">%       and provides the user with the corresponding feedback.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   April 3, 2015 (NB):</span>
+0032 <span class="comment">%       Works with the new StoreDB class system.</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%   Nov. 1, 2016 (NB):</span>
+0035 <span class="comment">%       Issues a call to getGradient rather than getDirectionalDerivative.</span>
+0036 
+0037         
+0038     <span class="comment">% Verify that the problem description is sufficient.</span>
+0039     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0040         error(<span class="string">'It seems no cost was provided.'</span>);
 0041     <span class="keyword">end</span>
-0042     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
-0043         warning(<span class="string">'manopt:checkhessian:nohess'</span>, <span class="keyword">...</span>
-0044                 <span class="string">'It seems no Hessian was provided.'</span>);
+0042     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0043         warning(<span class="string">'manopt:checkhessian:nograd'</span>, <span class="keyword">...</span>
+0044                 <span class="string">'It seems no gradient was provided.'</span>);
 0045     <span class="keyword">end</span>
-0046     
-0047     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
-0048     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
-0049     
-0050     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
-0051         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
-0052     <span class="keyword">end</span>
+0046     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
+0047         warning(<span class="string">'manopt:checkhessian:nohess'</span>, <span class="keyword">...</span>
+0048                 <span class="string">'It seems no Hessian was provided.'</span>);
+0049     <span class="keyword">end</span>
+0050     
+0051     x_isprovided = exist(<span class="string">'x'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(x);
+0052     d_isprovided = exist(<span class="string">'d'</span>, <span class="string">'var'</span>) &amp;&amp; ~isempty(d);
 0053     
-0054     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
-0055     <span class="keyword">if</span> ~x_isprovided
-0056         x = problem.M.rand();
-0057     <span class="keyword">end</span>
-0058     <span class="keyword">if</span> ~d_isprovided
-0059         d = problem.M.randvec(x);
-0060     <span class="keyword">end</span>
-0061     
-0062     <span class="comment">%% Check that the directional derivative and the Hessian at x along d</span>
-0063     <span class="comment">%% yield a second order model of the cost function.</span>
-0064     
-0065     <span class="comment">% Compute the value f0 at f, directional derivative df0 at x along d,</span>
-0066     <span class="comment">% and Hessian along [d, d].</span>
-0067     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0068     xkey = storedb.getNewKey();
-0069     f0 = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, xkey);
-0070     df0 = problem.M.inner(x, d, <a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, xkey));
-0071     d2f0 = problem.M.inner(x, d, <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d, storedb, xkey));
-0072     
-0073     <span class="comment">% Compute the value of f at points on the geodesic (or approximation</span>
-0074     <span class="comment">% of it) originating from x, along direction d, for stepsizes in a</span>
-0075     <span class="comment">% large range given by h.</span>
-0076     h = logspace(-8, 0, 51);
-0077     value = zeros(size(h));
-0078     <span class="keyword">for</span> i = 1 : length(h)
-0079         y = problem.M.exp(x, d, h(i));
-0080         ykey = storedb.getNewKey();
-0081         value(i) = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, y, storedb, ykey);
-0082     <span class="keyword">end</span>
-0083     
-0084     <span class="comment">% Compute the quadratic approximation of the cost function using f0,</span>
-0085     <span class="comment">% df0 and d2f0 at the same points.</span>
-0086     model = polyval([.5*d2f0 df0 f0], h);
+0054     <span class="keyword">if</span> ~x_isprovided &amp;&amp; d_isprovided
+0055         error(<span class="string">'If d is provided, x must be too, since d is tangent at x.'</span>);
+0056     <span class="keyword">end</span>
+0057     
+0058     <span class="comment">% If x and / or d are not specified, pick them at random.</span>
+0059     <span class="keyword">if</span> ~x_isprovided
+0060         x = problem.M.rand();
+0061     <span class="keyword">end</span>
+0062     <span class="keyword">if</span> ~d_isprovided
+0063         d = problem.M.randvec(x);
+0064     <span class="keyword">end</span>
+0065     
+0066     <span class="comment">%% Check that the directional derivative and the Hessian at x along d</span>
+0067     <span class="comment">%% yield a second order model of the cost function.</span>
+0068     
+0069     <span class="comment">% Compute the value f0 at f, directional derivative df0 at x along d,</span>
+0070     <span class="comment">% and Hessian along [d, d].</span>
+0071     storedb = <a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0072     xkey = storedb.getNewKey();
+0073     f0 = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, xkey);
+0074     df0 = problem.M.inner(x, d, <a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, xkey));
+0075     d2f0 = problem.M.inner(x, d, <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d, storedb, xkey));
+0076     
+0077     <span class="comment">% Compute the value of f at points on the geodesic (or approximation</span>
+0078     <span class="comment">% of it) originating from x, along direction d, for stepsizes in a</span>
+0079     <span class="comment">% large range given by h.</span>
+0080     h = logspace(-8, 0, 51);
+0081     value = zeros(size(h));
+0082     <span class="keyword">for</span> i = 1 : length(h)
+0083         y = problem.M.exp(x, d, h(i));
+0084         ykey = storedb.getNewKey();
+0085         value(i) = <a href="../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, y, storedb, ykey);
+0086     <span class="keyword">end</span>
 0087     
-0088     <span class="comment">% Compute the approximation error</span>
-0089     err = abs(model - value);
-0090     
-0091     <span class="comment">% And plot it.</span>
-0092     loglog(h, err);
-0093     title(sprintf([<span class="string">'Hessian check.\nThe slope of the continuous line '</span> <span class="keyword">...</span>
-0094                    <span class="string">'should match that of the dashed\n(reference) line '</span> <span class="keyword">...</span>
-0095                    <span class="string">'over at least a few orders of magnitude for h.'</span>]));
-0096     xlabel(<span class="string">'h'</span>);
-0097     ylabel(<span class="string">'Approximation error'</span>);
-0098     
-0099     line(<span class="string">'xdata'</span>, [1e-8 1e0], <span class="string">'ydata'</span>, [1e-16 1e8], <span class="keyword">...</span>
-0100          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
-0101          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0088     <span class="comment">% Compute the quadratic approximation of the cost function using f0,</span>
+0089     <span class="comment">% df0 and d2f0 at the same points.</span>
+0090     model = polyval([.5*d2f0 df0 f0], h);
+0091     
+0092     <span class="comment">% Compute the approximation error</span>
+0093     err = abs(model - value);
+0094     
+0095     <span class="comment">% And plot it.</span>
+0096     loglog(h, err);
+0097     title(sprintf([<span class="string">'Hessian check.\nThe slope of the continuous line '</span> <span class="keyword">...</span>
+0098                    <span class="string">'should match that of the dashed\n(reference) line '</span> <span class="keyword">...</span>
+0099                    <span class="string">'over at least a few orders of magnitude for h.'</span>]));
+0100     xlabel(<span class="string">'h'</span>);
+0101     ylabel(<span class="string">'Approximation error'</span>);
 0102     
-0103     <span class="comment">% In a numerically reasonable neighborhood, the error should decrease</span>
-0104     <span class="comment">% as the cube of the stepsize, i.e., in loglog scale, the error</span>
-0105     <span class="comment">% should have a slope of 3.</span>
-0106     window_len = 10;
-0107     [range, poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
-0108     hold all;
-0109     loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="string">'LineWidth'</span>, 3);
-0110     hold off;
-0111     
-0112     fprintf(<span class="string">'The slope should be 3. It appears to be: %g.\n'</span>, poly(1));
-0113     fprintf([<span class="string">'If it is far from 3, then directional derivatives or '</span> <span class="keyword">...</span>
-0114              <span class="string">'the Hessian might be erroneous.\n'</span>]);
-0115     fprintf([<span class="string">'Note: if the exponential map is only approximate, and it '</span><span class="keyword">...</span>
-0116              <span class="string">'is not a second-order approximation,\nthen it is normal '</span> <span class="keyword">...</span>
-0117              <span class="string">'for the slope test to reach 2 instead of 3. Check the '</span> <span class="keyword">...</span>
-0118              <span class="string">'factory for this.\n'</span> <span class="keyword">...</span>
-0119              <span class="string">'If tested at a critical point, then even for a first-order '</span><span class="keyword">...</span>
-0120              <span class="string">'retraction the slope test should yield 3.\n'</span>]);
-0121 
-0122     
-0123     <span class="comment">%% Check that the Hessian at x along direction d is a tangent vector.</span>
-0124     <span class="keyword">if</span> isfield(problem.M, <span class="string">'tangent'</span>)
-0125         hess = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d, storedb, xkey);
-0126         phess = problem.M.tangent(x, hess);
-0127         residual = problem.M.lincomb(x, 1, hess, -1, phess);
-0128         err = problem.M.norm(x, residual);
-0129         fprintf(<span class="string">'The residual should be zero, or very close. '</span>);
-0130         fprintf(<span class="string">'Residual: %g.\n'</span>, err);
-0131         fprintf([<span class="string">'If it is far from 0, then the Hessian is not in the '</span> <span class="keyword">...</span>
-0132                  <span class="string">'tangent plane.\n'</span>]);
-0133     <span class="keyword">else</span>
-0134         fprintf([<span class="string">'Unfortunately, Manopt was unable to verify that the '</span><span class="keyword">...</span>
-0135                  <span class="string">'Hessian is indeed a tangent vector.\nPlease verify '</span> <span class="keyword">...</span>
-0136                  <span class="string">'this manually.'</span>]);
-0137     <span class="keyword">end</span>    
-0138     
-0139     <span class="comment">%% Check that the Hessian at x is symmetric.</span>
-0140     d1 = problem.M.randvec(x);
-0141     d2 = problem.M.randvec(x);
-0142     h1 = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d1, storedb, xkey);
-0143     h2 = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d2, storedb, xkey);
-0144     v1 = problem.M.inner(x, d1, h2);
-0145     v2 = problem.M.inner(x, h1, d2);
-0146     value = v1-v2;
-0147     fprintf([<span class="string">'&lt;d1, H[d2]&gt; - &lt;H[d1], d2&gt; should be zero, or very close.'</span> <span class="keyword">...</span>
-0148              <span class="string">'\n\tValue: %g - %g = %g.\n'</span>], v1, v2, value);
-0149     fprintf(<span class="string">'If it is far from 0, then the Hessian is not symmetric.\n'</span>);
-0150     
-0151 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0103     line(<span class="string">'xdata'</span>, [1e-8 1e0], <span class="string">'ydata'</span>, [1e-16 1e8], <span class="keyword">...</span>
+0104          <span class="string">'color'</span>, <span class="string">'k'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>, <span class="keyword">...</span>
+0105          <span class="string">'YLimInclude'</span>, <span class="string">'off'</span>, <span class="string">'XLimInclude'</span>, <span class="string">'off'</span>);
+0106     
+0107     
+0108     <span class="keyword">if</span> ~all( err &lt; 1e-12 )
+0109         <span class="comment">% In a numerically reasonable neighborhood, the error should</span>
+0110         <span class="comment">% decrease as the cube of the stepsize, i.e., in loglog scale, the</span>
+0111         <span class="comment">% error should have a slope of 3.</span>
+0112         isModelExact = false;
+0113         window_len = 10;
+0114         [range, poly] = <a href="identify_linear_piece.html" class="code" title="function [range, poly] = identify_linear_piece(x, y, window_length)">identify_linear_piece</a>(log10(h), log10(err), window_len);
+0115     <span class="keyword">else</span>
+0116         <span class="comment">% The 2nd order model is exact: all errors are (numerically) zero</span>
+0117         <span class="comment">% Fit line from all points, use log scale only in h.</span>
+0118         isModelExact = true;
+0119         range = 1:numel(h);
+0120         poly = polyfit(log10(h), err, 1);
+0121         <span class="comment">% Set mean error in log scale for plot</span>
+0122         poly(end) = log10(poly(end));
+0123         <span class="comment">% Change title to something more descriptive for this special case.</span>
+0124         title(sprintf(<span class="keyword">...</span>
+0125               [<span class="string">'Hessian check.\n'</span><span class="keyword">...</span>
+0126                <span class="string">'It seems the quadratic model is exact:\n'</span><span class="keyword">...</span>
+0127                <span class="string">'Model error is numerically zero for all h.'</span>]));
+0128     <span class="keyword">end</span>
+0129     hold all;
+0130     loglog(h(range), 10.^polyval(poly, log10(h(range))), <span class="string">'LineWidth'</span>, 3);
+0131     hold off;
+0132     
+0133     <span class="keyword">if</span> ~isModelExact
+0134         fprintf(<span class="string">'The slope should be 3. It appears to be: %g.\n'</span>, poly(1));
+0135         fprintf([<span class="string">'If it is far from 3, then directional derivatives or '</span> <span class="keyword">...</span>
+0136                  <span class="string">'the Hessian might be erroneous.\n'</span>]);
+0137         fprintf([<span class="string">'Note: if the exponential map is only approximate, and it '</span><span class="keyword">...</span>
+0138                  <span class="string">'is not a second-order approximation,\nthen it is normal '</span> <span class="keyword">...</span>
+0139                  <span class="string">'for the slope test to reach 2 instead of 3. Check the '</span> <span class="keyword">...</span>
+0140                  <span class="string">'factory for this.\n'</span> <span class="keyword">...</span>
+0141                  <span class="string">'If tested at a critical point, then even for a first-order '</span><span class="keyword">...</span>
+0142                  <span class="string">'retraction the slope test should yield 3.\n'</span>]);
+0143     <span class="keyword">else</span>
+0144         fprintf([<span class="string">'The quadratic model appears to be exact '</span> <span class="keyword">...</span>
+0145                  <span class="string">'(within numerical precision),\n'</span><span class="keyword">...</span>
+0146                  <span class="string">'hence the slope computation is irrelevant.\n'</span>]);
+0147     <span class="keyword">end</span>
+0148 
+0149     
+0150     <span class="comment">%% Check that the Hessian at x along direction d is a tangent vector.</span>
+0151     <span class="keyword">if</span> isfield(problem.M, <span class="string">'tangent'</span>)
+0152         hess = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d, storedb, xkey);
+0153         phess = problem.M.tangent(x, hess);
+0154         residual = problem.M.lincomb(x, 1, hess, -1, phess);
+0155         err = problem.M.norm(x, residual);
+0156         fprintf(<span class="string">'The residual should be zero, or very close. '</span>);
+0157         fprintf(<span class="string">'Residual: %g.\n'</span>, err);
+0158         fprintf([<span class="string">'If it is far from 0, then the Hessian is not in the '</span> <span class="keyword">...</span>
+0159                  <span class="string">'tangent plane.\n'</span>]);
+0160     <span class="keyword">else</span>
+0161         fprintf([<span class="string">'Unfortunately, Manopt was unable to verify that the '</span><span class="keyword">...</span>
+0162                  <span class="string">'Hessian is indeed a tangent vector.\nPlease verify '</span> <span class="keyword">...</span>
+0163                  <span class="string">'this manually.'</span>]);
+0164     <span class="keyword">end</span>    
+0165     
+0166     <span class="comment">%% Check that the Hessian at x is symmetric.</span>
+0167     d1 = problem.M.randvec(x);
+0168     d2 = problem.M.randvec(x);
+0169     h1 = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d1, storedb, xkey);
+0170     h2 = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, d2, storedb, xkey);
+0171     v1 = problem.M.inner(x, d1, h2);
+0172     v2 = problem.M.inner(x, h1, d2);
+0173     value = v1-v2;
+0174     fprintf([<span class="string">'&lt;d1, H[d2]&gt; - &lt;H[d1], d2&gt; should be zero, or very close.'</span> <span class="keyword">...</span>
+0175              <span class="string">'\n\tValue: %g - %g = %g.\n'</span>], v1, v2, value);
+0176     fprintf(<span class="string">'If it is far from 0, then the Hessian is not symmetric.\n'</span>);
+0177     
+0178 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

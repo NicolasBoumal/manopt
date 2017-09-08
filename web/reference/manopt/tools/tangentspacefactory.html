@@ -37,9 +37,9 @@
 
  This is chiefly useful to solve optimization problems involving tangent
  vectors to M at x, which notably comes up when solving linear systems
- involving, for example, the Hessian of the cost on M at x. The Riemannian
- (actually, Euclidean) structure on N is that of the tangent space to M,
- that is, the inner product is inherited.
+ involving, for example, the Hessian of the cost on M at x (think of the
+ Newton equations.) The Riemannian (actually, Euclidean) structure on N is
+ that of the tangent space to M, that is, the inner product is inherited.
 
  See also: preconhessiansolve</pre></div>
 
@@ -69,9 +69,9 @@ This function is called by:
 0009 <span class="comment">%</span>
 0010 <span class="comment">% This is chiefly useful to solve optimization problems involving tangent</span>
 0011 <span class="comment">% vectors to M at x, which notably comes up when solving linear systems</span>
-0012 <span class="comment">% involving, for example, the Hessian of the cost on M at x. The Riemannian</span>
-0013 <span class="comment">% (actually, Euclidean) structure on N is that of the tangent space to M,</span>
-0014 <span class="comment">% that is, the inner product is inherited.</span>
+0012 <span class="comment">% involving, for example, the Hessian of the cost on M at x (think of the</span>
+0013 <span class="comment">% Newton equations.) The Riemannian (actually, Euclidean) structure on N is</span>
+0014 <span class="comment">% that of the tangent space to M, that is, the inner product is inherited.</span>
 0015 <span class="comment">%</span>
 0016 <span class="comment">% See also: preconhessiansolve</span>
 0017 
@@ -79,44 +79,54 @@ This function is called by:
 0019 <span class="comment">% Original author: Nicolas Boumal, April 9, 2015.</span>
 0020 <span class="comment">% Contributors:</span>
 0021 <span class="comment">% Change log:</span>
-0022 
-0023     <span class="comment">% N is the manifold we build. y will be a point on N, thus also a</span>
-0024     <span class="comment">% tangent vector to M at x. This is a typical Euclidean space, hence it</span>
-0025     <span class="comment">% will be easy to describe in terms of the tools available for M.</span>
-0026     N = struct();
-0027     
-0028     <span class="comment">% u, u1 and u2 will be tangent vectors to N at y. The tangent space to</span>
-0029     <span class="comment">% N at y is the tangent space to M at x, thus u, u1 and u2 are also</span>
-0030     <span class="comment">% tangent vectors to M at x.</span>
-0031     
-0032     N.dim   = @() M.dim();
-0033     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
-0034     N.norm  = @(y, u) M.norm(x, u);
-0035     N.proj  = M.proj;
-0036     N.typicaldist = @() N.dim();
-0037     N.tangent = @(y, u) u;
-0038     N.egrad2rgrad = @(x, g) g;
-0039     N.ehess2rhess = @(x, eg, eh, d) eh;
-0040     N.exp = @<a href="#_sub1" class="code" title="subfunction yy = exponential(y, u, t)">exponential</a>;
-0041     N.retr = @<a href="#_sub1" class="code" title="subfunction yy = exponential(y, u, t)">exponential</a>;
-0042     N.log = @(y1, y2) M.lincomb(x, 1, y2, -1, y1);
-0043     N.pairmean = @(y1, y2) M.lincomb(x, 0.5, y1, 0.5, y2);
-0044     N.rand = @() M.randvec(x);
-0045     N.randvec = @(y) M.randvec(x);
-0046     N.zerovec = M.zerovec;
-0047     N.lincomb = M.lincomb;
-0048     N.transp = @(y1, y2, u) u;
-0049     N.hash = @(y) [<span class="string">'z'</span> <a href="hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(M.vec(x, y))];
-0050     
-0051     <span class="comment">% In a Euclidean space, the exponential is merely the sum: y + tu.</span>
-0052     <a name="_sub1" href="#_subfunctions" class="code">function yy = exponential(y, u, t)</a>
-0053         <span class="keyword">if</span> nargin == 2
-0054             t = 1;
-0055         <span class="keyword">end</span>
-0056         yy = M.lincomb(x, 1, y, t, u);
-0057     <span class="keyword">end</span>
-0058     
-0059 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   Jan. 25, 2017 (NB):</span>
+0024 <span class="comment">%       Following a comment by Jesus Briales on the Manopt forum, the</span>
+0025 <span class="comment">%       functions N.egrad2rgrad, N.ehess2rhess and N.tangent now include a</span>
+0026 <span class="comment">%       projection (they were formerly identities.)</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%   Feb. 2, 2017 (NB):</span>
+0029 <span class="comment">%       Following a comment by Jesus Briales on the Manopt forum, the</span>
+0030 <span class="comment">%       function N.proj now calls M.proj(x, .) instead of M.proj(y, .).</span>
+0031 <span class="comment">%       Furthermore, N.ehess2rhess was corrected in the same way.</span>
+0032 
+0033     <span class="comment">% N is the manifold we build. y will be a point on N, thus also a</span>
+0034     <span class="comment">% tangent vector to M at x. This is a typical Euclidean space, hence it</span>
+0035     <span class="comment">% will be easy to describe in terms of the tools available for M.</span>
+0036     N = struct();
+0037     
+0038     <span class="comment">% u, u1 and u2 will be tangent vectors to N at y. The tangent space to</span>
+0039     <span class="comment">% N at y is the tangent space to M at x, thus u, u1 and u2 are also</span>
+0040     <span class="comment">% tangent vectors to M at x.</span>
+0041     
+0042     N.dim   = @() M.dim();
+0043     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
+0044     N.norm  = @(y, u) M.norm(x, u);
+0045     N.proj  = @(y, u) M.proj(x, u);
+0046     N.typicaldist = @() sqrt(N.dim());
+0047     N.tangent = N.proj;
+0048     N.egrad2rgrad = N.proj;
+0049     N.ehess2rhess = @(y, eg, eh, d) M.proj(x, eh);
+0050     N.exp = @<a href="#_sub1" class="code" title="subfunction yy = exponential(y, u, t)">exponential</a>;
+0051     N.retr = @<a href="#_sub1" class="code" title="subfunction yy = exponential(y, u, t)">exponential</a>;
+0052     N.log = @(y1, y2) M.lincomb(x, 1, y2, -1, y1);
+0053     N.pairmean = @(y1, y2) M.lincomb(x, 0.5, y1, 0.5, y2);
+0054     N.rand = @() M.randvec(x);
+0055     N.randvec = @(y) M.randvec(x);
+0056     N.zerovec = M.zerovec;
+0057     N.lincomb = M.lincomb;
+0058     N.transp = @(y1, y2, u) u;
+0059     N.hash = @(y) [<span class="string">'z'</span> <a href="hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(M.vec(x, y))];
+0060     
+0061     <span class="comment">% In a Euclidean space, the exponential is merely the sum: y + tu.</span>
+0062     <a name="_sub1" href="#_subfunctions" class="code">function yy = exponential(y, u, t)</a>
+0063         <span class="keyword">if</span> nargin == 2
+0064             t = 1;
+0065         <span class="keyword">end</span>
+0066         yy = M.lincomb(x, 1, y, t, u);
+0067     <span class="keyword">end</span>
+0068     
+0069 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

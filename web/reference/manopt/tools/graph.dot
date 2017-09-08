@@ -31,6 +31,7 @@ digraph m2html {
   checkgradient [URL="checkgradient.html"];
   checkhessian [URL="checkhessian.html"];
   checkretraction [URL="checkretraction.html"];
+  criticalpointfinder [URL="criticalpointfinder.html"];
   dexpm [URL="dexpm.html"];
   dfunm [URL="dfunm.html"];
   diagsum [URL="diagsum.html"];
@@ -61,6 +62,7 @@ digraph m2html {
   smallestinconvexhull [URL="smallestinconvexhull.html"];
   statsfunhelper [URL="statsfunhelper.html"];
   surfprofile [URL="surfprofile.html"];
+  tangent2vec [URL="tangent2vec.html"];
   tangentorthobasis [URL="tangentorthobasis.html"];
   tangentspacefactory [URL="tangentspacefactory.html"];
   tangentspherefactory [URL="tangentspherefactory.html"];

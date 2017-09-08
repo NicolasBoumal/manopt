@@ -204,9 +204,9 @@ This function is called by:
 0087                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);
 0088     <span class="keyword">end</span>
 0089     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem) &amp;&amp; ~<a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>(problem)
-0090         <span class="comment">% Note: we do not give a warning if an approximate Hessian is</span>
-0091         <span class="comment">% explicitly given in the problem description, as in that case the user</span>
-0092         <span class="comment">% seems to be aware of the issue.</span>
+0090         <span class="comment">% Note: we do not give a warning if an approximate gradient is</span>
+0091         <span class="comment">% explicitly given in the problem description, as in that case the</span>
+0092         <span class="comment">% user seems to be aware of the issue.</span>
 0093         warning(<span class="string">'manopt:getGradient:approx'</span>, <span class="keyword">...</span>
 0094                [<span class="string">'No gradient provided. Using an FD approximation instead (slow).\n'</span> <span class="keyword">...</span>
 0095                 <span class="string">'It may be necessary to increase options.tolgradnorm.\n'</span> <span class="keyword">...</span>
@@ -320,7 +320,7 @@ This function is called by:
 0203         
 0204         <span class="comment">% Log statistics for freshly executed iteration</span>
 0205         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0206         info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0206         info(iter+1) = stats;
 0207         
 0208     <span class="keyword">end</span>
 0209     
@@ -352,6 +352,6 @@ This function is called by:
 0235     <span class="keyword">end</span>
 0236     
 0237 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

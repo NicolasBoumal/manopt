@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of criticalpointfinder</title>
+  <meta name="keywords" content="criticalpointfinder">
+  <meta name="description" content="Creates a Manopt problem whose optima are the critical points of another.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; criticalpointfinder.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>criticalpointfinder
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Creates a Manopt problem whose optima are the critical points of another.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function problem_critpt = criticalpointfinder(problem) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Creates a Manopt problem whose optima are the critical points of another.
+
+ problem_critpt = criticalpointfinder(problem)
+
+ Given a Manopt problem structure 'problem', this tool returns a new
+ problem structure, 'problem_critpt', such that the global optima of the
+ new problem coincide with the critical points of the original problem.
+ This can be useful notably in empirical studies of the properties of
+ saddle points of a problem.
+
+ Concretely, if f is the cost function of the given problem, grad f
+ denotes its (Riemannian) gradient and Hess f denotes its (Riemannian)
+ Hessian, then the new problem has a cost function g defined by:
+
+   g(x) = (1/2)*norm(grad f(x))^2,
+
+ where x is a point on the manifold problem.M (the new problem lives on
+ the same manifold), and norm(.) = problem.M.norm(x, .) is the Riemannian
+ norm on the tangent space at x. The Riemannian gradient of g is elegantly
+ obtained from knowledge of f:
+
+   grad g(x) = Hess f(x)[grad f(x)]
+
+ If the Hessian of f is not available in the given problem, Manopt will
+ approximate it automatically to compute an approximate gradient of g.
+ If the Hessian of f is available, then an approximate Hessian of g is
+ defined in the returned problem as
+
+  approxhess g(x)[u] = Hess f(x)[ Hess f(x)[u] ].
+
+ This approximation is exact if x is a critical point of f, which is
+ enough to ensure superlinear local convergence to critical points of f
+ using the trustregions algorithm, for example.
+
+ Once problem_critpt is obtained, it can be passed to any of the solvers
+ of Manopt to compute critical points of the original problem. Supplying
+ an initial point to the solver allows to aim for a critical point in a
+ specific neighborhood of the search space.
+
+
+ Usage example:
+ 
+ The code below creates a problem whose optima are dominant eigenvectors
+ of a matrix A and whose critical points are any eigenvectors of A, then
+ compute critical points using the present tool:
+
+ n = 100; A = randn(n); A = .5*(A+A');
+ problem.M = spherefactory(n);
+ problem.cost  = @(x) -x'*(A*x);
+ problem.egrad = @(x) -2*A*x;
+ problem.ehess = @(x, xdot) -2*A*xdot;
+ problem_critpt = criticalpointfinder(problem);
+ opts.tolcost = .5*(1e-5)^2; % aim for a gradient smaller than 1e-5
+ [x, fx] = trustregions(problem_critpt, [], opts); % random initial guess
+ fprintf('Norm of the gradient at x: %g\n', sqrt(2*fx));
+ fprintf('This is small if x is close to being an eigenvector: %g\n',...
+         norm((x'*A*x)*x - A*x));
+ % The two displayed numbers are equal up to a factor 2.
+
+
+ See also: trustregions</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [g, gradg] = costgrad(x)</a></li><li><a href="#_sub2" class="code">function HHu = approxhess(x, u)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function problem_critpt = criticalpointfinder(problem)</a>
+0002 <span class="comment">% Creates a Manopt problem whose optima are the critical points of another.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% problem_critpt = criticalpointfinder(problem)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Given a Manopt problem structure 'problem', this tool returns a new</span>
+0007 <span class="comment">% problem structure, 'problem_critpt', such that the global optima of the</span>
+0008 <span class="comment">% new problem coincide with the critical points of the original problem.</span>
+0009 <span class="comment">% This can be useful notably in empirical studies of the properties of</span>
+0010 <span class="comment">% saddle points of a problem.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Concretely, if f is the cost function of the given problem, grad f</span>
+0013 <span class="comment">% denotes its (Riemannian) gradient and Hess f denotes its (Riemannian)</span>
+0014 <span class="comment">% Hessian, then the new problem has a cost function g defined by:</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   g(x) = (1/2)*norm(grad f(x))^2,</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% where x is a point on the manifold problem.M (the new problem lives on</span>
+0019 <span class="comment">% the same manifold), and norm(.) = problem.M.norm(x, .) is the Riemannian</span>
+0020 <span class="comment">% norm on the tangent space at x. The Riemannian gradient of g is elegantly</span>
+0021 <span class="comment">% obtained from knowledge of f:</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   grad g(x) = Hess f(x)[grad f(x)]</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% If the Hessian of f is not available in the given problem, Manopt will</span>
+0026 <span class="comment">% approximate it automatically to compute an approximate gradient of g.</span>
+0027 <span class="comment">% If the Hessian of f is available, then an approximate Hessian of g is</span>
+0028 <span class="comment">% defined in the returned problem as</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%  approxhess g(x)[u] = Hess f(x)[ Hess f(x)[u] ].</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% This approximation is exact if x is a critical point of f, which is</span>
+0033 <span class="comment">% enough to ensure superlinear local convergence to critical points of f</span>
+0034 <span class="comment">% using the trustregions algorithm, for example.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% Once problem_critpt is obtained, it can be passed to any of the solvers</span>
+0037 <span class="comment">% of Manopt to compute critical points of the original problem. Supplying</span>
+0038 <span class="comment">% an initial point to the solver allows to aim for a critical point in a</span>
+0039 <span class="comment">% specific neighborhood of the search space.</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% Usage example:</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">% The code below creates a problem whose optima are dominant eigenvectors</span>
+0045 <span class="comment">% of a matrix A and whose critical points are any eigenvectors of A, then</span>
+0046 <span class="comment">% compute critical points using the present tool:</span>
+0047 <span class="comment">%</span>
+0048 <span class="comment">% n = 100; A = randn(n); A = .5*(A+A');</span>
+0049 <span class="comment">% problem.M = spherefactory(n);</span>
+0050 <span class="comment">% problem.cost  = @(x) -x'*(A*x);</span>
+0051 <span class="comment">% problem.egrad = @(x) -2*A*x;</span>
+0052 <span class="comment">% problem.ehess = @(x, xdot) -2*A*xdot;</span>
+0053 <span class="comment">% problem_critpt = criticalpointfinder(problem);</span>
+0054 <span class="comment">% opts.tolcost = .5*(1e-5)^2; % aim for a gradient smaller than 1e-5</span>
+0055 <span class="comment">% [x, fx] = trustregions(problem_critpt, [], opts); % random initial guess</span>
+0056 <span class="comment">% fprintf('Norm of the gradient at x: %g\n', sqrt(2*fx));</span>
+0057 <span class="comment">% fprintf('This is small if x is close to being an eigenvector: %g\n',...</span>
+0058 <span class="comment">%         norm((x'*A*x)*x - A*x));</span>
+0059 <span class="comment">% % The two displayed numbers are equal up to a factor 2.</span>
+0060 <span class="comment">%</span>
+0061 <span class="comment">%</span>
+0062 <span class="comment">% See also: trustregions</span>
+0063 
+0064 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0065 <span class="comment">% Original author: Nicolas Boumal, Jan. 25, 2017.</span>
+0066 <span class="comment">% Contributors:</span>
+0067 <span class="comment">% Change log:</span>
+0068 
+0069 <span class="comment">% TODO: Determine a safe way of using the caching functionalities of Manopt</span>
+0070 <span class="comment">%       with this tool. The issue in passing along storedb and key in the</span>
+0071 <span class="comment">%       costgrad and approxhess functions is that the storedb will be</span>
+0072 <span class="comment">%       associated to problem_critpt, not to problem. This may cause bugs</span>
+0073 <span class="comment">%       that would be very difficult to catch. To be on the safe side,</span>
+0074 <span class="comment">%       caching is not used at all here, but this may cause running times</span>
+0075 <span class="comment">%       to be longer than necessary. To create a local storedb associated</span>
+0076 <span class="comment">%       to problem and to only use the key seems to also not be a viable</span>
+0077 <span class="comment">%       solution, since there is no clear way of resetting it to zero</span>
+0078 <span class="comment">%       everytime a solver is called on problem_critpt.</span>
+0079 <span class="comment">%       -- Jan. 26, 2017 (NB)</span>
+0080 
+0081     problem_critpt.M = problem.M;
+0082     problem_critpt.costgrad = @<a href="#_sub1" class="code" title="subfunction [g, gradg] = costgrad(x)">costgrad</a>;
+0083     
+0084     <span class="comment">% If the Hessian is available for the problem, we build an approximate</span>
+0085     <span class="comment">% Hessian based on it. Otherwise, there is no reason to believe that</span>
+0086     <span class="comment">% this approximate Hessian would be better than the standard</span>
+0087     <span class="comment">% approximate Hessian created by Manopt.</span>
+0088     <span class="keyword">if</span> <a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
+0089         problem_critpt.approxhess = @<a href="#_sub2" class="code" title="subfunction HHu = approxhess(x, u)">approxhess</a>;
+0090     <span class="keyword">end</span>
+0091     
+0092     <a name="_sub1" href="#_subfunctions" class="code">function [g, gradg] = costgrad(x)</a>
+0093         
+0094         gradf = <a href="../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x);
+0095         Hessf_gradf = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, gradf);
+0096         
+0097         g = .5*problem.M.norm(x, gradf)^2;
+0098         gradg = Hessf_gradf;
+0099         
+0100     <span class="keyword">end</span>
+0101     
+0102     <span class="comment">% This is not quite the Hessian because there should be a third-order</span>
+0103     <span class="comment">% derivative term (which is inaccessible), but: at critical points</span>
+0104     <span class="comment">% (where grad f(x) = 0 for the f of problem.cost) this Hessian is</span>
+0105     <span class="comment">% exact, so it will allow for superlinear local convergence in</span>
+0106     <span class="comment">% algorithms such as trustregions.</span>
+0107     <a name="_sub2" href="#_subfunctions" class="code">function HHu = approxhess(x, u)</a>
+0108         
+0109         Hu  = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, u);
+0110         HHu = <a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, Hu);
+0111         
+0112     <span class="keyword">end</span>
+0113 
+0114 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

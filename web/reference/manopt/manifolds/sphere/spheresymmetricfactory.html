@@ -50,7 +50,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function d = dist(x, y)</a></li><li><a href="#_sub2" class="code">function xdot = proj(x, d)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub4" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub5" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub6" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub7" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub8" class="code">function x = random(n)</a></li><li><a href="#_sub9" class="code">function d = randomvec(n, x)</a></li></ul>
+<li><a href="#_sub1" class="code">function xdot = proj(x, d)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub5" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub6" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub7" class="code">function x = random(n)</a></li><li><a href="#_sub8" class="code">function d = randomvec(n, x)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spheresymmetricfactory(n)</a>
@@ -77,138 +77,133 @@ This function is called by:
 0022 <span class="comment">%   Oct. 22, 2016 (NB)</span>
 0023 <span class="comment">%       Distance function dist now significantly more accurate for points</span>
 0024 <span class="comment">%       within 1e-7 and less from each other.</span>
-0025 
-0026 
-0027     M.name = @() sprintf(<span class="string">'Sphere of symmetric matrices of size %d'</span>, n);
-0028     
-0029     M.dim = @() n*(n+1)/2 - 1;
-0030     
-0031     M.inner = @(x, d1, d2) d1(:).'*d2(:);
-0032     
-0033     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
-0034     
-0035     M.dist = @<a href="#_sub1" class="code" title="subfunction d = dist(x, y)">dist</a>;
-0036     <a name="_sub1" href="#_subfunctions" class="code">function d = dist(x, y)</a>
-0037         d = real(acos(x(:).'*y(:)));
-0038         <span class="comment">% The above formula is numerically inaccurate if x and y are too</span>
-0039         <span class="comment">% close together. In that case, norm is a much better proxy.</span>
-0040         <span class="keyword">if</span> d &lt; 1e-6
-0041             d = norm(x-y, <span class="string">'fro'</span>);
-0042         <span class="keyword">end</span>
-0043     <span class="keyword">end</span>
-0044     
-0045     M.typicaldist = @() pi;
-0046     
-0047     M.proj = @<a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
-0048     <a name="_sub2" href="#_subfunctions" class="code">function xdot = proj(x, d)</a>
-0049         d = (d+d.')/2;
-0050         xdot = d - x*(x(:).'*d(:));
-0051     <span class="keyword">end</span>
-0052     
-0053     M.tangent = @<a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
-0054     
-0055     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
-0056     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
-0057     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
-0058     
-0059     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(x, egrad, ehess, u)">ehess2rhess</a>;
-0060     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a>
-0061         <span class="comment">% these are not explicitly required, given the use.</span>
-0062         <span class="comment">% egrad = (egrad + egrad.')/2;</span>
-0063         <span class="comment">% ehess = (ehess + ehess.')/2;</span>
-0064         rhess = <a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x, ehess) - (x(:)'*egrad(:))*u;
-0065     <span class="keyword">end</span>
-0066     
-0067     M.exp = @<a href="#_sub6" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
-0068     
-0069     M.retr = @<a href="#_sub7" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
-0070 
-0071     M.log = @<a href="#_sub4" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
-0072     <a name="_sub4" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
-0073         v = <a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x1, x2 - x1);
-0074         di = M.dist(x1, x2);
-0075         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
-0076         <span class="keyword">if</span> di &gt; 1e-6
-0077             nv = norm(v, <span class="string">'fro'</span>);
-0078             v = v * (di / nv);
-0079         <span class="keyword">end</span>
-0080     <span class="keyword">end</span>
-0081     
-0082     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
-0083     
-0084     M.rand = @() <a href="#_sub8" class="code" title="subfunction x = random(n)">random</a>(n);
-0085     
-0086     M.randvec = @(x) <a href="#_sub9" class="code" title="subfunction d = randomvec(n, x)">randomvec</a>(n, x);
-0087     
-0088     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0089     
-0090     M.zerovec = @(x) zeros(n);
-0091     
-0092     M.transp = @(x1, x2, d) <a href="#_sub2" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x2, d);
-0093     
-0094     M.pairmean = @<a href="#_sub5" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
-0095     <a name="_sub5" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
-0096         y = x1+x2;
-0097         y = y / norm(y, <span class="string">'fro'</span>);
-0098     <span class="keyword">end</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   July 20, 2017 (NB)</span>
+0027 <span class="comment">%       The distance function is now even more accurate.</span>
+0028 
+0029 
+0030     M.name = @() sprintf(<span class="string">'Sphere of symmetric matrices of size %d'</span>, n);
+0031     
+0032     M.dim = @() n*(n+1)/2 - 1;
+0033     
+0034     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0035     
+0036     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0037     
+0038     M.dist = @(x, y) real(2*asin(.5*norm(x - y, <span class="string">'fro'</span>)));
+0039     
+0040     M.typicaldist = @() pi;
+0041     
+0042     M.proj = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0043     <a name="_sub1" href="#_subfunctions" class="code">function xdot = proj(x, d)</a>
+0044         d = (d+d.')/2;
+0045         xdot = d - x*(x(:).'*d(:));
+0046     <span class="keyword">end</span>
+0047     
+0048     M.tangent = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0049     
+0050     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0051     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0052     M.egrad2rgrad = @<a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>;
+0053     
+0054     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(x, egrad, ehess, u)">ehess2rhess</a>;
+0055     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a>
+0056         <span class="comment">% these are not explicitly required, given the use.</span>
+0057         <span class="comment">% egrad = (egrad + egrad.')/2;</span>
+0058         <span class="comment">% ehess = (ehess + ehess.')/2;</span>
+0059         rhess = <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x, ehess) - (x(:)'*egrad(:))*u;
+0060     <span class="keyword">end</span>
+0061     
+0062     M.exp = @<a href="#_sub5" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
+0063     
+0064     M.retr = @<a href="#_sub6" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
+0065 
+0066     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0067     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0068         v = <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x1, x2 - x1);
+0069         di = M.dist(x1, x2);
+0070         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
+0071         <span class="keyword">if</span> di &gt; 1e-6
+0072             nv = norm(v, <span class="string">'fro'</span>);
+0073             v = v * (di / nv);
+0074         <span class="keyword">end</span>
+0075     <span class="keyword">end</span>
+0076     
+0077     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0078     
+0079     M.rand = @() <a href="#_sub7" class="code" title="subfunction x = random(n)">random</a>(n);
+0080     
+0081     M.randvec = @(x) <a href="#_sub8" class="code" title="subfunction d = randomvec(n, x)">randomvec</a>(n, x);
+0082     
+0083     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0084     
+0085     M.zerovec = @(x) zeros(n);
+0086     
+0087     M.transp = @(x1, x2, d) <a href="#_sub1" class="code" title="subfunction xdot = proj(x, d)">proj</a>(x2, d);
+0088     
+0089     M.pairmean = @<a href="#_sub4" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0090     <a name="_sub4" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0091         y = x1+x2;
+0092         y = y / norm(y, <span class="string">'fro'</span>);
+0093     <span class="keyword">end</span>
+0094 
+0095     <span class="comment">% TODO : check isometry and fix.</span>
+0096     M.vec = @(x, u_mat) u_mat(:);
+0097     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
+0098     M.vecmatareisometries = @() false;
 0099 
-0100     <span class="comment">% TODO : check isometry and fix.</span>
-0101     M.vec = @(x, u_mat) u_mat(:);
-0102     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
-0103     M.vecmatareisometries = @() false;
+0100 <span class="keyword">end</span>
+0101 
+0102 <span class="comment">% Exponential on the sphere</span>
+0103 <a name="_sub5" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
 0104 
-0105 <span class="keyword">end</span>
-0106 
-0107 <span class="comment">% Exponential on the sphere</span>
-0108 <a name="_sub6" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
-0109 
-0110     <span class="keyword">if</span> nargin == 2
-0111         <span class="comment">% t = 1;</span>
-0112         td = d;
-0113     <span class="keyword">else</span>
-0114         td = t*d;
-0115     <span class="keyword">end</span>
-0116     
-0117     nrm_td = norm(td, <span class="string">'fro'</span>);
-0118     
-0119     <span class="keyword">if</span> nrm_td &gt; 0
-0120         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
-0121     <span class="keyword">else</span>
-0122         y = x;
-0123     <span class="keyword">end</span>
+0105     <span class="keyword">if</span> nargin == 2
+0106         <span class="comment">% t = 1;</span>
+0107         td = d;
+0108     <span class="keyword">else</span>
+0109         td = t*d;
+0110     <span class="keyword">end</span>
+0111     
+0112     nrm_td = norm(td, <span class="string">'fro'</span>);
+0113     
+0114     <span class="keyword">if</span> nrm_td &gt; 0
+0115         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
+0116     <span class="keyword">else</span>
+0117         y = x;
+0118     <span class="keyword">end</span>
+0119 
+0120 <span class="keyword">end</span>
+0121 
+0122 <span class="comment">% Retraction on the sphere</span>
+0123 <a name="_sub6" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
 0124 
-0125 <span class="keyword">end</span>
-0126 
-0127 <span class="comment">% Retraction on the sphere</span>
-0128 <a name="_sub7" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
-0129 
-0130     <span class="keyword">if</span> nargin == 2
-0131         t = 1;
-0132     <span class="keyword">end</span>
-0133     
-0134     y = x + t*d;
-0135     y = y / norm(y, <span class="string">'fro'</span>);
+0125     <span class="keyword">if</span> nargin == 2
+0126         t = 1;
+0127     <span class="keyword">end</span>
+0128     
+0129     y = x + t*d;
+0130     y = y / norm(y, <span class="string">'fro'</span>);
+0131 
+0132 <span class="keyword">end</span>
+0133 
+0134 <span class="comment">% Uniform random sampling on the sphere.</span>
+0135 <a name="_sub7" href="#_subfunctions" class="code">function x = random(n)</a>
 0136 
-0137 <span class="keyword">end</span>
-0138 
-0139 <span class="comment">% Uniform random sampling on the sphere.</span>
-0140 <a name="_sub8" href="#_subfunctions" class="code">function x = random(n)</a>
-0141 
-0142     x = randn(n);
-0143     x = (x + x.')/2;
-0144     x = x/norm(x, <span class="string">'fro'</span>);
+0137     x = randn(n);
+0138     x = (x + x.')/2;
+0139     x = x/norm(x, <span class="string">'fro'</span>);
+0140 
+0141 <span class="keyword">end</span>
+0142 
+0143 <span class="comment">% Random normalized tangent vector at x.</span>
+0144 <a name="_sub8" href="#_subfunctions" class="code">function d = randomvec(n, x)</a>
 0145 
-0146 <span class="keyword">end</span>
-0147 
-0148 <span class="comment">% Random normalized tangent vector at x.</span>
-0149 <a name="_sub9" href="#_subfunctions" class="code">function d = randomvec(n, x)</a>
+0146     d = randn(n);
+0147     d = (d + d.')/2;
+0148     d = d - x*(x(:).'*d(:));
+0149     d = d / norm(d, <span class="string">'fro'</span>);
 0150 
-0151     d = randn(n);
-0152     d = (d + d.')/2;
-0153     d = d - x*(x(:).'*d(:));
-0154     d = d / norm(d, <span class="string">'fro'</span>);
-0155 
-0156 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0151 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

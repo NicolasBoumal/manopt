@@ -4,7 +4,7 @@
 <head>
   <title>Description of euclideanfactory</title>
   <meta name="keywords" content="euclideanfactory">
-  <meta name="description" content="Returns a manifold struct to optimize over m-by-n matrices.">
+  <meta name="description" content="Returns a manifold struct to optimize over real matrices.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,17 +21,19 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>Returns a manifold struct to optimize over m-by-n matrices.</strong></div>
+<div class="box"><strong>Returns a manifold struct to optimize over real matrices.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="box"><strong>function M = euclideanfactory(m, n) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over m-by-n matrices.
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over real matrices.
 
+ function M = euclideanfactory(m)
  function M = euclideanfactory(m, n)
+ function M = euclideanfactory([n1, n2, ...])
 
- Returns M, a structure describing the Euclidean space of m-by-n matrices,
+ Returns M, a structure describing the Euclidean space of real matrices,
  equipped with the standard Frobenius distance and associated trace inner
  product, as a manifold for Manopt.
 
@@ -60,104 +62,107 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = euclideanfactory(m, n)</a>
-0002 <span class="comment">% Returns a manifold struct to optimize over m-by-n matrices.</span>
+0002 <span class="comment">% Returns a manifold struct to optimize over real matrices.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">% function M = euclideanfactory(m, n)</span>
-0005 <span class="comment">%</span>
-0006 <span class="comment">% Returns M, a structure describing the Euclidean space of m-by-n matrices,</span>
-0007 <span class="comment">% equipped with the standard Frobenius distance and associated trace inner</span>
-0008 <span class="comment">% product, as a manifold for Manopt.</span>
-0009 <span class="comment">%</span>
-0010 <span class="comment">% m and n in general can be vectors to handle multidimensional arrays.</span>
-0011 <span class="comment">% If either of m or n is a vector, they are concatenated as [m, n].</span>
-0012 <span class="comment">%</span>
-0013 <span class="comment">% Using this simple linear manifold, Manopt can be used to solve standard</span>
-0014 <span class="comment">% unconstrained optimization problems, for example in replacement of</span>
-0015 <span class="comment">% Matlab's fminunc.</span>
-0016 <span class="comment">%</span>
-0017 <span class="comment">% See also: euclideancomplexfactory</span>
-0018 
-0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0020 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0021 <span class="comment">% Contributors: Bamdev Mishra, May 4, 2015.</span>
-0022 <span class="comment">% Change log:</span>
-0023 <span class="comment">%</span>
-0024 <span class="comment">%   July 5, 2013 (NB):</span>
-0025 <span class="comment">%       Added egred2rgrad, ehess2rhess, mat, vec, tangent.</span>
-0026 <span class="comment">%   May 4, 2015 (BM):</span>
-0027 <span class="comment">%       Added functionality to handle multidimensional arrays.</span>
-0028 
-0029 
-0030     <span class="comment">% The size can be defined using both m and n, or simply with m.</span>
-0031     <span class="comment">% If m is a scalar, then n is implicitly 1.</span>
-0032     <span class="comment">% This mimicks the use of built-in Matlab functions such as zeros(...).</span>
-0033     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
-0034         <span class="keyword">if</span> numel(m) == 1
-0035             n = 1;
-0036         <span class="keyword">else</span>
-0037             n = [];
-0038         <span class="keyword">end</span>
-0039     <span class="keyword">end</span>
-0040     
-0041     dimensions_vec = [m(:)', n(:)']; <span class="comment">% We have a row vector.</span>
+0004 <span class="comment">% function M = euclideanfactory(m)</span>
+0005 <span class="comment">% function M = euclideanfactory(m, n)</span>
+0006 <span class="comment">% function M = euclideanfactory([n1, n2, ...])</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Returns M, a structure describing the Euclidean space of real matrices,</span>
+0009 <span class="comment">% equipped with the standard Frobenius distance and associated trace inner</span>
+0010 <span class="comment">% product, as a manifold for Manopt.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% m and n in general can be vectors to handle multidimensional arrays.</span>
+0013 <span class="comment">% If either of m or n is a vector, they are concatenated as [m, n].</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Using this simple linear manifold, Manopt can be used to solve standard</span>
+0016 <span class="comment">% unconstrained optimization problems, for example in replacement of</span>
+0017 <span class="comment">% Matlab's fminunc.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% See also: euclideancomplexfactory</span>
+0020 
+0021 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0022 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0023 <span class="comment">% Contributors: Bamdev Mishra, May 4, 2015.</span>
+0024 <span class="comment">% Change log:</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   July 5, 2013 (NB):</span>
+0027 <span class="comment">%       Added egred2rgrad, ehess2rhess, mat, vec, tangent.</span>
+0028 <span class="comment">%   May 4, 2015 (BM):</span>
+0029 <span class="comment">%       Added functionality to handle multidimensional arrays.</span>
+0030 
+0031 
+0032     <span class="comment">% The size can be defined using both m and n, or simply with m.</span>
+0033     <span class="comment">% If m is a scalar, then n is implicitly 1.</span>
+0034     <span class="comment">% This mimics the use of built-in Matlab functions such as zeros(...).</span>
+0035     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0036         <span class="keyword">if</span> numel(m) == 1
+0037             n = 1;
+0038         <span class="keyword">else</span>
+0039             n = [];
+0040         <span class="keyword">end</span>
+0041     <span class="keyword">end</span>
 0042     
-0043     
-0044     M.name = @() sprintf(<span class="string">'Euclidean space R^(%s)'</span>, num2str(dimensions_vec)); <span class="comment">% BM: okay.</span>
-0045     
-0046     M.dim = @() prod(dimensions_vec);<span class="comment">% BM: replacing m*n;</span>
-0047     
-0048     M.inner = @(x, d1, d2) d1(:).'*d2(:); <span class="comment">% BM: okay.</span>
-0049     
-0050     M.norm = @(x, d) norm(d(:), <span class="string">'fro'</span>);<span class="comment">% BM: replacing norm(d, 'fro');</span>
-0051     
-0052     M.dist = @(x, y) norm(x(:) - y(:), <span class="string">'fro'</span>);<span class="comment">% BM: replacing norm(x-y, 'fro');</span>
-0053     
-0054     M.typicaldist = @() sqrt(prod(dimensions_vec));<span class="comment">% BM: replacing sqrt(m*n);</span>
-0055     
-0056     M.proj = @(x, d) d; <span class="comment">% BM: okay.</span>
-0057     
-0058     M.egrad2rgrad = @(x, g) g; <span class="comment">% BM: okay.</span>
-0059     
-0060     M.ehess2rhess = @(x, eg, eh, d) eh; <span class="comment">% BM: okay.</span>
-0061     
-0062     M.tangent = M.proj; 
-0063     
-0064     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
-0065     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
-0066         <span class="keyword">if</span> nargin == 3
-0067             y = x + t*d; <span class="comment">% BM: okay.</span>
-0068         <span class="keyword">else</span>
-0069             y = x + d; <span class="comment">% BM: okay.</span>
-0070         <span class="keyword">end</span>
-0071     <span class="keyword">end</span>
-0072     
-0073     M.retr = M.exp;
-0074     
-0075     M.log = @(x, y) y-x; <span class="comment">% BM: okay.</span>
-0076 
-0077     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))]; <span class="comment">% BM: okay.</span>
-0078     
-0079     M.rand = @() randn(dimensions_vec);<span class="comment">% BM: replacing randn(m, n);</span>
-0080     
-0081     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
-0082     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
-0083         u = randn(dimensions_vec);<span class="comment">% BM: replacing randn(m, n);</span>
-0084         u = u / norm(u(:), <span class="string">'fro'</span>);<span class="comment">% BM: replacing u / norm(u, 'fro');</span>
-0085     <span class="keyword">end</span>
-0086     
-0087     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0088     
-0089     M.zerovec = @(x) zeros(dimensions_vec);<span class="comment">% BM: replacing zeros(m, n);</span>
-0090     
-0091     M.transp = @(x1, x2, d) d;
-0092     
-0093     M.pairmean = @(x1, x2) .5*(x1+x2); <span class="comment">% BM: okay.</span>
-0094     
-0095     M.vec = @(x, u_mat) u_mat(:); <span class="comment">% BM: okay.</span>
-0096     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);<span class="comment">% BM: replacing reshape(u_vec, [m, n]);</span>
-0097     M.vecmatareisometries = @() true;
-0098 
-0099 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0043     dimensions_vec = [m(:)', n(:)']; <span class="comment">% We have a row vector.</span>
+0044     
+0045     M.size = @() dimensions_vec;
+0046     
+0047     M.name = @() sprintf(<span class="string">'Euclidean space R^(%s)'</span>, num2str(dimensions_vec));
+0048     
+0049     M.dim = @() prod(dimensions_vec);
+0050     
+0051     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0052     
+0053     M.norm = @(x, d) norm(d(:), <span class="string">'fro'</span>);
+0054     
+0055     M.dist = @(x, y) norm(x(:) - y(:), <span class="string">'fro'</span>);
+0056     
+0057     M.typicaldist = @() sqrt(prod(dimensions_vec));
+0058     
+0059     M.proj = @(x, d) d;
+0060     
+0061     M.egrad2rgrad = @(x, g) g;
+0062     
+0063     M.ehess2rhess = @(x, eg, eh, d) eh;
+0064     
+0065     M.tangent = M.proj;
+0066     
+0067     M.exp = @<a href="#_sub1" class="code" title="subfunction y = exp(x, d, t)">exp</a>;
+0068     <a name="_sub1" href="#_subfunctions" class="code">function y = exp(x, d, t)</a>
+0069         <span class="keyword">if</span> nargin == 3
+0070             y = x + t*d;
+0071         <span class="keyword">else</span>
+0072             y = x + d;
+0073         <span class="keyword">end</span>
+0074     <span class="keyword">end</span>
+0075     
+0076     M.retr = M.exp;
+0077     
+0078     M.log = @(x, y) y-x;
+0079 
+0080     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0081     
+0082     M.rand = @() randn(dimensions_vec);
+0083     
+0084     M.randvec = @<a href="#_sub2" class="code" title="subfunction u = randvec(x) ">randvec</a>;
+0085     <a name="_sub2" href="#_subfunctions" class="code">function u = randvec(x) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0086         u = randn(dimensions_vec);
+0087         u = u / norm(u(:), <span class="string">'fro'</span>);
+0088     <span class="keyword">end</span>
+0089     
+0090     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0091     
+0092     M.zerovec = @(x) zeros(dimensions_vec);
+0093     
+0094     M.transp = @(x1, x2, d) d;
+0095     
+0096     M.pairmean = @(x1, x2) .5*(x1+x2);
+0097     
+0098     M.vec = @(x, u_mat) u_mat(:);
+0099     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
+0100     M.vecmatareisometries = @() true;
+0101 
+0102 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

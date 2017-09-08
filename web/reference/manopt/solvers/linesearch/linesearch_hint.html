@@ -41,7 +41,8 @@
  structure, typically through the problem.linesearch function. If that
  step does not fulfill the Armijo sufficient decrease criterion, that step
  size is reduced geometrically until a satisfactory step size is obtained
- or until a failure criterion triggers.
+ or until a failure criterion triggers. If the problem structure does not
+ provide an initial alpha, then alpha = 1 is tried first.
  
  Below, the step is constructed as alpha*d, and the step size is the norm
  of that vector, thus: stepsize = alpha*norm_d. The step is executed by
@@ -55,10 +56,10 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getLinesearch.html" class="code" title="function t = getLinesearch(problem, x, d, storedb, key)">getLinesearch</a>	Returns a hint for line-search algorithms.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getLinesearch.html" class="code" title="function t = getLinesearch(problem, x, d, storedb, key)">getLinesearch</a>	Returns a hint for line-search algorithms.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
+<li><a href="../../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li></ul>
 <!-- crossreference -->
 
 
@@ -80,100 +81,116 @@ This function is called by:
 0014 <span class="comment">% structure, typically through the problem.linesearch function. If that</span>
 0015 <span class="comment">% step does not fulfill the Armijo sufficient decrease criterion, that step</span>
 0016 <span class="comment">% size is reduced geometrically until a satisfactory step size is obtained</span>
-0017 <span class="comment">% or until a failure criterion triggers.</span>
-0018 <span class="comment">%</span>
-0019 <span class="comment">% Below, the step is constructed as alpha*d, and the step size is the norm</span>
-0020 <span class="comment">% of that vector, thus: stepsize = alpha*norm_d. The step is executed by</span>
-0021 <span class="comment">% retracting the vector alpha*d from the current point x, giving newx.</span>
-0022 <span class="comment">%</span>
-0023 <span class="comment">% Inputs/Outputs : see help for linesearch</span>
-0024 <span class="comment">%</span>
-0025 <span class="comment">% See also: steepestdescent conjugategradients linesearch</span>
-0026 
-0027 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0028 <span class="comment">% Original author: Nicolas Boumal, July 17, 2014.</span>
-0029 <span class="comment">% Contributors:</span>
-0030 <span class="comment">% Change log:</span>
-0031 <span class="comment">%</span>
-0032 <span class="comment">%   April 3, 2015 (NB):</span>
-0033 <span class="comment">%       Works with the new StoreDB class system.</span>
-0034 <span class="comment">%</span>
-0035 <span class="comment">%   April 8, 2015 (NB):</span>
-0036 <span class="comment">%       Got rid of lsmem input/output.</span>
-0037 
-0038 
-0039     <span class="comment">% Allow omission of the key, and even of storedb.</span>
-0040     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
-0041         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
-0042             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0043         <span class="keyword">end</span>
-0044         key = storedb.getNewKey();
-0045     <span class="keyword">end</span>
-0046 
-0047     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
-0048     <span class="comment">% options structure which is passed to the solver.</span>
-0049     default_options.ls_contraction_factor = .5;
-0050     default_options.ls_suff_decr = 1e-4;
-0051     default_options.ls_max_steps = 25;
-0052     
-0053     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0054         options = struct();
+0017 <span class="comment">% or until a failure criterion triggers. If the problem structure does not</span>
+0018 <span class="comment">% provide an initial alpha, then alpha = 1 is tried first.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Below, the step is constructed as alpha*d, and the step size is the norm</span>
+0021 <span class="comment">% of that vector, thus: stepsize = alpha*norm_d. The step is executed by</span>
+0022 <span class="comment">% retracting the vector alpha*d from the current point x, giving newx.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% Inputs/Outputs : see help for linesearch</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% See also: steepestdescent conjugategradients linesearch</span>
+0027 
+0028 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0029 <span class="comment">% Original author: Nicolas Boumal, July 17, 2014.</span>
+0030 <span class="comment">% Contributors:</span>
+0031 <span class="comment">% Change log:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   April 3, 2015 (NB):</span>
+0034 <span class="comment">%       Works with the new StoreDB class system.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">%   April 8, 2015 (NB):</span>
+0037 <span class="comment">%       Got rid of lsmem input/output.</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">%   July 20, 2017 (NB):</span>
+0040 <span class="comment">%       Now using alpha = 1 by default.</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">%   Aug. 28, 2017 (NB):</span>
+0043 <span class="comment">%       Adding two options: ls_backtrack and ls_force_decrease, both true</span>
+0044 <span class="comment">%       by default. Setting them to false can disable parts of the line</span>
+0045 <span class="comment">%       search that, respectively, execute an Armijo backtracking and</span>
+0046 <span class="comment">%       reject a cost increasing step.</span>
+0047 
+0048 
+0049     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0050     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0051         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0052             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0053         <span class="keyword">end</span>
+0054         key = storedb.getNewKey();
 0055     <span class="keyword">end</span>
-0056     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
-0057     
-0058     contraction_factor = options.ls_contraction_factor;
-0059     suff_decr = options.ls_suff_decr;
-0060     max_ls_steps = options.ls_max_steps;
-0061     
-0062     <span class="comment">% Obtain an initial guess at alpha from the problem structure. It is</span>
-0063     <span class="comment">% assumed that the present line-search is only called when the problem</span>
-0064     <span class="comment">% structure provides enough information for the call here to work.</span>
-0065     alpha = <a href="../../../manopt/core/getLinesearch.html" class="code" title="function t = getLinesearch(problem, x, d, storedb, key)">getLinesearch</a>(problem, x, d, storedb, key);
-0066     
-0067     <span class="comment">% Make the chosen step and compute the cost there.</span>
-0068     newx = problem.M.retr(x, d, alpha);
-0069     newkey = storedb.getNewKey();
-0070     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0071     cost_evaluations = 1;
-0072     
-0073     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
-0074     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
-0075         
-0076         <span class="comment">% Reduce the step size,</span>
-0077         alpha = contraction_factor * alpha;
-0078         
-0079         <span class="comment">% and look closer down the line</span>
-0080         newx = problem.M.retr(x, d, alpha);
-0081         newkey = storedb.getNewKey();
-0082         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0083         cost_evaluations = cost_evaluations + 1;
-0084         
-0085         <span class="comment">% Make sure we don't run out of budget</span>
-0086         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
-0087             <span class="keyword">break</span>;
-0088         <span class="keyword">end</span>
-0089         
-0090     <span class="keyword">end</span>
-0091     
-0092     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
-0093     <span class="keyword">if</span> newf &gt; f0
-0094         alpha = 0;
-0095         newx = x;
-0096         newkey = key;
-0097         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
-0098     <span class="keyword">end</span>
-0099     
-0100     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
-0101     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
-0102     norm_d = problem.M.norm(x, d);
-0103     stepsize = alpha * norm_d;
-0104     
-0105     <span class="comment">% Return some statistics also, for possible analysis.</span>
-0106     lsstats.costevals = cost_evaluations;
-0107     lsstats.stepsize = stepsize;
-0108     lsstats.alpha = alpha;
-0109     
-0110 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0056 
+0057     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0058     <span class="comment">% options structure which is passed to the solver.</span>
+0059     default_options.ls_contraction_factor = .5;
+0060     default_options.ls_suff_decr = 1e-4;
+0061     default_options.ls_max_steps = 25;
+0062     default_options.ls_backtrack = true;
+0063     default_options.ls_force_decrease = true;
+0064     
+0065     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0066         options = struct();
+0067     <span class="keyword">end</span>
+0068     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
+0069     
+0070     contraction_factor = options.ls_contraction_factor;
+0071     suff_decr = options.ls_suff_decr;
+0072     max_ls_steps = options.ls_max_steps;
+0073     
+0074     <span class="comment">% Obtain an initial guess at alpha from the problem structure. It is</span>
+0075     <span class="comment">% assumed that the present line-search is only called when the problem</span>
+0076     <span class="comment">% structure provides enough information for the call here to work.</span>
+0077     <span class="keyword">if</span> <a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem)
+0078         alpha = <a href="../../../manopt/core/getLinesearch.html" class="code" title="function t = getLinesearch(problem, x, d, storedb, key)">getLinesearch</a>(problem, x, d, storedb, key);
+0079     <span class="keyword">else</span>
+0080         alpha = 1;
+0081     <span class="keyword">end</span>
+0082     
+0083     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0084     newx = problem.M.retr(x, d, alpha);
+0085     newkey = storedb.getNewKey();
+0086     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0087     cost_evaluations = 1;
+0088     
+0089     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
+0090     <span class="keyword">while</span> options.ls_backtrack &amp;&amp; newf &gt; f0 + suff_decr*alpha*df0
+0091         
+0092         <span class="comment">% Reduce the step size,</span>
+0093         alpha = contraction_factor * alpha;
+0094         
+0095         <span class="comment">% and look closer down the line</span>
+0096         newx = problem.M.retr(x, d, alpha);
+0097         newkey = storedb.getNewKey();
+0098         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0099         cost_evaluations = cost_evaluations + 1;
+0100         
+0101         <span class="comment">% Make sure we don't run out of budget</span>
+0102         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0103             <span class="keyword">break</span>;
+0104         <span class="keyword">end</span>
+0105         
+0106     <span class="keyword">end</span>
+0107     
+0108     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0109     <span class="keyword">if</span> options.ls_force_decrease &amp;&amp; newf &gt; f0
+0110         alpha = 0;
+0111         newx = x;
+0112         newkey = key;
+0113         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0114     <span class="keyword">end</span>
+0115     
+0116     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0117     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0118     norm_d = problem.M.norm(x, d);
+0119     stepsize = alpha * norm_d;
+0120     
+0121     <span class="comment">% Return some statistics also, for possible analysis.</span>
+0122     lsstats.costevals = cost_evaluations;
+0123     lsstats.stepsize = stepsize;
+0124     lsstats.alpha = alpha;
+0125     
+0126 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

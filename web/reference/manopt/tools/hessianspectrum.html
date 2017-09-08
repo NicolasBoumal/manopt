@@ -99,7 +99,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>	Checks whether a preconditioner was specified in the problem description.</li><li><a href="../../manopt/core/canGetSqrtPrecon.html" class="code" title="function candoit = canGetSqrtPrecon(problem)">canGetSqrtPrecon</a>	Checks whether a square root of preconditioner was specified in problem.</li><li><a href="../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../manopt/core/getSqrtPrecon.html" class="code" title="function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)">getSqrtPrecon</a>	Applies the square root of the Hessian preconditioner at x along d.</li></ul>
+<li><a href="../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>	Checks whether an approximate Hessian can be computed for this problem.</li><li><a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../manopt/core/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>	Checks whether a preconditioner was specified in the problem description.</li><li><a href="../../manopt/core/canGetSqrtPrecon.html" class="code" title="function candoit = canGetSqrtPrecon(problem)">canGetSqrtPrecon</a>	Checks whether a square root of preconditioner was specified in problem.</li><li><a href="../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>	Applies the preconditioner for the Hessian of the cost at x along d.</li><li><a href="../../manopt/core/getSqrtPrecon.html" class="code" title="function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)">getSqrtPrecon</a>	Applies the square root of the Hessian preconditioner at x along d.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
 <li><a href="../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../examples/dominant_invariant_subspace_complex.html" class="code" title="function [X, info] = dominant_invariant_subspace_complex(A, p)">dominant_invariant_subspace_complex</a>	Returns a unitary basis of the dominant invariant p-subspace of A.</li><li><a href="../../examples/generalized_procrustes.html" class="code" title="function [A, R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li><li><a href="../../examples/packing_on_the_sphere.html" class="code" title="function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)">packing_on_the_sphere</a>	Return a set of points spread out on the sphere.</li><li><a href="../../examples/truncated_svd.html" class="code" title="function [U, S, V, info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li></ul>
@@ -225,87 +225,89 @@ This function is called by:
 0115             error(<span class="string">'Input useprecon must be either ''precon'' or ''noprecon''.'</span>);
 0116     <span class="keyword">end</span>
 0117 
-0118     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem)
-0119         warning(<span class="string">'manopt:hessianspectrum:nohessian'</span>, <span class="keyword">...</span>
-0120                 [<span class="string">'The Hessian appears to be unavailable.\n'</span> <span class="keyword">...</span>
-0121                  <span class="string">'Will try to use an approximate Hessian instead.\n'</span><span class="keyword">...</span>
-0122                  <span class="string">'Since this approximation may not be linear or '</span><span class="keyword">...</span>
-0123                  <span class="string">'symmetric,\nthe computation might fail and the '</span><span class="keyword">...</span>
-0124                  <span class="string">'results (if any)\nmight make no sense.'</span>]);
-0125     <span class="keyword">end</span>
-0126 
-0127     vec = @(u_mat) problem.M.vec(x, u_mat);
-0128     mat = @(u_vec) problem.M.mat(x, u_vec);
-0129     tgt = @(u_mat) problem.M.tangent(x, u_mat);
-0130     
-0131     <span class="comment">% n: size of a vectorized tangent vector</span>
-0132     <span class="comment">% dim: dimension of the tangent space</span>
-0133     <span class="comment">% necessarily, n &gt;= dim.</span>
-0134     <span class="comment">% The vectorized operators we build below will have at least n - dim</span>
-0135     <span class="comment">% zero eigenvalues.</span>
-0136     n = length(vec(problem.M.zerovec(x)));
-0137     dim = problem.M.dim();
-0138     
-0139     <span class="comment">% It is usually a good idea to force a gradient computation to make</span>
-0140     <span class="comment">% sure precomputable things are precomputed.</span>
-0141     <span class="keyword">if</span> <a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
-0142         [unused1, unused2] = <a href="../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key); <span class="comment">%#ok</span>
-0143     <span class="keyword">end</span>
-0144     
-0145     hess = @(u_mat) tgt(<a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, tgt(u_mat), storedb, key));
-0146     hess_vec = @(u_vec) vec(hess(mat(u_vec)));
-0147     
-0148     <span class="comment">% Regardless of preconditioning, we can only have a symmetric</span>
-0149     <span class="comment">% eigenvalue problem if the vec/mat pair of the manifold is an</span>
-0150     <span class="comment">% isometry:</span>
-0151     vec_mat_are_isometries = problem.M.vecmatareisometries();
-0152     
-0153     
-0154     <span class="keyword">if</span> ~useprecon
-0155 
-0156         <span class="comment">% No preconditioner to use: simply use the Hessian as is.</span>
+0118     <span class="comment">% No warning if an approximate Hessian is available, as then the user</span>
+0119     <span class="comment">% is presumably aware of what they are doing.</span>
+0120     <span class="keyword">if</span> ~<a href="../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>(problem) &amp;&amp; ~<a href="../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>(problem)
+0121         warning(<span class="string">'manopt:hessianspectrum:nohessian'</span>, <span class="keyword">...</span>
+0122                 [<span class="string">'The Hessian appears to be unavailable.\n'</span> <span class="keyword">...</span>
+0123                  <span class="string">'Will try to use an approximate Hessian instead.\n'</span><span class="keyword">...</span>
+0124                  <span class="string">'Since this approximation may not be linear or '</span><span class="keyword">...</span>
+0125                  <span class="string">'symmetric,\nthe computation might fail and the '</span><span class="keyword">...</span>
+0126                  <span class="string">'results (if any)\nmight make no sense.'</span>]);
+0127     <span class="keyword">end</span>
+0128 
+0129     vec = @(u_mat) problem.M.vec(x, u_mat);
+0130     mat = @(u_vec) problem.M.mat(x, u_vec);
+0131     tgt = @(u_mat) problem.M.tangent(x, u_mat);
+0132     
+0133     <span class="comment">% n: size of a vectorized tangent vector</span>
+0134     <span class="comment">% dim: dimension of the tangent space</span>
+0135     <span class="comment">% necessarily, n &gt;= dim.</span>
+0136     <span class="comment">% The vectorized operators we build below will have at least n - dim</span>
+0137     <span class="comment">% zero eigenvalues.</span>
+0138     n = length(vec(problem.M.zerovec(x)));
+0139     dim = problem.M.dim();
+0140     
+0141     <span class="comment">% It is usually a good idea to force a gradient computation to make</span>
+0142     <span class="comment">% sure precomputable things are precomputed.</span>
+0143     <span class="keyword">if</span> <a href="../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem)
+0144         [unused1, unused2] = <a href="../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key); <span class="comment">%#ok</span>
+0145     <span class="keyword">end</span>
+0146     
+0147     hess = @(u_mat) tgt(<a href="../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, tgt(u_mat), storedb, key));
+0148     hess_vec = @(u_vec) vec(hess(mat(u_vec)));
+0149     
+0150     <span class="comment">% Regardless of preconditioning, we can only have a symmetric</span>
+0151     <span class="comment">% eigenvalue problem if the vec/mat pair of the manifold is an</span>
+0152     <span class="comment">% isometry:</span>
+0153     vec_mat_are_isometries = problem.M.vecmatareisometries();
+0154     
+0155     
+0156     <span class="keyword">if</span> ~useprecon
 0157 
-0158         eigs_opts.issym = vec_mat_are_isometries;
-0159         eigs_opts.isreal = true;
-0160         lambdas = eigs(hess_vec, n, dim, <span class="string">'LM'</span>, eigs_opts);
-0161             
-0162     <span class="keyword">elseif</span> <a href="../../manopt/core/canGetSqrtPrecon.html" class="code" title="function candoit = canGetSqrtPrecon(problem)">canGetSqrtPrecon</a>(problem)
-0163 
-0164         <span class="comment">% There is a preconditioner, and we have its square root: deal with</span>
-0165         <span class="comment">% the symmetric composition SqrtPrecon o Hessian o SqrtPrecon.</span>
-0166 
-0167         sqrtprec = @(u_mat) tgt(<a href="../../manopt/core/getSqrtPrecon.html" class="code" title="function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)">getSqrtPrecon</a>(problem, x, tgt(u_mat), storedb, key));
-0168         sqrtprec_vec = @(u_vec) vec(sqrtprec(mat(u_vec)));
-0169 
-0170         eigs_opts.issym = vec_mat_are_isometries;
-0171         eigs_opts.isreal = true;
-0172         lambdas = eigs(@(u_vec) <span class="keyword">...</span>
-0173                       sqrtprec_vec(hess_vec(sqrtprec_vec(u_vec))), <span class="keyword">...</span>
-0174                       n, dim, <span class="string">'LM'</span>, eigs_opts);
-0175             
-0176     <span class="keyword">elseif</span> <a href="../../manopt/core/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>(problem)
+0158         <span class="comment">% No preconditioner to use: simply use the Hessian as is.</span>
+0159 
+0160         eigs_opts.issym = vec_mat_are_isometries;
+0161         eigs_opts.isreal = true;
+0162         lambdas = eigs(hess_vec, n, dim, <span class="string">'LM'</span>, eigs_opts);
+0163             
+0164     <span class="keyword">elseif</span> <a href="../../manopt/core/canGetSqrtPrecon.html" class="code" title="function candoit = canGetSqrtPrecon(problem)">canGetSqrtPrecon</a>(problem)
+0165 
+0166         <span class="comment">% There is a preconditioner, and we have its square root: deal with</span>
+0167         <span class="comment">% the symmetric composition SqrtPrecon o Hessian o SqrtPrecon.</span>
+0168 
+0169         sqrtprec = @(u_mat) tgt(<a href="../../manopt/core/getSqrtPrecon.html" class="code" title="function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)">getSqrtPrecon</a>(problem, x, tgt(u_mat), storedb, key));
+0170         sqrtprec_vec = @(u_vec) vec(sqrtprec(mat(u_vec)));
+0171 
+0172         eigs_opts.issym = vec_mat_are_isometries;
+0173         eigs_opts.isreal = true;
+0174         lambdas = eigs(@(u_vec) <span class="keyword">...</span>
+0175                       sqrtprec_vec(hess_vec(sqrtprec_vec(u_vec))), <span class="keyword">...</span>
+0176                       n, dim, <span class="string">'LM'</span>, eigs_opts);
 0177             
-0178         <span class="comment">% There is a preconditioner, but we don't have its square root:</span>
-0179         <span class="comment">% deal with the non-symmetric composition Precon o Hessian.</span>
-0180 
-0181         prec = @(u_mat) tgt(<a href="../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>(problem, x, tgt(u_mat), storedb, key));
-0182         prec_vec = @(u_vec) vec(prec(mat(u_vec)));
-0183         <span class="comment">% prec_inv_vec = @(u_vec) pcg(prec_vec, u_vec);</span>
-0184 
-0185         eigs_opts.issym = false;
-0186         eigs_opts.isreal = true;
-0187         lambdas = eigs(@(u_vec) prec_vec(hess_vec(u_vec)), <span class="keyword">...</span>
-0188                        n, dim, <span class="string">'LM'</span>, eigs_opts);
-0189         
-0190     <span class="keyword">else</span>
+0178     <span class="keyword">elseif</span> <a href="../../manopt/core/canGetPrecon.html" class="code" title="function candoit = canGetPrecon(problem)">canGetPrecon</a>(problem)
+0179             
+0180         <span class="comment">% There is a preconditioner, but we don't have its square root:</span>
+0181         <span class="comment">% deal with the non-symmetric composition Precon o Hessian.</span>
+0182 
+0183         prec = @(u_mat) tgt(<a href="../../manopt/core/getPrecon.html" class="code" title="function Pd = getPrecon(problem, x, d, storedb, key)">getPrecon</a>(problem, x, tgt(u_mat), storedb, key));
+0184         prec_vec = @(u_vec) vec(prec(mat(u_vec)));
+0185         <span class="comment">% prec_inv_vec = @(u_vec) pcg(prec_vec, u_vec);</span>
+0186 
+0187         eigs_opts.issym = false;
+0188         eigs_opts.isreal = true;
+0189         lambdas = eigs(@(u_vec) prec_vec(hess_vec(u_vec)), <span class="keyword">...</span>
+0190                        n, dim, <span class="string">'LM'</span>, eigs_opts);
 0191         
-0192         error(<span class="string">'No preconditioner is available in the problem structure.'</span>);
+0192     <span class="keyword">else</span>
 0193         
-0194     <span class="keyword">end</span>
-0195     
-0196     lambdas = sort(lambdas);
-0197 
-0198 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sat 12-Nov-2016 14:11:22 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0194         error(<span class="string">'No preconditioner is available in the problem structure.'</span>);
+0195         
+0196     <span class="keyword">end</span>
+0197     
+0198     lambdas = sort(lambdas);
+0199 
+0200 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

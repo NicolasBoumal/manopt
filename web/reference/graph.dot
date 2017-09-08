@@ -1,5 +1,8 @@
 /* Created by mdot for Matlab */
 digraph m2html {
+  PCA_stochastic -> stiefelfactory;
+  PCA_stochastic -> stochasticgradient;
+  PCA_stochastic -> statsfunhelper;
   dominant_invariant_subspace -> grassmannfactory;
   dominant_invariant_subspace -> trustregions;
   dominant_invariant_subspace -> hessianspectrum;
@@ -51,8 +54,8 @@ digraph m2html {
   packing_on_the_sphere -> conjugategradient;
   packing_on_the_sphere -> hessianspectrum;
   positive_definite_karcher_mean -> sympositivedefinitefactory;
+  positive_definite_karcher_mean -> rlbfgs;
   positive_definite_karcher_mean -> approxhessianFD;
-  positive_definite_karcher_mean -> trustregions;
   radio_interferometric_calibration -> symfixedrankYYcomplexfactory;
   radio_interferometric_calibration -> trustregions;
   robust_pca -> grassmannfactory;
@@ -65,7 +68,7 @@ digraph m2html {
   sparse_pca -> stiefelfactory;
   sparse_pca -> trustregions;
   thomson_problem -> obliquefactory;
-  thomson_problem -> conjugategradient;
+  thomson_problem -> rlbfgs;
   truncated_svd -> grassmannfactory;
   truncated_svd -> trustregions;
   truncated_svd -> hessianspectrum;
@@ -79,6 +82,7 @@ digraph m2html {
   canGetHessian -> canGetEuclideanGradient;
   canGetPartialGradient -> canGetPartialEuclideanGradient;
   canGetPrecon -> canGetSqrtPrecon;
+  canGetSubgradient -> canGetGradient;
   getApproxGradient -> StoreDB;
   getApproxGradient -> getGradientFD;
   getApproxHessian -> StoreDB;
@@ -123,9 +127,14 @@ digraph m2html {
   getPrecon -> canGetSqrtPrecon;
   getPrecon -> getSqrtPrecon;
   getSqrtPrecon -> StoreDB;
+  getSubgradient -> StoreDB;
+  getSubgradient -> canGetGradient;
+  getSubgradient -> getGradient;
   handle_light -> handle_light;
   complexcirclefactory -> hashmd5;
   complexcirclefactory -> matrixlincomb;
+  realphasefactory -> hashmd5;
+  realphasefactory -> matrixlincomb;
   essential_costE2cost -> multiprod;
   essential_costE2cost -> multitransp;
   essential_egradE2egrad -> multiprod;
@@ -259,6 +268,29 @@ digraph m2html {
   symfixedrankYYfactory -> matrixlincomb;
   sympositivedefinitefactory -> hashmd5;
   sympositivedefinitefactory -> matrixlincomb;
+  barzilaiborwein -> StoreDB;
+  barzilaiborwein -> applyStatsfun;
+  barzilaiborwein -> canGetApproxGradient;
+  barzilaiborwein -> canGetCost;
+  barzilaiborwein -> canGetGradient;
+  barzilaiborwein -> canGetLinesearch;
+  barzilaiborwein -> getCostGrad;
+  barzilaiborwein -> getGlobalDefaults;
+  barzilaiborwein -> mergeOptions;
+  barzilaiborwein -> stoppingcriterion;
+  barzilaiborwein -> approxgradientFD;
+  barzilaiborwein -> linesearch_hint;
+  rlbfgs -> StoreDB;
+  rlbfgs -> applyStatsfun;
+  rlbfgs -> canGetApproxGradient;
+  rlbfgs -> canGetCost;
+  rlbfgs -> canGetGradient;
+  rlbfgs -> getCostGrad;
+  rlbfgs -> getGlobalDefaults;
+  rlbfgs -> mergeOptions;
+  rlbfgs -> stoppingcriterion;
+  rlbfgs -> approxgradientFD;
+  rlbfgs -> linesearch_hint;
   conjugategradient -> StoreDB;
   conjugategradient -> applyStatsfun;
   conjugategradient -> canGetApproxGradient;
@@ -295,6 +327,7 @@ digraph m2html {
   linesearch_decrease -> getCost;
   linesearch_decrease -> mergeOptions;
   linesearch_hint -> StoreDB;
+  linesearch_hint -> canGetLinesearch;
   linesearch_hint -> getCost;
   linesearch_hint -> getLinesearch;
   linesearch_hint -> mergeOptions;
@@ -336,6 +369,16 @@ digraph m2html {
   steepestdescent -> approxgradientFD;
   steepestdescent -> linesearch;
   steepestdescent -> linesearch_hint;
+  stepsize_sg -> StoreDB;
+  stepsize_sg -> mergeOptions;
+  stochasticgradient -> StoreDB;
+  stochasticgradient -> applyStatsfun;
+  stochasticgradient -> canGetPartialGradient;
+  stochasticgradient -> getGlobalDefaults;
+  stochasticgradient -> getPartialGradient;
+  stochasticgradient -> mergeOptions;
+  stochasticgradient -> stoppingcriterion;
+  stochasticgradient -> stepsize_sg;
   tCG -> getHessian;
   tCG -> getPrecon;
   tCG -> lincomb;
@@ -368,6 +411,7 @@ digraph m2html {
   checkgradient -> StoreDB;
   checkgradient -> canGetCost;
   checkgradient -> canGetGradient;
+  checkgradient -> canGetPartialGradient;
   checkgradient -> getGradient;
   checkgradient -> checkdiff;
   checkhessian -> StoreDB;
@@ -379,6 +423,9 @@ digraph m2html {
   checkhessian -> getHessian;
   checkhessian -> identify_linear_piece;
   checkretraction -> identify_linear_piece;
+  criticalpointfinder -> canGetHessian;
+  criticalpointfinder -> getGradient;
+  criticalpointfinder -> getHessian;
   dexpm -> dfunm;
   dlogm -> dfunm;
   dsqrtm -> dfunm;
@@ -391,9 +438,12 @@ digraph m2html {
   hessianextreme -> manoptsolve;
   hessianextreme -> tangentspherefactory;
   hessianmatrix -> StoreDB;
+  hessianmatrix -> canGetApproxHessian;
+  hessianmatrix -> canGetHessian;
   hessianmatrix -> getHessian;
   hessianmatrix -> tangentorthobasis;
   hessianspectrum -> StoreDB;
+  hessianspectrum -> canGetApproxHessian;
   hessianspectrum -> canGetGradient;
   hessianspectrum -> canGetHessian;
   hessianspectrum -> canGetPrecon;
@@ -432,6 +482,7 @@ digraph m2html {
   tangentspacefactory -> hashmd5;
   tangentspherefactory -> hashmd5;
 
+  PCA_stochastic [URL="examples/PCA_stochastic.html"];
   dominant_invariant_subspace [URL="examples/dominant_invariant_subspace.html"];
   dominant_invariant_subspace_complex [URL="examples/dominant_invariant_subspace_complex.html"];
   elliptope_SDP [URL="examples/elliptope_SDP.html"];
@@ -466,6 +517,7 @@ digraph m2html {
   canGetPartialGradient [URL="manopt/core/canGetPartialGradient.html"];
   canGetPrecon [URL="manopt/core/canGetPrecon.html"];
   canGetSqrtPrecon [URL="manopt/core/canGetSqrtPrecon.html"];
+  canGetSubgradient [URL="manopt/core/canGetSubgradient.html"];
   getApproxGradient [URL="manopt/core/getApproxGradient.html"];
   getApproxHessian [URL="manopt/core/getApproxHessian.html"];
   getCost [URL="manopt/core/getCost.html"];
@@ -483,12 +535,14 @@ digraph m2html {
   getPrecon [URL="manopt/core/getPrecon.html"];
   getSqrtPrecon [URL="manopt/core/getSqrtPrecon.html"];
   getStore [URL="manopt/core/getStore.html"];
+  getSubgradient [URL="manopt/core/getSubgradient.html"];
   handle_light [URL="manopt/core/handle_light.html"];
   mergeOptions [URL="manopt/core/mergeOptions.html"];
   purgeStoredb [URL="manopt/core/purgeStoredb.html"];
   setStore [URL="manopt/core/setStore.html"];
   stoppingcriterion [URL="manopt/core/stoppingcriterion.html"];
   complexcirclefactory [URL="manopt/manifolds/complexcircle/complexcirclefactory.html"];
+  realphasefactory [URL="manopt/manifolds/complexcircle/realphasefactory.html"];
   essential_costE2cost [URL="manopt/manifolds/essential/essential_costE2cost.html"];
   essential_egradE2egrad [URL="manopt/manifolds/essential/essential_egradE2egrad.html"];
   essential_ehessE2ehess [URL="manopt/manifolds/essential/essential_ehessE2ehess.html"];
@@ -544,6 +598,8 @@ digraph m2html {
   symfixedrankYYcomplexfactory [URL="manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html"];
   symfixedrankYYfactory [URL="manopt/manifolds/symfixedrank/symfixedrankYYfactory.html"];
   sympositivedefinitefactory [URL="manopt/manifolds/symfixedrank/sympositivedefinitefactory.html"];
+  barzilaiborwein [URL="manopt/solvers/barzilaiborwein/barzilaiborwein.html"];
+  rlbfgs [URL="manopt/solvers/bfgs/rlbfgs.html"];
   conjugategradient [URL="manopt/solvers/conjugategradient/conjugategradient.html"];
   approxgradientFD [URL="manopt/solvers/gradientapproximations/approxgradientFD.html"];
   approxhessianFD [URL="manopt/solvers/hessianapproximations/approxhessianFD.html"];
@@ -556,12 +612,15 @@ digraph m2html {
   preconhessiansolve [URL="manopt/solvers/preconditioners/preconhessiansolve.html"];
   pso [URL="manopt/solvers/pso/pso.html"];
   steepestdescent [URL="manopt/solvers/steepestdescent/steepestdescent.html"];
+  stepsize_sg [URL="manopt/solvers/stochasticgradient/stepsize_sg.html"];
+  stochasticgradient [URL="manopt/solvers/stochasticgradient/stochasticgradient.html"];
   tCG [URL="manopt/solvers/trustregions/tCG.html"];
   trustregions [URL="manopt/solvers/trustregions/trustregions.html"];
   checkdiff [URL="manopt/tools/checkdiff.html"];
   checkgradient [URL="manopt/tools/checkgradient.html"];
   checkhessian [URL="manopt/tools/checkhessian.html"];
   checkretraction [URL="manopt/tools/checkretraction.html"];
+  criticalpointfinder [URL="manopt/tools/criticalpointfinder.html"];
   dexpm [URL="manopt/tools/dexpm.html"];
   dfunm [URL="manopt/tools/dfunm.html"];
   diagsum [URL="manopt/tools/diagsum.html"];
@@ -592,6 +651,7 @@ digraph m2html {
   smallestinconvexhull [URL="manopt/tools/smallestinconvexhull.html"];
   statsfunhelper [URL="manopt/tools/statsfunhelper.html"];
   surfprofile [URL="manopt/tools/surfprofile.html"];
+  tangent2vec [URL="manopt/tools/tangent2vec.html"];
   tangentorthobasis [URL="manopt/tools/tangentorthobasis.html"];
   tangentspacefactory [URL="manopt/tools/tangentspacefactory.html"];
   tangentspherefactory [URL="manopt/tools/tangentspherefactory.html"];
