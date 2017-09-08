@@ -1,5 +1,5 @@
 
-M = spherefactory(5);
+M = spherefactory(5, 10);
 
 x = M.rand();
 v = M.randvec(x);
