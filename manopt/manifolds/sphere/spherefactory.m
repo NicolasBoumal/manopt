@@ -115,17 +115,22 @@ function M = spherefactory(n, m)
     M.transp = @(x1, x2, d) M.proj(x2, d);
     
     % Isometric vector transport of d from the tangent space at x1 to x2.
+    % This is actually a parallel vector transport, see §5 in
+    % http://epubs.siam.org/doi/pdf/10.1137/16M1069298
+    % "A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization
+    %  on Manifolds", by Hosseini and Uschmajew, SIOPT 2017
     M.isotransp = @(x1, x2, d) isometricTransp(x1, x2, d);
-    function dir = isometricTransp(x1, x2, d)
+    function Td = isometricTransp(x1, x2, d)
         v = logarithm(x1, x2);
         dist_x1x2 = norm(v, 'fro');
         if dist_x1x2 > 0
             u = v / dist_x1x2;
-            dir = d + (cos(dist_x1x2)-1)*(u.'*d)*u ...
-                    -  sin(dist_x1x2)   *(u.'*d)*x1;
+            utd = u(:)'*d(:);
+            Td = d + (cos(dist_x1x2)-1)*utd*u ...
+                    -  sin(dist_x1x2)   *utd*x1;
         else
             % x1 == x2, so the transport is identity
-            dir = d;
+            Td = d;
         end
     end
     
