@@ -17,6 +17,10 @@ We are grateful for the excellent contributions of
 * Roberto Tron
 * Sarod Yatawatta
 * Hiroyuki Kasai
+* Bruno Iannazzo
+* Margherita Procelli
+* Jesus Briales
+* Changshuo Liu
 
 Furthermore, code written by the following people can be found in Manopt:
 

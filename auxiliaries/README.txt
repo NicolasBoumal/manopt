@@ -3,7 +3,7 @@ Manopt is a Matlab toolbox for optimization on manifolds.
 Installation instructions, documentation and updates are available online:
 http://www.manopt.org
 
-Manopt is copyright (C) 2014 by Nicolas Boumal (nicolasboumal@gmail.com)
+Manopt is copyright by Nicolas Boumal (nicolasboumal@gmail.com)
 and is distributed under the terms of the GNU General Public License (GPL)
 version 3 (or later). See the files LICENSE.TXT, COPYING.TXT and CREDITS.TXT.
 
@@ -47,7 +47,8 @@ http://jmlr.org/papers/v15/boumal14a.html
 For more info or help: http://www.manopt.org -- we are active on the forum!
 
 This version:
-Manopt 3.0, released Nov. 12, 2016.
+Manopt 4.0, released Sep. 9, 2017.
+
 
 GitHub: https://github.com/NicolasBoumal/manopt
 

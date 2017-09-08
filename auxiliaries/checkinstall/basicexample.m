@@ -3,7 +3,7 @@ function basicexample()
     % Verify that Manopt was indeed added to the Matlab path.
     if isempty(which('spherefactory'))
         error(['You should first add Manopt to the Matlab path.\n' ...
-		       'Please run importmanopt first.']);
+		       'Please run importmanopt.']);
     end
     
     % Generate the problem data.
