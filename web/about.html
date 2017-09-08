@@ -84,8 +84,8 @@ body {
               experimentation with optimization on manifolds, as well as sharing
               geometries and algorithms. This <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">blog
                 post</a> gives a quick tour.</p>
-            <p>A reference book in the field of optimization on manifolds is <a
-                target="_blank" href="http://press.princeton.edu/titles/8586.html">Optimization
+            <p>A reference book for optimization on manifolds is <a target="_blank"
+                href="http://press.princeton.edu/titles/8586.html">Optimization
                 Algorithms on Matrix Manifolds</a>, which is <a target="_blank"
                 href="http://press.princeton.edu/chapters/absil/">available
                 online</a> for free.</p>
@@ -107,15 +107,15 @@ body {
                 &#160; pages&#160;&#160; = {1455--1459},<br>
                 &#160; url&#160;&#160;&#160;&#160; = {http://www.manopt.org}<br>
                 }</samp></p>
-            <p>Solvers and geometries are being developed by researchers as we
-              speak. It is important for them that their work be credited
+            <p>Solvers and geometries are being developed by researchers all the
+              time. It is important for them that their work be credited
               properly. Please cite the relevant papers for the solvers and
               geometries you are using, as they may have been contributed by
               different authors. See the comments at the beginning of the
               m-files for instructions. Thank you.</p>
             <p>Manopt won the <a target="_blank" href="http://www.n-side.com/wolsey-award/winners.html">ORBEL
-                Wolsey Award 2014</a> for best operational research
-              implementation.</p>
+                Wolsey Award 2014</a> for best operational research software
+              developed as part of a PhD thesis.</p>
             <p>The RANSO group organized a <a target="_blank" href="https://sites.uclouvain.be/absil/RANSO-2015-09-25/">one-day
                 workshop on Riemannian and nonsmooth optimization</a> in
               Louvain-la-Neuve on Sept. 25, 2015. Most people involved with
@@ -133,9 +133,7 @@ body {
                 Borckmans</a>, who also contributed the <abbr title="Particle swarm optimization">PSO</abbr>
               solver.&#160; The main developers are Nicolas and <a target="_blank"
                 href="http://www.montefiore.ulg.ac.be/%7Emishra/">Bamdev Mishra</a>.
-              Bamdev notably contributed most fixed-rank manifold factories, the
-              conjugate gradient solver, the adaptive line search algorithm and
-              many other ideas and bug reports. The RANSO group (<a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine
+              The RANSO group (<a href="http://perso.uclouvain.be/pa.absil/">Pierre-Antoine
                 Absil</a>, <a href="http://www.core.ucl.ac.be/%7Enesterov/">Yurii
                 Nesterov</a> and <a href="http://www.montefiore.ulg.ac.be/%7Esepulch/">Rodolphe
                 Sepulchre</a>) provides helpful support and guidance. </p>
@@ -183,6 +181,12 @@ body {
               rank. This and the accompanying example is based on their paper, <a
                 target="_blank" href="http://arxiv.org/abs/1506.02159">Riemannian
                 preconditioning for tensor completion</a>.</p>
+            <p>Changshuo Liu contributed the Riemannian limited-memory BFGS
+              solver, rlbfgs.</p>
+            <p>Marherita Porcelli and Bruno Iannazzo contributed the
+              Barzilai-Borwein solver, barzilaiborwein.</p>
+            <p>Jesus Briales contributed a few improvements to the code via pull
+              requests on GitHub.</p>
             <p>Here is a list of open-source code that proved useful to develop
               the toolbox:</p>
             <ul>
@@ -251,12 +255,11 @@ body {
               on manifolds and would like it to be featured in Manopt, please <a
                 href="#contactmodal" data-toggle="modal">contact us</a>.</p>
             <p>We will ask for an implementation of your manifold / solver in
-              the Manopt format, a documentation page for it (template to come)
-              and an example script to illustrate its features. The
-              documentation page as well as the code will, of course, visibly
-              reflect the authors of the contribution. The documentation will
-              feature links to their personal pages and relevant publications.
-              We will gladly help.</p>
+              the Manopt format and an example script to illustrate its
+              features. The documentation page as well as the code will, of
+              course, visibly reflect the authors of the contribution. The
+              documentation will feature links to their personal pages and
+              relevant publications. We will gladly help.</p>
             <p>Contributors will be asked to agree to the terms of the <a href="CLA.txt">Contributor
                 License Agreement</a>. This agreement protects you as a
               contributor by making it clear that you retain your right to use
@@ -270,8 +273,8 @@ body {
               <h1>License</h1>
             </div>
             <p>Manopt, a Matlab toolbox for optimization on manifolds, is
-              copyright &#169; 2014 by Nicolas Boumal and is distributed under
-              the terms of the <a target="_blank" href="http://www.gnu.org/licenses/gpl.html">GNU
+              copyright by Nicolas Boumal and is distributed under the terms of
+              the <a target="_blank" href="http://www.gnu.org/licenses/gpl.html">GNU
                 General Public License</a> (GPL) version 3 (or later).
               Contributed and third-party code is copyrighted by their
               respective authors, but is distributed under a unified license for
@@ -285,8 +288,8 @@ body {
               of Manopt (in full or in parts) in any closed-source software you
               plan to distribute (commercially or not). Please <a href="#contactmodal"
                 data-toggle="modal">contact us</a> for more information. </p>
-            <p>The documentation of Manopt (this website) is copyright &#169;
-              2014 by Nicolas Boumal, all rights reserved.</p>
+            <p>The documentation of Manopt (this website) is copyright by
+              Nicolas Boumal, all rights reserved.</p>
           </section>
           <section id="related">
             <div class="page-header">
@@ -340,7 +343,7 @@ body {
                   plugin</a> and <a target="_blank" href="http://jewei.blogspot.be/2012/08/how-to-prettify-your-code-on-google.html">nicer
                   CSS</a> ;</li>
               <li><a target="_blank" href="http://www.bluegriffon.org/">BlueGriffon</a>
-                for the occasional wysiwyg needs ; </li>
+                for wysiwyg needs ; </li>
               <li><a target="_blank" href="http://www.artefact.tk/software/matlab/m2html/">m2html</a>
                 for the automatically generated <a target="_blank" href="reference/index.html">reference</a>.
               </li>
