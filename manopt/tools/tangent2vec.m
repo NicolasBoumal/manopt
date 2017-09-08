@@ -3,6 +3,8 @@ function vec = tangent2vec(M, x, basis, u)
 %
 % vec = tangent2vec(M, x, basis, u)
 %
+% The inverse operation is lincomb (see below).
+%
 % M is a Manopt manifold structure obtained from a factory.
 % x is a point on the manifold M.
 % basis is a cell containing n orthonormal tangent vectors at x, forming an
@@ -23,7 +25,7 @@ function vec = tangent2vec(M, x, basis, u)
 %
 % where uu = tangent2vec(M, x, basis, u), vv = tangent2vec(M, x, basis, v).
 %
-% See also: tangentorthobasis lincomb orthogonalize grammatrix hessianmatrix
+% See also: lincomb tangentorthobasis orthogonalize grammatrix hessianmatrix
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Feb. 3, 2017.
