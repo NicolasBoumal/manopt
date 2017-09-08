@@ -483,8 +483,7 @@ end
 % Theory requires the vector transport to be isometric and to satisfy the
 % locking condition (see paper), but these properties do not seem to be
 % crucial in practice. If your manifold provides M.isotransp, it may be
-% good to replace M.transp with M.isotransp. There are built in M.isotransp
-% for spherefactory and obliquefactory.
+% good to do M.transp = M.isotransp; after loading M with a factory.
 %
 % This implementation operates in the tangent space of the most recent
 % point since all vectors in sHistory and yHistory have been transported
