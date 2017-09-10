@@ -18,7 +18,7 @@ Quick installation guide
 
 * Go to /my/directory/manopt/ at the command prompt and execute importmanopt.
   You may save this path for your next Matlab sessions: follow the menu
-  File » Set Path... and save.
+  File » Set Path... and save, or execute savepath.
 
 * Go to /my/directory/manopt/checkinstall/ and run the script basicexample.m.
   If there are no errors, you are done! Otherwise, feel free to contact us.
