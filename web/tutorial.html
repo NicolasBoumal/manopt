@@ -109,9 +109,9 @@ body {
               optimization problem is querying the cost function, and not the
               inner machinery of the solver. It is also work in progress: <strong>
                 feedback and contributions are welcome</strong>!</p>
-            <p><a href="reference/examples/index.html">Examples are available in
-                the reference</a>. </p>
-            <p>This short blog post gives an <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">informal
+            <p><a target="_blank" href="https://github.com/NicolasBoumal/manopt/tree/master/examples">Examples
+                are available</a>. </p>
+            <p>A short blog post gives an <a target="_blank" href="https://afonsobandeira.wordpress.com/2015/03/16/optimizing-in-smooth-waters-optimization-on-manifolds/">informal
                 overview of optimization on manifolds</a>. It may be a good
               start to get a general feeling. There is also a <a target="_blank"
                 href="https://www.youtube.com/watch?v=9WTgiqIrgdA">5 minute
@@ -274,7 +274,8 @@ href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function
               agree up to the appropriate order. See the <a href="#tools">tools
                 section</a> for more details and more helpful tools offered by
               Manopt. This tool generates the following figure:</p>
-            <p><img title="checkgradient figure" alt="checkgradient figure" src="tutorial-gradientcheck.png"></p>
+            <p style="text-align: center;"><img title="checkgradient figure" alt="checkgradient figure"
+src="tutorial-gradientcheck.png" style="border:0px solid black" width="50%"></p>
             <p>The blue curve seems to have the same slope as the dashed line
               over a decent segment: that's what we want to see (also check the
               textual output). We now call a solver for our problem:</p>
@@ -306,8 +307,9 @@ href="http://www.mathworks.nl/help/matlab/ref/function_handle.html">function
             <pre class="prettyprint lang-matlab linenumsoffset linenums:22">semilogy([info.iter], [info.gradnorm], '.-');<br>xlabel('Iteration number');<br>ylabel('Norm of the gradient of f');
 </pre>
             <p>This generates the following figure:</p>
-            <p><img title="Gradient norm converging to zero" alt="Gradient norm converging to zero"
-src="tutorial-gradientnorm.png"></p>
+            <p style="text-align: center;"><img title="Gradient norm converging to zero"
+alt="Gradient norm converging to zero" src="tutorial-gradientnorm.png" style="border:0px solid black"
+width="50%"></p>
             <p>For more information on what data is stored in <code>info</code>,
               see the <a href="#solvers">solvers</a> section.</p>
             <div class="alert alert-info"><strong>Heads up!</strong> Notice that
@@ -415,7 +417,7 @@ width="26"> </h3>
                   <td>$\{z\in\mathbb{C}^n : |z_1| = \cdots = |z_n| = 1\}$ </td>
                   <td><code>complexcirclefactory(n)</code> </td>
                 </tr>
-                <tr>
+                <tr><td><a target="_blank" href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/complexcircle/realphasefactory.m">Phases of real DFT</a></td><td>$\{z\in\mathbb{C}^n : |z_k| = 1, z_{1+\operatorname{mod}(k, n)} = \bar{z}_{1+\operatorname{mod}(n-k, n)} \ \forall k\}$</td><td><code>realphasefactory(n)</code></td></tr><tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/stiefel/stiefelfactory.html">Stiefel
                       manifold </a></td>
                   <td>$\{X \in \mathbb{R}^{n \times p} : X^TX = I_p\}^k$ </td>
@@ -694,7 +696,7 @@ href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html"
                   <td>Computes a tangent vector at $y$ that "looks like" the
                     tangent vector $u$ at $x$. </td>
                 </tr>
-                <tr>
+                <tr><td>Isometric transport</td><td><code>M.isotransp(x, y, u)</code></td><td>Isometric vector transport</td></tr><tr>
                   <td>Pair mean </td>
                   <td><code>M.pairmean(x, y) </code></td>
                   <td>Computes the intrinsic mean of $x$ and $y$, that is, a
@@ -706,7 +708,7 @@ href="reference/manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html"
                   <td><code>M.hash(x) </code></td>
                   <td>Computes a string that (almost) uniquely identifies the
                     point $x$ and that can serve as a field name for a
-                    structure. (Not heavily used since version 2.0)</td>
+                    structure. (Scarcely used since version 2.0)</td>
                 </tr>
                 <tr>
                   <td>Vector representation</td>
@@ -832,7 +834,9 @@ class="initialism">FD</abbr> of the gradient in the
                   <td>Often performs better than steepest-descent. </td>
                   <td><code>conjugategradient(...)</code> </td>
                 </tr>
-                <tr>
+                <tr><td><a target="_blank" href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/barzilaiborwein/barzilaiborwein.m">Barzilai-Borwein</a></td><td>Cost, gradient</td><td>Gradient descent with BB step size heuristic</td><td><code>barzilaiborwein(...)</code></td></tr><tr><td><a
+target="_blank" href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/bfgs/rlbfgs.m">BFGS<br></a></td><td>Cost, gradient</td><td>Limited-memory version of BFGS</td><td><code>rlbfgs(...)</code></td></tr><tr><td><a
+target="_blank" href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/stochasticgradient/stochasticgradient.m">SGD</a></td><td>Partial gradient (no cost)</td><td>Stochastic gradient algorithm for optimization of large sums</td><td><code>stochasticgradient(...)</code></td></tr><tr>
                   <td><a href="reference/manopt/solvers/pso/pso.html">Particle
                       swarm (PSO) </a></td>
                   <td>Cost </td>
@@ -1232,7 +1236,8 @@ width="26"></h3>
                     <p>See <a style="font-family: monospace;" href="reference/manopt/solvers/gradientapproximations/index.html">/solvers/gradientapproximations</a>.</p>
                   </td>
                 </tr>
-                <tr>
+                <tr><td><code>subgrad</code></td><td><code>g = subgrad(x, tol)</code><br><code>[g, store] = subgrad(x, tol, store)</code><br><code>g = subgrad(x, tol, storedb, key)</code></td><td>Returns a Riemannian subgradient of the cost function at $x$, with a tolerance <code>tol</code> which is a nonnegative real number. If you wish to return the minimal norm subgradient (which may help solvers), see the <a
+target="_blank" href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/smallestinconvexhull.m">smallestinconvexhull</a> tool.</td></tr><tr>
                   <td><code>diff</code> </td>
                   <td><code>d = diff(x, u)</code><br>
                     <nobr><code>[d, store] = diff(x, u, store)</code></nobr><br>
@@ -1696,7 +1701,8 @@ class="icon-book">&#160;</i></a></td>
               <p>Given a <code>problem</code> structure, a point <code>x</code> on <code>problem.M</code> and a cell <code>basis</code> containing an orthonormal basis of (a subspace of) the tangent space to <code>M</code> at <code>x</code>, returns a matrix <code>H</code> which represents the Hessian of <code>problem.cost</code> at <code>x</code> in the given basis (possibly restricted to the given subspace). If no basis is given, a random orthonormal basis is generated for the full tangent space. In all cases, the used basis is returned as second output.</p>
             </td>
           </tr>
-          <tr>
+          <tr><td style="text-align: center;"><a href="reference/manopt/tools/criticalpointfinder.html"><i
+class="icon-book">&#160;</i></a></td><td><code>cp_problem = criticalpointfinder(problem)</code></td><td>Given a <code>problem</code> structure for a twice continuously differentiable cost function $f(x)$, returns a new problem structure for the cost function $g(x) = \frac{1}{2} \| \operatorname{grad} f(x) \|^2_x$, whose optima are all the critical points of the original problem. Thus, running solvers on the new problem from various initial points can help understand the critical points of the original problem. The gradient of $g$ is computed via $\operatorname{grad} g(x) = \operatorname{Hess} f(x)[\operatorname{grad} f(x)]$, and an approximate Hessian can also be generated.</td></tr><tr>
             <td style="text-align: center;"> <br></td>
           <td colspan="2" rowspan="1"><strong>Matrix utilities</strong> </td>
         </tr>
@@ -1843,7 +1849,8 @@ class="icon-book">&#160;</i></a></td>
         <td><code>vec = lincomb(M, x, vecs, coeffs)</code></td>
         <td>Given a cell <code>vecs</code> of $n$ tangent vectors to the manifold <code>M</code> at <code>x</code> and a vector <code>coeffs</code> of $n$ real coefficients, returns the linear combination of the given vectors with the given coefficients. The empty linear combination is the zero vector at <code>x</code>.</td>
       </tr>
-      <tr>
+      <tr><td style="text-align: center;"><a href="reference/manopt/tools/tangent2vec.html"><i
+class="icon-book">&#160;</i></a></td><td><code>vec = tangent2vec(M, x, B, u)</code></td><td>Given a tangent vector <code>u</code> and an orthogonal basis <code>B</code> on the corresponding tangent space, returns the coordinates <code>vec</code> of the vector in that basis. The inverse operation is <code>lincomb</code>, see above.</td></tr><tr>
         <td style="text-align: center;"><a href="reference/manopt/tools/grammatrix.html"><i
 class="icon-book">&#160;</i></a></td>
         <td><code>G = grammatrix(M, x, vectors)</code></td>
@@ -1963,7 +1970,8 @@ class="icon-book">&#160;</i></a></td>
 class="icon-book">&#160;</i></a></td>
     <td><code>pgrad = getPartialEuclideanGradient(problem, x, I, storedb, key)</code></td>
   </tr>
-  <tr>
+  <tr><td style="text-align: center;"><a href="reference/manopt/core/getSubgradient.html"><i
+class="icon-book">&#160;</i></a></td><td><code>subgrad = getSubgradient(problem, x, tol, storedb, key)</code></td></tr><tr>
     <td style="text-align: center;"><a href="reference/manopt/core/getDirectionalDerivative.html"><i
 class="icon-book">&#160;</i></a></td>
     <td><code>diff = getDirectionalDerivative(problem, x, d, storedb, key)</code></td>
@@ -2034,7 +2042,8 @@ class="icon-book">&#160;</i></a></td>
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetPartialEuclideanGradient(problem)</code></td>
 </tr>
-<tr>
+<tr><td style="text-align: center;"><a href="reference/manopt/core/canGetSubgradient.html"><i
+class="icon-book">&#160;</i></a></td><td><code>candoit = canGetSubgradient(problem)</code></td></tr><tr>
   <td style="text-align: center;"><a href="reference/manopt/core/canGetHessian.html"><i
 class="icon-book">&#160;</i></a></td>
   <td><code>candoit = canGetHessian(problem)</code></td>
