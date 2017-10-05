@@ -25,7 +25,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % initial iterate, give x0 as [] (the empty matrix).
 %
 % The two outputs 'x' and 'cost' are the last reached point on the manifold
-% and its cost. 
+% and its cost.
 % 
 % The output 'info' is a struct-array which contains information about the
 % iterations:
@@ -133,6 +133,11 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %   pages     = {627--634},
 %   doi       = {10.1007/978-3-319-39929-4_60}
 % }
+%
+% We point out that, at the moment, this implementation of RLBFGS can be
+% slower than the implementation in ROPTLIB by Wen Huang et al. referenced
+% above. For the purpose of comparing to their work, please use their
+% implementation.
 %
 
 
