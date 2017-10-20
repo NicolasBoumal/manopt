@@ -1,4 +1,4 @@
-function opts = mergeOptions(opts1, opts2)
+function opts = mergeOptions(opts_sub, opts_master)
 % Merges two options structures with one having precedence over the other.
 %
 % function opts = mergeOptions(opts1, opts2)
@@ -19,17 +19,17 @@ function opts = mergeOptions(opts1, opts2)
 % Change log: 
 
 
-    if isempty(opts1)
-        opts1 = struct();
+    if isempty(opts_sub)
+        opts_sub = struct();
     end
-    if isempty(opts2)
-        opts2 = struct();
+    if isempty(opts_master)
+        opts_master = struct();
     end
 
-    opts = opts1;
-    fields = fieldnames(opts2);
+    opts = opts_sub;
+    fields = fieldnames(opts_master);
     for i = 1 : length(fields)
-        opts.(fields{i}) = opts2.(fields{i});
+        opts.(fields{i}) = opts_master.(fields{i});
     end
     
 end
