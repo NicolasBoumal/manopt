@@ -126,7 +126,7 @@ function M = stiefelfactory(n, p, k)
     function X = random()
         X = zeros(n, p, k);
         for i = 1 : k
-            [Q, unused] = qr(randn(n, p), 0); %#ok<NASGU>
+            [Q, unused] = qr(randn(n, p), 0);  %#ok<ASGLU>
             X(:, :, i) = Q;
         end
     end
