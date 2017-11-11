@@ -1,5 +1,5 @@
 function vec = tangent2vec(M, x, basis, u)
-% Expands a tangent vector into an orthogonal basis in the Manopt framework
+% Expands a tangent vector into an orthonormal basis in the Manopt framework
 %
 % vec = tangent2vec(M, x, basis, u)
 %

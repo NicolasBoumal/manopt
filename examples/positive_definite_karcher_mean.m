@@ -63,7 +63,10 @@ function X = positive_definite_karcher_mean(A)
     problem.cost = @cost;
     problem.grad = @grad;
     
-    % Explicitly pick an approximate Hessian for the trust-region method
+    % Explicitly pick an approximate Hessian for the trust-region method.
+    % (This is only to show an example of how it can be done; the solver
+    % below, rlbfgs, does not use the approximate Hessian; trustregions
+    % would.)
     problem.approxhess = approxhessianFD(problem, struct('stepsize', 1e-4));
     
     % The functions below make many redundant computations. This
