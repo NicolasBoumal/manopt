@@ -84,7 +84,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       each line search's documentation for info.
 %       By default, the intial multiplier tried is alpha = 1. This can be
 %       changed with options.linesearch: see help of linesearch_hint.
-%   strict_inc_func (@(t) t)
+%   strict_inc_func (@(t) 1e-4*t)
 %     The Cautious step needs a real function that has value 0 at t = 0,
 %     and  is strictly increasing. See details in Wen Huang's paper
 %     "A Riemannian BFGS Method without Differentiated Retraction for 
@@ -145,6 +145,9 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % Original author: Changshuo Liu, July 19, 2017.
 % Contributors: Nicolas Boumal
 % Change log: 
+%
+%   Nov. 27, 2017 (Wen Huang):
+%       Changed the default strict_inc_func to @(t) 1e-4*t from @(t) t.
 
 
     % Verify that the problem description is sufficient for the solver.
@@ -168,7 +171,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
     localdefaults.memory = 30;
-    localdefaults.strict_inc_func = @(t) t;
+    localdefaults.strict_inc_func = @(t) 1e-4*t;
     localdefaults.ls_max_steps  = 25;
     localdefaults.storedepth = 30;
     localdefaults.linesearch = @linesearch_hint;
