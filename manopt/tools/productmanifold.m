@@ -104,6 +104,17 @@ function M = productmanifold(elements)
         end
     end
 
+    % True by default, false if any false encountered
+    M.tangent2ambient_is_identity = true;
+    for k = 1 : nelems
+        if isfield(elements.(elems{k}), 'tangent2ambient_is_identity')
+            if ~elements.(elems{k}).tangent2ambient_is_identity
+                M.tangent2ambient_is_identity = false;
+                break;
+            end
+        end
+    end
+    
     M.tangent2ambient = @tangent2ambient;
     function v = tangent2ambient(x, u)
         for i = 1 : nelems

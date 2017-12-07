@@ -76,6 +76,12 @@ function Mn = powermanifold(M, n)
         end
     end
     
+    if isfield(M, 'tangent2ambient_is_identity')
+        Mn.tangent2ambient_is_identity = M.tangent2ambient_is_identity;
+    else
+        Mn.tangent2ambient_is_identity = true;
+    end
+    
     if isfield(M, 'tangent2ambient')
         Mn.tangent2ambient = @tangent2ambient;
     else

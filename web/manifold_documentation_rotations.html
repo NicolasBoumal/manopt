@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Manopt, group of rotations</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
@@ -50,7 +50,7 @@ body {
     <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
       aria-hidden="true">
       <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-          aria-hidden="true">×</button>
+          aria-hidden="true">&#215;</button>
         <h3 id="myModalLabel">To contact us</h3>
       </div>
       <div class="modal-body">
@@ -149,7 +149,15 @@ body {
               work with skew-symmetric matrices. This skew-symmetric part is
               often written $\Omega$; here, we call it $S$ to have a direct
               correspondence between the math notation $S$ and the Matlab matrix
-              <code>S</code>.</div>
+              <code>S</code>. In practice, for <code>v = problem.ehess(x, u)</code>
+              for example, <code>u</code> is a representation of a tangent
+              vector: it is skew-symmetric (or an array of skew-symmetric
+              matrices). Use <code>w = M.tangent2ambient(x, u)</code> to
+              convert <code>u</code> to the actual vector in the ambient space
+              (obtained simply as <code>x*u</code> in the case $k = 1$.) The
+              output <code>v</code>, on the other hand, should be returned
+              simply as a vector in the ambient space (there is no conversion to
+              be done here.)</div>
           </section>
           <section id="toolset">
             <div class="page-header">
@@ -232,32 +240,30 @@ body {
                     input an ambient vector and returns a tangent vector. To
                     apply the <code>proj</code> again to the result (which
                     should change nothing), it is necessary to first represent
-                    the tangent vector obtained as an ambient vector. This
-                    function is here because of formal peculiarities and is
-                    likely to disappear at some point. </td>
+                    the tangent vector obtained as an ambient vector.</td>
                 </tr>
                 <tr>
                   <td>Euclidean to Riemannian gradient</td>
                   <td><nobr><code>M.egrad2rgrad(X, egrad)</code></nobr></td>
                   <td>$\operatorname{grad} f(X) = P_X(\nabla f(X))$, where <code>egrad</code>
-                    represents the Euclidean gradient $\nabla f(X)$, which is a
-                    vector in the ambient space. </td>
+                    is the Euclidean gradient $\nabla f(X)$, which is a vector
+                    in the ambient space. </td>
                 </tr>
                 <tr>
                   <td>Euclidean to Riemannian Hessian</td>
                   <td><nobr><code>M.ehess2rhess(X, egrad, ehess, S)</code></nobr>
                   </td>
-                  <td>$(\operatorname{Hess} f(X)[U])_i = P_{X_i}\left(&nbsp;
-                    (\nabla^2 f(X)[U])_i &nbsp; - &nbsp; U_i
-                    \operatorname{sym}\left( X_i^T (\nabla f(X))_i \right)&nbsp;
+                  <td>$(\operatorname{Hess} f(X)[U])_i = P_{X_i}\left(&#160;
+                    (\nabla^2 f(X)[U])_i &#160; - &#160; U_i
+                    \operatorname{sym}\left( X_i^T (\nabla f(X))_i \right)&#160;
                     \right)$, for $i = 1\ldots k$, where <code>S</code>
                     represents the tangent vector $U = (X_1S_1, \ldots,
-                    X_kS_k)$, <code>egrad</code> represents the Euclidean
-                    gradient $\nabla f(X)$, <code>ehess</code> represents the
-                    Euclidean Hessian $\nabla^2 f(X)[U]$ (the two latter being
-                    vectors in the ambient space) and $\operatorname{sym}$
-                    extracts the symmetric part of a matrix:
-                    $\operatorname{sym}(A) = \frac{A+A^T}{2}$.</td>
+                    X_kS_k)$, <code>egrad</code> is the Euclidean gradient
+                    $\nabla f(X)$, <code>ehess</code> is the Euclidean Hessian
+                    $\nabla^2 f(X)[U]$ (the two latter being vectors in the
+                    ambient space) and $\operatorname{sym}$ extracts the
+                    symmetric part of a matrix: $\operatorname{sym}(A) =
+                    \frac{A+A^T}{2}$.</td>
                 </tr>
                 <tr>
                   <td>Exponential map </td>
@@ -351,7 +357,7 @@ manifold = rotationsfactory(n, 1);
 problem.M = manifold;
 
 % Define the problem cost function and its Euclidean derivatives.<br>problem.cost = @(X) -X(:).'*ABt(:);
-problem.egrad = @(X) -ABt;<br>% Notice that, even though the Euclidean Hessian vanishes, the Riemannian Hessian does not.<br>% Indeed, plugging the Euclidean gradient and Hessian explicitly in the ehess2rhess<br>% formula gives a non trivial operator.<br>problem.ehess = @(X, S) manifold.zerovec(X);<br><br>% Numerically check the differentials.<br>checkgradient(problem); pause;<br>checkhessian(problem); pause;<br><br>% Solve the problem<br>X = trustregions(problem);<br><br>% Compare with the known optimal solution<br>[U, S, V] = svd(ABt);<br>UVt = U*V.';<br>% The determinant of UVt is either 1 or -1, in theory<br>if abs(1 - det(UVt)) &lt; 1e-10<br>    Xopt = UVt;<br>elseif abs(-1 - det(UVt)) &lt; 1e-10<br>    % UVt is in O(n) but not SO(n). This is easily corrected for:<br>    J = diag([ones(n-1,1);-1]);<br>    Xopt = U*J*V.';<br>else<br>    error('Should never ever happen ...');<br>end<br>fprintf('This should be small: %g\n', norm(Xopt - X, 'fro'));</pre>
+problem.egrad = @(X) -ABt;<br>% Notice that, even though the Euclidean Hessian vanishes, the Riemannian Hessian does not.<br>% Indeed, plugging the Euclidean gradient and Hessian explicitly in the ehess2rhess<br>% formula gives a non trivial operator.<br>% In all generality, the Euclidean Hessian would not be zero: it would be a function of S.<br>% You would then need to transform S (which is a representation of the tangent vector)<br>% into an actual ambient vector corresponding to this tangent vector. In this case,<br>% it is simply X*S. More generally in Manopt, this operation is done via a call to<br>% manifold.tangent2ambient(X, S).<br>problem.ehess = @(X, S) manifold.zerovec(X);<br><br>% Numerically check the differentials.<br>checkgradient(problem); pause;<br>checkhessian(problem); pause;<br><br>% Solve the problem<br>X = trustregions(problem);<br><br>% Compare with the known optimal solution<br>[U, S, V] = svd(ABt);<br>UVt = U*V.';<br>% The determinant of UVt is either 1 or -1, in theory<br>if abs(1 - det(UVt)) &lt; 1e-10<br>    Xopt = UVt;<br>elseif abs(-1 - det(UVt)) &lt; 1e-10<br>    % UVt is in O(n) but not SO(n). This is easily corrected for:<br>    J = diag([ones(n-1,1);-1]);<br>    Xopt = U*J*V.';<br>else<br>    error('Should never ever happen ...');<br>end<br>fprintf('This should be small: %g\n', norm(Xopt - X, 'fro'));</pre>
             <p>Notice that if you work with the cost $f(X) = \frac{1}{2} \|XB -
               A\|^2$ directly, your Euclidean gradient becomes $\nabla f(X) =
               (XB-A)B^T = XBB^T - AB^T$ and there seems to be an extra term in
@@ -377,9 +383,8 @@ problem.egrad = @(X) -ABt;<br>% Notice that, even though the Euclidean Hessian v
             <p>For algorithms that generate uniformly random rotations, see
               [Mez07].</p>
             <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
-                href="https://press.princeton.edu/absil">Optimization
-                Algorithms on Matrix Manifolds</a>, Princeton University Press,
-              2008.<br>
+                href="https://press.princeton.edu/absil">Optimization Algorithms
+                on Matrix Manifolds</a>, Princeton University Press, 2008.<br>
               [BA11] N. Boumal and P.-A. Absil, <a href="http://www.nicolasboumal.net/papers/Boumal_Absil_A_discrete_regression_method_on_manifolds_and_its_application_to_data_on_SOn.htm">A
                 discrete regression method on manifolds and its application to
                 data on SO(n)</a>, 18th IFAC World Congress, 2011.<br>
@@ -388,10 +393,10 @@ problem.egrad = @(X) -ABt;<br>% Notice that, even though the Euclidean Hessian v
               2004.<br>
               [Mez07] F. Mezzadri, <a href="http://arxiv.org/abs/math-ph/0609050">How
                 to generate random matrices from the classical compact groups</a>,
-              Notices of the AMS, 54(5), 592–604, 2007.<br>
+              Notices of the AMS, 54(5), 592&#8211;604, 2007.<br>
               [TB77] J.M.F. Ten Berge, <a href="http://link.springer.com/article/10.1007%2FBF02294053?LI=true">Orthogonal
                 Procrustes rotation for two or more matrices</a>, Psychometrika,
-              42(2), 267–276, 1977.<br>
+              42(2), 267&#8211;276, 1977.<br>
               [BSA13] N. Boumal, A. Singer and P.-A. Absil, <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6760038">Robust
                 estimation of rotations from relative measurements by maximum
                 likelihood</a>, CDC 2013.</p>
@@ -415,7 +420,7 @@ problem.egrad = @(X) -ABt;<br>% Notice that, even though the Euclidean Hessian v
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
 });
-</script> <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</script> <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -428,6 +433,5 @@ MathJax.Hub.Config({
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-  </body>
+</script> </body>
 </html>

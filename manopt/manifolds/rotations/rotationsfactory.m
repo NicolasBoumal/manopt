@@ -62,6 +62,7 @@ function M = rotationsfactory(n, k)
     
     M.tangent = @(X, H) multiskew(H);
     
+    M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @(X, U) multiprod(X, U);
 	
 	M.egrad2rgrad = M.proj;

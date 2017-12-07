@@ -169,6 +169,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     % that USV' is the desired matrix. In particular, U and V are not (in
     % general) orthonormal and S is not (in general) diagonal.
     % (In this implementation, S is identity, but this might change.)
+    M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
     function Zambient = tangent2ambient(X, Z)
         Zambient.U = [X.U*Z.M + Z.Up, X.U];
