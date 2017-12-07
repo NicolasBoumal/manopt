@@ -33,6 +33,10 @@ function checkhessian(problem, x, d)
 %
 %   Nov. 1, 2016 (NB):
 %       Issues a call to getGradient rather than getDirectionalDerivative.
+%
+%   Dec. 6, 2017 (NB):
+%       Added message in case tangent2ambient might be necessary in
+%       defining ehess (this was a common difficulty for users.)
 
         
     % Verify that the problem description is sufficient.
@@ -174,5 +178,27 @@ function checkhessian(problem, x, d)
     fprintf(['<d1, H[d2]> - <H[d1], d2> should be zero, or very close.' ...
              '\n\tValue: %g - %g = %g.\n'], v1, v2, value);
     fprintf('If it is far from 0, then the Hessian is not symmetric.\n');
+    
+    %% Check if the manifold at hand is one of those for which there should
+    %  be a call to M.tangent2ambient, as this is a common mistake. If so,
+    %  issue an additional message. Ideally, one would just need to check
+    %  for the presence of tangent2ambient, but productmanifold (for
+    %  example) generates one of those in all cases, even if it is just an
+    %  identity map.
+    if isfield(problem.M, 'tangent2ambient_is_identity') && ...
+                                     ~problem.M.tangent2ambient_is_identity
+        
+        fprintf('\n\n=== Special message ===\n');
+        fprintf(['For this manifold, tangent vectors are represented\n' ...
+                 'differently from their ambient space representation.\n' ...
+                 'In practice, this means that when defining\n' ...
+                 'v = problem.ehess(x, u), one may need to call\n' ...
+                 'u = problem.M.tangent2ambient(x, u) first, so as to\n'...
+                 'transform u into an ambient vector, if this is more\n' ...
+                 'convenient. The output of ehess should be an ambient\n' ...
+                 'vector (it will be transformed to a tangent vector\n' ...
+                 'automatically).\n']);
+        
+    end
     
 end
