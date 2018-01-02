@@ -403,8 +403,9 @@ problem.egrad = @(x) -2*A*x;
                       manifold</a> </td>
                   <td>$\{X\in\mathbb{R}^{n\times m} : \|X_{:1}\| = \cdots =
                     \|X_{:m}\| = 1\}$ </td>
-                  <td><code>obliquefactory(n, m)</code> (To work with unit-norm
-                    rows instead of columns: <code>obliquefactory(n, m, true)</code>.)</td>
+                  <td><code>obliquefactory(n, m)</code> (To work with
+                    $X\in\mathbb{R}^{m \times n}$ with $m$ unit-norm rows
+                    instead of columns: <code>obliquefactory(n, m, true)</code>.)</td>
                 </tr>
                 <tr>
                   <td><a href="reference/manopt/manifolds/oblique/obliquecomplexfactory.html">Complex
