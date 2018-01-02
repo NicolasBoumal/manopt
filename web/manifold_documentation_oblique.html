@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Manopt, oblique manifold</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
@@ -27,187 +27,251 @@ body {
   </head>
   <body onload="prettyPrint()">
     <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
-          data-target=".nav-collapse"> <span class="icon-bar"></span> <span
-            class="icon-bar"></span> <span class="icon-bar"></span> </a>
+      <div class="navbar-inner"> <a class="btn btn-navbar" data-toggle="collapse"
+          data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span>
+          <span class="icon-bar"></span> </a>
         <div class="container"> <a class="brand" href="index.html">Manopt</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="index.html"><i class="icon-home"></i> Home</a></li>
               <li><a href="tutorial.html"><i class="icon-road"></i> Tutorial</a></li>
-              <li><a href="downloads.html"><i class="icon-download-alt"></i> Downloads</a></li>
-            <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
-            <li><a href="about.html"><i class="icon-user"></i> About</a></li>
-            <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i> Contact</a></li>
-          </ul>
-        </div>
-        <!--/.nav-collapse --> </div>
-    </div>
-  </div>
-  <!-- Contact modal Begin -->
-  <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog"
-    aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
-        aria-hidden="true">&#215;</button>
-      <h3 id="myModalLabel">To contact us</h3>
-    </div>
-    <div class="modal-body">
-      <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
-      <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
-      <p>We are happy to receive feedback and bug reports or requests for more features, to discuss the toolbox in general as well as its documentation and to help you use it.</p>
-      <p>We would also love to know how you use the toolbox, and if you built nice manifold factories, solvers or tools that could benefit others.</p>
-    </div>
-    <div class="modal-footer"> <button class="btn" data-dismiss="modal"
-        aria-hidden="true">Close</button> </div>
-  </div>
-  <!-- Contact modal End -->
-  <div class="container">
-    <div class="row">
-      <div class="span12">
-        <!--Body content-->
-        <section id="geometry">
-          <div class="page-header">
-            <h1>A Riemannian geometry for the oblique manifold</h1>
+              <li><a href="downloads.html"><i class="icon-download-alt"></i>
+                  Downloads</a></li>
+              <li><a href="forum.html"><i class="icon-edit"></i> Forum</a></li>
+              <li><a href="about.html"><i class="icon-user"></i> About</a></li>
+              <li><a href="#contactmodal" data-toggle="modal"><i class="icon-envelope"></i>
+                  Contact</a></li>
+            </ul>
           </div>
-          <p>The oblique manifold $\mathcal{OB}(n, m)$ (the set of matrices of size <span
-              style="font-family: monospace;">nxm</span> with unit-norm columns) is endowed with a Riemannian manifold structure by considering it as a Riemannian submanifold of the embedding Euclidean space $\mathbb{R}^{n\times m}$ endowed with the usual inner product $\langle H_1, H_2 \rangle = \operatorname{trace}(H_1^T H_2)$. Its geometry is exactly the same as that of the product manifold of spheres $\mathbb{S}^{n-1}\times \cdots \times \mathbb{S}^{n-1}$ ($m$ copies), see <a
-              href="manifold_documentation_sphere.html">the sphere manifold</a>.</p>
-          <p>Factory call: <code>M = obliquefactory(n, m)</code>.</p>
-          <table style="width: 100%;" class="table table-striped table-bordered">
-            <thead>
-              <tr>
-                <td>Name </td>
-              <td>Formula </td>
-            <td>Numerical representation</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Set</td>
-            <td>$\mathcal{OB}(n, m) = \{ X \in \mathbb{R}^{n\times m} : (X^TX)_{ii} = 1, i = 1:m \}$</td>
-            <td>$X$ is represented as a matrix <code>X</code> of size <span
-                style="font-family: monospace;">nxm</span> whose columns have unit 2-norm, i.e., <code>X(:, i).'*X(:, i) = 1</code> for <code>i = 1:m</code>.</td>
-          </tr>
-          <tr>
-            <td>Tangent space at $X$</td>
-            <td>$T_X \mathcal{OB}(n, m) = \{ U \in \mathbb{R}^{n\times m} : (X^TU)_{ii} = 0, i = 1:m \}$</td>
-            <td>A tangent vector $U$ at $X$ is represented as a matrix <code>U</code> of size <span
-                style="font-family: monospace;">nxm </span>such that each column of <code>U</code> is orthogonal to the corresponding column of <code>X</code>, i.e., <code>X(:, i).'*U(:, i) = 0</code> for <code>i = 1:m</code>.</td>
-          </tr>
-          <tr>
-            <td>Ambient space</td>
-            <td>$\mathbb{R}^{n\times m}$</td>
-            <td>Points and vectors in the ambient space are, naturally, represented as matrices of size <span
-                style="font-family: monospace;">nxm</span>.</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-    <section id="toolset">
-      <div class="page-header">
-        <h1>Toolset</h1>
+          <!--/.nav-collapse --> </div>
       </div>
-      <p>The following table shows some of the nontrivial available functions in the structure <code>M</code>. The norm $\|\cdot\|$ refers to the norm in the ambient space, which is the Frobenius norm. The <a
-          href="tutorial.html#manifolds">tutorial page</a> gives more details about the functionality implemented by each function.</p>
-      <table style="width: 100%;" class="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <td>Name </td>
-          <td>Field usage </td>
-        <td>Formula </td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Dimension </td>
-    <td><code>M.dim() </code></td>
-    <td>$\operatorname{dim}\mathcal{M} = m(n-1)$ </td>
-</tr>
-<tr>
-  <td>Metric </td>
-<td><code>M.inner(X, U, V) </code></td>
-<td>$\langle U, V\rangle_X = \operatorname{trace}(U^T V)$ </td>
-</tr>
-<tr>
-  <td>Norm </td>
-<td><code>M.norm(X, U) </code></td>
-<td>$\|U\|_X = \sqrt{\langle U, U \rangle_X}$</td>
-</tr>
-<tr>
-  <td>Distance </td>
-<td><code>M.dist(X, Y) </code></td>
-<td>$\operatorname{dist}(X, Y) = \sqrt{\sum_{i=1}^m \arccos^2((X^T Y)_{ii})}$ </td>
-</tr>
-<tr>
-  <td>Typical distance </td>
-<td><code>M.typicaldist() </code></td>
-<td>$\pi\sqrt{m}$ </td>
-</tr>
-<tr>
-  <td>Tangent space projector </td>
-<td><code>M.proj(X, H) </code></td>
-<td>$P_X(H) = H - X\operatorname{ddiag}(X^T H)$, where <code>H</code> represents a vector in the ambient space and $\operatorname{ddiag}$ sets all off-diagonal entries of a matrix to zero. </td>
-</tr>
-<tr>
-  <td>Euclidean to Riemannian gradient</td>
-  <td><nobr><code>M.egrad2rgrad(X, egrad)</code></nobr></td>
-  <td>$\operatorname{grad} f(X) = P_X(\nabla f(X))$, where <code>egrad</code> represents the Euclidean gradient $\nabla f(X)$, which is a vector in the ambient space. </td>
-</tr>
-<tr>
-  <td>Euclidean to Riemannian Hessian</td>
-  <td><nobr><code>M.ehess2rhess(X, egrad, ehess, U)</code></nobr> </td>
-<td>$\operatorname{Hess} f(X)[U] = P_X(\nabla^2 f(X)[U]) - U \operatorname{ddiag}(X^T \nabla f(X))$, where <code>egrad</code> represents the Euclidean gradient $\nabla f(X)$ and <code>ehess</code> represents the Euclidean Hessian $\nabla^2 f(X)[U]$, both being vectors in the ambient space.</td>
-</tr>
-<tr>
-  <td>Exponential map </td>
-<td><code>M.exp(X, U, t) </code></td>
-<td>See <a href="file:///D:/manopt/web/manifold_documentation_sphere.html">the sphere manifold</a>: the same exponential map is applied column-wise.</td>
-</tr>
-<tr>
-  <td>Retraction </td>
-<td><code>M.retr(X, U, t) </code></td>
-<td>$\operatorname{Retr}_X(tU) = \operatorname{normalize}(X+tU)$, where $\operatorname{normalize}$ scales each column of the input matrix to have norm 1.</td>
-</tr>
-<tr>
-  <td>Logarithmic map </td>
-<td><code>M.log(X, Y) </code></td>
-<td>See <a href="file:///D:/manopt/web/manifold_documentation_sphere.html">the sphere manifold</a>: the same logarithmic map is applied column-wise.</td>
-</tr>
-<tr>
-  <td>Random point </td>
-<td><code>M.rand() </code></td>
-<td>Returns a point uniformly at random w.r.t. the natural measure as follows: generate $X$ with i.i.d. normal entries; return $\operatorname{normalize}(X)$. </td>
-</tr>
-<tr>
-  <td>Random vector </td>
-<td><code>M.randvec(X) </code></td>
-<td>Returns a unit-norm tangent vector at $X$ with uniformly random direction, obtained as follows: generate $H$ with i.i.d. normal entries; return: $U = P_X(H) / \|P_X(H)\|$.</td>
-</tr>
-<tr>
-  <td>Vector transport </td>
-<td><code>M.transp(X, Y, U) </code></td>
-<td>$\operatorname{Transp}_{Y\leftarrow X}(U) = P_Y(U)$, where $U$ is a tangent vector at $X$ that is transported to the tangent space at $Y$. </td>
-</tr>
-<tr>
-  <td>Pair mean </td>
-<td><code>M.pairmean(X, Y) </code></td>
-<td>$\operatorname{mean}(X, Y) = \operatorname{normalize}(X+Y)$ </td>
-</tr>
-</tbody>
-</table>
-<p></p>
-</section>
-<section id="differentials">
-  <div class="page-header">
-    <h1>Example</h1>
-  </div>
-  <p>Let $A\in\mathbb{R}^{n\times m}$ be any matrix. We search for the matrix with unit-norm columns that is closest to $A$ according to the Frobenius norm. Of course, this problem has an obvious solution (simply normalize the columns of $A$). We treat it merely for the sake of example. We minimize the following cost function:</p>
-  <p>$$f(X) = \frac{1}{2} \|X-A\|^2,$$</p>
-  <p>such that $X \in \mathcal{OB}(n, m)$. Compute the Euclidean gradient and Hessian of $f$:</p>
-  <p>$$\nabla f(X) = X-A,$$</p>
-  <p>$$\nabla^2 f(X)[U] = U.$$</p>
-  <p>The Riemannian gradient and Hessian are obtained by applying the <code>M.egrad2rgrad</code> and <code>M.ehess2rhess</code> operators. Notice that there is no need to compute these explicitly: it suffices to write code for the Euclidean quantities and to apply the conversion tools on them to obtain the Riemannian quantities, as in the following code:</p>
-  <pre class="prettyprint lang-matlab linenums">% Generate the problem data.
+    </div>
+    <!-- Contact modal Begin -->
+    <div id="contactmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+      aria-hidden="true">
+      <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"
+          aria-hidden="true">&#215;</button>
+        <h3 id="myModalLabel">To contact us</h3>
+      </div>
+      <div class="modal-body">
+        <p>To discuss code, it is best to use the <a href="forum.html">forum</a>.</p>
+        <p>For things not suitable for the forum, e-mail us at <a href="mailto:manopttoolbox@gmail.com">manopttoolbox@gmail.com</a>.</p>
+        <p>We are happy to receive feedback and bug reports or requests for more
+          features, to discuss the toolbox in general as well as its
+          documentation and to help you use it.</p>
+        <p>We would also love to know how you use the toolbox, and if you built
+          nice manifold factories, solvers or tools that could benefit others.</p>
+      </div>
+      <div class="modal-footer"> <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      </div>
+    </div>
+    <!-- Contact modal End -->
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <!--Body content-->
+          <section id="geometry">
+            <div class="page-header">
+              <h1>A Riemannian geometry for the oblique manifold</h1>
+            </div>
+            <p>The oblique manifold $\mathcal{OB}(n, m)$ (the set of matrices of
+              size <span style="font-family: monospace;">nxm</span> with
+              unit-norm columns) is endowed with a Riemannian manifold structure
+              by considering it as a Riemannian submanifold of the embedding
+              Euclidean space $\mathbb{R}^{n\times m}$ endowed with the usual
+              inner product $\langle H_1, H_2 \rangle =
+              \operatorname{trace}(H_1^T H_2)$. Its geometry is exactly the same
+              as that of the product manifold of spheres $\mathbb{S}^{n-1}\times
+              \cdots \times \mathbb{S}^{n-1}$ ($m$ copies), see <a href="manifold_documentation_sphere.html">the
+                sphere manifold</a>.</p>
+            <p>Factory call: <code>M = obliquefactory(n, m)</code>.</p>
+            <p>Alternatively, one can call <code>M = obliquefactory(n, m, true)</code>
+              to represent the same manifold ($m$ spheres in $\mathbb{R}^n$)
+              using matrices of size <span style="font-family: monospace;">mxn</span>
+              with unit-norm rows. In this case, for $X$ a point on the
+              manifold, we have $(XX^T)_{ii} = 1$ for $i = 1:m$.</p>
+            <p>There is also a complex version of this factory: see <code>obliquecomplexfactory</code>.</p>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td>Name </td>
+                  <td>Formula </td>
+                  <td>Numerical representation</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Set</td>
+                  <td>$\mathcal{OB}(n, m) = \{ X \in \mathbb{R}^{n\times m} :
+                    (X^TX)_{ii} = 1, i = 1:m \}$</td>
+                  <td>$X$ is represented as a matrix <code>X</code> of size <span
+                      style="font-family: monospace;">nxm</span> whose columns
+                    have unit 2-norm, i.e., <code>X(:, i).'*X(:, i) = 1</code>
+                    for <code>i = 1:m</code>.</td>
+                </tr>
+                <tr>
+                  <td>Tangent space at $X$</td>
+                  <td>$T_X \mathcal{OB}(n, m) = \{ U \in \mathbb{R}^{n\times m}
+                    : (X^TU)_{ii} = 0, i = 1:m \}$</td>
+                  <td>A tangent vector $U$ at $X$ is represented as a matrix <code>U</code>
+                    of size <span style="font-family: monospace;">nxm </span>such
+                    that each column of <code>U</code> is orthogonal to the
+                    corresponding column of <code>X</code>, i.e., <code>X(:,
+                      i).'*U(:, i) = 0</code> for <code>i = 1:m</code>.</td>
+                </tr>
+                <tr>
+                  <td>Ambient space</td>
+                  <td>$\mathbb{R}^{n\times m}$</td>
+                  <td>Points and vectors in the ambient space are, naturally,
+                    represented as matrices of size <span style="font-family: monospace;">nxm</span>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+          <section id="toolset">
+            <div class="page-header">
+              <h1>Toolset</h1>
+            </div>
+            <p>The following table shows some of the nontrivial available
+              functions in the structure <code>M</code>. The norm $\|\cdot\|$
+              refers to the norm in the ambient space, which is the Frobenius
+              norm. The <a href="tutorial.html#manifolds">tutorial page</a>
+              gives more details about the functionality implemented by each
+              function.</p>
+            <table style="width: 100%;" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td>Name </td>
+                  <td>Field usage </td>
+                  <td>Formula </td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Dimension </td>
+                  <td><code>M.dim() </code></td>
+                  <td>$\operatorname{dim}\mathcal{M} = m(n-1)$ </td>
+                </tr>
+                <tr>
+                  <td>Metric </td>
+                  <td><code>M.inner(X, U, V) </code></td>
+                  <td>$\langle U, V\rangle_X = \operatorname{trace}(U^T V)$ </td>
+                </tr>
+                <tr>
+                  <td>Norm </td>
+                  <td><code>M.norm(X, U) </code></td>
+                  <td>$\|U\|_X = \sqrt{\langle U, U \rangle_X}$</td>
+                </tr>
+                <tr>
+                  <td>Distance </td>
+                  <td><code>M.dist(X, Y) </code></td>
+                  <td>$\operatorname{dist}(X, Y) = \sqrt{\sum_{i=1}^m
+                    \arccos^2((X^T Y)_{ii})}$ </td>
+                </tr>
+                <tr>
+                  <td>Typical distance </td>
+                  <td><code>M.typicaldist() </code></td>
+                  <td>$\pi\sqrt{m}$ </td>
+                </tr>
+                <tr>
+                  <td>Tangent space projector </td>
+                  <td><code>M.proj(X, H) </code></td>
+                  <td>$P_X(H) = H - X\operatorname{ddiag}(X^T H)$, where <code>H</code>
+                    represents a vector in the ambient space and
+                    $\operatorname{ddiag}$ sets all off-diagonal entries of a
+                    matrix to zero. </td>
+                </tr>
+                <tr>
+                  <td>Euclidean to Riemannian gradient</td>
+                  <td><nobr><code>M.egrad2rgrad(X, egrad)</code></nobr></td>
+                  <td>$\operatorname{grad} f(X) = P_X(\nabla f(X))$, where <code>egrad</code>
+                    represents the Euclidean gradient $\nabla f(X)$, which is a
+                    vector in the ambient space. </td>
+                </tr>
+                <tr>
+                  <td>Euclidean to Riemannian Hessian</td>
+                  <td><nobr><code>M.ehess2rhess(X, egrad, ehess, U)</code></nobr>
+                  </td>
+                  <td>$\operatorname{Hess} f(X)[U] = P_X(\nabla^2 f(X)[U]) - U
+                    \operatorname{ddiag}(X^T \nabla f(X))$, where <code>egrad</code>
+                    represents the Euclidean gradient $\nabla f(X)$ and <code>ehess</code>
+                    represents the Euclidean Hessian $\nabla^2 f(X)[U]$, both
+                    being vectors in the ambient space.</td>
+                </tr>
+                <tr>
+                  <td>Exponential map </td>
+                  <td><code>M.exp(X, U, t) </code></td>
+                  <td>See <a href="file:///D:/manopt/web/manifold_documentation_sphere.html">the
+                      sphere manifold</a>: the same exponential map is applied
+                    column-wise.</td>
+                </tr>
+                <tr>
+                  <td>Retraction </td>
+                  <td><code>M.retr(X, U, t) </code></td>
+                  <td>$\operatorname{Retr}_X(tU) =
+                    \operatorname{normalize}(X+tU)$, where
+                    $\operatorname{normalize}$ scales each column of the input
+                    matrix to have norm 1.</td>
+                </tr>
+                <tr>
+                  <td>Logarithmic map </td>
+                  <td><code>M.log(X, Y) </code></td>
+                  <td>See <a href="file:///D:/manopt/web/manifold_documentation_sphere.html">the
+                      sphere manifold</a>: the same logarithmic map is applied
+                    column-wise.</td>
+                </tr>
+                <tr>
+                  <td>Random point </td>
+                  <td><code>M.rand() </code></td>
+                  <td>Returns a point uniformly at random w.r.t. the natural
+                    measure as follows: generate $X$ with i.i.d. normal entries;
+                    return $\operatorname{normalize}(X)$. </td>
+                </tr>
+                <tr>
+                  <td>Random vector </td>
+                  <td><code>M.randvec(X) </code></td>
+                  <td>Returns a unit-norm tangent vector at $X$ with uniformly
+                    random direction, obtained as follows: generate $H$ with
+                    i.i.d. normal entries; return: $U = P_X(H) / \|P_X(H)\|$.</td>
+                </tr>
+                <tr>
+                  <td>Vector transport </td>
+                  <td><code>M.transp(X, Y, U) </code></td>
+                  <td>$\operatorname{Transp}_{Y\leftarrow X}(U) = P_Y(U)$, where
+                    $U$ is a tangent vector at $X$ that is transported to the
+                    tangent space at $Y$. </td>
+                </tr>
+                <tr>
+                  <td>Pair mean </td>
+                  <td><code>M.pairmean(X, Y) </code></td>
+                  <td>$\operatorname{mean}(X, Y) =
+                    \operatorname{normalize}(X+Y)$ </td>
+                </tr>
+              </tbody>
+            </table>
+            <p></p>
+          </section>
+          <section id="differentials">
+            <div class="page-header">
+              <h1>Example</h1>
+            </div>
+            <p>Let $A\in\mathbb{R}^{n\times m}$ be any matrix. We search for the
+              matrix with unit-norm columns that is closest to $A$ according to
+              the Frobenius norm. Of course, this problem has an obvious
+              solution (simply normalize the columns of $A$). We treat it merely
+              for the sake of example. We minimize the following cost function:</p>
+            <p>$$f(X) = \frac{1}{2} \|X-A\|^2,$$</p>
+            <p>such that $X \in \mathcal{OB}(n, m)$. Compute the Euclidean
+              gradient and Hessian of $f$:</p>
+            <p>$$\nabla f(X) = X-A,$$</p>
+            <p>$$\nabla^2 f(X)[U] = U.$$</p>
+            <p>The Riemannian gradient and Hessian are obtained by applying the
+              <code>M.egrad2rgrad</code> and <code>M.ehess2rhess</code>
+              operators. Notice that there is no need to compute these
+              explicitly: it suffices to write code for the Euclidean quantities
+              and to apply the conversion tools on them to obtain the Riemannian
+              quantities, as in the following code:</p>
+            <pre class="prettyprint lang-matlab linenums">% Generate the problem data.
 n = 5;
 m = 8;
 A = randn(n, m);
@@ -227,18 +291,32 @@ problem.hess = @(X, U) manifold.ehess2rhess(X, egrad(X), ehess(X, U), U);
 checkgradient(problem); pause;
 checkhessian(problem); pause;
 </pre>
-  <p>Of course, this is not efficient: there are redundant computations. See the <a
-      href="tutorial.html#costdescription">various ways of describing the cost function</a> for better alternatives.</p>
-  <p> </p>
-<p>Let us consider a second, more interesting, example. A correlation matrix $C \in \mathbb{R}^{n\times n}$ is a symmetric, positive semidefinite matrix with 1's on the diagonal. If $C$ is of rank $k$, there always exists a matrix $X \in \mathcal{OB}(k, n)$ such that $C = X^TX$. In fact, there exist many such matrices: given such an $X$, a whole manifold of equivalent matrices is obtained by considering $QX$ with $Q$ an orthogonal matrix of size $k$. Disregarding this equivalence relation (see <code>help elliptopefactory</code>), we can address the problem of nearest low-rank correlation matrix as follows:</p>
-<p>Let $A \in \mathbb{R}^{n\times n}$ be a given symmetric matrix. We wish to find the correlation matrix $C = X^TX$ of rank at most $k$ which is closest to $A$, according to the Frobenius norm <a
-    href="#references">[Hig01]</a>. That is, we wish to minimize:</p>
-<p>$$f(X) = \frac{1}{4} \|X^TX - A\|^2$$</p>
-<p>with $X \in \mathcal{OB}(k, n)$.The Euclidean gradient and Hessian are given by:</p>
-<p>$$\nabla f(X) = X(X^TX - A),$$</p>
-<p>$$\nabla^2 f(X)[U] = X(U^TX + X^TU) + U(X^TX-A).$$</p>
-<p>In Manopt code, this yields:</p>
-<pre class="prettyprint lang-matlab linenums">% Generate the problem data.
+            <p>Of course, this is not as efficient as it could be: there are
+              redundant computations. See the <a href="tutorial.html#costdescription">various
+                ways of describing the cost function</a> for better
+              alternatives.</p>
+            <p> </p>
+            <p>Let us consider a second, more interesting, example. A
+              correlation matrix $C \in \mathbb{R}^{n\times n}$ is a symmetric,
+              positive semidefinite matrix with 1's on the diagonal. If $C$ is
+              of rank $k$, there always exists a matrix $X \in \mathcal{OB}(k,
+              n)$ such that $C = X^TX$. In fact, there exist many such matrices:
+              given such an $X$, a whole manifold of equivalent matrices is
+              obtained by considering $QX$ with $Q$ an orthogonal matrix of size
+              $k$. Disregarding this equivalence relation (see <code>help
+                elliptopefactory</code>), we can address the problem of nearest
+              low-rank correlation matrix as follows:</p>
+            <p>Let $A \in \mathbb{R}^{n\times n}$ be a given symmetric matrix.
+              We wish to find the correlation matrix $C = X^TX$ of rank at most
+              $k$ which is closest to $A$, according to the Frobenius norm <a href="#references">[Hig01]</a>.
+              That is, we wish to minimize:</p>
+            <p>$$f(X) = \frac{1}{4} \|X^TX - A\|^2$$</p>
+            <p>with $X \in \mathcal{OB}(k, n)$.The Euclidean gradient and
+              Hessian are given by:</p>
+            <p>$$\nabla f(X) = X(X^TX - A),$$</p>
+            <p>$$\nabla^2 f(X)[U] = X(U^TX + X^TU) + U(X^TX-A).$$</p>
+            <p>In Manopt code, this yields:</p>
+            <pre class="prettyprint lang-matlab linenums">% Generate the problem data.
 n = 10;
 k = 3;
 A = randn(n);
@@ -266,41 +344,60 @@ C = X.'*X;
 disp(C);
 disp(eig(C));
 </pre>
-<p>Again, there is a fair bit of redundant computations in this formulation. See the <a
-    href="file:///D:/manopt/web/tutorial.html#costdescription">various ways of describing the cost function</a> for better alternatives.</p>
-</section>
-<section id="references">
-  <div class="page-header">
-    <h1>References</h1>
-  </div>
-  <p>For theory on Riemannian submanifolds, see [AMS08], section 3.6.1 (first-order derivatives) and section 5.3.3 (second-order derivatives, i.e., connections).</p>
-  <p>For content specifically about the oblique manifold with applications, see [AG06].</p>
-  <p>For more info about the nearest correlation matrix problem, see [Hig01].</p>
-  <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
-      href="https://press.princeton.edu/absil">Optimization Algorithms on Matrix Manifolds</a>, Princeton University Press, 2008.<br>
-    [AG06] P.-A. Absil, K. A. Gallivan, <a href="http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2006_01.pdf">Joint Diagonalization on the Oblique Manifold for Independent Component Analysis</a>, 2006.<br>
-    [Hig01] N.J. Higham, <a href="http://eprints.ma.man.ac.uk/232/01/covered/MIMS_ep2006_70.pdf">Computing the nearest correlation matrix: a problem from finance</a>, 2001.</p>
-</section>
-<section id="examples">
-  <div class="page-header">
-    <h1>List of examples</h1>
-  </div>
-  <p>We are still working on building a collection of examples for Manopt. The relevant ones will be referenced here when the time comes.</p>
-</section>
-</div>
-</div>
-</div>
-<!-- /container --><!-- Le javascript ================================================== -->
-<script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-<script type="text/javascript" src="bootstrap/js/prettify.js"></script>
-<script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
-<script type="text/x-mathjax-config">
+            <p>Again, there is a fair bit of redundant computations in this
+              formulation. See the <a href="file:///D:/manopt/web/tutorial.html#costdescription">various
+                ways of describing the cost function</a> for better
+              alternatives.</p>
+          </section>
+          <section id="references">
+            <div class="page-header">
+              <h1>References</h1>
+            </div>
+            <p>For theory on Riemannian submanifolds, see [AMS08], section 3.6.1
+              (first-order derivatives) and section 5.3.3 (second-order
+              derivatives, i.e., connections).</p>
+            <p>For content specifically about the oblique manifold with
+              applications, see [AG06].</p>
+            <p>For more info about the nearest correlation matrix problem, see
+              [Hig01].</p>
+            <p>[AMS08] P.-A. Absil, R. Mahony and R. Sepulchre, <a target="_blank"
+                href="https://press.princeton.edu/absil">Optimization Algorithms
+                on Matrix Manifolds</a>, Princeton University Press, 2008.<br>
+              [AG06] P.-A. Absil, K. A. Gallivan, <a href="http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2006_01.pdf">Joint
+                Diagonalization on the Oblique Manifold for Independent
+                Component Analysis</a>, 2006.<br>
+              [Hig01] N.J. Higham, <a href="http://eprints.ma.man.ac.uk/232/01/covered/MIMS_ep2006_70.pdf">Computing
+                the nearest correlation matrix: a problem from finance</a>,
+              2001.</p>
+          </section>
+          <section id="examples">
+            <div class="page-header">
+              <h1>List of examples</h1>
+            </div>
+            <p><a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/elliptope_SDP.m"
+                target="_blank">elliptope_SDP<br>
+              </a></p>
+            <p><a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/thomson_problem.m"
+                target="_blank">thomson_problem</a></p>
+            <p><a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/packing_on_the_sphere.m"
+                target="_blank">packing_on_the_sphere</a>, <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/maxcut.m"
+                target="_blank">maxcut</a> can be implemented with <code>obliquefactory</code>
+              as well.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+    <!-- /container --><!-- Le javascript ================================================== -->
+    <script type="text/javascript" src="bootstrap/js/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="bootstrap/js/prettify.js"></script>
+    <script type="text/javascript" src="bootstrap/js/lang-matlab.js"></script>
+    <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
 });
 </script> <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script type="text/javascript">
+    <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-37402854-1']);
@@ -313,5 +410,5 @@ MathJax.Hub.Config({
   })();
 
 </script>
-</body>
+  </body>
 </html>
