@@ -16,3 +16,13 @@ addpath(pwd);
 cd manopt;
 addpath(genpath(pwd));
 cd ..;
+
+% Ask user if the path should be saved or not
+fprintf('Manopt was added to Matlab''s path.\n');
+response = input('Save path for future Matlab sessions? [Y/N] ', 's');
+if strcmpi(response, 'Y')
+    savepath();    
+    fprintf('Path saved: no need to call importmanopt next time.\n');
+else
+    fprintf('Path not saved: please call importmanopt next time.\n');
+end
