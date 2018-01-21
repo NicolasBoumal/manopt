@@ -71,9 +71,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     suff_decr = options.ls_suff_decr;
     max_ls_steps = options.ls_max_steps;
     
-    % Obtain an initial guess at alpha from the problem structure. It is
-    % assumed that the present line-search is only called when the problem
-    % structure provides enough information for the call here to work.
+    % Obtain an initial guess at alpha from the problem structure.
     if canGetLinesearch(problem)
         alpha = getLinesearch(problem, x, d, storedb, key);
     else
