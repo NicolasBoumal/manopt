@@ -185,7 +185,9 @@ body {
               $\mathrm{grad}\,f$, which is needed for the optimization.
               Fortunately, for most manifolds in Manopt the conversion happens
               behind the scenes via a function called <code>egrad2rgrad</code>
-              and we only need to compute $\nabla f$.</p>
+              and we only need to compute $\nabla f$. <a href="http://www.matrixcalculus.org/"
+                target="_blank">This website</a> can help in figuring out a
+              formula for $\nabla f$.</p>
             <p>We will solve this simple optimization problem using Manopt to
               illustrate the most basic usage of the toolbox. For additional
               theory, see [AMS08], section 4.6.</p>
@@ -257,14 +259,25 @@ problem.egrad = @(x) -2*A*x;
               the correct name is <code>problem.egrad</code>, with an "e". For
               day to day use, <code>egrad</code> is the often the preferred way
               to go.</p>
+            <div class="alert alert-info"><strong>Tip!</strong> <a href="http://www.matrixcalculus.org/"
+                target="_blank">This website</a> can be helpful in figuring out
+              a formula for the Euclidean gradient of your cost function.</div>
             <div class="alert alert-info"><strong>Tip!</strong> Notice that the
               functions <code>cost</code> <emph>and</emph> <code>egrad</code>
               <emph>both</emph> compute the product $Ax$, which is likely to be
               the most expensive operation for large scale problems. This is
-              perfectly fine for prototyping, but not for a final version of the
-              implementation. See the many ways of <a href="#costdescription">describing
-                the cost function</a> for alternatives that alleviate redundant
+              perfectly fine for prototyping, but less so for a final version of
+              the implementation. See the many ways of <a href="#costdescription">describing
+                the cost function</a> for alternatives that reduce redundant
               computations.</div>
+            <div class="alert alert-info"><strong>Tip!</strong> If you do not
+              specify the gradient, then Manopt approximates it with finite
+              differences. This is slow and can make it difficult to reach
+              accurate solutions, hence this feature should only be used for
+              quick prototyping on low-dimensional manifolds. As the solver may
+              have a hard time reaching points with a small gradient, you can
+              pass an options structure to the solver with <code>options.tolgradnorm</code>
+              set to a larger value to allow it to stop earlier.</div>
             <p>The next instruction is not needed to solve the problem but often
               helps at the prototyping stage:</p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:15">checkgradient(problem);
@@ -295,14 +308,13 @@ problem.egrad = @(x) -2*A*x;
               structure containing all options used and their values: take a
               peek to find out what you can parameterize). For more details and
               more solvers, see the <a href="#solvers">solvers</a> section.</p>
-            <div class="alert alert-info">This call will issue a warning because
-              the trust-regions algorithm normally requires the Hessian of the
-              cost function, or an approximation of it, to be provided in the
-              problem structure. When the Hessian is not provided, Manopt will
-              approximate it using a finite differencing scheme on the gradient
-              function and warn you about it. You may disable this warning by
-              calling <code>warning('off', 'manopt:getHessian:approx');</code>.
-            </div>
+            <div class="alert alert-info">This call issues a warning because the
+              trust-regions algorithm normally requires the Hessian of the cost
+              function, or an approximation of it, to be provided in the problem
+              structure. When the Hessian is not provided, Manopt approximates
+              it using a finite-differencing scheme on the gradient function and
+              warns you about it. You may disable this warning by calling <code>warning('off',
+                'manopt:getHessian:approx');</code>. </div>
             <p>Finally, we access the contents of the struct-array <code>info</code>
               to display the convergence plot of our solver: </p>
             <pre class="prettyprint lang-matlab linenumsoffset linenums:22">semilogy([info.iter], [info.gradnorm], '.-');<br>xlabel('Iteration number');<br>ylabel('Norm of the gradient of f');
