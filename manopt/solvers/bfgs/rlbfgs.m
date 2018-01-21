@@ -1,6 +1,6 @@
 function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % Riemannian limited memory BFGS solver for smooth objective functions.
-%
+% 
 % function [x, cost, info, options] = rlbfgs(problem)
 % function [x, cost, info, options] = rlbfgs(problem, x0)
 % function [x, cost, info, options] = rlbfgs(problem, x0, options)
