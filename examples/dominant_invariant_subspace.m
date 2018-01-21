@@ -32,6 +32,8 @@ function [X, info] = dominant_invariant_subspace(A, p)
 %
 %   NB Dec. 6, 2013:
 %       We specify a max and initial trust region radius in the options.
+%   NB Jan. 20, 2018:
+%       Added a few comments regarding implementation of the cost.
     
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
@@ -52,9 +54,17 @@ function [X, info] = dominant_invariant_subspace(A, p)
     % Define the cost and its derivatives on the Grassmann manifold
     Gr = grassmannfactory(n, p);
     problem.M = Gr;
-    problem.cost = @(X)    -trace(X'*A*X);
-    problem.grad = @(X)    -2*Gr.egrad2rgrad(X, A*X);
-    problem.hess = @(X, H) -2*Gr.ehess2rhess(X, A*X, A*H, H);
+    problem.cost = @(X)    -.5*trace(X'*A*X);
+    problem.grad = @(X)    -Gr.egrad2rgrad(X, A*X);
+    problem.hess = @(X, H) -Gr.ehess2rhess(X, A*X, A*H, H);
+    
+    % Notice that it would be more efficient to compute trace(X'*A*X) via
+    % the formula sum(sum(X .* (A*X))) -- the code above is written so as
+    % to be as close as possible to the familiar mathematical formulas, for
+    % ease of interpretation. Also, the product A*X is needed for both the
+    % cost and the gradient, as well as for the Hessian: one can use the
+    % caching capabilities of Manopt (the store structures) to save on
+    % redundant computations.
     
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.
