@@ -78,12 +78,6 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %     integer value >= 0, or Inf, which is taken to be options.maxiter. If
 %     options.maxiter has value Inf, then it will take value 10000 and a
 %     warning will be displayed.
-%   linesearch (@linesearch_hint)
-%       Function handle to a line search function. The options structure is
-%       passed to the line search too, so you can pass it parameters. See
-%       each line search's documentation for info.
-%       By default, the intial multiplier tried is alpha = 1. This can be
-%       changed with options.linesearch: see help of linesearch_hint.
 %   strict_inc_func (@(t) 1e-4*t)
 %     The Cautious step needs a real function that has value 0 at t = 0,
 %     and  is strictly increasing. See details in Wen Huang's paper
@@ -148,6 +142,9 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %
 %   Nov. 27, 2017 (Wen Huang):
 %       Changed the default strict_inc_func to @(t) 1e-4*t from @(t) t.
+%   Jan. 18, 2018 (NB):
+%       Corrected a bug related to the way the line search hint was defined
+%       by default.
 
 
     % Verify that the problem description is sufficient for the solver.
@@ -166,6 +163,14 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
         problem.approxgrad = approxgradientFD(problem);
     end
     
+    % This solver uses linesearch_hint as a line search algorithm. By
+    % default, try a step size of 1, so that if the BFGS approximation of
+    % the Hessian (or inverse Hessian) is good, then the iteration is close
+    % to a Newton step.
+    if ~canGetLinesearch(problem)
+        problem.linesearch = @(x, d) 1;
+    end
+    
     % Local defaults for the program
     localdefaults.minstepsize = 1e-10;
     localdefaults.maxiter = 1000;
@@ -174,7 +179,6 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     localdefaults.strict_inc_func = @(t) 1e-4*t;
     localdefaults.ls_max_steps  = 25;
     localdefaults.storedepth = 30;
-    localdefaults.linesearch = @linesearch_hint;
     
     % Merge global and local defaults, then merge w/ user options, if any.
     localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
