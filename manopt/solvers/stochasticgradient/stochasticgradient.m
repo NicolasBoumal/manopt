@@ -23,7 +23,8 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 %       As usual, partialgrad must define the Riemannian gradient, whereas
 %       partialegrad defines a Euclidean (classical) gradient which will be
 %       converted automatically to a Riemannian gradient. Use the tool
-%       checkgradient(problem) to check it.
+%       checkgradient(problem) to check it. K is a /row/ vector, which
+%       makes it natural to write for k = K, ..., end.
 %
 %  problem.ncostterms
 %       An integer specifying how many terms are in the cost function (in
