@@ -36,7 +36,7 @@ function approxhess = getApproxHessian(problem, x, d, storedb, key)
     %% Compute the approximate Hessian using approxhess.
 		
         % Check whether this function wants to deal with storedb or not.
-        switch nargin(problem.approxhess);
+        switch nargin(problem.approxhess)
             case 2
                 approxhess = problem.approxhess(x, d);
             case 3
