@@ -76,4 +76,16 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
     % Return the finite difference of them.
     hessfd = problem.M.lincomb(x, 1/c, grad1, -1/c, grad);
     
+    % Note: if grad and grad1 are relatively large vectors, then computing
+    % their difference to obtain hessfd can result in large errors due to
+    % floating point arithmetic. As a result, even though grad and grad1
+    % are supposed to be tangent up to machine precision, the resulting
+    % vector hessfd can be significantly further from being tangent. If so,
+    % this will show in the 'residual check' in checkhessian. Thus, when
+    % using a finite difference approximation, the residual should be
+    % judged as compared to the norm of the gradient at the point under
+    % consideration. This seems not to have caused trouble. If this should
+    % become an issue for some application, the easy fix is to project the
+    % result of the FD approximation: hessfd = problem.M.proj(x, hessfd).
+    
 end
