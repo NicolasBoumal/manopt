@@ -75,8 +75,10 @@ function checkhessian(problem, x, d)
     storedb = StoreDB();
     xkey = storedb.getNewKey();
     f0 = getCost(problem, x, storedb, xkey);
-    df0 = problem.M.inner(x, d, getGradient(problem, x, storedb, xkey));
-    d2f0 = problem.M.inner(x, d, getHessian(problem, x, d, storedb, xkey));
+    gradx = getGradient(problem, x, storedb, xkey);
+    df0 = problem.M.inner(x, d, gradx);
+    hessxd = getHessian(problem, x, d, storedb, xkey);
+    d2f0 = problem.M.inner(x, d, hessxd);
     
     % Compute the value of f at points on the geodesic (or approximation
     % of it) originating from x, along direction d, for stepsizes in a
@@ -199,6 +201,17 @@ function checkhessian(problem, x, d)
                  'vector (it will be transformed to a tangent vector\n' ...
                  'automatically).\n']);
         
+    end
+
+    if ~canGetHessian(problem)
+        norm_grad = problem.M.norm(x, gradx);
+        fprintf(['\nWhen using checkhessian with a finite difference ' ...
+                 'approximation, the norm of the residual\nshould be ' ...
+                 'compared against the norm of the gradient at the ' ...
+                 'point under consideration (%.2g).\nFurthermore, it ' ...
+                 'is expected that the FD operator is only approximately' ...
+                 ' symmetric.\nOf course, the slope can also be off.\n'], ...
+                 norm_grad);
     end
     
 end
