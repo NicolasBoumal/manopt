@@ -105,7 +105,7 @@ function M = grassmannfactory(n, p, k)
     
     M.tangent = M.proj;
     
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
