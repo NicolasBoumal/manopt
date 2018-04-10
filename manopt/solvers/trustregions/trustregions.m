@@ -593,9 +593,16 @@ while true
     % The current strategy is that, if this should happen, then we reject
     % the step and reduce the trust region radius. This also ensures that
     % the actual cost values are monotonically decreasing.
+    %
+    % [This bit of code seems not to trigger because tCG already ensures
+    %  the model decreases even in the presence of non-linearities; but as
+    %  a result the radius is not necessarily decreased. Perhaps we should
+    %  change this with the proposed commented line below; needs testing.]
+    %
     model_decreased = (rhoden >= 0);
+    % model_decreased = (rhoden >= 0) && (stop_inner ~= 6);
     
-    if ~model_decreased 
+    if ~model_decreased
         srstr = [srstr ', model did not decrease']; %#ok<AGROW>
     end
     
