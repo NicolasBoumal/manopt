@@ -154,7 +154,7 @@ for j = 1 : options.maxinner
     % <eta,eta>_P + 2*alpha*<eta,delta>_P + alpha*alpha*<delta,delta>_P
     e_Pe_new = e_Pe + 2.0*alpha*e_Pd + alpha*alpha*d_Pd;
     
-    if options.debug > 2,
+    if options.debug > 2
         fprintf('DBG:   (r,r)  : %e\n', r_r);
         fprintf('DBG:   (d,Hd) : %e\n', d_Hd);
         fprintf('DBG:   alpha  : %e\n', alpha);
@@ -162,13 +162,13 @@ for j = 1 : options.maxinner
     
     % Check against negative curvature and trust-region radius violation.
     % If either condition triggers, we bail out.
-    if d_Hd <= 0 || e_Pe_new >= Delta^2,
+    if d_Hd <= 0 || e_Pe_new >= Delta^2
         % want
         %  ee = <eta,eta>_prec,x
         %  ed = <eta,delta>_prec,x
         %  dd = <delta,delta>_prec,x
         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
-        if options.debug > 2,
+        if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
         end
         eta  = lincomb(x, 1,  eta, tau,  delta);
@@ -184,7 +184,7 @@ for j = 1 : options.maxinner
         % At any rate, the impact should be limited, so in the interest of
         % code conciseness (if we can still hope for that), we omit this.
         
-        if d_Hd <= 0,
+        if d_Hd <= 0
             stop_tCG = 1;     % negative curvature
         else
             stop_tCG = 2;     % exceeded trust region
@@ -229,7 +229,7 @@ for j = 1 : options.maxinner
     % acceptable criteria.
     if j >= options.mininner && norm_r <= norm_r0*min(norm_r0^theta, kappa)
         % Residual is small enough to quit
-        if kappa < norm_r0^theta,
+        if kappa < norm_r0^theta
             stop_tCG = 3;  % linear convergence
         else
             stop_tCG = 4;  % superlinear convergence

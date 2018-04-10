@@ -691,16 +691,16 @@ while true
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
                       norm_grad, Delta, ticstart, info, rho, rhonum, ...
                       rhoden, accept, numit, norm_eta, used_cauchy);
-    info(k+1) = stats; %#ok<AGROW>
+    info(k+1) = stats;
 
     
     % ** Display:
-    if options.verbosity == 2,
+    if options.verbosity == 2
         fprintf(['%3s %3s   k: %5d     num_inner: %5d     ', ...
         'f: %+e   |grad|: %e   %s\n'], ...
         accstr,trstr,k,numit,fx,norm_grad,srstr);
-    elseif options.verbosity > 2,
-        if options.useRand && used_cauchy,
+    elseif options.verbosity > 2
+        if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
 		fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
@@ -711,7 +711,7 @@ while true
 		end
 		fprintf('        rho : %e\n',rho);
     end
-    if options.debug > 0,
+    if options.debug > 0
         fprintf('DBG: cos ang(eta,gradf): %d\n',testangle);
         if rho == 0
             fprintf('DBG: rho = 0, this will likely hinder further convergence.\n');
@@ -724,7 +724,7 @@ end  % of TR loop (counter: k)
 info = info(1:k+1);
 
 
-if (options.verbosity > 2) || (options.debug > 0),
+if (options.verbosity > 2) || (options.debug > 0)
    fprintf('************************************************************************\n');
 end
 if (options.verbosity > 0) || (options.debug > 0)
@@ -767,7 +767,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.accepted = accept;
         stats.numinner = numit;
         stats.stepsize = norm_eta;
-        if options.useRand,
+        if options.useRand
           stats.cauchy = used_cauchy;
         end
     end
