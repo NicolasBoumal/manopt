@@ -32,7 +32,7 @@ function M = spherefactory(n, m)
 %   Sep. 7, 2017 (NB)
 %       New isometric vector transport available in M.isotransp,
 %       contributed by Changshuo Liu.
-
+    
     
     if ~exist('m', 'var')
         m = 1;
@@ -77,15 +77,15 @@ function M = spherefactory(n, m)
     M.proj = @(x, d) d - x*(x(:).'*d(:));
     
     M.tangent = M.proj;
-	
+    
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
-	M.egrad2rgrad = M.proj;
-	
-	M.ehess2rhess = @ehess2rhess;
-	function rhess = ehess2rhess(x, egrad, ehess, u)
+    M.egrad2rgrad = M.proj;
+    
+    M.ehess2rhess = @ehess2rhess;
+    function rhess = ehess2rhess(x, egrad, ehess, u)
         rhess = M.proj(x, ehess) - (x(:)'*egrad(:))*u;
-	end
+    end
     
     M.exp = @exponential;
     
