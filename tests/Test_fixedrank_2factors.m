@@ -75,7 +75,7 @@ function Test_fixedrank_2factors()
     % [Xopt costopt info] = steepestdescent(problem, X0, options);
     % [Xopt costopt info] = conjugategradient(problem, X0, options);
     
-    evs = hessianspectrum(problem, Xopt)
+    evs = real(hessianspectrum(problem, Xopt));
     evs = real(evs);
     max(evs)/min(evs)
     stairs(sort(evs));
