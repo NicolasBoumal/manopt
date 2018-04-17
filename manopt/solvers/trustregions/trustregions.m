@@ -618,7 +618,7 @@ while true
         if isnan(fx_prop)
             fprintf('The cost function returned NaN (perhaps the retraction returned a bad point?)\n');
         else
-            fprintf('The cost function did not return a NaN value.');
+            fprintf('The cost function did not return a NaN value.\n');
         end
     end
    
