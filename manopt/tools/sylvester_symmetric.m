@@ -5,10 +5,11 @@ function X = sylvester_symmetric(A, C, tol)
 % function X = sylvester_symmetric(A, C, tol)
 %
 % When the solution exists and is unique, this is equivalent to
-% sylvester(A, A', C) (though it may differ numerically.)
+% sylvester(A, A', C) or lyap(A, -C) (though it may differ numerically.)
 % 
 % If the solution is not unique, the smallest norm solution is returned.
-% If C is symmetric, then X is always symmetric.
+% If C is (skew-)symmetric, then X is (skew-)symmetric (up to numerical
+% errors).
 %
 % If a solution does not exist, a minimum-residue solution is returned.
 %
