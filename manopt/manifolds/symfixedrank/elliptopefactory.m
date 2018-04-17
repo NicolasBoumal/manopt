@@ -62,18 +62,12 @@ function M = elliptopefactory(n, k)
 % 
 %   April 3, 2015 (NB):
 %       Replaced trace(A'*B) by A(:)'*B(:) : equivalent but faster.
+% 
+%   April 17, 2018 (NB):
+%       Removed dependency on lyap entirely.
 
 % TODO: modify normalize_rows and project_rows to work without transposes.
 % TODO: enhance ehess2rhess to also use bsxfun.
-    
-	
-	if ~exist('lyap', 'file')
-		warning('manopt:elliptopefactory:slowlyap', ...
-		       ['The function lyap to solve Lyapunov equations seems not to ' ...
-				'be available. This may slow down optimization over this ' ...
-				'manifold significantly. lyap is part of the control system ' ...
-				'toolbox.']);
-    end
     
     if k < 2
         warning('manopt:elliptopefactory:lowk', ...
@@ -155,36 +149,17 @@ end
 % Projection onto the tangent space, i.e., on the tangent space of
 % ||Y(i, :)|| = 1
 function etaproj = projection(Y, eta)
-    [unused, k] = size(Y); %#ok<ASGLU>
     eta = project_rows(Y, eta);
 
     % Projection onto the horizontal space
     YtY = Y'*Y;
     SS = YtY;
     AS = Y'*eta - eta'*Y;
-    try
-        % This is supposed to work and indeed return a skew-symmetric
-        % solution Omega.
-        Omega = lyap(SS, -AS);
-    catch up %#ok<NASGU>
-        % It can happen though that SS will be rank deficient. The
-        % Lyapunov equation we solve still has a unique skew-symmetric
-        % solution, but solutions with a symmetric part now also exist,
-        % and the lyap function doesn't like that. So we want to
-        % extract the minimum norm solution. This is also useful if lyap is
-		% not available (it is part of the control system toolbox).
-        mat = @(x) reshape(x, [k k]);
-        vec = @(X) X(:);
-        is_octave = exist('OCTAVE_VERSION', 'builtin');
-        if ~is_octave
-            [vecomega, unused] = minres(@(x) vec(SS*mat(x) + mat(x)*SS), vec(AS)); %#ok<NASGU>
-        else
-            [vecomega, unused] = gmres(@(x) vec(SS*mat(x) + mat(x)*SS), vec(AS)); %#ok<NASGU>
-        end
-        Omega = mat(vecomega);
-    end
-    % % Make sure the result is skew-symmetric (does not seem necessary).
+    Omega = sylvester_symmetric(SS, AS);
+        
+    % It does not seem necessary to enforce skew-symmetry numerically.
     % Omega = (Omega-Omega')/2;
+    
     etaproj = eta - Y*Omega;
 end
 
