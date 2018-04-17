@@ -56,6 +56,9 @@ function M = fixedrankfactory_2factors(m, n, k)
 %	July 03, 2015 (BM):
 %      Cosmetic changes including avoiding storing the inverse of a
 %       k-by-k matrix.
+%
+%   April 17, 2018 (NB):
+%      Using built-in sylvester instead of lyap, which requires a toolbox.
     
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -122,7 +125,8 @@ function M = fixedrankfactory_2factors(m, n, k)
         
         SS = (X.LtL)*(X.RtR);
         AS = (X.LtL)*(X.R'*eta.R) - (eta.L'*X.L)*(X.RtR);
-        Omega = lyap(SS, SS,-AS);
+        % Omega = lyap(SS, SS, -AS);
+        Omega = sylvester(SS, SS, AS);
         etaproj.L = eta.L + X.L*Omega';
         etaproj.R = eta.R - X.R*Omega;
     end
