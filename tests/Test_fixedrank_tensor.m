@@ -294,24 +294,25 @@ function Test_fixedrank_tensor()
     end    
 
     % Notice that for this solver, the Hessian is not needed.
-    [Xcg, costcg, infocg] = conjugategradient(problem, [], options);
+    [X, cost, info] = conjugategradient(problem, [], options);
     
     fprintf('Take a look at the options that CG used:\n');
     disp(options);
     fprintf('And see how many trials were made at each line search call:\n');
-    info_ls = [infocg.linesearch];
+    info_ls = [info.linesearch];
     disp([info_ls.costevals]);  
     
     
     
     % BFGS
-    problem.precon = preconBFGS(problem);
-    problem.linesearch = @(x, xdot, storedb, key) 1;
-    options.beta_type ='steep';
-    [Xcg, costcg, infocg] = conjugategradient(problem, [],options);
+%     problem.precon = preconBFGS(problem); -- was removed
+%     problem.linesearch = @(x, xdot, storedb, key) 1;
+%     options.beta_type ='steep';
+%     [X, cost, info] = conjugategradient(problem, [],options);
+    [X, cost, info] = rlbfgs(problem, [], options);
     
     fprintf('And see how many trials were made at each line search call:\n');
-    info_ls = [infocg.linesearch];
+    info_ls = [info.linesearch];
     disp([info_ls.costevals]);  
     
 end
