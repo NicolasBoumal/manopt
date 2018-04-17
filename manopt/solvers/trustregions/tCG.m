@@ -54,9 +54,9 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %       Works with the new StoreDB class system.
 
 
-% All terms involving the trust-region radius will use an inner product
+% All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
-% length w.r.t. the preconditioner, guaranteeing that we will not
+% length w.r.t. the preconditioner, guaranteeing that we do not
 % re-enter the trust-region.
 %
 % The following recurrences for Prec-based norms and inner
@@ -67,12 +67,12 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %          beta_k-1 * ( <eta_k-1,P*delta_k-1> + alpha_k-1 |delta_k-1|^2_P )
 % |delta_k|^2_P = <r_k,z_k> + beta_k-1^2 |delta_k-1|^2_P
 %
-% therefore, we need to keep track of
+% Therefore, we need to keep track of:
 % 1)   |delta_k|^2_P
 % 2)   <eta_k,P*delta_k> = <eta_k,delta_k>_P
 % 3)   |eta_k  |^2_P
 %
-% initial values are given by:
+% Initial values are given by
 %    |delta_0|_P = <r,z>
 %    |eta_0|_P   = 0
 %    <eta_0,delta_0>_P = 0
