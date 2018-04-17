@@ -674,6 +674,28 @@ while true
     % Choose to accept or reject the proposed step based on the model
     % performance. Note the strict inequality.
     if model_decreased && rho > options.rho_prime
+        
+        % April 17, 2018: a side effect of rho-regularization > 0 is that
+        % it can happen that the cost function appears to go up (although
+        % only by a small amount) for some accepted steps. We decide to
+        % accept this because, numerically, computing the difference
+        % between fx_prop and fx is more difficult than computing the
+        % improvement in the model, because fx_prop and fx are on the same
+        % order of magnitude yet are separated by a very small gap near
+        % convergence, whereas the model improvement is computed as a sum
+        % of two small terms. As a result, the step which seems bad may
+        % turn out to be good, in that it may help reduce the gradient norm
+        % for example. This update merely inform the user of this event. In
+        % further updates, we could also introduce this as a stopping
+        % criterion. It is then important to choose wisely which of x or
+        % x_prop should be returned (perhaps the one with smallest
+        % gradient?)
+        if fx_prop > fx && options.verbosity >= 2
+            fprintf(['Between line above and below, cost function ' ...
+                     'increased by %s (step size: %g)\n'], ...
+                     fx_prop - fx, norm_eta);
+        end
+        
         accept = true;
         accstr = 'acc';
         x = x_prop;
