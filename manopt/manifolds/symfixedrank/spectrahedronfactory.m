@@ -53,6 +53,9 @@ function M = spectrahedronfactory(n, k)
 %   April 2, 2015 (NB):
 %       Replaced trace(A'*B) by A(:)'*B(:) (equivalent but faster).
 %       Updated documentation.
+%
+%   April 17, 2018 (NB):
+%       Removed dependence on lyap.
     
     
     
@@ -80,7 +83,8 @@ function M = spectrahedronfactory(n, k)
         YtY = Y'*Y;
         SS = YtY;
         AS = Y'*eta - eta'*Y;
-        Omega = lyap(SS, -AS);
+        % Omega = lyap(SS, -AS);
+		Omega = sylvester_symmetric(SS, AS);
         etaproj = eta - Y*Omega;
     end
     
@@ -120,7 +124,7 @@ function M = spectrahedronfactory(n, k)
         Ynew = retraction(Y, eta, t);
         warning('manopt:spectrahedronfactory:exp', ...
             ['Exponential for fixed rank spectrahedron ' ...
-            'manifold not implenented yet. Used retraction instead.']);
+            'manifold not implemented yet. Used retraction instead.']);
     end
     
     % Notice that the hash of two equivalent points will be different...
