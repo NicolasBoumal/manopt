@@ -32,6 +32,16 @@ function M = spherefactory(n, m)
 %   Sep. 7, 2017 (NB)
 %       New isometric vector transport available in M.isotransp,
 %       contributed by Changshuo Liu.
+%
+%   April 17, 2018 (NB)
+%       ehess2rhess: Used to compute projection of ehess, then subtract a
+%       multiple of u (which is assumed tangent.) Now, similarly to what
+%       happens in stiefelfactory, we first subtract the multiple of u from
+%       ehess, then we subtract. Mathematically, these operations are the
+%       same. Numerically, the former version used to be better because tCG
+%       in trustregions had some drift near fine convergence. Now that the
+%       drift in tCG has been fixed, it is reasonable to apply the
+%       projection last, to ensure best tangency of the output.
     
     
     if ~exist('m', 'var')
@@ -84,7 +94,7 @@ function M = spherefactory(n, m)
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(x, egrad, ehess, u)
-        rhess = M.proj(x, ehess) - (x(:)'*egrad(:))*u;
+        rhess = M.proj(x, ehess - (x(:)'*egrad(:))*u);
     end
     
     M.exp = @exponential;
