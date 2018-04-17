@@ -38,6 +38,7 @@ function [Q A] = test08(A)
     warning('off', 'manopt:getHessian:approx');
     
     options = struct();
+    options.tolgradnorm = 0;
 %     options.debug = true;
 %     options.Delta_bar = 1.7321 * 4^3;
 %     options.Delta0 = options.Delta_bar / 8;

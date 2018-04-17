@@ -55,12 +55,12 @@ function Test_trustregions
     x0 = X(:, :, 1);
     
     % Setup some options for the trustregions algorihm
-    options.tolgradnorm = 1e-10;
+    options.tolgradnorm = 1e-16;
     options.maxtime = 30;
     options.maxiter = 200;
     options.verbosity = 2;
-    options.debug = 2;
-    options.rho_regularization = 1;
+    options.debug = 0;
+    options.rho_regularization = 1e3;
     
     % We did not specify a Hessian, but use trustregions anyway. Hence, the
     % Hessian will be approximated, and we should be warned about it. To

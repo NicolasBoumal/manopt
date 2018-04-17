@@ -29,10 +29,10 @@ function [Q E1 E2] = test09()
     problem.cost = @(Q) .5*norm(E1*Q-Q*E2, 'fro')^2 + .5*norm(E2*Q+Q*E1, 'fro')^2;
 
     % And its gradient
-    problem.grad = @(Q) problem.M.egrad2rgrad(Q, Q'*(E1'*(E1*Q-Q*E2) - (E1*Q-Q*E2)*E2' + E2'*(E2*Q+Q*E1) + (E2*Q+Q*E1)*E1'));
+    problem.grad = @(Q) problem.M.egrad2rgrad(Q, (E1'*(E1*Q-Q*E2) - (E1*Q-Q*E2)*E2' + E2'*(E2*Q+Q*E1) + (E2*Q+Q*E1)*E1'));
     
     % Check differentials consistency.
-    % checkgradient(problem);
+    checkgradient(problem);
 
     % Solve with trust-regions and FD approximation of the Hessian
     warning('off', 'manopt:getHessian:approx');

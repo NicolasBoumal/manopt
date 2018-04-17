@@ -48,12 +48,12 @@ function Test_positivedefinite()
     
     
     % Check numerically whether gradient and Ressian are correct
-    checkgradient(problem);
-    drawnow;
-    pause;
-    checkhessian(problem);
-    drawnow;
-    pause;
+%     checkgradient(problem);
+%     drawnow;
+%     pause;
+%     checkhessian(problem);
+%     drawnow;
+%     pause;
     
     
     % Initialization
@@ -63,7 +63,7 @@ function Test_positivedefinite()
     options.maxiter = 1000;
     options.maxinner = 30;
     options.maxtime = 120;
-    options.tolgradnorm = 1e-5;
+    options.tolgradnorm = 1e-16;
     
     % Pick an algorithm to solve the problem
     [Xopt, costopt, info] = trustregions(problem, X0, options);

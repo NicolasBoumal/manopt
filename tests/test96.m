@@ -118,7 +118,7 @@ options.Delta_bar = m * r;
 options.Delta0 = options.Delta_bar / 8;
 
 % Pick an algorithm to solve the problem
-   [Xopt costopt info] = trustregions(problem, X0, options);
+   [Xopt, costopt, info] = trustregions(problem, X0, options);
 %  [Xopt costopt info] = steepestdescent(problem, X0, options);
 % [Xopt costopt info] = conjugategradient(problem, X0, options);
 
