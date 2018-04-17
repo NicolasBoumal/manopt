@@ -37,6 +37,8 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 % Original authors: Hiroyuki Kasai and Bamdev Mishra, June 5, 2015.
 % Contributors: 
 % Change log:
+%
+%   April 17, 2018 (NB): removed dependency on lyap.
 
     if length(tensor_rank) > 3
         error('Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.');
@@ -117,11 +119,11 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         ASU3 = 2*symm(SSU3*(X.U3' * egrad.U3));
         
         
-        BU1 = lyap(SSU1, -ASU1);
-        BU2 = lyap(SSU2, -ASU2);
-        BU3 = lyap(SSU3, -ASU3);
+        BU1 = sylvester_symmetric(SSU1, ASU1);
+        BU2 = sylvester_symmetric(SSU2, ASU2);
+        BU3 = sylvester_symmetric(SSU3, ASU3);
         
-        % The lyap solutions ensure that the Riemannian gradient rgrad 
+        % The sylvester solutions ensure that the Riemannian gradient rgrad 
         % is now on the tangent space. From the Riemannian submersion 
         % theory, it also belongs to the horizontal space. Therefore,
         % no need to further project it on the horizontal space.
@@ -148,9 +150,9 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         SSU3 = X.G3G3t;
         ASU3 = 2*symm(SSU3*(X.U3' * egrad.U3));
         
-        BU1 = lyap(SSU1, -ASU1);
-        BU2 = lyap(SSU2, -ASU2);
-        BU3 = lyap(SSU3, -ASU3);
+        BU1 = sylvester_symmetric(SSU1, ASU1);
+        BU2 = sylvester_symmetric(SSU2, ASU2);
+        BU3 = sylvester_symmetric(SSU3, ASU3);
         
         rgrad.U1 = (egrad.U1 - X.U1*BU1)/X.G1G1t;
         rgrad.U2 = (egrad.U2 - X.U2*BU2)/X.G2G2t;
@@ -180,9 +182,9 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         SSU1dot = X.G1G1t;
         SSU2dot = X.G2G2t;
         SSU3dot = X.G3G3t;
-        BU1dot = lyap(SSU1dot, -ASU1dot);
-        BU2dot = lyap(SSU2dot, -ASU2dot);
-        BU3dot = lyap(SSU3dot, -ASU3dot);
+        BU1dot = sylvester_symmetric(SSU1dot, ASU1dot);
+        BU2dot = sylvester_symmetric(SSU2dot, ASU2dot);
+        BU3dot = sylvester_symmetric(SSU3dot, ASU3dot);
         
         
         Hess.U1 = (ehess.U1 - eta.U1*BU1 - X.U1*BU1dot - 2*rgrad.U1*symm(eta_G1*X.G1'))/X.G1G1t;
@@ -224,17 +226,17 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         % First, projection onto tangent space of total space
         SSU1 = X.G1G1t;
         ASU1 = 2*symm(X.G1G1t*(X.U1'*eta.U1)*X.G1G1t);
-        BU1 = lyap(SSU1, -ASU1);
+        BU1 = sylvester_symmetric(SSU1, ASU1);
         eta.U1 = eta.U1 - X.U1*(BU1/X.G1G1t);
         
         SSU2 = X.G2G2t;
         ASU2 = 2*symm(X.G2G2t*(X.U2'*eta.U2)*X.G2G2t);
-        BU2 = lyap(SSU2, -ASU2);
+        BU2 = sylvester_symmetric(SSU2, ASU2);
         eta.U2 = eta.U2 - X.U2*(BU2/X.G2G2t);
         
         SSU3 = X.G3G3t;
         ASU3 = 2*symm(X.G3G3t*(X.U3'*eta.U3)*X.G3G3t);
-        BU3 = lyap(SSU3, -ASU3);
+        BU3 = sylvester_symmetric(SSU3, ASU3);
         eta.U3 = eta.U3 - X.U3*(BU3/X.G3G3t);
         
 
@@ -270,7 +272,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         Mprecon_pcg(1 + r1^2 + r2^2 : end, 1 + r1^2 + r2^2 : end) = M3;
         
         % Call PCG
-        [Omegaxsol, unused] = pcg(@compute_residual, [PU1(:); PU2(:); PU3(:)],  tol_omegax_pcg, max_iterations_pcg, Mprecon_pcg);
+        [Omegaxsol, unused] = pcg(@compute_residual, [PU1(:); PU2(:); PU3(:)],  tol_omegax_pcg, max_iterations_pcg, Mprecon_pcg); %#ok<ASGLU>
         
         Omega1 = reshape(Omegaxsol(1:r1^2), r1, r1);
         Omega2 = reshape(Omegaxsol(1 + r1^2 : r1^2 + r2^2), r2, r2);
