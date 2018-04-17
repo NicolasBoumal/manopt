@@ -52,6 +52,18 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %
 %   NB April 3, 2015:
 %       Works with the new StoreDB class system.
+%
+%   NB April 17, 2018:
+%       Two changes:
+%        (a) Instead of updating delta and Hdelta, we now update -delta and
+%            -Hdelta, named mdelta and Hmdelta. This allows to spare one
+%            call to lincomb(x, -1, z).
+%        (b) We re-project mdelta to the tangent space at every iteration,
+%            to avoid drifting away from it. The choice to project mdelta
+%            specifically is motivated by the fact that this is the vector
+%            passed to getHessian, hence this is where accurate tangency
+%            may be most important. (All other operations are linear
+%            combinations of tangent vectors, which should be fairly safe.)
 
 
 % All terms involving the trust-region radius use an inner product
@@ -80,8 +92,9 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-inner = problem.M.inner;
-lincomb = problem.M.lincomb;
+inner   = @(u, v) problem.M.inner(x, u, v);
+lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
+tangent = @(u) problem.M.tangent(x, u);
 
 theta = options.theta;
 kappa = options.kappa;
@@ -93,10 +106,10 @@ if ~options.useRand % and therefore, eta == 0
 else % and therefore, no preconditioner
     % eta (presumably) ~= 0 was provided by the caller.
     Heta = getHessian(problem, x, eta, storedb, key);
-    r = lincomb(x, 1, grad, 1, Heta);
-    e_Pe = inner(x, eta, eta);
+    r = lincomb(1, grad, 1, Heta);
+    e_Pe = inner(eta, eta);
 end
-r_r = inner(x, r, r);
+r_r = inner(r, r);
 norm_r = sqrt(r_r);
 norm_r0 = norm_r;
 
@@ -108,15 +121,16 @@ else
 end
 
 % Compute z'*r.
-z_r = inner(x, z, r);
+z_r = inner(z, r);
 d_Pd = z_r;
 
-% Initial search direction.
-delta  = lincomb(x, -1, z);
+% Initial search direction (we maintain -delta in memory, called mdelta, to
+% avoid a change of sign of the tangent vector.)
+mdelta = z;
 if ~options.useRand % and therefore, eta == 0
     e_Pd = 0;
 else % and therefore, no preconditioner
-    e_Pd = inner(x, eta, delta);
+    e_Pd = -inner(eta, mdelta);
 end
 
 % If the Hessian or a linear Hessian approximation is in use, it is
@@ -127,7 +141,7 @@ end
 % increase. It is then important to terminate the tCG iterations and return
 % the previous (the best-so-far) iterate. The variable below will hold the
 % model value.
-model_fun = @(eta, Heta) inner(x, eta, grad) + .5*inner(x, eta, Heta);
+model_fun = @(eta, Heta) inner(eta, grad) + .5*inner(eta, Heta);
 if ~options.useRand
     model_value = 0;
 else
@@ -142,10 +156,10 @@ j = 0;
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
-    Hdelta = getHessian(problem, x, delta, storedb, key);
+    Hmdelta = getHessian(problem, x, mdelta, storedb, key);
     
     % Compute curvature (often called kappa).
-    d_Hd = inner(x, delta, Hdelta);
+    d_Hd = inner(mdelta, Hmdelta);
     
     
     % Note that if d_Hd == 0, we will exit at the next "if" anyway.
@@ -171,11 +185,11 @@ for j = 1 : options.maxinner
         if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
         end
-        eta  = lincomb(x, 1,  eta, tau,  delta);
+        eta  = lincomb(1,  eta, -tau,  mdelta);
         
         % If only a nonlinear Hessian approximation is available, this is
         % only approximately correct, but saves an additional Hessian call.
-        Heta = lincomb(x, 1, Heta, tau, Hdelta);
+        Heta = lincomb(1, Heta, -tau, Hmdelta);
         
         % Technically, we may want to verify that this new eta is indeed
         % better than the previous eta before returning it (this is always
@@ -194,11 +208,11 @@ for j = 1 : options.maxinner
     
     % No negative curvature and eta_prop inside TR: accept it.
     e_Pe = e_Pe_new;
-    new_eta  = lincomb(x, 1,  eta, alpha,  delta);
+    new_eta  = lincomb(1,  eta, -alpha,  mdelta);
     
     % If only a nonlinear Hessian approximation is available, this is
     % only approximately correct, but saves an additional Hessian call.
-    new_Heta = lincomb(x, 1, Heta, alpha, Hdelta);
+    new_Heta = lincomb(1, Heta, -alpha, Hmdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
     % it did not (which can only occur if the Hessian approximation is
@@ -216,10 +230,10 @@ for j = 1 : options.maxinner
     model_value = new_model_value; %% added Feb. 17, 2015
     
     % Update the residual.
-    r = lincomb(x, 1, r, alpha, Hdelta);
+    r = lincomb(1, r, -alpha, Hmdelta);
     
     % Compute new norm of r.
-    r_r = inner(x, r, r);
+    r_r = inner(r, r);
     norm_r = sqrt(r_r);
     
     % Check kappa/theta stopping criterion.
@@ -247,11 +261,21 @@ for j = 1 : options.maxinner
     % Save the old z'*r.
     zold_rold = z_r;
     % Compute new z'*r.
-    z_r = inner(x, z, r);
+    z_r = inner(z, r);
     
     % Compute new search direction.
     beta = z_r/zold_rold;
-    delta = lincomb(x, -1, z, beta, delta);
+    mdelta = lincomb(1, z, beta, mdelta);
+    
+    % Since mdelta is passed to getHessian, which is the part of the code
+    % we have least control over from here, we want to make sure mdelta is
+    % a tangent vector up to numerical errors that should remain small.
+    % For this reason, we re-project mdelta to the tangent space.
+    % In limited tests, it was observed that it is a good idea to project
+    % at every iteration rather than only every k iterations, the reason
+    % being that loss of tangency can lead to more inner iterations being
+    % run, which leads to an overall higher computational cost.
+    mdelta = tangent(mdelta);
     
     % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7].
     e_Pd = beta*(e_Pd + alpha*d_Pd);
