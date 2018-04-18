@@ -12,7 +12,7 @@ end
 A = A+A';
 C = A*X0+X0*A;
 
-X1 = sylvester_symmetric(A, C);
+X1 = lyapunov_symmetric(A, C);
 
 norm(A*X1+X1*A-C, 'fro') / norm(C, 'fro')
 norm(X0, 'fro')

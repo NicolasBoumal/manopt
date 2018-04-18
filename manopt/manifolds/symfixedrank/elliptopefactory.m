@@ -155,7 +155,7 @@ function etaproj = projection(Y, eta)
     YtY = Y'*Y;
     SS = YtY;
     AS = Y'*eta - eta'*Y;
-    Omega = sylvester_symmetric(SS, AS);
+    Omega = lyapunov_symmetric(SS, AS);
         
     % It does not seem necessary to enforce skew-symmetry numerically.
     % Omega = (Omega-Omega')/2;

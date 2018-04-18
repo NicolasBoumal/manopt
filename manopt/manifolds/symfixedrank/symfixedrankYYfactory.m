@@ -83,7 +83,7 @@ function M = symfixedrankYYfactory(n, k)
 		SS = YtY;
 		AS = Y'*eta - eta'*Y;
 		% Omega = lyap(SS, -AS);
-		Omega = sylvester_symmetric(SS, AS);
+		Omega = lyapunov_symmetric(SS, AS);
 		etaproj = eta - Y*Omega;
 	end
 

@@ -1,8 +1,8 @@
 function X = lyapunov_symmetric(A, C, tol)
 % Solves AX + XA = C when A = A', as a pseudo-inverse.
 %
-% function X = sylvester_symmetric(A, C)
-% function X = sylvester_symmetric(A, C, tol)
+% function X = lyapunov_symmetric(A, C)
+% function X = lyapunov_symmetric(A, C, tol)
 %
 % When the solution exists and is unique, this is equivalent to
 % sylvester(A, A', C) or lyap(A, -C). This works for both real and complex
