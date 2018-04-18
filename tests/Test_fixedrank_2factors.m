@@ -22,9 +22,9 @@ function Test_fixedrank_2factors()
     
     % Create the problem structure
     
-    problem.M = fixedrankfactory_2factors(m, n, r);
+%     problem.M = fixedrankfactory_2factors(m, n, r);
     %     problem.M = fixedrankfactory_2factors_preconditioned(m, n, r);
-    %     problem.M = fixedrankfactory_2factors_subspace_projection(m, n, r);
+        problem.M = fixedrankfactory_2factors_subspace_projection(m, n, r);
     
     df = problem.M.dim();
     p = 8*df/(m*n);
