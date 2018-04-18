@@ -33,6 +33,7 @@ function M = fixedrankMNquotientfactory(m, n, k)
 % Contributors:
 % Change log:
 %		NB, April 17, 2018: added M.tangent
+%		NB, April 18, 2018: removed lyap dependency
     
     
     M.name = @() sprintf('MN'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -86,7 +87,7 @@ function M = fixedrankMNquotientfactory(m, n, k)
         A = X.N'*X.N + eye(k);
         B = eta.M'*X.M + eta.N'*X.N;
         B = B-B';
-        omega = lyap(A, -B);
+        omega = lyapunov_symmetric(A, B);
         
         % And project along the vertical space to the horizontal space.
         etaproj.M = eta.M + X.M*omega;

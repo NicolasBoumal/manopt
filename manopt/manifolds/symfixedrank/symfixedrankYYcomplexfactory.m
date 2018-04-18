@@ -59,6 +59,9 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %   June 28, 2016 (NB):
 %       Metric scaled down by factor 2 to match the metric used in
 %       euclideancomplexfactory.
+%
+%   April 18, 2018 (NB):
+%       Removed lyap depedency.
     
     M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
@@ -86,7 +89,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
         % Projection onto the horizontal space
         xx = Y'*Y;
         rr = Y'*eta - eta'*Y;
-        Omega = lyap(xx, -rr);
+        Omega = lyapunov_symmetric(xx, rr);
         etaproj = eta - Y*Omega;
     end
     
