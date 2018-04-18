@@ -51,6 +51,8 @@ function M = fixedrankfactory_3factors(m, n, k)
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
+%
+%	April 18, 2018 (NB): removed dependency on lyap.
     
     M.name = @() sprintf('LSR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -112,7 +114,7 @@ function M = fixedrankfactory_3factors(m, n, k)
         % Then, projection onto the horizontal space.
         SS = X.S*X.S;
         AS = X.S*(skew(X.L'*eta.L) + skew(X.R'*eta.R) - 2*skew(X.S\eta.S))*X.S;
-        omega = lyap(SS, -AS);
+        omega = lyapunov_symmetric(SS, AS);
         
         etaproj.L = eta.L - X.L*omega;
         etaproj.S = eta.S - (X.S*omega - omega*X.S);
