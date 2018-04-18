@@ -32,6 +32,9 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 %
 %	April 04, 2015 (BM):
 %       Cosmetic changes including avoiding storing the inverse of a kxk matrix.
+%
+%	April 18, 2018 (NB):
+%       Removed lyap dependency.
 
     
     M.name = @() sprintf('LSR'' (tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -156,12 +159,12 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         % First, projection onto the tangent space of the total space.
         SSL = X.SSt;
         ASL = 2*symm(X.SSt*(X.L'*eta.L)*X.SSt);
-        BL = lyap(SSL, -ASL);
+        BL = lyapunov_symmetric(SSL, ASL);
         eta.L = eta.L - X.L*(BL/X.SSt);
         
         SSR = X.StS;
         ASR = 2*symm(X.StS*(X.R'*eta.R)*X.StS);
-        BR = lyap(SSR, -ASR);
+        BR = lyapunov_symmetric(SSR, ASR);
         eta.R = eta.R - X.R*(BR/X.StS);
         
         % Project onto the horizontal space

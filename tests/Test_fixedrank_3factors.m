@@ -26,8 +26,8 @@ function Test_fixedrank_3factors()
     % Create the problem structure
     % quotient LSR geometry
     
-        M = fixedrankfactory_3factors(m, n, r);
-%     M = fixedrankfactory_3factors_preconditioned(m, n, r);
+%         M = fixedrankfactory_3factors(m, n, r);
+    M = fixedrankfactory_3factors_preconditioned(m, n, r);
     
     problem.M = M;
     
