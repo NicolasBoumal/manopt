@@ -35,6 +35,8 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 % Original author: Bamdev Mishra, Dec. 30, 2012.
 % Contributors:
 % Change log:
+%
+%	April 18, 2018 (NB): removed lyap dependency.
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -204,11 +206,13 @@ function omega = nested_sylvester(sym_mat, asym_mat)
     %     Omega*sym_mat+sym_mat*Omega = X
     % Mishra, Meyer, Bonnabel and Sepulchre, 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
     
-    % Uses built-in lyap function, but does not exploit the fact that it's
-    % twice the same sym_mat matrix that comes into play.
+    % Solve each Lyapunov equation efficiently, but does not exploit
+	% the fact that it is twice the same sym_mat matrix that comes into play.
     
-    X = lyap(sym_mat, -asym_mat);
-    omega = lyap(sym_mat, -X);
+    % X = lyap(sym_mat, -asym_mat);
+    % omega = lyap(sym_mat, -X);
+    X = lyapunov_symmetric(sym_mat, asym_mat);
+    omega = lyapunov_symmetric(sym_mat, X);
     
 end
 
