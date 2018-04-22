@@ -170,13 +170,12 @@ body {
                 <tr>
                   <td>Distance </td>
                   <td><code>M.dist(X, Y) </code></td>
-                  <td>$\operatorname{dist}(X, Y) = \sqrt{\sum_{i=1}^m
-                    \arccos^2((X^T Y)_{ii})}$ </td>
+                  <td>Not implemented</td>
                 </tr>
                 <tr>
                   <td>Typical distance </td>
                   <td><code>M.typicaldist() </code></td>
-                  <td>$n*pi/2$ </td>
+                  <td>$n$ </td>
                 </tr>
                 <tr>
                   <td>Tangent space projector </td>
@@ -243,7 +242,8 @@ body {
               Frobenius norm. We minimize the following cost function:</p>
             <p>$$f(X) = \frac{1}{2} \|X-A\|^2,$$</p>
             <p>such that $X \in \mathcal{SP}_n$. Compute the Euclidean gradient
-              and Hessian of $f$:</p>
+              and Hessian of $f$ (important: this is assuming $A$ is
+              symmetric!):</p>
             <p>$$\nabla f(X) = X-A,$$</p>
             <p>$$\nabla^2 f(X)[U] = U.$$</p>
             <p>The Riemannian gradient and Hessian are computed automatically

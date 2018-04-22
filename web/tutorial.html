@@ -565,9 +565,25 @@ problem.egrad = @(x) -2*A*x;
                 <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/multinomial/multinomialfactory.html">Multinomial
                       manifold</a> (strict simplex elements)</td>
-                  <td>$\{ X \in \mathbb{R}^{n\times m} : M_{ij} &gt; 0 \forall
-                    i,j \textrm{ and } M^T \mathbf{1}_m = \mathbf{1}_n \}$</td>
+                  <td>$\{ X \in \mathbb{R}^{n\times m} : X_{ij} &gt; 0 \forall
+                    i,j \textrm{ and } X^T \mathbf{1}_m = \mathbf{1}_n \}$</td>
                   <td><code>multinomialfactory(n, m)</code></td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="manifold_documentation_multinomialdoublystochastic.html">Multinomial
+                      doubly stochastic manifold</a></td>
+                  <td>$\{ X \in \mathbb{R}^{n\times n} : X_{ij} &gt; 0 \forall
+                    i,j \textrm{ and } X \mathbf{1}_n = \mathbf{1}_n, X^T
+                    \mathbf{1}_n = \mathbf{1}_n \}$</td>
+                  <td><code>multinomialdoublystochasticfactory(n)</code></td>
+                </tr>
+                <tr>
+                  <td><a target="_blank" href="manifold_documentation_multinomialsymmetric.html">Multinomial
+                      symmetric and stochastic manifold</a></td>
+                  <td>$\{ X \in \mathbb{R}^{n\times n} : X_{ij} &gt; 0 \forall
+                    i,j \textrm{ and } X \mathbf{1}_n = \mathbf{1}_n, X = X^T
+                    \}$</td>
+                  <td><code>multinomialsymmetricfactory(n)</code></td>
                 </tr>
               </tbody>
             </table>

@@ -169,13 +169,12 @@ body {
                 <tr>
                   <td>Distance </td>
                   <td><code>M.dist(X, Y) </code></td>
-                  <td>$\operatorname{dist}(X, Y) = \sqrt{\sum_{i=1}^m
-                    \arccos^2((X^T Y)_{ii})}$ </td>
+                  <td>Not implemented</td>
                 </tr>
                 <tr>
                   <td>Typical distance </td>
                   <td><code>M.typicaldist() </code></td>
-                  <td>$n*pi/2$ </td>
+                  <td>$n$ </td>
                 </tr>
                 <tr>
                   <td>Tangent space projector </td>
@@ -271,7 +270,7 @@ problem.ehess = ehess;
 
 % Numerically check the differentials.
 checkgradient(problem); pause;
-checkhessian(problem); pause; % Since the retraction is only first-order, the slope test is valid only at critical points <br><br>X = trustregions(problem); % Solve the problem with a local optimization algorithm<br>          </pre>
+checkhessian(problem); pause; % Since the retraction is only first-order, the slope test is valid only at critical points.<br><br>X = trustregions(problem); % Solve the problem with a local optimization algorithm<br>          </pre>
           </section>
           <section id="references">
             <div class="page-header">
