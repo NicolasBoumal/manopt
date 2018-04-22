@@ -63,7 +63,7 @@ function doubly_stochastic_denoising()
 
     % Check consistency of the gradient and the Hessian. Useful if you
     % adapt this example for a new cost function and you would like to make
-    % sure there is no mistake.
+    % sure there is no mistake. These checks are optional of course.
     warning('off', 'manopt:multinomialdoublystochasticfactory:exp');
     warning('off', 'manopt:multinomialsymmetricfactory:exp');
     figure();
@@ -73,6 +73,7 @@ function doubly_stochastic_denoising()
                             % due to the use of a first order retraction, 
                             % unless the test is performed at a critical point.
     
+    %% Solve
     % A first order algorithm
     % Minimize the cost function using the Conjugate Gradients algorithm.
     [X1, ~, info, ~] = conjugategradient(problem); 
@@ -91,6 +92,8 @@ function doubly_stochastic_denoising()
     % found solution
     fprintf('||X-B||_F^2 = %g\n', norm(X2 - B, 'fro')^2);
     
+    
+    %% Display
     figure() ;
     semilogy(S1, 'red', 'Marker', '*', 'LineWidth', 2, ...
                  'DisplayName', 'Conjugate Gradient Algorithm');
