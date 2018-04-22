@@ -13,7 +13,7 @@ function M = multinomialfactory(n, m)
 % is a Riemannian submanifold of the space of n-by-m matrices. Also it
 % should be noted that the retraction operation that we define 
 % is first order and as such the checkhessian tool cannot verify 
-% the slope correctly.
+% the slope correctly at non-critical points.
 %             
 % The file is based on developments in the research paper
 % Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,
