@@ -3,19 +3,24 @@ function M = multinomialdoublystochasticfactory(n)
 %
 % function M = multinomialdoublystochasticfactory(n)
 %
-% The returned structure M is a Manopt manifold structure to optimize over
-% the set of n-by-n matrices with (strictly) positive entries and such that
-% the entries of each column and each row sum to one.
+% M is a Manopt manifold structure to optimize over the set of n-by-n
+% matrices with (strictly) positive entries and such that the entries of
+% each column and each row sum to one.
 %
-% The metric imposed on the manifold is the Fisher metric such that
-% the set of n-by-n doubly-stochastic matrices is a Riemannian submanifold
-% of the space of n-by-n matrices. Also it should be noted that the
-% retraction operation that we define is first order and as such the
-% checkhessian tool cannot verify he slope correctly unless at the optimum.
+% Points on the manifold and tangent vectors are represented naturally as
+% symmetric matrices of size n. The Riemannian metric imposed on the
+% manifold is the Fisher metric, that is, if X is a point on the manifold
+% and U, V are two tangent vectors:
 %
-% If the optimal solution to the problem has vanishing entries, it is not
-% achievable by the manifold. Therefore, the checkhessian tool is expected
-% to fail even at the optimum.
+%     M.inner(X, U, V) = <U, V>_X = sum(sum(U.*V./X)).
+%
+% The  retraction here provided is only first order. Consequently, the
+% slope test in the checkhessian tool is only valid at points X where the
+% gradient is zero. Furthermore, if some entries of X are very close to
+% zero, this may cause numerical difficulties that can also lead to a
+% failed slope test. More generally, it is important the the solution of
+% the optimization problem should have positive entries, sufficiently far
+% away from zero to avoid numerical issues.
 %
 % The file is based on developments in the research paper
 % A. Douik and B. Hassibi, "Manifold Optimization Over the Set
@@ -25,83 +30,88 @@ function M = multinomialdoublystochasticfactory(n)
 % Link to the paper: https://arxiv.org/abs/1802.02628.
 %
 % Please cite the Manopt paper as well as the research paper:
-%     @Techreport{Douik2018Manifold,
-%       Title   = {Manifold Optimization Over the Set of Doubly Stochastic
-%		   Matrices: {A} Second-Order Geometry},
-%       Author  = {Douik, A. and Hassibi, B.},
-%       Journal = {Arxiv preprint ArXiv:1802.02628},
-%       Year    = {2018}
-%     }
+% @Techreport{Douik2018Manifold,
+%   Title   = {Manifold Optimization Over the Set of Doubly Stochastic
+%              Matrices: {A} Second-Order Geometry},
+%   Author  = {Douik, A. and Hassibi, B.},
+%   Journal = {Arxiv preprint ArXiv:1802.02628},
+%   Year    = {2018}
+% }
+%
+% See also: multinomialsymmetricfactory multinomialfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Ahmed Douik, March 06, 2018.
 % Contributors:
 % Change log:
 
-    % Variable and functions
-    e = ones(n, 1); % Column vector of ones of length n.
-
-    % Manifold geometry functions
+    e = ones(n, 1);
 
     M.name = @() sprintf('%dx%d doubly-stochastic matrices with positive entries', n, n);
 
     M.dim = @() (n-1)^2;
 
-    M.inner = @iproduct; % We impose the Fisher metric.
+    % Fisher metric
+    M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
         ip = sum((eta(:).*zeta(:))./X(:));
     end
 
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
 
-    M.dist = @(X, Y) error('dsmultinomialfactory.dist not implemented yet.');
+    M.dist = @(X, Y) error('multinomialdoublystochasticfactory.dist not implemented yet.');
 
-    M.typicaldist = @() n*pi/2 ;% This is an approximation.
+    % The manifold is not compact as a result of the choice of the metric,
+    % thus any choice here is arbitrary. This is notably used to pick
+    % default values of initial and maximal trust-region radius in the
+    % trustregions solver.
+    M.typicaldist = @() n;
 
-    % Random points, vectors and projections
-
+    % Pick a random point on the manifold
     M.rand = @random;
-    function X = random() % A random point in the manifold
-        Z = abs(randn(n, n)) ;  % A random point in the ambient space
-        X = doubly_stochastic(Z) ; % Projection on the Manifold
+    function X = random()
+        Z = abs(randn(n, n));     % Random point in the ambient space
+        X = doubly_stochastic(Z); % Projection on the Manifold
     end
 
+    % Pick a random vector in the tangent space at X
     M.randvec = @randomvec;
-    function eta = randomvec(X) % A random vector in the tangent space
+    function eta = randomvec(X)
         % A random vector in the ambient space
-        Z = randn(n, n) ;
+        Z = randn(n, n);
         % Projection of the vector onto the tangent space
-        zeta = pinv([eye(n) X ; X' eye(n)])*[sum(Z,2) ; sum(Z,1)'];
-        alpha = zeta(1:n) ;
-        beta = zeta(n+1:2*n) ;
-        eta = Z - (alpha*e' + e*beta').*X ;
+        zeta = pinv([eye(n) X ; X' eye(n)])*[sum(Z, 2) ; sum(Z, 1)'];
+        alpha = zeta(1:n);
+        beta = zeta(n+1:2*n);
+        eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector
         nrm = M.norm(X, eta);
         eta = eta / nrm;
     end
 
+    % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection;
-    function etaproj = projection(X, eta) % Projection of the vector eta in the ambient space onto the tangent space
-        alpha = sum(pinv(eye(n)-X*X')*(eta-X*eta'),2);
-        beta = sum(eta,1)' - X'*alpha ;
-        etaproj = eta - (alpha*e' + e*beta').*X ;
+    function etaproj = projection(X, eta)
+        alpha = sum(pinv(eye(n)-X*X')*(eta-X*eta'), 2);
+        beta = sum(eta, 1)' - X'*alpha;
+        etaproj = eta - (alpha*e' + e*beta').*X;
     end
 
     M.tangent = M.proj;
     M.tangent2ambient = @(X, eta) eta;
 
-    % Gradient, retraction, and exponential map computation
-
+    % Conversion of Euclidean to Riemannian gradient
     M.egrad2rgrad = @egrad2rgrad;
-    function rgrad = egrad2rgrad(X, egrad) % Projection of the Euclidean gradient
+    function rgrad = egrad2rgrad(X, egrad)
         mu = (X.*egrad) ;
         alpha = sum(pinv(eye(n)-X*X')*(mu-X*mu'),2);
         beta = sum(mu,1)' - X'*alpha ;
         rgrad = mu - (alpha*e' + e*beta').*X ;
     end
 
+    % First-order retraction
     M.retr = @retraction;
-    function Y = retraction(X, eta, t) % Retraction of the tangent vector to the manifold
+    function Y = retraction(X, eta, t)
         if nargin < 3
             t = 1.0;
         end
@@ -116,43 +126,45 @@ function M = multinomialdoublystochasticfactory(n)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:dsmultinomialfactory:exp', ...
+        warning('manopt:multinomialdoublystochasticfactory:exp', ...
             ['Exponential for the Multinomial manifold' ...
             'manifold not implemented yet. Used retraction instead.']);
     end
 
-    % Hessian computation
-
+    % Conversion of Euclidean to Riemannian Hessian
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, eta)
 
         % Computing the direcitonal derivative of the riemannian
-        % gradient
+        % gradient.
         gamma = egrad.*X ;
-        gammadot = ehess.*X + egrad.*eta ;
-        epsilon = pinv([eye(n) X ; X' eye(n)]) ;
-        epsilondot = -epsilon*[zeros(n,n) eta ; eta' zeros(n,n)]*epsilon ;
-        zeta = epsilon*[sum(gamma,2) ; sum(gamma,1)'];
-        alpha = zeta(1:n) ;
-        beta = zeta(n+1:2*n) ;
-        zetadot = epsilondot*[sum(gamma,2) ; sum(gamma,1)'] + epsilon*[sum(gammadot,2) ; sum(gammadot,1)'];
-        alphadot = zetadot(1:n) ;
-        betadot = zetadot(n+1:2*n) ;
+        gammadot = ehess.*X + egrad.*eta;
+        epsilon = pinv([eye(n) X ; X' eye(n)]);
+        epsilondot = -epsilon*[zeros(n, n) eta ; eta' zeros(n, n)]*epsilon;
+        zeta = epsilon*[sum(gamma, 2) ; sum(gamma, 1)'];
+        alpha = zeta(1:n);
+        beta = zeta(n+1:2*n);
+        zetadot = epsilondot*[sum(gamma, 2) ; ...
+                              sum(gamma, 1)'] + epsilon*[sum(gammadot, 2) ; ...
+                              sum(gammadot, 1)'];
+        alphadot = zetadot(1:n);
+        betadot = zetadot(n+1:2*n);
 
-        S = (alpha*e' + e*beta') ;
+        S = (alpha*e' + e*beta');
 
-        deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta ;
+        deltadot = gammadot - (alphadot*e' + e*betadot').*X - S.*eta;
 
         % Projecting gamma
         delta = gamma - S.*X;
 
         % Computing and projecting nabla
-        nabla = deltadot - 0.5*(delta.*eta)./X ;
+        nabla = deltadot - 0.5*(delta.*eta)./X;
 
         zeta = pinv([eye(n) X ; X' eye(n)])*[sum(nabla,2) ; sum(nabla,1)'];
-        alpha = zeta(1:n) ;
-        beta = zeta(n+1:2*n) ;
+        alpha = zeta(1:n);
+        beta = zeta(n+1:2*n);
         rhess = nabla - (alpha*e' + e*beta').*X;
+        
     end
 
 
