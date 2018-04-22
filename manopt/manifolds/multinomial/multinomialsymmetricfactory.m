@@ -32,6 +32,8 @@ function M = multinomialsymmetricfactory(n)
 %   Journal = {Arxiv preprint ArXiv:1802.02628},
 %   Year    = {2018}
 % }
+%
+% See also: multinomialdoublystochasticfactory multinomialfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Ahmed Douik, March 06, 2018.
@@ -86,8 +88,8 @@ function M = multinomialsymmetricfactory(n)
     % tangent space.
     M.proj = @projection; 
     function etaproj = projection(X, eta)
-        alpha = sum((eye(n) + X)\(eta),2) ;
-        etaproj = eta - (alpha*e' + e*alpha').*X ;
+        alpha = sum((eye(n) + X)\(eta), 2);
+        etaproj = eta - (alpha*e' + e*alpha').*X;
     end
 
     M.tangent = M.proj;
@@ -96,8 +98,8 @@ function M = multinomialsymmetricfactory(n)
     % Conversion of Euclidean to Riemannian gradient
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
-        mu = sum((X.*egrad),2) ;
-        alpha = (eye(n) + X)\mu ;
+        mu = sum((X.*egrad), 2);
+        alpha = (eye(n) + X)\mu;
         rgrad = (egrad - alpha*e' - e*alpha').*X; 
     end
 
@@ -108,7 +110,7 @@ function M = multinomialsymmetricfactory(n)
             t = 1.0;
         end
         Y = X.*exp(t*(eta./X));
-        Y = symm(doubly_stochastic(Y)) ;
+        Y = symm(doubly_stochastic(Y));
         Y = max(Y, eps);
     end
 
