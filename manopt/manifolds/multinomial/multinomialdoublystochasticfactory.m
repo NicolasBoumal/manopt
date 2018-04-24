@@ -74,17 +74,18 @@ function M = multinomialdoublystochasticfactory(n)
         X = doubly_stochastic(Z); % Projection on the Manifold
     end
 
-    % Pick a random vector in the tangent space at X
+    % Pick a random vector in the tangent space at X.
     M.randvec = @randomvec;
     function eta = randomvec(X)
-        % A random vector in the ambient space
+        % A random vector in the ambient space.
         Z = randn(n, n);
-        % Projection of the vector onto the tangent space
+        % Projection of the vector onto the tangent space.
+        % The use of pinv should be removed.
         zeta = pinv([eye(n) X ; X' eye(n)])*[sum(Z, 2) ; sum(Z, 1)'];
         alpha = zeta(1:n);
         beta = zeta(n+1:2*n);
         eta = Z - (alpha*e' + e*beta').*X;
-        % Normalizing the vector
+        % Normalizing the vector.
         nrm = M.norm(X, eta);
         eta = eta / nrm;
     end
@@ -92,6 +93,7 @@ function M = multinomialdoublystochasticfactory(n)
     % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection;
     function etaproj = projection(X, eta)
+        % The use of pinv should be removed.
         alpha = sum(pinv(eye(n)-X*X')*(eta-X*eta'), 2);
         beta = sum(eta, 1)' - X'*alpha;
         etaproj = eta - (alpha*e' + e*beta').*X;
@@ -103,10 +105,11 @@ function M = multinomialdoublystochasticfactory(n)
     % Conversion of Euclidean to Riemannian gradient
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
-        mu = (X.*egrad) ;
+        mu = (X.*egrad);
+        % The use of pinv should be removed.
         alpha = sum(pinv(eye(n)-X*X')*(mu-X*mu'),2);
-        beta = sum(mu,1)' - X'*alpha ;
-        rgrad = mu - (alpha*e' + e*beta').*X ;
+        beta = sum(mu,1)' - X'*alpha;
+        rgrad = mu - (alpha*e' + e*beta').*X;
     end
 
     % First-order retraction
@@ -139,6 +142,7 @@ function M = multinomialdoublystochasticfactory(n)
         % gradient.
         gamma = egrad.*X ;
         gammadot = ehess.*X + egrad.*eta;
+        % The use of pinv should be removed.
         epsilon = pinv([eye(n) X ; X' eye(n)]);
         epsilondot = -epsilon*[zeros(n, n) eta ; eta' zeros(n, n)]*epsilon;
         zeta = epsilon*[sum(gamma, 2) ; sum(gamma, 1)'];
@@ -160,6 +164,7 @@ function M = multinomialdoublystochasticfactory(n)
         % Computing and projecting nabla
         nabla = deltadot - 0.5*(delta.*eta)./X;
 
+        % The use of pinv should be removed.
         zeta = pinv([eye(n) X ; X' eye(n)])*[sum(nabla,2) ; sum(nabla,1)'];
         alpha = zeta(1:n);
         beta = zeta(n+1:2*n);
