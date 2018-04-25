@@ -42,8 +42,12 @@ function M = multinomialdoublystochasticfactory(n)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Ahmed Douik, March 06, 2018.
-% Contributors:
+% Contributors: Nicolas Boumal
 % Change log:
+%
+%  April 24, 2018 (AD):
+%       Changed pinv() to a particular solution to the equation ;
+%
 
     e = ones(n, 1);
 
@@ -80,10 +84,12 @@ function M = multinomialdoublystochasticfactory(n)
         % A random vector in the ambient space.
         Z = randn(n, n);
         % Projection of the vector onto the tangent space.
-        % The use of pinv should be removed.
-        zeta = pinv([eye(n) X ; X' eye(n)])*[sum(Z, 2) ; sum(Z, 1)'];
-        alpha = zeta(1:n);
-        beta = zeta(n+1:2*n);
+        A = [eye(n) X ; X' eye(n)] ;
+        B = A(1:2*n,2:2*n) ;
+        b = [sum(Z, 2) ; sum(Z, 1)'] + A(1,:) ;
+        zeta = B\b ;
+        alpha = [1 ; zeta(1:n-1) ];
+        beta = zeta(n:2*n-1);
         eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector.
         nrm = M.norm(X, eta);
@@ -92,10 +98,14 @@ function M = multinomialdoublystochasticfactory(n)
 
     % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection;
-    function etaproj = projection(X, eta)
-        % The use of pinv should be removed.
-        alpha = sum(pinv(eye(n)-X*X')*(eta-X*eta'), 2);
-        beta = sum(eta, 1)' - X'*alpha;
+    function etaproj = projection(X, eta)     
+        A = [eye(n) X ; X' eye(n)] ;
+        B = A(1:2*n,2:2*n) ;
+        b = [sum(eta, 2) ; sum(eta, 1)'] + A(1,:) ;
+        zeta = B\b ;
+        alpha = [1 ; zeta(1:n-1) ];
+        beta = zeta(n:2*n-1);
+
         etaproj = eta - (alpha*e' + e*beta').*X;
     end
 
@@ -106,9 +116,14 @@ function M = multinomialdoublystochasticfactory(n)
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
         mu = (X.*egrad);
-        % The use of pinv should be removed.
-        alpha = sum(pinv(eye(n)-X*X')*(mu-X*mu'),2);
-        beta = sum(mu,1)' - X'*alpha;
+        
+        A = [eye(n) X ; X' eye(n)] ;
+        B = A(1:2*n,2:2*n) ;
+        b = [sum(egrad, 2) ; sum(egrad, 1)'] + A(1,:) ; 
+        zeta = B\b ;
+        alpha = [1 ; zeta(1:n-1) ];
+        beta = zeta(n:2*n-1);
+
         rgrad = mu - (alpha*e' + e*beta').*X;
     end
 
@@ -142,20 +157,22 @@ function M = multinomialdoublystochasticfactory(n)
         % gradient.
         gamma = egrad.*X ;
         gammadot = ehess.*X + egrad.*eta;
-        % The use of pinv should be removed.
-        epsilon = pinv([eye(n) X ; X' eye(n)]);
-        epsilondot = -epsilon*[zeros(n, n) eta ; eta' zeros(n, n)]*epsilon;
-        zeta = epsilon*[sum(gamma, 2) ; sum(gamma, 1)'];
-        alpha = zeta(1:n);
-        beta = zeta(n+1:2*n);
-        zetadot = epsilondot*[sum(gamma, 2) ; ...
-                              sum(gamma, 1)'] + epsilon*[sum(gammadot, 2) ; ...
-                              sum(gammadot, 1)'];
+        
+        A = [eye(n) X ; X' eye(n)] ;
+        B = A(1:2*n,2:2*n) ;
+        Adot = [eye(n) eta ; eta' eye(n)] ;
+        Bdot = Adot(1:2*n,2:2*n) ;
+        c = [sum(gamma, 2) ; sum(gamma, 1)'] + A(1,:) ;
+        cdot = [sum(gammadot, 2) ; sum(gammadot, 1)'] + A(1,:) ;
+
+        zeta = B\c ;
+        zetadot = Bdot\c + B\cdot ;
+        alpha = [1 ; zeta(1:n-1) ];
+        beta = zeta(n:2*n-1);
         alphadot = zetadot(1:n);
         betadot = zetadot(n+1:2*n);
 
         S = (alpha*e' + e*beta');
-
         deltadot = gammadot - (alphadot*e' + e*betadot').*X - S.*eta;
 
         % Projecting gamma
@@ -163,11 +180,10 @@ function M = multinomialdoublystochasticfactory(n)
 
         % Computing and projecting nabla
         nabla = deltadot - 0.5*(delta.*eta)./X;
-
-        % The use of pinv should be removed.
-        zeta = pinv([eye(n) X ; X' eye(n)])*[sum(nabla,2) ; sum(nabla,1)'];
-        alpha = zeta(1:n);
-        beta = zeta(n+1:2*n);
+        b = [sum(nabla, 2) ; sum(nabla, 1)'] + A(1,:) ;        
+        zeta = B\b ;        
+        alpha = [1 ; zeta(1:n-1) ];
+        beta = zeta(n:2*n-1);
         rhess = nabla - (alpha*e' + e*beta').*X;
         
     end
