@@ -292,7 +292,7 @@ while true
        strcmpi(options.beta_type, 'S-D')              % Gradient Descent
         
         beta = 0;
-        desc_dir = M.lincomb(x, -1, Pnewgrad);
+        desc_dir = M.lincomb(newx, -1, Pnewgrad);
         
     else
         
