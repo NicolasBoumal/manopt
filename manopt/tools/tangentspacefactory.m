@@ -39,9 +39,6 @@ function N = tangentspacefactory(M, x)
     % N at y is the tangent space to M at x, thus u, u1 and u2 are also
     % tangent vectors to M at x.
     
-    if isfield(M, 'name')
-        N.name  = @() ['Tangent space to ' M.name()];
-    end
     N.dim   = @() M.dim();
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
     N.norm  = @(y, u) M.norm(x, u);
