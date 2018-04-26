@@ -295,6 +295,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   NB Nov. 1, 2016:
 %       Now uses approximate gradient via finite differences if need be.
 
+M = problem.M;
 
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
@@ -335,7 +336,7 @@ localdefaults.maxtime = inf;
 localdefaults.miniter = 3;
 localdefaults.maxiter = 1000;
 localdefaults.mininner = 1;
-localdefaults.maxinner = problem.M.dim();
+localdefaults.maxinner = M.dim();
 localdefaults.tolgradnorm = 1e-6;
 localdefaults.kappa = 0.1;
 localdefaults.theta = 1.0;
@@ -354,10 +355,10 @@ options = mergeOptions(localdefaults, options);
 % logic: if Delta_bar is provided but not Delta0, let Delta0 automatically
 % be some fraction of the provided Delta_bar.
 if ~isfield(options, 'Delta_bar')
-    if isfield(problem.M, 'typicaldist')
-        options.Delta_bar = problem.M.typicaldist();
+    if isfield(M, 'typicaldist')
+        options.Delta_bar = M.typicaldist();
     else
-        options.Delta_bar = sqrt(problem.M.dim());
+        options.Delta_bar = sqrt(M.dim());
     end 
 end
 if ~isfield(options,'Delta0')
@@ -381,7 +382,7 @@ ticstart = tic();
 
 % If no initial point x is given by the user, generate one at random.
 if ~exist('x', 'var') || isempty(x)
-    x = problem.M.rand();
+    x = M.rand();
 end
 
 % Create a store database and get a key for the current x
@@ -396,7 +397,7 @@ k = 0;
 
 % Initialize solution and companion measures: f(x), fgrad(x)
 [fx, fgradx] = getCostGrad(problem, x, storedb, key);
-norm_grad = problem.M.norm(x, fgradx);
+norm_grad = M.norm(x, fgradx);
 
 % Initialize trust-region radius
 Delta = options.Delta0;
@@ -465,13 +466,13 @@ while true
     % Determine eta0
     if ~options.useRand
         % Pick the zero vector
-        eta = problem.M.zerovec(x);
+        eta = M.zerovec(x);
     else
         % Random vector in T_x M (this has to be very small)
-        eta = problem.M.lincomb(x, 1e-6, problem.M.randvec(x));
+        eta = M.lincomb(x, 1e-6, M.randvec(x));
         % Must be inside trust-region
-        while problem.M.norm(x, eta) > Delta
-            eta = problem.M.lincomb(x, sqrt(sqrt(eps)), eta);
+        while M.norm(x, eta) > Delta
+            eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
         end
     end
 
@@ -489,22 +490,20 @@ while true
         used_cauchy = false;
         % Check the curvature,
         Hg = getHessian(problem, x, fgradx, storedb, key);
-        g_Hg = problem.M.inner(x, fgradx, Hg);
+        g_Hg = M.inner(x, fgradx, Hg);
         if g_Hg <= 0
             tau_c = 1;
         else
             tau_c = min( norm_grad^3/(Delta*g_Hg) , 1);
         end
         % and generate the Cauchy point.
-        eta_c  = problem.M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
-        Heta_c = problem.M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
+        eta_c  = M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
+        Heta_c = M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
 
         % Now that we have computed the Cauchy point in addition to the
         % returned eta, we might as well keep the best of them.
-        mdle  = fx + problem.M.inner(x, fgradx, eta) ...
-                   + .5*problem.M.inner(x, Heta,   eta);
-        mdlec = fx + problem.M.inner(x, fgradx, eta_c) ...
-                   + .5*problem.M.inner(x, Heta_c, eta_c);
+        mdle  = fx + M.inner(x, fgradx, eta) + .5*M.inner(x, Heta,   eta);
+        mdlec = fx + M.inner(x, fgradx, eta_c) + .5*M.inner(x, Heta_c, eta_c);
         if mdlec < mdle
             eta = eta_c;
             Heta = Heta_c; % added April 11, 2012
@@ -517,15 +516,15 @@ while true
     % for some user-defined stopping criteria. If this is not cheap for
     % specific applications (compared to evaluating the cost), we should
     % reconsider this.
-    norm_eta = problem.M.norm(x, eta);
+    norm_eta = M.norm(x, eta);
     
     if options.debug > 0
-        testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
+        testangle = M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
     end
     
 
 	% Compute the tentative next iterate (the proposal)
-	x_prop  = problem.M.retr(x, eta);
+	x_prop  = M.retr(x, eta);
     key_prop = storedb.getNewKey();
 
 	% Compute the function value of the proposal
@@ -534,8 +533,7 @@ while true
 	% Will we accept the proposal or not?
     % Check the performance of the quadratic model against the actual cost.
     rhonum = fx - fx_prop;
-    rhoden = -problem.M.inner(x, fgradx, eta) ...
-             -.5*problem.M.inner(x, eta, Heta);
+    rhoden = -(M.inner(x, fgradx, eta) + .5*M.inner(x, eta, Heta));
     % rhonum could be anything.
     % rhoden should be nonnegative, as guaranteed by tCG, baring numerical
     % errors.
@@ -626,8 +624,8 @@ while true
         m = @(x, eta) ...
           getCost(problem, x, storedb, key) + ...
           getDirectionalDerivative(problem, x, eta, storedb, key) + ...
-          .5*problem.M.inner(x, getHessian(problem, x, eta, storedb, key), eta);
-        zerovec = problem.M.zerovec(x);
+             .5*M.inner(x, getHessian(problem, x, eta, storedb, key), eta);
+        zerovec = M.zerovec(x);
         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
         fprintf('DBG:   new f(x) : %+e\n', fx_prop);
         fprintf('DBG: actual rho : %e\n', actrho);
@@ -702,7 +700,7 @@ while true
         key = key_prop;
         fx = fx_prop;
         fgradx = getGradient(problem, x, storedb, key);
-        norm_grad = problem.M.norm(x, fgradx);
+        norm_grad = M.norm(x, fgradx);
     else
         accept = false;
         accstr = 'REJ';
