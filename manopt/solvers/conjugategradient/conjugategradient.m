@@ -138,6 +138,8 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 
+M = problem.M;
+
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
     warning('manopt:getCost', ...
@@ -180,15 +182,11 @@ if ~exist('options', 'var') || isempty(options)
 end
 options = mergeOptions(localdefaults, options);
 
-% For convenience
-inner = problem.M.inner;
-lincomb = problem.M.lincomb;
-
 timetic = tic();
 
 % If no initial point x is given by the user, generate one at random.
 if ~exist('x', 'var') || isempty(x)
-    x = problem.M.rand();
+    x = M.rand();
 end
 
 % Create a store database and generate a key for the current x
@@ -197,9 +195,9 @@ key = storedb.getNewKey();
 
 % Compute cost-related quantities for x
 [cost, grad] = getCostGrad(problem, x, storedb, key);
-gradnorm = problem.M.norm(x, grad);
+gradnorm = M.norm(x, grad);
 Pgrad = getPrecon(problem, x, grad, storedb, key);
-gradPgrad = inner(x, grad, Pgrad);
+gradPgrad = M.inner(x, grad, Pgrad);
 
 % Iteration counter (at any point, iter is the number of fully executed
 % iterations so far)
@@ -216,7 +214,7 @@ if options.verbosity >= 2
 end
 
 % Compute a first descent direction (not normalized)
-desc_dir = lincomb(x, -1, Pgrad);
+desc_dir = M.lincomb(x, -1, Pgrad);
 
 
 % Start iterating until stopping criterion triggers
@@ -251,7 +249,7 @@ while true
     
     % The line search algorithms require the directional derivative of the
     % cost at the current point x along the search direction.
-    df0 = inner(x, grad, desc_dir);
+    df0 = M.inner(x, grad, desc_dir);
         
     % If we didn't get a descent direction: restart, i.e., switch to the
     % negative gradient. Equivalent to resetting the CG direction to a
@@ -265,7 +263,7 @@ while true
                      'steepest descent direction.\n'], df0);
         end
         % Reset to negative gradient: this discards the CG memory.
-        desc_dir = lincomb(x, -1, Pgrad);
+        desc_dir = M.lincomb(x, -1, Pgrad);
         df0 = -gradPgrad;
         
     end
@@ -278,9 +276,9 @@ while true
     
     % Compute the new cost-related quantities for newx
     [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
-    newgradnorm = problem.M.norm(newx, newgrad);
+    newgradnorm = M.norm(newx, newgrad);
     Pnewgrad = getPrecon(problem, newx, newgrad, storedb, newkey);
-    newgradPnewgrad = inner(newx, newgrad, Pnewgrad);
+    newgradPnewgrad = M.inner(newx, newgrad, Pnewgrad);
     
     
     % Apply the CG scheme to compute the next search direction.
@@ -294,22 +292,22 @@ while true
        strcmpi(options.beta_type, 'S-D')              % Gradient Descent
         
         beta = 0;
-        desc_dir = lincomb(x, -1, Pnewgrad);
+        desc_dir = M.lincomb(x, -1, Pnewgrad);
         
     else
         
-        oldgrad = problem.M.transp(x, newx, grad);
-        orth_grads = inner(newx, oldgrad, Pnewgrad) / newgradPnewgrad;
+        oldgrad = M.transp(x, newx, grad);
+        orth_grads = M.inner(newx, oldgrad, Pnewgrad) / newgradPnewgrad;
         
         % Powell's restart strategy (see page 12 of Hager and Zhang's
         % survey on conjugate gradient methods, for example)
-        if abs(orth_grads) >= options.orth_value,
+        if abs(orth_grads) >= options.orth_value
             beta = 0;
-            desc_dir = lincomb(x, -1, Pnewgrad);
+            desc_dir = M.lincomb(x, -1, Pnewgrad);
             
         else % Compute the CG modification
             
-            desc_dir = problem.M.transp(x, newx, desc_dir);
+            desc_dir = M.transp(x, newx, desc_dir);
             
             switch upper(options.beta_type)
             
@@ -318,29 +316,29 @@ while true
                 
                 case 'P-R'  % Polak-Ribiere+
                     % vector grad(new) - transported grad(current)
-                    diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-                    ip_diff = inner(newx, Pnewgrad, diff);
+                    diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
+                    ip_diff = M.inner(newx, Pnewgrad, diff);
                     beta = ip_diff / gradPgrad;
                     beta = max(0, beta);
                 
                 case 'H-S'  % Hestenes-Stiefel+
-                    diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-                    ip_diff = inner(newx, Pnewgrad, diff);
-                    beta = ip_diff / inner(newx, diff, desc_dir);
+                    diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
+                    ip_diff = M.inner(newx, Pnewgrad, diff);
+                    beta = ip_diff / M.inner(newx, diff, desc_dir);
                     beta = max(0, beta);
 
                 case 'H-Z' % Hager-Zhang+
-                    diff = lincomb(newx, 1, newgrad, -1, oldgrad);
-                    Poldgrad = problem.M.transp(x, newx, Pgrad);
-                    Pdiff = lincomb(newx, 1, Pnewgrad, -1, Poldgrad);
-                    deno = inner(newx, diff, desc_dir);
-                    numo = inner(newx, diff, Pnewgrad);
-                    numo = numo - 2*inner(newx, diff, Pdiff)*...
-                                     inner(newx, desc_dir, newgrad) / deno;
+                    diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
+                    Poldgrad = M.transp(x, newx, Pgrad);
+                    Pdiff = M.lincomb(newx, 1, Pnewgrad, -1, Poldgrad);
+                    deno = M.inner(newx, diff, desc_dir);
+                    numo = M.inner(newx, diff, Pnewgrad);
+                    numo = numo - 2*M.inner(newx, diff, Pdiff)*...
+                                     M.inner(newx, desc_dir, newgrad) / deno;
                     beta = numo / deno;
 
                     % Robustness (see Hager-Zhang paper mentioned above)
-                    desc_dir_norm = problem.M.norm(newx, desc_dir);
+                    desc_dir_norm = M.norm(newx, desc_dir);
                     eta_HZ = -1 / ( desc_dir_norm * min(0.01, gradnorm) );
                     beta = max(beta, eta_HZ);
 
@@ -349,7 +347,7 @@ while true
                            'Should be steep, S-D, F-R, P-R, H-S or H-Z.']);
             end
             
-            desc_dir = lincomb(newx, -1, Pnewgrad, beta, desc_dir);
+            desc_dir = M.lincomb(newx, -1, Pnewgrad, beta, desc_dir);
         
         end
         
@@ -372,7 +370,7 @@ while true
     
     % Log statistics for freshly executed iteration
     stats = savestats();
-    info(iter+1) = stats; %#ok<AGROW>
+    info(iter+1) = stats;
     
 end
 
