@@ -155,7 +155,7 @@ function M = sympositivedefinitefactory(n)
     M.rand = @random;
     function X = random()
         D = diag(1+rand(n, 1));
-        [Q, R] = qr(randn(n)); %#ok<NASGU>
+        [Q, R] = qr(randn(n)); %#ok
         X = Q*D*Q';
     end
     
