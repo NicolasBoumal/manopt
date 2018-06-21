@@ -137,6 +137,7 @@ function M = grassmannfactory(n, p, k)
         end
     end
     
+    % See Eq. (2.65) in Edelman, Arias and Smith 1998.
     M.exp = @exponential;
     function Y = exponential(X, U, t)
         if nargin == 3
