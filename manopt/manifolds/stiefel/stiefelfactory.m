@@ -30,6 +30,9 @@ function M = stiefelfactory(n, p, k)
 %                       function so that it now returns a globally
 %                       normalized vector, not a vector where each
 %                       component is normalized (this only matters if k>1).
+%  July 17, 2018 (NB) : Now both QR (default) and polar retractions are
+%                       directly accessible, and their inverses are also
+%                       implemented.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -87,21 +90,90 @@ function M = stiefelfactory(n, p, k)
         rhess = projection(X, ehess - HsymXtG);
     end
     
-    M.retr = @retraction;
-    function Y = retraction(X, U, t)
+    M.retr_qr = @retraction_qr;
+    function Y = retraction_qr(X, U, t)
         if nargin < 3
-            t = 1.0;
+            Y = X + U;
+        else
+            Y = X + t*U;
         end
-        Y = X + t*U;
-        for i = 1 : k
-            [Q, R] = qr(Y(:, :, i), 0);
-            % The instruction with R assures we are not flipping signs
+        for kk = 1 : k
+            [Q, R] = qr(Y(:, :, kk), 0);
+            % The instruction with R ensures we are not flipping signs
             % of some columns, which should never happen in modern Matlab
             % versions but may be an issue with older versions.
-            Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+            Y(:, :, kk) = Q * diag(sign(sign(diag(R))+.5));
+        end
+    end
+
+    % This inverse retraction is valid for both the QR retraction and the
+    % polar retraction.
+    M.invretr_qr = @invretr_qr;
+    function U = invretr_qr(X, Y)
+        XtY = multiprod(multitransp(X), Y);
+        R = zeros(p, p, k);
+        for kk = 1 : k
+            % For each slice, assuming the inverse retraction is well
+            % defined for the given inputs, we have:
+            %   X + U = YR
+            % Left multiply with X' to get
+            %   I + X'U = X'Y M
+            % Since X'U is skew symmetric for a tangent vector U at X, add
+            % up this equation with its transpose to get:
+            %   2I = (X'Y) R + R' (X'Y)'
+            % Contrary to the polar factorization, here R is not symmetric
+            % but it is upper triangular. As a result, this is not a
+            % Sylvester equation and we must solve it differently.
+            R(:, :, kk) = solve_for_triu(XtY(:, :, kk), 2*eye(p));
+            % Then,
+            %   U = YR - X
+            % which is what we compute below.
+        end
+        U = multiprod(Y, R) - X;
+    end
+    
+    M.retr_polar = @retraction_polar;
+    function Y = retraction_polar(X, U, t)
+        if nargin < 3
+            Y = X + U;
+        else
+            Y = X + t*U;
+        end
+        for kk = 1 : k
+            [u, s, v] = svd(Y(:, :, kk), 'econ'); %#ok
+            Y(:, :, kk) = u*v';
         end
     end
     
+    % This inverse retraction is valid for both the QR retraction and the
+    % polar retraction.
+    M.invretr_polar = @invretr_polar;
+    function U = invretr_polar(X, Y)
+        XtY = multiprod(multitransp(X), Y);
+        MM = zeros(p, p, k);
+        for kk = 1 : k
+            % For each slice, assuming the inverse retraction is well
+            % defined for the given inputs, we have:
+            %   X + U = YM
+            % Left multiply with X' to get
+            %   I + X'U = X'Y M
+            % Since X'U is skew symmetric for a tangent vector U at X, add
+            % up this equation with its transpose to get:
+            %   2I = (X'Y) M + M' (X'Y)'
+            %      = (X'Y) M + M (X'Y)'   since M is symmetric.
+            % Solve for M symmetric with a call to sylvester:
+            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', 2*eye(p));
+            % Then,
+            %   U = YM - X
+            % which is what we compute below.
+        end
+        U = multiprod(Y, MM) - X;
+    end
+    
+    % By default, we use the QR retraction
+    M.retr = M.retr_qr;
+    M.invretr = M.invretr_qr;
+
     M.exp = @exponential;
     function Y = exponential(X, U, t)
         if nargin == 2
@@ -147,4 +219,21 @@ function M = stiefelfactory(n, p, k)
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
     M.vecmatareisometries = @() true;
 
+end
+
+
+% Support function for the QR inverse retraction
+function X = solve_for_triu(A, H)
+    % Given A of size pxp and H (symmetric) of size pxp,
+    % Solves the linear equation AX + X'A' = H for X upper triangular.
+    % The total cost is O(p^4). Perhaps this can be improved? With
+    % preprocessing of A? LU?
+    p = size(A, 1);
+    X = zeros(p, p);
+    for pp = 1 : p
+        b = H(1:pp, pp);
+        b(end) = b(end)/2;
+        b(1:end-1) = b(1:end-1) - X(1:pp-1, 1:pp-1)'*A(pp, 1:pp-1)';
+        X(1:pp, pp) = A(1:pp, 1:pp) \ b;
+    end
 end
