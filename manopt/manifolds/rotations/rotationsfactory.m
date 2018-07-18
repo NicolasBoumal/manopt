@@ -42,6 +42,11 @@ function M = rotationsfactory(n, k)
 %       Added M.retr2: a second-order retraction based on SVD.
 %   July 18, 2018 (NB)
 %       Fixed a bug in M.retr2 (only relevant for k > 1).
+%       Added inverse retraction as M.invretr.
+%       Retraction and inverse also available as M.retr_qr, M.invretr_qr.
+%       Renamed M.retr2 to M.retr_polar, and implemented M.invretr_polar.
+%       For backward compatibility, M.retr2 is still defined and is now
+%       equal to M.retr_polar. There is no M.invretr2.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -84,8 +89,8 @@ function M = rotationsfactory(n, k)
 		Rhess = multiskew( XtEhess - multiprod(H, symXtEgrad) );
 	end
     
-    M.retr = @retraction;
-    function Y = retraction(X, U, t)
+    M.retr_qr = @retraction_qr;
+    function Y = retraction_qr(X, U, t)
         if nargin == 3
             tU = t*U;
         else
@@ -107,11 +112,37 @@ function M = rotationsfactory(n, k)
             % positive in all cases.
         end
     end
+
+    M.invretr_qr = @inverse_retraction_qr;
+    function S = inverse_retraction_qr(X, Y)
+        
+        % Assume k = 1 in this explanation:
+        % If Y = Retr_X(XS) where S is a skew-symmetric matrix, then
+        %  X(I+S) = YR
+        % for some upper triangular matrix R. Multiply with X' on the left:
+        %  I + S = (X'Y) R    (*)
+        % Since S is skew-symmetric, add the transpose of this equation:
+        %  2I + 0 = (X'Y) R + R' (X'Y)'
+        % We can solve for R by calling solve_for_triu, then solve for S
+        % using equation (*).
+        R = zeros(n, n, k);
+        XtY = multiprod(multitransp(X), Y);
+        H = 2*eye(n);
+        for kk = 1 : k
+            R(:, :, kk) = solve_for_triu(XtY(:, :, kk), H);
+        end
+        % In exact arithmetic, taking the skew-symmetric part has the
+        % effect of subtracting the identity from each slice; in inexact
+        % arithmetic, taking the skew-symmetric part is beneficial to
+        % further enforce tangency.
+        S = multiskew(multiprod(XtY, R));
+        
+    end
     
     % A second order retraction is implemented here. To force its use,
     % after creating the factory M, execute M.retr = M.retr2.
-    M.retr2 = @retraction2;
-    function Y = retraction2(X, U, t)
+    M.retr_polar = @retraction_polar;
+    function Y = retraction_polar(X, U, t)
         if nargin == 3
             tU = t*U;
         else
@@ -123,6 +154,39 @@ function M = rotationsfactory(n, k)
             Y(:, :, kk) = Uk*Vk';
         end
     end
+
+    M.invretr_polar = @inverse_retraction_polar;
+    function S = inverse_retraction_polar(X, Y)
+        
+        % Assume k = 1 in this explanation:
+        % If Y = Retr_X(XS) where S is a skew-symmetric matrix, then
+        %  X(I+S) = YM
+        % for some symmetric matrix M. Multiply with X' on the left:
+        %  I + S = (X'Y) M    (*)
+        % Since S is skew-symmetric, add the transpose of this equation:
+        %  2I + 0 = (X'Y) M + M (X'Y)'
+        % We can solve for M by calling sylvester, then solve for S
+        % using equation (*).
+        MM = zeros(n, n, k);
+        XtY = multiprod(multitransp(X), Y);
+        H = 2*eye(n);
+        for kk = 1 : k
+            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', H);
+        end
+        % In exact arithmetic, taking the skew-symmetric part has the
+        % effect of subtracting the identity from each slice; in inexact
+        % arithmetic, taking the skew-symmetric part is beneficial to
+        % further enforce tangency.
+        S = multiskew(multiprod(XtY, MM));
+        
+    end
+
+    % By default, use QR retraction
+    M.retr = M.retr_qr;
+    M.invretr = M.invretr_qr;
+    
+    % For backward compatibility:
+    M.retr2 = M.retr_polar;
     
     M.exp = @exponential;
     function Y = exponential(X, U, t)
