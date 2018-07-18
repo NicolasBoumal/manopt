@@ -27,10 +27,10 @@ function M = grassmannfactory(n, p, k)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%   March 22, 2013 (NB) :
+%   March 22, 2013 (NB):
 %       Implemented geodesic distance.
 % 
-%   April 17, 2013 (NB) :
+%   April 17, 2013 (NB):
 %       Retraction changed to the polar decomposition, so that the vector
 %       transport is now correct, in the sense that it is compatible with
 %       the retraction, i.e., transporting a tangent vector G from U to V
@@ -42,13 +42,13 @@ function M = grassmannfactory(n, p, k)
 %       bottleneck in your application and you are not using vector
 %       transports, you may want to replace the retraction with a qfactor.
 % 
-%   July  4, 2013 (NB) :
+%   July  4, 2013 (NB):
 %       Added support for the logarithmic map 'log'.
 %
-%   July  5, 2013 (NB) :
+%   July  5, 2013 (NB):
 %       Added support for ehess2rhess.
 %
-%   June 24, 2014 (NB) :
+%   June 24, 2014 (NB):
 %       Small bug fix in the retraction, and added final
 %       re-orthonormalization at the end of the exponential map. This
 %       follows discussions on the forum where it appeared there is a
@@ -118,21 +118,22 @@ function M = grassmannfactory(n, p, k)
     M.retr = @retraction;
     function Y = retraction(X, U, t)
         if nargin < 3
-            t = 1.0;
+            Y = X + U;
+        else
+            Y = X + t*U;
         end
-        Y = X + t*U;
-        for i = 1 : k
+        for kk = 1 : k
 		
             % Compute the polar factorization of Y = X+tU
-            [u, s, v] = svd(Y(:, :, i), 'econ'); %#ok
-            Y(:, :, i) = u*v';
+            [u, s, v] = svd(Y(:, :, kk), 'econ'); %#ok
+            Y(:, :, kk) = u*v';
 			
             % Another popular retraction uses QR instead of SVD.
             % As compared with the Stiefel factory, we do not need to
 			% worry about flipping signs of columns here, since only
 			% the column space is important, not the actual columns.
-            % [Q, unused] = qr(Y(:, :, i), 0); %#ok
-            % Y(:, :, i) = Q;
+            % [Q, unused] = qr(Y(:, :, kk), 0); %#ok
+            % Y(:, :, kk) = Q;
 			
         end
     end
@@ -146,15 +147,15 @@ function M = grassmannfactory(n, p, k)
             tU = U;
         end
         Y = zeros(size(X));
-        for i = 1 : k
-            [u, s, v] = svd(tU(:, :, i), 0);
+        for kk = 1 : k
+            [u, s, v] = svd(tU(:, :, kk), 0);
             cos_s = diag(cos(diag(s)));
             sin_s = diag(sin(diag(s)));
-            Y(:, :, i) = X(:, :, i)*v*cos_s*v' + u*sin_s*v';
+            Y(:, :, kk) = X(:, :, kk)*v*cos_s*v' + u*sin_s*v';
             % From numerical experiments, it seems necessary to
             % re-orthonormalize. This is overall quite expensive.
-            [q, unused] = qr(Y(:, :, i), 0); %#ok
-            Y(:, :, i) = q;
+            [q, unused] = qr(Y(:, :, kk), 0); %#ok
+            Y(:, :, kk) = q;
         end
     end
 
@@ -170,9 +171,9 @@ function M = grassmannfactory(n, p, k)
     M.log = @logarithm;
     function U = logarithm(X, Y)
         U = zeros(n, p, k);
-        for i = 1 : k
-            x = X(:, :, i);
-            y = Y(:, :, i);
+        for kk = 1 : k
+            x = X(:, :, kk);
+            y = Y(:, :, kk);
             ytx = y.'*x;
             At = y.'-ytx*x.';
             Bt = ytx\At;
@@ -183,7 +184,7 @@ function M = grassmannfactory(n, p, k)
             s = s(1:p);
             v = v(:, 1:p);
 
-            U(:, :, i) = u*diag(atan(s))*v.';
+            U(:, :, kk) = u*diag(atan(s))*v.';
         end
     end
 
@@ -192,9 +193,9 @@ function M = grassmannfactory(n, p, k)
     M.rand = @random;
     function X = random()
         X = zeros(n, p, k);
-        for i = 1 : k
+        for kk = 1 : k
             [Q, unused] = qr(randn(n, p), 0); %#ok
-            X(:, :, i) = Q;
+            X(:, :, kk) = Q;
         end
     end
     
