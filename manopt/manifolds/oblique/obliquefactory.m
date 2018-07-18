@@ -22,20 +22,20 @@ function M = obliquefactory(n, m, transposed)
 % Contributors: 
 % Change log: 
 %
-%	July 16, 2013 (NB) :
+%	July 16, 2013 (NB)
 %       Added 'transposed' option, mainly for ease of comparison with the
 %       elliptope geometry.
 %
-%	Nov. 29, 2013 (NB) :
+%	Nov. 29, 2013 (NB)
 %       Added normalize_columns function to make it easier to exploit the
 %       bsxfun formulation of column normalization, which avoids using for
 %       loops and provides performance gains. The exponential still uses a
 %       for loop.
 %
-%	April 4, 2015 (NB) :
+%	April 4, 2015 (NB)
 %       Log function modified to avoid NaN's appearing for close by points.
 %
-%	April 13, 2015 (NB) :
+%	April 13, 2015 (NB)
 %       Exponential now without for-loops.
 %
 %   Oct. 8, 2016 (NB)
@@ -52,8 +52,8 @@ function M = obliquefactory(n, m, transposed)
 %
 %   July 20, 2017 (NB)
 %       Distance function is now accurate for close-by points. See notes
-%       inside the spherefactory file for details. Also improvies distances
-%       computation as part of the log function.
+%       inside the spherefactory file for details. Also improves distance
+%       computations as part of the log function.
 
     
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -61,7 +61,7 @@ function M = obliquefactory(n, m, transposed)
     end
     
     if transposed
-        trnsp = @(X) X.';
+        trnsp = @(X) X';
     else
         trnsp = @(X) X;
     end
@@ -70,7 +70,7 @@ function M = obliquefactory(n, m, transposed)
     
     M.dim = @() (n-1)*m;
     
-    M.inner = @(x, d1, d2) d1(:).'*d2(:);
+    M.inner = @(x, d1, d2) d1(:)'*d2(:);
     
     M.norm = @(x, d) norm(d(:));
     
@@ -161,6 +161,20 @@ function M = obliquefactory(n, m, transposed)
         y = trnsp(y);
     end
 
+    % Inverse retraction: see spherefactory.m for background
+    M.invretr = @inverse_retraction;
+    function d = inverse_retraction(x, y)
+        
+        x = trnsp(x);
+        y = trnsp(y);
+        
+        d = bsxfun(@times, y, 1./sum(x.*y, 1)) - x;
+        
+        d = trnsp(d);
+        
+    end
+    
+
     M.hash = @(x) ['z' hashmd5(x(:))];
     
     M.rand = @() trnsp(random(n, m));
@@ -205,7 +219,7 @@ end
 function PXH = projection(X, H)
 
     % Compute the inner product between each vector H(:, i) with its root
-    % point X(:, i), that is, X(:, i).' * H(:, i). Returns a row vector.
+    % point X(:, i), that is, X(:, i)' * H(:, i). Returns a row vector.
     inners = sum(X.*H, 1);
     
     % Subtract from H the components of the H(:, i)'s that are parallel to
