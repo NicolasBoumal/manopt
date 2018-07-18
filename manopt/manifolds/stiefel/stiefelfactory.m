@@ -151,6 +151,7 @@ function M = stiefelfactory(n, p, k)
     function U = invretr_polar(X, Y)
         XtY = multiprod(multitransp(X), Y);
         MM = zeros(p, p, k);
+        H = 2*eye(p);
         for kk = 1 : k
             % For each slice, assuming the inverse retraction is well
             % defined for the given inputs, we have:
@@ -162,7 +163,7 @@ function M = stiefelfactory(n, p, k)
             %   2I = (X'Y) M + M' (X'Y)'
             %      = (X'Y) M + M (X'Y)'   since M is symmetric.
             % Solve for M symmetric with a call to sylvester:
-            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', 2*eye(p));
+            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', H);
             % Then,
             %   U = YM - X
             % which is what we compute below.
