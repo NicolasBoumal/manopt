@@ -12,7 +12,7 @@ function X = lyapunov_symmetric(A, C, tol)
 %
 % If a solution does not exist, a minimum-residue solution is returned.
 %
-% tol is a tolerance used to determine which eigenvalyes are numerically
+% tol is a tolerance used to determine which eigenvalues are numerically
 % zero. It can be specified manually; otherwise, a default value is chosen.
 %
 % Overall, if A is nxn, the output is very close to:
