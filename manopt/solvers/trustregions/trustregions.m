@@ -781,7 +781,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.rhonum = NaN;
         stats.rhoden = NaN;
         stats.accepted = true;
-        stats.numinner = NaN;
+        stats.numinner = 0;
         stats.stepsize = NaN;
         if options.useRand
             stats.cauchy = false;
