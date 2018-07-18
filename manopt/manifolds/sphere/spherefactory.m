@@ -42,6 +42,9 @@ function M = spherefactory(n, m)
 %       in trustregions had some drift near fine convergence. Now that the
 %       drift in tCG has been fixed, it is reasonable to apply the
 %       projection last, to ensure best tangency of the output.
+%
+%   July 18, 2018 (NB)
+%       Added the inverse retraction (M.invretr) for the sphere.
     
     
     if ~exist('m', 'var')
@@ -56,7 +59,7 @@ function M = spherefactory(n, m)
     
     M.dim = @() n*m-1;
     
-    M.inner = @(x, d1, d2) d1(:).'*d2(:);
+    M.inner = @(x, d1, d2) d1(:)'*d2(:);
     
     M.norm = @(x, d) norm(d, 'fro');
     
@@ -76,7 +79,7 @@ function M = spherefactory(n, m)
         % % if chordal_distance > 1.9
         % %     d = pi - dist(x, -y);
         % % end
-        % It is rarely necessary to compute distance between
+        % It is rarely necessary to compute the distance between
         % almost-antipodal points with full accuracy in Manopt, hence we
         % favor a simpler code.
         
@@ -84,7 +87,7 @@ function M = spherefactory(n, m)
     
     M.typicaldist = @() pi;
     
-    M.proj = @(x, d) d - x*(x(:).'*d(:));
+    M.proj = @(x, d) d - x*(x(:)'*d(:));
     
     M.tangent = M.proj;
     
@@ -100,6 +103,7 @@ function M = spherefactory(n, m)
     M.exp = @exponential;
     
     M.retr = @retraction;
+    M.invretr = @inverse_retraction;
 
     M.log = @logarithm;
     function v = logarithm(x1, x2)
@@ -194,6 +198,20 @@ function y = retraction(x, d, t)
 
 end
 
+% Given x and y two points on the manifold, if there exists a tangent
+% vector d at x such that Retr_x(d) = y, this function returns d.
+function d = inverse_retraction(x, y)
+
+    % Since
+    %   x + d = y*||x + d||
+    % and x'd = 0, multiply the above by x' on the left:
+    %   1 + 0 = x'y * ||x + d||
+    % Then solve for d:
+    
+    d = y/(x(:)'*y(:)) - x;
+
+end
+
 % Uniform random sampling on the sphere.
 function x = random(n, m)
 
@@ -206,7 +224,7 @@ end
 function d = randomvec(n, m, x)
 
     d = randn(n, m);
-    d = d - x*(x(:).'*d(:));
+    d = d - x*(x(:)'*d(:));
     d = d / norm(d, 'fro');
 
 end

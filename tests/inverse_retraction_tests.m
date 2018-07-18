@@ -4,10 +4,10 @@ clear all; close all; clc;
 n = 5;
 p = 3;
 k = 2;
-M = stiefelfactory(n, p, k);
+M = complexcirclefactory(n); %, p, true);
 
-M.retr = M.retr_qr;
-M.invretr = M.invretr_qr;
+% M.retr = M.retr_qr;
+% M.invretr = M.invretr_qr;
 
 % M.retr = M.retr_polar;
 % M.invretr = M.invretr_polar;

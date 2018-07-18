@@ -31,6 +31,9 @@ function M = complexcirclefactory(n)
 %   July 20, 2017 (NB)
 %       The distance function is now even more accurate. Improved logarithm
 %       accordingly.
+%
+%   July 18, 2018 (NB)
+%       Added inverse retraction function M.invretr.
     
     if ~exist('n', 'var')
         n = 1;
@@ -92,6 +95,11 @@ function M = complexcirclefactory(n)
             tv = t*v;
         end
         y = sign(z+tv);
+    end
+
+    M.invretr = @inverse_retraction;
+    function v = inverse_retraction(x, y)
+        v = y ./ real(conj(x) .* y) - x;
     end
 
     M.log = @logarithm;
