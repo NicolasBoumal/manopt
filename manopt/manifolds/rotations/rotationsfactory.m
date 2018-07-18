@@ -6,18 +6,22 @@ function M = rotationsfactory(n, k)
 %
 % Special orthogonal group (the manifold of rotations): deals with matrices
 % R of size n x n x k (or n x n if k = 1, which is the default) such that
-% each n x n matrix is orthogonal, with determinant 1, i.e., X'*X = eye(n)
-% if k = 1, or X(:, :, i)' * X(:, :, i) = eye(n) for i = 1 : k if k > 1.
+% each n x n matrix is orthogonal, i.e., X'*X = eye(n) if k = 1, or
+% X(:, :, i)' * X(:, :, i) = eye(n) for i = 1 : k if k > 1. Furthermore,
+% all these matrices have determinant +1.
 %
 % This is a description of SO(n)^k with the induced metric from the
 % embedding space (R^nxn)^k, i.e., this manifold is a Riemannian
 % submanifold of (R^nxn)^k endowed with the usual trace inner product.
 %
+% This is important:
 % Tangent vectors are represented in the Lie algebra, i.e., as skew
 % symmetric matrices. Use the function M.tangent2ambient(X, H) to switch
 % from the Lie algebra representation to the embedding space
 % representation. This is often necessary when defining
-% problem.ehess(X, H).
+% problem.ehess(X, H), as the input H will then be a skew-symmetric matrix
+% (but the output must not be, as the output is the Hessian in the
+% embedding Euclidean space.)
 %
 % By default, the retraction is only a first-order approximation of the
 % exponential. To force the use of a second-order approximation, call
@@ -36,6 +40,8 @@ function M = rotationsfactory(n, k)
 %       Added egrad2rgrad and ehess2rhess
 %   Oct. 21, 2016 (NB)
 %       Added M.retr2: a second-order retraction based on SVD.
+%   July 18, 2018 (NB)
+%       Fixed a bug in M.retr2 (only relevant for k > 1).
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -86,17 +92,17 @@ function M = rotationsfactory(n, k)
             tU = U;
         end
         Y = X + multiprod(X, tU);
-        for i = 1 : k
+        for kk = 1 : k
             % This QR-based retraction is only a first-order approximation
             % of the exponential map, not a second-order one.
-            [Q, R] = qr(Y(:, :, i));
+            [Q, R] = qr(Y(:, :, kk));
             % The instruction with R ensures we are not flipping signs
             % of some columns, which should never happen in modern Matlab
             % versions but may be an issue with older versions.
-            Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+            Y(:, :, kk) = Q * diag(sign(sign(diag(R))+.5));
             % This is guaranteed to always yield orthogonal matrices with
             % determinant +1. Simply look at the eigenvalues of a skew
-            % symmetric matrix, than at those of identity plus that matrix,
+            % symmetric matrix, then at those of identity plus that matrix,
             % and compute their product for the determinant: it's stricly
             % positive in all cases.
         end
@@ -112,9 +118,9 @@ function M = rotationsfactory(n, k)
             tU = U;
         end
         Y = X + multiprod(X, tU);
-        for i = 1 : k
-            [Uk, ~, Vk] = svd(Y(:, :, k));
-            Y(:, :, k) = Uk*Vk';
+        for kk = 1 : k
+            [Uk, ~, Vk] = svd(Y(:, :, kk));
+            Y(:, :, kk) = Uk*Vk';
         end
     end
     
@@ -125,8 +131,8 @@ function M = rotationsfactory(n, k)
         else
             exptU = U;
         end
-        for i = 1 : k
-            exptU(:, :, i) = expm(exptU(:, :, i));
+        for kk = 1 : k
+            exptU(:, :, kk) = expm(exptU(:, :, kk));
         end
         Y = multiprod(X, exptU);
     end
@@ -134,10 +140,10 @@ function M = rotationsfactory(n, k)
     M.log = @logarithm;
     function U = logarithm(X, Y)
 		U = multiprod(multitransp(X), Y);
-        for i = 1 : k
+        for kk = 1 : k
             % The result of logm should be real in theory, but it is
             % numerically useful to force it.
-            U(:, :, i) = real(logm(U(:, :, i)));
+            U(:, :, kk) = real(logm(U(:, :, kk)));
         end
         % Ensure the tangent vector is in the Lie algebra.
         U = multiskew(U);
