@@ -224,10 +224,32 @@ end
 
 % Support function for the QR inverse retraction
 function X = solve_for_triu(A, H)
-    % Given A of size pxp and H (symmetric) of size pxp,
-    % Solves the linear equation AX + X'A' = H for X upper triangular.
-    % The total cost is O(p^4). Perhaps this can be improved? With
-    % preprocessing of A? LU?
+    % Given A of size pxp and H (symmetric) of size pxp, solves the linear
+    % equation
+    %
+    %  AX + X'A' = H   for X upper triangular.
+    % 
+    % The total cost is O(p^4).
+    %
+    % One tentative idea to reduce this to O(p^3) involves taking an LU
+    % factorization of A. Then, we obtain a permutation matrix P and
+    % triangular matrices L (lower) and U (upper) such that PA = LU.
+    % Since inv(P) = P', the matrix equation becomes:
+    %
+    %  P' L U X + X' U' L' P = H
+    %
+    % Notice that U*X is still upper triangular, so that we can solve for
+    % U*X first, and obtain X later by solving an upper triangular system.
+    % After this change of variables, the system involves P'L instead of A.
+    % If the permutation happens to be identity, then clearly principal
+    % submatrices of P'L = L are lower triangular themselves, and as a
+    % result the linear systems that we need to solve below only cost
+    % O(pp^2) instead of O(pp^3). Summing for pp = 1 .. p gives O(p^3)
+    % instead of O(p^4). In general though, P is not the identity
+    % permutation, and it would require extra work to exploit the
+    % particular structure of the principal submatrices of P'L (if at all
+    % possible.) We do not pursue this strategy below.
+    
     p = size(A, 1);
     X = zeros(p, p);
     for pp = 1 : p
@@ -236,4 +258,5 @@ function X = solve_for_triu(A, H)
         b(1:end-1) = b(1:end-1) - X(1:pp-1, 1:pp-1)'*A(pp, 1:pp-1)';
         X(1:pp, pp) = A(1:pp, 1:pp) \ b;
     end
+    
 end
