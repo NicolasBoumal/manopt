@@ -56,6 +56,9 @@ function M = grassmannfactory(n, p, k)
 %       changed the randvec function so that it now returns a globally
 %       normalized vector, not a vector where each component is normalized
 %       (this only matters if k>1).
+%
+%   July 8, 2018 (NB):
+%       Inverse retraction implemented.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -136,6 +139,18 @@ function M = grassmannfactory(n, p, k)
             % Y(:, :, kk) = Q;
 			
         end
+    end
+    
+    % This inverse retraction is valid for both the QR retraction and the
+    % polar retraction.
+    M.invretr = @invretr;
+    function U = invretr(X, Y)
+        XtY = multiprod(multitransp(X), Y);
+        U = zeros(n, p, k);
+        for kk = 1 : k
+            U(:, :, kk) = Y(:, :, kk) / XtY(:, :, kk);
+        end
+        U = U - X;
     end
     
     % See Eq. (2.65) in Edelman, Arias and Smith 1998.
