@@ -4,13 +4,13 @@ clear all; close all; clc;
 n = 5;
 p = 3;
 k = 2;
-M = complexcirclefactory(n); %, p, true);
+M = rotationsfactory(n, k); %, true);
 
 % M.retr = M.retr_qr;
 % M.invretr = M.invretr_qr;
 
-% M.retr = M.retr_polar;
-% M.invretr = M.invretr_polar;
+M.retr = M.retr_polar;
+M.invretr = M.invretr_polar;
 
 X = M.rand();
 S = M.randvec(X);
