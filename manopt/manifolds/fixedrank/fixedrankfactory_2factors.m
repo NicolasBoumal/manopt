@@ -125,8 +125,7 @@ function M = fixedrankfactory_2factors(m, n, k)
         
         SS = (X.LtL)*(X.RtR);
         AS = (X.LtL)*(X.R'*eta.R) - (eta.L'*X.L)*(X.RtR);
-        % Omega = lyap(SS, SS, -AS);
-        Omega = sylvester(SS, SS, AS);
+        Omega = sylvester_nochecks(SS, SS, AS); % could be sped up since SS appears twice
         etaproj.L = eta.L + X.L*Omega';
         etaproj.R = eta.R - X.R*Omega;
     end

@@ -163,8 +163,11 @@ function M = stiefelfactory(n, p, k)
             %   2I = (X'Y) M + M' (X'Y)'
             %      = (X'Y) M + M (X'Y)'   since M is symmetric.
             % Solve for M symmetric with a call to sylvester:
-            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', H);
-            % Then,
+            MM(:, :, kk) = sylvester_nochecks(XtY(:, :, kk), XtY(:, :, kk)', H);
+            % Note that the above is really a Lyapunov equation: it could
+            % be solved faster by exploiting the fact the same matrix
+            % appears twice on the left, with one the transpose of the
+            % other. Then,
             %   U = YM - X
             % which is what we compute below.
         end
