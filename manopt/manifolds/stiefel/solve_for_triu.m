@@ -41,9 +41,9 @@ function X = solve_for_triu(A, H)
 % result the linear systems that we need to solve below only cost
 % O(pp^2) instead of O(pp^3). Summing for pp = 1 .. p gives O(p^3)
 % instead of O(p^4). In general though, P is not the identity
-% permutation, and it would require extra work to exploit the
-% particular structure of the principal submatrices of P'L (if at all
-% possible.) We do not pursue this strategy below.
+% permutation. In particular, if P' reverses the order of the rows of L,
+% so that the first half of the principal submatrices of P'L are full, 
+% then we revert back to O(p^4) complexity.
 
     p = size(A, 1);
     X = zeros(p, p);
