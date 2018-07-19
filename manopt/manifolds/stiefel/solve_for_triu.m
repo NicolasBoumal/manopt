@@ -14,7 +14,12 @@ function X = solve_for_triu(A, H)
 % This is a support function to compute the inverse of QR-based
 % retractions.
 %
-% See also: stiefelfactory rotationsfactory sylvester
+% This algorithm appears as Algorithm 1 in:
+%  Empirical Arithmetic Averaging over the Compact Stiefel Manifold,
+%  Tetsuya Kaneko, Simone Fiori, Toshihisa Tanaka,
+%  IEEE Transactions on Signal Processing, 2013
+%
+% See also: stiefelfactory rotationsfactory sylvester sylvester_nochecks
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 18, 2018.
