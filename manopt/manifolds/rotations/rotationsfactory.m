@@ -171,7 +171,7 @@ function M = rotationsfactory(n, k)
         XtY = multiprod(multitransp(X), Y);
         H = 2*eye(n);
         for kk = 1 : k
-            MM(:, :, kk) = sylvester(XtY(:, :, kk), XtY(:, :, kk)', H);
+            MM(:, :, kk) = sylvester_nochecks(XtY(:, :, kk), XtY(:, :, kk)', H);
         end
         % In exact arithmetic, taking the skew-symmetric part has the
         % effect of subtracting the identity from each slice; in inexact
