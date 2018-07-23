@@ -100,7 +100,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     % options structure which is passed to the solver.
     default_options.ls_contraction_factor = .5;
     default_options.ls_optimism = 1/.5;
-    default_options.ls_suff_decr = 1e-4;
+    default_options.ls_suff_decr = 2^-13;
     default_options.ls_max_steps = 25;
     default_options.ls_initial_stepsize = 1;
     
