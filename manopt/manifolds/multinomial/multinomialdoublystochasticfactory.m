@@ -86,7 +86,7 @@ function M = multinomialdoublystochasticfactory(n)
         % Projection of the vector onto the tangent space.
         A = [eye(n) X ; X' eye(n)] ;
         B = A(1:2*n,2:2*n) ;
-        b = [sum(Z, 2) ; sum(Z, 1)'] + A(1,:) ;
+        b = [sum(Z, 2) ; sum(Z, 1)'] + A(1, :);
         zeta = B\b ;
         alpha = [1 ; zeta(1:n-1) ];
         beta = zeta(n:2*n-1);
