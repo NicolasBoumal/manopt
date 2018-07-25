@@ -250,15 +250,15 @@ body {
               from these.</p>
             <pre class="prettyprint lang-matlab linenums">% Generate the problem data.
 
-n = 100 ; % Size of the matrix
-sigma = 1/n^2 ; % Noise standard deviation at each entry
+n = 100; % Size of the matrix
+sigma = 1/n^2; % Noise standard deviation at each entry
 
 symm = @(X) .5*(X+X'); % Inline function to make a matrix symmetric
 
 % Generate a doubly stochastic matrix using the Sinkhorn algorithm
-B = symm(doubly_stochastic(abs(randn(n, n)))) ;
+A = symm(doubly_stochastic(abs(randn(n, n))));
 % Adding noise to the matrix
-B = max(B + sigma*symm(randn(n, n)),0.01) ;
+A = max(A + sigma*symm(randn(n, n)), 0.01);
 
 % Denoising function and derivatives
 cost = @(X) 0.5*norm( A-X, 'fro')^2; % Cost function
