@@ -46,8 +46,10 @@ function M = multinomialdoublystochasticfactory(n)
 % Change log:
 %
 %  April 24, 2018 (AD):
-%       Changed pinv() to a particular solution to the equation ;
+%       Changed pinv() to a particular solution to the equation.
 %
+%  July 24, 2018 (AD):
+%       A bugfix related to the pinv() change, with effects in many places.
 
     e = ones(n, 1);
 
@@ -80,33 +82,32 @@ function M = multinomialdoublystochasticfactory(n)
 
     % Pick a random vector in the tangent space at X.
     M.randvec = @randomvec;
-    function eta = randomvec(X)
-        % A random vector in the ambient space.
-        Z = randn(n, n);
-        % Projection of the vector onto the tangent space.
+    function eta = randomvec(X) % A random vector in the tangent space
+        % A random vector in the ambient space
+        Z = randn(n, n) ; 
+        % Projection of the vector onto the tangent space
         A = [eye(n) X ; X' eye(n)] ;
         B = A(1:2*n,2:2*n) ;
-        b = [sum(Z, 2) ; sum(Z, 1)'] + A(1, :);
-        zeta = B\b ;
-        alpha = [1 ; zeta(1:n-1) ];
-        beta = zeta(n:2*n-1);
-        eta = Z - (alpha*e' + e*beta').*X;
-        % Normalizing the vector.
+        b = [sum(Z,2) ; sum(Z,1)'] ;
+        zeta = B\(b - A(:,1)) ;
+        alpha = [1 ; zeta(1:n-1)] ;
+        beta = zeta(n:2*n-1) ;
+        eta = Z - (alpha*e' + e*beta').*X ;
+        % Normalizing the vector
         nrm = M.norm(X, eta);
         eta = eta / nrm;
     end
 
     % Projection of vector eta in the ambient space to the tangent space.
-    M.proj = @projection;
-    function etaproj = projection(X, eta)     
+    M.proj = @projection; 
+    function etaproj = projection(X, eta) % Projection of the vector eta in the ambeint space onto the tangent space
         A = [eye(n) X ; X' eye(n)] ;
         B = A(1:2*n,2:2*n) ;
-        b = [sum(eta, 2) ; sum(eta, 1)'] + A(1,:) ;
-        zeta = B\b ;
-        alpha = [1 ; zeta(1:n-1) ];
-        beta = zeta(n:2*n-1);
-
-        etaproj = eta - (alpha*e' + e*beta').*X;
+        b = [sum(eta,2) ; sum(eta,1)'] ;
+        zeta = B\(b - A(:,1)) ;
+        alpha = [1 ; zeta(1:n-1)] ;
+        beta = zeta(n:2*n-1) ;
+        etaproj = eta - (alpha*e' + e*beta').*X ;
     end
 
     M.tangent = M.proj;
@@ -114,17 +115,15 @@ function M = multinomialdoublystochasticfactory(n)
 
     % Conversion of Euclidean to Riemannian gradient
     M.egrad2rgrad = @egrad2rgrad;
-    function rgrad = egrad2rgrad(X, egrad)
-        mu = (X.*egrad);
-        
+    function rgrad = egrad2rgrad(X, egrad) % projection of the euclidean gradient
+        mu = (X.*egrad) ; 
         A = [eye(n) X ; X' eye(n)] ;
         B = A(1:2*n,2:2*n) ;
-        b = [sum(egrad, 2) ; sum(egrad, 1)'] + A(1,:) ; 
-        zeta = B\b ;
-        alpha = [1 ; zeta(1:n-1) ];
-        beta = zeta(n:2*n-1);
-
-        rgrad = mu - (alpha*e' + e*beta').*X;
+        b = [sum(mu,2) ; sum(mu,1)'] ;
+        zeta = B\(b - A(:,1)) ;
+        alpha = [1 ; zeta(1:n-1)] ;
+        beta = zeta(n:2*n-1) ;
+        rgrad = mu - (alpha*e' + e*beta').*X ;
     end
 
     % First-order retraction
@@ -153,39 +152,40 @@ function M = multinomialdoublystochasticfactory(n)
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, eta)
 
-        % Computing the direcitonal derivative of the riemannian
-        % gradient.
+        % computing the direcitonal derivative of the riemannian
+        % gradient
         gamma = egrad.*X ;
-        gammadot = ehess.*X + egrad.*eta;
+        gammadot = ehess.*X + egrad.*eta ;
         
         A = [eye(n) X ; X' eye(n)] ;
+        Adot = [zeros(n) eta ; eta' zeros(n)] ;
         B = A(1:2*n,2:2*n) ;
-        Adot = [eye(n) eta ; eta' eye(n)] ;
         Bdot = Adot(1:2*n,2:2*n) ;
-        c = [sum(gamma, 2) ; sum(gamma, 1)'] + A(1,:) ;
-        cdot = [sum(gammadot, 2) ; sum(gammadot, 1)'] + A(1,:) ;
+        b = [sum(gamma,2) ; sum(gamma,1)'] ;
+        bdot = [sum(gammadot,2) ; sum(gammadot,1)'] ;
+        zeta = B\(b - A(:,1)) ;
+        alpha = [1 ; zeta(1:n-1)] ;
+        beta = zeta(n:2*n-1) ;
+        
+        zetadot = B\(bdot - Adot(:,1)-Bdot*zeta) ;
+        alphadot = [0 ; zetadot(1:n-1)] ;
+        betadot = zetadot(n:2*n-1) ;
+        
+        S = (alpha*e' + e*beta') ;
+        deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta ;
 
-        zeta = B\c ;
-        zetadot = Bdot\c + B\cdot ;
-        alpha = [1 ; zeta(1:n-1) ];
-        beta = zeta(n:2*n-1);
-        alphadot = zetadot(1:n);
-        betadot = zetadot(n+1:2*n);
-
-        S = (alpha*e' + e*beta');
-        deltadot = gammadot - (alphadot*e' + e*betadot').*X - S.*eta;
-
-        % Projecting gamma
+        % projecting gamma
         delta = gamma - S.*X;
 
-        % Computing and projecting nabla
-        nabla = deltadot - 0.5*(delta.*eta)./X;
-        b = [sum(nabla, 2) ; sum(nabla, 1)'] + A(1,:) ;        
-        zeta = B\b ;        
-        alpha = [1 ; zeta(1:n-1) ];
-        beta = zeta(n:2*n-1);
-        rhess = nabla - (alpha*e' + e*beta').*X;
-        
+        % computing and projecting nabla
+        nabla = deltadot - 0.5*(delta.*eta)./X ;
+        A = [eye(n) X ; X' eye(n)] ;
+        B = A(1:2*n,2:2*n) ;
+        b = [sum(nabla,2) ; sum(nabla,1)'] ;
+        zeta = B\(b - A(:,1)) ;
+        alpha = [1 ; zeta(1:n-1)] ;
+        beta = zeta(n:2*n-1) ;
+        rhess = nabla - (alpha*e' + e*beta').*X; 
     end
 
 
