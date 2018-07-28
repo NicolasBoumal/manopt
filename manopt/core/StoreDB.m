@@ -3,7 +3,7 @@ classdef StoreDB < handle_light
 %
 % To create an object, call: storedb = StoreDB();
 % Alternatively, call: storedb = StoreDB(storedepth); to instruct
-% the database to keep at most storedepth store's in its history.
+% the database to keep at most storedepth stores in its history.
 % (Note that clean up only happens when purge() is called).
 %
 % The storedb object is passed by reference: when it is passed to a
