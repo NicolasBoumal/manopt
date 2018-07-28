@@ -29,6 +29,15 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
 %
 %   June 28, 2016 (NB):
 %       Added support for getPartialEuclideanGradient
+%
+%   July 26, 2018 (NB):
+%       The Euclidean gradient is now automatically cached if the Euclidean
+%       Hessian is also computable from the problem description. This
+%       differs from previous behavior where it would only be cached if
+%       problem.egrad did not accept store or storedb as input; the
+%       converse was taken as a sign that the user wants to deal with
+%       caching on their own, but in reality it proved more confusing than
+%       helpful.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -38,6 +47,22 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
         key = storedb.getNewKey();
     end
 
+    % Contrary to most similar functions, here, we get the store by
+    % default. This is for the special caching functionality described
+    % below.
+    store = storedb.getWithShared(key);
+
+    % If the Euclidean Hessian can be computed from the problem
+    % definition, it is likely that the user will use it. To get the
+    % Riemannian Hessian from the Euclidean Hessian usually requires
+    % the Euclidean gradient. Since there is a significant cost
+    % associated to computing the Euclidean gradient, conservatively,
+    % we force caching of the Euclidean gradient in that scenario.
+    force_caching = canGetEuclideanHessian(problem);
+    if force_caching && isfield(store, 'egrad__')
+        egrad = store.egrad__;
+        return;
+    end
     
     if isfield(problem, 'egrad')
     %% Compute the Euclidean gradient using egrad.
@@ -45,26 +70,10 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.egrad)
             case 1
-                % If it does not want to deal with the store structure,
-                % then we do some caching of our own. There is a small
-                % performance hit for this is some cases, but we expect
-                % that this is most often the preferred choice.
-                store = storedb.get(key);
-                if ~isfield(store, 'egrad__')
-                    store.egrad__ = problem.egrad(x);
-                    storedb.set(store, key);
-                end
-                egrad = store.egrad__;
+                egrad = problem.egrad(x);
             case 2
-                % Obtain, pass along, and save the store for x.
-                % If the user deals with the store structure, then we don't
-                % do any automatic caching: the user is in control.
-                store = storedb.getWithShared(key);
                 [egrad, store] = problem.egrad(x, store);
-                storedb.setWithShared(store, key);
             case 3
-                % Pass along the whole storedb (by reference), with key.
-                % Same here: no automatic caching.
                 egrad = problem.egrad(x, storedb, key);
             otherwise
                 up = MException('manopt:getEuclideanGradient:badegrad', ...
@@ -87,5 +96,12 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
         throw(up);
         
     end
+    
+    % Cache here.
+    if force_caching
+        store.egrad__ = egrad;
+    end
+
+    storedb.setWithShared(store, key);
     
 end
