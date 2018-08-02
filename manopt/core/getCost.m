@@ -19,6 +19,9 @@ function cost = getCost(problem, x, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Aug. 2, 2018 (NB):
+%       The value of the cost function is now always cached.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -29,6 +32,19 @@ function cost = getCost(problem, x, storedb, key)
     end
 
 
+    % Contrary to most similar functions, here, we get the store by
+    % default. This is for the caching functionality described below.
+    store = storedb.getWithShared(key);
+    store_is_stale = false;
+
+    % If the cost function has been computed before at this point (and its
+    % memory is still in storedb), then we just look up the value.
+    if isfield(store, 'cost__')
+        cost = store.cost__;
+        return;
+    end
+    
+
     if isfield(problem, 'cost')
     %% Compute the cost function using cost.
 	
@@ -37,13 +53,14 @@ function cost = getCost(problem, x, storedb, key)
             case 1
                 cost = problem.cost(x);
             case 2
-                % Obtain, pass along, and save the store for x.
-                store = storedb.getWithShared(key);
                 [cost, store] = problem.cost(x, store);
-                storedb.setWithShared(store, key);
             case 3
                 % Pass along the whole storedb (by reference), with key.
                 cost = problem.cost(x, storedb, key);
+                % The store structure in storedb might have been modified
+                % (since it is passed by reference), so before caching
+                % we'll have to update (see below).
+                store_is_stale = true;
             otherwise
                 up = MException('manopt:getCost:badcost', ...
                     'cost should accept 1, 2 or 3 inputs.');
@@ -58,13 +75,11 @@ function cost = getCost(problem, x, storedb, key)
             case 1
                 cost = problem.costgrad(x);
             case 2
-                % Obtain, pass along, and save the store for x.
-                store = storedb.getWithShared(key);
                 [cost, grad, store] = problem.costgrad(x, store); %#ok
-                storedb.setWithShared(store, key);
             case 3
                 % Pass along the whole storedb (by reference), with key.
                 cost = problem.costgrad(x, storedb, key);
+                store_is_stale = true;
             otherwise
                 up = MException('manopt:getCost:badcostgrad', ...
                     'costgrad should accept 1, 2 or 3 inputs.');
@@ -80,5 +95,15 @@ function cost = getCost(problem, x, storedb, key)
         throw(up);
         
     end
+    
+    % If we are not sure that the store structure is up to date, update.
+    if store_is_stale
+        store = storedb.getWithShared(key);
+    end
+    
+    % Cache here.
+    store.cost__ = cost;
+
+    storedb.setWithShared(store, key);
     
 end
