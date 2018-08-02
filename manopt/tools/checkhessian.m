@@ -37,6 +37,9 @@ function checkhessian(problem, x, d)
 %   Dec. 6, 2017 (NB):
 %       Added message in case tangent2ambient might be necessary in
 %       defining ehess (this was a common difficulty for users.)
+%
+%   Aug. 2, 2018 (NB):
+%       Using storedb.remove() to avoid unnecessary cache build-up.
 
         
     % Verify that the problem description is sufficient.
@@ -89,6 +92,7 @@ function checkhessian(problem, x, d)
         y = problem.M.exp(x, d, h(i));
         ykey = storedb.getNewKey();
         value(i) = getCost(problem, y, storedb, ykey);
+        storedb.remove(ykey); % no need to keep it in memory
     end
     
     % Compute the quadratic approximation of the cost function using f0,
