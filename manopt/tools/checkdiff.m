@@ -29,6 +29,9 @@ function checkdiff(problem, x, d, force_gradient)
 % 
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Aug. 2, 2018 (NB):
+%       Using storedb.remove() to avoid unnecessary cache build-up.
 
     if ~exist('force_gradient', 'var')
         force_gradient = false;
@@ -79,10 +82,11 @@ function checkdiff(problem, x, d, force_gradient)
     % large range given by h.
     h = logspace(-8, 0, 51);
     value = zeros(size(h));
-    for i = 1 : length(h)
-        y = problem.M.exp(x, d, h(i));
+    for k = 1 : length(h)
+        y = problem.M.exp(x, d, h(k));
         ykey = storedb.getNewKey();
-        value(i) = getCost(problem, y, storedb, ykey);
+        value(k) = getCost(problem, y, storedb, ykey);
+        storedb.remove(ykey); % no need to keep it in memory
     end
     
     % Compute the linear approximation of the cost function using f0 and
