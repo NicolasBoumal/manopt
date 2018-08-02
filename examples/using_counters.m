@@ -1,7 +1,8 @@
 function using_counters()
 % Manopt example on how to use counters during optimization. Typical uses,
 % as demonstrated here, include counting calls to cost, gradient and
-% Hessian functions.
+% Hessian functions. The example also demonstrates how to record total time
+% spent in cost/grad/hess calls iteration by iteration.
 %
 % See also: statscounters incrementcounter statsfunhelper
 
@@ -9,6 +10,8 @@ function using_counters()
 % Original author: Nicolas Boumal, July 27, 2018.
 % Contributors: 
 % Change log: 
+
+    rng(0);
 
     % Setup an optimization problem to illustrate the use of counters
     n = 1000;
@@ -18,46 +21,64 @@ function using_counters()
     manifold = spherefactory(n);
     problem.M = manifold;
     
+    
     % Define the problem cost function and its gradient.
+    %
+    % Since the most expensive operation in computing the cost and the
+    % gradient at x is the product A*x, and since this operation is the
+    % same for both the cost and the gradient, we use the caching
+    % functionalities of manopt for this product. This function ensures the
+    % product A*x is available in the store structure. Remember that a
+    % store structure is associated to a particular point x: if cost and
+    % egrad are called on the same point x, they will see the same store.
+    function store = prepare(x, store)
+        if ~isfield(store, 'Ax')
+            store.Ax = A*x;
+            % Increment a counter for the number of matrix-vector products
+            % involving A. The names of the counters (here, Aproducts) are
+            % for us to choose: they only need to be valid structure field
+            % names. They need not have been defined in advance.
+            store = incrementcounter(store, 'Aproducts');
+        end
+    end
+    %
     problem.cost = @cost;
     function [f, store] = cost(x, store)
-        f = -x'*(A*x);
-        % Increment a counter for the number of calls to the cost function
-        % and one for the number of matrix-vector products involving A.
-        % The names of the counters (costcalls and Aproducts) are for us to
-        % choose: they only need to be valid structure field names. They
-        % need not have been defined in advance.
+        t = tic();
+        store = prepare(x, store);
+        f = -.5*(x'*store.Ax);
+        % Increment a counter for the number of calls to the cost function.
         store = incrementcounter(store, 'costcalls');
-        store = incrementcounter(store, 'Aproducts');
+        % We also increment a counter with the amount of time spent in this
+        % function (all counters are stored as doubles; here we exploit
+        % this to track a non-integer quantity.)
+        store = incrementcounter(store, 'functiontime', toc(t));
     end
+    %
     problem.egrad = @egrad;
     function [g, store] = egrad(x, store)
-        g = -2*A*x;
-        % Count the number of calls to the gradient function and also count
-        % the matrix-vector product involving A. Notice here that, if we
-        % used the store to cache the product A*x (which is also used in
-        % the computation of the cost function), then we could spare a
-        % product. We could comment out the incrementation of Aproducts to
-        % investigate how much we could win by implementing proper caching
-        % of A*x. Then, if it appears significant, 
+        t = tic();
+        store = prepare(x, store);
+        g = -store.Ax;
+        % Count the number of calls to the gradient function.
         store = incrementcounter(store, 'gradcalls');
-        store = incrementcounter(store, 'Aproducts');
+        % We also record time spent in this call, atop the same counter as
+        % for the cost function.
+        store = incrementcounter(store, 'functiontime', toc(t));
     end
+    %
     problem.ehess = @ehess;
     function [h, store] = ehess(x, xdot, store) %#ok<INUSL>
-        h = -2*A*xdot;
+        t = tic();
+        h = -A*xdot;
         % Count the number of calls to the Hessian operator and also count
-        % the matrix-vector product with A (this one cannot be cached).
+        % the matrix-vector product with A.
         store = incrementcounter(store, 'hesscalls');
         store = incrementcounter(store, 'Aproducts');
+        % We also record time spent in this call atop the cost and gradient.
+        store = incrementcounter(store, 'functiontime', toc(t));
     end
 
-    % General comment: counters are stored as doubles; they can harbor non
-    % integer values if desired. The third argument to incrementcounter is
-    % the amount by which to increment the counter (1 by default). Thus,
-    % one could also time a portion of the code in the cost/grad/Hessian
-    % code using tic/toc, and increment a dedicated counter with toc() as
-    % third argument.
     
     % Setup a callback to log statistics. We use a combination of
     % statscounters and of statsfunhelper to indicate which counters we
@@ -65,47 +86,85 @@ function using_counters()
     % where each field is a function handle corresponding to one of the
     % counters. Before passing stats to statsfunhelper, we could decide to
     % add more fields to stats to log other things as well.
-    stats = statscounters({'costcalls', 'gradcalls', 'hesscalls', 'Aproducts'});
+    stats = statscounters({'costcalls', 'gradcalls', 'hesscalls', ...
+                           'Aproducts', 'functiontime'});
     options.statsfun = statsfunhelper(stats);
 
-    % Solve with two solvers to compare.
-    [x, xcost, infotr] = trustregions(problem, [], options); %#ok<ASGLU>
-    [x, xcost, infocg] = conjugategradient(problem, [], options); %#ok<ASGLU>
+    
+    % Solve with different solvers to compare.
+    options.tolgradnorm = 1e-9;
+    [x, xcost, infortr] = trustregions(problem, [], options); %#ok<ASGLU>
+    [x, xcost, inforcg] = conjugategradient(problem, [], options); %#ok<ASGLU>
+    [x, xcost, infobfg] = rlbfgs(problem, [], options); %#ok<ASGLU>
+    
     
     % Display some statistics. The logged data is available in the info
     % struct-arrays. Notice how the counters are available by their
     % corresponding field name.
     figure(1);
-    subplot(2, 3, 1);
-    semilogy([infotr.iter], [infotr.gradnorm], '.-', ...
-             [infocg.iter], [infocg.gradnorm], '.-');
-    legend('RTR', 'RCG');
+    subplot(3, 3, 1);
+    semilogy([infortr.iter], [infortr.gradnorm], '.-', ...
+             [inforcg.iter], [inforcg.gradnorm], '.-', ...
+             [infobfg.iter], [infobfg.gradnorm], '.-');
+    legend('RTR', 'RCG', 'RLBFGS');
     xlabel('Iteration #');
     ylabel('Gradient norm');
-    subplot(2, 3, 2);
-    semilogy([infotr.costcalls], [infotr.gradnorm], '.-', ...
-             [infocg.costcalls], [infocg.gradnorm], '.-');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 2);
+    semilogy([infortr.costcalls], [infortr.gradnorm], '.-', ...
+             [inforcg.costcalls], [inforcg.gradnorm], '.-', ...
+             [infobfg.costcalls], [infobfg.gradnorm], '.-');
     xlabel('# cost calls');
     ylabel('Gradient norm');
-    subplot(2, 3, 3);
-    semilogy([infotr.gradcalls], [infotr.gradnorm], '.-', ...
-             [infocg.gradcalls], [infocg.gradnorm], '.-');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 3);
+    semilogy([infortr.gradcalls], [infortr.gradnorm], '.-', ...
+             [inforcg.gradcalls], [inforcg.gradnorm], '.-', ...
+             [infobfg.gradcalls], [infobfg.gradnorm], '.-');
     xlabel('# gradient calls');
     ylabel('Gradient norm');
-    subplot(2, 3, 4);
-    semilogy([infotr.hesscalls], [infotr.gradnorm], '.-', ...
-             [infocg.hesscalls], [infocg.gradnorm], '.-');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 4);
+    semilogy([infortr.hesscalls], [infortr.gradnorm], '.-', ...
+             [inforcg.hesscalls], [inforcg.gradnorm], '.-', ...
+             [infobfg.hesscalls], [infobfg.gradnorm], '.-');
     xlabel('# Hessian calls');
     ylabel('Gradient norm');
-    subplot(2, 3, 5);
-    semilogy([infotr.Aproducts], [infotr.gradnorm], '.-', ...
-             [infocg.Aproducts], [infocg.gradnorm], '.-');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 5);
+    semilogy([infortr.Aproducts], [infortr.gradnorm], '.-', ...
+             [inforcg.Aproducts], [inforcg.gradnorm], '.-', ...
+             [infobfg.Aproducts], [infobfg.gradnorm], '.-');
     xlabel('# matrix-vector products');
     ylabel('Gradient norm');
-    subplot(2, 3, 6);
-    semilogy([infotr.time], [infotr.gradnorm], '.-', ...
-             [infocg.time], [infocg.gradnorm], '.-');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 6);
+    semilogy([infortr.time], [infortr.gradnorm], '.-', ...
+             [inforcg.time], [inforcg.gradnorm], '.-', ...
+             [infobfg.time], [infobfg.gradnorm], '.-');
     xlabel('Computation time [s]');
     ylabel('Gradient norm');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    subplot(3, 3, 7);
+    semilogy([infortr.functiontime], [infortr.gradnorm], '.-', ...
+             [inforcg.functiontime], [inforcg.gradnorm], '.-', ...
+             [infobfg.functiontime], [infobfg.gradnorm], '.-');
+    xlabel('Time spent in cost/grad/hess [s]');
+    ylabel('Gradient norm');
+    ylim([1e-12, 1e2]); set(gca, 'YTick', [1e-12, 1e-6, 1e0]);
+    % The following plot allows to investigate what fraction of the time is
+    % spent inside user-supplied function (cost/grad/hess) versus the total
+    % time spent by the solver. This gives a sense of the relative
+    % importance of cost function-related computational costs vs a solver's
+    % inner workings, retractions, and other solver-specific operations.
+    subplot(3, 3, 8);
+    maxtime = max([[infortr.time], [inforcg.time], [infobfg.time]]);
+    plot([infortr.time], [infortr.functiontime], '.-', ...
+         [inforcg.time], [inforcg.functiontime], '.-', ...
+         [infobfg.time], [infobfg.functiontime], '.-', ...
+         [0, maxtime], [0, maxtime], 'k--');
+    axis tight;
+    xlabel('Total computation time [s]');
+    ylabel(sprintf('Time spent in\ncost/grad/hess [s]'));
     
 end
