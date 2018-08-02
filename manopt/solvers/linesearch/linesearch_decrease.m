@@ -42,6 +42,9 @@ function [stepsize, newx, newkey, lsstats] = ...
 % Original author: Nicolas Boumal, April 8, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Aug. 2, 2018 (NB):
+%       Now using storedb.remove() to keep the cache lean.
 
 
     % Allow omission of the key, and even of storedb.
@@ -84,13 +87,14 @@ function [stepsize, newx, newkey, lsstats] = ...
         % Reduce the step size,
         alpha = contraction_factor * alpha;
         
-        % and look closer down the line
+        % and look closer down the line.
+        storedb.remove(newkey);              % we no longer need this cache
         newx = problem.M.retr(x, d, alpha);
         newkey = storedb.getNewKey();
         newf = getCost(problem, newx, storedb, newkey);
         cost_evaluations = cost_evaluations + 1;
         
-        % Make sure we don't run out of budget
+        % Make sure we don't run out of budget.
         if cost_evaluations >= max_ls_steps
             break;
         end
