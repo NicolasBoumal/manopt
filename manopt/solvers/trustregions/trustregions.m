@@ -164,13 +164,12 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       that these additional computations appear in the algorithm timings
 %       too, and may interfere with operations such as counting the number
 %       of cost evaluations, etc. (the debug calls get storedb too).
-%   storedepth (20)
+%   storedepth (2)
 %       Maximum number of different points x of the manifold for which a
-%       store structure will be kept in memory in the storedb. If the
-%       caching features of Manopt are not used, this is irrelevant. If
-%       memory usage is an issue, you may try to lower this number.
-%       Profiling may then help to investigate if a performance hit was
-%       incurred as a result.
+%       store structure will be kept in memory in the storedb for caching.
+%       If memory usage is an issue, you may try to lower this number.
+%       Profiling or manopt counters may then help to investigate if a
+%       performance hit was incurred as a result.
 %
 % Notice that statsfun is called with the point x that was reached last,
 % after the accept/reject decision. Hence: if the step was accepted, we get
@@ -179,11 +178,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % the store structure containing everything that was computed at that point
 % (possibly including previous rejects at that same point). Hence, statsfun
 % should not be used in conjunction with the store to count operations for
-% example. Instead, you should use storedb's shared memory for such
-% purposes (either via storedb.shared, or via store.shared, see
-% online documentation). It is however possible to use statsfun with the
-% store to compute, for example, other merit functions on the point x
-% (other than the actual cost function, that is).
+% example. Instead, you should use manopt counters: see statscounters.
 %
 %
 % Please cite the Manopt paper as well as the research paper:
@@ -294,6 +289,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %
 %   NB Nov. 1, 2016:
 %       Now uses approximate gradient via finite differences if need be.
+%
+%   NB Aug. 2, 2018:
+%       Using storedb.remove() to keep the cache lean, which allowed to
+%       reduce storedepth to 2 from 20 (by default).
 
 M = problem.M;
 
@@ -696,22 +695,27 @@ while true
         
         accept = true;
         accstr = 'acc';
+        % We accept the step: no need to keep the old cache.
+        storedb.removefirstifdifferent(key, key_prop);
         x = x_prop;
         key = key_prop;
         fx = fx_prop;
         fgradx = getGradient(problem, x, storedb, key);
         norm_grad = M.norm(x, fgradx);
     else
+        % We reject the step: no need to keep cache related to the
+        % tentative step.
+        storedb.removefirstifdifferent(key_prop, key);
         accept = false;
         accstr = 'REJ';
     end
     
+    % k is the number of iterations we have accomplished.
+    k = k + 1;
     
     % Make sure we don't use too much memory for the store database
     storedb.purge();
     
-    % k is the number of iterations we have accomplished.
-    k = k + 1;
 
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
