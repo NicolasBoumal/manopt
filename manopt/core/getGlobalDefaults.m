@@ -14,6 +14,10 @@ function opts = getGlobalDefaults()
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   Aug. 2, 2018 (NB):
+%       Changed default storedepth to 2 from 20, since solvers should now
+%       use storedb.erase() to keep the cache lean.
 
 
     % There should be no reason to modify this file.
@@ -35,7 +39,7 @@ function opts = getGlobalDefaults()
     % capabilities are not disabled, but the cache will be emptied at each
     % iteration of iterative solvers (more specifically: every time the
     % solver calls to purge the storedb).
-    opts.storedepth = 20;
+    opts.storedepth = 2;
     
     % Maximum amount of time a solver may execute, in seconds.
     opts.maxtime = inf;

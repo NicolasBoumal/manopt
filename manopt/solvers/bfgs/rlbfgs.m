@@ -106,11 +106,10 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       that these additional computations appear in the algorithm timings
 %       too, and may interfere with operations such as counting the number
 %       of cost evaluations, etc. (the debug calls get storedb too).
-%   storedepth (30)
+%   storedepth (2)
 %       Maximum number of different points x of the manifold for which a
-%       store structure will be kept in memory in the storedb. If the
-%       caching features of Manopt are not used, this is irrelevant. If
-%       memory usage is an issue, you may try to lower this number.
+%       store structure will be kept in memory in the storedb for caching.
+%       If memory usage is an issue, you may try to lower this number.
 %       Profiling may then help to investigate if a performance hit was
 %       incurred as a result.
 %
@@ -142,15 +141,20 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %
 %   Nov. 27, 2017 (Wen Huang):
 %       Changed the default strict_inc_func to @(t) 1e-4*t from @(t) t.
+%
 %   Jan. 18, 2018 (NB):
 %       Corrected a bug related to the way the line search hint was defined
 %       by default.
+%
+%   Aug. 2, 2018 (NB):
+%       Using the new storedb.remove features to keep storedb lean, and
+%       reduced the default value of storedepth from 30 to 2 as a result.
 
 
     % Verify that the problem description is sufficient for the solver.
     if ~canGetCost(problem)
         warning('manopt:getCost', ...
-            'No cost provided. The algorithm will likely abort.');
+                'No cost provided. The algorithm will likely abort.');
     end
     if ~canGetGradient(problem) && ~canGetApproxGradient(problem)
         % Note: we do not give a warning if an approximate gradient is
@@ -177,8 +181,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     localdefaults.tolgradnorm = 1e-6;
     localdefaults.memory = 30;
     localdefaults.strict_inc_func = @(t) 1e-4*t;
-    localdefaults.ls_max_steps  = 25;
-    localdefaults.storedepth = 30;
+    localdefaults.ls_max_steps = 25;
+    localdefaults.storedepth = 2;
     
     % Merge global and local defaults, then merge w/ user options, if any.
     localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -201,14 +205,16 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     
     M = problem.M;
     
+    
+    timetic = tic();
+    
+    
     % Create a random starting point if no starting point is provided.
     if ~exist('x0', 'var')|| isempty(x0)
-        xCur = M.rand(); 
+        xCur = M.rand();
     else
         xCur = x0;
     end
-    
-    timetic = tic();
     
     % Create a store database and get a key for the current x
     storedb = StoreDB(options.storedepth);
@@ -337,7 +343,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
                             M.inner(xCur, xCurGradient, p), ...
                             options, storedb, key);
         
-        % Record the BFGS step-multiplier alpha which as effectively
+        % Record the BFGS step-multiplier alpha which was effectively
         % selected. Toward convergence, we hope to see alpha = 1.
         alpha = stepsize/M.norm(xCur, p);
         step = M.lincomb(xCur, alpha, p);
@@ -407,7 +413,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
             % If we are not out of memory
             else
                 
-                for  i = 1:k
+                for i = 1:k
                     sHistory{i} = M.transp(xCur, xNext, sHistory{i});
                     yHistory{i} = M.transp(xCur, xNext, yHistory{i});
                 end
@@ -433,14 +439,16 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
             
         end
         
-        % Update variables to new iterate
-        iter = iter + 1;
+        % Update variables to new iterate.
+        storedb.removefirstifdifferent(key, newkey);
         xCur = xNext;
         key = newkey;
         xCurGradient = xNextGrad;
         xCurGradNorm = M.norm(xNext, xNextGrad);
         xCurCost = xNextCost;
         
+        % iter is the number of iterations we have accomplished.
+        iter = iter + 1;
         
         % Make sure we don't use too much memory for the store database
         % (this is independent from the BFGS memory.)

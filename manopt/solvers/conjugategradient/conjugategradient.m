@@ -137,6 +137,9 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Aug. 2, 2018 (NB):
+%       Now using storedb.remove() to keep the cache lean.
 
 M = problem.M;
 
@@ -353,10 +356,8 @@ while true
         
     end
     
-    % Make sure we don't use too much memory for the store database
-    storedb.purge();
-    
-    % Transfer iterate info
+    % Transfer iterate info.
+    storedb.removefirstifdifferent(key, newkey);
     x = newx;
     key = newkey;
     cost = newcost;
@@ -368,7 +369,10 @@ while true
     % iter is the number of iterations we have accomplished.
     iter = iter + 1;
     
-    % Log statistics for freshly executed iteration
+    % Make sure we don't use too much memory for the store database.
+    storedb.purge();
+    
+    % Log statistics for freshly executed iteration.
     stats = savestats();
     info(iter+1) = stats;
     
