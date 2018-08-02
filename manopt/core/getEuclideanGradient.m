@@ -51,6 +51,7 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
     % default. This is for the special caching functionality described
     % below.
     store = storedb.getWithShared(key);
+    store_is_stale = false;
 
     % If the Euclidean Hessian can be computed from the problem
     % definition, it is likely that the user will use it. To get the
@@ -75,6 +76,10 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
                 [egrad, store] = problem.egrad(x, store);
             case 3
                 egrad = problem.egrad(x, storedb, key);
+                % The store structure in storedb might have been modified
+                % (since it is passed by reference), so before caching
+                % we'll have to update (see below).
+                store_is_stale = true;
             otherwise
                 up = MException('manopt:getEuclideanGradient:badegrad', ...
                     'egrad should accept 1, 2 or 3 inputs.');
@@ -86,6 +91,7 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
         
         d = problem.ncostterms;
         egrad = getPartialEuclideanGradient(problem, x, 1:d, storedb, key);
+        store_is_stale = true;
 
     else
     %% Abandon computing the Euclidean gradient
@@ -95,6 +101,11 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
              'compute the Euclidean gradient of the cost.']);
         throw(up);
         
+    end
+    
+    % If we are not sure that the store structure is up to date, update.
+    if store_is_stale
+        store = storedb.getWithShared(key);
     end
     
     % Cache here.
