@@ -97,6 +97,9 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 % Original author: Margherita Porcelli, May 31, 2017
 % Contributors: Nicolas Boumal, Bruno Iannazzo
 % Change log: 
+%
+%   Aug. 2, 2018 (NB):
+%       Now using storedb.remove() to keep the cache lean.
 
     
     % Verify that the problem description is sufficient for the solver.
@@ -307,11 +310,9 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        % Make sure we don't use too much memory for the store database
-        storedb.purge();
         
         % Update iterate info
+        storedb.removefirstifdifferent(key, newkey);
         x = newx;
         key = newkey;
         cost = newcost;
@@ -320,6 +321,9 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 
         % iter is the number of iterations we have accomplished.
         iter = iter + 1;
+
+        % Make sure we don't use too much memory for the store database.
+        storedb.purge();
         
         % Log statistics for freshly executed iteration
         stats = savestats();

@@ -65,9 +65,9 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %       The higher, the more output. 0 means silent.
 %   storedepth (2)
 %       Maximum number of different points x of the manifold for which a
-%       store structure will be kept in memory in the storedb. If the
-%       caching features of Manopt are not used, this is irrelevant. For
-%       the SD algorithm, a store depth of 2 should always be sufficient.
+%       store structure will be kept in memory in the storedb for caching.
+%       For the SD algorithm, a store depth of 2 should always be
+%       sufficient.
 %
 %
 % See also: conjugategradient trustregions manopt/solvers/linesearch manopt/examples
@@ -79,6 +79,9 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Aug. 2, 2018 (NB):
+%       Now using storedb.remove() to keep the cache lean.
 
     
     % Verify that the problem description is sufficient for the solver.
@@ -97,7 +100,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         problem.approxgrad = approxgradientFD(problem);
     end
     
-    % Set local defaults here
+    % Set local defaults here.
     localdefaults.minstepsize = 1e-10;
     localdefaults.maxiter = 1000;
     localdefaults.tolgradnorm = 1e-6;
@@ -125,11 +128,11 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         x = problem.M.rand();
     end
     
-    % Create a store database and get a key for the current x
+    % Create a store database and get a key for the current x.
     storedb = StoreDB(options.storedepth);
     key = storedb.getNewKey();
     
-    % Compute objective-related quantities for x
+    % Compute objective-related quantities for x.
     [cost, grad] = getCostGrad(problem, x, storedb, key);
     gradnorm = problem.M.norm(x, grad);
     
@@ -146,22 +149,22 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         fprintf(' iter\t               cost val\t    grad. norm\n');
     end
     
-    % Start iterating until stopping criterion triggers
+    % Start iterating until stopping criterion triggers.
     while true
 
-        % Display iteration information
+        % Display iteration information.
         if options.verbosity >= 2
             fprintf('%5d\t%+.16e\t%.8e\n', iter, cost, gradnorm);
         end
         
-        % Start timing this iteration
+        % Start timing this iteration.
         timetic = tic();
         
-        % Run standard stopping criterion checks
+        % Run standard stopping criterion checks.
         [stop, reason] = stoppingcriterion(problem, x, options, ...
                                                              info, iter+1);
         
-        % If none triggered, run specific stopping criterion check
+        % If none triggered, run specific stopping criterion check.
         if ~stop && stats.stepsize < options.minstepsize
             stop = true;
             reason = sprintf(['Last stepsize smaller than minimum '  ...
@@ -176,10 +179,10 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
             break;
         end
 
-        % Pick the descent direction as minus the gradient
+        % Pick the descent direction as minus the gradient.
         desc_dir = problem.M.lincomb(x, -1, grad);
         
-        % Execute the line search
+        % Execute the line search.
         [stepsize, newx, newkey, lsstats] = options.linesearch( ...
                              problem, x, desc_dir, cost, -gradnorm^2, ...
                              options, storedb, key);
@@ -188,20 +191,21 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         [newcost, newgrad] = getCostGrad(problem, newx, storedb, newkey);
         newgradnorm = problem.M.norm(newx, newgrad);
         
-        % Make sure we don't use too much memory for the store database
-        storedb.purge();
-        
-        % Transfer iterate info
+        % Transfer iterate info, remove cache from previous x.
+        storedb.removefirstifdifferent(key, newkey);
         x = newx;
         key = newkey;
         cost = newcost;
         grad = newgrad;
         gradnorm = newgradnorm;
         
+        % Make sure we don't use too much memory for the store database.
+        storedb.purge();
+        
         % iter is the number of iterations we have accomplished.
         iter = iter + 1;
         
-        % Log statistics for freshly executed iteration
+        % Log statistics for freshly executed iteration.
         stats = savestats();
         info(iter+1) = stats;
         
