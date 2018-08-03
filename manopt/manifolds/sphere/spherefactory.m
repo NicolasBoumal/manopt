@@ -11,8 +11,8 @@ function M = spherefactory(n, m, gpuflag)
 % of nxm matrices with the usual trace inner product, i.e., the usual
 % metric.
 %
-% Set gpuflag to true (it is false by default) to store points, vectors and
-% ambient vectors on the GPU, and have computations done there.
+% Set gpuflag = true to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations can be done on the GPU directly.
 % 
 % See also: obliquefactory spherecomplexfactory
 
@@ -57,7 +57,6 @@ function M = spherefactory(n, m, gpuflag)
     if ~exist('m', 'var') || isempty(m)
         m = 1;
     end
-    
     if ~exist('gpuflag', 'var') || isempty(gpuflag)
         gpuflag = false;
     end
