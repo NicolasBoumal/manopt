@@ -169,8 +169,8 @@ function checkhessian(problem, x, d)
                  'tangent plane.\n']);
     else
         fprintf(['Unfortunately, Manopt was unable to verify that the '...
-                 'Hessian is indeed a tangent vector.\nPlease verify ' ...
-                 'this manually.']);
+                 'output of the Hessian call is indeed a tangent ' ...
+                 'vector.\nPlease verify this manually.']);
     end    
     
     %% Check that the Hessian at x is symmetric.
