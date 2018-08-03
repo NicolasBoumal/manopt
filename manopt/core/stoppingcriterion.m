@@ -14,7 +14,6 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
 %  2 : Gradient norm tolerance reached;
 %  3 : Max time exceeded;
 %  4 : Max iteration count reached;
-%  5 : Maximum number of cost evaluations reached;
 %  6 : User defined stopfun criterion triggered.
 %
 % The output 'reason' is a string describing the triggered event.
@@ -24,8 +23,15 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
 % Contributors: 
 % Change log: 
 %
-%   April 2, 2015 (NB):
+%   Apr. 2, 2015 (NB):
 %       'reason' now contains the option (name and value) that triggered.
+%
+%   Aug. 3, 2018 (NB):
+%       Removed check for costevals, as it was never used, and the new
+%       manopt counters allow to do this in a more transparent way.
+%       Furthermore, now, options.stopfun can have 1 or 2 outputs: the
+%       first is a boolean indicating whether or not to stop, and the
+%       (optional) second output is a string indicating the reason.
 
 
     stop = 0;
@@ -64,20 +70,36 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
         stop = 4;
         return;
     end
-    
-    % Allotted function evaluation count exceeded
-    if isfield(stats, 'costevals') && isfield(options, 'maxcostevals') && ...
-       stats.costevals >= options.maxcostevals
-        reason = sprintf('Maximum number of cost evaluations reached; options.maxcostevals = %g.', options.maxcostevals);
-        stop = 5;
-    end
 
     % Check whether the possibly user defined stopping criterion
     % triggers or not.
     if isfield(options, 'stopfun')
-        userstop = options.stopfun(problem, x, info, last);
+        % options.stopfun can have 1 or 2 outputs, but typically we cannot
+        % check this using nargout because it will often be an anonymous
+        % function. Thus, we try with 2 outputs, and if it fails we try
+        % again with 1.
+        try
+            [userstop, reason] = options.stopfun(problem, x, info, last);
+        catch up
+            % If the exception was indeed about the number of outputs...
+            if strcmp(up.identifier, 'MATLAB:maxlhs')
+                try
+                    % Try again with a single output
+                    userstop = options.stopfun(problem, x, info, last);
+                    reason = ['User defined stopfun criterion triggered;' ...
+                              ' see options.stopfun.'];
+                catch e
+                    % Something went wrong anyway...
+                    warning('manopt:stoppingcriterion:stopfunoutputs', ...
+                            'options.stopfun must have 1 or 2 outputs.');
+                    rethrow(e);
+                end
+            % Otherwise, something else went wrong: pass it on.
+            else
+                rethrow(up);
+            end
+        end
         if userstop
-            reason = 'User defined stopfun criterion triggered; see options.stopfun.';
             stop = 6;
             return;
         end
