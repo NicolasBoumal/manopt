@@ -1,8 +1,9 @@
-function M = stiefelfactory(n, p, k)
+function M = stiefelfactory(n, p, k, gpuflag)
 % Returns a manifold structure to optimize over orthonormal matrices.
 %
 % function M = stiefelfactory(n, p)
 % function M = stiefelfactory(n, p, k)
+% function M = stiefelfactory(n, p, k, gpuflag)
 %
 % The Stiefel manifold is the set of orthonormal nxp matrices. If k
 % is larger than 1, this is the Cartesian product of the Stiefel manifold
@@ -16,7 +17,7 @@ function M = stiefelfactory(n, p, k)
 % i = 1 : k if k > 1. Tangent vectors are represented as matrices the same
 % size as points.
 %
-% By default, k = 1.
+% By default, k = 1 and gpuflag = false.
 %
 % See also: grassmannfactory rotationsfactory
 
@@ -33,10 +34,23 @@ function M = stiefelfactory(n, p, k)
 %  July 17, 2018 (NB) : Now both QR (default) and polar retractions are
 %                       directly accessible, and their inverses are also
 %                       implemented.
+%  Aug.  2, 2018 (NB) : Added GPU support: just set gpuflag = true.
 
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
+    end
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = false;
+    end
+    
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if gpuflag
+        array_type = 'gpuArray';
+    else
+        array_type = 'double';
     end
     
     if k == 1
@@ -111,7 +125,8 @@ function M = stiefelfactory(n, p, k)
     M.invretr_qr = @invretr_qr;
     function U = invretr_qr(X, Y)
         XtY = multiprod(multitransp(X), Y);
-        R = zeros(p, p, k);
+        R = zeros(p, p, k, array_type);
+        H = 2*eye(p, array_type);
         for kk = 1 : k
             % For each slice, assuming the inverse retraction is well
             % defined for the given inputs, we have:
@@ -124,7 +139,7 @@ function M = stiefelfactory(n, p, k)
             % Contrary to the polar factorization, here R is not symmetric
             % but it is upper triangular. As a result, this is not a
             % Sylvester equation and we must solve it differently.
-            R(:, :, kk) = solve_for_triu(XtY(:, :, kk), 2*eye(p));
+            R(:, :, kk) = solve_for_triu(XtY(:, :, kk), H);
             % Then,
             %   U = YR - X
             % which is what we compute below.
@@ -150,8 +165,8 @@ function M = stiefelfactory(n, p, k)
     M.invretr_polar = @invretr_polar;
     function U = invretr_polar(X, Y)
         XtY = multiprod(multitransp(X), Y);
-        MM = zeros(p, p, k);
-        H = 2*eye(p);
+        MM = zeros(p, p, k, array_type);
+        H = 2*eye(p, array_type);
         for kk = 1 : k
             % For each slice, assuming the inverse retraction is well
             % defined for the given inputs, we have:
@@ -181,17 +196,20 @@ function M = stiefelfactory(n, p, k)
     M.exp = @exponential;
     function Y = exponential(X, U, t)
         if nargin == 2
-            t = 1;
+            tU = U;
+        else
+            tU = t*U;
         end
-        tU = t*U;
-        Y = zeros(size(X));
-        for i = 1 : k
+        Y = zeros(size(X), array_type);
+        I = eye(p, array_type);
+        Z = zeros(p, array_type);
+        for kk = 1 : k
             % From a formula by Ross Lippert, Example 5.4.2 in AMS08.
-            Xi = X(:, :, i);
-            Ui = tU(:, :, i);
-            Y(:, :, i) = [Xi Ui] * ...
-                         expm([Xi'*Ui , -Ui'*Ui ; eye(p) , Xi'*Ui]) * ...
-                         [ expm(-Xi'*Ui) ; zeros(p) ];
+            Xkk = X(:, :, kk);
+            Ukk = tU(:, :, kk);
+            Y(:, :, kk) = [Xkk Ukk] * ...
+                         expm([Xkk'*Ukk , -Ukk'*Ukk ; I , Xkk'*Ukk]) * ...
+                         [ expm(-Xkk'*Ukk) ; Z ];
         end
         
     end
@@ -200,22 +218,22 @@ function M = stiefelfactory(n, p, k)
     
     M.rand = @random;
     function X = random()
-        X = zeros(n, p, k);
-        for i = 1 : k
-            [Q, unused] = qr(randn(n, p), 0);  %#ok<ASGLU>
-            X(:, :, i) = Q;
+        X = randn(n, p, k, array_type);
+        for kk = 1 : k
+            [Q, unused] = qr(X(:, :, kk), 0);  %#ok<ASGLU>
+            X(:, :, kk) = Q;
         end
     end
     
     M.randvec = @randomvec;
     function U = randomvec(X)
-        U = projection(X, randn(n, p, k));
+        U = projection(X, randn(n, p, k, array_type));
         U = U / norm(U(:));
     end
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(n, p, k);
+    M.zerovec = @(x) zeros(n, p, k, array_type);
     
     M.transp = @(x1, x2, d) projection(x2, d);
     
@@ -223,4 +241,10 @@ function M = stiefelfactory(n, p, k)
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
     M.vecmatareisometries = @() true;
 
+    
+    % Automatically convert a number of tools to support GPU.
+    if gpuflag
+        M = factorygpuhelper(M);
+    end
+    
 end
