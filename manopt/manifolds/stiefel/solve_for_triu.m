@@ -25,6 +25,11 @@ function X = solve_for_triu(A, H)
 % Original author: Nicolas Boumal, July 18, 2018.
 % Contributors: 
 % Change log:
+%
+%   Aug. 3, 2018 (NB):
+%       Initial array of zeros now copies the class of A, so that if A is a
+%       regular matrix of doubles it doesn't change anything, but if A is
+%       on GPU, then this function also works on GPU.
 
 % One tentative idea to reduce the cost to O(p^3) involves taking an LU
 % factorization of A. Then, we obtain a permutation matrix P and
@@ -50,7 +55,7 @@ function X = solve_for_triu(A, H)
 % without loss of stability due to the LU change of variable.
 
     p = size(A, 1);
-    X = zeros(p, p);
+    X = zeros(p, p, class(A));
     for pp = 1 : p
         b = H(1:pp, pp);
         b(end) = b(end)/2;
