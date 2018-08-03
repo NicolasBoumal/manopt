@@ -17,6 +17,9 @@ function M = stiefelfactory(n, p, k, gpuflag)
 % i = 1 : k if k > 1. Tangent vectors are represented as matrices the same
 % size as points.
 %
+% Set gpuflag = true to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations can be done on the GPU directly.
+%
 % By default, k = 1 and gpuflag = false.
 %
 % See also: grassmannfactory rotationsfactory
@@ -36,6 +39,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 %                       implemented.
 %  Aug.  2, 2018 (NB) : Added GPU support: just set gpuflag = true.
 
+    assert(n >= p, 'The dimension n must be larger than the dimension p.');
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;

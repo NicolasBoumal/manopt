@@ -1,8 +1,9 @@
-function M = grassmannfactory(n, p, k)
+function M = grassmannfactory(n, p, k, gpuflag)
 % Returns a manifold struct to optimize over the space of vector subspaces.
 %
 % function M = grassmannfactory(n, p)
 % function M = grassmannfactory(n, p, k)
+% function M = grassmannfactory(n, p, k, gpuflag)
 %
 % Grassmann manifold: each point on this manifold is a collection of k
 % vector subspaces of dimension p embedded in R^n.
@@ -19,7 +20,10 @@ function M = grassmannfactory(n, p, k)
 % i = 1 : k if k > 1. Each n x p matrix is a numerical representation of
 % the vector subspace its columns span.
 %
-% By default, k = 1.
+% Set gpuflag = true to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations can be done on the GPU directly.
+%
+% By default, k = 1 and gpuflag = false.
 %
 % See also: stiefelfactory grassmanncomplexfactory grassmanngeneralizedfactory
 
@@ -59,6 +63,9 @@ function M = grassmannfactory(n, p, k)
 %
 %   July 8, 2018 (NB):
 %       Inverse retraction implemented.
+%
+%   Aug. 3, 2018 (NB):
+%       Added GPU support: just set gpuflag = true.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -66,6 +73,18 @@ function M = grassmannfactory(n, p, k)
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
+    end
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = false;
+    end
+    
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if gpuflag
+        array_type = 'gpuArray';
+    else
+        array_type = 'double';
     end
     
     if k == 1
@@ -146,7 +165,7 @@ function M = grassmannfactory(n, p, k)
     M.invretr = @invretr;
     function U = invretr(X, Y)
         XtY = multiprod(multitransp(X), Y);
-        U = zeros(n, p, k);
+        U = zeros(n, p, k, array_type);
         for kk = 1 : k
             U(:, :, kk) = Y(:, :, kk) / XtY(:, :, kk);
         end
@@ -161,7 +180,7 @@ function M = grassmannfactory(n, p, k)
         else
             tU = U;
         end
-        Y = zeros(size(X));
+        Y = zeros(size(X), array_type);
         for kk = 1 : k
             [u, s, v] = svd(tU(:, :, kk), 0);
             cos_s = diag(cos(diag(s)));
@@ -185,7 +204,7 @@ function M = grassmannfactory(n, p, k)
     % v = Gr.log(x, z) % be the same point as y on Grassmann: dist almost 0.
     M.log = @logarithm;
     function U = logarithm(X, Y)
-        U = zeros(n, p, k);
+        U = zeros(n, p, k, array_type);
         for kk = 1 : k
             x = X(:, :, kk);
             y = Y(:, :, kk);
@@ -207,22 +226,22 @@ function M = grassmannfactory(n, p, k)
     
     M.rand = @random;
     function X = random()
-        X = zeros(n, p, k);
+        X = randn(n, p, k, array_type);
         for kk = 1 : k
-            [Q, unused] = qr(randn(n, p), 0); %#ok
+            [Q, unused] = qr(X(:, :, kk), 0); %#ok
             X(:, :, kk) = Q;
         end
     end
     
     M.randvec = @randomvec;
     function U = randomvec(X)
-        U = projection(X, randn(n, p, k));
+        U = projection(X, randn(n, p, k, array_type));
         U = U / norm(U(:));
     end
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(n, p, k);
+    M.zerovec = @(x) zeros(n, p, k, array_type);
     
     % This transport is compatible with the polar retraction.
     M.transp = @(x1, x2, d) projection(x2, d);
@@ -230,5 +249,11 @@ function M = grassmannfactory(n, p, k)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
     M.vecmatareisometries = @() true;
+
+    
+    % Automatically convert a number of tools to support GPU.
+    if gpuflag
+        M = factorygpuhelper(M);
+    end
 
 end
