@@ -1,14 +1,18 @@
-function M = spherefactory(n, m)
+function M = spherefactory(n, m, gpuflag)
 % Returns a manifold struct to optimize over unit-norm vectors or matrices.
 %
 % function M = spherefactory(n)
 % function M = spherefactory(n, m)
+% function M = spherefactory(n, m, gpuflag)
 %
 % Manifold of n-by-m real matrices of unit Frobenius norm.
 % By default, m = 1, which corresponds to the unit sphere in R^n. The
 % metric is such that the sphere is a Riemannian submanifold of the space
 % of nxm matrices with the usual trace inner product, i.e., the usual
 % metric.
+%
+% Set gpuflag to true (it is false by default) to store points, vectors and
+% ambient vectors on the GPU, and have computations done there.
 % 
 % See also: obliquefactory spherecomplexfactory
 
@@ -45,11 +49,28 @@ function M = spherefactory(n, m)
 %
 %   July 18, 2018 (NB)
 %       Added the inverse retraction (M.invretr) for the sphere.
+%
+%   Aug. 3, 2018 (NB)
+%       Added GPU support: just set gpuflag = true.
     
     
-    if ~exist('m', 'var')
+    if ~exist('m', 'var') || isempty(m)
         m = 1;
     end
+    
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = false;
+    end
+    
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if gpuflag
+        array_type = 'gpuArray';
+    else
+        array_type = 'double';
+    end
+        
 
     if m == 1
         M.name = @() sprintf('Sphere S^%d', n-1);
@@ -118,13 +139,13 @@ function M = spherefactory(n, m)
     
     M.hash = @(x) ['z' hashmd5(x(:))];
     
-    M.rand = @() random(n, m);
+    M.rand = @() random(n, m, array_type);
     
-    M.randvec = @(x) randomvec(n, m, x);
+    M.randvec = @(x) randomvec(n, m, x, array_type);
+    
+    M.zerovec = @(x) zeros(n, m, array_type);
     
     M.lincomb = @matrixlincomb;
-    
-    M.zerovec = @(x) zeros(n, m);
     
     M.transp = @(x1, x2, d) M.proj(x2, d);
     
@@ -157,6 +178,13 @@ function M = spherefactory(n, m)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
     M.vecmatareisometries = @() true;
+    
+    
+    % Automatically convert a number of tools to support GPU.
+    if gpuflag
+        M = factorygpuhelper(M);
+    end
+    
 
 end
 
@@ -213,17 +241,17 @@ function d = inverse_retraction(x, y)
 end
 
 % Uniform random sampling on the sphere.
-function x = random(n, m)
+function x = random(n, m, array_type)
 
-    x = randn(n, m);
+    x = randn(n, m, array_type);
     x = x / norm(x, 'fro');
 
 end
 
 % Random normalized tangent vector at x.
-function d = randomvec(n, m, x)
+function d = randomvec(n, m, x, array_type)
 
-    d = randn(n, m);
+    d = randn(n, m, array_type);
     d = d - x*(x(:)'*d(:));
     d = d / norm(d, 'fro');
 
