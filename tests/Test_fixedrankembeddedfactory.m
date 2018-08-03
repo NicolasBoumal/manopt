@@ -27,8 +27,8 @@ function Test_fixedrankembeddedfactory()
     
     % Choose the size of the problem:
     % We will complete a matrix of size mxn of rank k.
-    m = 200;
-    n = 500;
+    m = 2000;
+    n = 5000;
     k = 10;
     % Generate a random mxn matrix A of rank k
     L = randn(m, k);
@@ -106,7 +106,8 @@ function Test_fixedrankembeddedfactory()
     
     % Minimize the cost function using Riemannian trust-regions, starting
     % from the initial guess X0.
-    X = trustregions(problem, X0);
+    options.stopfun = @stopifclosedfigure;
+    X = trustregions(problem, X0, options);
     
     % The reconstructed matrix is X, represented as a structure with fields
     % U, S and V.

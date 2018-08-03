@@ -18,9 +18,10 @@ function stopfun = stopifdeletedfile(filename)
 % input string filename (optional).
 %
 % Note: certain solvers (including trustregions) check stopping criteria
-% only at outer iterations, not during inner iterations; hence, the 
+% only at outer iterations, not during inner iterations; hence, their may
+% be a delay before actual termination.
 %
-% See also: statsfunhelper
+% See also: statsfunhelper stopifclosedfigure
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Aug. 2, 2018.
