@@ -91,8 +91,16 @@ function using_counters()
     options.statsfun = statsfunhelper(stats);
 
     % As an example: we could set up a stopping criterion based on the
-    % number of matrix-vector products:
-    % options.stopfun = @(problem, x, info, last) info(last).Aproducts > 100;
+    % number of matrix-vector products. A short version:
+    % options.stopfun = @(problem, x, info, last) info(last).Aproducts > 250;
+    % A longer version that also returns a reason string:
+    options.stopfun = @stopfun;
+    function [stop, reason] = stopfun(problem, x, info, last) %#ok<INUSL>
+        reason = 'Exceeded Aproducts budget.';
+        stop = (info(last).Aproducts > 250);   % true if budget exceeded
+        % Here, info(last) contains the stats of the latest iteration.
+        % That includes all registered counters.
+    end
     
     % Solve with different solvers to compare.
     options.tolgradnorm = 1e-9;
