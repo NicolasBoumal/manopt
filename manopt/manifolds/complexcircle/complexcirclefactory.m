@@ -1,15 +1,18 @@
-function M = complexcirclefactory(n)
+function M = complexcirclefactory(n, m)
 % Returns a manifold struct to optimize over unit-modulus complex numbers.
 %
 % function M = complexcirclefactory()
 % function M = complexcirclefactory(n)
+% function M = complexcirclefactory(n, m)
 %
-% Description of vectors z in C^n (complex) such that each component z(i)
-% has unit modulus. The manifold structure is the Riemannian submanifold
-% structure from the embedding space R^2 x ... x R^2, i.e., the complex
-% circle is identified with the unit circle in the real plane.
+% Description of matrices z in C^(nxm) (complex) such that each entry
+% z(i, j) has unit modulus. The manifold structure is the Riemannian
+% submanifold structure from the embedding space R^2 to the power n-by-m,
+% i.e., the complex circle is identified with the unit circle in the real
+% plane. Points and tangent vectors are represented as complex matrices of
+% size n-by-m.
 %
-% By default, n = 1.
+% By default, n = 1 and m = 1.
 %
 % See also spherecomplexfactory
 
@@ -34,22 +37,32 @@ function M = complexcirclefactory(n)
 %
 %   July 18, 2018 (NB)
 %       Added inverse retraction function M.invretr.
+%
+%   Aug. 3, 2018 (NB)
+%       Added support for matrices of unit-modulus (as opposed to vectors).
     
-    if ~exist('n', 'var')
+    if ~exist('n', 'var') || isempty(n)
         n = 1;
     end
+    if ~exist('m', 'var') || isempty(m)
+        m = 1;
+    end
 
-    M.name = @() sprintf('Complex circle (S^1)^%d', n);
+    if m == 1
+        M.name = @() sprintf('Complex circle (S^1)^%d', n);
+    else
+        M.name = @() sprintf('Complex circle (S^1)^(%dx%d)', n, m);
+    end
     
-    M.dim = @() n;
+    M.dim = @() n*m;
     
-    M.inner = @(z, v, w) real(v'*w);
+    M.inner = @(z, v, w) real(v(:)'*w(:));
     
-    M.norm = @(x, v) norm(v);
+    M.norm = @(x, v) norm(v, 'fro');
     
-    M.dist = @(x, y) norm(real(2*asin(.5*abs(x - y))));
+    M.dist = @(x, y) norm(real(2*asin(.5*abs(x - y))), 'fro');
     
-    M.typicaldist = @() pi*sqrt(n);
+    M.typicaldist = @() pi*sqrt(n*m);
     
     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;	
     
@@ -74,7 +87,7 @@ function M = complexcirclefactory(n)
             tv = t*v;
         end
 
-        y = zeros(n, 1);
+        y = zeros(n, m);
 
         nrm_tv = abs(tv);
         
@@ -116,19 +129,19 @@ function M = complexcirclefactory(n)
     
     M.rand = @random;
     function z = random()
-        z = sign(randn(n, 1) + 1i*randn(n, 1));
+        z = sign(randn(n, m) + 1i*randn(n, m));
     end
     
     M.randvec = @randomvec;
     function v = randomvec(z)
         % i*z(k) is a basis vector of the tangent vector to the k-th circle
-        v = randn(n, 1) .* (1i*z);
-        v = v / norm(v);
+        v = randn(n, m) .* (1i*z);
+        v = v / norm(v, 'fro');
     end
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(n, 1);
+    M.zerovec = @(x) zeros(n, m);
     
     M.transp = @(x1, x2, d) M.proj(x2, d);
     
@@ -137,8 +150,8 @@ function M = complexcirclefactory(n)
         z = sign(z1+z2);
     end
 
-    M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
-    M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
+    M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
+    M.mat = @(x, u_vec) reshape(u_vec(1:(n*m)) + 1i*u_vec((n*m+1):end), [n, m]);
     M.vecmatareisometries = @() true;
 
 end
