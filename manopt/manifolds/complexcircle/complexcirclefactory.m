@@ -1,4 +1,4 @@
-function M = complexcirclefactory(n, m)
+function M = complexcirclefactory(n, m, gpuflag)
 % Returns a manifold struct to optimize over unit-modulus complex numbers.
 %
 % function M = complexcirclefactory()
