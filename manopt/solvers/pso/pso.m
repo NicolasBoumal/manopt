@@ -52,7 +52,6 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
     
     % Set local defaults here
     localdefaults.storedepth = 0;                   % no need for caching
-    localdefaults.maxcostevals = max(5000, 2*dim);
     localdefaults.maxiter = max(500, 4*dim);
     
     localdefaults.populationsize = min(40, 10*dim);

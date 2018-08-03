@@ -64,7 +64,6 @@ function [x, cost, info, options] = neldermead(problem, x, options)
 
     % Set local defaults here
     localdefaults.storedepth = 0;                     % no need for caching
-    localdefaults.maxcostevals = max(1000, 2*dim);
     localdefaults.maxiter = max(2000, 4*dim);
     
     localdefaults.reflection = 1;
