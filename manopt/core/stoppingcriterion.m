@@ -74,33 +74,30 @@ function [stop, reason] = stoppingcriterion(problem, x, options, info, last)
     % Check whether the possibly user defined stopping criterion
     % triggers or not.
     if isfield(options, 'stopfun')
-        % options.stopfun can have 1 or 2 outputs, but typically we cannot
-        % check this using nargout because it will often be an anonymous
-        % function. Thus, we try with 2 outputs, and if it fails we try
-        % again with 1.
-        try
-            [userstop, reason] = options.stopfun(problem, x, info, last);
-        catch up
-            % If the exception was indeed about the number of outputs...
-            if strcmp(up.identifier, 'MATLAB:maxlhs')
-                try
-                    % Try again with a single output
-                    userstop = options.stopfun(problem, x, info, last);
-                    reason = ['User defined stopfun criterion triggered;' ...
-                              ' see options.stopfun.'];
-                catch e
-                    % Something went wrong anyway...
-                    warning('manopt:stoppingcriterion:stopfunoutputs', ...
-                            'options.stopfun must have 1 or 2 outputs.');
-                    rethrow(e);
-                end
-            % Otherwise, something else went wrong: pass it on.
-            else
-                rethrow(up);
-            end
+        % options.stopfun can have 1 or 2 outputs, but checking this with
+        % nargout does not always work because it is technical to determine
+        % for anonymous functions. Thus, we use our best guess. Nargout
+        % returns -1 when it cannot determine the number of outputs, in
+        % which case we take the safer approach of assuming 1 output.
+        switch nargout(options.stopfun)
+            case 2
+                [userstop, reason] = options.stopfun(problem, x, info, last);
+            case {1, -1}
+                userstop = options.stopfun(problem, x, info, last);
+                reason = ['User defined stopfun criterion triggered; ' ...
+                          'see options.stopfun.'];
+            otherwise
+                error('manopt:stoppingcriterion:stopfunoutputs', ...
+                      'options.stopfun must have one or two outputs.');
         end
         if userstop
             stop = 6;
+            if nargout(options.stopfun) == -1
+                reason = [reason, '\n(A reason may have been ' ...
+                          'provided, but stoppingcriterion was ' ...
+                          'unable to determine\nthe number of ' ...
+                          'output arguments of options.stopfun.)'];
+            end
             return;
         end
     end

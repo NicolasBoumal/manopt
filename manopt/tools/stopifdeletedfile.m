@@ -37,31 +37,37 @@ function stopfun = stopifdeletedfile(filename)
     if fid >= 0
         fclose(fid);    
         % The stopping criterion is a function handle.
-        stopfun = @(problem, x, info, last) checkcriterion(filename);
+        stopfun = @checkcriterion;
     else
         warning('manopt:stopifdeletedfile', ...
               'Couldn''t create the file: no stopping criterion created.');
         stopfun = @(problem, x, info, last) false;
     end
 
-end
 
-function [stop, reason] = checkcriterion(filename)
+    % The function is defined as a subfunction so that it has access to
+    % filename without the need for an @() construct. This makes it easier
+    % for Matlab to determine the number of output arguments of the
+    % function handle @checkcriterion, which ultimately helps
+    % stoppingcriterion determine how to call it.
+    function [stop, reason] = checkcriterion(problem, x, info, last) %#ok<INUSD>
 
-    reason = sprintf(['Interactive stopping criterion ' ...
+        reason = sprintf(['Interactive stopping criterion ' ...
                      '(file %s deleted). See options.stopfun.'], filename);
 
-    % Try to access the file.
-    fid = fopen(filename, 'r');
-    
-    % If we can't, it means the file no longer exists: stop the solver.
-    % Otherwise, release our handle on the file to make sure it can be
-    % deleted by another program.
-    if fid < 0
-        stop = true;
-    else
-        fclose(fid);
-        stop = false;
-    end
+        % Try to access the file.
+        fid = fopen(filename, 'r');
 
+        % If we can't, it means the file no longer exists: stop the solver.
+        % Otherwise, release our handle on the file to make sure it can be
+        % deleted by another program.
+        if fid < 0
+            stop = true;
+        else
+            fclose(fid);
+            stop = false;
+        end
+
+    end
+    
 end
