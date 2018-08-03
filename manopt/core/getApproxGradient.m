@@ -33,7 +33,7 @@ function approxgrad = getApproxGradient(problem, x, storedb, key)
     %% Compute the approximate gradient using approxgrad.
 		
         % Check whether this function wants to deal with storedb or not.
-        switch nargin(problem.approxgrad);
+        switch nargin(problem.approxgrad)
             case 1
                 approxgrad = problem.approxgrad(x);
             case 2
