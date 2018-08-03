@@ -87,8 +87,8 @@ function M = grassmannfactory(n, p, k)
     function d = distance(x, y)
         square_d = 0;
         XtY = multiprod(multitransp(x), y);
-        for i = 1 : k
-            cos_princ_angle = svd(XtY(:, :, i));
+        for kk = 1 : k
+            cos_princ_angle = svd(XtY(:, :, kk));
             square_d = square_d + sum(real(acos(cos_princ_angle)).^2);
         end
         d = sqrt(square_d);
