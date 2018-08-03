@@ -4,6 +4,7 @@ function M = complexcirclefactory(n, m)
 % function M = complexcirclefactory()
 % function M = complexcirclefactory(n)
 % function M = complexcirclefactory(n, m)
+% function M = complexcirclefactory(n, m, gpuflag)
 %
 % Description of matrices z in C^(nxm) (complex) such that each entry
 % z(i, j) has unit modulus. The manifold structure is the Riemannian
@@ -12,7 +13,10 @@ function M = complexcirclefactory(n, m)
 % plane. Points and tangent vectors are represented as complex matrices of
 % size n-by-m.
 %
-% By default, n = 1 and m = 1.
+% Set gpuflag = true to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations can be done on the GPU directly.
+%
+% By default, n = 1, m = 1 and gpuflag = false.
 %
 % See also spherecomplexfactory
 
@@ -40,12 +44,25 @@ function M = complexcirclefactory(n, m)
 %
 %   Aug. 3, 2018 (NB)
 %       Added support for matrices of unit-modulus (as opposed to vectors).
+%       Added GPU support: just set gpuflag = true.
     
     if ~exist('n', 'var') || isempty(n)
         n = 1;
     end
     if ~exist('m', 'var') || isempty(m)
         m = 1;
+    end
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = false;
+    end
+    
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if gpuflag
+        array_type = 'gpuArray';
+    else
+        array_type = 'double';
     end
 
     if m == 1
@@ -87,7 +104,7 @@ function M = complexcirclefactory(n, m)
             tv = t*v;
         end
 
-        y = zeros(n, m);
+        y = zeros(n, m, array_type);
 
         nrm_tv = abs(tv);
         
@@ -129,19 +146,19 @@ function M = complexcirclefactory(n, m)
     
     M.rand = @random;
     function z = random()
-        z = sign(randn(n, m) + 1i*randn(n, m));
+        z = sign(randn(n, m, array_type) + 1i*randn(n, m, array_type));
     end
     
     M.randvec = @randomvec;
     function v = randomvec(z)
         % i*z(k) is a basis vector of the tangent vector to the k-th circle
-        v = randn(n, m) .* (1i*z);
+        v = randn(n, m, array_type) .* (1i*z);
         v = v / norm(v, 'fro');
     end
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(n, m);
+    M.zerovec = @(x) zeros(n, m, array_type);
     
     M.transp = @(x1, x2, d) M.proj(x2, d);
     
@@ -154,4 +171,9 @@ function M = complexcirclefactory(n, m)
     M.mat = @(x, u_vec) reshape(u_vec(1:(n*m)) + 1i*u_vec((n*m+1):end), [n, m]);
     M.vecmatareisometries = @() true;
 
+    % Automatically convert a number of tools to support GPU.
+    if gpuflag
+        M = factorygpuhelper(M);
+    end
+    
 end
