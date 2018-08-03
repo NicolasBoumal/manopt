@@ -672,7 +672,7 @@ while true
     % performance. Note the strict inequality.
     if model_decreased && rho > options.rho_prime
         
-        % April 17, 2018: a side effect of rho-regularization > 0 is that
+        % April 17, 2018: a side effect of rho_regularization > 0 is that
         % it can happen that the cost function appears to go up (although
         % only by a small amount) for some accepted steps. We decide to
         % accept this because, numerically, computing the difference
@@ -682,8 +682,8 @@ while true
         % convergence, whereas the model improvement is computed as a sum
         % of two small terms. As a result, the step which seems bad may
         % turn out to be good, in that it may help reduce the gradient norm
-        % for example. This update merely inform the user of this event. In
-        % further updates, we could also introduce this as a stopping
+        % for example. This update merely informs the user of this event.
+        % In further updates, we could also introduce this as a stopping
         % criterion. It is then important to choose wisely which of x or
         % x_prop should be returned (perhaps the one with smallest
         % gradient?)
