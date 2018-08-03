@@ -90,6 +90,9 @@ function using_counters()
                            'Aproducts', 'functiontime'});
     options.statsfun = statsfunhelper(stats);
 
+    % As an example: we could set up a stopping criterion based on the
+    % number of matrix-vector products:
+    % options.stopfun = @(problem, x, info, last) info(last).Aproducts > 100;
     
     % Solve with different solvers to compare.
     options.tolgradnorm = 1e-9;
