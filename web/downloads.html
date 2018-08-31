@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Manopt, downloads</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
@@ -97,8 +97,112 @@ body {
               <h1>Previous releases and change logs</h1>
             </div>
             <ul>
-              <li><a href="download.html">Manopt 4.0</a>, packaged September 9,
-                2017</li>
+              <li><a href="download.html">Manopt 5.0</a>, packaged xxx, xxx</li>
+              <ul>
+                <li>New solvers</li>
+                <ul>
+                  <li>ARC: adaptive regularization by cubics, as an alternative
+                    to trustregions</li>
+                </ul>
+                <li>New tools</li>
+                <ul>
+                  <li>orthogonalizetwice runs the rewritten orthogonalize tool
+                    twice for better accuracy when orthonormalizing an
+                    ill-conditioned basis of tangent vectors.</li>
+                  <li>lyapunov_symmetric and lyapunov_symmetric_eig: solvers for
+                    Lyapunov equation $AX + XA = C$ with symmetric (or
+                    Hermitian) matrix $A$; acts as a pseudo-inverse.
+                    sylvester_nochecks: Matlab's sylvester solver without input
+                    checks (much faster for small matrices); These are now used
+                    everywhere in Manopt to remove dependency on lyap, which is
+                    a tool from the Control Toolbox.</li>
+                  <li>stopifdeletedfile and stopifclosedfigure: interactive
+                    stopping criteria that allow to stop a solver at any point,
+                    and let it finish gracefully and continue executing the rest
+                    of the code (also for execution on a distant server without
+                    GUI.)</li>
+                  <li>checkmanifold: began a new tool to run a collection of
+                    tests on manifold structures returned by factories; this is
+                    an early version to collect ideas as they come.</li>
+                </ul>
+                <li>New geometries</li>
+                <ul>
+                  <li>constantfactory, which can be used to fix certain
+                    variables in a productmanifold.</li>
+                  <li>multinomialsymmetricfactory and
+                    multinomialdoublystochasticfactory for doubly stochastic
+                    matrices with (strictly) positive entries, symmetric or not;
+                    contributed by Ahmed Douik. Comes with a tool named
+                    doubly_stochastic which implements Sinkhorn's algorithm to
+                    project to doubly-stochastic matrices.</li>
+                  <li>positivefactory deals with strictly positive numbers.</li>
+                </ul>
+                <li>Modifications to core engine</li>
+                <ul>
+                  <li>New counters system: especially useful to keep track of
+                    cost/grad/hess calls, and also of other important
+                    computations inside of (and possibly shared among) those.
+                    See incrementcounter and statscounter and the example
+                    using_counters. The stopfun handle for stopping criterions
+                    can access the counters, making it possible to stop for more
+                    sophisticated reasons.</li>
+                  <li>Euclidean gradient is now generally cached if the
+                    Euclidean Hessian can also be computed (new core function
+                    created to check for that): this should speed things up
+                    without requiring caching from the user.</li>
+                  <li>The value of the cost function is now always cached. This
+                    leads to significant speed-ups in algorithms which use a
+                    line-search that evaluates the cost function
+                    (steepestdescent, conjugategradient, barzilaiborwein, rlbfgs
+                    included.)</li>
+                  <li>Core changes to StoreDB. Essentially two changes: (1)
+                    purge() now purges based on latest access time (access =
+                    read or write) rather than latest write time. (2) added
+                    functions remove() and removefirstifdifferent(), which makes
+                    it possible for solvers and line search algorithms to tell
+                    the StoreDB when a certain store is no longer relevant. For
+                    solvers that use the new remove() capabilities, purge() and
+                    storedepth have now very little importance. Furthermore,
+                    access is now more protected, with warnings issued if
+                    improper keys are accessed; this should make it easier to
+                    debug new solvers, and it already makes it possible to cache
+                    far fewer points. This rationalizes the choice of caching
+                    more things for points that matter (including cost and
+                    Euclidean gradient). Line-search algorithms and all
+                    important solves now use this system.</li>
+                  <li>Added beta support for GPU; the following manifolds can
+                    now manipulate points and tangent vectors directly on the
+                    GPU, sometimes leading to huge speedups: spherefactory,
+                    complexcirclefactory, stiefelfactory, grassmannfactory; see
+                    the new example using_gpu.</li>
+                </ul>
+                <li>Bug fixes</li>
+                <ul>
+                  <li>Fixed M.retr2 (second-order retraction) rotationsfactory
+                    for k &gt; 1.</li>
+                </ul>
+                <li>Other changes</li>
+                <ul>
+                  <li>Installation instructions and importmanopt now include
+                    savepath</li>
+                  <li>orthogonalize tool is now a modified Gram-Schmidt
+                    algorithm, which is more stable than the previous code</li>
+                  <li>strict_inc_func in rlbfgs solver changed following
+                    recommendations of Wen Huang</li>
+                  <li>More heads up messages regarding the use of
+                    tangent2ambient with some manifolds</li>
+                  <li>tCG solver for trustregions inner problems is now more
+                    stable (numerically) for fine convergence steps</li>
+                  <li>Many small improvements here and there..</li>
+                  <li>Added inverse retraction for grassmannfactory,
+                    stiefelfactory (both QR and polar retractions, both of which
+                    are now available), spherefactory, obliquefactory,
+                    rotationsfactory (both QR and polar) and
+                    complexcirclefactory.</li>
+                </ul>
+              </ul>
+              <li><a href="downloads/Manopt_4.0.zip">Manopt 4.0</a>, packaged
+                September 9, 2017</li>
               <ul>
                 <li>New solvers</li>
                 <ul>
