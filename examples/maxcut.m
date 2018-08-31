@@ -114,7 +114,6 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
             Dy = spdiags(sum(LY0.*Y0, 2), 0, n, n);
             Sy = (Dy - L)/4;
             % Find the smallest (the "most negative") eigenvalue of Sy.
-            eigsopts.issym = true;
             eigsopts.isreal = true;
             [v, s] = eigs(Sy, 1, 'SA', eigsopts);
             % If there is no negative eigenvalue for Sy, than we are not at

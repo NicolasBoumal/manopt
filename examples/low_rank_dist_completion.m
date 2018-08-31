@@ -239,7 +239,6 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         
         % Make eigs silent.
         opts.disp = 0;
-        opts.issym = true;
         [v, s_min] = eigs(Sy, 1, 'SA', opts);
         
         
@@ -487,8 +486,8 @@ function checked_problem_description = check_problem_description(problem_descrip
             || isempty(problem_description.data_train.rows)...
             || isempty(problem_description.data_train.entries)
         
-        warning('low_rank_dist_completion:problem_description', ...
-            'The training set is empty or not properly defined. We work with the default 3d Helix example.\n');
+        fprintf(['The training set is empty or not properly defined.\n' ...
+                 'We work with the default 3d Helix example.\n']);
         checked_problem_description = get_3d_Helix_instance();
         checked_problem_description.helix_example = true;
         return; % No need for further check
