@@ -13,6 +13,11 @@ function using_gpu()
 % Contributors: 
 % Change log: 
 
+    if gpuDeviceCount() <= 0
+        warning('manopt:usinggpu', 'No GPU available: cannot run example.');
+        return;
+    end
+
     % Construct a large problem to illustrate the use of GPU.
     % Below, we will compute p left-most eigenvectors of A (symmetric).
     % On a particular test computer, we found that for n = 100, 1000, CPU
