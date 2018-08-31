@@ -41,7 +41,7 @@ function M = spherefactory(n, m, gpuflag)
 %       ehess2rhess: Used to compute projection of ehess, then subtract a
 %       multiple of u (which is assumed tangent.) Now, similarly to what
 %       happens in stiefelfactory, we first subtract the multiple of u from
-%       ehess, then we subtract. Mathematically, these operations are the
+%       ehess, then we project. Mathematically, these operations are the
 %       same. Numerically, the former version used to be better because tCG
 %       in trustregions had some drift near fine convergence. Now that the
 %       drift in tCG has been fixed, it is reasonable to apply the
