@@ -103,8 +103,11 @@ function gradfd = gradientFD(stepsize, subspacedim, problem, x, storedb, key)
     for k = 1 : numel(B)
         % Move in the B{k} direction
         xk = problem.M.retr(x, B{k}, stepsize);
+        keyk = storedb.getNewKey();
         % Evaluate the cost there
-        fxk = getCost(problem, xk, storedb);
+        fxk = getCost(problem, xk, storedb, keyk);
+        % Don't keep this point in cache
+        storedb.remove(keyk);
         % Finite difference
         df(k) = (fxk - fx)/stepsize;
     end
