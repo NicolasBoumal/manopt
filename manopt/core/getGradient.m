@@ -60,6 +60,12 @@ function grad = getGradient(problem, x, storedb, key)
     elseif isfield(problem, 'costgrad')
     %% Compute the gradient using costgrad.
 		
+        % Note: here, we could in principle cache the value of the cost
+        % function. We do not, as it is unlikely that an algorithm which
+        % requires the cost value would query the gradient before it
+        % queries the gradient; thus, in all likelihood, the cost value has
+        % already been computed (and cached) at the current point.
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.costgrad)
             case 1
