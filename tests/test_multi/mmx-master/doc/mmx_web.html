@@ -1,0 +1,439 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>MMX - Multithreaded matrix operations on N-D matrices</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-07-13"><meta name="DC.source" content="mmx_web.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>MMX - Multithreaded matrix operations on N-D matrices</h1><!--introduction--><p>mmx treats an N-D matrix of double precision values as a set of pages of 2D matrices, and performs various matrix operations on those pages. mmx uses multithreading over the higher dimensions to achieve good performance. Full singleton expansion is available for most operations.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Fast N-D Multiplication</a></li><li><a href="#4">Multi-threading along the pages</a></li><li><a href="#5">Full performance comparison</a></li><li><a href="#7">Singleton Expansion</a></li><li><a href="#8">Transpose Flags</a></li><li><a href="#9">Matrix Squaring</a></li><li><a href="#11">Cholesky factorization</a></li><li><a href="#13">Backslash</a></li><li><a href="#21">Thread control</a></li><li><a href="#24">Checking of special properties</a></li><li><a href="#25">Compilation</a></li><li><a href="#26">Rant</a></li></ul></div><h2>Fast N-D Multiplication<a name="1"></a></h2><pre class="codeinput">n  = 80;                <span class="comment">% rows</span>
+m  = 40;                <span class="comment">% columns</span>
+N  = 10000;             <span class="comment">% pages</span>
+A  = randn(n,m,N);
+B  = randn(m,n,N);
+tic;
+C  = mmx(<span class="string">'mult'</span>, A, B);
+toc
+</pre><pre class="codeoutput">Elapsed time is 0.258383 seconds.
+</pre><pre class="codeinput">C2    = zeros(n,n,N);
+tic;
+<span class="keyword">for</span> i=1:N
+   C2(:,:,i) = A(:,:,i)*B(:,:,i);
+<span class="keyword">end</span>
+toc
+</pre><pre class="codeoutput">Elapsed time is 1.334189 seconds.
+</pre><pre class="codeinput">dispx = @(x) fprintf(<span class="string">'difference = %g\n'</span>,x);
+dispx(max(abs(C(:)-C2(:))))
+</pre><pre class="codeoutput">difference = 0
+</pre><h2>Multi-threading along the pages<a name="4"></a></h2><p>Other packages like Peter Boettcher's venerable <a href="http://www.mit.edu/~pwb/matlab/">ndfun</a> Or James Tursa's <a href="http://www.mathworks.com/matlabcentral/fileexchange/25977">mtimesx</a> rely on multithreading <b>inside the threads</b> using multithreaded BLAS libraries. It turns out that if you want to operate on many small matrices, it makes more sense to let each thread operate on a matrix independently. Actually it's possible <a href="http://www.mathworks.com/matlabcentral/fileexchange/25977">mtimesx</a> tries to do this using OMP but it doesn't seem to work that well.</p><pre class="codeinput">tic;
+mtimesx(A, B, <span class="string">'speedomp'</span>);
+toc
+</pre><pre class="codeoutput">Elapsed time is 0.842090 seconds.
+</pre><h2>Full performance comparison<a name="5"></a></h2><pre class="codeinput">compare_mult_flops;
+</pre><pre class="codeoutput">multiplying 60*1250000 matrix pairs of dimension [1x1]
+multiplying 60*312500 matrix pairs of dimension [2x2]
+multiplying 60*138889 matrix pairs of dimension [3x3]
+multiplying 60*78125 matrix pairs of dimension [4x4]
+multiplying 60*50000 matrix pairs of dimension [5x5]
+multiplying 60*34722 matrix pairs of dimension [6x6]
+multiplying 60*25510 matrix pairs of dimension [7x7]
+multiplying 60*19531 matrix pairs of dimension [8x8]
+multiplying 60*15432 matrix pairs of dimension [9x9]
+multiplying 60*12500 matrix pairs of dimension [10x10]
+multiplying 60*10331 matrix pairs of dimension [11x11]
+multiplying 60*8681 matrix pairs of dimension [12x12]
+multiplying 60*7396 matrix pairs of dimension [13x13]
+multiplying 60*6378 matrix pairs of dimension [14x14]
+multiplying 60*5556 matrix pairs of dimension [15x15]
+multiplying 60*4883 matrix pairs of dimension [16x16]
+multiplying 60*4325 matrix pairs of dimension [17x17]
+multiplying 60*3858 matrix pairs of dimension [18x18]
+multiplying 60*3463 matrix pairs of dimension [19x19]
+multiplying 60*3125 matrix pairs of dimension [20x20]
+multiplying 60*2834 matrix pairs of dimension [21x21]
+multiplying 60*2583 matrix pairs of dimension [22x22]
+multiplying 60*2363 matrix pairs of dimension [23x23]
+multiplying 60*2170 matrix pairs of dimension [24x24]
+multiplying 60*1849 matrix pairs of dimension [26x26]
+multiplying 60*1715 matrix pairs of dimension [27x27]
+multiplying 60*1594 matrix pairs of dimension [28x28]
+multiplying 60*1389 matrix pairs of dimension [30x30]
+multiplying 60*1301 matrix pairs of dimension [31x31]
+multiplying 60*1148 matrix pairs of dimension [33x33]
+multiplying 60*1081 matrix pairs of dimension [34x34]
+multiplying 60*965 matrix pairs of dimension [36x36]
+multiplying 60*866 matrix pairs of dimension [38x38]
+multiplying 60*822 matrix pairs of dimension [39x39]
+multiplying 60*744 matrix pairs of dimension [41x41]
+multiplying 60*676 matrix pairs of dimension [43x43]
+multiplying 60*591 matrix pairs of dimension [46x46]
+multiplying 60*543 matrix pairs of dimension [48x48]
+multiplying 60*500 matrix pairs of dimension [50x50]
+multiplying 60*445 matrix pairs of dimension [53x53]
+multiplying 60*413 matrix pairs of dimension [55x55]
+multiplying 60*372 matrix pairs of dimension [58x58]
+multiplying 60*336 matrix pairs of dimension [61x61]
+multiplying 60*305 matrix pairs of dimension [64x64]
+multiplying 60*278 matrix pairs of dimension [67x67]
+multiplying 60*255 matrix pairs of dimension [70x70]
+multiplying 60*228 matrix pairs of dimension [74x74]
+multiplying 60*205 matrix pairs of dimension [78x78]
+multiplying 60*186 matrix pairs of dimension [82x82]
+multiplying 60*169 matrix pairs of dimension [86x86]
+multiplying 60*154 matrix pairs of dimension [90x90]
+multiplying 60*141 matrix pairs of dimension [94x94]
+multiplying 60*128 matrix pairs of dimension [99x99]
+multiplying 60*116 matrix pairs of dimension [104x104]
+multiplying 60*105 matrix pairs of dimension [109x109]
+multiplying 60*96 matrix pairs of dimension [114x114]
+multiplying 60*87 matrix pairs of dimension [120x120]
+</pre><img vspace="5" hspace="5" src="mmx_web_01.png" alt=""> <p>You can see how around dimension 35, when the low-level multi-threading kicks in, the CPU get flooded with threads and efficiency drops.</p><h2>Singleton Expansion<a name="7"></a></h2><p>Singleton expansion is supported for <tt>dimensions &gt; 2</tt></p><pre class="codeinput">A = randn(5,4,3,10,1);
+B = randn(4,6,1,1 ,6);
+C = zeros(5,6,3,10,6);
+
+<span class="keyword">for</span> i = 1:3
+   <span class="keyword">for</span> j = 1:10
+      <span class="keyword">for</span> k = 1:6
+         C(:,:,i,j,k) = A(:,:,i,j,1) * B(:,:,1,1,k);
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+diff = C - mmx(<span class="string">'mult'</span>,A,B);
+
+dispx(norm(diff(:)))
+</pre><pre class="codeoutput">difference = 0
+</pre><h2>Transpose Flags<a name="8"></a></h2><p><tt>C = MMX('mult', A, B, mod)</tt> where mod is a modifier string, will transpose one or both of A and B. Possible values for mod are 'tn', 'nt' and  'tt' where 't' stands for <b>transposed</b> and 'n' for <b>not-transposed</b> . For example</p><pre class="codeinput">A = randn(n,n);
+B = randn(n,n);
+dispx(norm(mmx(<span class="string">'mult'</span>,A,B)      - A *B));
+dispx(norm(mmx(<span class="string">'mult'</span>,A,B,<span class="string">'tn'</span>) - A'*B));
+dispx(norm(mmx(<span class="string">'mult'</span>,A,B,<span class="string">'tt'</span>) - A'*B'));
+dispx(norm(mmx(<span class="string">'mult'</span>,A,B,<span class="string">'nt'</span>) - A *B'));
+</pre><pre class="codeoutput">difference = 0
+difference = 0
+difference = 0
+difference = 0
+</pre><h2>Matrix Squaring<a name="9"></a></h2><pre class="codeinput">A = randn(n,m);
+B = randn(n,m);
+dispx(norm(mmx(<span class="string">'square'</span>,A,[])     - A*A'            ));
+dispx(norm(mmx(<span class="string">'square'</span>,A, B)     - 0.5*(A*B'+B*A') ));
+dispx(norm(mmx(<span class="string">'square'</span>,A,[],<span class="string">'t'</span>) - A'*A            ));
+dispx(norm(mmx(<span class="string">'square'</span>,A, B,<span class="string">'t'</span>) - 0.5*(A'*B+B'*A) ));
+</pre><pre class="codeoutput">difference = 2.25283e-14
+difference = 0
+difference = 5.22422e-14
+difference = 0
+</pre><p>Results do not always equal Matlab's results, but are within machine precision thereof.</p><h2>Cholesky factorization<a name="11"></a></h2><pre class="codeinput">A = randn(n,n);
+A = A*A';
+dispx(norm(mmx(<span class="string">'chol'</span>,A,[]) - chol(A)));
+</pre><pre class="codeoutput">difference = 0
+</pre><p>Timing comparison:</p><pre class="codeinput">A  = randn(n,n,N);
+A  = mmx(<span class="string">'square'</span>,A,[]);
+tic;
+C  = mmx(<span class="string">'chol'</span>,A,[]);
+toc
+C2    = zeros(n,n,N);
+tic;
+<span class="keyword">for</span> i=1:N
+   C2(:,:,i) = chol(A(:,:,i));
+<span class="keyword">end</span>
+toc
+</pre><pre class="codeoutput">Elapsed time is 0.002502 seconds.
+Elapsed time is 0.012015 seconds.
+</pre><h2>Backslash<a name="13"></a></h2><p>Unlike other commands, 'backslash' does not support singleton expansion. If A is square, mmx will use LU factorization, otherwise it will use QR factorization.</p><pre class="codeinput">B = randn(n,m);
+A = randn(n,n);
+</pre><p>General:</p><pre class="codeinput">dispx(norm(mmx(<span class="string">'backslash'</span>,A,B) - A\B));
+</pre><pre class="codeoutput">difference = 1.06155e-09
+</pre><p>Triangular:</p><pre class="codeinput"><span class="comment">% upper:</span>
+Au = triu(A) + abs(diag(diag(A))) + eye(n); <span class="comment">%no small values on the diagonal</span>
+dispx(norm(mmx(<span class="string">'backslash'</span>,Au,B,<span class="string">'u'</span>) - Au\B));
+<span class="comment">% lower:</span>
+Al = tril(A) + abs(diag(diag(A))) + eye(n); <span class="comment">%no small values on the diagonal</span>
+dispx(norm(mmx(<span class="string">'backslash'</span>,Al,B,<span class="string">'l'</span>) - Al\B));
+</pre><pre class="codeoutput">difference = 0.00065334
+difference = 7.69608e-06
+</pre><p>Symmetric Positive Definite:</p><pre class="codeinput">AA = A*A';
+dispx(norm(mmx(<span class="string">'backslash'</span>,AA,B,<span class="string">'p'</span>) - AA\B));
+</pre><pre class="codeoutput">difference = 0.000211305
+</pre><p>Cholesky/LU timing comparison:</p><pre class="codeinput">A  = randn(n,n,N);
+A  = mmx(<span class="string">'square'</span>,A,[]);
+B  = randn(n,1,N);
+tic;
+mmx(<span class="string">'backslash'</span>,A,B); <span class="comment">% uses LU</span>
+toc
+tic;
+mmx(<span class="string">'backslash'</span>,A,B,<span class="string">'p'</span>); <span class="comment">% uses Cholesky</span>
+toc
+</pre><pre class="codeoutput">Elapsed time is 0.040181 seconds.
+Elapsed time is 0.005356 seconds.
+</pre><p>Overdetermined:</p><pre class="codeinput">A = randn(n,m);
+B = randn(n,m);
+
+dispx(norm(mmx(<span class="string">'backslash'</span>,A,B) - A\B));
+</pre><pre class="codeoutput">difference = 1.8724e-15
+</pre><p>Underdetermined:</p><pre class="codeinput">A = randn(m,n);
+B = randn(m,n);
+
+dispx(norm(mmx(<span class="string">'backslash'</span>,A,B) - pinv(A)*B));
+</pre><pre class="codeoutput">difference = 7.84436e-15
+</pre><p>In the underdetermined case, (i.e. when <tt>size(A,1) &lt; size(A,2))</tt>, mmx will give the least-norm solution which is equivalent to <tt>C = pinv(A)*B</tt>, unlike matlab's mldivide.</p><h2>Thread control<a name="21"></a></h2><p>mmx will automatically start a number of threads equal to the number of available processors, however the number can be set manually to n using the command <tt>mmx(n)</tt>. The command <tt>mmx(0)</tt> clears the threads from memory. Changing the threadcount quickly without computing anything, as in</p><pre>for i=1:5
+   mmx(i);
+end</pre><p>can cause problems. Don't do it.</p><h2>Checking of special properties<a name="24"></a></h2><p>The functions which assume special types of square matrices as input ('chol' and 'backslash' for 'U','L' or 'P' modifiers) do not check that the inputs are indeed what you say they are, and produce no error if they are not. Caveat computator.</p><h2>Compilation<a name="25"></a></h2><p>To compile run 'build_mmx'. Type 'help build_mmx' to read about compilation issues and options</p><h2>Rant<a name="26"></a></h2><p>Clearly there should be someone at Mathworks whose job it is to do this stuff. As someone who loves Matlab deeply, I hate to see its foundations left to rot. Please guys, allocate engineer-hours to the Matlab core, rather than the toolbox fiefdoms. We need full singleton expansion everywhere. Why isn't it the case that</p><pre>[1 2] + [0 1]' == [1 2;2 3] ?</pre><p>bsxfun() is a total hack, and polluting everybody's code. We need expansion on the pages like mmx(), but with transparent and smart use of <b>both</b> CPU and GPU. GPUArray? Are you kidding me? I shouldn't have to mess with that. Why is it that (for years now), the fastest implementation of repmat(), has been Minka's <a href="http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/">Lightspeed toolbox</a>? Get your act together soon guys, or face obsolescence.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% MMX - Multithreaded matrix operations on N-D matrices
+% mmx treats an N-D matrix of double precision values as a set of pages 
+% of 2D matrices, and performs various matrix operations on those pages.  
+% mmx uses multithreading over the higher dimensions to achieve good
+% performance. Full singleton expansion is available for most operations.
+
+%% Fast N-D Multiplication
+n  = 80;                % rows
+m  = 40;                % columns
+N  = 10000;             % pages
+A  = randn(n,m,N);
+B  = randn(m,n,N);
+tic;
+C  = mmx('mult', A, B);
+toc
+%%
+C2    = zeros(n,n,N);
+tic;
+for i=1:N
+   C2(:,:,i) = A(:,:,i)*B(:,:,i);
+end
+toc    
+%%
+dispx = @(x) fprintf('difference = %g\n',x);
+dispx(max(abs(C(:)-C2(:))))
+
+%% Multi-threading along the pages
+% Other packages like Peter Boettcher's venerable <http://www.mit.edu/~pwb/matlab/ ndfun> 
+% Or James Tursa's
+% <http://www.mathworks.com/matlabcentral/fileexchange/25977 mtimesx> rely
+% on multithreading *inside the threads* using multithreaded BLAS
+% libraries. It turns out that if you want to operate on many small
+% matrices, it makes more sense to let each thread operate on a matrix
+% independently. Actually it's possible
+% <http://www.mathworks.com/matlabcentral/fileexchange/25977 mtimesx> tries
+% to do this using OMP but it doesn't seem to work that well.
+tic;
+mtimesx(A, B, 'speedomp');
+toc
+
+%% Full performance comparison
+compare_mult_flops;
+
+%% 
+% You can see how around dimension 35, when the low-level multi-threading
+% kicks in, the CPU get flooded with threads and efficiency drops.
+
+%% Singleton Expansion
+% Singleton expansion is supported for |dimensions > 2|
+
+A = randn(5,4,3,10,1);
+B = randn(4,6,1,1 ,6);
+C = zeros(5,6,3,10,6);
+
+for i = 1:3
+   for j = 1:10
+      for k = 1:6
+         C(:,:,i,j,k) = A(:,:,i,j,1) * B(:,:,1,1,k);
+      end
+   end
+end
+
+diff = C - mmx('mult',A,B);
+
+dispx(norm(diff(:)))
+
+
+%% Transpose Flags
+% |C = MMX('mult', A, B, mod)| where mod is a modifier string, will
+% transpose one or both of A and B. Possible values for mod are
+% 'tn', 'nt' and  'tt' where 't' stands for *transposed* and 'n' for
+% *not-transposed* . For example 
+A = randn(n,n);
+B = randn(n,n);
+dispx(norm(mmx('mult',A,B)      - A *B));
+dispx(norm(mmx('mult',A,B,'tn') - A'*B));
+dispx(norm(mmx('mult',A,B,'tt') - A'*B'));
+dispx(norm(mmx('mult',A,B,'nt') - A *B'));
+
+
+%% Matrix Squaring
+A = randn(n,m);
+B = randn(n,m);
+dispx(norm(mmx('square',A,[])     - A*A'            ));
+dispx(norm(mmx('square',A, B)     - 0.5*(A*B'+B*A') ));
+dispx(norm(mmx('square',A,[],'t') - A'*A            ));
+dispx(norm(mmx('square',A, B,'t') - 0.5*(A'*B+B'*A) ));
+%%
+% Results do not always equal Matlab's results, but are within machine
+% precision thereof.
+
+
+%% Cholesky factorization
+A = randn(n,n);
+A = A*A';
+dispx(norm(mmx('chol',A,[]) - chol(A)));
+
+%%
+% Timing comparison:
+A  = randn(n,n,N);
+A  = mmx('square',A,[]);
+tic;
+C  = mmx('chol',A,[]);
+toc
+C2    = zeros(n,n,N);
+tic;
+for i=1:N
+   C2(:,:,i) = chol(A(:,:,i));
+end
+toc
+
+%% Backslash 
+% Unlike other commands, 'backslash' does not support singleton
+% expansion. If A is square, mmx will use LU factorization, otherwise it
+% will use QR factorization. 
+B = randn(n,m);
+A = randn(n,n);
+%%
+% General:
+dispx(norm(mmx('backslash',A,B) - A\B));
+%%
+% Triangular:
+
+% upper:
+Au = triu(A) + abs(diag(diag(A))) + eye(n); %no small values on the diagonal
+dispx(norm(mmx('backslash',Au,B,'u') - Au\B));
+% lower:
+Al = tril(A) + abs(diag(diag(A))) + eye(n); %no small values on the diagonal
+dispx(norm(mmx('backslash',Al,B,'l') - Al\B));
+%%
+% Symmetric Positive Definite:
+AA = A*A';
+dispx(norm(mmx('backslash',AA,B,'p') - AA\B));
+%%
+% Cholesky/LU timing comparison:
+A  = randn(n,n,N);
+A  = mmx('square',A,[]);
+B  = randn(n,1,N);
+tic;
+mmx('backslash',A,B); % uses LU
+toc
+tic;
+mmx('backslash',A,B,'p'); % uses Cholesky
+toc
+
+%%
+% Overdetermined:
+A = randn(n,m);
+B = randn(n,m);
+
+dispx(norm(mmx('backslash',A,B) - A\B));
+
+%%
+% Underdetermined:
+A = randn(m,n);
+B = randn(m,n);
+
+dispx(norm(mmx('backslash',A,B) - pinv(A)*B));
+%%
+% In the underdetermined case, (i.e. when
+% |size(A,1) < size(A,2))|, mmx will give the least-norm solution which
+% is equivalent to |C = pinv(A)*B|, unlike matlab's mldivide. 
+
+%%% Thread control
+% mmx will automatically start a number of
+% threads equal to the number of available processors, however the
+% number can be set manually to n using the command |mmx(n)|.
+% The command |mmx(0)| clears the threads from memory. Changing the
+% threadcount quickly without computing anything, as in
+%%
+% 
+%  for i=1:5
+%     mmx(i);
+%  end
+%%
+% can cause problems. Don't do it.
+
+%% Checking of special properties
+% The functions which assume special types of square
+% matrices as input ('chol' and 'backslash' for 'U','L' or 'P'
+% modifiers) do not check that the inputs are indeed what you say they
+% are, and produce no error if they are not. Caveat computator.
+
+%% Compilation
+% To compile run 'build_mmx'. Type 'help build_mmx' to read
+% about compilation issues and options
+
+%% Rant
+% Clearly there should be someone at Mathworks whose job it is to do this
+% stuff. As someone who loves Matlab deeply, I hate to see its foundations
+% left to rot. Please guys, allocate engineer-hours to the Matlab core, rather than the
+% toolbox fiefdoms. We need full singleton expansion everywhere. Why isn't
+% it the case that
+%%
+% 
+%  [1 2] + [0 1]' == [1 2;2 3] ?
+%
+% bsxfun() is a total hack, and polluting
+% everybody's code. We need expansion on the pages like mmx(), but
+% with transparent and smart use of *both* CPU and GPU. GPUArray? Are you
+% kidding me? I shouldn't have to mess with that. Why is it that (for years
+% now), the fastest implementation of repmat(), has been Minka's
+% <http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/
+% Lightspeed toolbox>? Get your act together soon guys, or face 
+% obsolescence.
+##### SOURCE END #####
+--></body></html>
