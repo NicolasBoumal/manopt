@@ -155,15 +155,16 @@ function [x, info, options] = stochasticgradient(problem, x, options)
                            options.stepsizefun(problem, x, pgrad, iter, ...
                                                options, storedb, key);
         
-        % Make the step.
+        % Make the step: transfer iterate, remove cache from previous x.
+        storedb.removefirstifdifferent(key, newkey);
         x = newx;
         key = newkey;
         
-        % Total number of completed steps.
-        iter = iter + 1;
-        
         % Make sure we do not use too much memory for the store database.
         storedb.purge();
+        
+        % Total number of completed steps.
+        iter = iter + 1;
         
         % Elapsed time doing actual optimization work so far in this
         % set of options.checkperiod iterations.
