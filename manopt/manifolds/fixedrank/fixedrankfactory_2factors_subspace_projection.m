@@ -36,7 +36,10 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 % Contributors:
 % Change log:
 %
-%	April 18, 2018 (NB): removed lyap dependency.
+%	Apr. 18, 2018 (NB):
+%      Removed lyap dependency.
+%	Aug. 31, 2018 (NB):
+%      Improved efficiency of nested_sylvester using lyapunov_symmetric_eig.
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -109,7 +112,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
         AS2 = 2*skew(X.RtR*(X.R'*eta.R));
         AS  = skew(AS1 + AS2);
         
-        Omega = nested_sylvester(SS,AS);
+        Omega = nested_sylvester(SS, AS);
         etaproj.L = eta.L - X.L*Omega;
         etaproj.R = eta.R - X.R*Omega;
     end
@@ -199,22 +202,19 @@ function A = uf(A)
 end
 
 function omega = nested_sylvester(sym_mat, asym_mat)
-    % omega=nested_sylvester(sym_mat,asym_mat)
+    % omega = nested_sylvester(sym_mat, asym_mat)
     % This function solves the system of nested Sylvester equations:
     %
     %     X*sym_mat + sym_mat*X = asym_mat
-    %     Omega*sym_mat+sym_mat*Omega = X
-    % Mishra, Meyer, Bonnabel and Sepulchre, 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
+    %     omega*sym_mat+sym_mat*omega = X
+	% 
+    % Mishra, Meyer, Bonnabel and Sepulchre,
+	% 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
     
-    % Solve each Lyapunov equation efficiently, but does not exploit
-	% the fact that it is twice the same sym_mat matrix that comes into play.
-    
-    % X = lyap(sym_mat, -asym_mat);
-    % omega = lyap(sym_mat, -X);
-    X = lyapunov_symmetric(sym_mat, asym_mat);
-    omega = lyapunov_symmetric(sym_mat, X);
+    % Solve each Lyapunov equation efficiently, exploiting the fact
+	% that it is twice the same sym_mat matrix that comes into play.
+	[V, lambda] = eig(sym_mat, 'vector');
+	X = lyapunov_symmetric_eig(V, lambda, asym_mat);
+	omega = lyapunov_symmetric_eig(V, lambda, X);
     
 end
-
-
-
