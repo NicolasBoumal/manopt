@@ -1,5 +1,5 @@
 function M = positivefactory(m, n)
-% Manifold of m-by-n matrices with positive entries and scale invariant metric
+% Manifold of m-by-n matrices with positive entries; scale invariant metric
 %
 % function M = positivefactory(m)
 % function M = positivefactory(m, n)
