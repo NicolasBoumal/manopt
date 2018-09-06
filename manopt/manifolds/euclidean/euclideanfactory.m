@@ -92,6 +92,7 @@ function M = euclideanfactory(m, n)
     M.zerovec = @(x) zeros(dimensions_vec);
     
     M.transp = @(x1, x2, d) d;
+    M.isotransp = M.transp; % the transport is isometric
     
     M.pairmean = @(x1, x2) .5*(x1+x2);
     

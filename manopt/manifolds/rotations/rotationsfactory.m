@@ -48,6 +48,9 @@ function M = rotationsfactory(n, k)
 %       Renamed M.retr2 to M.retr_polar, and implemented M.invretr_polar.
 %       For backward compatibility, M.retr2 is still defined and is now
 %       equal to M.retr_polar. There is no M.invretr2.
+%   Sep.  06, 2018 (NB)
+%       Added M.isotransp, which is equal to M.transp since it is
+%       isometric.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -230,6 +233,7 @@ function M = rotationsfactory(n, k)
     M.zerovec = @(x) zeros(n, n, k);
     
     M.transp = @(x1, x2, d) d;
+    M.isotransp = M.transp; % the transport is isometric
     
     M.pairmean = @pairmean;
     function Y = pairmean(X1, X2)
