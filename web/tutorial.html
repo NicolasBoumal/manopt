@@ -857,14 +857,23 @@ problem.egrad = @(x) -2*A*x;
               </thead>
               <tbody>
                 <tr>
-                  <td><a href="solver_documentation_trustregions.html">Trust-regions</a>
-                  </td>
+                  <td><a href="solver_documentation_trustregions.html">Trust-regions
+                      (RTR)</a> </td>
                   <td>Cost, gradient (Hessian, approximate Hessian,
-                    preconditioner) </td>
+                    preconditioner)</td>
                   <td>#1 choice for smooth optimization; uses <abbr title="Finite differences"
                       class="initialism">FD</abbr> of the gradient in the
-                    absence of Hessian. </td>
+                    absence of Hessian.</td>
                   <td><code>trustregions(...)</code> </td>
+                </tr>
+                <tr>
+                  <td><a href="reference/manopt/solvers/arc/arc.html">Adaptive
+                      regularization by cubics (ARC)</a> </td>
+                  <td>Cost, gradient (Hessian, approximate Hessian) </td>
+                  <td>Alternative to RTR; uses <abbr title="Finite differences"
+                      class="initialism">FD</abbr> of the gradient in the
+                    absence of Hessian.</td>
+                  <td><code>arc(...)</code> </td>
                 </tr>
                 <tr>
                   <td><a href="reference/manopt/solvers/steepestdescent/steepestdescent.html">Steepest-descent</a>
@@ -1002,6 +1011,13 @@ end</pre>
                       handles can take different inputs. See the help for more
                       info.</p>
                     <pre class="prettyprint lang-matlab linenums">metrics.x = @(x) x;<br>metrics.dist_to_ref = @(problem, x) problem.M.dist(x, x_reference);<br>options.statsfun = statsfunhelper(metrics);</pre>
+                    <p>See also the example on <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                        target="_blank">how to use Manopt counters</a> to keep
+                      track of things such as cost / gradient / Hessian calls or
+                      other special operations such as matrix-vector products.
+                      These counters are registered at every iteration and
+                      available in the returned stats structure. They can also
+                      be used as stopping criterion.</p>
                   </td>
                 </tr>
                 <tr>
@@ -1053,6 +1069,14 @@ end</pre>
                     <p> This will tell the solver to exit as soon as two
                       successive iterations combined have decreased the cost by
                       less than 10<sup>-3</sup>.</p>
+                    <p>See also the two interactive stopping criteria: by <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/stopifclosedfigure.m"
+                        target="_blank">closing a figure</a>, and by <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/stopifdeletedfile.m"
+                        target="_blank">deleting a file</a>.</p>
+                    <p>See also the example on <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                        target="_blank">how to use Manopt counters in a stopping
+                        criterion</a>, which makes it easy to stop after a
+                      certain budget of function calls, matrix-vector products
+                      etc. has been exceeded.</p>
                   </td>
                 </tr>
                 <tr>
@@ -1160,7 +1184,10 @@ end</pre>
               solver's documentation. </p>
             <div class="alert alert-info"><strong>Good to know!</strong> Need to
               log problem-specific information at each iteration? Include a <code>statsfun</code>
-              in your <code>options</code> structure.</div>
+              in your <code>options</code> structure. See also an example on <a
+                href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                target="_blank">Manopt counters</a> to keep track of things such
+              as function calls, Hessian calls, etc.</div>
             <div class="alert alert-info"><strong>Heads up!</strong> The
               execution time is logged <em>without</em> incorporating time
               spent in <code>statsfun</code>, as it usually performs
@@ -1488,7 +1515,7 @@ end
               visited point $x$, a <code>store</code> structure is stored in
               the database. Only the structures pertaining to the most recently
               used points are kept in memory (see the <code>options.storedepth</code>
-              <a href="#solvers">option</a>). StoreDB manages a counter, to
+              <a href="#solvers">option</a>). StoreDB manages a counter to
               number visited points on the manifold. In principle, each point
               $x$ receives a <code>key</code>. This key can be used to interact
               with the store associated to $x$.</p>
@@ -1510,18 +1537,30 @@ end
               is larger than 2, we will still benefit from the previously stored
               work as the previous <code>store</code> structure will still be
               available.</p>
-            <p>As of Manopt 1.0.8, the store structure also includes a field at
-              <code>store.shared</code>. The contents of that field are shared
-              among all visited points $x$. This makes a number of things
-              possible that were not manageable before. One particular
-              application is to use the shared memory to count certain
-              operations (for example, to count how many times a certain matrix
-              is applied to vectors, across all points and across all
-              cost/grad/hess/precon/... capacities). Note that this memory is
-              also readable from <code>statsfun</code> (see <a href="#statsfunhelp">statsfun
-                documentation</a> and the <a href="reference/examples/maxcut.html">maxcut
-                example</a>).</p>
-            <p>When given access to <code>storedb</code> and a <code>key</code>
+            <p>As of Manopt 5.0, by default, the cost value $f(x)$ is cached at
+              every visited point (for as long as the memory associated to that
+              point is retained.) This means that calling <code>getCost(problem,
+                x, storedb, key)</code> multiple times with the same inputs will
+              only actually call the cost function the first time. In practice,
+              this provides good speed-ups for line-search algorithms.
+              Similarly, if the Euclidean gradient is computed <em>and</em> the
+              Euclidean Hessian can be computed from the problem description,
+              then the Euclidean gradient is cached by default. This is because
+              computing the Riemannian Hessian via the Euclidean Hessian
+              requires access to the Euclidean gradient: it would be too costly
+              to recompute it for every Hessian call.</p>
+            <p> As of Manopt 1.0.8, the store structure also includes a field at
+              store.shared. The contents of that field are shared among all
+              visited points $x$. This memory is also readable from statsfun
+              (see <a href="#statsfunhelp">statsfun</a> documentation and the <a
+                href="https://github.com/NicolasBoumal/manopt/blob/master/examples/maxcut.m"
+                target="_blank">maxcut example</a>). (Note: this mechanism was
+              originally used to keep track of function calls; as of Manopt 5.0,
+              it is much better to use <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                target="_blank">Manopt counters</a>.) </p>
+            <p>The information in this paragraph is aimed at solver developers;
+              it may also help users understand what happens under the hood:
+              When given access to <code>storedb</code> and a <code>key</code>
               associated to $x$ rather than to a specific store, the store of
               $x$ can be obtained as <code>store = storedb.getStore(key)</code>.
               Put the modified store back in the database with <code>storedb.set(store,
@@ -1532,13 +1571,15 @@ end
               will not be populated or read on get/set. Each point $x$ should be
               associated to a key, which is obtained by calling <code>storedb.getNewKey()</code>.
               From time to time, call <code>storedb.purge()</code> to reduce
-              memory usage.</p>
+              memory usage. Even better, as soon as you know that the store
+              associated to a certain point is no longer useful, call <code>storedb.remove(key)</code>
+              or <code>storedb.removefirstifdifferent(key1, key2)</code>.</p>
             <div class="alert alert-info"><strong>Heads up!</strong> StoreDB is
               a <a target="_blank" href="http://fr.mathworks.com/help/matlab/matlab_oop/comparing-handle-and-value-classes.html">handle
                 class</a>, which means its instances are passed by reference.
               This means when a storedb object is passed as input to a function,
               and that function modifies the storedb object, the calling
-              function will see the changes too (without need to explicitly
+              function will see the changes too (without the need to explicitly
               return the storedb object). Thus, each storedb object exists only
               <em>once</em> in memory. This makes for cleaner calling patterns
               and avoids unnecessary copies. This is not the case for the store
@@ -1547,7 +1588,7 @@ end
             <p>Here is an example of how we can modify the <a href="#firstexample">first
                 example</a> to avoid redundant computations, using the caching
               mechanism:</p>
-            <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;
+            <pre class="prettyprint lang-matlab linenums">problem.cost = @mycost;       % Cost function
 function [f, store] = mycost(x, store)
 
     if ~isfield(store, 'Ax')
@@ -1555,35 +1596,30 @@ function [f, store] = mycost(x, store)
     end
     Ax = store.Ax;
     
-    if ~isfield(store, 'f')
-        store.f = -x'*Ax;
-    end
-    f = store.f;
+    f = -x'*Ax;               % No need to cache f: cost values are cached 'under the hood'
     
 end
 
-problem.grad = @mygrad;
-function [g, store] = mygrad(x, store)
+problem.egrad = @myegrad;     % Euclidean gradient of the cost function
+function [g, store] = myegrad(x, store)
 
     % This could be placed in a separate function
     % to avoid code duplication.
     if ~isfield(store, 'Ax')
-        [~, store] = mycost(x, store);
+        store.Ax = A*x;
     end
     Ax = store.Ax;
-    
-    if ~isfield(store, 'g')
-        store.g = manifold.egrad2rgrad(x, -2*Ax);
-    end
-    g = store.g;
+<br>    % Euclidean gradient; since solvers need the Riemannian gradient,<br>    % this will be automatically converted by the toolbox when needed.<br>    g = -2*Ax;
     
 end
 </pre>
             <p>It is instructive to execute such code with <a target="_blank" href="http://blogs.mathworks.com/community/2010/02/01/speeding-up-your-program-through-profiling/">the
                 profiler</a> activated and to look at how many times each
-              instruction gets executed. You should find that line 5 in the
-              code, which is where all the work happens, is executed exactly as
-              often as it should be, and not more.</p>
+              instruction gets executed. You should find that the matrix-vector
+              products $Ax$, which is where all the work happens, are executed
+              exactly as often as they should be, and not more. You can also use
+              <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                target="_blank">Manopt counters</a> to track these products.</p>
             <div class="alert alert-info"><strong>Heads up!</strong> You should
               never assume that the gradient function, for example, will be
               called <em>after</em> the cost function (even though this is
@@ -2378,5 +2414,6 @@ MathJax.Hub.Config({
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script> </body>
+</script>
+  </body>
 </html>
