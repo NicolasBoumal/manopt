@@ -22,6 +22,9 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
 %
 %   Aug. 2, 2018 (NB):
 %       The value of the cost function is now always cached.
+%
+%   Sep. 6, 2018 (NB):
+%       The gradient is now also cached.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -30,18 +33,33 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
         end
         key = storedb.getNewKey();
     end
-    
-    
-    % If the cost value was cached, read it and just compute the gradient.
+
+    % Contrary to most similar functions, here, we get the store by
+    % default. This is for the caching functionality described below.
     store = storedb.getWithShared(key);
     store_is_stale = false;
     
+    % Check if the cost or gradient are readily available from the store.
+    force_grad_caching = true;
     if isfield(store, 'cost__')
         cost = store.cost__;
-        grad = getGradient(problem, x, storedb, key);
+        if force_grad_caching && isfield(store, 'grad__')
+            grad = store.grad__;
+            return;
+        else
+            grad = getGradient(problem, x, storedb, key); % caches grad
+            return;
+        end
+    end
+    % If we get here, the cost was not previously cached, but maybe the
+    % gradient was?
+    if force_grad_caching && isfield(store, 'grad__')
+        grad = store.grad__;
+        cost = getCost(problem, x, storedb, key); % this call caches cost
         return;
     end
 
+    % Neither the cost nor the gradient were available: let's compute both.
 
     if isfield(problem, 'costgrad')
     %% Compute the cost/grad pair using costgrad.
@@ -51,7 +69,6 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
             case 1
                 [cost, grad] = problem.costgrad(x);
             case 2
-                % Obtain, pass along, and save the store for x.
                 [cost, grad, store] = problem.costgrad(x, store);
             case 3
                 % Pass along the whole storedb (by reference), with key.
@@ -66,6 +83,9 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
     else
     %% Revert to calling getCost and getGradient separately
     
+        % The two following calls will already cache cost and grad, then
+        % the caches will be overwritten at the end of this function, with
+        % the same values (it is not a problem).
         cost = getCost(problem, x, storedb, key);
         grad = getGradient(problem, x, storedb, key);
         store_is_stale = true;
@@ -76,8 +96,11 @@ function [cost, grad] = getCostGrad(problem, x, storedb, key)
         store = storedb.getWithShared(key);
     end
     
-    % Cache the cost value.
+    % Cache here.
     store.cost__ = cost;
+    if force_grad_caching
+        store.grad__ = grad;
+    end
     
     storedb.setWithShared(store, key);
     

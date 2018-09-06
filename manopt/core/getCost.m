@@ -22,6 +22,11 @@ function cost = getCost(problem, x, storedb, key)
 %
 %   Aug. 2, 2018 (NB):
 %       The value of the cost function is now always cached.
+%
+%   Sep. 6, 2018 (NB):
+%       If the gradient is computed too (because we had to call costgrad
+%       with the store as input as per the user's request), then the
+%       gradient is also cached.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -75,7 +80,7 @@ function cost = getCost(problem, x, storedb, key)
             case 1
                 cost = problem.costgrad(x);
             case 2
-                [cost, grad, store] = problem.costgrad(x, store); %#ok
+                [cost, grad, store] = problem.costgrad(x, store);
             case 3
                 % Pass along the whole storedb (by reference), with key.
                 cost = problem.costgrad(x, storedb, key);
@@ -103,6 +108,12 @@ function cost = getCost(problem, x, storedb, key)
     
     % Cache here.
     store.cost__ = cost;
+    
+    % If we got the cost via costgrad and it took the store as input, then
+    % the gradient has also been computed and we can cache it.
+    if exist('grad', 'var')
+        store.grad__ = grad;
+    end
 
     storedb.setWithShared(store, key);
     

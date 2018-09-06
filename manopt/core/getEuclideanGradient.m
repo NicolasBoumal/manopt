@@ -38,6 +38,14 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
 %       converse was taken as a sign that the user wants to deal with
 %       caching on their own, but in reality it proved more confusing than
 %       helpful.
+%
+%   Sep.  6, 2018 (NB):
+%       The Euclidean gradient is now always cached. Caching conditioned on
+%       the Euclidean Hessian being provided was problematic, because if no
+%       Hessian is provided at all, then the default fall-back of finite
+%       differences would be slowed down significantly without cache. Since
+%       the new storedb functionalities around storedb.remove() much reduce
+%       the number of stored stores, this should not be an issue.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -53,14 +61,9 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
     store = storedb.getWithShared(key);
     store_is_stale = false;
 
-    % If the Euclidean Hessian can be computed from the problem
-    % definition, it is likely that the user will use it. To get the
-    % Riemannian Hessian from the Euclidean Hessian usually requires
-    % the Euclidean gradient. Since there is a significant cost
-    % associated to computing the Euclidean gradient, conservatively,
-    % we force caching of the Euclidean gradient in that scenario.
-    force_caching = canGetEuclideanHessian(problem);
-    if force_caching && isfield(store, 'egrad__')
+    % We force caching of the Euclidean gradient. Look up first.
+    force_egrad_caching = true;
+    if force_egrad_caching && isfield(store, 'egrad__')
         egrad = store.egrad__;
         return;
     end
@@ -109,7 +112,7 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
     end
     
     % Cache here.
-    if force_caching
+    if force_egrad_caching
         store.egrad__ = egrad;
     end
 
