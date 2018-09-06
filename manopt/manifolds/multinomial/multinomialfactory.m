@@ -6,12 +6,14 @@ function M = multinomialfactory(n, m)
 %
 % The returned structure M is a Manopt manifold structure to optimize over
 % the set of n-by-m matrices with (strictly) positive entries and such that
-% the entries of each column sum to one. By default, m = 1.
+% the entries of each column sum to one. By default, m = 1, which
+% corresponds to the relative interior of the simplex (discrete probability
+% distributions with nonzero probabilities.)
 %
 % The metric imposed on the manifold is the Fisher metric such that 
-% the set of n-by-m column-stochastic matrices (aka the multinomial manifold)
-% is a Riemannian submanifold of the space of n-by-m matrices. Also it
-% should be noted that the retraction operation that we define 
+% the set of n-by-m column-stochastic matrices (a.k.a. the multinomial
+% manifold) is a Riemannian submanifold of the space of n-by-m matrices.
+% Also it should be noted that the retraction operation that we define 
 % is first order and as such the checkhessian tool cannot verify 
 % the slope correctly at non-critical points.
 %             
