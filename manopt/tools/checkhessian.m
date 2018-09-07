@@ -17,6 +17,13 @@ function checkhessian(problem, x, d)
 % 
 % Both x and d are optional and will be sampled at random if omitted.
 %
+% The slope test requires the exponential map of the manifold, or at least
+% a second-order retraction. If M.exp() is not available, the retraction is
+% used and a message is issued to instruct the user to check whether M.retr
+% is second-order or not. If it is not, the slope test is only valid at
+% critical points of the cost function (which can be computed by
+% optimization.)
+%
 % See also: checkdiff checkgradient checkretraction
 
 % This file is part of Manopt: www.manopt.org.
@@ -40,6 +47,11 @@ function checkhessian(problem, x, d)
 %
 %   Aug. 2, 2018 (NB):
 %       Using storedb.remove() to avoid unnecessary cache build-up.
+%
+%   Sep. 6, 2018 (NB):
+%       Now checks whether M.exp() is available; uses retraction otherwise
+%       and issues a message that the user should check whether the
+%       retraction is second-order or not.
 
         
     % Verify that the problem description is sufficient.
@@ -83,13 +95,29 @@ function checkhessian(problem, x, d)
     hessxd = getHessian(problem, x, d, storedb, xkey);
     d2f0 = problem.M.inner(x, d, hessxd);
     
+    
+    % Pick a stepping function: exponential or retraction?
+    if isfield(problem.M, 'exp')
+        stepper = problem.M.exp;
+        extra_message = '';
+    else
+        stepper = problem.M.retr;
+        fprintf(['* M.exp() is not available: using M.retr() instead.\n' ...
+                 '* Please check the manifold documentation to see if\n' ...
+                 '* the retraction is second order. If not, the slope\n' ...
+                 '* test is allowed to fail at non-critical x.\n']);
+        extra_message = ['(But do mind the message above: the slope is\n' ...
+                         'allowed to be 2 at non-critical points x.)\n'];
+    end
+    
+    
     % Compute the value of f at points on the geodesic (or approximation
     % of it) originating from x, along direction d, for stepsizes in a
     % large range given by h.
     h = logspace(-8, 0, 51);
     value = zeros(size(h));
     for i = 1 : length(h)
-        y = problem.M.exp(x, d, h(i));
+        y = stepper(x, d, h(i));
         ykey = storedb.getNewKey();
         value(i) = getCost(problem, y, storedb, ykey);
         storedb.remove(ykey); % no need to keep it in memory
@@ -142,14 +170,9 @@ function checkhessian(problem, x, d)
     
     if ~isModelExact
         fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
-        fprintf(['If it is far from 3, then directional derivatives or ' ...
-                 'the Hessian might be erroneous.\n']);
-        fprintf(['Note: if the exponential map is only approximate, and it '...
-                 'is not a second-order approximation,\nthen it is normal ' ...
-                 'for the slope test to reach 2 instead of 3. Check the ' ...
-                 'factory for this.\n' ...
-                 'If tested at a critical point, then even for a first-order '...
-                 'retraction the slope test should yield 3.\n']);
+        fprintf(['If it is far from 3, then directional derivatives,\n' ...
+                 'the gradient or the Hessian might be erroneous.\n', ...
+                 extra_message]);
     else
         fprintf(['The quadratic model appears to be exact ' ...
                  '(within numerical precision),\n'...
@@ -163,8 +186,8 @@ function checkhessian(problem, x, d)
         phess = problem.M.tangent(x, hess);
         residual = problem.M.lincomb(x, 1, hess, -1, phess);
         err = problem.M.norm(x, residual);
-        fprintf('The residual should be zero, or very close. ');
-        fprintf('Residual: %g.\n', err);
+        fprintf('Tangency residual should be zero, or very close; ');
+        fprintf('residual: %g.\n', err);
         fprintf(['If it is far from 0, then the Hessian is not in the ' ...
                  'tangent space.\n']);
     else
