@@ -102,7 +102,61 @@ body {
                 <li>New solvers</li>
                 <ul>
                   <li><strong>ARC: adaptive regularization by cubics</strong>,
-                    as an alternative to trustregions.</li>
+                    <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/arc/arc.m"
+                      target="_blank"> arc</a>, as an alternative to <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/trustregions/trustregions.m"
+                      target="_blank">trustregions</a>.</li>
+                </ul>
+                <li>Modifications to core engine</li>
+                <ul>
+                  <li><strong>New counters system: especially useful to keep
+                      track of cost/grad/hess calls</strong>, and also of other
+                    important computations inside of (and possibly shared among)
+                    those. See <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/core/incrementcounter.m"
+                      target="_blank">incrementcounter</a> and <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/statscounters.m"
+                      target="_blank">statscounter</a> and the example <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
+                      target="_blank"> using_counters</a>. As also shown in that
+                    example, the <code>problem.stopfun</code> handle for
+                    stopping criteria can access the counters, making it
+                    possible to stop for more sophisticated reasons than before.</li>
+                  <li><strong>The value of the cost function is now always
+                      cached</strong>. This leads to significant speed-ups in
+                    algorithms which use a line-search that evaluates the cost
+                    function (steepestdescent, conjugategradient,
+                    barzilaiborwein, rlbfgs included.)</li>
+                  <li><strong>The Riemannian gradient and Euclidean gradient are
+                      now cached by default.</strong> This is made practical by
+                    the new remove() functionalities of StoreDB (see below).
+                    This should be particularly useful for algorithms which use
+                    finite difference approximations of the Hessian, and when
+                    the user supplies a Euclidean Hessian (which, to be
+                    converted to Riemannian Hessian, requires the Euclidean
+                    gradient). This caching happens regardless of the user's own
+                    caching efforts, which should make the overall system easier
+                    to understand, as compared to previous versions of Manopt.</li>
+                  <li>Core changes to <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/core/StoreDB.m"
+                      target="_blank">StoreDB</a>. Essentially two changes: (1)
+                    purge() now purges based on latest access time (access =
+                    read or write) rather than latest write time. (2) Added
+                    functions remove() and removefirstifdifferent(), which makes
+                    it possible for solvers and line-search algorithms to tell
+                    the StoreDB when a certain store is no longer relevant. For
+                    solvers that use the new remove() capabilities, <strong>purge()
+                      and storedepth have now very little importance</strong>.
+                    Furthermore, access is now more protected, with warnings
+                    issued if improper keys are accessed; this should make it
+                    easier to debug new solvers, and it already makes it
+                    possible to cache far fewer points. This rationalizes the
+                    choice of caching more things for points that matter
+                    (including cost and gradient). Line-search algorithms and
+                    all important solvers now use this system.</li>
+                  <li><strong>Added support for GPU</strong>. The following
+                    manifolds can now manipulate points and tangent vectors
+                    directly on the GPU, sometimes leading to huge speed-ups:
+                    spherefactory, complexcirclefactory, stiefelfactory,
+                    grassmannfactory; see the new example <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_gpu.m"
+                      target="_blank">using_gpu</a>.</li>
+                </ul>
+                <ul>
                 </ul>
                 <li>New tools</li>
                 <ul>
@@ -141,70 +195,18 @@ body {
                     fix certain variables in a <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/productmanifold.m"
                       target="_blank">productmanifold</a>.</li>
                   <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/multinomial/multinomialsymmetricfactory.m"
-                      target="_blank">multinomialsymmetricfactory</a> and
-                    <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/multinomial/multinomialdoublystochasticfactory.m"
+                      target="_blank">multinomialsymmetricfactory</a> and <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/multinomial/multinomialdoublystochasticfactory.m"
                       target="_top"> multinomialdoublystochasticfactory</a> for
                     doubly stochastic matrices with (strictly) positive entries,
                     symmetric or not; contributed by <a href="https://scholar.google.com/citations?user=_i7hPbgAAAAJ&amp;hl=en"
-                      target="_blank">Ahmed Douik</a>. Comes with a tool named
-                    <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/multinomial/doubly_stochastic.m"
+                      target="_blank">Ahmed Douik</a>. Comes with a tool named <a
+                      href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/multinomial/doubly_stochastic.m"
                       target="_blank"> doubly_stochastic</a> which implements
                     Sinkhorn's algorithm to project to doubly-stochastic
                     matrices.</li>
                   <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/manifolds/positive/positivefactory.m"
                       target="_blank">positivefactory</a> deals with strictly
                     positive numbers.</li>
-                </ul>
-                <li>Modifications to core engine</li>
-                <ul>
-                  <li><strong>New counters system: especially useful to keep
-                      track of cost/grad/hess calls</strong>, and also of other
-                    important computations inside of (and possibly shared among)
-                    those. See <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/core/incrementcounter.m"
-                      target="_blank">incrementcounter</a> and <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/tools/statscounters.m"
-                      target="_blank">statscounter</a> and the example
-                    <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_counters.m"
-                      target="_blank"> using_counters</a>. As also shown in that
-                    example, the <code>problem.stopfun</code> handle for
-                    stopping criteria can access the counters, making it
-                    possible to stop for more sophisticated reasons than before.</li>
-                  <li><strong>The value of the cost function is now always
-                      cached</strong>. This leads to significant speed-ups in
-                    algorithms which use a line-search that evaluates the cost
-                    function (steepestdescent, conjugategradient,
-                    barzilaiborwein, rlbfgs included.)</li>
-                  <li><strong>Riemannian gradient and Euclidean gradient are now
-                      cached by default.</strong> This is made practical by the
-                    new remove() functionalities of StoreDB (see below). This
-                    should be particularly useful for algorithms which use
-                    finite difference approximations of the Hessian, and when
-                    the user supplies a Euclidean Hessian (which, to be
-                    converted to Riemannian Hessian, requires the Euclidean
-                    gradient). This caching happens regardless of the user's own
-                    caching efforts, which should make the overall system easier
-                    to understand, as compared to previous versions of Manopt.</li>
-                  <li>Core changes to <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/core/StoreDB.m"
-                      target="_blank">StoreDB</a>. Essentially two changes: (1)
-                    purge() now purges based on latest access time (access =
-                    read or write) rather than latest write time. (2) Added
-                    functions remove() and removefirstifdifferent(), which makes
-                    it possible for solvers and line search algorithms to tell
-                    the StoreDB when a certain store is no longer relevant. For
-                    solvers that use the new remove() capabilities, <strong>purge()
-                      and storedepth have now very little importance</strong>.
-                    Furthermore, access is now more protected, with warnings
-                    issued if improper keys are accessed; this should make it
-                    easier to debug new solvers, and it already makes it
-                    possible to cache far fewer points. This rationalizes the
-                    choice of caching more things for points that matter
-                    (including cost and Euclidean gradient). Line-search
-                    algorithms and all important solves now use this system.</li>
-                  <li><strong>Added beta support for GPU</strong>; the following
-                    manifolds can now manipulate points and tangent vectors
-                    directly on the GPU, sometimes leading to huge speedups:
-                    spherefactory, complexcirclefactory, stiefelfactory,
-                    grassmannfactory; see the new example <a href="https://github.com/NicolasBoumal/manopt/blob/master/examples/using_gpu.m"
-                      target="_blank">using_gpu</a>.</li>
                 </ul>
                 <li>Bug fixes</li>
                 <ul>
@@ -222,7 +224,7 @@ body {
                   <li>strict_inc_func in rlbfgs solver changed following
                     recommendations of Wen Huang</li>
                   <li>More heads up messages regarding the use of
-                    tangent2ambient with some manifolds</li>
+                    M.tangent2ambient with some manifolds</li>
                   <li>tCG solver for trustregions inner problems is now more
                     stable (numerically) for fine convergence steps</li>
                   <li>Added <strong>inverse retraction</strong> for
