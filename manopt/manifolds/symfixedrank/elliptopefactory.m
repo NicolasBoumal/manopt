@@ -60,11 +60,15 @@ function M = elliptopefactory(n, k)
 %       Used code snippets from obliquefactory to speed up projection,
 %       retraction, egrad2rgrad and rand: the code now uses bsxfun for this.
 % 
-%   April 3, 2015 (NB):
+%   Apr. 3, 2015 (NB):
 %       Replaced trace(A'*B) by A(:)'*B(:) : equivalent but faster.
 % 
-%   April 17, 2018 (NB):
+%   Apr. 17, 2018 (NB):
 %       Removed dependency on lyap entirely.
+%
+%   Sep.  6, 2018 (NB):
+%       Suppressed warning upon calling the exponential: it is a retraction,
+%       and the user can find out in this file.
 
 % TODO: modify normalize_rows and project_rows to work without transposes.
 % TODO: enhance ehess2rhess to also use bsxfun.
@@ -177,12 +181,7 @@ function Ynew = exponential(Y, eta, t)
     if nargin < 3
         t = 1.0;
     end
-
     Ynew = retraction(Y, eta, t);
-    warning('manopt:elliptopefactory:exp', ...
-        ['Exponential for fixed rank spectrahedron ' ...
-        'manifold not implemented yet. Used retraction instead.\n' ...
-        'To disable this warning: warning(''off'', ''manopt:elliptopefactory:exp'')']);
 end
 
 % Euclidean gradient to Riemannian gradient conversion.

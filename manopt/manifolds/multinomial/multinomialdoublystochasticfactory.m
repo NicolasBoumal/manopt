@@ -45,11 +45,15 @@ function M = multinomialdoublystochasticfactory(n)
 % Contributors: Nicolas Boumal
 % Change log:
 %
-%  April 24, 2018 (AD):
-%       Changed pinv() to a particular solution to the equation.
+%    Apr. 24, 2018 (AD):
+%        Changed pinv() to a particular solution to the equation.
 %
-%  July 24, 2018 (AD):
-%       A bugfix related to the pinv() change, with effects in many places.
+%    July 24, 2018 (AD):
+%        A bugfix related to the pinv() change, with effects in many places.
+%
+%    Sep.  6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
 
     e = ones(n, 1);
 
@@ -143,9 +147,6 @@ function M = multinomialdoublystochasticfactory(n)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:multinomialdoublystochasticfactory:exp', ...
-            ['Exponential for the Multinomial manifold' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
 
     % Conversion of Euclidean to Riemannian Hessian

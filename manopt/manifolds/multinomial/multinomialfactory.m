@@ -40,7 +40,11 @@ function M = multinomialfactory(n, m)
 % Original author: Bamdev Mishra, April 06, 2015.
 % Contributors:
 % Change log:
-    
+%
+%    Sep. 6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
+
     if ~exist('m', 'var') || isempty(m)
         m = 1;
     end
@@ -122,9 +126,6 @@ function M = multinomialfactory(n, m)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:multinomialfactory:exp', ...
-            ['Exponential for the Multinomial manifold' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     M.hash = @(X) ['z' hashmd5(X(:))];

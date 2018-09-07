@@ -57,8 +57,12 @@ function M = fixedrankfactory_2factors(m, n, k)
 %      Cosmetic changes including avoiding storing the inverse of a
 %       k-by-k matrix.
 %
-%   April 17, 2018 (NB):
+%   Apr. 17, 2018 (NB):
 %      Using built-in sylvester instead of lyap, which requires a toolbox.
+%
+%   Sep.  6, 2018 (NB):
+%       Suppressed warning upon calling the exponential: it is a retraction,
+%       and the user can find out in this file.
     
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -160,11 +164,7 @@ function M = fixedrankfactory_2factors(m, n, k)
         if nargin < 3
             t = 1.0;
         end
-        
         Y = retraction(X, eta, t);
-        warning('manopt:fixedrankfactory_2factors:exp', ...
-            ['Exponential for fixed rank ' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.R(:)])];

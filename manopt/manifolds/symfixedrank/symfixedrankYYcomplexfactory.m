@@ -60,8 +60,12 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %       Metric scaled down by factor 2 to match the metric used in
 %       euclideancomplexfactory.
 %
-%   April 18, 2018 (NB):
+%   Apr. 18, 2018 (NB):
 %       Removed lyap depedency.
+%
+%   Sep.  6, 2018 (NB):
+%       Suppressed warning upon calling the exponential: it is a retraction,
+%       and the user can find out in this file.
     
     M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
@@ -114,11 +118,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
         if nargin < 3
             t = 1.0;
         end
-        
         Ynew = retraction(Y, eta, t);
-        warning('manopt:symfixedrankYYcomplexfactory:exp', ...
-            ['Exponential for symmetric fixed-rank complex ' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     % Notice that the hash of two equivalent points will be different...

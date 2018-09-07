@@ -38,7 +38,12 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 % Contributors: 
 % Change log:
 %
-%   April 17, 2018 (NB): removed dependency on lyap.
+%    Apr. 17, 2018 (NB):
+%        Removed dependency on lyap.
+%
+%    Sep.  6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
 
     if length(tensor_rank) > 3
         error('Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.');
@@ -333,9 +338,6 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:fixedrankfactory_tucker_preconditioned:exp', ...
-            ['Exponential for fixed rank ' ...
-            'Tucker manifold not implemented yet. Used retraction instead.']);
     end
     
     M.hash = @(X) ['z' hashmd5([sum(X.U1(:)) ; sum(X.U2(:)); sum(X.U3(:)); sum(X.G(:)) ])]; % Efficient, suggested by Bart Vandereycken.

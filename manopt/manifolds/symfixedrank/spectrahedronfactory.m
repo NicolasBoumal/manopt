@@ -50,12 +50,16 @@ function M = spectrahedronfactory(n, k)
 % Contributors: Nicolas Boumal
 % Change log:
 %
-%   April 2, 2015 (NB):
+%   Apr. 2, 2015 (NB):
 %       Replaced trace(A'*B) by A(:)'*B(:) (equivalent but faster).
 %       Updated documentation.
 %
-%   April 17, 2018 (NB):
+%   Apr. 17, 2018 (NB):
 %       Removed dependence on lyap.
+%
+%   Sep.  6, 2018 (NB):
+%       Suppressed warning upon calling the exponential: it is a retraction,
+%       and the user can find out in this file.
     
     
     
@@ -120,11 +124,7 @@ function M = spectrahedronfactory(n, k)
         if nargin < 3
             t = 1.0;
         end
-        
         Ynew = retraction(Y, eta, t);
-        warning('manopt:spectrahedronfactory:exp', ...
-            ['Exponential for fixed rank spectrahedron ' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     % Notice that the hash of two equivalent points will be different...
