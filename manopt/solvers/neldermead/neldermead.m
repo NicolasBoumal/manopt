@@ -45,12 +45,15 @@ function [x, cost, info, options] = neldermead(problem, x, options)
 % Contributors: 
 % Change log: 
 %
-%   April 4, 2015 (NB):
+%   Apr.  4, 2015 (NB):
 %       Working with the new StoreDB class system.
 %       Clarified interactions with statsfun and store.
 %
 %   Nov. 11, 2016 (NB):
 %       If options.verbosity is < 2, prints minimal output.
+%
+%   Sep.  6, 2018 (NB):
+%       Using retraction instead of exponential.
 
     
     % Verify that the problem description is sufficient for the solver.
@@ -162,7 +165,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         vec = problem.M.log(xbar, x{end});
         
         % Reflection step
-        xr = problem.M.exp(xbar, vec, -options.reflection);
+        xr = problem.M.retr(xbar, vec, -options.reflection);
         keyr = storedb.getNewKey();
         costr = getCost(problem, xr, storedb, keyr);
         costevals = costevals + 1;
@@ -181,7 +184,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         
         % If the reflected point is better than the best point, expand.
         if costr < costs(1)
-            xe = problem.M.exp(xbar, vec, -options.expansion);
+            xe = problem.M.retr(xbar, vec, -options.expansion);
             keye = storedb.getNewKey();
             coste = getCost(problem, xe, storedb, keye);
             costevals = costevals + 1;
@@ -209,7 +212,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         if costr >= costs(end-1)
             if costr < costs(end)
                 % do an outside contraction
-                xoc = problem.M.exp(xbar, vec, -options.contraction);
+                xoc = problem.M.retr(xbar, vec, -options.contraction);
                 keyoc = storedb.getNewKey();
                 costoc = getCost(problem, xoc, storedb, keyoc);
                 costevals = costevals + 1;
@@ -224,7 +227,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
                 end
             else
                 % do an inside contraction
-                xic = problem.M.exp(xbar, vec, options.contraction);
+                xic = problem.M.retr(xbar, vec, options.contraction);
                 keyic = storedb.getNewKey();
                 costic = getCost(problem, xic, storedb, keyic);
                 costevals = costevals + 1;
