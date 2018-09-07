@@ -42,8 +42,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %        Removed dependency on lyap.
 %
 %    Sep.  6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
 
     if length(tensor_rank) > 3
         error('Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.');
@@ -332,13 +331,6 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         Y = prepare(Y);
     end
     
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
-    end
     
     M.hash = @(X) ['z' hashmd5([sum(X.U1(:)) ; sum(X.U2(:)); sum(X.U3(:)); sum(X.G(:)) ])]; % Efficient, suggested by Bart Vandereycken.
     % M.hash = @(X) ['z' hashmd5([X.U1(:); X.U2(:); X.U3(:); X.G(:)])];

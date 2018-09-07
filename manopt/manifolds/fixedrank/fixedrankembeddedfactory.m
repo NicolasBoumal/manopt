@@ -79,8 +79,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       triplet (U, S, V), the matrix S needs to be diagonal.
 %
 %    Sep.  6, 2018 (NB):
-%       Suppressed warning upon calling the exponential: it is a retraction,
-%       and the user can find out in this file.
+%       Removed M.exp() as it was not implemented.
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -252,16 +251,6 @@ function M = fixedrankembeddedfactory(m, n, k)
         
     end
 
-    
-	% We do not have an exponential, so the next best thing is the retraction.
-	% This used to issue a warning, but it was impractical.
-    M.exp = @exponential;
-    function Y = exponential(X, Z, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, Z, t);
-    end
 
     % Less safe but much faster checksum, June 24, 2014.
     % Older version right below.

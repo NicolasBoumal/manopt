@@ -41,8 +41,7 @@ function M = multinomialsymmetricfactory(n)
 % Change log:
 %
 %    Sep. 6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
 
     % Helpers
     e = ones(n, 1);
@@ -116,14 +115,6 @@ function M = multinomialsymmetricfactory(n)
         Y = X.*exp(t*(eta./X));
         Y = symm(doubly_stochastic(Y));
         Y = max(Y, eps);
-    end
-
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
     end
 
     % Conversion of Euclidean to Riemannian Hessian

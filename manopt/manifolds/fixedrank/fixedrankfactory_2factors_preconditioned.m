@@ -33,8 +33,7 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
 %        k-by-k matrix.
 %
 %    Sep. 6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
   
     
     M.name = @() sprintf('LR''(tuned to least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -131,14 +130,6 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
         Y = prepare(Y);
     end
     
-    
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
-    end
     
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.R(:)])];
     

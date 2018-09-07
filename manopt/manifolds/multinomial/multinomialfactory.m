@@ -42,8 +42,7 @@ function M = multinomialfactory(n, m)
 % Change log:
 %
 %    Sep. 6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
 
     if ~exist('m', 'var') || isempty(m)
         m = 1;
@@ -120,13 +119,6 @@ function M = multinomialfactory(n, m)
         Y = max(Y, eps);
     end
     
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
-    end
     
     M.hash = @(X) ['z' hashmd5(X(:))];
     
