@@ -32,6 +32,9 @@ function checkdiff(problem, x, d, force_gradient)
 %
 %   Aug. 2, 2018 (NB):
 %       Using storedb.remove() to avoid unnecessary cache build-up.
+%
+%   Sep. 6, 2018 (NB):
+%       Now checks whether M.exp() is available; uses retraction otherwise.
 
     if ~exist('force_gradient', 'var')
         force_gradient = false;
@@ -77,13 +80,22 @@ function checkdiff(problem, x, d, force_gradient)
         df0 = problem.M.inner(x, grad, d);
     end
     
+    % Pick a stepping function: exponential or retraction?
+    if isfield(problem.M, 'exp')
+        stepper = problem.M.exp;
+    else
+        stepper = problem.M.retr;
+        % No need to issue a warning: to check the gradient, any retraction
+        % (which is first-order by definition) is appropriate.
+    end
+    
     % Compute the value of f at points on the geodesic (or approximation
     % of it) originating from x, along direction d, for stepsizes in a
     % large range given by h.
     h = logspace(-8, 0, 51);
     value = zeros(size(h));
     for k = 1 : length(h)
-        y = problem.M.exp(x, d, h(k));
+        y = stepper(x, d, h(k));
         ykey = storedb.getNewKey();
         value(k) = getCost(problem, y, storedb, ykey);
         storedb.remove(ykey); % no need to keep it in memory
