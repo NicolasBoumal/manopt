@@ -19,6 +19,11 @@ function checkretraction(M, x, v)
 % Contributors: 
 % Change log: 
 
+	if ~isfield(M, 'exp')
+		error(['This manifold has no exponential (M.exp): ' ...
+               'no reference to compare the retraction.']);
+	end
+
     if ~exist('x', 'var') || isempty(x)
         x = M.rand();
         v = M.randvec(x);
