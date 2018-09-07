@@ -101,8 +101,8 @@ body {
               <ul>
                 <li>New solvers</li>
                 <ul>
-                  <li><strong>ARC: adaptive regularization by cubics</strong>,
-                    <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/arc/arc.m"
+                  <li><strong>ARC: adaptive regularization by cubics</strong>, <a
+                      href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/arc/arc.m"
                       target="_blank"> arc</a>, as an alternative to <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/trustregions/trustregions.m"
                       target="_blank">trustregions</a>.</li>
                 </ul>
@@ -221,7 +221,8 @@ body {
                       target="_blank">orthogonalize</a> tool is now a modified
                     Gram-Schmidt algorithm, which is more stable than the
                     previous code</li>
-                  <li>strict_inc_func in rlbfgs solver changed following
+                  <li>strict_inc_func in <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/bfgs/rlbfgs.m"
+                      target="_blank">rlbfgs</a> solver changed following
                     recommendations of Wen Huang</li>
                   <li>More heads up messages regarding the use of
                     M.tangent2ambient with some manifolds</li>
@@ -232,6 +233,16 @@ body {
                     retractions, both of which are now available),
                     spherefactory, obliquefactory, rotationsfactory (both QR and
                     polar) and complexcirclefactory.</li>
+                  <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/neldermead/neldermead.m"
+                      target="_blank">neldermead</a> solver now uses retraction
+                    instead of exponential.</li>
+                  <li>If the exponential is not implemented for a manifold and
+                    we call M.exp(), it used to generate a warning (then proceed
+                    to compute the retraction instead). This caused long strings
+                    of warnings when calling checkgradient or checkhessian. The
+                    warnings have been removed, as this concerns many manifolds:
+                    it makes sense to check on a case-by-case basis if the
+                    exponential is available for a given manifold.</li>
                   <li>Many small improvements here and there...</li>
                 </ul>
               </ul>
@@ -241,16 +252,20 @@ body {
               <ul>
                 <li>New solvers</li>
                 <ul>
-                  <li>Limited-memory BFGS: a Riemannian version of the
+                  <li>Limited-memory BFGS, <a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/bfgs/rlbfgs.m"
+                      target="_blank">rlbfgs</a>: a Riemannian version of the
                     quasi-Newton solver, implemented by Changshuo Liu based on
                     work by Wen Huang et al.</li>
-                  <li>barzilaiborwein: a gradient method with step-size
-                    selection based on a Barzilai-Borwein heuristic and
-                    line-search, contributed by Margherita Porcelli and Bruno
-                    Iannazzo.</li>
-                  <li>stochasticgradient: stochastic gradient algorithm on
-                    manifolds, together with its step-size selection algorithm
-                    stepsize_sg and a new example: PCA_stochastic.</li>
+                  <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/barzilaiborwein/barzilaiborwein.m"
+                      target="_blank">barzilaiborwein</a>: a gradient method
+                    with step-size selection based on a Barzilai-Borwein
+                    heuristic and line-search, contributed by Margherita
+                    Porcelli and Bruno Iannazzo.</li>
+                  <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/stochasticgradient/stochasticgradient.m"
+                      target="_blank">stochasticgradient</a>: stochastic
+                    gradient algorithm on manifolds, together with its step-size
+                    selection algorithm stepsize_sg and a new example:
+                    PCA_stochastic.</li>
                 </ul>
                 <li>New tools</li>
                 <ul>
