@@ -33,8 +33,7 @@ function M = stiefelgeneralizedfactory(n, p, B)
 % Change log:
 %
 %    Sep. 6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
 
     
     if ~exist('B', 'var') || isempty(B)
@@ -104,15 +103,6 @@ function M = stiefelgeneralizedfactory(n, p, B)
             t = 1.0;
         end
         Y = guf(X + t*U); % Ensure that Y'*B*Y is identity.
-    end
-    
-    
-    M.exp = @exponential;
-    function Y = exponential(X, Z, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, Z, t);
     end
 
 

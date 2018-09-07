@@ -56,8 +56,7 @@ function M = fixedrankfactory_3factors(m, n, k)
 %        Removed dependency on lyap.
 %
 %    Sep.  6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
     
     M.name = @() sprintf('LSR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -141,13 +140,6 @@ function M = fixedrankfactory_3factors(m, n, k)
         Y.R = uf(X.R + t*eta.R);
     end
     
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
-    end
     
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.S(:) ; X.R(:)])];
     

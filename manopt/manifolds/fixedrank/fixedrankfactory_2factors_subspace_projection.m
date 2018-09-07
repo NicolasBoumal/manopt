@@ -41,8 +41,7 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
 %    Aug. 31, 2018 (NB):
 %        Improved efficiency of nested_sylvester using lyapunov_symmetric_eig.
 %    Sep.  6, 2018 (NB):
-%        Suppressed warning upon calling the exponential: it is a retraction,
-%        and the user can find out in this file.
+%        Removed M.exp() as it was not implemented.
     
     M.name = @() sprintf('LR'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -135,13 +134,6 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
         Y = prepare(Y);
     end
     
-    M.exp = @exponential;
-    function R = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        R = retraction(X, eta, t);
-    end
     
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.R(:)])];
     

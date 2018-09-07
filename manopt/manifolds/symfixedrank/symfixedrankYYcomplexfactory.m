@@ -64,8 +64,7 @@ function M = symfixedrankYYcomplexfactory(n, k)
 %       Removed lyap depedency.
 %
 %   Sep.  6, 2018 (NB):
-%       Suppressed warning upon calling the exponential: it is a retraction,
-%       and the user can find out in this file.
+%       Removed M.exp() as it was not implemented.
     
     M.name = @() sprintf('YY'' quotient manifold of Hermitian %dx%d complex matrices of rank %d.', n, n, k);
     
@@ -112,14 +111,6 @@ function M = symfixedrankYYcomplexfactory(n, k)
     M.egrad2rgrad = @(Y, eta) eta;
     M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
     
-    
-    M.exp = @exponential;
-    function Ynew = exponential(Y, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Ynew = retraction(Y, eta, t);
-    end
     
     % Notice that the hash of two equivalent points will be different...
     M.hash = @(Y) ['z' hashmd5([real(Y(:)); imag(Y(:))])];

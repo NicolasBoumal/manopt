@@ -67,8 +67,7 @@ function M = elliptopefactory(n, k)
 %       Removed dependency on lyap entirely.
 %
 %   Sep.  6, 2018 (NB):
-%       Suppressed warning upon calling the exponential: it is a retraction,
-%       and the user can find out in this file.
+%       Removed M.exp() as it was not implemented.
 
 % TODO: modify normalize_rows and project_rows to work without transposes.
 % TODO: enhance ehess2rhess to also use bsxfun.
@@ -102,8 +101,6 @@ function M = elliptopefactory(n, k)
     M.egrad2rgrad = @egrad2rgrad;
     
     M.ehess2rhess = @ehess2rhess;
-    
-    M.exp = @exponential;
     
     % Notice that the hash of two equivalent points will be different...
     M.hash = @(Y) ['z' hashmd5(Y(:))];
@@ -174,14 +171,6 @@ function Ynew = retraction(Y, eta, t)
     end
     Ynew = Y + t*eta;
     Ynew = normalize_rows(Ynew);
-end
-
-% Exponential map
-function Ynew = exponential(Y, eta, t)
-    if nargin < 3
-        t = 1.0;
-    end
-    Ynew = retraction(Y, eta, t);
 end
 
 % Euclidean gradient to Riemannian gradient conversion.
