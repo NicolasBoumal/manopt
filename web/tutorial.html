@@ -126,19 +126,16 @@ body {
                 this link to be on our user list</a>. Thanks!</p>
             <h3>Download </h3>
             <p><a target="_blank" class="btn btn-primary" href="download.html">Download
-                </a>&#160;&#160; The current version is 4.0 and was packaged on
-              Sep. 9, 2017. The file is about 400 Kb.</p>
+                </a>&#160;&#160; The current version is 5.0 and was packaged on
+              Sep. YYY, 2018. The file is about 400 Kb.</p>
             <h3>Install</h3>
             <blockquote>
               <ol>
                 <li>Unzip and copy the whole <tt>manopt</tt> directory you just
-                  downloaded in a location of your choice on disk, say, in <tt>/my/directory/</tt>.</li>
-                <li>Go to <tt>/my/directory/manopt/</tt> at the command prompt
-                  and execute <code>importmanopt</code>. You may save this path
-                  for your next Matlab sessions: either execute <code>savepath</code>,
-                  or follow the menu <tt>File &#187; Set Path...</tt> and <span
-
-                    style="font-family: monospace;">save</span>. </li>
+                  downloaded in a location of your choice, say, in <tt>/my/directory/</tt>.</li>
+                <li>Go to <tt>/my/directory/manopt/</tt> at the Matlab prompt
+                  and execute <code>importmanopt</code>.</li>
+                <li>You may save this path for your next Matlab sessions (via <code>savepath</code>).</li>
               </ol>
             </blockquote>
             <h3>Check</h3>
@@ -560,7 +557,7 @@ problem.egrad = @(x) -2*A*x;
                 <tr>
                   <td><a target="_blank" href="reference/manopt/manifolds/positive/positivefactory.html">Matrices
                       with strictly positive entries</a></td>
-                  <td>$\{ X \in \mathbb{R}^{m\times n} : X_{ij} &gt; 0 \forall
+                  <td>$\{ X \in \mathbb{R}^{m\times n} : X_{ij} &gt; 0 \ \forall
                     i, j\}$ </td>
                   <td><code>positivefactory(m, n)</code></td>
                 </tr>
@@ -839,7 +836,7 @@ problem.egrad = @(x) -2*A*x;
               fields in a manifold structure returned by a factory, which can be
               desirable to experiment with various retractions, vector
               transports, etc. If you find ways to improve the built-in
-              geometries, <a href="#contactmodal">let us know</a>.</p>
+              geometries, <a href="#contactmodal" data-toggle="modal">let us know</a>.</p>
           </section>
           <section id="solvers">
             <div class="page-header">
@@ -2286,7 +2283,8 @@ end
 
                         class="icon-book">&#160;</i></a></td>
                   <td><code>checkmanifold(M)</code></td>
-                  <td>Tool to run a collection of tests on a manifold structure produced by a factory. (This is in development.)</td>
+                  <td>Tool to run a collection of tests on a manifold structure
+                    produced by a factory. (This is in development.)</td>
                 </tr>
                 <tr>
                   <td style="text-align: center;"> <br>
