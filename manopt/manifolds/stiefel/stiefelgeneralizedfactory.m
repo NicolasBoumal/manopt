@@ -31,7 +31,10 @@ function M = stiefelgeneralizedfactory(n, p, B)
 % Contributors:
 %
 % Change log:
-%   
+%
+%    Sep. 6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
 
     
     if ~exist('B', 'var') || isempty(B)
@@ -110,9 +113,6 @@ function M = stiefelgeneralizedfactory(n, p, B)
             t = 1.0;
         end
         Y = retraction(X, Z, t);
-        warning('manopt:stiefelgeneralizedfactory:exp', ...
-               ['Exponential for generalized Stiefel manifold ' ...
-                'manifold not implemented yet. Used retraction instead.']);
     end
 
 

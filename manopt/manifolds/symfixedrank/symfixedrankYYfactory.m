@@ -52,15 +52,19 @@ function M = symfixedrankYYfactory(n, k)
 % Contributors:
 % Change log:
 %
-%  July 10, 2013 (NB):
+%   July 10, 2013 (NB):
 %       Added vec, mat, tangent, tangent2ambient ;
 %       Correction for the dimension of the manifold.
 %
-%   April 2, 2015 (NB):
+%   Apr.  2, 2015 (NB):
 %       Replaced trace(A'*B) by A(:)'*B(:) (equivalent but faster).
 %
-%   April 17, 2018 (NB):
+%   Apr. 17, 2018 (NB):
 %       Removed dependence on lyap.
+%
+%   Sep.  6, 2018 (NB):
+%       Suppressed warning upon calling the exponential: it is a retraction,
+%       and the user can find out in this file.
 
 
 	M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
@@ -107,11 +111,7 @@ function M = symfixedrankYYfactory(n, k)
 		if nargin < 3
 			t = 1.0;
 		end
-		
 		Ynew = retraction(Y, eta, t);
-		warning('manopt:symfixedrankYYfactory:exp', ...
-			['Exponential for symmetric, fixed-rank ' ...
-			'manifold not implemented yet. Used retraction instead.']);
 	end
 
 	% Notice that the hash of two equivalent points will be different...

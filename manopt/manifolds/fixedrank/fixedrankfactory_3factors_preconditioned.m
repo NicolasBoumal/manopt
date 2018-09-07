@@ -30,11 +30,15 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
 % Contributors:
 % Change log:
 %
-%	April 04, 2015 (BM):
-%       Cosmetic changes including avoiding storing the inverse of a kxk matrix.
+%    Apr.  4, 2015 (BM):
+%        Cosmetic changes including avoiding storing the inverse of a kxk matrix.
 %
-%	April 18, 2018 (NB):
-%       Removed lyap dependency.
+%    Apr. 18, 2018 (NB):
+%        Removed lyap dependency.
+%
+%    Sep. 6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
 
     
     M.name = @() sprintf('LSR'' (tuned for least square problems) quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -212,9 +216,6 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:fixedrankfactory_3factors_preconditioned:exp', ...
-            ['Exponential for fixed rank ' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     M.hash = @(X) ['z' hashmd5([X.L(:) ; X.S(:) ; X.R(:)])];

@@ -39,6 +39,10 @@ function M = multinomialsymmetricfactory(n)
 % Original author: Ahmed Douik, March 06, 2018.
 % Contributors:
 % Change log:
+%
+%    Sep. 6, 2018 (NB):
+%        Suppressed warning upon calling the exponential: it is a retraction,
+%        and the user can find out in this file.
 
     % Helpers
     e = ones(n, 1);
@@ -120,9 +124,6 @@ function M = multinomialsymmetricfactory(n)
             t = 1.0;
         end
         Y = retraction(X, eta, t);
-        warning('manopt:multinomialsymmetricfactory:exp', ...
-            ['Exponential for the Multinomial manifold' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
 
     % Conversion of Euclidean to Riemannian Hessian
