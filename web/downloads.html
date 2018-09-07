@@ -236,13 +236,16 @@ body {
                   <li><a href="https://github.com/NicolasBoumal/manopt/blob/master/manopt/solvers/neldermead/neldermead.m"
                       target="_blank">neldermead</a> solver now uses retraction
                     instead of exponential.</li>
-                  <li>If the exponential is not implemented for a manifold and
-                    we call M.exp(), it used to generate a warning (then proceed
-                    to compute the retraction instead). This caused long strings
-                    of warnings when calling checkgradient or checkhessian. The
-                    warnings have been removed, as this concerns many manifolds:
-                    it makes sense to check on a case-by-case basis if the
-                    exponential is available for a given manifold.</li>
+                  <li>If the exponential is not implemented for a manifold,
+                    M.exp is now no longer defined. It used to be that M.exp
+                    would issue a warning, then return the result of M.retr. But
+                    this causes a deluge of warnings in functions such as
+                    checkhessian. Now, instead, such tools check if M.exp is
+                    defined; if not, they use M.retr and issue a single message
+                    to inform the user of the consequences. If your personal
+                    code uses M.exp() without checking for manifolds that didn't
+                    have a proper implementation, you may want to check if this
+                    update breaks that part. It should be an easy fix.</li>
                   <li>Many small improvements here and there...</li>
                 </ul>
               </ul>
