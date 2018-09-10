@@ -36,7 +36,7 @@
  defaults, which are in turn overwritten by user-specified options.
  See the online Manopt documentation for details on options.
 
- See also: <a href="mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a></pre></div>
+ See also: <a href="mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -45,7 +45,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/stochasticgradient/stochasticgradient.html" class="code" title="function [x, info, options] = stochasticgradient(problem, x, options)">stochasticgradient</a>	Stochastic gradient (SG) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../../manopt/solvers/arc/arc.html" class="code" title="function [x, cost, info, options] = arc(problem, x, options)">arc</a>	Adaptive regularization by cubics (ARC) minimization algorithm for Manopt</li><li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/stochasticgradient/stochasticgradient.html" class="code" title="function [x, info, options] = stochasticgradient(problem, x, options)">stochasticgradient</a>	Stochastic gradient (SG) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 <!-- crossreference -->
 
 
@@ -67,33 +67,37 @@ This function is called by:
 0014 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
 0015 <span class="comment">% Contributors:</span>
 0016 <span class="comment">% Change log:</span>
-0017 
-0018 
-0019     <span class="comment">% There should be no reason to modify this file.</span>
-0020     <span class="comment">% For better compatibility with future Manopt versions,</span>
-0021     <span class="comment">% use the options structure of solvers.</span>
-0022     <span class="comment">%</span>
-0023     <span class="comment">% Really: don't modify it.</span>
-0024     
-0025 
-0026     <span class="comment">% Verbosity level: 0 is no output at all. The higher the verbosity, the</span>
-0027     <span class="comment">% more info is printed / displayed during solver execution.</span>
-0028     opts.verbosity = 3;
-0029     
-0030     <span class="comment">% If debug is set to true, additional computations may be performed and</span>
-0031     <span class="comment">% debugging information is outputed during solver execution.</span>
-0032     opts.debug = false;
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   Aug. 2, 2018 (NB):</span>
+0019 <span class="comment">%       Changed default storedepth to 2 from 20, since solvers should now</span>
+0020 <span class="comment">%       use storedb.erase() to keep the cache lean.</span>
+0021 
+0022 
+0023     <span class="comment">% There should be no reason to modify this file.</span>
+0024     <span class="comment">% For better compatibility with future Manopt versions,</span>
+0025     <span class="comment">% use the options structure of solvers.</span>
+0026     <span class="comment">%</span>
+0027     <span class="comment">% Really: don't modify it.</span>
+0028     
+0029 
+0030     <span class="comment">% Verbosity level: 0 is no output at all. The higher the verbosity, the</span>
+0031     <span class="comment">% more info is printed / displayed during solver execution.</span>
+0032     opts.verbosity = 3;
 0033     
-0034     <span class="comment">% Maximum number of store structures to store. If set to 0, caching</span>
-0035     <span class="comment">% capabilities are not disabled, but the cache will be emptied at each</span>
-0036     <span class="comment">% iteration of iterative solvers (more specifically: every time the</span>
-0037     <span class="comment">% solver calls to purge the storedb).</span>
-0038     opts.storedepth = 20;
-0039     
-0040     <span class="comment">% Maximum amount of time a solver may execute, in seconds.</span>
-0041     opts.maxtime = inf;
-0042 
-0043 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0034     <span class="comment">% If debug is set to true, additional computations may be performed and</span>
+0035     <span class="comment">% debugging information is outputed during solver execution.</span>
+0036     opts.debug = false;
+0037     
+0038     <span class="comment">% Maximum number of store structures to store. If set to 0, caching</span>
+0039     <span class="comment">% capabilities are not disabled, but the cache will be emptied at each</span>
+0040     <span class="comment">% iteration of iterative solvers (more specifically: every time the</span>
+0041     <span class="comment">% solver calls to purge the storedb).</span>
+0042     opts.storedepth = 2;
+0043     
+0044     <span class="comment">% Maximum amount of time a solver may execute, in seconds.</span>
+0045     opts.maxtime = inf;
+0046 
+0047 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -4,6 +4,7 @@ digraph m2html {
   PCA_stochastic [URL="PCA_stochastic.html"];
   dominant_invariant_subspace [URL="dominant_invariant_subspace.html"];
   dominant_invariant_subspace_complex [URL="dominant_invariant_subspace_complex.html"];
+  doubly_stochastic_denoising [URL="doubly_stochastic_denoising.html"];
   elliptope_SDP [URL="elliptope_SDP.html"];
   elliptope_SDP_complex [URL="elliptope_SDP_complex.html"];
   essential_svd [URL="essential_svd.html"];
@@ -18,8 +19,11 @@ digraph m2html {
   positive_definite_karcher_mean [URL="positive_definite_karcher_mean.html"];
   radio_interferometric_calibration [URL="radio_interferometric_calibration.html"];
   robust_pca [URL="robust_pca.html"];
+  run_all_examples [URL="run_all_examples.html"];
   shapefit_smoothed [URL="shapefit_smoothed.html"];
   sparse_pca [URL="sparse_pca.html"];
   thomson_problem [URL="thomson_problem.html"];
   truncated_svd [URL="truncated_svd.html"];
+  using_counters [URL="using_counters.html"];
+  using_gpu [URL="using_gpu.html"];
 }

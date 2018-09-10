@@ -62,6 +62,7 @@ digraph m2html {
   canGetCost [URL="canGetCost.html"];
   canGetDirectionalDerivative [URL="canGetDirectionalDerivative.html"];
   canGetEuclideanGradient [URL="canGetEuclideanGradient.html"];
+  canGetEuclideanHessian [URL="canGetEuclideanHessian.html"];
   canGetGradient [URL="canGetGradient.html"];
   canGetHessian [URL="canGetHessian.html"];
   canGetLinesearch [URL="canGetLinesearch.html"];

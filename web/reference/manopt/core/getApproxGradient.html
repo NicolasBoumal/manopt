@@ -91,7 +91,7 @@ This function is called by:
 0033     <span class="comment">%% Compute the approximate gradient using approxgrad.</span>
 0034         
 0035         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
-0036         <span class="keyword">switch</span> nargin(problem.approxgrad);
+0036         <span class="keyword">switch</span> nargin(problem.approxgrad)
 0037             <span class="keyword">case</span> 1
 0038                 approxgrad = problem.approxgrad(x);
 0039             <span class="keyword">case</span> 2
@@ -116,6 +116,6 @@ This function is called by:
 0058     <span class="keyword">end</span>
 0059     
 0060 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

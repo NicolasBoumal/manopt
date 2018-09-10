@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stopifdeletedfile</title>
+  <meta name="keywords" content="stopifdeletedfile">
+  <meta name="description" content="Create an interactive stopping criterion based on the existence of a file">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; stopifdeletedfile.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>stopifdeletedfile
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Create an interactive stopping criterion based on the existence of a file</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function stopfun = stopifdeletedfile(filename) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Create an interactive stopping criterion based on the existence of a file
+
+ function stopfun = stopifdeletedfile()
+ function stopfun = stopifdeletedfile(filename)
+
+ Use on the options structure passed to a Manopt solver, e.g.:
+
+   problem = ... % manopt problem structure with manifold, cost function, ...
+   options.stopfun = stopifdeletedfile(); % add this option
+   trustregions(problem, x0, options); % run this or any other solver
+
+ This will create a temporary file called MANOPT_DELETE_ME_TO_STOP_SOLVER
+ in the present working directory. If this file is deleted at any time
+ during the solver's execution, the solver will terminate gracefully and
+ return its current iterate as soon as it gets to the point of evaluating
+ stopping criteria. A different file name can also be specified using the
+ input string filename (optional).
+
+ Note: certain solvers (including trustregions) check stopping criteria
+ only at outer iterations, not during inner iterations; hence, their may
+ be a delay before actual termination.
+
+ See also: <a href="statsfunhelper.html" class="code" title="function statsfun = statsfunhelper(inp1, inp2)">statsfunhelper</a> <a href="stopifclosedfigure.html" class="code" title="function [stop, reason] = stopifclosedfigure(problem, x, info, last) %#ok<INUSL>">stopifclosedfigure</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [stop, reason] = checkcriterion(problem, x, info, last)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function stopfun = stopifdeletedfile(filename)</a>
+0002 <span class="comment">% Create an interactive stopping criterion based on the existence of a file</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function stopfun = stopifdeletedfile()</span>
+0005 <span class="comment">% function stopfun = stopifdeletedfile(filename)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Use on the options structure passed to a Manopt solver, e.g.:</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   problem = ... % manopt problem structure with manifold, cost function, ...</span>
+0010 <span class="comment">%   options.stopfun = stopifdeletedfile(); % add this option</span>
+0011 <span class="comment">%   trustregions(problem, x0, options); % run this or any other solver</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% This will create a temporary file called MANOPT_DELETE_ME_TO_STOP_SOLVER</span>
+0014 <span class="comment">% in the present working directory. If this file is deleted at any time</span>
+0015 <span class="comment">% during the solver's execution, the solver will terminate gracefully and</span>
+0016 <span class="comment">% return its current iterate as soon as it gets to the point of evaluating</span>
+0017 <span class="comment">% stopping criteria. A different file name can also be specified using the</span>
+0018 <span class="comment">% input string filename (optional).</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Note: certain solvers (including trustregions) check stopping criteria</span>
+0021 <span class="comment">% only at outer iterations, not during inner iterations; hence, their may</span>
+0022 <span class="comment">% be a delay before actual termination.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% See also: statsfunhelper stopifclosedfigure</span>
+0025 
+0026 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0027 <span class="comment">% Original author: Nicolas Boumal, Aug. 2, 2018.</span>
+0028 <span class="comment">% Contributors:</span>
+0029 <span class="comment">% Change log:</span>
+0030 
+0031     <span class="comment">% Default name for the temporary file.</span>
+0032     <span class="keyword">if</span> ~exist(<span class="string">'filename'</span>, <span class="string">'var'</span>) || isempty(filename)
+0033         filename = <span class="string">'MANOPT_DELETE_ME_TO_STOP_SOLVER'</span>;
+0034     <span class="keyword">end</span>
+0035 
+0036     <span class="comment">% Make sure the file exists, and release our handle on it.</span>
+0037     fid = fopen(filename, <span class="string">'a'</span>);
+0038     <span class="keyword">if</span> fid &gt;= 0
+0039         fclose(fid);    
+0040         <span class="comment">% The stopping criterion is a function handle.</span>
+0041         stopfun = @<a href="#_sub1" class="code" title="subfunction [stop, reason] = checkcriterion(problem, x, info, last) ">checkcriterion</a>;
+0042     <span class="keyword">else</span>
+0043         warning(<span class="string">'manopt:stopifdeletedfile'</span>, <span class="keyword">...</span>
+0044               <span class="string">'Couldn''t create the file: no stopping criterion created.'</span>);
+0045         stopfun = @(problem, x, info, last) false;
+0046     <span class="keyword">end</span>
+0047 
+0048 
+0049     <span class="comment">% The function is defined as a subfunction so that it has access to</span>
+0050     <span class="comment">% filename without the need for an @() construct. This makes it easier</span>
+0051     <span class="comment">% for Matlab to determine the number of output arguments of the</span>
+0052     <span class="comment">% function handle @checkcriterion, which ultimately helps</span>
+0053     <span class="comment">% stoppingcriterion determine how to call it.</span>
+0054     <a name="_sub1" href="#_subfunctions" class="code">function [stop, reason] = checkcriterion(problem, x, info, last) </a><span class="comment">%#ok&lt;INUSD&gt;</span>
+0055 
+0056         reason = sprintf([<span class="string">'Interactive stopping criterion '</span> <span class="keyword">...</span>
+0057                      <span class="string">'(file %s deleted). See options.stopfun.'</span>], filename);
+0058 
+0059         <span class="comment">% Try to access the file.</span>
+0060         fid = fopen(filename, <span class="string">'r'</span>);
+0061 
+0062         <span class="comment">% If we can't, it means the file no longer exists: stop the solver.</span>
+0063         <span class="comment">% Otherwise, release our handle on the file to make sure it can be</span>
+0064         <span class="comment">% deleted by another program.</span>
+0065         <span class="keyword">if</span> fid &lt; 0
+0066             stop = true;
+0067         <span class="keyword">else</span>
+0068             fclose(fid);
+0069             stop = false;
+0070         <span class="keyword">end</span>
+0071 
+0072     <span class="keyword">end</span>
+0073     
+0074 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

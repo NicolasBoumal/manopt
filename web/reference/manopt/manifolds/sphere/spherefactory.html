@@ -24,19 +24,23 @@
 <div class="box"><strong>Returns a manifold struct to optimize over unit-norm vectors or matrices.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function M = spherefactory(n, m) </strong></div>
+<div class="box"><strong>function M = spherefactory(n, m, gpuflag) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-norm vectors or matrices.
 
  function M = spherefactory(n)
  function M = spherefactory(n, m)
+ function M = spherefactory(n, m, gpuflag)
 
  Manifold of n-by-m real matrices of unit Frobenius norm.
  By default, m = 1, which corresponds to the unit sphere in R^n. The
  metric is such that the sphere is a Riemannian submanifold of the space
  of nxm matrices with the usual trace inner product, i.e., the usual
  metric.
+
+ Set gpuflag = true to have points, tangent vectors and ambient vectors
+ stored on the GPU. If so, computations can be done on the GPU directly.
  
  See also: obliquefactory <a href="spherecomplexfactory.html" class="code" title="function M = spherecomplexfactory(n, m)">spherecomplexfactory</a></pre></div>
 
@@ -44,219 +48,274 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+<li><a href="../../../manopt/tools/factorygpuhelper.html" class="code" title="function M = factorygpuhelper(M)">factorygpuhelper</a>	Returns a manifold struct to optimize over unit-norm vectors or matrices.</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-</ul>
+<li><a href="../../../examples/using_counters.html" class="code" title="function using_counters()">using_counters</a>	Manopt example on how to use counters during optimization. Typical uses,</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function d = dist(x, y)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function Td = isometricTransp(x1, x2, d)</a></li><li><a href="#_sub5" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub6" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub7" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub8" class="code">function x = random(n, m)</a></li><li><a href="#_sub9" class="code">function d = randomvec(n, m, x)</a></li></ul>
+<li><a href="#_sub1" class="code">function d = dist(x, y)</a></li><li><a href="#_sub2" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function Td = isometricTransp(x1, x2, d)</a></li><li><a href="#_sub5" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub6" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub7" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub8" class="code">function d = inverse_retraction(x, y)</a></li><li><a href="#_sub9" class="code">function x = random(n, m, array_type)</a></li><li><a href="#_sub10" class="code">function d = randomvec(n, m, x, array_type)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spherefactory(n, m)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = spherefactory(n, m, gpuflag)</a>
 0002 <span class="comment">% Returns a manifold struct to optimize over unit-norm vectors or matrices.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function M = spherefactory(n)</span>
 0005 <span class="comment">% function M = spherefactory(n, m)</span>
-0006 <span class="comment">%</span>
-0007 <span class="comment">% Manifold of n-by-m real matrices of unit Frobenius norm.</span>
-0008 <span class="comment">% By default, m = 1, which corresponds to the unit sphere in R^n. The</span>
-0009 <span class="comment">% metric is such that the sphere is a Riemannian submanifold of the space</span>
-0010 <span class="comment">% of nxm matrices with the usual trace inner product, i.e., the usual</span>
-0011 <span class="comment">% metric.</span>
-0012 <span class="comment">%</span>
-0013 <span class="comment">% See also: obliquefactory spherecomplexfactory</span>
-0014 
-0015 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0016 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0017 <span class="comment">% Contributors:</span>
-0018 <span class="comment">% Change log:</span>
-0019 <span class="comment">%</span>
-0020 <span class="comment">%   Oct. 8, 2016 (NB)</span>
-0021 <span class="comment">%       Code for exponential was simplified to only treat the zero vector</span>
-0022 <span class="comment">%       as a particular case.</span>
+0006 <span class="comment">% function M = spherefactory(n, m, gpuflag)</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Manifold of n-by-m real matrices of unit Frobenius norm.</span>
+0009 <span class="comment">% By default, m = 1, which corresponds to the unit sphere in R^n. The</span>
+0010 <span class="comment">% metric is such that the sphere is a Riemannian submanifold of the space</span>
+0011 <span class="comment">% of nxm matrices with the usual trace inner product, i.e., the usual</span>
+0012 <span class="comment">% metric.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Set gpuflag = true to have points, tangent vectors and ambient vectors</span>
+0015 <span class="comment">% stored on the GPU. If so, computations can be done on the GPU directly.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% See also: obliquefactory spherecomplexfactory</span>
+0018 
+0019 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0020 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0021 <span class="comment">% Contributors:</span>
+0022 <span class="comment">% Change log:</span>
 0023 <span class="comment">%</span>
-0024 <span class="comment">%   Oct. 22, 2016 (NB)</span>
-0025 <span class="comment">%       Distance function dist now significantly more accurate for points</span>
-0026 <span class="comment">%       within 1e-7 and less from each other.</span>
+0024 <span class="comment">%   Oct. 8, 2016 (NB)</span>
+0025 <span class="comment">%       Code for exponential was simplified to only treat the zero vector</span>
+0026 <span class="comment">%       as a particular case.</span>
 0027 <span class="comment">%</span>
-0028 <span class="comment">%   July 20, 2017 (NB)</span>
-0029 <span class="comment">%       Following conversations with Bruno Iannazzo and P.-A. Absil,</span>
-0030 <span class="comment">%       the distance function is now even more accurate.</span>
+0028 <span class="comment">%   Oct. 22, 2016 (NB)</span>
+0029 <span class="comment">%       Distance function dist now significantly more accurate for points</span>
+0030 <span class="comment">%       within 1e-7 and less from each other.</span>
 0031 <span class="comment">%</span>
-0032 <span class="comment">%   Sep. 7, 2017 (NB)</span>
-0033 <span class="comment">%       New isometric vector transport available in M.isotransp,</span>
-0034 <span class="comment">%       contributed by Changshuo Liu.</span>
-0035 
-0036     
-0037     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>)
-0038         m = 1;
-0039     <span class="keyword">end</span>
-0040 
-0041     <span class="keyword">if</span> m == 1
-0042         M.name = @() sprintf(<span class="string">'Sphere S^%d'</span>, n-1);
-0043     <span class="keyword">else</span>
-0044         M.name = @() sprintf(<span class="string">'Unit F-norm %dx%d matrices'</span>, n, m);
-0045     <span class="keyword">end</span>
-0046     
-0047     M.dim = @() n*m-1;
-0048     
-0049     M.inner = @(x, d1, d2) d1(:).'*d2(:);
-0050     
-0051     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
-0052     
-0053     M.dist = @<a href="#_sub1" class="code" title="subfunction d = dist(x, y)">dist</a>;
-0054     <a name="_sub1" href="#_subfunctions" class="code">function d = dist(x, y)</a>
-0055         
-0056         <span class="comment">% The following code is mathematically equivalent to the</span>
-0057         <span class="comment">% computation d = acos(x(:)'*y(:)) but is much more accurate when</span>
-0058         <span class="comment">% x and y are close.</span>
-0059         
-0060         chordal_distance = norm(x - y, <span class="string">'fro'</span>);
-0061         d = real(2*asin(.5*chordal_distance));
-0062         
-0063         <span class="comment">% Note: for x and y almost antipodal, the accuracy is good but not</span>
-0064         <span class="comment">% as good as possible. One way to improve it is by using the</span>
-0065         <span class="comment">% following branching:</span>
-0066         <span class="comment">% % if chordal_distance &gt; 1.9</span>
-0067         <span class="comment">% %     d = pi - dist(x, -y);</span>
-0068         <span class="comment">% % end</span>
-0069         <span class="comment">% It is rarely necessary to compute distance between</span>
-0070         <span class="comment">% almost-antipodal points with full accuracy in Manopt, hence we</span>
-0071         <span class="comment">% favor a simpler code.</span>
+0032 <span class="comment">%   July 20, 2017 (NB)</span>
+0033 <span class="comment">%       Following conversations with Bruno Iannazzo and P.-A. Absil,</span>
+0034 <span class="comment">%       the distance function is now even more accurate.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">%   Sep. 7, 2017 (NB)</span>
+0037 <span class="comment">%       New isometric vector transport available in M.isotransp,</span>
+0038 <span class="comment">%       contributed by Changshuo Liu.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">%   April 17, 2018 (NB)</span>
+0041 <span class="comment">%       ehess2rhess: Used to compute projection of ehess, then subtract a</span>
+0042 <span class="comment">%       multiple of u (which is assumed tangent.) Now, similarly to what</span>
+0043 <span class="comment">%       happens in stiefelfactory, we first subtract the multiple of u from</span>
+0044 <span class="comment">%       ehess, then we project. Mathematically, these operations are the</span>
+0045 <span class="comment">%       same. Numerically, the former version used to be better because tCG</span>
+0046 <span class="comment">%       in trustregions had some drift near fine convergence. Now that the</span>
+0047 <span class="comment">%       drift in tCG has been fixed, it is reasonable to apply the</span>
+0048 <span class="comment">%       projection last, to ensure best tangency of the output.</span>
+0049 <span class="comment">%</span>
+0050 <span class="comment">%   July 18, 2018 (NB)</span>
+0051 <span class="comment">%       Added the inverse retraction (M.invretr) for the sphere.</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">%   Aug. 3, 2018 (NB)</span>
+0054 <span class="comment">%       Added GPU support: just set gpuflag = true.</span>
+0055     
+0056     
+0057     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>) || isempty(m)
+0058         m = 1;
+0059     <span class="keyword">end</span>
+0060     <span class="keyword">if</span> ~exist(<span class="string">'gpuflag'</span>, <span class="string">'var'</span>) || isempty(gpuflag)
+0061         gpuflag = false;
+0062     <span class="keyword">end</span>
+0063     
+0064     <span class="comment">% If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)</span>
+0065     <span class="comment">% are created directly on the GPU; otherwise, they are created in the</span>
+0066     <span class="comment">% usual way (in double precision).</span>
+0067     <span class="keyword">if</span> gpuflag
+0068         array_type = <span class="string">'gpuArray'</span>;
+0069     <span class="keyword">else</span>
+0070         array_type = <span class="string">'double'</span>;
+0071     <span class="keyword">end</span>
 0072         
-0073     <span class="keyword">end</span>
-0074     
-0075     M.typicaldist = @() pi;
-0076     
-0077     M.proj = @(x, d) d - x*(x(:).'*d(:));
-0078     
-0079     M.tangent = M.proj;
-0080     
-0081     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
-0082     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
-0083     M.egrad2rgrad = M.proj;
-0084     
-0085     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(x, egrad, ehess, u)">ehess2rhess</a>;
-0086     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a>
-0087         rhess = M.proj(x, ehess) - (x(:)'*egrad(:))*u;
-0088     <span class="keyword">end</span>
-0089     
-0090     M.exp = @<a href="#_sub6" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
-0091     
-0092     M.retr = @<a href="#_sub7" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
-0093 
-0094     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
-0095     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
-0096         v = M.proj(x1, x2 - x1);
-0097         di = M.dist(x1, x2);
-0098         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
-0099         <span class="keyword">if</span> di &gt; 1e-6
-0100             nv = norm(v, <span class="string">'fro'</span>);
-0101             v = v * (di / nv);
-0102         <span class="keyword">end</span>
-0103     <span class="keyword">end</span>
-0104     
-0105     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
-0106     
-0107     M.rand = @() <a href="#_sub8" class="code" title="subfunction x = random(n, m)">random</a>(n, m);
-0108     
-0109     M.randvec = @(x) <a href="#_sub9" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, x);
-0110     
-0111     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0112     
-0113     M.zerovec = @(x) zeros(n, m);
-0114     
-0115     M.transp = @(x1, x2, d) M.proj(x2, d);
-0116     
-0117     <span class="comment">% Isometric vector transport of d from the tangent space at x1 to x2.</span>
-0118     <span class="comment">% This is actually a parallel vector transport, see §5 in</span>
-0119     <span class="comment">% http://epubs.siam.org/doi/pdf/10.1137/16M1069298</span>
-0120     <span class="comment">% &quot;A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization</span>
-0121     <span class="comment">%  on Manifolds&quot;, by Hosseini and Uschmajew, SIOPT 2017</span>
-0122     M.isotransp = @(x1, x2, d) <a href="#_sub4" class="code" title="subfunction Td = isometricTransp(x1, x2, d)">isometricTransp</a>(x1, x2, d);
-0123     <a name="_sub4" href="#_subfunctions" class="code">function Td = isometricTransp(x1, x2, d)</a>
-0124         v = <a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>(x1, x2);
-0125         dist_x1x2 = norm(v, <span class="string">'fro'</span>);
-0126         <span class="keyword">if</span> dist_x1x2 &gt; 0
-0127             u = v / dist_x1x2;
-0128             utd = u(:)'*d(:);
-0129             Td = d + (cos(dist_x1x2)-1)*utd*u <span class="keyword">...</span>
-0130                     -  sin(dist_x1x2)   *utd*x1;
-0131         <span class="keyword">else</span>
-0132             <span class="comment">% x1 == x2, so the transport is identity</span>
-0133             Td = d;
-0134         <span class="keyword">end</span>
-0135     <span class="keyword">end</span>
-0136     
-0137     M.pairmean = @<a href="#_sub5" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
-0138     <a name="_sub5" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
-0139         y = x1+x2;
-0140         y = y / norm(y, <span class="string">'fro'</span>);
-0141     <span class="keyword">end</span>
-0142 
-0143     M.vec = @(x, u_mat) u_mat(:);
-0144     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
-0145     M.vecmatareisometries = @() true;
-0146 
-0147 <span class="keyword">end</span>
-0148 
-0149 <span class="comment">% Exponential on the sphere</span>
-0150 <a name="_sub6" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
-0151 
-0152     <span class="keyword">if</span> nargin == 2
-0153         <span class="comment">% t = 1</span>
-0154         td = d;
-0155     <span class="keyword">else</span>
-0156         td = t*d;
-0157     <span class="keyword">end</span>
-0158     
-0159     nrm_td = norm(td, <span class="string">'fro'</span>);
-0160     
-0161     <span class="comment">% Former versions of Manopt avoided the computation of sin(a)/a for</span>
-0162     <span class="comment">% small a, but further investigations suggest this computation is</span>
-0163     <span class="comment">% well-behaved numerically.</span>
-0164     <span class="keyword">if</span> nrm_td &gt; 0
-0165         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
-0166     <span class="keyword">else</span>
-0167         y = x;
-0168     <span class="keyword">end</span>
-0169 
-0170 <span class="keyword">end</span>
-0171 
-0172 <span class="comment">% Retraction on the sphere</span>
-0173 <a name="_sub7" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
-0174 
-0175     <span class="keyword">if</span> nargin == 2
-0176         <span class="comment">% t = 1;</span>
-0177         td = d;
-0178     <span class="keyword">else</span>
-0179         td = t*d;
-0180     <span class="keyword">end</span>
+0073 
+0074     <span class="keyword">if</span> m == 1
+0075         M.name = @() sprintf(<span class="string">'Sphere S^%d'</span>, n-1);
+0076     <span class="keyword">else</span>
+0077         M.name = @() sprintf(<span class="string">'Unit F-norm %dx%d matrices'</span>, n, m);
+0078     <span class="keyword">end</span>
+0079     
+0080     M.dim = @() n*m-1;
+0081     
+0082     M.inner = @(x, d1, d2) d1(:)'*d2(:);
+0083     
+0084     M.norm = @(x, d) norm(d, <span class="string">'fro'</span>);
+0085     
+0086     M.dist = @<a href="#_sub1" class="code" title="subfunction d = dist(x, y)">dist</a>;
+0087     <a name="_sub1" href="#_subfunctions" class="code">function d = dist(x, y)</a>
+0088         
+0089         <span class="comment">% The following code is mathematically equivalent to the</span>
+0090         <span class="comment">% computation d = acos(x(:)'*y(:)) but is much more accurate when</span>
+0091         <span class="comment">% x and y are close.</span>
+0092         
+0093         chordal_distance = norm(x - y, <span class="string">'fro'</span>);
+0094         d = real(2*asin(.5*chordal_distance));
+0095         
+0096         <span class="comment">% Note: for x and y almost antipodal, the accuracy is good but not</span>
+0097         <span class="comment">% as good as possible. One way to improve it is by using the</span>
+0098         <span class="comment">% following branching:</span>
+0099         <span class="comment">% % if chordal_distance &gt; 1.9</span>
+0100         <span class="comment">% %     d = pi - dist(x, -y);</span>
+0101         <span class="comment">% % end</span>
+0102         <span class="comment">% It is rarely necessary to compute the distance between</span>
+0103         <span class="comment">% almost-antipodal points with full accuracy in Manopt, hence we</span>
+0104         <span class="comment">% favor a simpler code.</span>
+0105         
+0106     <span class="keyword">end</span>
+0107     
+0108     M.typicaldist = @() pi;
+0109     
+0110     M.proj = @(x, d) d - x*(x(:)'*d(:));
+0111     
+0112     M.tangent = M.proj;
+0113     
+0114     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0115     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0116     M.egrad2rgrad = M.proj;
+0117     
+0118     M.ehess2rhess = @<a href="#_sub2" class="code" title="subfunction rhess = ehess2rhess(x, egrad, ehess, u)">ehess2rhess</a>;
+0119     <a name="_sub2" href="#_subfunctions" class="code">function rhess = ehess2rhess(x, egrad, ehess, u)</a>
+0120         rhess = M.proj(x, ehess - (x(:)'*egrad(:))*u);
+0121     <span class="keyword">end</span>
+0122     
+0123     M.exp = @<a href="#_sub6" class="code" title="subfunction y = exponential(x, d, t)">exponential</a>;
+0124     
+0125     M.retr = @<a href="#_sub7" class="code" title="subfunction y = retraction(x, d, t)">retraction</a>;
+0126     M.invretr = @<a href="#_sub8" class="code" title="subfunction d = inverse_retraction(x, y)">inverse_retraction</a>;
+0127 
+0128     M.log = @<a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0129     <a name="_sub3" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0130         v = M.proj(x1, x2 - x1);
+0131         di = M.dist(x1, x2);
+0132         <span class="comment">% If the two points are &quot;far apart&quot;, correct the norm.</span>
+0133         <span class="keyword">if</span> di &gt; 1e-6
+0134             nv = norm(v, <span class="string">'fro'</span>);
+0135             v = v * (di / nv);
+0136         <span class="keyword">end</span>
+0137     <span class="keyword">end</span>
+0138     
+0139     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0140     
+0141     M.rand = @() <a href="#_sub9" class="code" title="subfunction x = random(n, m, array_type)">random</a>(n, m, array_type);
+0142     
+0143     M.randvec = @(x) <a href="#_sub10" class="code" title="subfunction d = randomvec(n, m, x, array_type)">randomvec</a>(n, m, x, array_type);
+0144     
+0145     M.zerovec = @(x) zeros(n, m, array_type);
+0146     
+0147     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0148     
+0149     M.transp = @(x1, x2, d) M.proj(x2, d);
+0150     
+0151     <span class="comment">% Isometric vector transport of d from the tangent space at x1 to x2.</span>
+0152     <span class="comment">% This is actually a parallel vector transport, see §5 in</span>
+0153     <span class="comment">% http://epubs.siam.org/doi/pdf/10.1137/16M1069298</span>
+0154     <span class="comment">% &quot;A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization</span>
+0155     <span class="comment">%  on Manifolds&quot;, by Hosseini and Uschmajew, SIOPT 2017</span>
+0156     M.isotransp = @(x1, x2, d) <a href="#_sub4" class="code" title="subfunction Td = isometricTransp(x1, x2, d)">isometricTransp</a>(x1, x2, d);
+0157     <a name="_sub4" href="#_subfunctions" class="code">function Td = isometricTransp(x1, x2, d)</a>
+0158         v = <a href="#_sub3" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>(x1, x2);
+0159         dist_x1x2 = norm(v, <span class="string">'fro'</span>);
+0160         <span class="keyword">if</span> dist_x1x2 &gt; 0
+0161             u = v / dist_x1x2;
+0162             utd = u(:)'*d(:);
+0163             Td = d + (cos(dist_x1x2)-1)*utd*u <span class="keyword">...</span>
+0164                     -  sin(dist_x1x2)   *utd*x1;
+0165         <span class="keyword">else</span>
+0166             <span class="comment">% x1 == x2, so the transport is identity</span>
+0167             Td = d;
+0168         <span class="keyword">end</span>
+0169     <span class="keyword">end</span>
+0170     
+0171     M.pairmean = @<a href="#_sub5" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0172     <a name="_sub5" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0173         y = x1+x2;
+0174         y = y / norm(y, <span class="string">'fro'</span>);
+0175     <span class="keyword">end</span>
+0176 
+0177     M.vec = @(x, u_mat) u_mat(:);
+0178     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
+0179     M.vecmatareisometries = @() true;
+0180     
 0181     
-0182     y = x + td;
-0183     y = y / norm(y, <span class="string">'fro'</span>);
-0184 
-0185 <span class="keyword">end</span>
-0186 
-0187 <span class="comment">% Uniform random sampling on the sphere.</span>
-0188 <a name="_sub8" href="#_subfunctions" class="code">function x = random(n, m)</a>
+0182     <span class="comment">% Automatically convert a number of tools to support GPU.</span>
+0183     <span class="keyword">if</span> gpuflag
+0184         M = <a href="../../../manopt/tools/factorygpuhelper.html" class="code" title="function M = factorygpuhelper(M)">factorygpuhelper</a>(M);
+0185     <span class="keyword">end</span>
+0186     
+0187 
+0188 <span class="keyword">end</span>
 0189 
-0190     x = randn(n, m);
-0191     x = x / norm(x, <span class="string">'fro'</span>);
+0190 <span class="comment">% Exponential on the sphere</span>
+0191 <a name="_sub6" href="#_subfunctions" class="code">function y = exponential(x, d, t)</a>
 0192 
-0193 <span class="keyword">end</span>
-0194 
-0195 <span class="comment">% Random normalized tangent vector at x.</span>
-0196 <a name="_sub9" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
-0197 
-0198     d = randn(n, m);
-0199     d = d - x*(x(:).'*d(:));
-0200     d = d / norm(d, <span class="string">'fro'</span>);
-0201 
-0202 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0193     <span class="keyword">if</span> nargin == 2
+0194         <span class="comment">% t = 1</span>
+0195         td = d;
+0196     <span class="keyword">else</span>
+0197         td = t*d;
+0198     <span class="keyword">end</span>
+0199     
+0200     nrm_td = norm(td, <span class="string">'fro'</span>);
+0201     
+0202     <span class="comment">% Former versions of Manopt avoided the computation of sin(a)/a for</span>
+0203     <span class="comment">% small a, but further investigations suggest this computation is</span>
+0204     <span class="comment">% well-behaved numerically.</span>
+0205     <span class="keyword">if</span> nrm_td &gt; 0
+0206         y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
+0207     <span class="keyword">else</span>
+0208         y = x;
+0209     <span class="keyword">end</span>
+0210 
+0211 <span class="keyword">end</span>
+0212 
+0213 <span class="comment">% Retraction on the sphere</span>
+0214 <a name="_sub7" href="#_subfunctions" class="code">function y = retraction(x, d, t)</a>
+0215 
+0216     <span class="keyword">if</span> nargin == 2
+0217         <span class="comment">% t = 1;</span>
+0218         td = d;
+0219     <span class="keyword">else</span>
+0220         td = t*d;
+0221     <span class="keyword">end</span>
+0222     
+0223     y = x + td;
+0224     y = y / norm(y, <span class="string">'fro'</span>);
+0225 
+0226 <span class="keyword">end</span>
+0227 
+0228 <span class="comment">% Given x and y two points on the manifold, if there exists a tangent</span>
+0229 <span class="comment">% vector d at x such that Retr_x(d) = y, this function returns d.</span>
+0230 <a name="_sub8" href="#_subfunctions" class="code">function d = inverse_retraction(x, y)</a>
+0231 
+0232     <span class="comment">% Since</span>
+0233     <span class="comment">%   x + d = y*||x + d||</span>
+0234     <span class="comment">% and x'd = 0, multiply the above by x' on the left:</span>
+0235     <span class="comment">%   1 + 0 = x'y * ||x + d||</span>
+0236     <span class="comment">% Then solve for d:</span>
+0237     
+0238     d = y/(x(:)'*y(:)) - x;
+0239 
+0240 <span class="keyword">end</span>
+0241 
+0242 <span class="comment">% Uniform random sampling on the sphere.</span>
+0243 <a name="_sub9" href="#_subfunctions" class="code">function x = random(n, m, array_type)</a>
+0244 
+0245     x = randn(n, m, array_type);
+0246     x = x / norm(x, <span class="string">'fro'</span>);
+0247 
+0248 <span class="keyword">end</span>
+0249 
+0250 <span class="comment">% Random normalized tangent vector at x.</span>
+0251 <a name="_sub10" href="#_subfunctions" class="code">function d = randomvec(n, m, x, array_type)</a>
+0252 
+0253     d = randn(n, m, array_type);
+0254     d = d - x*(x(:)'*d(:));
+0255     d = d / norm(d, <span class="string">'fro'</span>);
+0256 
+0257 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

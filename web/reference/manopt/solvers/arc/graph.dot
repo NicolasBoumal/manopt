@@ -1,0 +1,9 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  arc -> arc_lanczos;
+  arc_lanczos -> minimize_cubic_newton;
+
+  arc [URL="arc.html"];
+  arc_lanczos [URL="arc_lanczos.html"];
+  minimize_cubic_newton [URL="minimize_cubic_newton.html"];
+}

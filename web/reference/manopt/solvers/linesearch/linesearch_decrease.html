@@ -69,7 +69,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="../../../examples/low_rank_dist_completion.html" class="code" title="function [Y, infos, problem_description] =  low_rank_dist_completion(problem_description)">low_rank_dist_completion</a>	Perform low-rank distance matrix completion w/ automatic rank detection.</li></ul>
@@ -122,81 +122,85 @@ This function is called by:
 0042 <span class="comment">% Original author: Nicolas Boumal, April 8, 2015.</span>
 0043 <span class="comment">% Contributors:</span>
 0044 <span class="comment">% Change log:</span>
-0045 
-0046 
-0047     <span class="comment">% Allow omission of the key, and even of storedb.</span>
-0048     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
-0049         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
-0050             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0051         <span class="keyword">end</span>
-0052         key = storedb.getNewKey();
-0053     <span class="keyword">end</span>
-0054     
-0055     norm_d = problem.M.norm(x, d);
-0056 
-0057     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
-0058     <span class="comment">% options structure which is passed to the solver.</span>
-0059     default_options.ls_contraction_factor = .5;
-0060     default_options.ls_initial_stepsize = norm_d;
-0061     default_options.ls_max_steps = 25;
-0062     
-0063     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0064         options = struct();
-0065     <span class="keyword">end</span>
-0066     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
-0067     
-0068     contraction_factor = options.ls_contraction_factor;
-0069     initial_stepsize = options.ls_initial_stepsize;
-0070     max_ls_steps = options.ls_max_steps;
-0071     
-0072     <span class="comment">% Initial step size as a mutliplier of d.</span>
-0073     alpha = initial_stepsize / norm_d;
+0045 <span class="comment">%</span>
+0046 <span class="comment">%   Aug. 2, 2018 (NB):</span>
+0047 <span class="comment">%       Now using storedb.remove() to keep the cache lean.</span>
+0048 
+0049 
+0050     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0051     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0052         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0053             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0054         <span class="keyword">end</span>
+0055         key = storedb.getNewKey();
+0056     <span class="keyword">end</span>
+0057     
+0058     norm_d = problem.M.norm(x, d);
+0059 
+0060     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0061     <span class="comment">% options structure which is passed to the solver.</span>
+0062     default_options.ls_contraction_factor = .5;
+0063     default_options.ls_initial_stepsize = norm_d;
+0064     default_options.ls_max_steps = 25;
+0065     
+0066     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0067         options = struct();
+0068     <span class="keyword">end</span>
+0069     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(default_options, options);
+0070     
+0071     contraction_factor = options.ls_contraction_factor;
+0072     initial_stepsize = options.ls_initial_stepsize;
+0073     max_ls_steps = options.ls_max_steps;
 0074     
-0075     <span class="comment">% Make the chosen step and compute the cost there.</span>
-0076     newx = problem.M.retr(x, d, alpha);
-0077     newkey = storedb.getNewKey();
-0078     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0079     cost_evaluations = 1;
-0080     
-0081     <span class="comment">% Backtrack while no cost decrease is obtained.</span>
-0082     <span class="keyword">while</span> newf &gt;= f0
-0083         
-0084         <span class="comment">% Reduce the step size,</span>
-0085         alpha = contraction_factor * alpha;
+0075     <span class="comment">% Initial step size as a mutliplier of d.</span>
+0076     alpha = initial_stepsize / norm_d;
+0077     
+0078     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0079     newx = problem.M.retr(x, d, alpha);
+0080     newkey = storedb.getNewKey();
+0081     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0082     cost_evaluations = 1;
+0083     
+0084     <span class="comment">% Backtrack while no cost decrease is obtained.</span>
+0085     <span class="keyword">while</span> newf &gt;= f0
 0086         
-0087         <span class="comment">% and look closer down the line</span>
-0088         newx = problem.M.retr(x, d, alpha);
-0089         newkey = storedb.getNewKey();
-0090         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0091         cost_evaluations = cost_evaluations + 1;
-0092         
-0093         <span class="comment">% Make sure we don't run out of budget</span>
-0094         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
-0095             <span class="keyword">break</span>;
-0096         <span class="keyword">end</span>
-0097         
-0098     <span class="keyword">end</span>
-0099     
-0100     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
-0101     <span class="comment">% Equal cost is accepted, since if x is critical, it is important to</span>
-0102     <span class="comment">% move away from x more than it is important to decrease the cost.</span>
-0103     <span class="keyword">if</span> newf &gt; f0
-0104         alpha = 0;
-0105         newx = x;
-0106         newkey = key;
-0107         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
-0108     <span class="keyword">end</span>
-0109     
-0110     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
-0111     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
-0112     stepsize = alpha * norm_d;
+0087         <span class="comment">% Reduce the step size,</span>
+0088         alpha = contraction_factor * alpha;
+0089         
+0090         <span class="comment">% and look closer down the line.</span>
+0091         storedb.remove(newkey);              <span class="comment">% we no longer need this cache</span>
+0092         newx = problem.M.retr(x, d, alpha);
+0093         newkey = storedb.getNewKey();
+0094         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0095         cost_evaluations = cost_evaluations + 1;
+0096         
+0097         <span class="comment">% Make sure we don't run out of budget.</span>
+0098         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0099             <span class="keyword">break</span>;
+0100         <span class="keyword">end</span>
+0101         
+0102     <span class="keyword">end</span>
+0103     
+0104     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0105     <span class="comment">% Equal cost is accepted, since if x is critical, it is important to</span>
+0106     <span class="comment">% move away from x more than it is important to decrease the cost.</span>
+0107     <span class="keyword">if</span> newf &gt; f0
+0108         alpha = 0;
+0109         newx = x;
+0110         newkey = key;
+0111         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0112     <span class="keyword">end</span>
 0113     
-0114     <span class="comment">% Return some statistics also, for possible analysis.</span>
-0115     lsstats.costevals = cost_evaluations;
-0116     lsstats.stepsize = stepsize;
-0117     lsstats.alpha = alpha;
-0118     
-0119 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0114     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0115     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0116     stepsize = alpha * norm_d;
+0117     
+0118     <span class="comment">% Return some statistics also, for possible analysis.</span>
+0119     lsstats.costevals = cost_evaluations;
+0120     lsstats.stepsize = stepsize;
+0121     lsstats.alpha = alpha;
+0122     
+0123 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

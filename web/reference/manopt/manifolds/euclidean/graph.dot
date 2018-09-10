@@ -2,6 +2,7 @@
 digraph m2html {
 
   centeredmatrixfactory [URL="centeredmatrixfactory.html"];
+  constantfactory [URL="constantfactory.html"];
   euclideancomplexfactory [URL="euclideancomplexfactory.html"];
   euclideanfactory [URL="euclideanfactory.html"];
   shapefitfactory [URL="shapefitfactory.html"];

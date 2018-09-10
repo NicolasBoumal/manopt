@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of doubly_stochastic_denoising</title>
+  <meta name="keywords" content="doubly_stochastic_denoising">
+  <meta name="description" content="Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; doubly_stochastic_denoising.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>doubly_stochastic_denoising
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function doubly_stochastic_denoising() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.
+
+ This example demonstrates how to use the geometry factories for the
+ doubly stochastic multinomial manifold:
+  multinomialdoublystochasticfactory and
+  multinomialsymmetricfactory (for the symmetric case.)
+ 
+ The file is based on developments in the research paper
+ A. Douik and B. Hassibi, &quot;Manifold Optimization Over the Set 
+ of Doubly Stochastic Matrices: A Second-Order Geometry&quot;
+ ArXiv:1802.02628, 2018.
+
+ Link to the paper: https://arxiv.org/abs/1802.02628.
+
+ Please cite the Manopt paper as well as the research paper:
+ @Techreport{Douik2018Manifold,
+   Title   = {Manifold Optimization Over the Set of Doubly Stochastic 
+              Matrices: {A} Second-Order Geometry},
+   Author  = {Douik, A. and Hassibi, B.},
+   Journal = {Arxiv preprint ArXiv:1802.02628},
+   Year    = {2018}
+ }
+ 
+ This can be a starting point for many optimization problems of the form:
+
+ minimize f(X) such that X is a doubly stochastic matrix (symmetric or not)
+
+ Input:  None. This example file generates random data.
+ 
+ Output: None.
+
+ This file is part of Manopt: www.manopt.org.
+ Original author: Ahmed Douik, March 15, 2018.
+ Contributors:
+ Change log:</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/multinomial/doubly_stochastic.html" class="code" title="function B = doubly_stochastic(A, maxiter, mode)">doubly_stochastic</a>	Project a matrix to the doubly stochastic matrices (Sinkhorn's algorithm)</li><li><a href="../manopt/manifolds/multinomial/multinomialdoublystochasticfactory.html" class="code" title="function M = multinomialdoublystochasticfactory(n)">multinomialdoublystochasticfactory</a>	Manifold of n-by-n doubly-stochastic matrices with positive entries.</li><li><a href="../manopt/manifolds/multinomial/multinomialsymmetricfactory.html" class="code" title="function M = multinomialsymmetricfactory(n)">multinomialsymmetricfactory</a>	Manifold of n-by-n symmetric stochastic matrices with positive entries.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>	Checks the consistency of the cost function and the gradient.</li><li><a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>	Checks the consistency of the cost function and the Hessian.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function doubly_stochastic_denoising()</a>
+0002 <span class="comment">% Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% This example demonstrates how to use the geometry factories for the</span>
+0005 <span class="comment">% doubly stochastic multinomial manifold:</span>
+0006 <span class="comment">%  multinomialdoublystochasticfactory and</span>
+0007 <span class="comment">%  multinomialsymmetricfactory (for the symmetric case.)</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% The file is based on developments in the research paper</span>
+0010 <span class="comment">% A. Douik and B. Hassibi, &quot;Manifold Optimization Over the Set</span>
+0011 <span class="comment">% of Doubly Stochastic Matrices: A Second-Order Geometry&quot;</span>
+0012 <span class="comment">% ArXiv:1802.02628, 2018.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Link to the paper: https://arxiv.org/abs/1802.02628.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0017 <span class="comment">% @Techreport{Douik2018Manifold,</span>
+0018 <span class="comment">%   Title   = {Manifold Optimization Over the Set of Doubly Stochastic</span>
+0019 <span class="comment">%              Matrices: {A} Second-Order Geometry},</span>
+0020 <span class="comment">%   Author  = {Douik, A. and Hassibi, B.},</span>
+0021 <span class="comment">%   Journal = {Arxiv preprint ArXiv:1802.02628},</span>
+0022 <span class="comment">%   Year    = {2018}</span>
+0023 <span class="comment">% }</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% This can be a starting point for many optimization problems of the form:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% minimize f(X) such that X is a doubly stochastic matrix (symmetric or not)</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Input:  None. This example file generates random data.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">% Output: None.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0034 <span class="comment">% Original author: Ahmed Douik, March 15, 2018.</span>
+0035 <span class="comment">% Contributors:</span>
+0036 <span class="comment">% Change log:</span>
+0037     
+0038     <span class="comment">%% Generate input data</span>
+0039     n = 100;
+0040     sigma = 1/n^2;
+0041     <span class="comment">% Generate a doubly stochastic matrix using the Sinkhorn algorithm</span>
+0042     B = <a href="../manopt/manifolds/multinomial/doubly_stochastic.html" class="code" title="function B = doubly_stochastic(A, maxiter, mode)">doubly_stochastic</a>(abs(randn(n, n))); 
+0043     <span class="comment">% Add noise to the matrix</span>
+0044     A = max(B + sigma*randn(n, n), 0.01);
+0045 
+0046     <span class="comment">%% Setup an optimization problem for denoising</span>
+0047     
+0048     <span class="comment">% Manifold initialization: pick the symmetric or non-symmetric case</span>
+0049     symmetric_case = true;
+0050     <span class="keyword">if</span> ~symmetric_case
+0051         manifold = <a href="../manopt/manifolds/multinomial/multinomialdoublystochasticfactory.html" class="code" title="function M = multinomialdoublystochasticfactory(n)">multinomialdoublystochasticfactory</a>(n);
+0052     <span class="keyword">else</span>
+0053         <span class="comment">% Input must also be symmetric (otherwhise, gradient must be adapted.)</span>
+0054         A = (A+A')/2;
+0055         manifold = <a href="../manopt/manifolds/multinomial/multinomialsymmetricfactory.html" class="code" title="function M = multinomialsymmetricfactory(n)">multinomialsymmetricfactory</a>(n);
+0056     <span class="keyword">end</span>
+0057     problem.M = manifold;
+0058     
+0059     <span class="comment">% Specify cost function and derivatives</span>
+0060     problem.cost = @(X) 0.5*norm(A-X, <span class="string">'fro'</span>)^2;
+0061     problem.egrad = @(X) X - A;  <span class="comment">% Euclidean gradient</span>
+0062     problem.ehess = @(X, U) U;   <span class="comment">% Euclidean Hessian</span>
+0063 
+0064     <span class="comment">% Check consistency of the gradient and the Hessian. Useful if you</span>
+0065     <span class="comment">% adapt this example for a new cost function and you would like to make</span>
+0066     <span class="comment">% sure there is no mistake. These checks are optional of course.</span>
+0067     warning(<span class="string">'off'</span>, <span class="string">'manopt:multinomialdoublystochasticfactory:exp'</span>);
+0068     warning(<span class="string">'off'</span>, <span class="string">'manopt:multinomialsymmetricfactory:exp'</span>);
+0069     figure();
+0070     <a href="../manopt/tools/checkgradient.html" class="code" title="function checkgradient(problem, x, d)">checkgradient</a>(problem); <span class="comment">% Check the gradient</span>
+0071     figure();
+0072     <a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>(problem);  <span class="comment">% Check the hessian. This test usually fails</span>
+0073                             <span class="comment">% due to the use of a first order retraction,</span>
+0074                             <span class="comment">% unless the test is performed at a critical point.</span>
+0075     
+0076     <span class="comment">%% Solve</span>
+0077     <span class="comment">% A first order algorithm</span>
+0078     <span class="comment">% Minimize the cost function using the Conjugate Gradients algorithm.</span>
+0079     [X1, ~, info, ~] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem); 
+0080     S1 = [info.gradnorm] ; <span class="comment">% Collecting the Gradient information</span>
+0081     
+0082     <span class="comment">% Computing the distance between the original, noiseless matrix and the</span>
+0083     <span class="comment">% found solution</span>
+0084     fprintf(<span class="string">'||X-B||_F^2 = %g\n'</span>, norm(X1 - B, <span class="string">'fro'</span>)^2);
+0085 
+0086     <span class="comment">% A second order algorithm</span>
+0087     <span class="comment">% Minimize the cost function using the trust-regions method.</span>
+0088     [X2, ~, info, ~] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem);                                     
+0089     S2 = [info.gradnorm] ; <span class="comment">% Collecting the Gradient information</span>
+0090 
+0091     <span class="comment">% Computing the distance between the original, noiseless matrix and the</span>
+0092     <span class="comment">% found solution</span>
+0093     fprintf(<span class="string">'||X-B||_F^2 = %g\n'</span>, norm(X2 - B, <span class="string">'fro'</span>)^2);
+0094     
+0095     
+0096     <span class="comment">%% Display</span>
+0097     figure() ;
+0098     semilogy(S1, <span class="string">'red'</span>, <span class="string">'Marker'</span>, <span class="string">'*'</span>, <span class="string">'LineWidth'</span>, 2, <span class="keyword">...</span>
+0099                  <span class="string">'DisplayName'</span>, <span class="string">'Conjugate Gradient Algorithm'</span>);
+0100     hold on ;
+0101     semilogy(S2, <span class="string">'blue'</span>, <span class="string">'Marker'</span>, <span class="string">'+'</span>, <span class="string">'LineWidth'</span>, 2, <span class="keyword">...</span>
+0102                  <span class="string">'DisplayName'</span>, <span class="string">'Trust Regions Method'</span>);
+0103     
+0104     set(gca, <span class="string">'YGrid'</span>, <span class="string">'on'</span>, <span class="string">'XGrid'</span>, <span class="string">'on'</span>);
+0105     xlabel(<span class="string">'Number of Iteration'</span>, <span class="string">'FontSize'</span>, 16);
+0106     ylabel(<span class="string">'Norm of Gradient'</span>, <span class="string">'FontSize'</span>, 16);
+0107     legend1 = legend(<span class="string">'show'</span>);
+0108     set(legend1, <span class="string">'FontSize'</span>, 16);
+0109 
+0110     <span class="comment">% This Hessian test is performed at a computed solution, which is</span>
+0111     <span class="comment">% expected to be a critical point. Thus we expect the slope test to</span>
+0112     <span class="comment">% succeed. It could fail if the solution X1 has entries very close to</span>
+0113     <span class="comment">% zero, so that numerical issues might come up. This is because de</span>
+0114     <span class="comment">% Fisher metric on the multinomial manifold involves division by the</span>
+0115     <span class="comment">% entries of X.</span>
+0116     figure();
+0117     <a href="../manopt/tools/checkhessian.html" class="code" title="function checkhessian(problem, x, d)">checkhessian</a>(problem, X1);
+0118     
+0119 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

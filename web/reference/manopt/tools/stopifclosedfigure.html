@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stopifclosedfigure</title>
+  <meta name="keywords" content="stopifclosedfigure">
+  <meta name="description" content="Create an interactive stopping criterion based on a figure closing">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; stopifclosedfigure.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>stopifclosedfigure
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Create an interactive stopping criterion based on a figure closing</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [stop, reason] = stopifclosedfigure(problem, x, info, last) %#ok<INUSL> </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Create an interactive stopping criterion based on a figure closing
+
+ function stopfun = stopifclosedfigure()
+
+ Use on the options structure passed to a Manopt solver, e.g.:
+
+   problem = ... % manopt problem structure with manifold, cost function, ...
+   options.stopfun = @stopifclosedfigure; % add this option
+   trustregions(problem, x0, options); % run this or any other solver
+
+ This will create a figure. If this figure is closed at any time during
+ the solver's execution, the solver will terminate gracefully and return
+ its current iterate as soon as it gets to the point of evaluating the
+ stopping criteria.
+
+ Note: certain solvers (including trustregions) check stopping criteria
+ only at outer iterations, not during inner iterations; hence, their may
+ be a delay before actual termination.
+
+ See also: <a href="statsfunhelper.html" class="code" title="function statsfun = statsfunhelper(inp1, inp2)">statsfunhelper</a> <a href="stopifdeletedfile.html" class="code" title="function stopfun = stopifdeletedfile(filename)">stopifdeletedfile</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stop, reason] = stopifclosedfigure(problem, x, info, last) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0002 <span class="comment">% Create an interactive stopping criterion based on a figure closing</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function stopfun = stopifclosedfigure()</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Use on the options structure passed to a Manopt solver, e.g.:</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   problem = ... % manopt problem structure with manifold, cost function, ...</span>
+0009 <span class="comment">%   options.stopfun = @stopifclosedfigure; % add this option</span>
+0010 <span class="comment">%   trustregions(problem, x0, options); % run this or any other solver</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% This will create a figure. If this figure is closed at any time during</span>
+0013 <span class="comment">% the solver's execution, the solver will terminate gracefully and return</span>
+0014 <span class="comment">% its current iterate as soon as it gets to the point of evaluating the</span>
+0015 <span class="comment">% stopping criteria.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Note: certain solvers (including trustregions) check stopping criteria</span>
+0018 <span class="comment">% only at outer iterations, not during inner iterations; hence, their may</span>
+0019 <span class="comment">% be a delay before actual termination.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% See also: statsfunhelper stopifdeletedfile</span>
+0022 
+0023 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0024 <span class="comment">% Original author: Nicolas Boumal, Aug. 3, 2018.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">% Change log:</span>
+0027 
+0028     reason = <span class="string">'Interactive stopping criterion: figure closed.'</span>;
+0029 
+0030     <span class="comment">% Fix a likely unique figure id.</span>
+0031     figureid = 1465489213;
+0032     
+0033     <span class="comment">% If first iteration, create a figure to capture interaction.</span>
+0034     <span class="keyword">if</span> last == 1
+0035         h = figure(figureid);
+0036         set(h, <span class="string">'Name'</span>, <span class="string">'Close to stop Manopt solver'</span>, <span class="string">'NumberTitle'</span>, <span class="string">'off'</span>);
+0037         text(0, 0, <span class="string">'Close me to stop the Manopt solver.'</span>, <span class="string">'FontSize'</span>, 16);
+0038         axis tight;
+0039         axis off;
+0040         set(h, <span class="string">'color'</span>, <span class="string">'w'</span>);
+0041         drawnow();
+0042     <span class="keyword">end</span>
+0043     
+0044     <span class="comment">% Call to drawnow() ensures that, if the user closed the figure, then</span>
+0045     <span class="comment">% that information will have been refreshed. This may create small</span>
+0046     <span class="comment">% delays, but on the other hand interactive stopping criteria are</span>
+0047     <span class="comment">% mostly useful for costly problems where this overhead should be</span>
+0048     <span class="comment">% marginal.</span>
+0049     drawnow();
+0050     <span class="keyword">if</span> ~ishandle(figureid)      <span class="comment">% If the figure was closed, stop.</span>
+0051         stop = true;
+0052     <span class="keyword">else</span>
+0053         stop = false;
+0054     <span class="keyword">end</span>
+0055 
+0056 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

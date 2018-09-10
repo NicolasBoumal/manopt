@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of factorygpuhelper</title>
+  <meta name="keywords" content="factorygpuhelper">
+  <meta name="description" content="Returns a manifold struct to optimize over unit-norm vectors or matrices.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; factorygpuhelper.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>factorygpuhelper
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Returns a manifold struct to optimize over unit-norm vectors or matrices.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function M = factorygpuhelper(M) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-norm vectors or matrices.
+
+ function M = factorygpuhelper(M)
+
+ Helper tool to add GPU support to factories. The input is a factory M
+ created by one of Manopt's factories. The output is the same factory,
+ with gather() and gpuArray() added in a number of places, following the
+ logic that points, tangent vectors and ambient vectors are stored on the
+ GPU (but scalars should be 'gathered' to the CPU). The name of the
+ factory is also appended with '(GPU)'.
+
+ This tool is typically called inside the factory itself, at the very end.
+ It is not enough to call this tool: one also needs to create all arrays
+ on the GPU directly. See spherefactory for an example.
+
+ This tool is still in beta: please let us know about any issues via the
+ forum on http://www.manopt.org. Thanks!
+
+ See also: spherefactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/manifolds/complexcircle/complexcirclefactory.html" class="code" title="function M = complexcirclefactory(n, m, gpuflag)">complexcirclefactory</a>	Returns a manifold struct to optimize over unit-modulus complex numbers.</li><li><a href="../../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k, gpuflag)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../../manopt/manifolds/sphere/spherefactory.html" class="code" title="function M = spherefactory(n, m, gpuflag)">spherefactory</a>	Returns a manifold struct to optimize over unit-norm vectors or matrices.</li><li><a href="../../manopt/manifolds/stiefel/stiefelfactory.html" class="code" title="function M = stiefelfactory(n, p, k, gpuflag)">stiefelfactory</a>	Returns a manifold structure to optimize over orthonormal matrices.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = factorygpuhelper(M)</a>
+0002 <span class="comment">% Returns a manifold struct to optimize over unit-norm vectors or matrices.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = factorygpuhelper(M)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Helper tool to add GPU support to factories. The input is a factory M</span>
+0007 <span class="comment">% created by one of Manopt's factories. The output is the same factory,</span>
+0008 <span class="comment">% with gather() and gpuArray() added in a number of places, following the</span>
+0009 <span class="comment">% logic that points, tangent vectors and ambient vectors are stored on the</span>
+0010 <span class="comment">% GPU (but scalars should be 'gathered' to the CPU). The name of the</span>
+0011 <span class="comment">% factory is also appended with '(GPU)'.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% This tool is typically called inside the factory itself, at the very end.</span>
+0014 <span class="comment">% It is not enough to call this tool: one also needs to create all arrays</span>
+0015 <span class="comment">% on the GPU directly. See spherefactory for an example.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% This tool is still in beta: please let us know about any issues via the</span>
+0018 <span class="comment">% forum on http://www.manopt.org. Thanks!</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% See also: spherefactory</span>
+0021 
+0022 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0023 <span class="comment">% Original author: Nicolas Boumal, Aug. 3, 2018.</span>
+0024 <span class="comment">% Contributors:</span>
+0025 <span class="comment">% Change log:</span>
+0026 
+0027     <span class="comment">% Tag the factory name.</span>
+0028     M.name = @() [M.name(), <span class="string">' (GPU)'</span>];
+0029     
+0030     <span class="comment">% Gathering scalar outputs: it's unclear whether this is necessary.</span>
+0031     M.inner = @(x, u, v) gather(M.inner(x, u, v));
+0032     M.norm = @(x, u) gather(M.norm(x, u));
+0033     M.dist = @(x, y) gather(M.dist(x, y));
+0034     
+0035     <span class="comment">% TODO: check that this works for manifolds whose points are not</span>
+0036     <span class="comment">% matrices (but are structs or cells).</span>
+0037     M.hash = @(x) M.hash(gather(x));
+0038     
+0039     <span class="comment">% The vec/mat pair is mostly used in the hessianspectrum tool, where</span>
+0040     <span class="comment">% the vector representation of tangent vectors is assumed to be in</span>
+0041     <span class="comment">% 'normal' memory (as opposed to GPU). But it's unclear whether we</span>
+0042     <span class="comment">% actually need this too.</span>
+0043     M.vec = @(x, u_mat) gather(M.vec(x, u_mat));
+0044     M.mat = @(x, u_vec) M.mat(x, gpuArray(u_vec));
+0045 
+0046 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

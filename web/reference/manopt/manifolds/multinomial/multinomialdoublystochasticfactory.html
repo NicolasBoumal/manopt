@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of multinomialdoublystochasticfactory</title>
+  <meta name="keywords" content="multinomialdoublystochasticfactory">
+  <meta name="description" content="Manifold of n-by-n doubly-stochastic matrices with positive entries.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">multinomial</a> &gt; multinomialdoublystochasticfactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\multinomial&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>multinomialdoublystochasticfactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of n-by-n doubly-stochastic matrices with positive entries.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = multinomialdoublystochasticfactory(n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of n-by-n doubly-stochastic matrices with positive entries.
+
+ function M = multinomialdoublystochasticfactory(n)
+
+ M is a Manopt manifold structure to optimize over the set of n-by-n
+ matrices with (strictly) positive entries and such that the entries of
+ each column and each row sum to one.
+
+ Points on the manifold and tangent vectors are represented naturally as
+ symmetric matrices of size n. The Riemannian metric imposed on the
+ manifold is the Fisher metric, that is, if X is a point on the manifold
+ and U, V are two tangent vectors:
+
+     M.inner(X, U, V) = &lt;U, V&gt;_X = sum(sum(U.*V./X)).
+
+ The  retraction here provided is only first order. Consequently, the
+ slope test in the checkhessian tool is only valid at points X where the
+ gradient is zero. Furthermore, if some entries of X are very close to
+ zero, this may cause numerical difficulties that can also lead to a
+ failed slope test. More generally, it is important the the solution of
+ the optimization problem should have positive entries, sufficiently far
+ away from zero to avoid numerical issues.
+
+ The file is based on developments in the research paper
+ A. Douik and B. Hassibi, &quot;Manifold Optimization Over the Set
+ of Doubly Stochastic Matrices: A Second-Order Geometry&quot;
+ ArXiv:1802.02628, 2018.
+
+ Link to the paper: https://arxiv.org/abs/1802.02628.
+
+ Please cite the Manopt paper as well as the research paper:
+ @Techreport{Douik2018Manifold,
+   Title   = {Manifold Optimization Over the Set of Doubly Stochastic
+              Matrices: {A} Second-Order Geometry},
+   Author  = {Douik, A. and Hassibi, B.},
+   Journal = {Arxiv preprint ArXiv:1802.02628},
+   Year    = {2018}
+ }
+
+ See also: <a href="multinomialsymmetricfactory.html" class="code" title="function M = multinomialsymmetricfactory(n)">multinomialsymmetricfactory</a> <a href="multinomialfactory.html" class="code" title="function M = multinomialfactory(n, m)">multinomialfactory</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="doubly_stochastic.html" class="code" title="function B = doubly_stochastic(A, maxiter, mode)">doubly_stochastic</a>	Project a matrix to the doubly stochastic matrices (Sinkhorn's algorithm)</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../examples/doubly_stochastic_denoising.html" class="code" title="function doubly_stochastic_denoising()">doubly_stochastic_denoising</a>	Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub2" class="code">function X = random()</a></li><li><a href="#_sub3" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub4" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub5" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub6" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub7" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = multinomialdoublystochasticfactory(n)</a>
+0002 <span class="comment">% Manifold of n-by-n doubly-stochastic matrices with positive entries.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = multinomialdoublystochasticfactory(n)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% M is a Manopt manifold structure to optimize over the set of n-by-n</span>
+0007 <span class="comment">% matrices with (strictly) positive entries and such that the entries of</span>
+0008 <span class="comment">% each column and each row sum to one.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% Points on the manifold and tangent vectors are represented naturally as</span>
+0011 <span class="comment">% symmetric matrices of size n. The Riemannian metric imposed on the</span>
+0012 <span class="comment">% manifold is the Fisher metric, that is, if X is a point on the manifold</span>
+0013 <span class="comment">% and U, V are two tangent vectors:</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%     M.inner(X, U, V) = &lt;U, V&gt;_X = sum(sum(U.*V./X)).</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% The  retraction here provided is only first order. Consequently, the</span>
+0018 <span class="comment">% slope test in the checkhessian tool is only valid at points X where the</span>
+0019 <span class="comment">% gradient is zero. Furthermore, if some entries of X are very close to</span>
+0020 <span class="comment">% zero, this may cause numerical difficulties that can also lead to a</span>
+0021 <span class="comment">% failed slope test. More generally, it is important the the solution of</span>
+0022 <span class="comment">% the optimization problem should have positive entries, sufficiently far</span>
+0023 <span class="comment">% away from zero to avoid numerical issues.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% The file is based on developments in the research paper</span>
+0026 <span class="comment">% A. Douik and B. Hassibi, &quot;Manifold Optimization Over the Set</span>
+0027 <span class="comment">% of Doubly Stochastic Matrices: A Second-Order Geometry&quot;</span>
+0028 <span class="comment">% ArXiv:1802.02628, 2018.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% Link to the paper: https://arxiv.org/abs/1802.02628.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0033 <span class="comment">% @Techreport{Douik2018Manifold,</span>
+0034 <span class="comment">%   Title   = {Manifold Optimization Over the Set of Doubly Stochastic</span>
+0035 <span class="comment">%              Matrices: {A} Second-Order Geometry},</span>
+0036 <span class="comment">%   Author  = {Douik, A. and Hassibi, B.},</span>
+0037 <span class="comment">%   Journal = {Arxiv preprint ArXiv:1802.02628},</span>
+0038 <span class="comment">%   Year    = {2018}</span>
+0039 <span class="comment">% }</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">% See also: multinomialsymmetricfactory multinomialfactory</span>
+0042 
+0043 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0044 <span class="comment">% Original author: Ahmed Douik, March 06, 2018.</span>
+0045 <span class="comment">% Contributors: Nicolas Boumal</span>
+0046 <span class="comment">% Change log:</span>
+0047 <span class="comment">%</span>
+0048 <span class="comment">%    Apr. 24, 2018 (AD):</span>
+0049 <span class="comment">%        Changed pinv() to a particular solution to the equation.</span>
+0050 <span class="comment">%</span>
+0051 <span class="comment">%    July 24, 2018 (AD):</span>
+0052 <span class="comment">%        A bugfix related to the pinv() change, with effects in many places.</span>
+0053 <span class="comment">%</span>
+0054 <span class="comment">%    Sep.  6, 2018 (NB):</span>
+0055 <span class="comment">%        Removed M.exp() as it was not implemented.</span>
+0056 
+0057     e = ones(n, 1);
+0058 
+0059     M.name = @() sprintf(<span class="string">'%dx%d doubly-stochastic matrices with positive entries'</span>, n, n);
+0060 
+0061     M.dim = @() (n-1)^2;
+0062 
+0063     <span class="comment">% Fisher metric</span>
+0064     M.inner = @<a href="#_sub1" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0065     <a name="_sub1" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0066         ip = sum((eta(:).*zeta(:))./X(:));
+0067     <span class="keyword">end</span>
+0068 
+0069     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0070 
+0071     M.dist = @(X, Y) error(<span class="string">'multinomialdoublystochasticfactory.dist not implemented yet.'</span>);
+0072 
+0073     <span class="comment">% The manifold is not compact as a result of the choice of the metric,</span>
+0074     <span class="comment">% thus any choice here is arbitrary. This is notably used to pick</span>
+0075     <span class="comment">% default values of initial and maximal trust-region radius in the</span>
+0076     <span class="comment">% trustregions solver.</span>
+0077     M.typicaldist = @() n;
+0078 
+0079     <span class="comment">% Pick a random point on the manifold</span>
+0080     M.rand = @<a href="#_sub2" class="code" title="subfunction X = random()">random</a>;
+0081     <a name="_sub2" href="#_subfunctions" class="code">function X = random()</a>
+0082         Z = abs(randn(n, n));     <span class="comment">% Random point in the ambient space</span>
+0083         X = <a href="doubly_stochastic.html" class="code" title="function B = doubly_stochastic(A, maxiter, mode)">doubly_stochastic</a>(Z); <span class="comment">% Projection on the Manifold</span>
+0084     <span class="keyword">end</span>
+0085 
+0086     <span class="comment">% Pick a random vector in the tangent space at X.</span>
+0087     M.randvec = @<a href="#_sub3" class="code" title="subfunction eta = randomvec(X) ">randomvec</a>;
+0088     <a name="_sub3" href="#_subfunctions" class="code">function eta = randomvec(X) </a><span class="comment">% A random vector in the tangent space</span>
+0089         <span class="comment">% A random vector in the ambient space</span>
+0090         Z = randn(n, n) ; 
+0091         <span class="comment">% Projection of the vector onto the tangent space</span>
+0092         A = [eye(n) X ; X' eye(n)] ;
+0093         B = A(1:2*n,2:2*n) ;
+0094         b = [sum(Z,2) ; sum(Z,1)'] ;
+0095         zeta = B\(b - A(:,1)) ;
+0096         alpha = [1 ; zeta(1:n-1)] ;
+0097         beta = zeta(n:2*n-1) ;
+0098         eta = Z - (alpha*e' + e*beta').*X ;
+0099         <span class="comment">% Normalizing the vector</span>
+0100         nrm = M.norm(X, eta);
+0101         eta = eta / nrm;
+0102     <span class="keyword">end</span>
+0103 
+0104     <span class="comment">% Projection of vector eta in the ambient space to the tangent space.</span>
+0105     M.proj = @<a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>; 
+0106     <a name="_sub4" href="#_subfunctions" class="code">function etaproj = projection(X, eta) </a><span class="comment">% Projection of the vector eta in the ambeint space onto the tangent space</span>
+0107         A = [eye(n) X ; X' eye(n)] ;
+0108         B = A(1:2*n,2:2*n) ;
+0109         b = [sum(eta,2) ; sum(eta,1)'] ;
+0110         zeta = B\(b - A(:,1)) ;
+0111         alpha = [1 ; zeta(1:n-1)] ;
+0112         beta = zeta(n:2*n-1) ;
+0113         etaproj = eta - (alpha*e' + e*beta').*X ;
+0114     <span class="keyword">end</span>
+0115 
+0116     M.tangent = M.proj;
+0117     M.tangent2ambient = @(X, eta) eta;
+0118 
+0119     <span class="comment">% Conversion of Euclidean to Riemannian gradient</span>
+0120     M.egrad2rgrad = @<a href="#_sub5" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad) ">egrad2rgrad</a>;
+0121     <a name="_sub5" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad) </a><span class="comment">% projection of the euclidean gradient</span>
+0122         mu = (X.*egrad) ; 
+0123         A = [eye(n) X ; X' eye(n)] ;
+0124         B = A(1:2*n,2:2*n) ;
+0125         b = [sum(mu,2) ; sum(mu,1)'] ;
+0126         zeta = B\(b - A(:,1)) ;
+0127         alpha = [1 ; zeta(1:n-1)] ;
+0128         beta = zeta(n:2*n-1) ;
+0129         rgrad = mu - (alpha*e' + e*beta').*X ;
+0130     <span class="keyword">end</span>
+0131 
+0132     <span class="comment">% First-order retraction</span>
+0133     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0134     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0135         <span class="keyword">if</span> nargin &lt; 3
+0136             t = 1.0;
+0137         <span class="keyword">end</span>
+0138         Y = X.*exp(t*(eta./X));
+0139         Y = <a href="doubly_stochastic.html" class="code" title="function B = doubly_stochastic(A, maxiter, mode)">doubly_stochastic</a>(Y) ;
+0140         Y = max(Y, eps);
+0141     <span class="keyword">end</span>
+0142 
+0143     <span class="comment">% Conversion of Euclidean to Riemannian Hessian</span>
+0144     M.ehess2rhess = @<a href="#_sub7" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0145     <a name="_sub7" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a>
+0146 
+0147         <span class="comment">% computing the direcitonal derivative of the riemannian</span>
+0148         <span class="comment">% gradient</span>
+0149         gamma = egrad.*X ;
+0150         gammadot = ehess.*X + egrad.*eta ;
+0151         
+0152         A = [eye(n) X ; X' eye(n)] ;
+0153         Adot = [zeros(n) eta ; eta' zeros(n)] ;
+0154         B = A(1:2*n,2:2*n) ;
+0155         Bdot = Adot(1:2*n,2:2*n) ;
+0156         b = [sum(gamma,2) ; sum(gamma,1)'] ;
+0157         bdot = [sum(gammadot,2) ; sum(gammadot,1)'] ;
+0158         zeta = B\(b - A(:,1)) ;
+0159         alpha = [1 ; zeta(1:n-1)] ;
+0160         beta = zeta(n:2*n-1) ;
+0161         
+0162         zetadot = B\(bdot - Adot(:,1)-Bdot*zeta) ;
+0163         alphadot = [0 ; zetadot(1:n-1)] ;
+0164         betadot = zetadot(n:2*n-1) ;
+0165         
+0166         S = (alpha*e' + e*beta') ;
+0167         deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta ;
+0168 
+0169         <span class="comment">% projecting gamma</span>
+0170         delta = gamma - S.*X;
+0171 
+0172         <span class="comment">% computing and projecting nabla</span>
+0173         nabla = deltadot - 0.5*(delta.*eta)./X ;
+0174         A = [eye(n) X ; X' eye(n)] ;
+0175         B = A(1:2*n,2:2*n) ;
+0176         b = [sum(nabla,2) ; sum(nabla,1)'] ;
+0177         zeta = B\(b - A(:,1)) ;
+0178         alpha = [1 ; zeta(1:n-1)] ;
+0179         beta = zeta(n:2*n-1) ;
+0180         rhess = nabla - (alpha*e' + e*beta').*X; 
+0181     <span class="keyword">end</span>
+0182 
+0183 
+0184     <span class="comment">% Miscellaneous manifold functions</span>
+0185     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0186     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0187     M.zerovec = @(X) zeros(n, n);
+0188     M.transp = @(X1, X2, d) <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta) ">projection</a>(X2, d);
+0189     M.vec = @(X, U) U(:);
+0190     M.mat = @(X, u) reshape(u, n, n);
+0191     M.vecmatareisometries = @() false;
+0192     
+0193 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

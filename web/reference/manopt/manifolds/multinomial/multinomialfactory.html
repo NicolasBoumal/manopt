@@ -34,14 +34,16 @@
 
  The returned structure M is a Manopt manifold structure to optimize over
  the set of n-by-m matrices with (strictly) positive entries and such that
- the entries of each column sum to one. By default, m = 1.
+ the entries of each column sum to one. By default, m = 1, which
+ corresponds to the relative interior of the simplex (discrete probability
+ distributions with nonzero probabilities.)
 
  The metric imposed on the manifold is the Fisher metric such that 
- the set of n-by-m column-stochastic matrices (aka the multinomial manifold)
- is a Riemannian submanifold of the space of n-by-m matrices. Also it
- should be noted that the retraction operation that we define 
+ the set of n-by-m column-stochastic matrices (a.k.a. the multinomial
+ manifold) is a Riemannian submanifold of the space of n-by-m matrices.
+ Also it should be noted that the retraction operation that we define 
  is first order and as such the checkhessian tool cannot verify 
- the slope correctly.
+ the slope correctly at non-critical points.
              
  The file is based on developments in the research paper
  Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,
@@ -74,7 +76,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub2" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub5" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub6" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub7" class="code">function X = random()</a></li><li><a href="#_sub8" class="code">function eta = randomvec(X)</a></li></ul>
+<li><a href="#_sub1" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub2" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub3" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub5" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub6" class="code">function X = random()</a></li><li><a href="#_sub7" class="code">function eta = randomvec(X)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = multinomialfactory(n, m)</a>
@@ -85,154 +87,149 @@ This function is called by:
 0006 <span class="comment">%</span>
 0007 <span class="comment">% The returned structure M is a Manopt manifold structure to optimize over</span>
 0008 <span class="comment">% the set of n-by-m matrices with (strictly) positive entries and such that</span>
-0009 <span class="comment">% the entries of each column sum to one. By default, m = 1.</span>
-0010 <span class="comment">%</span>
-0011 <span class="comment">% The metric imposed on the manifold is the Fisher metric such that</span>
-0012 <span class="comment">% the set of n-by-m column-stochastic matrices (aka the multinomial manifold)</span>
-0013 <span class="comment">% is a Riemannian submanifold of the space of n-by-m matrices. Also it</span>
-0014 <span class="comment">% should be noted that the retraction operation that we define</span>
-0015 <span class="comment">% is first order and as such the checkhessian tool cannot verify</span>
-0016 <span class="comment">% the slope correctly.</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">% The file is based on developments in the research paper</span>
-0019 <span class="comment">% Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,</span>
-0020 <span class="comment">% &quot;Heterogeneous tensor decomposition for clustering via manifold</span>
-0021 <span class="comment">% optimization&quot;, arXiv:1504.01777, 2015.</span>
-0022 <span class="comment">%</span>
-0023 <span class="comment">% Link to the paper: http://arxiv.org/abs/1504.01777.</span>
+0009 <span class="comment">% the entries of each column sum to one. By default, m = 1, which</span>
+0010 <span class="comment">% corresponds to the relative interior of the simplex (discrete probability</span>
+0011 <span class="comment">% distributions with nonzero probabilities.)</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% The metric imposed on the manifold is the Fisher metric such that</span>
+0014 <span class="comment">% the set of n-by-m column-stochastic matrices (a.k.a. the multinomial</span>
+0015 <span class="comment">% manifold) is a Riemannian submanifold of the space of n-by-m matrices.</span>
+0016 <span class="comment">% Also it should be noted that the retraction operation that we define</span>
+0017 <span class="comment">% is first order and as such the checkhessian tool cannot verify</span>
+0018 <span class="comment">% the slope correctly at non-critical points.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% The file is based on developments in the research paper</span>
+0021 <span class="comment">% Y. Sun, J. Gao, X. Hong, B. Mishra, and B. Yin,</span>
+0022 <span class="comment">% &quot;Heterogeneous tensor decomposition for clustering via manifold</span>
+0023 <span class="comment">% optimization&quot;, arXiv:1504.01777, 2015.</span>
 0024 <span class="comment">%</span>
-0025 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
-0026 <span class="comment">% @Article{sun2015multinomial,</span>
-0027 <span class="comment">%   author  = {Y. Sun and J. Gao and X. Hong and B. Mishra and B. Yin},</span>
-0028 <span class="comment">%   title   = {Heterogeneous Tensor Decomposition for Clustering via Manifold Optimization},</span>
-0029 <span class="comment">%   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},</span>
-0030 <span class="comment">%   year    = {2016},</span>
-0031 <span class="comment">%   volume  = {38},</span>
-0032 <span class="comment">%   number  = {3},</span>
-0033 <span class="comment">%   pages   = {476--489},</span>
-0034 <span class="comment">%   doi     = {10.1109/TPAMI.2015.2465901}</span>
-0035 <span class="comment">% }</span>
-0036 
-0037 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0038 <span class="comment">% Original author: Bamdev Mishra, April 06, 2015.</span>
-0039 <span class="comment">% Contributors:</span>
-0040 <span class="comment">% Change log:</span>
-0041     
-0042     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>) || isempty(m)
-0043         m = 1;
-0044     <span class="keyword">end</span>
-0045 
-0046     M.name = @() sprintf(<span class="string">'%dx%d column-stochastic matrices with positive entries'</span>, n, m);
-0047     
-0048     M.dim = @() (n-1)*m;
-0049     
-0050     <span class="comment">% We impose the Fisher metric.</span>
-0051     M.inner = @<a href="#_sub1" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
-0052     <a name="_sub1" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
-0053         ip = sum((eta(:).*zeta(:))./X(:));
-0054     <span class="keyword">end</span>
-0055     
-0056     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
-0057     
-0058     M.dist = @(X, Y) error(<span class="string">'multinomialfactory.dist not implemented yet.'</span>);
-0059     
-0060     M.typicaldist = @() m*pi/2; <span class="comment">% This is an approximation.</span>
-0061     
-0062     <span class="comment">% Column vector of ones of length n.</span>
-0063     e = ones(n, 1);
+0025 <span class="comment">% Link to the paper: http://arxiv.org/abs/1504.01777.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0028 <span class="comment">% @Article{sun2015multinomial,</span>
+0029 <span class="comment">%   author  = {Y. Sun and J. Gao and X. Hong and B. Mishra and B. Yin},</span>
+0030 <span class="comment">%   title   = {Heterogeneous Tensor Decomposition for Clustering via Manifold Optimization},</span>
+0031 <span class="comment">%   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},</span>
+0032 <span class="comment">%   year    = {2016},</span>
+0033 <span class="comment">%   volume  = {38},</span>
+0034 <span class="comment">%   number  = {3},</span>
+0035 <span class="comment">%   pages   = {476--489},</span>
+0036 <span class="comment">%   doi     = {10.1109/TPAMI.2015.2465901}</span>
+0037 <span class="comment">% }</span>
+0038 
+0039 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0040 <span class="comment">% Original author: Bamdev Mishra, April 06, 2015.</span>
+0041 <span class="comment">% Contributors:</span>
+0042 <span class="comment">% Change log:</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">%    Sep. 6, 2018 (NB):</span>
+0045 <span class="comment">%        Removed M.exp() as it was not implemented.</span>
+0046 
+0047     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>) || isempty(m)
+0048         m = 1;
+0049     <span class="keyword">end</span>
+0050 
+0051     M.name = @() sprintf(<span class="string">'%dx%d column-stochastic matrices with positive entries'</span>, n, m);
+0052     
+0053     M.dim = @() (n-1)*m;
+0054     
+0055     <span class="comment">% We impose the Fisher metric.</span>
+0056     M.inner = @<a href="#_sub1" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0057     <a name="_sub1" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0058         ip = sum((eta(:).*zeta(:))./X(:));
+0059     <span class="keyword">end</span>
+0060     
+0061     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0062     
+0063     M.dist = @(X, Y) error(<span class="string">'multinomialfactory.dist not implemented yet.'</span>);
 0064     
-0065     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
-0066     <a name="_sub2" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
-0067         lambda = -sum(X.*egrad, 1); <span class="comment">% Row vector of length m.</span>
-0068         rgrad = X.*egrad + (e*lambda).*X; <span class="comment">% This is in the tangent space.</span>
-0069     <span class="keyword">end</span>
-0070     
-0071     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
-0072     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a>
-0073         
-0074         <span class="comment">% Riemannian gradient computation.</span>
-0075         <span class="comment">% lambda is a row vector of length m.</span>
-0076         lambda = - sum(X.*egrad, 1);
-0077         rgrad =  X.*egrad + (e*lambda).*X;
+0065     M.typicaldist = @() m*pi/2; <span class="comment">% This is an approximation.</span>
+0066     
+0067     <span class="comment">% Column vector of ones of length n.</span>
+0068     e = ones(n, 1);
+0069     
+0070     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0071     <a name="_sub2" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0072         lambda = -sum(X.*egrad, 1); <span class="comment">% Row vector of length m.</span>
+0073         rgrad = X.*egrad + (e*lambda).*X; <span class="comment">% This is in the tangent space.</span>
+0074     <span class="keyword">end</span>
+0075     
+0076     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction rhess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0077     <a name="_sub3" href="#_subfunctions" class="code">function rhess = ehess2rhess(X, egrad, ehess, eta)</a>
 0078         
-0079         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
-0080         <span class="comment">% lambdadot is a row vector of length m.</span>
-0081         lambdadot = -sum(eta.*egrad, 1) - sum(X.*ehess, 1); 
-0082         rgraddot = eta.*egrad + X.*ehess + (e*lambdadot).*X + (e*lambda).*eta;
+0079         <span class="comment">% Riemannian gradient computation.</span>
+0080         <span class="comment">% lambda is a row vector of length m.</span>
+0081         lambda = - sum(X.*egrad, 1);
+0082         rgrad =  X.*egrad + (e*lambda).*X;
 0083         
-0084         <span class="comment">% Correction term because of the non-constant metric that we</span>
-0085         <span class="comment">% impose. The computation of the correction term follows the use of</span>
-0086         <span class="comment">% Koszul formula.</span>
-0087         correction_term = - 0.5*(eta.*rgrad)./X;
-0088         rhess = rgraddot + correction_term;
-0089         
-0090         <span class="comment">% Finally, projection onto the tangent space.</span>
-0091         rhess = M.proj(X, rhess);
-0092     <span class="keyword">end</span>
-0093     
-0094     <span class="comment">% Projection of the vector eta in the ambeint space onto the tangent</span>
-0095     <span class="comment">% space.</span>
-0096     M.proj = @<a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
-0097     <a name="_sub4" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
-0098         alpha = sum(eta, 1); <span class="comment">% Row vector of length m.</span>
-0099         etaproj = eta - (e*alpha).*X;
-0100     <span class="keyword">end</span>
-0101     
-0102     M.tangent = M.proj;
-0103     M.tangent2ambient = @(X, eta) eta;
-0104     
-0105     M.retr = @<a href="#_sub5" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
-0106     <a name="_sub5" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
-0107         <span class="keyword">if</span> nargin &lt; 3
-0108             t = 1.0;
-0109         <span class="keyword">end</span>
-0110         <span class="comment">% A first-order retraction.</span>
-0111         Y = X.*exp(t*(eta./X)); <span class="comment">% Based on mapping for positive scalars.</span>
-0112         Y = Y./(e*(sum(Y, 1))); <span class="comment">% Projection onto the constraint set.</span>
-0113         <span class="comment">% For numerical reasons, so that we avoid entries going to zero:</span>
-0114         Y = max(Y, eps);
-0115     <span class="keyword">end</span>
-0116     
-0117     M.exp = @<a href="#_sub6" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
-0118     <a name="_sub6" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
-0119         <span class="keyword">if</span> nargin &lt; 3
-0120             t = 1.0;
-0121         <span class="keyword">end</span>
-0122         Y = <a href="#_sub5" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
-0123         warning(<span class="string">'manopt:multinomialfactory:exp'</span>, <span class="keyword">...</span>
-0124             [<span class="string">'Exponential for the Multinomial manifold'</span> <span class="keyword">...</span>
-0125             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
-0126     <span class="keyword">end</span>
-0127     
-0128     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
-0129     
-0130     M.rand = @<a href="#_sub7" class="code" title="subfunction X = random()">random</a>;
-0131     <a name="_sub7" href="#_subfunctions" class="code">function X = random()</a>
-0132         <span class="comment">% A random point in the ambient space.</span>
-0133         X = rand(n, m); <span class="comment">%</span>
-0134         X = X./(e*(sum(X, 1)));
-0135     <span class="keyword">end</span>
-0136     
-0137     M.randvec = @<a href="#_sub8" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
-0138     <a name="_sub8" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
-0139         <span class="comment">% A random vector in the tangent space</span>
-0140         eta = randn(n, m);
-0141         eta = M.proj(X, eta); <span class="comment">% Projection onto the tangent space.</span>
-0142         nrm = M.norm(X, eta);
-0143         eta = eta / nrm;
-0144     <span class="keyword">end</span>
-0145     
-0146     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0147     
-0148     M.zerovec = @(X) zeros(n, m);
-0149     
-0150     M.transp = @(X1, X2, d) <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X2, d);
-0151     
-0152     <span class="comment">% vec and mat are not isometries, because of the scaled metric.</span>
-0153     M.vec = @(X, U) U(:);
-0154     M.mat = @(X, u) reshape(u, n, m);
-0155     M.vecmatareisometries = @() false;
-0156 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0084         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
+0085         <span class="comment">% lambdadot is a row vector of length m.</span>
+0086         lambdadot = -sum(eta.*egrad, 1) - sum(X.*ehess, 1); 
+0087         rgraddot = eta.*egrad + X.*ehess + (e*lambdadot).*X + (e*lambda).*eta;
+0088         
+0089         <span class="comment">% Correction term because of the non-constant metric that we</span>
+0090         <span class="comment">% impose. The computation of the correction term follows the use of</span>
+0091         <span class="comment">% Koszul formula.</span>
+0092         correction_term = - 0.5*(eta.*rgrad)./X;
+0093         rhess = rgraddot + correction_term;
+0094         
+0095         <span class="comment">% Finally, projection onto the tangent space.</span>
+0096         rhess = M.proj(X, rhess);
+0097     <span class="keyword">end</span>
+0098     
+0099     <span class="comment">% Projection of the vector eta in the ambeint space onto the tangent</span>
+0100     <span class="comment">% space.</span>
+0101     M.proj = @<a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0102     <a name="_sub4" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0103         alpha = sum(eta, 1); <span class="comment">% Row vector of length m.</span>
+0104         etaproj = eta - (e*alpha).*X;
+0105     <span class="keyword">end</span>
+0106     
+0107     M.tangent = M.proj;
+0108     M.tangent2ambient = @(X, eta) eta;
+0109     
+0110     M.retr = @<a href="#_sub5" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0111     <a name="_sub5" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0112         <span class="keyword">if</span> nargin &lt; 3
+0113             t = 1.0;
+0114         <span class="keyword">end</span>
+0115         <span class="comment">% A first-order retraction.</span>
+0116         Y = X.*exp(t*(eta./X)); <span class="comment">% Based on mapping for positive scalars.</span>
+0117         Y = Y./(e*(sum(Y, 1))); <span class="comment">% Projection onto the constraint set.</span>
+0118         <span class="comment">% For numerical reasons, so that we avoid entries going to zero:</span>
+0119         Y = max(Y, eps);
+0120     <span class="keyword">end</span>
+0121     
+0122     
+0123     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0124     
+0125     M.rand = @<a href="#_sub6" class="code" title="subfunction X = random()">random</a>;
+0126     <a name="_sub6" href="#_subfunctions" class="code">function X = random()</a>
+0127         <span class="comment">% A random point in the ambient space.</span>
+0128         X = rand(n, m); <span class="comment">%</span>
+0129         X = X./(e*(sum(X, 1)));
+0130     <span class="keyword">end</span>
+0131     
+0132     M.randvec = @<a href="#_sub7" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0133     <a name="_sub7" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0134         <span class="comment">% A random vector in the tangent space</span>
+0135         eta = randn(n, m);
+0136         eta = M.proj(X, eta); <span class="comment">% Projection onto the tangent space.</span>
+0137         nrm = M.norm(X, eta);
+0138         eta = eta / nrm;
+0139     <span class="keyword">end</span>
+0140     
+0141     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0142     
+0143     M.zerovec = @(X) zeros(n, m);
+0144     
+0145     M.transp = @(X1, X2, d) <a href="#_sub4" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X2, d);
+0146     
+0147     <span class="comment">% vec and mat are not isometries, because of the scaled metric.</span>
+0148     M.vec = @(X, U) U(:);
+0149     M.mat = @(X, u) reshape(u, n, m);
+0150     M.vecmatareisometries = @() false;
+0151 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

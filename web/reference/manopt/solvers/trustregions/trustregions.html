@@ -192,13 +192,12 @@
        that these additional computations appear in the algorithm timings
        too, and may interfere with operations such as counting the number
        of cost evaluations, etc. (the debug calls get storedb too).
-   storedepth (20)
+   storedepth (2)
        Maximum number of different points x of the manifold for which a
-       store structure will be kept in memory in the storedb. If the
-       caching features of Manopt are not used, this is irrelevant. If
-       memory usage is an issue, you may try to lower this number.
-       Profiling may then help to investigate if a performance hit was
-       incurred as a result.
+       store structure will be kept in memory in the storedb for caching.
+       If memory usage is an issue, you may try to lower this number.
+       Profiling or manopt counters may then help to investigate if a
+       performance hit was incurred as a result.
 
  Notice that statsfun is called with the point x that was reached last,
  after the accept/reject decision. Hence: if the step was accepted, we get
@@ -207,11 +206,7 @@
  the store structure containing everything that was computed at that point
  (possibly including previous rejects at that same point). Hence, statsfun
  should not be used in conjunction with the store to count operations for
- example. Instead, you should use storedb's shared memory for such
- purposes (either via storedb.shared, or via store.shared, see
- online documentation). It is however possible to use statsfun with the
- store to compute, for example, other merit functions on the point x
- (other than the actual cost function, that is).
+ example. Instead, you should use manopt counters: see statscounters.
 
 
  Please cite the Manopt paper as well as the research paper:
@@ -232,10 +227,10 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>	Checks whether an approximate gradient can be computed for this problem.</li><li><a href="../../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>	Checks whether an approximate Hessian can be computed for this problem.</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>	Gradient approx. fnctn handle based on finite differences of the cost.</li><li><a href="../../../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li><li><a href="tCG.html" class="code" title="function [eta, Heta, inner_it, stop_tCG]= tCG(problem, x, grad, eta, Delta, options, storedb, key)">tCG</a>	tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>	Checks whether an approximate gradient can be computed for this problem.</li><li><a href="../../../manopt/core/canGetApproxHessian.html" class="code" title="function candoit = canGetApproxHessian(problem)">canGetApproxHessian</a>	Checks whether an approximate Hessian can be computed for this problem.</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetHessian.html" class="code" title="function candoit = canGetHessian(problem)">canGetHessian</a>	Checks whether the Hessian can be computed for a problem structure.</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>	Computes the directional derivative of the cost function at x along d.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li><li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>	Gradient approx. fnctn handle based on finite differences of the cost.</li><li><a href="../../../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>	Hessian approx. fnctn handle based on finite differences of the gradient.</li><li><a href="tCG.html" class="code" title="function [eta, Heta, inner_it, stop_tCG]= tCG(problem, x, grad, eta, Delta, options, storedb, key)">tCG</a>	tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/dominant_invariant_subspace_complex.html" class="code" title="function [X, info] = dominant_invariant_subspace_complex(A, p)">dominant_invariant_subspace_complex</a>	Returns a unitary basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/elliptope_SDP.html" class="code" title="function [Y, problem, S] = elliptope_SDP(A, p, Y0)">elliptope_SDP</a>	Solver for semidefinite programs (SDP's) with unit diagonal constraints.</li><li><a href="../../../examples/elliptope_SDP_complex.html" class="code" title="function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)">elliptope_SDP_complex</a>	Solver for complex semidefinite programs (SDP's) with unit diagonal.</li><li><a href="../../../examples/essential_svd.html" class="code" title="function essential_svd">essential_svd</a>	Sample solution of an optimization problem on the essential manifold.</li><li><a href="../../../examples/generalized_eigenvalue_computation.html" class="code" title="function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)">generalized_eigenvalue_computation</a>	Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.</li><li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A, R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../examples/low_rank_dist_completion.html" class="code" title="function [Y, infos, problem_description] =  low_rank_dist_completion(problem_description)">low_rank_dist_completion</a>	Perform low-rank distance matrix completion w/ automatic rank detection.</li><li><a href="../../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li><li><a href="../../../examples/low_rank_tensor_completion.html" class="code" title="function low_rank_tensor_completion()">low_rank_tensor_completion</a>	Given partial observation of a low rank tensor, attempts to complete it.</li><li><a href="../../../examples/maxcut.html" class="code" title="function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)">maxcut</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/radio_interferometric_calibration.html" class="code" title="function xsol = radio_interferometric_calibration(N, K)">radio_interferometric_calibration</a>	Returns the gain matrices of N stations with K receivers.</li><li><a href="../../../examples/robust_pca.html" class="code" title="function [U, cost] = robust_pca(X, d)">robust_pca</a>	Computes a robust version of PCA (principal component analysis) on data.</li><li><a href="../../../examples/shapefit_smoothed.html" class="code" title="function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)">shapefit_smoothed</a>	ShapeFit formulation for sensor network localization from pair directions</li><li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U, S, V, info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li><li><a href="../../../manopt/solvers/neldermead/centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on a manifold.</li><li><a href="../../../manopt/solvers/preconditioners/preconhessiansolve.html" class="code" title="function preconfun = preconhessiansolve(problem, options)">preconhessiansolve</a>	Preconditioner based on the inverse Hessian, by solving linear systems.</li><li><a href="../../../manopt/tools/hessianextreme.html" class="code" title="function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)">hessianextreme</a>	Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.</li><li><a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
+<li><a href="../../../examples/dominant_invariant_subspace.html" class="code" title="function [X, info] = dominant_invariant_subspace(A, p)">dominant_invariant_subspace</a>	Returns an orthonormal basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/dominant_invariant_subspace_complex.html" class="code" title="function [X, info] = dominant_invariant_subspace_complex(A, p)">dominant_invariant_subspace_complex</a>	Returns a unitary basis of the dominant invariant p-subspace of A.</li><li><a href="../../../examples/doubly_stochastic_denoising.html" class="code" title="function doubly_stochastic_denoising()">doubly_stochastic_denoising</a>	Find a doubly stochastic matrix closest to a given matrix, in Frobenius norm.</li><li><a href="../../../examples/elliptope_SDP.html" class="code" title="function [Y, problem, S] = elliptope_SDP(A, p, Y0)">elliptope_SDP</a>	Solver for semidefinite programs (SDP's) with unit diagonal constraints.</li><li><a href="../../../examples/elliptope_SDP_complex.html" class="code" title="function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)">elliptope_SDP_complex</a>	Solver for complex semidefinite programs (SDP's) with unit diagonal.</li><li><a href="../../../examples/essential_svd.html" class="code" title="function essential_svd">essential_svd</a>	Sample solution of an optimization problem on the essential manifold.</li><li><a href="../../../examples/generalized_eigenvalue_computation.html" class="code" title="function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)">generalized_eigenvalue_computation</a>	Returns orthonormal basis of the dominant invariant p-subspace of B^-1 A.</li><li><a href="../../../examples/generalized_procrustes.html" class="code" title="function [A, R] = generalized_procrustes(A_measure)">generalized_procrustes</a>	Rotationally align clouds of points (generalized Procrustes problem)</li><li><a href="../../../examples/low_rank_dist_completion.html" class="code" title="function [Y, infos, problem_description] =  low_rank_dist_completion(problem_description)">low_rank_dist_completion</a>	Perform low-rank distance matrix completion w/ automatic rank detection.</li><li><a href="../../../examples/low_rank_matrix_completion.html" class="code" title="function low_rank_matrix_completion()">low_rank_matrix_completion</a>	Given partial observation of a low rank matrix, attempts to complete it.</li><li><a href="../../../examples/low_rank_tensor_completion.html" class="code" title="function low_rank_tensor_completion()">low_rank_tensor_completion</a>	Given partial observation of a low rank tensor, attempts to complete it.</li><li><a href="../../../examples/maxcut.html" class="code" title="function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)">maxcut</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li><li><a href="../../../examples/radio_interferometric_calibration.html" class="code" title="function xsol = radio_interferometric_calibration(N, K)">radio_interferometric_calibration</a>	Returns the gain matrices of N stations with K receivers.</li><li><a href="../../../examples/robust_pca.html" class="code" title="function [U, cost] = robust_pca(X, d)">robust_pca</a>	Computes a robust version of PCA (principal component analysis) on data.</li><li><a href="../../../examples/shapefit_smoothed.html" class="code" title="function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)">shapefit_smoothed</a>	ShapeFit formulation for sensor network localization from pair directions</li><li><a href="../../../examples/sparse_pca.html" class="code" title="function [Z, P, X, A] = sparse_pca(A, m, gamma)">sparse_pca</a>	Sparse principal component analysis based on optimization over Stiefel.</li><li><a href="../../../examples/truncated_svd.html" class="code" title="function [U, S, V, info] = truncated_svd(A, p)">truncated_svd</a>	Returns an SVD decomposition of A truncated to rank p.</li><li><a href="../../../examples/using_counters.html" class="code" title="function using_counters()">using_counters</a>	Manopt example on how to use counters during optimization. Typical uses,</li><li><a href="../../../examples/using_gpu.html" class="code" title="function using_gpu()">using_gpu</a>	Manopt example on how to use GPU with manifold factories that allow it.</li><li><a href="../../../manopt/solvers/neldermead/centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on a manifold.</li><li><a href="../../../manopt/solvers/preconditioners/preconhessiansolve.html" class="code" title="function preconfun = preconhessiansolve(problem, options)">preconhessiansolve</a>	Preconditioner based on the inverse Hessian, by solving linear systems.</li><li><a href="../../../manopt/tools/hessianextreme.html" class="code" title="function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)">hessianextreme</a>	Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.</li><li><a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
@@ -409,137 +404,137 @@ This function is called by:
 0164 <span class="comment">%       that these additional computations appear in the algorithm timings</span>
 0165 <span class="comment">%       too, and may interfere with operations such as counting the number</span>
 0166 <span class="comment">%       of cost evaluations, etc. (the debug calls get storedb too).</span>
-0167 <span class="comment">%   storedepth (20)</span>
+0167 <span class="comment">%   storedepth (2)</span>
 0168 <span class="comment">%       Maximum number of different points x of the manifold for which a</span>
-0169 <span class="comment">%       store structure will be kept in memory in the storedb. If the</span>
-0170 <span class="comment">%       caching features of Manopt are not used, this is irrelevant. If</span>
-0171 <span class="comment">%       memory usage is an issue, you may try to lower this number.</span>
-0172 <span class="comment">%       Profiling may then help to investigate if a performance hit was</span>
-0173 <span class="comment">%       incurred as a result.</span>
-0174 <span class="comment">%</span>
-0175 <span class="comment">% Notice that statsfun is called with the point x that was reached last,</span>
-0176 <span class="comment">% after the accept/reject decision. Hence: if the step was accepted, we get</span>
-0177 <span class="comment">% that new x, with a store which only saw the call for the cost and for the</span>
-0178 <span class="comment">% gradient. If the step was rejected, we get the same x as previously, with</span>
-0179 <span class="comment">% the store structure containing everything that was computed at that point</span>
-0180 <span class="comment">% (possibly including previous rejects at that same point). Hence, statsfun</span>
-0181 <span class="comment">% should not be used in conjunction with the store to count operations for</span>
-0182 <span class="comment">% example. Instead, you should use storedb's shared memory for such</span>
-0183 <span class="comment">% purposes (either via storedb.shared, or via store.shared, see</span>
-0184 <span class="comment">% online documentation). It is however possible to use statsfun with the</span>
-0185 <span class="comment">% store to compute, for example, other merit functions on the point x</span>
-0186 <span class="comment">% (other than the actual cost function, that is).</span>
-0187 <span class="comment">%</span>
-0188 <span class="comment">%</span>
-0189 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
-0190 <span class="comment">%     @Article{genrtr,</span>
-0191 <span class="comment">%       Title    = {Trust-region methods on {Riemannian} manifolds},</span>
-0192 <span class="comment">%       Author   = {Absil, P.-A. and Baker, C. G. and Gallivan, K. A.},</span>
-0193 <span class="comment">%       Journal  = {Foundations of Computational Mathematics},</span>
-0194 <span class="comment">%       Year     = {2007},</span>
-0195 <span class="comment">%       Number   = {3},</span>
-0196 <span class="comment">%       Pages    = {303--330},</span>
-0197 <span class="comment">%       Volume   = {7},</span>
-0198 <span class="comment">%       Doi      = {10.1007/s10208-005-0179-9}</span>
-0199 <span class="comment">%     }</span>
-0200 <span class="comment">%</span>
-0201 <span class="comment">% See also: steepestdescent conjugategradient manopt/examples</span>
-0202 
-0203 <span class="comment">% An explicit, general listing of this algorithm, with preconditioning,</span>
-0204 <span class="comment">% can be found in the following paper:</span>
-0205 <span class="comment">%     @Article{boumal2015lowrank,</span>
-0206 <span class="comment">%       Title   = {Low-rank matrix completion via preconditioned optimization on the {G}rassmann manifold},</span>
-0207 <span class="comment">%       Author  = {Boumal, N. and Absil, P.-A.},</span>
-0208 <span class="comment">%       Journal = {Linear Algebra and its Applications},</span>
-0209 <span class="comment">%       Year    = {2015},</span>
-0210 <span class="comment">%       Pages   = {200--239},</span>
-0211 <span class="comment">%       Volume  = {475},</span>
-0212 <span class="comment">%       Doi     = {10.1016/j.laa.2015.02.027},</span>
-0213 <span class="comment">%     }</span>
-0214 
-0215 <span class="comment">% When the Hessian is not specified, it is approximated with</span>
-0216 <span class="comment">% finite-differences of the gradient. The resulting method is called</span>
-0217 <span class="comment">% RTR-FD. Some convergence theory for it is available in this paper:</span>
-0218 <span class="comment">% @incollection{boumal2015rtrfd</span>
-0219 <span class="comment">%     author={Boumal, N.},</span>
-0220 <span class="comment">%     title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},</span>
-0221 <span class="comment">%     year={2015},</span>
-0222 <span class="comment">%     booktitle={Geometric Science of Information}</span>
-0223 <span class="comment">% }</span>
-0224 
-0225 
-0226 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0227 <span class="comment">% This code is an adaptation to Manopt of the original GenRTR code:</span>
-0228 <span class="comment">% RTR - Riemannian Trust-Region</span>
-0229 <span class="comment">% (c) 2004-2007, P.-A. Absil, C. G. Baker, K. A. Gallivan</span>
-0230 <span class="comment">% Florida State University</span>
-0231 <span class="comment">% School of Computational Science</span>
-0232 <span class="comment">% (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)</span>
-0233 <span class="comment">% See accompanying license file.</span>
-0234 <span class="comment">% The adaptation was executed by Nicolas Boumal.</span>
-0235 <span class="comment">%</span>
-0236 <span class="comment">%</span>
-0237 <span class="comment">% Change log:</span>
-0238 <span class="comment">%</span>
-0239 <span class="comment">%   NB April 3, 2013:</span>
-0240 <span class="comment">%       tCG now returns the Hessian along the returned direction eta, so</span>
-0241 <span class="comment">%       that we do not compute that Hessian redundantly: some savings at</span>
-0242 <span class="comment">%       each iteration. Similarly, if the useRand flag is on, we spare an</span>
-0243 <span class="comment">%       extra Hessian computation at each outer iteration too, owing to</span>
-0244 <span class="comment">%       some modifications in the Cauchy point section of the code specific</span>
-0245 <span class="comment">%       to useRand = true.</span>
-0246 <span class="comment">%</span>
-0247 <span class="comment">%   NB Aug. 22, 2013:</span>
-0248 <span class="comment">%       This function is now Octave compatible. The transition called for</span>
-0249 <span class="comment">%       two changes which would otherwise not be advisable. (1) tic/toc is</span>
-0250 <span class="comment">%       now used as is, as opposed to the safer way:</span>
-0251 <span class="comment">%       t = tic(); elapsed = toc(t);</span>
-0252 <span class="comment">%       And (2), the (formerly inner) function savestats was moved outside</span>
-0253 <span class="comment">%       the main function to not be nested anymore. This is arguably less</span>
-0254 <span class="comment">%       elegant, but Octave does not (and likely will not) support nested</span>
-0255 <span class="comment">%       functions.</span>
-0256 <span class="comment">%</span>
-0257 <span class="comment">%   NB Dec. 2, 2013:</span>
-0258 <span class="comment">%       The in-code documentation was largely revised and expanded.</span>
-0259 <span class="comment">%</span>
-0260 <span class="comment">%   NB Dec. 2, 2013:</span>
-0261 <span class="comment">%       The former heuristic which triggered when rhonum was very small and</span>
-0262 <span class="comment">%       forced rho = 1 has been replaced by a smoother heuristic which</span>
-0263 <span class="comment">%       consists in regularizing rhonum and rhoden before computing their</span>
-0264 <span class="comment">%       ratio. It is tunable via options.rho_regularization. Furthermore,</span>
-0265 <span class="comment">%       the solver now detects if tCG did not obtain a model decrease</span>
-0266 <span class="comment">%       (which is theoretically impossible but may happen because of</span>
-0267 <span class="comment">%       numerical errors and/or because of a nonlinear/nonsymmetric Hessian</span>
-0268 <span class="comment">%       operator, which is the case for finite difference approximations).</span>
-0269 <span class="comment">%       When such an anomaly is detected, the step is rejected and the</span>
-0270 <span class="comment">%       trust region radius is decreased.</span>
-0271 <span class="comment">%       Feb. 18, 2015 note: this is less useful now, as tCG now guarantees</span>
-0272 <span class="comment">%       model decrease even for the finite difference approximation of the</span>
-0273 <span class="comment">%       Hessian. It is still useful in case of numerical errors, but this</span>
-0274 <span class="comment">%       is less stringent.</span>
-0275 <span class="comment">%</span>
-0276 <span class="comment">%   NB Dec. 3, 2013:</span>
-0277 <span class="comment">%       The stepsize is now registered at each iteration, at a small</span>
-0278 <span class="comment">%       additional cost. The defaults for Delta_bar and Delta0 are better</span>
-0279 <span class="comment">%       defined. Setting Delta_bar in the options will automatically set</span>
-0280 <span class="comment">%       Delta0 accordingly. In Manopt 1.0.4, the defaults for these options</span>
-0281 <span class="comment">%       were not treated appropriately because of an incorrect use of the</span>
-0282 <span class="comment">%       isfield() built-in function.</span>
+0169 <span class="comment">%       store structure will be kept in memory in the storedb for caching.</span>
+0170 <span class="comment">%       If memory usage is an issue, you may try to lower this number.</span>
+0171 <span class="comment">%       Profiling or manopt counters may then help to investigate if a</span>
+0172 <span class="comment">%       performance hit was incurred as a result.</span>
+0173 <span class="comment">%</span>
+0174 <span class="comment">% Notice that statsfun is called with the point x that was reached last,</span>
+0175 <span class="comment">% after the accept/reject decision. Hence: if the step was accepted, we get</span>
+0176 <span class="comment">% that new x, with a store which only saw the call for the cost and for the</span>
+0177 <span class="comment">% gradient. If the step was rejected, we get the same x as previously, with</span>
+0178 <span class="comment">% the store structure containing everything that was computed at that point</span>
+0179 <span class="comment">% (possibly including previous rejects at that same point). Hence, statsfun</span>
+0180 <span class="comment">% should not be used in conjunction with the store to count operations for</span>
+0181 <span class="comment">% example. Instead, you should use manopt counters: see statscounters.</span>
+0182 <span class="comment">%</span>
+0183 <span class="comment">%</span>
+0184 <span class="comment">% Please cite the Manopt paper as well as the research paper:</span>
+0185 <span class="comment">%     @Article{genrtr,</span>
+0186 <span class="comment">%       Title    = {Trust-region methods on {Riemannian} manifolds},</span>
+0187 <span class="comment">%       Author   = {Absil, P.-A. and Baker, C. G. and Gallivan, K. A.},</span>
+0188 <span class="comment">%       Journal  = {Foundations of Computational Mathematics},</span>
+0189 <span class="comment">%       Year     = {2007},</span>
+0190 <span class="comment">%       Number   = {3},</span>
+0191 <span class="comment">%       Pages    = {303--330},</span>
+0192 <span class="comment">%       Volume   = {7},</span>
+0193 <span class="comment">%       Doi      = {10.1007/s10208-005-0179-9}</span>
+0194 <span class="comment">%     }</span>
+0195 <span class="comment">%</span>
+0196 <span class="comment">% See also: steepestdescent conjugategradient manopt/examples</span>
+0197 
+0198 <span class="comment">% An explicit, general listing of this algorithm, with preconditioning,</span>
+0199 <span class="comment">% can be found in the following paper:</span>
+0200 <span class="comment">%     @Article{boumal2015lowrank,</span>
+0201 <span class="comment">%       Title   = {Low-rank matrix completion via preconditioned optimization on the {G}rassmann manifold},</span>
+0202 <span class="comment">%       Author  = {Boumal, N. and Absil, P.-A.},</span>
+0203 <span class="comment">%       Journal = {Linear Algebra and its Applications},</span>
+0204 <span class="comment">%       Year    = {2015},</span>
+0205 <span class="comment">%       Pages   = {200--239},</span>
+0206 <span class="comment">%       Volume  = {475},</span>
+0207 <span class="comment">%       Doi     = {10.1016/j.laa.2015.02.027},</span>
+0208 <span class="comment">%     }</span>
+0209 
+0210 <span class="comment">% When the Hessian is not specified, it is approximated with</span>
+0211 <span class="comment">% finite-differences of the gradient. The resulting method is called</span>
+0212 <span class="comment">% RTR-FD. Some convergence theory for it is available in this paper:</span>
+0213 <span class="comment">% @incollection{boumal2015rtrfd</span>
+0214 <span class="comment">%     author={Boumal, N.},</span>
+0215 <span class="comment">%     title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},</span>
+0216 <span class="comment">%     year={2015},</span>
+0217 <span class="comment">%     booktitle={Geometric Science of Information}</span>
+0218 <span class="comment">% }</span>
+0219 
+0220 
+0221 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0222 <span class="comment">% This code is an adaptation to Manopt of the original GenRTR code:</span>
+0223 <span class="comment">% RTR - Riemannian Trust-Region</span>
+0224 <span class="comment">% (c) 2004-2007, P.-A. Absil, C. G. Baker, K. A. Gallivan</span>
+0225 <span class="comment">% Florida State University</span>
+0226 <span class="comment">% School of Computational Science</span>
+0227 <span class="comment">% (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)</span>
+0228 <span class="comment">% See accompanying license file.</span>
+0229 <span class="comment">% The adaptation was executed by Nicolas Boumal.</span>
+0230 <span class="comment">%</span>
+0231 <span class="comment">%</span>
+0232 <span class="comment">% Change log:</span>
+0233 <span class="comment">%</span>
+0234 <span class="comment">%   NB April 3, 2013:</span>
+0235 <span class="comment">%       tCG now returns the Hessian along the returned direction eta, so</span>
+0236 <span class="comment">%       that we do not compute that Hessian redundantly: some savings at</span>
+0237 <span class="comment">%       each iteration. Similarly, if the useRand flag is on, we spare an</span>
+0238 <span class="comment">%       extra Hessian computation at each outer iteration too, owing to</span>
+0239 <span class="comment">%       some modifications in the Cauchy point section of the code specific</span>
+0240 <span class="comment">%       to useRand = true.</span>
+0241 <span class="comment">%</span>
+0242 <span class="comment">%   NB Aug. 22, 2013:</span>
+0243 <span class="comment">%       This function is now Octave compatible. The transition called for</span>
+0244 <span class="comment">%       two changes which would otherwise not be advisable. (1) tic/toc is</span>
+0245 <span class="comment">%       now used as is, as opposed to the safer way:</span>
+0246 <span class="comment">%       t = tic(); elapsed = toc(t);</span>
+0247 <span class="comment">%       And (2), the (formerly inner) function savestats was moved outside</span>
+0248 <span class="comment">%       the main function to not be nested anymore. This is arguably less</span>
+0249 <span class="comment">%       elegant, but Octave does not (and likely will not) support nested</span>
+0250 <span class="comment">%       functions.</span>
+0251 <span class="comment">%</span>
+0252 <span class="comment">%   NB Dec. 2, 2013:</span>
+0253 <span class="comment">%       The in-code documentation was largely revised and expanded.</span>
+0254 <span class="comment">%</span>
+0255 <span class="comment">%   NB Dec. 2, 2013:</span>
+0256 <span class="comment">%       The former heuristic which triggered when rhonum was very small and</span>
+0257 <span class="comment">%       forced rho = 1 has been replaced by a smoother heuristic which</span>
+0258 <span class="comment">%       consists in regularizing rhonum and rhoden before computing their</span>
+0259 <span class="comment">%       ratio. It is tunable via options.rho_regularization. Furthermore,</span>
+0260 <span class="comment">%       the solver now detects if tCG did not obtain a model decrease</span>
+0261 <span class="comment">%       (which is theoretically impossible but may happen because of</span>
+0262 <span class="comment">%       numerical errors and/or because of a nonlinear/nonsymmetric Hessian</span>
+0263 <span class="comment">%       operator, which is the case for finite difference approximations).</span>
+0264 <span class="comment">%       When such an anomaly is detected, the step is rejected and the</span>
+0265 <span class="comment">%       trust region radius is decreased.</span>
+0266 <span class="comment">%       Feb. 18, 2015 note: this is less useful now, as tCG now guarantees</span>
+0267 <span class="comment">%       model decrease even for the finite difference approximation of the</span>
+0268 <span class="comment">%       Hessian. It is still useful in case of numerical errors, but this</span>
+0269 <span class="comment">%       is less stringent.</span>
+0270 <span class="comment">%</span>
+0271 <span class="comment">%   NB Dec. 3, 2013:</span>
+0272 <span class="comment">%       The stepsize is now registered at each iteration, at a small</span>
+0273 <span class="comment">%       additional cost. The defaults for Delta_bar and Delta0 are better</span>
+0274 <span class="comment">%       defined. Setting Delta_bar in the options will automatically set</span>
+0275 <span class="comment">%       Delta0 accordingly. In Manopt 1.0.4, the defaults for these options</span>
+0276 <span class="comment">%       were not treated appropriately because of an incorrect use of the</span>
+0277 <span class="comment">%       isfield() built-in function.</span>
+0278 <span class="comment">%</span>
+0279 <span class="comment">%   NB Feb. 18, 2015:</span>
+0280 <span class="comment">%       Added some comments. Also, Octave now supports safe tic/toc usage,</span>
+0281 <span class="comment">%       so we reverted the changes to use that again (see Aug. 22, 2013 log</span>
+0282 <span class="comment">%       entry).</span>
 0283 <span class="comment">%</span>
-0284 <span class="comment">%   NB Feb. 18, 2015:</span>
-0285 <span class="comment">%       Added some comments. Also, Octave now supports safe tic/toc usage,</span>
-0286 <span class="comment">%       so we reverted the changes to use that again (see Aug. 22, 2013 log</span>
-0287 <span class="comment">%       entry).</span>
-0288 <span class="comment">%</span>
-0289 <span class="comment">%   NB April 3, 2015:</span>
-0290 <span class="comment">%       Works with the new StoreDB class system.</span>
-0291 <span class="comment">%</span>
-0292 <span class="comment">%   NB April 8, 2015:</span>
-0293 <span class="comment">%       No Hessian warning if approximate Hessian explicitly available.</span>
-0294 <span class="comment">%</span>
-0295 <span class="comment">%   NB Nov. 1, 2016:</span>
-0296 <span class="comment">%       Now uses approximate gradient via finite differences if need be.</span>
-0297 
+0284 <span class="comment">%   NB April 3, 2015:</span>
+0285 <span class="comment">%       Works with the new StoreDB class system.</span>
+0286 <span class="comment">%</span>
+0287 <span class="comment">%   NB April 8, 2015:</span>
+0288 <span class="comment">%       No Hessian warning if approximate Hessian explicitly available.</span>
+0289 <span class="comment">%</span>
+0290 <span class="comment">%   NB Nov. 1, 2016:</span>
+0291 <span class="comment">%       Now uses approximate gradient via finite differences if need be.</span>
+0292 <span class="comment">%</span>
+0293 <span class="comment">%   NB Aug. 2, 2018:</span>
+0294 <span class="comment">%       Using storedb.remove() to keep the cache lean, which allowed to</span>
+0295 <span class="comment">%       reduce storedepth to 2 from 20 (by default).</span>
+0296 
+0297 M = problem.M;
 0298 
 0299 <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
 0300 <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
@@ -580,7 +575,7 @@ This function is called by:
 0335 localdefaults.miniter = 3;
 0336 localdefaults.maxiter = 1000;
 0337 localdefaults.mininner = 1;
-0338 localdefaults.maxinner = problem.M.dim();
+0338 localdefaults.maxinner = M.dim();
 0339 localdefaults.tolgradnorm = 1e-6;
 0340 localdefaults.kappa = 0.1;
 0341 localdefaults.theta = 1.0;
@@ -589,20 +584,20 @@ This function is called by:
 0344 localdefaults.rho_regularization = 1e3;
 0345 
 0346 <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0347 localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0347 localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
 0348 <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
 0349     options = struct();
 0350 <span class="keyword">end</span>
-0351 options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
+0351 options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(localdefaults, options);
 0352 
 0353 <span class="comment">% Set default Delta_bar and Delta0 separately to deal with additional</span>
 0354 <span class="comment">% logic: if Delta_bar is provided but not Delta0, let Delta0 automatically</span>
 0355 <span class="comment">% be some fraction of the provided Delta_bar.</span>
 0356 <span class="keyword">if</span> ~isfield(options, <span class="string">'Delta_bar'</span>)
-0357     <span class="keyword">if</span> isfield(problem.M, <span class="string">'typicaldist'</span>)
-0358         options.Delta_bar = problem.M.typicaldist();
+0357     <span class="keyword">if</span> isfield(M, <span class="string">'typicaldist'</span>)
+0358         options.Delta_bar = M.typicaldist();
 0359     <span class="keyword">else</span>
-0360         options.Delta_bar = sqrt(problem.M.dim());
+0360         options.Delta_bar = sqrt(M.dim());
 0361     <span class="keyword">end</span> 
 0362 <span class="keyword">end</span>
 0363 <span class="keyword">if</span> ~isfield(options,<span class="string">'Delta0'</span>)
@@ -626,7 +621,7 @@ This function is called by:
 0381 
 0382 <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
 0383 <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0384     x = problem.M.rand();
+0384     x = M.rand();
 0385 <span class="keyword">end</span>
 0386 
 0387 <span class="comment">% Create a store database and get a key for the current x</span>
@@ -641,7 +636,7 @@ This function is called by:
 0396 
 0397 <span class="comment">% Initialize solution and companion measures: f(x), fgrad(x)</span>
 0398 [fx, fgradx] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key);
-0399 norm_grad = problem.M.norm(x, fgradx);
+0399 norm_grad = M.norm(x, fgradx);
 0400 
 0401 <span class="comment">% Initialize trust-region radius</span>
 0402 Delta = options.Delta0;
@@ -710,13 +705,13 @@ This function is called by:
 0465     <span class="comment">% Determine eta0</span>
 0466     <span class="keyword">if</span> ~options.useRand
 0467         <span class="comment">% Pick the zero vector</span>
-0468         eta = problem.M.zerovec(x);
+0468         eta = M.zerovec(x);
 0469     <span class="keyword">else</span>
 0470         <span class="comment">% Random vector in T_x M (this has to be very small)</span>
-0471         eta = problem.M.lincomb(x, 1e-6, problem.M.randvec(x));
+0471         eta = M.lincomb(x, 1e-6, M.randvec(x));
 0472         <span class="comment">% Must be inside trust-region</span>
-0473         <span class="keyword">while</span> problem.M.norm(x, eta) &gt; Delta
-0474             eta = problem.M.lincomb(x, sqrt(sqrt(eps)), eta);
+0473         <span class="keyword">while</span> M.norm(x, eta) &gt; Delta
+0474             eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
 0475         <span class="keyword">end</span>
 0476     <span class="keyword">end</span>
 0477 
@@ -734,295 +729,327 @@ This function is called by:
 0489         used_cauchy = false;
 0490         <span class="comment">% Check the curvature,</span>
 0491         Hg = <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, fgradx, storedb, key);
-0492         g_Hg = problem.M.inner(x, fgradx, Hg);
+0492         g_Hg = M.inner(x, fgradx, Hg);
 0493         <span class="keyword">if</span> g_Hg &lt;= 0
 0494             tau_c = 1;
 0495         <span class="keyword">else</span>
 0496             tau_c = min( norm_grad^3/(Delta*g_Hg) , 1);
 0497         <span class="keyword">end</span>
 0498         <span class="comment">% and generate the Cauchy point.</span>
-0499         eta_c  = problem.M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
-0500         Heta_c = problem.M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
+0499         eta_c  = M.lincomb(x, -tau_c * Delta / norm_grad, fgradx);
+0500         Heta_c = M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
 0501 
 0502         <span class="comment">% Now that we have computed the Cauchy point in addition to the</span>
 0503         <span class="comment">% returned eta, we might as well keep the best of them.</span>
-0504         mdle  = fx + problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
-0505                    + .5*problem.M.inner(x, Heta,   eta);
-0506         mdlec = fx + problem.M.inner(x, fgradx, eta_c) <span class="keyword">...</span>
-0507                    + .5*problem.M.inner(x, Heta_c, eta_c);
-0508         <span class="keyword">if</span> mdlec &lt; mdle
-0509             eta = eta_c;
-0510             Heta = Heta_c; <span class="comment">% added April 11, 2012</span>
-0511             used_cauchy = true;
-0512         <span class="keyword">end</span>
-0513     <span class="keyword">end</span>
-0514     
-0515     
-0516     <span class="comment">% This is only computed for logging purposes, because it may be useful</span>
-0517     <span class="comment">% for some user-defined stopping criteria. If this is not cheap for</span>
-0518     <span class="comment">% specific applications (compared to evaluating the cost), we should</span>
-0519     <span class="comment">% reconsider this.</span>
-0520     norm_eta = problem.M.norm(x, eta);
-0521     
-0522     <span class="keyword">if</span> options.debug &gt; 0
-0523         testangle = problem.M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
-0524     <span class="keyword">end</span>
-0525     
-0526 
-0527     <span class="comment">% Compute the tentative next iterate (the proposal)</span>
-0528     x_prop  = problem.M.retr(x, eta);
-0529     key_prop = storedb.getNewKey();
-0530 
-0531     <span class="comment">% Compute the function value of the proposal</span>
-0532     fx_prop = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x_prop, storedb, key_prop);
-0533 
-0534     <span class="comment">% Will we accept the proposal or not?</span>
-0535     <span class="comment">% Check the performance of the quadratic model against the actual cost.</span>
-0536     rhonum = fx - fx_prop;
-0537     rhoden = -problem.M.inner(x, fgradx, eta) <span class="keyword">...</span>
-0538              -.5*problem.M.inner(x, eta, Heta);
-0539     <span class="comment">% rhonum could be anything.</span>
-0540     <span class="comment">% rhoden should be nonnegative, as guaranteed by tCG, baring numerical</span>
-0541     <span class="comment">% errors.</span>
-0542     
-0543     <span class="comment">% Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.</span>
-0544     <span class="comment">% This heuristic is documented in the book by Conn Gould and Toint on</span>
-0545     <span class="comment">% trust-region methods, section 17.4.2.</span>
-0546     <span class="comment">% rhonum measures the difference between two numbers. Close to</span>
-0547     <span class="comment">% convergence, these two numbers are very close to each other, so</span>
-0548     <span class="comment">% that computing their difference is numerically challenging: there may</span>
-0549     <span class="comment">% be a significant loss in accuracy. Since the acceptance or rejection</span>
-0550     <span class="comment">% of the step is conditioned on the ratio between rhonum and rhoden,</span>
-0551     <span class="comment">% large errors in rhonum result in a very large error in rho, hence in</span>
-0552     <span class="comment">% erratic acceptance / rejection. Meanwhile, close to convergence,</span>
-0553     <span class="comment">% steps are usually trustworthy and we should transition to a Newton-</span>
-0554     <span class="comment">% like method, with rho=1 consistently. The heuristic thus shifts both</span>
-0555     <span class="comment">% rhonum and rhoden by a small amount such that far from convergence,</span>
-0556     <span class="comment">% the shift is irrelevant and close to convergence, the ratio rho goes</span>
-0557     <span class="comment">% to 1, effectively promoting acceptance of the step.</span>
-0558     <span class="comment">% The rationale is that close to convergence, both rhonum and rhoden</span>
-0559     <span class="comment">% are quadratic in the distance between x and x_prop. Thus, when this</span>
-0560     <span class="comment">% distance is on the order of sqrt(eps), the value of rhonum and rhoden</span>
-0561     <span class="comment">% is on the order of eps, which is indistinguishable from the numerical</span>
-0562     <span class="comment">% error, resulting in badly estimated rho's.</span>
-0563     <span class="comment">% For abs(fx) &lt; 1, this heuristic is invariant under offsets of f but</span>
-0564     <span class="comment">% not under scaling of f. For abs(fx) &gt; 1, the opposite holds. This</span>
-0565     <span class="comment">% should not alarm us, as this heuristic only triggers at the very last</span>
-0566     <span class="comment">% iterations if very fine convergence is demanded.</span>
-0567     rho_reg = max(1, abs(fx)) * eps * options.rho_regularization;
-0568     rhonum = rhonum + rho_reg;
-0569     rhoden = rhoden + rho_reg;
-0570    
-0571     <span class="keyword">if</span> options.debug &gt; 0
-0572         fprintf(<span class="string">'DBG:     rhonum : %e\n'</span>, rhonum);
-0573         fprintf(<span class="string">'DBG:     rhoden : %e\n'</span>, rhoden);
-0574     <span class="keyword">end</span>
-0575     
-0576     <span class="comment">% This is always true if a linear, symmetric operator is used for the</span>
-0577     <span class="comment">% Hessian (approximation) and if we had infinite numerical precision.</span>
-0578     <span class="comment">% In practice, nonlinear approximations of the Hessian such as the</span>
-0579     <span class="comment">% built-in finite difference approximation and finite numerical</span>
-0580     <span class="comment">% accuracy can cause the model to increase. In such scenarios, we</span>
-0581     <span class="comment">% decide to force a rejection of the step and a reduction of the</span>
-0582     <span class="comment">% trust-region radius. We test the sign of the regularized rhoden since</span>
-0583     <span class="comment">% the regularization is supposed to capture the accuracy to which</span>
-0584     <span class="comment">% rhoden is computed: if rhoden were negative before regularization but</span>
-0585     <span class="comment">% not after, that should not be (and is not) detected as a failure.</span>
-0586     <span class="comment">%</span>
-0587     <span class="comment">% Note (Feb. 17, 2015, NB): the most recent version of tCG already</span>
-0588     <span class="comment">% includes a mechanism to ensure model decrease if the Cauchy step</span>
-0589     <span class="comment">% attained a decrease (which is theoretically the case under very lax</span>
-0590     <span class="comment">% assumptions). This being said, it is always possible that numerical</span>
-0591     <span class="comment">% errors will prevent this, so that it is good to keep a safeguard.</span>
-0592     <span class="comment">%</span>
-0593     <span class="comment">% The current strategy is that, if this should happen, then we reject</span>
-0594     <span class="comment">% the step and reduce the trust region radius. This also ensures that</span>
-0595     <span class="comment">% the actual cost values are monotonically decreasing.</span>
-0596     model_decreased = (rhoden &gt;= 0);
-0597     
-0598     <span class="keyword">if</span> ~model_decreased 
-0599         srstr = [srstr <span class="string">', model did not decrease'</span>]; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0600     <span class="keyword">end</span>
-0601     
-0602     rho = rhonum / rhoden;
-0603     
-0604     <span class="comment">% Added June 30, 2015 following observation by BM.</span>
-0605     <span class="comment">% With this modification, it is guaranteed that a step rejection is</span>
-0606     <span class="comment">% always accompanied by a TR reduction. This prevents stagnation in</span>
-0607     <span class="comment">% this &quot;corner case&quot; (NaN's really aren't supposed to occur, but it's</span>
-0608     <span class="comment">% nice if we can handle them nonetheless).</span>
-0609     <span class="keyword">if</span> isnan(rho)
-0610         fprintf(<span class="string">'rho is NaN! Forcing a radius decrease. This should not happen.\n'</span>);
-0611         <span class="keyword">if</span> isnan(fx_prop)
-0612             fprintf(<span class="string">'The cost function returned NaN (perhaps the retraction returned a bad point?)\n'</span>);
-0613         <span class="keyword">else</span>
-0614             fprintf(<span class="string">'The cost function did not return a NaN value.'</span>);
-0615         <span class="keyword">end</span>
-0616     <span class="keyword">end</span>
-0617    
-0618     <span class="keyword">if</span> options.debug &gt; 0
-0619         m = @(x, eta) <span class="keyword">...</span>
-0620           <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, key) + <span class="keyword">...</span>
-0621           <a href="../../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>(problem, x, eta, storedb, key) + <span class="keyword">...</span>
-0622           .5*problem.M.inner(x, <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, eta, storedb, key), eta);
-0623         zerovec = problem.M.zerovec(x);
-0624         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
-0625         fprintf(<span class="string">'DBG:   new f(x) : %+e\n'</span>, fx_prop);
-0626         fprintf(<span class="string">'DBG: actual rho : %e\n'</span>, actrho);
-0627         fprintf(<span class="string">'DBG:   used rho : %e\n'</span>, rho);
-0628     <span class="keyword">end</span>
-0629 
-0630     <span class="comment">% Choose the new TR radius based on the model performance</span>
-0631     trstr = <span class="string">'   '</span>;
-0632     <span class="comment">% If the actual decrease is smaller than 1/4 of the predicted decrease,</span>
-0633     <span class="comment">% then reduce the TR radius.</span>
-0634     <span class="keyword">if</span> rho &lt; 1/4 || ~model_decreased || isnan(rho)
-0635         trstr = <span class="string">'TR-'</span>;
-0636         Delta = Delta/4;
-0637         consecutive_TRplus = 0;
-0638         consecutive_TRminus = consecutive_TRminus + 1;
-0639         <span class="keyword">if</span> consecutive_TRminus &gt;= 5 &amp;&amp; options.verbosity &gt;= 2
-0640             consecutive_TRminus = -inf;
-0641             fprintf(<span class="string">' +++ Detected many consecutive TR- (radius decreases).\n'</span>);
-0642             fprintf(<span class="string">' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n'</span>);
-0643             fprintf(<span class="string">' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n'</span>, options.Delta_bar, options.Delta0);
-0644         <span class="keyword">end</span>
-0645     <span class="comment">% If the actual decrease is at least 3/4 of the precicted decrease and</span>
-0646     <span class="comment">% the tCG (inner solve) hit the TR boundary, increase the TR radius.</span>
-0647     <span class="comment">% We also keep track of the number of consecutive trust-region radius</span>
-0648     <span class="comment">% increases. If there are many, this may indicate the need to adapt the</span>
-0649     <span class="comment">% initial and maximum radii.</span>
-0650     <span class="keyword">elseif</span> rho &gt; 3/4 &amp;&amp; (stop_inner == 1 || stop_inner == 2)
-0651         trstr = <span class="string">'TR+'</span>;
-0652         Delta = min(2*Delta, options.Delta_bar);
-0653         consecutive_TRminus = 0;
-0654         consecutive_TRplus = consecutive_TRplus + 1;
-0655         <span class="keyword">if</span> consecutive_TRplus &gt;= 5 &amp;&amp; options.verbosity &gt;= 1
-0656             consecutive_TRplus = -inf;
-0657             fprintf(<span class="string">' +++ Detected many consecutive TR+ (radius increases).\n'</span>);
-0658             fprintf(<span class="string">' +++ Consider increasing options.Delta_bar by an order of magnitude.\n'</span>);
-0659             fprintf(<span class="string">' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n'</span>, options.Delta_bar, options.Delta0);
-0660         <span class="keyword">end</span>
-0661     <span class="keyword">else</span>
-0662         <span class="comment">% Otherwise, keep the TR radius constant.</span>
-0663         consecutive_TRplus = 0;
-0664         consecutive_TRminus = 0;
-0665     <span class="keyword">end</span>
-0666 
-0667     <span class="comment">% Choose to accept or reject the proposed step based on the model</span>
-0668     <span class="comment">% performance. Note the strict inequality.</span>
-0669     <span class="keyword">if</span> model_decreased &amp;&amp; rho &gt; options.rho_prime
-0670         accept = true;
-0671         accstr = <span class="string">'acc'</span>;
-0672         x = x_prop;
-0673         key = key_prop;
-0674         fx = fx_prop;
-0675         fgradx = <a href="../../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
-0676         norm_grad = problem.M.norm(x, fgradx);
-0677     <span class="keyword">else</span>
-0678         accept = false;
-0679         accstr = <span class="string">'REJ'</span>;
-0680     <span class="keyword">end</span>
-0681     
-0682     
-0683     <span class="comment">% Make sure we don't use too much memory for the store database</span>
-0684     storedb.purge();
-0685     
-0686     <span class="comment">% k is the number of iterations we have accomplished.</span>
-0687     k = k + 1;
-0688 
-0689     <span class="comment">% Log statistics for freshly executed iteration.</span>
-0690     <span class="comment">% Everything after this in the loop is not accounted for in the timing.</span>
-0691     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, key, options, k, fx, ">savestats</a>(problem, x, storedb, key, options, k, fx, <span class="keyword">...</span>
-0692                       norm_grad, Delta, ticstart, info, rho, rhonum, <span class="keyword">...</span>
-0693                       rhoden, accept, numit, norm_eta, used_cauchy);
-0694     info(k+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0695 
-0696     
-0697     <span class="comment">% ** Display:</span>
-0698     <span class="keyword">if</span> options.verbosity == 2,
-0699         fprintf([<span class="string">'%3s %3s   k: %5d     num_inner: %5d     '</span>, <span class="keyword">...</span>
-0700         <span class="string">'f: %+e   |grad|: %e   %s\n'</span>], <span class="keyword">...</span>
-0701         accstr,trstr,k,numit,fx,norm_grad,srstr);
-0702     <span class="keyword">elseif</span> options.verbosity &gt; 2,
-0703         <span class="keyword">if</span> options.useRand &amp;&amp; used_cauchy,
-0704             fprintf(<span class="string">'USED CAUCHY POINT\n'</span>);
-0705         <span class="keyword">end</span>
-0706         fprintf(<span class="string">'%3s %3s    k: %5d     num_inner: %5d     %s\n'</span>, <span class="keyword">...</span>
-0707                 accstr, trstr, k, numit, srstr);
-0708         fprintf(<span class="string">'       f(x) : %+e     |grad| : %e\n'</span>,fx,norm_grad);
-0709         <span class="keyword">if</span> options.debug &gt; 0
-0710             fprintf(<span class="string">'      Delta : %f          |eta| : %e\n'</span>,Delta,norm_eta);
-0711         <span class="keyword">end</span>
-0712         fprintf(<span class="string">'        rho : %e\n'</span>,rho);
-0713     <span class="keyword">end</span>
-0714     <span class="keyword">if</span> options.debug &gt; 0,
-0715         fprintf(<span class="string">'DBG: cos ang(eta,gradf): %d\n'</span>,testangle);
-0716         <span class="keyword">if</span> rho == 0
-0717             fprintf(<span class="string">'DBG: rho = 0, this will likely hinder further convergence.\n'</span>);
-0718         <span class="keyword">end</span>
-0719     <span class="keyword">end</span>
+0504         mdle  = fx + M.inner(x, fgradx, eta) + .5*M.inner(x, Heta,   eta);
+0505         mdlec = fx + M.inner(x, fgradx, eta_c) + .5*M.inner(x, Heta_c, eta_c);
+0506         <span class="keyword">if</span> mdlec &lt; mdle
+0507             eta = eta_c;
+0508             Heta = Heta_c; <span class="comment">% added April 11, 2012</span>
+0509             used_cauchy = true;
+0510         <span class="keyword">end</span>
+0511     <span class="keyword">end</span>
+0512     
+0513     
+0514     <span class="comment">% This is only computed for logging purposes, because it may be useful</span>
+0515     <span class="comment">% for some user-defined stopping criteria. If this is not cheap for</span>
+0516     <span class="comment">% specific applications (compared to evaluating the cost), we should</span>
+0517     <span class="comment">% reconsider this.</span>
+0518     norm_eta = M.norm(x, eta);
+0519     
+0520     <span class="keyword">if</span> options.debug &gt; 0
+0521         testangle = M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
+0522     <span class="keyword">end</span>
+0523     
+0524 
+0525     <span class="comment">% Compute the tentative next iterate (the proposal)</span>
+0526     x_prop  = M.retr(x, eta);
+0527     key_prop = storedb.getNewKey();
+0528 
+0529     <span class="comment">% Compute the function value of the proposal</span>
+0530     fx_prop = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x_prop, storedb, key_prop);
+0531 
+0532     <span class="comment">% Will we accept the proposal or not?</span>
+0533     <span class="comment">% Check the performance of the quadratic model against the actual cost.</span>
+0534     rhonum = fx - fx_prop;
+0535     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
+0536     rhoden = -M.inner(x, eta, vecrho);
+0537     <span class="comment">% rhonum could be anything.</span>
+0538     <span class="comment">% rhoden should be nonnegative, as guaranteed by tCG, baring numerical</span>
+0539     <span class="comment">% errors.</span>
+0540     
+0541     <span class="comment">% Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.</span>
+0542     <span class="comment">% This heuristic is documented in the book by Conn Gould and Toint on</span>
+0543     <span class="comment">% trust-region methods, section 17.4.2.</span>
+0544     <span class="comment">% rhonum measures the difference between two numbers. Close to</span>
+0545     <span class="comment">% convergence, these two numbers are very close to each other, so</span>
+0546     <span class="comment">% that computing their difference is numerically challenging: there may</span>
+0547     <span class="comment">% be a significant loss in accuracy. Since the acceptance or rejection</span>
+0548     <span class="comment">% of the step is conditioned on the ratio between rhonum and rhoden,</span>
+0549     <span class="comment">% large errors in rhonum result in a very large error in rho, hence in</span>
+0550     <span class="comment">% erratic acceptance / rejection. Meanwhile, close to convergence,</span>
+0551     <span class="comment">% steps are usually trustworthy and we should transition to a Newton-</span>
+0552     <span class="comment">% like method, with rho=1 consistently. The heuristic thus shifts both</span>
+0553     <span class="comment">% rhonum and rhoden by a small amount such that far from convergence,</span>
+0554     <span class="comment">% the shift is irrelevant and close to convergence, the ratio rho goes</span>
+0555     <span class="comment">% to 1, effectively promoting acceptance of the step.</span>
+0556     <span class="comment">% The rationale is that close to convergence, both rhonum and rhoden</span>
+0557     <span class="comment">% are quadratic in the distance between x and x_prop. Thus, when this</span>
+0558     <span class="comment">% distance is on the order of sqrt(eps), the value of rhonum and rhoden</span>
+0559     <span class="comment">% is on the order of eps, which is indistinguishable from the numerical</span>
+0560     <span class="comment">% error, resulting in badly estimated rho's.</span>
+0561     <span class="comment">% For abs(fx) &lt; 1, this heuristic is invariant under offsets of f but</span>
+0562     <span class="comment">% not under scaling of f. For abs(fx) &gt; 1, the opposite holds. This</span>
+0563     <span class="comment">% should not alarm us, as this heuristic only triggers at the very last</span>
+0564     <span class="comment">% iterations if very fine convergence is demanded.</span>
+0565     rho_reg = max(1, abs(fx)) * eps * options.rho_regularization;
+0566     rhonum = rhonum + rho_reg;
+0567     rhoden = rhoden + rho_reg;
+0568    
+0569     <span class="keyword">if</span> options.debug &gt; 0
+0570         fprintf(<span class="string">'DBG:     rhonum : %e\n'</span>, rhonum);
+0571         fprintf(<span class="string">'DBG:     rhoden : %e\n'</span>, rhoden);
+0572     <span class="keyword">end</span>
+0573     
+0574     <span class="comment">% This is always true if a linear, symmetric operator is used for the</span>
+0575     <span class="comment">% Hessian (approximation) and if we had infinite numerical precision.</span>
+0576     <span class="comment">% In practice, nonlinear approximations of the Hessian such as the</span>
+0577     <span class="comment">% built-in finite difference approximation and finite numerical</span>
+0578     <span class="comment">% accuracy can cause the model to increase. In such scenarios, we</span>
+0579     <span class="comment">% decide to force a rejection of the step and a reduction of the</span>
+0580     <span class="comment">% trust-region radius. We test the sign of the regularized rhoden since</span>
+0581     <span class="comment">% the regularization is supposed to capture the accuracy to which</span>
+0582     <span class="comment">% rhoden is computed: if rhoden were negative before regularization but</span>
+0583     <span class="comment">% not after, that should not be (and is not) detected as a failure.</span>
+0584     <span class="comment">%</span>
+0585     <span class="comment">% Note (Feb. 17, 2015, NB): the most recent version of tCG already</span>
+0586     <span class="comment">% includes a mechanism to ensure model decrease if the Cauchy step</span>
+0587     <span class="comment">% attained a decrease (which is theoretically the case under very lax</span>
+0588     <span class="comment">% assumptions). This being said, it is always possible that numerical</span>
+0589     <span class="comment">% errors will prevent this, so that it is good to keep a safeguard.</span>
+0590     <span class="comment">%</span>
+0591     <span class="comment">% The current strategy is that, if this should happen, then we reject</span>
+0592     <span class="comment">% the step and reduce the trust region radius. This also ensures that</span>
+0593     <span class="comment">% the actual cost values are monotonically decreasing.</span>
+0594     <span class="comment">%</span>
+0595     <span class="comment">% [This bit of code seems not to trigger because tCG already ensures</span>
+0596     <span class="comment">%  the model decreases even in the presence of non-linearities; but as</span>
+0597     <span class="comment">%  a result the radius is not necessarily decreased. Perhaps we should</span>
+0598     <span class="comment">%  change this with the proposed commented line below; needs testing.]</span>
+0599     <span class="comment">%</span>
+0600     model_decreased = (rhoden &gt;= 0);
+0601     <span class="comment">% model_decreased = (rhoden &gt;= 0) &amp;&amp; (stop_inner ~= 6);</span>
+0602     
+0603     <span class="keyword">if</span> ~model_decreased
+0604         srstr = [srstr <span class="string">', model did not decrease'</span>]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0605     <span class="keyword">end</span>
+0606     
+0607     rho = rhonum / rhoden;
+0608     
+0609     <span class="comment">% Added June 30, 2015 following observation by BM.</span>
+0610     <span class="comment">% With this modification, it is guaranteed that a step rejection is</span>
+0611     <span class="comment">% always accompanied by a TR reduction. This prevents stagnation in</span>
+0612     <span class="comment">% this &quot;corner case&quot; (NaN's really aren't supposed to occur, but it's</span>
+0613     <span class="comment">% nice if we can handle them nonetheless).</span>
+0614     <span class="keyword">if</span> isnan(rho)
+0615         fprintf(<span class="string">'rho is NaN! Forcing a radius decrease. This should not happen.\n'</span>);
+0616         <span class="keyword">if</span> isnan(fx_prop)
+0617             fprintf(<span class="string">'The cost function returned NaN (perhaps the retraction returned a bad point?)\n'</span>);
+0618         <span class="keyword">else</span>
+0619             fprintf(<span class="string">'The cost function did not return a NaN value.\n'</span>);
+0620         <span class="keyword">end</span>
+0621     <span class="keyword">end</span>
+0622    
+0623     <span class="keyword">if</span> options.debug &gt; 0
+0624         m = @(x, eta) <span class="keyword">...</span>
+0625           <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, key) + <span class="keyword">...</span>
+0626           <a href="../../../manopt/core/getDirectionalDerivative.html" class="code" title="function diff = getDirectionalDerivative(problem, x, d, storedb, key)">getDirectionalDerivative</a>(problem, x, eta, storedb, key) + <span class="keyword">...</span>
+0627              .5*M.inner(x, <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, eta, storedb, key), eta);
+0628         zerovec = M.zerovec(x);
+0629         actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
+0630         fprintf(<span class="string">'DBG:   new f(x) : %+e\n'</span>, fx_prop);
+0631         fprintf(<span class="string">'DBG: actual rho : %e\n'</span>, actrho);
+0632         fprintf(<span class="string">'DBG:   used rho : %e\n'</span>, rho);
+0633     <span class="keyword">end</span>
+0634 
+0635     <span class="comment">% Choose the new TR radius based on the model performance</span>
+0636     trstr = <span class="string">'   '</span>;
+0637     <span class="comment">% If the actual decrease is smaller than 1/4 of the predicted decrease,</span>
+0638     <span class="comment">% then reduce the TR radius.</span>
+0639     <span class="keyword">if</span> rho &lt; 1/4 || ~model_decreased || isnan(rho)
+0640         trstr = <span class="string">'TR-'</span>;
+0641         Delta = Delta/4;
+0642         consecutive_TRplus = 0;
+0643         consecutive_TRminus = consecutive_TRminus + 1;
+0644         <span class="keyword">if</span> consecutive_TRminus &gt;= 5 &amp;&amp; options.verbosity &gt;= 2
+0645             consecutive_TRminus = -inf;
+0646             fprintf(<span class="string">' +++ Detected many consecutive TR- (radius decreases).\n'</span>);
+0647             fprintf(<span class="string">' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n'</span>);
+0648             fprintf(<span class="string">' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n'</span>, options.Delta_bar, options.Delta0);
+0649         <span class="keyword">end</span>
+0650     <span class="comment">% If the actual decrease is at least 3/4 of the precicted decrease and</span>
+0651     <span class="comment">% the tCG (inner solve) hit the TR boundary, increase the TR radius.</span>
+0652     <span class="comment">% We also keep track of the number of consecutive trust-region radius</span>
+0653     <span class="comment">% increases. If there are many, this may indicate the need to adapt the</span>
+0654     <span class="comment">% initial and maximum radii.</span>
+0655     <span class="keyword">elseif</span> rho &gt; 3/4 &amp;&amp; (stop_inner == 1 || stop_inner == 2)
+0656         trstr = <span class="string">'TR+'</span>;
+0657         Delta = min(2*Delta, options.Delta_bar);
+0658         consecutive_TRminus = 0;
+0659         consecutive_TRplus = consecutive_TRplus + 1;
+0660         <span class="keyword">if</span> consecutive_TRplus &gt;= 5 &amp;&amp; options.verbosity &gt;= 1
+0661             consecutive_TRplus = -inf;
+0662             fprintf(<span class="string">' +++ Detected many consecutive TR+ (radius increases).\n'</span>);
+0663             fprintf(<span class="string">' +++ Consider increasing options.Delta_bar by an order of magnitude.\n'</span>);
+0664             fprintf(<span class="string">' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n'</span>, options.Delta_bar, options.Delta0);
+0665         <span class="keyword">end</span>
+0666     <span class="keyword">else</span>
+0667         <span class="comment">% Otherwise, keep the TR radius constant.</span>
+0668         consecutive_TRplus = 0;
+0669         consecutive_TRminus = 0;
+0670     <span class="keyword">end</span>
+0671 
+0672     <span class="comment">% Choose to accept or reject the proposed step based on the model</span>
+0673     <span class="comment">% performance. Note the strict inequality.</span>
+0674     <span class="keyword">if</span> model_decreased &amp;&amp; rho &gt; options.rho_prime
+0675         
+0676         <span class="comment">% April 17, 2018: a side effect of rho_regularization &gt; 0 is that</span>
+0677         <span class="comment">% it can happen that the cost function appears to go up (although</span>
+0678         <span class="comment">% only by a small amount) for some accepted steps. We decide to</span>
+0679         <span class="comment">% accept this because, numerically, computing the difference</span>
+0680         <span class="comment">% between fx_prop and fx is more difficult than computing the</span>
+0681         <span class="comment">% improvement in the model, because fx_prop and fx are on the same</span>
+0682         <span class="comment">% order of magnitude yet are separated by a very small gap near</span>
+0683         <span class="comment">% convergence, whereas the model improvement is computed as a sum</span>
+0684         <span class="comment">% of two small terms. As a result, the step which seems bad may</span>
+0685         <span class="comment">% turn out to be good, in that it may help reduce the gradient norm</span>
+0686         <span class="comment">% for example. This update merely informs the user of this event.</span>
+0687         <span class="comment">% In further updates, we could also introduce this as a stopping</span>
+0688         <span class="comment">% criterion. It is then important to choose wisely which of x or</span>
+0689         <span class="comment">% x_prop should be returned (perhaps the one with smallest</span>
+0690         <span class="comment">% gradient?)</span>
+0691         <span class="keyword">if</span> fx_prop &gt; fx &amp;&amp; options.verbosity &gt;= 2
+0692             fprintf([<span class="string">'Between line above and below, cost function '</span> <span class="keyword">...</span>
+0693                      <span class="string">'increased by %s (step size: %g)\n'</span>], <span class="keyword">...</span>
+0694                      fx_prop - fx, norm_eta);
+0695         <span class="keyword">end</span>
+0696         
+0697         accept = true;
+0698         accstr = <span class="string">'acc'</span>;
+0699         <span class="comment">% We accept the step: no need to keep the old cache.</span>
+0700         storedb.removefirstifdifferent(key, key_prop);
+0701         x = x_prop;
+0702         key = key_prop;
+0703         fx = fx_prop;
+0704         fgradx = <a href="../../../manopt/core/getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
+0705         norm_grad = M.norm(x, fgradx);
+0706     <span class="keyword">else</span>
+0707         <span class="comment">% We reject the step: no need to keep cache related to the</span>
+0708         <span class="comment">% tentative step.</span>
+0709         storedb.removefirstifdifferent(key_prop, key);
+0710         accept = false;
+0711         accstr = <span class="string">'REJ'</span>;
+0712     <span class="keyword">end</span>
+0713     
+0714     <span class="comment">% k is the number of iterations we have accomplished.</span>
+0715     k = k + 1;
+0716     
+0717     <span class="comment">% Make sure we don't use too much memory for the store database</span>
+0718     storedb.purge();
+0719     
 0720 
-0721 <span class="keyword">end</span>  <span class="comment">% of TR loop (counter: k)</span>
-0722 
-0723 <span class="comment">% Restrict info struct-array to useful part</span>
-0724 info = info(1:k+1);
-0725 
-0726 
-0727 <span class="keyword">if</span> (options.verbosity &gt; 2) || (options.debug &gt; 0),
-0728    fprintf(<span class="string">'************************************************************************\n'</span>);
-0729 <span class="keyword">end</span>
-0730 <span class="keyword">if</span> (options.verbosity &gt; 0) || (options.debug &gt; 0)
-0731     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
-0732 <span class="keyword">end</span>
-0733 
-0734 <span class="comment">% Return the best cost reached</span>
-0735 cost = fx;
-0736 
-0737 <span class="keyword">end</span>
-0738 
-0739 
-0740 
-0741     
-0742 
-0743 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
-0744 <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats(problem, x, storedb, key, options, k, fx, </a><span class="keyword">...</span>
-0745                            norm_grad, Delta, ticstart, info, rho, rhonum, <span class="keyword">...</span>
-0746                            rhoden, accept, numit, norm_eta, used_cauchy)
-0747     stats.iter = k;
-0748     stats.cost = fx;
-0749     stats.gradnorm = norm_grad;
-0750     stats.Delta = Delta;
-0751     <span class="keyword">if</span> k == 0
-0752         stats.time = toc(ticstart);
-0753         stats.rho = inf;
-0754         stats.rhonum = NaN;
-0755         stats.rhoden = NaN;
-0756         stats.accepted = true;
-0757         stats.numinner = NaN;
-0758         stats.stepsize = NaN;
-0759         <span class="keyword">if</span> options.useRand
-0760             stats.cauchy = false;
-0761         <span class="keyword">end</span>
-0762     <span class="keyword">else</span>
-0763         stats.time = info(k).time + toc(ticstart);
-0764         stats.rho = rho;
-0765         stats.rhonum = rhonum;
-0766         stats.rhoden = rhoden;
-0767         stats.accepted = accept;
-0768         stats.numinner = numit;
-0769         stats.stepsize = norm_eta;
-0770         <span class="keyword">if</span> options.useRand,
-0771           stats.cauchy = used_cauchy;
-0772         <span class="keyword">end</span>
-0773     <span class="keyword">end</span>
-0774     
-0775     <span class="comment">% See comment about statsfun above: the x and store passed to statsfun</span>
-0776     <span class="comment">% are that of the most recently accepted point after the iteration</span>
-0777     <span class="comment">% fully executed.</span>
-0778     stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key, options, stats);
-0779     
-0780 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0721     <span class="comment">% Log statistics for freshly executed iteration.</span>
+0722     <span class="comment">% Everything after this in the loop is not accounted for in the timing.</span>
+0723     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats(problem, x, storedb, key, options, k, fx, ">savestats</a>(problem, x, storedb, key, options, k, fx, <span class="keyword">...</span>
+0724                       norm_grad, Delta, ticstart, info, rho, rhonum, <span class="keyword">...</span>
+0725                       rhoden, accept, numit, norm_eta, used_cauchy);
+0726     info(k+1) = stats;
+0727 
+0728     
+0729     <span class="comment">% ** Display:</span>
+0730     <span class="keyword">if</span> options.verbosity == 2
+0731         fprintf([<span class="string">'%3s %3s   k: %5d     num_inner: %5d     '</span>, <span class="keyword">...</span>
+0732         <span class="string">'f: %+e   |grad|: %e   %s\n'</span>], <span class="keyword">...</span>
+0733         accstr,trstr,k,numit,fx,norm_grad,srstr);
+0734     <span class="keyword">elseif</span> options.verbosity &gt; 2
+0735         <span class="keyword">if</span> options.useRand &amp;&amp; used_cauchy
+0736             fprintf(<span class="string">'USED CAUCHY POINT\n'</span>);
+0737         <span class="keyword">end</span>
+0738         fprintf(<span class="string">'%3s %3s    k: %5d     num_inner: %5d     %s\n'</span>, <span class="keyword">...</span>
+0739                 accstr, trstr, k, numit, srstr);
+0740         fprintf(<span class="string">'       f(x) : %+e     |grad| : %e\n'</span>,fx,norm_grad);
+0741         <span class="keyword">if</span> options.debug &gt; 0
+0742             fprintf(<span class="string">'      Delta : %f          |eta| : %e\n'</span>,Delta,norm_eta);
+0743         <span class="keyword">end</span>
+0744         fprintf(<span class="string">'        rho : %e\n'</span>,rho);
+0745     <span class="keyword">end</span>
+0746     <span class="keyword">if</span> options.debug &gt; 0
+0747         fprintf(<span class="string">'DBG: cos ang(eta,gradf): %d\n'</span>,testangle);
+0748         <span class="keyword">if</span> rho == 0
+0749             fprintf(<span class="string">'DBG: rho = 0, this will likely hinder further convergence.\n'</span>);
+0750         <span class="keyword">end</span>
+0751     <span class="keyword">end</span>
+0752 
+0753 <span class="keyword">end</span>  <span class="comment">% of TR loop (counter: k)</span>
+0754 
+0755 <span class="comment">% Restrict info struct-array to useful part</span>
+0756 info = info(1:k+1);
+0757 
+0758 
+0759 <span class="keyword">if</span> (options.verbosity &gt; 2) || (options.debug &gt; 0)
+0760    fprintf(<span class="string">'************************************************************************\n'</span>);
+0761 <span class="keyword">end</span>
+0762 <span class="keyword">if</span> (options.verbosity &gt; 0) || (options.debug &gt; 0)
+0763     fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, info(end).time);
+0764 <span class="keyword">end</span>
+0765 
+0766 <span class="comment">% Return the best cost reached</span>
+0767 cost = fx;
+0768 
+0769 <span class="keyword">end</span>
+0770 
+0771 
+0772 
+0773     
+0774 
+0775 <span class="comment">% Routine in charge of collecting the current iteration stats</span>
+0776 <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats(problem, x, storedb, key, options, k, fx, </a><span class="keyword">...</span>
+0777                            norm_grad, Delta, ticstart, info, rho, rhonum, <span class="keyword">...</span>
+0778                            rhoden, accept, numit, norm_eta, used_cauchy)
+0779     stats.iter = k;
+0780     stats.cost = fx;
+0781     stats.gradnorm = norm_grad;
+0782     stats.Delta = Delta;
+0783     <span class="keyword">if</span> k == 0
+0784         stats.time = toc(ticstart);
+0785         stats.rho = inf;
+0786         stats.rhonum = NaN;
+0787         stats.rhoden = NaN;
+0788         stats.accepted = true;
+0789         stats.numinner = 0;
+0790         stats.stepsize = NaN;
+0791         <span class="keyword">if</span> options.useRand
+0792             stats.cauchy = false;
+0793         <span class="keyword">end</span>
+0794     <span class="keyword">else</span>
+0795         stats.time = info(k).time + toc(ticstart);
+0796         stats.rho = rho;
+0797         stats.rhonum = rhonum;
+0798         stats.rhoden = rhoden;
+0799         stats.accepted = accept;
+0800         stats.numinner = numit;
+0801         stats.stepsize = norm_eta;
+0802         <span class="keyword">if</span> options.useRand
+0803           stats.cauchy = used_cauchy;
+0804         <span class="keyword">end</span>
+0805     <span class="keyword">end</span>
+0806     
+0807     <span class="comment">% See comment about statsfun above: the x and store passed to statsfun</span>
+0808     <span class="comment">% are that of the most recently accepted point after the iteration</span>
+0809     <span class="comment">% fully executed.</span>
+0810     stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key, options, stats);
+0811     
+0812 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -66,7 +66,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li><li><a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
+<li><a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k, gpuflag)">grassmannfactory</a>	Returns a manifold struct to optimize over the space of vector subspaces.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li><li><a href="../manopt/tools/productmanifold.html" class="code" title="function M = productmanifold(elements)">productmanifold</a>	Returns a structure describing a product manifold M = M1 x M2 x ... x Mn.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -136,8 +136,8 @@ This function is called by:
 0057     assert(p &lt;= min(m, n), <span class="string">'p must be smaller than the smallest dimension of A.'</span>);
 0058     
 0059     <span class="comment">% Define the cost and its derivatives on the Grassmann manifold</span>
-0060     tuple.U = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(m, p);
-0061     tuple.V = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k)">grassmannfactory</a>(n, p);
+0060     tuple.U = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k, gpuflag)">grassmannfactory</a>(m, p);
+0061     tuple.V = <a href="../manopt/manifolds/grassmann/grassmannfactory.html" class="code" title="function M = grassmannfactory(n, p, k, gpuflag)">grassmannfactory</a>(n, p);
 0062     <span class="comment">% All of the code will work just as well if we ignore the invariance</span>
 0063     <span class="comment">% property of the cost function indicated above and thus place U and V</span>
 0064     <span class="comment">% on the Stiefel manifold (orthonormal matrices) instead of the</span>
@@ -244,6 +244,6 @@ This function is called by:
 0165     <span class="keyword">end</span>
 0166 
 0167 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

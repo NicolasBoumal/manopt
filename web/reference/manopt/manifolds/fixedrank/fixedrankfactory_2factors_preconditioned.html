@@ -63,7 +63,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function X = prepare(X)</a></li><li><a href="#_sub2" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub3" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub4" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub5" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub6" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub7" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub8" class="code">function X = random()</a></li><li><a href="#_sub9" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub10" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
+<li><a href="#_sub1" class="code">function X = prepare(X)</a></li><li><a href="#_sub2" class="code">function ip = iproduct(X, eta, zeta)</a></li><li><a href="#_sub3" class="code">function rgrad = egrad2rgrad(X, egrad)</a></li><li><a href="#_sub4" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub5" class="code">function etaproj = projection(X, eta)</a></li><li><a href="#_sub6" class="code">function Y = retraction(X, eta, t)</a></li><li><a href="#_sub7" class="code">function X = random()</a></li><li><a href="#_sub8" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub9" class="code">function d = lincomb(x, a1, d1, a2, d2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = fixedrankfactory_2factors_preconditioned(m, n, k)</a>
@@ -96,174 +96,165 @@ This function is called by:
 0028 <span class="comment">% Contributors:</span>
 0029 <span class="comment">% Change log:</span>
 0030 <span class="comment">%</span>
-0031 <span class="comment">%    April 04, 2015 (BM):</span>
-0032 <span class="comment">%      Cosmetic changes including avoiding storing the inverse of a</span>
-0033 <span class="comment">%       k-by-k matrix.</span>
-0034   
-0035     
-0036     M.name = @() sprintf(<span class="string">'LR''(tuned to least square problems) quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
-0037     
-0038     M.dim = @() (m+n-k)*k;
-0039     
+0031 <span class="comment">%    Apr. 4, 2015 (BM):</span>
+0032 <span class="comment">%        Cosmetic changes including avoiding storing the inverse of a</span>
+0033 <span class="comment">%        k-by-k matrix.</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%    Sep. 6, 2018 (NB):</span>
+0036 <span class="comment">%        Removed M.exp() as it was not implemented.</span>
+0037   
+0038     
+0039     M.name = @() sprintf(<span class="string">'LR''(tuned to least square problems) quotient manifold of %dx%d matrices of rank %d'</span>, m, n, k);
 0040     
-0041     <span class="comment">% Some precomputations at the point X to be used in the inner product</span>
-0042     <span class="comment">% (and pretty much everywhere else).</span>
-0043     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
-0044         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'LtL'</span>,<span class="string">'RtR'</span>}))
-0045             L = X.L;
-0046             R = X.R;
-0047             X.LtL = L'*L;
-0048             X.RtR = R'*R;
-0049         <span class="keyword">end</span>
-0050     <span class="keyword">end</span>
-0051     
-0052     
-0053     <span class="comment">% The choice of metric is motivated by symmetry and</span>
-0054     <span class="comment">% tuned to least-squares cost function.</span>
-0055     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
-0056     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
-0057         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0058         ip = trace(X.RtR*(eta.L'*zeta.L)) + trace(X.LtL*(eta.R'*zeta.R)); <span class="comment">% Scaled metric</span>
-0059     <span class="keyword">end</span>
-0060     
-0061     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
-0062     
-0063     M.dist = @(x, y) error(<span class="string">'fixedrankfactory_2factors_preconditioned.dist not implemented yet.'</span>);
-0064     
-0065     M.typicaldist = @() 10*k;
-0066     
-0067     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
-0068     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
-0069         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0070         
-0071         <span class="comment">% Riemannian gradient</span>
-0072         rgrad.L = egrad.L/X.RtR;
-0073         rgrad.R = egrad.R/X.LtL;
-0074     <span class="keyword">end</span>
-0075     
-0076     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
-0077     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
-0078         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0079         
-0080         <span class="comment">% Riemannian gradient.</span>
-0081         rgrad = <a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>(X, egrad);
+0041     M.dim = @() (m+n-k)*k;
+0042     
+0043     
+0044     <span class="comment">% Some precomputations at the point X to be used in the inner product</span>
+0045     <span class="comment">% (and pretty much everywhere else).</span>
+0046     <a name="_sub1" href="#_subfunctions" class="code">function X = prepare(X)</a>
+0047         <span class="keyword">if</span> ~all(isfield(X,{<span class="string">'LtL'</span>,<span class="string">'RtR'</span>}))
+0048             L = X.L;
+0049             R = X.R;
+0050             X.LtL = L'*L;
+0051             X.RtR = R'*R;
+0052         <span class="keyword">end</span>
+0053     <span class="keyword">end</span>
+0054     
+0055     
+0056     <span class="comment">% The choice of metric is motivated by symmetry and</span>
+0057     <span class="comment">% tuned to least-squares cost function.</span>
+0058     M.inner = @<a href="#_sub2" class="code" title="subfunction ip = iproduct(X, eta, zeta)">iproduct</a>;
+0059     <a name="_sub2" href="#_subfunctions" class="code">function ip = iproduct(X, eta, zeta)</a>
+0060         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0061         ip = trace(X.RtR*(eta.L'*zeta.L)) + trace(X.LtL*(eta.R'*zeta.R)); <span class="comment">% Scaled metric</span>
+0062     <span class="keyword">end</span>
+0063     
+0064     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+0065     
+0066     M.dist = @(x, y) error(<span class="string">'fixedrankfactory_2factors_preconditioned.dist not implemented yet.'</span>);
+0067     
+0068     M.typicaldist = @() 10*k;
+0069     
+0070     M.egrad2rgrad = @<a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>;
+0071     <a name="_sub3" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(X, egrad)</a>
+0072         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0073         
+0074         <span class="comment">% Riemannian gradient</span>
+0075         rgrad.L = egrad.L/X.RtR;
+0076         rgrad.R = egrad.R/X.LtL;
+0077     <span class="keyword">end</span>
+0078     
+0079     M.ehess2rhess = @<a href="#_sub4" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0080     <a name="_sub4" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0081         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
 0082         
-0083         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
-0084         Hess.L = ehess.L/X.RtR - 2*egrad.L*(X.RtR \ (symm(eta.R'*X.R) / X.RtR));
-0085         Hess.R = ehess.R/X.LtL - 2*egrad.R*(X.LtL \ (symm(eta.L'*X.L) / X.LtL));
-0086         
-0087         <span class="comment">% We still need a correction factor for the non-constant metric.</span>
-0088         Hess.L = Hess.L + rgrad.L*(symm(eta.R'*X.R)/X.RtR) + eta.L*(symm(rgrad.R'*X.R)/X.RtR) - X.L*(symm(eta.R'*rgrad.R)/X.RtR);
-0089         Hess.R = Hess.R + rgrad.R*(symm(eta.L'*X.L)/X.LtL) + eta.R*(symm(rgrad.L'*X.L)/X.LtL) - X.R*(symm(eta.L'*rgrad.L)/X.LtL);
-0090         
-0091         <span class="comment">% Project on the horizontal space.</span>
-0092         Hess = M.proj(X, Hess);
-0093     <span class="keyword">end</span>
-0094     
-0095     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
-0096     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
-0097         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
-0098         
-0099         <span class="comment">% Projection onto the horizontal space.</span>
-0100         Lambda = 0.5*((eta.R'*X.R)/X.RtR  -   X.LtL\(X.L'*eta.L));
-0101         etaproj.L = eta.L + X.L*Lambda;
-0102         etaproj.R = eta.R - X.R*Lambda';
-0103     <span class="keyword">end</span>
-0104     
-0105     M.tangent = M.proj;
-0106     
-0107     M.tangent2ambient = @(X, eta) eta;
-0108     
-0109     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
-0110     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
-0111         <span class="keyword">if</span> nargin &lt; 3
-0112             t = 1.0;
-0113         <span class="keyword">end</span>
-0114         Y.L = X.L + t*eta.L;
-0115         Y.R = X.R + t*eta.R;
-0116         
-0117         <span class="comment">% Numerical conditioning step: a simpler version.</span>
-0118         <span class="comment">% We need to ensure that L and R are do not have very relative</span>
-0119         <span class="comment">% skewed norms.</span>
-0120         
-0121         scaling = norm(X.L, <span class="string">'fro'</span>)/norm(X.R, <span class="string">'fro'</span>);
-0122         scaling = sqrt(scaling);
-0123         Y.L = Y.L / scaling;
-0124         Y.R = Y.R * scaling;
-0125         
-0126         <span class="comment">% These are reused in the computations of gradient and Hessian.</span>
-0127         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
-0128     <span class="keyword">end</span>
-0129     
-0130     
-0131     M.exp = @<a href="#_sub7" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
-0132     <a name="_sub7" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
-0133         <span class="keyword">if</span> nargin &lt; 3
-0134             t = 1.0;
-0135         <span class="keyword">end</span>
-0136         
-0137         Y = <a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>(X, eta, t);
-0138         warning(<span class="string">'manopt:fixedrankfactory_2factors_preconditioned:exp'</span>, <span class="keyword">...</span>
-0139             [<span class="string">'Exponential for fixed rank '</span> <span class="keyword">...</span>
-0140             <span class="string">'manifold not implemented yet. Used retraction instead.'</span>]);
+0083         <span class="comment">% Riemannian gradient.</span>
+0084         rgrad = <a href="#_sub3" class="code" title="subfunction rgrad = egrad2rgrad(X, egrad)">egrad2rgrad</a>(X, egrad);
+0085         
+0086         <span class="comment">% Directional derivative of the Riemannian gradient.</span>
+0087         Hess.L = ehess.L/X.RtR - 2*egrad.L*(X.RtR \ (symm(eta.R'*X.R) / X.RtR));
+0088         Hess.R = ehess.R/X.LtL - 2*egrad.R*(X.LtL \ (symm(eta.L'*X.L) / X.LtL));
+0089         
+0090         <span class="comment">% We still need a correction factor for the non-constant metric.</span>
+0091         Hess.L = Hess.L + rgrad.L*(symm(eta.R'*X.R)/X.RtR) + eta.L*(symm(rgrad.R'*X.R)/X.RtR) - X.L*(symm(eta.R'*rgrad.R)/X.RtR);
+0092         Hess.R = Hess.R + rgrad.R*(symm(eta.L'*X.L)/X.LtL) + eta.R*(symm(rgrad.L'*X.L)/X.LtL) - X.R*(symm(eta.L'*rgrad.L)/X.LtL);
+0093         
+0094         <span class="comment">% Project on the horizontal space.</span>
+0095         Hess = M.proj(X, Hess);
+0096     <span class="keyword">end</span>
+0097     
+0098     M.proj = @<a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>;
+0099     <a name="_sub5" href="#_subfunctions" class="code">function etaproj = projection(X, eta)</a>
+0100         X = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(X);
+0101         
+0102         <span class="comment">% Projection onto the horizontal space.</span>
+0103         Lambda = 0.5*((eta.R'*X.R)/X.RtR  -   X.LtL\(X.L'*eta.L));
+0104         etaproj.L = eta.L + X.L*Lambda;
+0105         etaproj.R = eta.R - X.R*Lambda';
+0106     <span class="keyword">end</span>
+0107     
+0108     M.tangent = M.proj;
+0109     
+0110     M.tangent2ambient = @(X, eta) eta;
+0111     
+0112     M.retr = @<a href="#_sub6" class="code" title="subfunction Y = retraction(X, eta, t)">retraction</a>;
+0113     <a name="_sub6" href="#_subfunctions" class="code">function Y = retraction(X, eta, t)</a>
+0114         <span class="keyword">if</span> nargin &lt; 3
+0115             t = 1.0;
+0116         <span class="keyword">end</span>
+0117         Y.L = X.L + t*eta.L;
+0118         Y.R = X.R + t*eta.R;
+0119         
+0120         <span class="comment">% Numerical conditioning step: a simpler version.</span>
+0121         <span class="comment">% We need to ensure that L and R are do not have very relative</span>
+0122         <span class="comment">% skewed norms.</span>
+0123         
+0124         scaling = norm(X.L, <span class="string">'fro'</span>)/norm(X.R, <span class="string">'fro'</span>);
+0125         scaling = sqrt(scaling);
+0126         Y.L = Y.L / scaling;
+0127         Y.R = Y.R * scaling;
+0128         
+0129         <span class="comment">% These are reused in the computations of gradient and Hessian.</span>
+0130         Y = <a href="#_sub1" class="code" title="subfunction X = prepare(X)">prepare</a>(Y);
+0131     <span class="keyword">end</span>
+0132     
+0133     
+0134     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.L(:) ; X.R(:)])];
+0135     
+0136     M.rand = @<a href="#_sub7" class="code" title="subfunction X = random()">random</a>;
+0137     
+0138     <a name="_sub7" href="#_subfunctions" class="code">function X = random()</a>
+0139         X.L = randn(m, k);
+0140         X.R = randn(n, k);
 0141     <span class="keyword">end</span>
 0142     
-0143     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>([X.L(:) ; X.R(:)])];
-0144     
-0145     M.rand = @<a href="#_sub8" class="code" title="subfunction X = random()">random</a>;
-0146     
-0147     <a name="_sub8" href="#_subfunctions" class="code">function X = random()</a>
-0148         X.L = randn(m, k);
-0149         X.R = randn(n, k);
-0150     <span class="keyword">end</span>
-0151     
-0152     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
-0153     <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
-0154         eta.L = randn(m, k);
-0155         eta.R = randn(n, k);
-0156         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
-0157         nrm = M.norm(X, eta);
-0158         eta.L = eta.L / nrm;
-0159         eta.R = eta.R / nrm;
-0160     <span class="keyword">end</span>
+0143     M.randvec = @<a href="#_sub8" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0144     <a name="_sub8" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0145         eta.L = randn(m, k);
+0146         eta.R = randn(n, k);
+0147         eta = <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(X, eta);
+0148         nrm = M.norm(X, eta);
+0149         eta.L = eta.L / nrm;
+0150         eta.R = eta.R / nrm;
+0151     <span class="keyword">end</span>
+0152     
+0153     M.lincomb = @<a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>;
+0154     
+0155     M.zerovec = @(X) struct(<span class="string">'L'</span>, zeros(m, k),<span class="string">'R'</span>, zeros(n, k));
+0156     
+0157     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
+0158     
+0159     <span class="comment">% vec and mat are not isometries, because of the scaled inner metric.</span>
+0160     M.vec = @(X, U) [U.L(:) ; U.R(:)];
 0161     
-0162     M.lincomb = @<a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>;
-0163     
-0164     M.zerovec = @(X) struct(<span class="string">'L'</span>, zeros(m, k),<span class="string">'R'</span>, zeros(n, k));
-0165     
-0166     M.transp = @(x1, x2, d) <a href="#_sub5" class="code" title="subfunction etaproj = projection(X, eta)">projection</a>(x2, d);
-0167     
-0168     <span class="comment">% vec and mat are not isometries, because of the scaled inner metric.</span>
-0169     M.vec = @(X, U) [U.L(:) ; U.R(:)];
-0170     
-0171     M.mat = @(X, u) struct(<span class="string">'L'</span>, reshape(u(1:(m*k)), m, k), <span class="keyword">...</span>
-0172         <span class="string">'R'</span>, reshape(u((m*k+1):end), n, k));
+0162     M.mat = @(X, u) struct(<span class="string">'L'</span>, reshape(u(1:(m*k)), m, k), <span class="keyword">...</span>
+0163         <span class="string">'R'</span>, reshape(u((m*k+1):end), n, k));
+0164     
+0165     M.vecmatareisometries = @() false;
+0166     
+0167     <span class="comment">% Auxiliary functions</span>
+0168     symm = @(M) .5*(M+M');
+0169 <span class="keyword">end</span>
+0170 
+0171 <span class="comment">% Linear combination of tangent vectors.</span>
+0172 <a name="_sub9" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
 0173     
-0174     M.vecmatareisometries = @() false;
-0175     
-0176     <span class="comment">% Auxiliary functions</span>
-0177     symm = @(M) .5*(M+M');
-0178 <span class="keyword">end</span>
-0179 
-0180 <span class="comment">% Linear combination of tangent vectors.</span>
-0181 <a name="_sub10" href="#_subfunctions" class="code">function d = lincomb(x, a1, d1, a2, d2) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0182     
-0183     <span class="keyword">if</span> nargin == 3
-0184         d.L = a1*d1.L;
-0185         d.R = a1*d1.R;
-0186     <span class="keyword">elseif</span> nargin == 5
-0187         d.L = a1*d1.L + a2*d2.L;
-0188         d.R = a1*d1.R + a2*d2.R;
-0189     <span class="keyword">else</span>
-0190         error(<span class="string">'Bad use of fixedrankfactory_2factors_preconditioned.lincomb.'</span>);
-0191     <span class="keyword">end</span>
-0192     
-0193 <span class="keyword">end</span>
-0194 
-0195 
-0196 
-0197 
-0198</pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0174     <span class="keyword">if</span> nargin == 3
+0175         d.L = a1*d1.L;
+0176         d.R = a1*d1.R;
+0177     <span class="keyword">elseif</span> nargin == 5
+0178         d.L = a1*d1.L + a2*d2.L;
+0179         d.R = a1*d1.R + a2*d2.R;
+0180     <span class="keyword">else</span>
+0181         error(<span class="string">'Bad use of fixedrankfactory_2factors_preconditioned.lincomb.'</span>);
+0182     <span class="keyword">end</span>
+0183     
+0184 <span class="keyword">end</span>
+0185 
+0186 
+0187 
+0188 
+0189</pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

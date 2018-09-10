@@ -24,20 +24,27 @@
 <div class="box"><strong>Returns a manifold struct to optimize over unit-modulus complex numbers.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box"><strong>function M = complexcirclefactory(n) </strong></div>
+<div class="box"><strong>function M = complexcirclefactory(n, m, gpuflag) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Returns a manifold struct to optimize over unit-modulus complex numbers.
 
  function M = complexcirclefactory()
  function M = complexcirclefactory(n)
+ function M = complexcirclefactory(n, m)
+ function M = complexcirclefactory(n, m, gpuflag)
 
- Description of vectors z in C^n (complex) such that each component z(i)
- has unit modulus. The manifold structure is the Riemannian submanifold
- structure from the embedding space R^2 x ... x R^2, i.e., the complex
- circle is identified with the unit circle in the real plane.
+ Description of matrices z in C^(nxm) (complex) such that each entry
+ z(i, j) has unit modulus. The manifold structure is the Riemannian
+ submanifold structure from the embedding space R^2 to the power n-by-m,
+ i.e., the complex circle is identified with the unit circle in the real
+ plane. Points and tangent vectors are represented as complex matrices of
+ size n-by-m.
 
- By default, n = 1.
+ Set gpuflag = true to have points, tangent vectors and ambient vectors
+ stored on the GPU. If so, computations can be done on the GPU directly.
+
+ By default, n = 1, m = 1 and gpuflag = false.
 
  See also spherecomplexfactory</pre></div>
 
@@ -45,7 +52,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+<li><a href="../../../manopt/tools/factorygpuhelper.html" class="code" title="function M = factorygpuhelper(M)">factorygpuhelper</a>	Returns a manifold struct to optimize over unit-norm vectors or matrices.</li><li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -53,145 +60,188 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a></li><li><a href="#_sub2" class="code">function y = exponential(z, v, t)</a></li><li><a href="#_sub3" class="code">function y = retraction(z, v, t)</a></li><li><a href="#_sub4" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub5" class="code">function z = random()</a></li><li><a href="#_sub6" class="code">function v = randomvec(z)</a></li><li><a href="#_sub7" class="code">function z = pairmean(z1, z2)</a></li></ul>
+<li><a href="#_sub1" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a></li><li><a href="#_sub2" class="code">function y = exponential(z, v, t)</a></li><li><a href="#_sub3" class="code">function y = retraction(z, v, t)</a></li><li><a href="#_sub4" class="code">function v = inverse_retraction(x, y)</a></li><li><a href="#_sub5" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub6" class="code">function z = random()</a></li><li><a href="#_sub7" class="code">function v = randomvec(z)</a></li><li><a href="#_sub8" class="code">function z = pairmean(z1, z2)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = complexcirclefactory(n)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = complexcirclefactory(n, m, gpuflag)</a>
 0002 <span class="comment">% Returns a manifold struct to optimize over unit-modulus complex numbers.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% function M = complexcirclefactory()</span>
 0005 <span class="comment">% function M = complexcirclefactory(n)</span>
-0006 <span class="comment">%</span>
-0007 <span class="comment">% Description of vectors z in C^n (complex) such that each component z(i)</span>
-0008 <span class="comment">% has unit modulus. The manifold structure is the Riemannian submanifold</span>
-0009 <span class="comment">% structure from the embedding space R^2 x ... x R^2, i.e., the complex</span>
-0010 <span class="comment">% circle is identified with the unit circle in the real plane.</span>
-0011 <span class="comment">%</span>
-0012 <span class="comment">% By default, n = 1.</span>
-0013 <span class="comment">%</span>
-0014 <span class="comment">% See also spherecomplexfactory</span>
-0015 
-0016 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0017 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0018 <span class="comment">% Contributors:</span>
-0019 <span class="comment">% Change log:</span>
+0006 <span class="comment">% function M = complexcirclefactory(n, m)</span>
+0007 <span class="comment">% function M = complexcirclefactory(n, m, gpuflag)</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Description of matrices z in C^(nxm) (complex) such that each entry</span>
+0010 <span class="comment">% z(i, j) has unit modulus. The manifold structure is the Riemannian</span>
+0011 <span class="comment">% submanifold structure from the embedding space R^2 to the power n-by-m,</span>
+0012 <span class="comment">% i.e., the complex circle is identified with the unit circle in the real</span>
+0013 <span class="comment">% plane. Points and tangent vectors are represented as complex matrices of</span>
+0014 <span class="comment">% size n-by-m.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Set gpuflag = true to have points, tangent vectors and ambient vectors</span>
+0017 <span class="comment">% stored on the GPU. If so, computations can be done on the GPU directly.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% By default, n = 1, m = 1 and gpuflag = false.</span>
 0020 <span class="comment">%</span>
-0021 <span class="comment">%   July 7, 2014 (NB): Added ehess2rhess function.</span>
-0022 <span class="comment">%</span>
-0023 <span class="comment">%   Sep. 3, 2014 (NB): Correction to the dist function (extract real part).</span>
-0024 <span class="comment">%</span>
-0025 <span class="comment">%   April 13, 2015 (NB): Fixed logarithm.</span>
-0026 <span class="comment">%</span>
-0027 <span class="comment">%   Oct. 8, 2016 (NB)</span>
-0028 <span class="comment">%       Code for exponential was simplified to only treat the zero vector</span>
-0029 <span class="comment">%       as a particular case.</span>
-0030 <span class="comment">%</span>
-0031 <span class="comment">%   July 20, 2017 (NB)</span>
-0032 <span class="comment">%       The distance function is now even more accurate. Improved logarithm</span>
-0033 <span class="comment">%       accordingly.</span>
-0034     
-0035     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>)
-0036         n = 1;
-0037     <span class="keyword">end</span>
-0038 
-0039     M.name = @() sprintf(<span class="string">'Complex circle (S^1)^%d'</span>, n);
-0040     
-0041     M.dim = @() n;
-0042     
-0043     M.inner = @(z, v, w) real(v'*w);
-0044     
-0045     M.norm = @(x, v) norm(v);
-0046     
-0047     M.dist = @(x, y) norm(real(2*asin(.5*abs(x - y))));
+0021 <span class="comment">% See also spherecomplexfactory</span>
+0022 
+0023 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0024 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0025 <span class="comment">% Contributors:</span>
+0026 <span class="comment">% Change log:</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%   July 7, 2014 (NB): Added ehess2rhess function.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   Sep. 3, 2014 (NB): Correction to the dist function (extract real part).</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%   April 13, 2015 (NB): Fixed logarithm.</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%   Oct. 8, 2016 (NB)</span>
+0035 <span class="comment">%       Code for exponential was simplified to only treat the zero vector</span>
+0036 <span class="comment">%       as a particular case.</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%   July 20, 2017 (NB)</span>
+0039 <span class="comment">%       The distance function is now even more accurate. Improved logarithm</span>
+0040 <span class="comment">%       accordingly.</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">%   July 18, 2018 (NB)</span>
+0043 <span class="comment">%       Added inverse retraction function M.invretr.</span>
+0044 <span class="comment">%</span>
+0045 <span class="comment">%   Aug. 3, 2018 (NB)</span>
+0046 <span class="comment">%       Added support for matrices of unit-modulus (as opposed to vectors).</span>
+0047 <span class="comment">%       Added GPU support: just set gpuflag = true.</span>
 0048     
-0049     M.typicaldist = @() pi*sqrt(n);
-0050     
-0051     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;    
-0052     
-0053     M.tangent = M.proj;
-0054     
-0055     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
-0056     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
-0057     M.egrad2rgrad = M.proj;
+0049     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0050         n = 1;
+0051     <span class="keyword">end</span>
+0052     <span class="keyword">if</span> ~exist(<span class="string">'m'</span>, <span class="string">'var'</span>) || isempty(m)
+0053         m = 1;
+0054     <span class="keyword">end</span>
+0055     <span class="keyword">if</span> ~exist(<span class="string">'gpuflag'</span>, <span class="string">'var'</span>) || isempty(gpuflag)
+0056         gpuflag = false;
+0057     <span class="keyword">end</span>
 0058     
-0059     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction rhess = ehess2rhess(z, egrad, ehess, zdot)">ehess2rhess</a>;
-0060     <a name="_sub1" href="#_subfunctions" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a>
-0061         rhess = M.proj(z, ehess - real(z.*conj(egrad)).*zdot);
-0062     <span class="keyword">end</span>
-0063     
-0064     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exponential(z, v, t)">exponential</a>;
-0065     <a name="_sub2" href="#_subfunctions" class="code">function y = exponential(z, v, t)</a>
-0066         
-0067         <span class="keyword">if</span> nargin == 2
-0068             <span class="comment">% t = 1;</span>
-0069             tv = v;
-0070         <span class="keyword">else</span>
-0071             tv = t*v;
-0072         <span class="keyword">end</span>
-0073 
-0074         y = zeros(n, 1);
-0075 
-0076         nrm_tv = abs(tv);
-0077         
-0078         <span class="comment">% We need to be careful for zero steps.</span>
-0079         mask = (nrm_tv &gt; 0);
-0080         y(mask) = z(mask).*cos(nrm_tv(mask)) + <span class="keyword">...</span>
-0081                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
-0082         y(~mask) = z(~mask);
-0083         
-0084     <span class="keyword">end</span>
+0059     <span class="comment">% If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)</span>
+0060     <span class="comment">% are created directly on the GPU; otherwise, they are created in the</span>
+0061     <span class="comment">% usual way (in double precision).</span>
+0062     <span class="keyword">if</span> gpuflag
+0063         array_type = <span class="string">'gpuArray'</span>;
+0064     <span class="keyword">else</span>
+0065         array_type = <span class="string">'double'</span>;
+0066     <span class="keyword">end</span>
+0067 
+0068     <span class="keyword">if</span> m == 1
+0069         M.name = @() sprintf(<span class="string">'Complex circle (S^1)^%d'</span>, n);
+0070     <span class="keyword">else</span>
+0071         M.name = @() sprintf(<span class="string">'Complex circle (S^1)^(%dx%d)'</span>, n, m);
+0072     <span class="keyword">end</span>
+0073     
+0074     M.dim = @() n*m;
+0075     
+0076     M.inner = @(z, v, w) real(v(:)'*w(:));
+0077     
+0078     M.norm = @(x, v) norm(v, <span class="string">'fro'</span>);
+0079     
+0080     M.dist = @(x, y) norm(real(2*asin(.5*abs(x - y))), <span class="string">'fro'</span>);
+0081     
+0082     M.typicaldist = @() pi*sqrt(n*m);
+0083     
+0084     M.proj = @(z, u) u - real( conj(u) .* z ) .* z;    
 0085     
-0086     M.retr = @<a href="#_sub3" class="code" title="subfunction y = retraction(z, v, t)">retraction</a>;
-0087     <a name="_sub3" href="#_subfunctions" class="code">function y = retraction(z, v, t)</a>
-0088         <span class="keyword">if</span> nargin == 2
-0089             <span class="comment">% t = 1;</span>
-0090             tv = v;
-0091         <span class="keyword">else</span>
-0092             tv = t*v;
-0093         <span class="keyword">end</span>
-0094         y = sign(z+tv);
+0086     M.tangent = M.proj;
+0087     
+0088     <span class="comment">% For Riemannian submanifolds, converting a Euclidean gradient into a</span>
+0089     <span class="comment">% Riemannian gradient amounts to an orthogonal projection.</span>
+0090     M.egrad2rgrad = M.proj;
+0091     
+0092     M.ehess2rhess = @<a href="#_sub1" class="code" title="subfunction rhess = ehess2rhess(z, egrad, ehess, zdot)">ehess2rhess</a>;
+0093     <a name="_sub1" href="#_subfunctions" class="code">function rhess = ehess2rhess(z, egrad, ehess, zdot)</a>
+0094         rhess = M.proj(z, ehess - real(z.*conj(egrad)).*zdot);
 0095     <span class="keyword">end</span>
-0096 
-0097     M.log = @<a href="#_sub4" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
-0098     <a name="_sub4" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
-0099         v = M.proj(x1, x2 - x1);
-0100         di = real(2*asin(.5*abs(x1 - x2)));
-0101         nv = abs(v);
-0102         factors = di ./ nv;
-0103         factors(di &lt;= 1e-10) = 1;
-0104         v = v .* factors;
-0105     <span class="keyword">end</span>
-0106     
-0107     M.hash = @(z) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>( [real(z(:)) ; imag(z(:))] ) ];
-0108     
-0109     M.rand = @<a href="#_sub5" class="code" title="subfunction z = random()">random</a>;
-0110     <a name="_sub5" href="#_subfunctions" class="code">function z = random()</a>
-0111         z = sign(randn(n, 1) + 1i*randn(n, 1));
-0112     <span class="keyword">end</span>
-0113     
-0114     M.randvec = @<a href="#_sub6" class="code" title="subfunction v = randomvec(z)">randomvec</a>;
-0115     <a name="_sub6" href="#_subfunctions" class="code">function v = randomvec(z)</a>
-0116         <span class="comment">% i*z(k) is a basis vector of the tangent vector to the k-th circle</span>
-0117         v = randn(n, 1) .* (1i*z);
-0118         v = v / norm(v);
-0119     <span class="keyword">end</span>
-0120     
-0121     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0122     
-0123     M.zerovec = @(x) zeros(n, 1);
-0124     
-0125     M.transp = @(x1, x2, d) M.proj(x2, d);
-0126     
-0127     M.pairmean = @<a href="#_sub7" class="code" title="subfunction z = pairmean(z1, z2)">pairmean</a>;
-0128     <a name="_sub7" href="#_subfunctions" class="code">function z = pairmean(z1, z2)</a>
-0129         z = sign(z1+z2);
-0130     <span class="keyword">end</span>
-0131 
-0132     M.vec = @(x, u_mat) [real(u_mat) ; imag(u_mat)];
-0133     M.mat = @(x, u_vec) u_vec(1:n) + 1i*u_vec((n+1):end);
-0134     M.vecmatareisometries = @() true;
-0135 
-0136 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0096     
+0097     M.exp = @<a href="#_sub2" class="code" title="subfunction y = exponential(z, v, t)">exponential</a>;
+0098     <a name="_sub2" href="#_subfunctions" class="code">function y = exponential(z, v, t)</a>
+0099         
+0100         <span class="keyword">if</span> nargin == 2
+0101             <span class="comment">% t = 1;</span>
+0102             tv = v;
+0103         <span class="keyword">else</span>
+0104             tv = t*v;
+0105         <span class="keyword">end</span>
+0106 
+0107         y = zeros(n, m, array_type);
+0108 
+0109         nrm_tv = abs(tv);
+0110         
+0111         <span class="comment">% We need to be careful for zero steps.</span>
+0112         mask = (nrm_tv &gt; 0);
+0113         y(mask) = z(mask).*cos(nrm_tv(mask)) + <span class="keyword">...</span>
+0114                   tv(mask).*(sin(nrm_tv(mask))./nrm_tv(mask));
+0115         y(~mask) = z(~mask);
+0116         
+0117     <span class="keyword">end</span>
+0118     
+0119     M.retr = @<a href="#_sub3" class="code" title="subfunction y = retraction(z, v, t)">retraction</a>;
+0120     <a name="_sub3" href="#_subfunctions" class="code">function y = retraction(z, v, t)</a>
+0121         <span class="keyword">if</span> nargin == 2
+0122             <span class="comment">% t = 1;</span>
+0123             tv = v;
+0124         <span class="keyword">else</span>
+0125             tv = t*v;
+0126         <span class="keyword">end</span>
+0127         y = sign(z+tv);
+0128     <span class="keyword">end</span>
+0129 
+0130     M.invretr = @<a href="#_sub4" class="code" title="subfunction v = inverse_retraction(x, y)">inverse_retraction</a>;
+0131     <a name="_sub4" href="#_subfunctions" class="code">function v = inverse_retraction(x, y)</a>
+0132         v = y ./ real(conj(x) .* y) - x;
+0133     <span class="keyword">end</span>
+0134 
+0135     M.log = @<a href="#_sub5" class="code" title="subfunction v = logarithm(x1, x2)">logarithm</a>;
+0136     <a name="_sub5" href="#_subfunctions" class="code">function v = logarithm(x1, x2)</a>
+0137         v = M.proj(x1, x2 - x1);
+0138         di = real(2*asin(.5*abs(x1 - x2)));
+0139         nv = abs(v);
+0140         factors = di ./ nv;
+0141         factors(di &lt;= 1e-10) = 1;
+0142         v = v .* factors;
+0143     <span class="keyword">end</span>
+0144     
+0145     M.hash = @(z) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>( [real(z(:)) ; imag(z(:))] ) ];
+0146     
+0147     M.rand = @<a href="#_sub6" class="code" title="subfunction z = random()">random</a>;
+0148     <a name="_sub6" href="#_subfunctions" class="code">function z = random()</a>
+0149         z = sign(randn(n, m, array_type) + 1i*randn(n, m, array_type));
+0150     <span class="keyword">end</span>
+0151     
+0152     M.randvec = @<a href="#_sub7" class="code" title="subfunction v = randomvec(z)">randomvec</a>;
+0153     <a name="_sub7" href="#_subfunctions" class="code">function v = randomvec(z)</a>
+0154         <span class="comment">% i*z(k) is a basis vector of the tangent vector to the k-th circle</span>
+0155         v = randn(n, m, array_type) .* (1i*z);
+0156         v = v / norm(v, <span class="string">'fro'</span>);
+0157     <span class="keyword">end</span>
+0158     
+0159     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0160     
+0161     M.zerovec = @(x) zeros(n, m, array_type);
+0162     
+0163     M.transp = @(x1, x2, d) M.proj(x2, d);
+0164     
+0165     M.pairmean = @<a href="#_sub8" class="code" title="subfunction z = pairmean(z1, z2)">pairmean</a>;
+0166     <a name="_sub8" href="#_subfunctions" class="code">function z = pairmean(z1, z2)</a>
+0167         z = sign(z1+z2);
+0168     <span class="keyword">end</span>
+0169 
+0170     M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
+0171     M.mat = @(x, u_vec) reshape(u_vec(1:(n*m)) + 1i*u_vec((n*m+1):end), [n, m]);
+0172     M.vecmatareisometries = @() true;
+0173 
+0174     <span class="comment">% Automatically convert a number of tools to support GPU.</span>
+0175     <span class="keyword">if</span> gpuflag
+0176         M = <a href="../../../manopt/tools/factorygpuhelper.html" class="code" title="function M = factorygpuhelper(M)">factorygpuhelper</a>(M);
+0177     <span class="keyword">end</span>
+0178     
+0179 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

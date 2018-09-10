@@ -72,7 +72,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on a manifold.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>	Attempts the computation of a centroid of a set of points on a manifold.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="../../../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
@@ -130,242 +130,244 @@ This function is called by:
 0045 <span class="comment">% Contributors:</span>
 0046 <span class="comment">% Change log:</span>
 0047 <span class="comment">%</span>
-0048 <span class="comment">%   April 4, 2015 (NB):</span>
+0048 <span class="comment">%   Apr.  4, 2015 (NB):</span>
 0049 <span class="comment">%       Working with the new StoreDB class system.</span>
 0050 <span class="comment">%       Clarified interactions with statsfun and store.</span>
 0051 <span class="comment">%</span>
 0052 <span class="comment">%   Nov. 11, 2016 (NB):</span>
 0053 <span class="comment">%       If options.verbosity is &lt; 2, prints minimal output.</span>
-0054 
-0055     
-0056     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
-0057     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0058         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
-0059                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
-0060     <span class="keyword">end</span>
-0061     
-0062     <span class="comment">% Dimension of the manifold</span>
-0063     dim = problem.M.dim();
-0064 
-0065     <span class="comment">% Set local defaults here</span>
-0066     localdefaults.storedepth = 0;                     <span class="comment">% no need for caching</span>
-0067     localdefaults.maxcostevals = max(1000, 2*dim);
-0068     localdefaults.maxiter = max(2000, 4*dim);
-0069     
-0070     localdefaults.reflection = 1;
-0071     localdefaults.expansion = 2;
-0072     localdefaults.contraction = .5;
-0073     <span class="comment">% forced to .5 to enable using pairmean functions in manifolds.</span>
-0074     <span class="comment">% localdefaults.shrinkage = .5;</span>
-0075     
-0076     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0077     localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
-0078     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0079         options = struct();
-0080     <span class="keyword">end</span>
-0081     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options);
-0082     
-0083     <span class="comment">% Start timing for initialization.</span>
-0084     timetic = tic();
-0085     
-0086     <span class="comment">% If no initial simplex x is given by the user, generate one at random.</span>
-0087     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0088         x = cell(dim+1, 1);
-0089         <span class="keyword">for</span> i = 1 : dim+1
-0090             x{i} = problem.M.rand();
-0091         <span class="keyword">end</span>
-0092     <span class="keyword">end</span>
-0093     
-0094     <span class="comment">% Create a store database and a key for each point.</span>
-0095     storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(options.storedepth);
-0096     key = cell(size(x));
-0097     <span class="keyword">for</span> i = 1 : dim+1;
-0098         key{i} = storedb.getNewKey();
-0099     <span class="keyword">end</span>
-0100     
-0101     <span class="comment">% Compute objective-related quantities for x, and setup a</span>
-0102     <span class="comment">% function evaluations counter.</span>
-0103     costs = zeros(dim+1, 1);
-0104     <span class="keyword">for</span> i = 1 : dim+1
-0105         costs(i) = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x{i}, storedb, key{i});
-0106     <span class="keyword">end</span>
-0107     costevals = dim+1;
-0108     
-0109     <span class="comment">% Sort simplex points by cost.</span>
-0110     [costs, order] = sort(costs);
-0111     x = x(order);
-0112     key = key(order);
-0113     
-0114     <span class="comment">% Iteration counter.</span>
-0115     <span class="comment">% At any point, iter is the number of fully executed iterations so far.</span>
-0116     iter = 0;
-0117     
-0118     <span class="comment">% Save stats in a struct array info, and preallocate.</span>
-0119     <span class="comment">% savestats will be called twice for the initial iterate (number 0),</span>
-0120     <span class="comment">% which is unfortunate, but not problematic.</span>
-0121     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0122     info(1) = stats;
-0123     info(min(10000, options.maxiter+1)).iter = [];
-0124     
-0125     <span class="comment">% Start iterating until stopping criterion triggers.</span>
-0126     <span class="keyword">while</span> true
-0127         
-0128         <span class="comment">% Make sure we don't use to much memory for the store database.</span>
-0129         storedb.purge();
-0130         
-0131         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0132         info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
-0133         iter = iter + 1;
-0134         
-0135         <span class="comment">% Start timing this iteration.</span>
-0136         timetic = tic();
-0137         
-0138         <span class="comment">% Sort simplex points by cost.</span>
-0139         [costs, order] = sort(costs);
-0140         x = x(order);
-0141         key = key(order);
-0142 
-0143         <span class="comment">% Log / display iteration information here.</span>
-0144         <span class="keyword">if</span> options.verbosity &gt;= 2
-0145             fprintf(<span class="string">'Cost evals: %7d\tBest cost: %+.4e\t'</span>, <span class="keyword">...</span>
-0146                     costevals, costs(1));
-0147         <span class="keyword">end</span>
-0148         
-0149         <span class="comment">% Run standard stopping criterion checks.</span>
-0150         [stop, reason] = <a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, iter);
-0151     
-0152         <span class="keyword">if</span> stop
-0153             <span class="keyword">if</span> options.verbosity &gt;= 1
-0154                 fprintf([reason <span class="string">'\n'</span>]);
-0155             <span class="keyword">end</span>
-0156             <span class="keyword">break</span>;
-0157         <span class="keyword">end</span>
-0158         
-0159         <span class="comment">% Compute a centroid for the dim best points.</span>
-0160         xbar = <a href="centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>(problem.M, x(1:end-1));
-0161         
-0162         <span class="comment">% Compute the direction for moving along the axis xbar - worst x.</span>
-0163         vec = problem.M.log(xbar, x{end});
-0164         
-0165         <span class="comment">% Reflection step</span>
-0166         xr = problem.M.exp(xbar, vec, -options.reflection);
-0167         keyr = storedb.getNewKey();
-0168         costr = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xr, storedb, keyr);
-0169         costevals = costevals + 1;
-0170         
-0171         <span class="comment">% If the reflected point is honorable, drop the worst point,</span>
-0172         <span class="comment">% replace it by the reflected point and start new iteration.</span>
-0173         <span class="keyword">if</span> costr &gt;= costs(1) &amp;&amp; costr &lt; costs(end-1)
-0174             <span class="keyword">if</span> options.verbosity &gt;= 2
-0175                 fprintf(<span class="string">'Reflection\n'</span>);
-0176             <span class="keyword">end</span>
-0177             costs(end) = costr;
-0178             x{end} = xr;
-0179             key{end} = keyr;
-0180             <span class="keyword">continue</span>;
-0181         <span class="keyword">end</span>
-0182         
-0183         <span class="comment">% If the reflected point is better than the best point, expand.</span>
-0184         <span class="keyword">if</span> costr &lt; costs(1)
-0185             xe = problem.M.exp(xbar, vec, -options.expansion);
-0186             keye = storedb.getNewKey();
-0187             coste = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xe, storedb, keye);
-0188             costevals = costevals + 1;
-0189             <span class="keyword">if</span> coste &lt; costr
-0190                 <span class="keyword">if</span> options.verbosity &gt;= 2
-0191                     fprintf(<span class="string">'Expansion\n'</span>);
-0192                 <span class="keyword">end</span>
-0193                 costs(end) = coste;
-0194                 x{end} = xe;
-0195                 key{end} = keye;
-0196                 <span class="keyword">continue</span>;
-0197             <span class="keyword">else</span>
-0198                 <span class="keyword">if</span> options.verbosity &gt;= 2
-0199                     fprintf(<span class="string">'Reflection (failed expansion)\n'</span>);
-0200                 <span class="keyword">end</span>
-0201                 costs(end) = costr;
-0202                 x{end} = xr;
-0203                 key{end} = keyr;
-0204                 <span class="keyword">continue</span>;
-0205             <span class="keyword">end</span>
-0206         <span class="keyword">end</span>
-0207         
-0208         <span class="comment">% If the reflected point is worse than the second to worst point,</span>
-0209         <span class="comment">% contract.</span>
-0210         <span class="keyword">if</span> costr &gt;= costs(end-1)
-0211             <span class="keyword">if</span> costr &lt; costs(end)
-0212                 <span class="comment">% do an outside contraction</span>
-0213                 xoc = problem.M.exp(xbar, vec, -options.contraction);
-0214                 keyoc = storedb.getNewKey();
-0215                 costoc = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xoc, storedb, keyoc);
-0216                 costevals = costevals + 1;
-0217                 <span class="keyword">if</span> costoc &lt;= costr
-0218                     <span class="keyword">if</span> options.verbosity &gt;= 2
-0219                         fprintf(<span class="string">'Outside contraction\n'</span>);
-0220                     <span class="keyword">end</span>
-0221                     costs(end) = costoc;
-0222                     x{end} = xoc;
-0223                     key{end} = keyoc;
-0224                     <span class="keyword">continue</span>;
-0225                 <span class="keyword">end</span>
-0226             <span class="keyword">else</span>
-0227                 <span class="comment">% do an inside contraction</span>
-0228                 xic = problem.M.exp(xbar, vec, options.contraction);
-0229                 keyic = storedb.getNewKey();
-0230                 costic = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xic, storedb, keyic);
-0231                 costevals = costevals + 1;
-0232                 <span class="keyword">if</span> costic &lt;= costs(end)
-0233                     <span class="keyword">if</span> options.verbosity &gt;= 2
-0234                         fprintf(<span class="string">'Inside contraction\n'</span>);
-0235                     <span class="keyword">end</span>
-0236                     costs(end) = costic;
-0237                     x{end} = xic;
-0238                     key{end} = keyic;
-0239                     <span class="keyword">continue</span>;
-0240                 <span class="keyword">end</span>
-0241             <span class="keyword">end</span>
-0242         <span class="keyword">end</span>
-0243         
-0244         <span class="comment">% If we get here, shrink the simplex around x{1}.</span>
-0245         <span class="keyword">if</span> options.verbosity &gt;= 2
-0246             fprintf(<span class="string">'Shrinkage\n'</span>);
-0247         <span class="keyword">end</span>
-0248         <span class="keyword">for</span> i = 2 : dim+1
-0249             x{i} = problem.M.pairmean(x{1}, x{i});
-0250             key{i} = storedb.getNewKey();
-0251             costs(i) = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x{i}, storedb, key{i});
-0252         <span class="keyword">end</span>
-0253         costevals = costevals + dim;
-0254         
-0255     <span class="keyword">end</span>
-0256     
-0257     
-0258     info = info(1:iter);
+0054 <span class="comment">%</span>
+0055 <span class="comment">%   Sep.  6, 2018 (NB):</span>
+0056 <span class="comment">%       Using retraction instead of exponential.</span>
+0057 
+0058     
+0059     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
+0060     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0061         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
+0062                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
+0063     <span class="keyword">end</span>
+0064     
+0065     <span class="comment">% Dimension of the manifold</span>
+0066     dim = problem.M.dim();
+0067 
+0068     <span class="comment">% Set local defaults here</span>
+0069     localdefaults.storedepth = 0;                     <span class="comment">% no need for caching</span>
+0070     localdefaults.maxiter = max(2000, 4*dim);
+0071     
+0072     localdefaults.reflection = 1;
+0073     localdefaults.expansion = 2;
+0074     localdefaults.contraction = .5;
+0075     <span class="comment">% forced to .5 to enable using pairmean functions in manifolds.</span>
+0076     <span class="comment">% localdefaults.shrinkage = .5;</span>
+0077     
+0078     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
+0079     localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0080     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0081         options = struct();
+0082     <span class="keyword">end</span>
+0083     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(localdefaults, options);
+0084     
+0085     <span class="comment">% Start timing for initialization.</span>
+0086     timetic = tic();
+0087     
+0088     <span class="comment">% If no initial simplex x is given by the user, generate one at random.</span>
+0089     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0090         x = cell(dim+1, 1);
+0091         <span class="keyword">for</span> i = 1 : dim+1
+0092             x{i} = problem.M.rand();
+0093         <span class="keyword">end</span>
+0094     <span class="keyword">end</span>
+0095     
+0096     <span class="comment">% Create a store database and a key for each point.</span>
+0097     storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(options.storedepth);
+0098     key = cell(size(x));
+0099     <span class="keyword">for</span> i = 1 : dim+1;
+0100         key{i} = storedb.getNewKey();
+0101     <span class="keyword">end</span>
+0102     
+0103     <span class="comment">% Compute objective-related quantities for x, and setup a</span>
+0104     <span class="comment">% function evaluations counter.</span>
+0105     costs = zeros(dim+1, 1);
+0106     <span class="keyword">for</span> i = 1 : dim+1
+0107         costs(i) = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x{i}, storedb, key{i});
+0108     <span class="keyword">end</span>
+0109     costevals = dim+1;
+0110     
+0111     <span class="comment">% Sort simplex points by cost.</span>
+0112     [costs, order] = sort(costs);
+0113     x = x(order);
+0114     key = key(order);
+0115     
+0116     <span class="comment">% Iteration counter.</span>
+0117     <span class="comment">% At any point, iter is the number of fully executed iterations so far.</span>
+0118     iter = 0;
+0119     
+0120     <span class="comment">% Save stats in a struct array info, and preallocate.</span>
+0121     <span class="comment">% savestats will be called twice for the initial iterate (number 0),</span>
+0122     <span class="comment">% which is unfortunate, but not problematic.</span>
+0123     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0124     info(1) = stats;
+0125     info(min(10000, options.maxiter+1)).iter = [];
+0126     
+0127     <span class="comment">% Start iterating until stopping criterion triggers.</span>
+0128     <span class="keyword">while</span> true
+0129         
+0130         <span class="comment">% Make sure we don't use to much memory for the store database.</span>
+0131         storedb.purge();
+0132         
+0133         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0134         info(iter+1) = stats; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0135         iter = iter + 1;
+0136         
+0137         <span class="comment">% Start timing this iteration.</span>
+0138         timetic = tic();
+0139         
+0140         <span class="comment">% Sort simplex points by cost.</span>
+0141         [costs, order] = sort(costs);
+0142         x = x(order);
+0143         key = key(order);
+0144 
+0145         <span class="comment">% Log / display iteration information here.</span>
+0146         <span class="keyword">if</span> options.verbosity &gt;= 2
+0147             fprintf(<span class="string">'Cost evals: %7d\tBest cost: %+.4e\t'</span>, <span class="keyword">...</span>
+0148                     costevals, costs(1));
+0149         <span class="keyword">end</span>
+0150         
+0151         <span class="comment">% Run standard stopping criterion checks.</span>
+0152         [stop, reason] = <a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, info, iter);
+0153     
+0154         <span class="keyword">if</span> stop
+0155             <span class="keyword">if</span> options.verbosity &gt;= 1
+0156                 fprintf([reason <span class="string">'\n'</span>]);
+0157             <span class="keyword">end</span>
+0158             <span class="keyword">break</span>;
+0159         <span class="keyword">end</span>
+0160         
+0161         <span class="comment">% Compute a centroid for the dim best points.</span>
+0162         xbar = <a href="centroid.html" class="code" title="function y = centroid(M, x)">centroid</a>(problem.M, x(1:end-1));
+0163         
+0164         <span class="comment">% Compute the direction for moving along the axis xbar - worst x.</span>
+0165         vec = problem.M.log(xbar, x{end});
+0166         
+0167         <span class="comment">% Reflection step</span>
+0168         xr = problem.M.retr(xbar, vec, -options.reflection);
+0169         keyr = storedb.getNewKey();
+0170         costr = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xr, storedb, keyr);
+0171         costevals = costevals + 1;
+0172         
+0173         <span class="comment">% If the reflected point is honorable, drop the worst point,</span>
+0174         <span class="comment">% replace it by the reflected point and start new iteration.</span>
+0175         <span class="keyword">if</span> costr &gt;= costs(1) &amp;&amp; costr &lt; costs(end-1)
+0176             <span class="keyword">if</span> options.verbosity &gt;= 2
+0177                 fprintf(<span class="string">'Reflection\n'</span>);
+0178             <span class="keyword">end</span>
+0179             costs(end) = costr;
+0180             x{end} = xr;
+0181             key{end} = keyr;
+0182             <span class="keyword">continue</span>;
+0183         <span class="keyword">end</span>
+0184         
+0185         <span class="comment">% If the reflected point is better than the best point, expand.</span>
+0186         <span class="keyword">if</span> costr &lt; costs(1)
+0187             xe = problem.M.retr(xbar, vec, -options.expansion);
+0188             keye = storedb.getNewKey();
+0189             coste = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xe, storedb, keye);
+0190             costevals = costevals + 1;
+0191             <span class="keyword">if</span> coste &lt; costr
+0192                 <span class="keyword">if</span> options.verbosity &gt;= 2
+0193                     fprintf(<span class="string">'Expansion\n'</span>);
+0194                 <span class="keyword">end</span>
+0195                 costs(end) = coste;
+0196                 x{end} = xe;
+0197                 key{end} = keye;
+0198                 <span class="keyword">continue</span>;
+0199             <span class="keyword">else</span>
+0200                 <span class="keyword">if</span> options.verbosity &gt;= 2
+0201                     fprintf(<span class="string">'Reflection (failed expansion)\n'</span>);
+0202                 <span class="keyword">end</span>
+0203                 costs(end) = costr;
+0204                 x{end} = xr;
+0205                 key{end} = keyr;
+0206                 <span class="keyword">continue</span>;
+0207             <span class="keyword">end</span>
+0208         <span class="keyword">end</span>
+0209         
+0210         <span class="comment">% If the reflected point is worse than the second to worst point,</span>
+0211         <span class="comment">% contract.</span>
+0212         <span class="keyword">if</span> costr &gt;= costs(end-1)
+0213             <span class="keyword">if</span> costr &lt; costs(end)
+0214                 <span class="comment">% do an outside contraction</span>
+0215                 xoc = problem.M.retr(xbar, vec, -options.contraction);
+0216                 keyoc = storedb.getNewKey();
+0217                 costoc = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xoc, storedb, keyoc);
+0218                 costevals = costevals + 1;
+0219                 <span class="keyword">if</span> costoc &lt;= costr
+0220                     <span class="keyword">if</span> options.verbosity &gt;= 2
+0221                         fprintf(<span class="string">'Outside contraction\n'</span>);
+0222                     <span class="keyword">end</span>
+0223                     costs(end) = costoc;
+0224                     x{end} = xoc;
+0225                     key{end} = keyoc;
+0226                     <span class="keyword">continue</span>;
+0227                 <span class="keyword">end</span>
+0228             <span class="keyword">else</span>
+0229                 <span class="comment">% do an inside contraction</span>
+0230                 xic = problem.M.retr(xbar, vec, options.contraction);
+0231                 keyic = storedb.getNewKey();
+0232                 costic = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xic, storedb, keyic);
+0233                 costevals = costevals + 1;
+0234                 <span class="keyword">if</span> costic &lt;= costs(end)
+0235                     <span class="keyword">if</span> options.verbosity &gt;= 2
+0236                         fprintf(<span class="string">'Inside contraction\n'</span>);
+0237                     <span class="keyword">end</span>
+0238                     costs(end) = costic;
+0239                     x{end} = xic;
+0240                     key{end} = keyic;
+0241                     <span class="keyword">continue</span>;
+0242                 <span class="keyword">end</span>
+0243             <span class="keyword">end</span>
+0244         <span class="keyword">end</span>
+0245         
+0246         <span class="comment">% If we get here, shrink the simplex around x{1}.</span>
+0247         <span class="keyword">if</span> options.verbosity &gt;= 2
+0248             fprintf(<span class="string">'Shrinkage\n'</span>);
+0249         <span class="keyword">end</span>
+0250         <span class="keyword">for</span> i = 2 : dim+1
+0251             x{i} = problem.M.pairmean(x{1}, x{i});
+0252             key{i} = storedb.getNewKey();
+0253             costs(i) = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x{i}, storedb, key{i});
+0254         <span class="keyword">end</span>
+0255         costevals = costevals + dim;
+0256         
+0257     <span class="keyword">end</span>
+0258     
 0259     
-0260     <span class="comment">% Iteration done: return only the best point found.</span>
-0261     cost = costs(1);
-0262     x = x{1};
-0263     key = key{1};
-0264     
-0265     
+0260     info = info(1:iter);
+0261     
+0262     <span class="comment">% Iteration done: return only the best point found.</span>
+0263     cost = costs(1);
+0264     x = x{1};
+0265     key = key{1};
 0266     
-0267     <span class="comment">% Routine in charge of collecting the current iteration stats.</span>
-0268     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
-0269         stats.iter = iter;
-0270         stats.cost = costs(1);
-0271         stats.costevals = costevals;
-0272         <span class="keyword">if</span> iter == 0
-0273             stats.time = toc(timetic);
-0274         <span class="keyword">else</span>
-0275             stats.time = info(iter).time + toc(timetic);
-0276         <span class="keyword">end</span>
-0277         <span class="comment">% The statsfun can only possibly receive one store structure. We</span>
-0278         <span class="comment">% pass the key to the best point, so that the best point's store</span>
-0279         <span class="comment">% will be passed. But the whole cell x of points is passed through.</span>
-0280         stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key{1}, options, stats);
-0281     <span class="keyword">end</span>
-0282     
-0283 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0267     
+0268     
+0269     <span class="comment">% Routine in charge of collecting the current iteration stats.</span>
+0270     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
+0271         stats.iter = iter;
+0272         stats.cost = costs(1);
+0273         stats.costevals = costevals;
+0274         <span class="keyword">if</span> iter == 0
+0275             stats.time = toc(timetic);
+0276         <span class="keyword">else</span>
+0277             stats.time = info(iter).time + toc(timetic);
+0278         <span class="keyword">end</span>
+0279         <span class="comment">% The statsfun can only possibly receive one store structure. We</span>
+0280         <span class="comment">% pass the key to the best point, so that the best point's store</span>
+0281         <span class="comment">% will be passed. But the whole cell x of points is passed through.</span>
+0282         stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key{1}, options, stats);
+0283     <span class="keyword">end</span>
+0284     
+0285 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

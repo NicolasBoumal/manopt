@@ -155,14 +155,15 @@ This function is called by:
 0092     M.zerovec = @(x) zeros(dimensions_vec);
 0093     
 0094     M.transp = @(x1, x2, d) d;
-0095     
-0096     M.pairmean = @(x1, x2) .5*(x1+x2);
-0097     
-0098     M.vec = @(x, u_mat) u_mat(:);
-0099     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
-0100     M.vecmatareisometries = @() true;
-0101 
-0102 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0095     M.isotransp = M.transp; <span class="comment">% the transport is isometric</span>
+0096     
+0097     M.pairmean = @(x1, x2) .5*(x1+x2);
+0098     
+0099     M.vec = @(x, u_mat) u_mat(:);
+0100     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
+0101     M.vecmatareisometries = @() true;
+0102 
+0103 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

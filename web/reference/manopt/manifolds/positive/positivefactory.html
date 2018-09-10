@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of positivefactory</title>
+  <meta name="keywords" content="positivefactory">
+  <meta name="description" content="Manifold of m-by-n matrices with positive entries; scale invariant metric">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">manifolds</a> &gt; <a href="index.html">positive</a> &gt; positivefactory.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\manifolds\positive&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>positivefactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Manifold of m-by-n matrices with positive entries; scale invariant metric</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function M = positivefactory(m, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manifold of m-by-n matrices with positive entries; scale invariant metric
+
+ function M = positivefactory(m)
+ function M = positivefactory(m, n)
+
+ A point X on the manifold M is represented as a matrix X of size mxn with
+ all individual entries real, strictly positive. By default, n = 1.
+
+ A tangent vector at X is represented as a matrix of the same size as X.
+ Entries of tangent vectors are free (in particular, not necessarily
+ positive.)
+
+ The Riemannian metric for each individual entry is the bi-invariant
+ metric for positive scalars, as a particular case of the bi-invariant
+ metric for positive definite matrices studied in Chapter 6 of the book
+
+    &quot;Positive definite matrices&quot; by Rajendra Bhatia,
+    Princeton University Press, 2007.
+
+ The Riemannian structure of M is obtained as the Cartesian product of the
+ geometry for mxn positive real numbers.
+
+ It should be stressed that matrices with one or more zero entries do not
+ belong to this manifold: they appear to be infinitely far away as a
+ result of the metric scaling like X.^(-1). Thus, if the solutions of an
+ optimization problem have entries equal to zero, these solutions are not
+ attainable on the manifold, which is likely to create serious numerical
+ issues. This geometry is best used when the solutions of the optimization
+ problem are indeed entry-wise positive, yet may have very different
+ scales (with some entries being very small, and some entries being very
+ large, relatively.)
+
+ See also: sympositivedefinitefactory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function innerproduct = myinner(X, eta, zeta)</a></li><li><a href="#_sub2" class="code">function eta = egrad2rgrad(X, eta)</a></li><li><a href="#_sub3" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a></li><li><a href="#_sub4" class="code">function Y = exponential(X, eta, t)</a></li><li><a href="#_sub5" class="code">function H = logarithm(X, Y)</a></li><li><a href="#_sub6" class="code">function X = random()</a></li><li><a href="#_sub7" class="code">function eta = randomvec(X)</a></li><li><a href="#_sub8" class="code">function zeta = parallel_transport(X, Y, eta)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = positivefactory(m, n)</a>
+0002 <span class="comment">% Manifold of m-by-n matrices with positive entries; scale invariant metric</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function M = positivefactory(m)</span>
+0005 <span class="comment">% function M = positivefactory(m, n)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% A point X on the manifold M is represented as a matrix X of size mxn with</span>
+0008 <span class="comment">% all individual entries real, strictly positive. By default, n = 1.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% A tangent vector at X is represented as a matrix of the same size as X.</span>
+0011 <span class="comment">% Entries of tangent vectors are free (in particular, not necessarily</span>
+0012 <span class="comment">% positive.)</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% The Riemannian metric for each individual entry is the bi-invariant</span>
+0015 <span class="comment">% metric for positive scalars, as a particular case of the bi-invariant</span>
+0016 <span class="comment">% metric for positive definite matrices studied in Chapter 6 of the book</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%    &quot;Positive definite matrices&quot; by Rajendra Bhatia,</span>
+0019 <span class="comment">%    Princeton University Press, 2007.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% The Riemannian structure of M is obtained as the Cartesian product of the</span>
+0022 <span class="comment">% geometry for mxn positive real numbers.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% It should be stressed that matrices with one or more zero entries do not</span>
+0025 <span class="comment">% belong to this manifold: they appear to be infinitely far away as a</span>
+0026 <span class="comment">% result of the metric scaling like X.^(-1). Thus, if the solutions of an</span>
+0027 <span class="comment">% optimization problem have entries equal to zero, these solutions are not</span>
+0028 <span class="comment">% attainable on the manifold, which is likely to create serious numerical</span>
+0029 <span class="comment">% issues. This geometry is best used when the solutions of the optimization</span>
+0030 <span class="comment">% problem are indeed entry-wise positive, yet may have very different</span>
+0031 <span class="comment">% scales (with some entries being very small, and some entries being very</span>
+0032 <span class="comment">% large, relatively.)</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">% See also: sympositivedefinitefactory</span>
+0035 
+0036 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0037 <span class="comment">% Original author: Bamdev Mishra, Dec 03, 2017.</span>
+0038 
+0039     <span class="keyword">if</span> ~exist(<span class="string">'n'</span>, <span class="string">'var'</span>) || isempty(n)
+0040         n = 1;
+0041     <span class="keyword">end</span>
+0042     
+0043     M.name = @() sprintf(<span class="string">'Element-wise positive %dx%d matrices'</span>, m, n);
+0044     
+0045     M.dim = @() m*n;
+0046         
+0047     <span class="comment">% The metric is the scale invariant metric for scalars.</span>
+0048     M.inner = @<a href="#_sub1" class="code" title="subfunction innerproduct = myinner(X, eta, zeta)">myinner</a>;
+0049     <a name="_sub1" href="#_subfunctions" class="code">function innerproduct = myinner(X, eta, zeta)</a>
+0050         innerproduct = (eta(:)./X(:))'*(zeta(:)./X(:));
+0051     <span class="keyword">end</span>
+0052    
+0053     M.norm = @(X, eta) sqrt(<a href="#_sub1" class="code" title="subfunction innerproduct = myinner(X, eta, zeta)">myinner</a>(X, eta, eta));
+0054     
+0055     M.dist = @(X, Y) norm(log(Y./X), <span class="string">'fro'</span>);
+0056     
+0057     M.typicaldist = @() sqrt(m*n);
+0058     
+0059     M.egrad2rgrad = @<a href="#_sub2" class="code" title="subfunction eta = egrad2rgrad(X, eta)">egrad2rgrad</a>;
+0060     <a name="_sub2" href="#_subfunctions" class="code">function eta = egrad2rgrad(X, eta)</a>
+0061         eta = X.*(eta).*X;
+0062     <span class="keyword">end</span>
+0063     
+0064     M.ehess2rhess = @<a href="#_sub3" class="code" title="subfunction Hess = ehess2rhess(X, egrad, ehess, eta)">ehess2rhess</a>;
+0065     <a name="_sub3" href="#_subfunctions" class="code">function Hess = ehess2rhess(X, egrad, ehess, eta)</a>
+0066         <span class="comment">% Directional derivatives of the Riemannian gradient</span>
+0067         Hess = X.*(ehess).*X + 2*(eta.*(egrad).*X);
+0068         
+0069         <span class="comment">% Correction factor for the non-constant metric</span>
+0070         Hess = Hess - (eta.*(egrad).*X);
+0071     <span class="keyword">end</span>
+0072     
+0073     <span class="comment">% Since this manifold is an open subset of R^(nxm), the tangent space</span>
+0074     <span class="comment">% at any X on M is all of R^(nxm).</span>
+0075     M.proj = @(X, eta) eta;
+0076     
+0077     M.tangent = M.proj;
+0078     M.tangent2ambient = @(X, eta) eta;
+0079     
+0080     M.retr = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0081     
+0082     M.exp = @<a href="#_sub4" class="code" title="subfunction Y = exponential(X, eta, t)">exponential</a>;
+0083     <a name="_sub4" href="#_subfunctions" class="code">function Y = exponential(X, eta, t)</a>
+0084         <span class="keyword">if</span> nargin &lt; 3
+0085             t = 1.0;
+0086         <span class="keyword">end</span>
+0087         <span class="comment">% It is unclear whether this is the numerically most stable way to</span>
+0088         <span class="comment">% implement this operation. If you run into trouble with this</span>
+0089         <span class="comment">% factory, please get in touch on the forum.</span>
+0090         Y = (X.*(exp((t*eta)./X)));
+0091     <span class="keyword">end</span>
+0092     
+0093     M.log = @<a href="#_sub5" class="code" title="subfunction H = logarithm(X, Y)">logarithm</a>;
+0094     <a name="_sub5" href="#_subfunctions" class="code">function H = logarithm(X, Y)</a>
+0095         <span class="comment">% Same comment about numerical stability as for exp.</span>
+0096         H = (X.*(log(Y./X)));
+0097     <span class="keyword">end</span>
+0098     
+0099     M.hash = @(X) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(X(:))];
+0100     
+0101     <span class="comment">% Generate a random element-wise positive matrix following a</span>
+0102     <span class="comment">% certain distribution. The particular choice of a distribution is of</span>
+0103     <span class="comment">% course arbitrary, and specific applications might require different</span>
+0104     <span class="comment">% ones.</span>
+0105     M.rand = @<a href="#_sub6" class="code" title="subfunction X = random()">random</a>;
+0106     <a name="_sub6" href="#_subfunctions" class="code">function X = random()</a>
+0107         X = exp(randn(m, n));
+0108     <span class="keyword">end</span>
+0109     
+0110     <span class="comment">% Generate a uniformly random unit-norm tangent vector at X.</span>
+0111     M.randvec = @<a href="#_sub7" class="code" title="subfunction eta = randomvec(X)">randomvec</a>;
+0112     <a name="_sub7" href="#_subfunctions" class="code">function eta = randomvec(X)</a>
+0113         eta = randn(m, n).*X;
+0114         nrm = M.norm(X, eta);
+0115         eta = eta / nrm;
+0116     <span class="keyword">end</span>
+0117     
+0118     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0119     
+0120     M.zerovec = @(X) zeros(m, n);
+0121     
+0122     
+0123     M.transp = @(X1, X2, eta) eta;
+0124     
+0125     <span class="comment">% For reference, a proper vector transport is given here, following</span>
+0126     <span class="comment">% work by Sra and Hosseini: &quot;Conic geometric optimisation on the</span>
+0127     <span class="comment">% manifold of positive definite matrices&quot;.</span>
+0128     <span class="comment">% This is not used by default. To force the use of this transport,</span>
+0129     <span class="comment">% execute &quot;M.transp = M.paralleltransp;&quot; on your M returned by the</span>
+0130     <span class="comment">% present factory.</span>
+0131     M.paralleltransp = @<a href="#_sub8" class="code" title="subfunction zeta = parallel_transport(X, Y, eta)">parallel_transport</a>;
+0132     <a name="_sub8" href="#_subfunctions" class="code">function zeta = parallel_transport(X, Y, eta)</a>
+0133         E = sqrt(Y./X);
+0134         zeta = E.*eta.*E;
+0135     <span class="keyword">end</span>
+0136     
+0137     <span class="comment">% vec and mat are not isometries, because of the unusual inner metric.</span>
+0138     M.vec = @(X, U) U(:);
+0139     M.mat = @(X, u) reshape(u, m, n);
+0140     M.vecmatareisometries = @() true;
+0141     
+0142 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

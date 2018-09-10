@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of arc_lanczos</title>
+  <meta name="keywords" content="arc_lanczos">
+  <meta name="description" content="Subproblem solver for ARC based on a Lanczos process.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="#">solvers</a> &gt; <a href="index.html">arc</a> &gt; arc_lanczos.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\solvers\arc&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>arc_lanczos
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>Subproblem solver for ARC based on a Lanczos process.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad, gradnorm, sigma, options, storedb, key) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Subproblem solver for ARC based on a Lanczos process.
+
+ [eta, Heta, hesscalls, stop_str, stats] = 
+     arc_lanczos(problem, x, grad, gradnorm, sigma, options, storedb, key)
+
+ This routine approximately solves the following problem:
+
+   min_{eta in T_x M}  m(eta),  where
+
+       m(eta) = &lt;eta, g&gt; + .5 &lt;eta, H[eta]&gt; + (sigma/3) ||eta||^3
+
+ where eta is a tangent vector at x on the manifold given by problem.M,
+ g = grad is a tangent vector at x, H[eta] is the result of applying the
+ Hessian of the problem at x along eta and the inner product and norm
+ are those from the Riemannian structure on the tangent space T_x M.
+
+ The solve is approximate in the sense that the returned s only ought to
+ satisfy the following conditions:
+
+     ||gradient of m at s|| &lt;= theta*||s||^2   and   m(s) &lt;= m(0),
+
+ where theta is specified in options.theta (see below for default value.)
+ Since the gradient of the model at 0 is g, if it is zero, then s = 0 is
+ returned. This is the only scenario where s = 0 is returned.
+
+ Numerical errors can perturb the described expected behavior.
+
+ Inputs:
+     problem: Manopt optimization problem structure
+     x: point on the manifold problem.M
+     grad: gradient of the cost function of the problem at x
+     gradnorm: norm of the gradient, often available to the caller
+     sigma: cubic regularization parameter (positive scalar)
+     options: structure containing options for the subproblem solver
+     storedb, key: caching data for problem at x
+
+ Options specific to this subproblem solver:
+   theta (50)
+     Stopping criterion parameter for subproblem solver: the gradient of
+     the model at the returned step should have norm no more than theta
+     times the squared norm of the step.
+   maxiter_lanczos (M.dim())
+     Maximum number of iterations of the Lanczos process, which is nearly
+     the same as the maximum number of calls to the Hessian.
+   maxiter_newton (100)
+     Maximum number of iterations of the Newton root finder to solve each
+     tridiagonal cubic problem.
+   tol_newton (1e-16)
+     Tolerance for the Newton root finder.
+
+ Outputs:
+     eta: approximate solution to the cubic regularized subproblem at x
+     Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+           is often naturally available to the subproblem solver at the
+           end of execution, so that it may be cheaper to return it here.
+     hesscalls: number of Hessian calls during execution
+     stop_str: string describing why the subsolver stopped
+     stats: a structure specifying some statistics about inner work
+
+ See also: <a href="arc.html" class="code" title="function [x, cost, info, options] = arc(problem, x, options)">arc</a> <a href="minimize_cubic_newton.html" class="code" title="function [y, iter, lambda, status] = minimize_cubic_newton(H, g, sigma, options)">minimize_cubic_newton</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>	Computes the Hessian of the cost function at x along d.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="minimize_cubic_newton.html" class="code" title="function [y, iter, lambda, status] = minimize_cubic_newton(H, g, sigma, options)">minimize_cubic_newton</a>	Minimize a cubicly regularized quadratic via Newton root finding.</li><li><a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>	Computes a linear combination of tangent vectors in the Manopt framework.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="arc.html" class="code" title="function [x, cost, info, options] = arc(problem, x, options)">arc</a>	Adaptive regularization by cubics (ARC) minimization algorithm for Manopt</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad, gradnorm, sigma, options, storedb, key)</a>
+0002 <span class="comment">% Subproblem solver for ARC based on a Lanczos process.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [eta, Heta, hesscalls, stop_str, stats] =</span>
+0005 <span class="comment">%     arc_lanczos(problem, x, grad, gradnorm, sigma, options, storedb, key)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% This routine approximately solves the following problem:</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   min_{eta in T_x M}  m(eta),  where</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%       m(eta) = &lt;eta, g&gt; + .5 &lt;eta, H[eta]&gt; + (sigma/3) ||eta||^3</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% where eta is a tangent vector at x on the manifold given by problem.M,</span>
+0014 <span class="comment">% g = grad is a tangent vector at x, H[eta] is the result of applying the</span>
+0015 <span class="comment">% Hessian of the problem at x along eta and the inner product and norm</span>
+0016 <span class="comment">% are those from the Riemannian structure on the tangent space T_x M.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% The solve is approximate in the sense that the returned s only ought to</span>
+0019 <span class="comment">% satisfy the following conditions:</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%     ||gradient of m at s|| &lt;= theta*||s||^2   and   m(s) &lt;= m(0),</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% where theta is specified in options.theta (see below for default value.)</span>
+0024 <span class="comment">% Since the gradient of the model at 0 is g, if it is zero, then s = 0 is</span>
+0025 <span class="comment">% returned. This is the only scenario where s = 0 is returned.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Numerical errors can perturb the described expected behavior.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Inputs:</span>
+0030 <span class="comment">%     problem: Manopt optimization problem structure</span>
+0031 <span class="comment">%     x: point on the manifold problem.M</span>
+0032 <span class="comment">%     grad: gradient of the cost function of the problem at x</span>
+0033 <span class="comment">%     gradnorm: norm of the gradient, often available to the caller</span>
+0034 <span class="comment">%     sigma: cubic regularization parameter (positive scalar)</span>
+0035 <span class="comment">%     options: structure containing options for the subproblem solver</span>
+0036 <span class="comment">%     storedb, key: caching data for problem at x</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">% Options specific to this subproblem solver:</span>
+0039 <span class="comment">%   theta (50)</span>
+0040 <span class="comment">%     Stopping criterion parameter for subproblem solver: the gradient of</span>
+0041 <span class="comment">%     the model at the returned step should have norm no more than theta</span>
+0042 <span class="comment">%     times the squared norm of the step.</span>
+0043 <span class="comment">%   maxiter_lanczos (M.dim())</span>
+0044 <span class="comment">%     Maximum number of iterations of the Lanczos process, which is nearly</span>
+0045 <span class="comment">%     the same as the maximum number of calls to the Hessian.</span>
+0046 <span class="comment">%   maxiter_newton (100)</span>
+0047 <span class="comment">%     Maximum number of iterations of the Newton root finder to solve each</span>
+0048 <span class="comment">%     tridiagonal cubic problem.</span>
+0049 <span class="comment">%   tol_newton (1e-16)</span>
+0050 <span class="comment">%     Tolerance for the Newton root finder.</span>
+0051 <span class="comment">%</span>
+0052 <span class="comment">% Outputs:</span>
+0053 <span class="comment">%     eta: approximate solution to the cubic regularized subproblem at x</span>
+0054 <span class="comment">%     Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it</span>
+0055 <span class="comment">%           is often naturally available to the subproblem solver at the</span>
+0056 <span class="comment">%           end of execution, so that it may be cheaper to return it here.</span>
+0057 <span class="comment">%     hesscalls: number of Hessian calls during execution</span>
+0058 <span class="comment">%     stop_str: string describing why the subsolver stopped</span>
+0059 <span class="comment">%     stats: a structure specifying some statistics about inner work</span>
+0060 <span class="comment">%</span>
+0061 <span class="comment">% See also: arc minimize_cubic_newton</span>
+0062 
+0063 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0064 <span class="comment">% Original authors: May 1, 2018,</span>
+0065 <span class="comment">%    Naman Agarwal, Brian Bullins, Nicolas Boumal and Coralia Cartis.</span>
+0066 <span class="comment">% Contributors:</span>
+0067 <span class="comment">% Change log:</span>
+0068 
+0069 <span class="comment">% TODO: think whether we can save the Lanczos basis in the storedb at the</span>
+0070 <span class="comment">% given key in case we get a rejection, and simply &quot;start where we left</span>
+0071 <span class="comment">% off&quot; with the updated sigma.</span>
+0072 
+0073 <span class="comment">% TODO: Lanczos is notoriously numerically unstable, with loss of</span>
+0074 <span class="comment">% orthogonality being a main hurdle. Look into the literature (Paige,</span>
+0075 <span class="comment">% Parlett), for possible numerical fixes.</span>
+0076 
+0077     <span class="comment">% Some shortcuts</span>
+0078     M = problem.M;
+0079     n = M.dim();
+0080     inner = @(u, v) M.inner(x, u, v);
+0081     rnorm = @(u) M.norm(x, u);
+0082     tangent = @(u) problem.M.tangent(x, u);
+0083     Hess = @(u) <a href="../../../manopt/core/getHessian.html" class="code" title="function hess = getHessian(problem, x, d, storedb, key)">getHessian</a>(problem, x, u, storedb, key);
+0084     
+0085     <span class="comment">% Counter for Hessian calls issued</span>
+0086     hesscalls = 0;
+0087     
+0088     <span class="comment">% If the gradient has norm zero, return a zero step</span>
+0089     <span class="keyword">if</span> gradnorm == 0
+0090         eta = M.zerovec(x);
+0091         Heta = eta;
+0092         stop_str = <span class="string">'Cost gradient is zero'</span>;
+0093         stats = struct(<span class="string">'newton_iterations'</span>, 0);
+0094         <span class="keyword">return</span>;
+0095     <span class="keyword">end</span>
+0096     
+0097     <span class="comment">% Set local defaults here</span>
+0098     localdefaults.theta = 50;
+0099     localdefaults.maxiter_lanczos = n;
+0100     <span class="comment">% The following are here for the Newton solver called below</span>
+0101     localdefaults.maxiter_newton = 100;
+0102     localdefaults.tol_newton = 1e-16;
+0103     
+0104     <span class="comment">% Merge local defaults with user options, if any</span>
+0105     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0106         options = struct();
+0107     <span class="keyword">end</span>
+0108     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(localdefaults, options);
+0109     
+0110     <span class="comment">% Vector where we keep track of the Newton root finder's work</span>
+0111     newton_iterations = zeros(n, 1);
+0112     
+0113     <span class="comment">% Lanczos iteratively produces an orthonormal basis of tangent vectors</span>
+0114     <span class="comment">% which tridiagonalize the Hessian. The corresponding tridiagonal</span>
+0115     <span class="comment">% matrix is preallocated here as a sparse matrix.</span>
+0116     T = spdiags(ones(n, 3), -1:1, n, n);
+0117     
+0118     <span class="comment">% The orthonormal basis (n tangent vectors at x) is stored in this cell</span>
+0119     Q = cell(n, 1);
+0120     
+0121     <span class="comment">% Initialize Lanczos along the gradient direction (it is nonzero)</span>
+0122     q = M.lincomb(x, 1/gradnorm, grad);
+0123     Q{1} = q;
+0124     Hq = Hess(q);
+0125     hesscalls = hesscalls + 1;
+0126     alpha = inner(Hq, q);
+0127     T(1, 1) = alpha;
+0128     Hq_perp = M.lincomb(x, 1, Hq, -alpha, q);
+0129     
+0130     <span class="comment">% Minimizing the cubic restricted to the one-dimensional space spanned</span>
+0131     <span class="comment">% by Q{1} is easy: it amounts to minimizing a univariate cubic. Indeed,</span>
+0132     <span class="comment">% with eta = y*q where y is a scalar, we minimize (since g = ||g||q):</span>
+0133     <span class="comment">%  h(y) = &lt;y*q, g&gt; + .5 &lt;y*q, H[y*q]&gt; + (sigma/3) ||y*q||^3</span>
+0134     <span class="comment">%       = ||g||*y + .5*alpha*y^2 + (sigma/3) |y|^3.</span>
+0135     <span class="comment">% The sign of y affects only the linear term, hence it is clear we need</span>
+0136     <span class="comment">% to pick y nonpositive. In that case, h becomes a cubic polynomial:</span>
+0137     <span class="comment">%  h(y) = ||g||*y + .5*alpha*y^2 - (sigma/3) y^3</span>
+0138     <span class="comment">% The derivative is a quadratic polynomial:</span>
+0139     <span class="comment">%  h'(y) = ||g|| + alpha*y - sigma*y^2.</span>
+0140     <span class="comment">% Since ||g|| and sigma are positive, h' has two real roots, one</span>
+0141     <span class="comment">% posivite and one negative (strictly). The negative root is the only</span>
+0142     <span class="comment">% root of interest. It necessarily identifies a minimizer since</span>
+0143     <span class="comment">% h(0) = 0, h(-inf) = inf and h'(0) &gt; 0.</span>
+0144     <span class="comment">%</span>
+0145     <span class="comment">% We take the real part only to be safe.</span>
+0146     y = min(real(roots([-sigma, alpha, gradnorm])));
+0147     
+0148     
+0149     <span class="comment">% Main Lanczos iteration</span>
+0150     gradnorm_reached = false;
+0151     <span class="keyword">for</span> j = 1 : min(options.maxiter_lanczos, n) - 1
+0152 
+0153         <span class="comment">% Knowing that j Lanczos steps have been executed completely, now</span>
+0154         <span class="comment">% execute the j+1st step to produce Q{j+1} and populate the</span>
+0155         <span class="comment">% tridiagonal matrix T over the whole principal submatrix of size</span>
+0156         <span class="comment">% j+1. This involves one Hessian call.</span>
+0157         <span class="comment">%</span>
+0158         <span class="comment">% In effect, we are computing this one step ahead. The reason is</span>
+0159         <span class="comment">% that this makes it cheaper to compute the norm of the gradient of</span>
+0160         <span class="comment">% the model, which is needed to check the stopping criterion (see</span>
+0161         <span class="comment">% below).</span>
+0162         beta = rnorm(Hq_perp);
+0163         <span class="comment">% TODO: Figure out a sensible relative threshold</span>
+0164         <span class="keyword">if</span> beta &gt; 1e-12
+0165             q = M.lincomb(x, 1/beta, Hq_perp);
+0166         <span class="keyword">else</span>
+0167             <span class="comment">% It appears the Krylov space maxed out (Hq is very nearly in</span>
+0168             <span class="comment">% the space spanned by the existing Lanczos vectors). In order</span>
+0169             <span class="comment">% to continue, the standard procedure is to generate a random</span>
+0170             <span class="comment">% vector, and to orthogonalize it against the current basis.</span>
+0171             <span class="comment">% This event is supposed to be rare.</span>
+0172             v = M.randvec(x);
+0173             <span class="comment">% Orthogonalize in the style of a modified Gram-Schmidt.</span>
+0174             <span class="keyword">for</span> k = 1 : j
+0175                 v = M.lincomb(x, 1, v, -inner(v, Q{k}), Q{k});
+0176             <span class="keyword">end</span>
+0177             q = M.lincomb(x, 1/rnorm(v), v);
+0178         <span class="keyword">end</span>
+0179         Hq = Hess(q);
+0180         hesscalls = hesscalls + 1;
+0181         Hqm = M.lincomb(x, 1, Hq, -beta, Q{j});
+0182         <span class="comment">% In exact arithmetic, alpha = &lt;Hq, q&gt;. Doing the computations in</span>
+0183         <span class="comment">% this order amounts to a modified GS, which may help numerically.</span>
+0184         alpha = inner(Hqm, q);
+0185         Hq_perp = M.lincomb(x, 1, Hqm, -alpha, q);
+0186         Q{j+1} = q;
+0187         T(j, j+1) = beta;     <span class="comment">%#ok&lt;SPRIX&gt;</span>
+0188         T(j+1, j) = beta;     <span class="comment">%#ok&lt;SPRIX&gt;</span>
+0189         T(j+1, j+1) = alpha;  <span class="comment">%#ok&lt;SPRIX&gt;</span>
+0190         <span class="comment">% End of the Lanczos procedure for step j.</span>
+0191 
+0192         <span class="comment">% Computing the norm of the gradient of the model at the computed</span>
+0193         <span class="comment">% step 'Qy' (linear combination of the Q's with coefficients y.)</span>
+0194         <span class="comment">% We actually compute the norm of a vector of coordinates for the</span>
+0195         <span class="comment">% gradient of the model in the basis Q{1}, ..., Q{j+1}.</span>
+0196         model_gradnorm = norm(gradnorm*eye(j+1, 1) + <span class="keyword">...</span>
+0197                               T(1:j+1, 1:j)*y + <span class="keyword">...</span>
+0198                               sigma*norm(y)*[y ; 0]);
+0199 
+0200         <span class="keyword">if</span> options.verbosity &gt;= 4
+0201             fprintf(<span class="string">'\nModel grad norm %.16e'</span>, model_gradnorm);
+0202         <span class="keyword">end</span>
+0203         
+0204         <span class="comment">% Check termination condition</span>
+0205         <span class="keyword">if</span> model_gradnorm &lt;= options.theta*norm(y)^2
+0206             stop_str = <span class="string">'Model grad norm condition satisfied'</span>;
+0207             gradnorm_reached = true;
+0208             <span class="keyword">break</span>;
+0209         <span class="keyword">end</span>
+0210         
+0211         <span class="comment">% Minimize the cubic model restricted to the subspace spanned by</span>
+0212         <span class="comment">% the available Lanczos vectors. In its current form, this solver</span>
+0213         <span class="comment">% cannot reuse prior work from earlier Lanczos iterations: this may</span>
+0214         <span class="comment">% be a point to improve.</span>
+0215         [y, newton_iter] = <a href="minimize_cubic_newton.html" class="code" title="function [y, iter, lambda, status] = minimize_cubic_newton(H, g, sigma, options)">minimize_cubic_newton</a>(T(1:j+1, 1:j+1), <span class="keyword">...</span>
+0216                                      gradnorm*eye(j+1, 1), sigma, options);
+0217         newton_iterations(j+1) = newton_iter;
+0218         
+0219     <span class="keyword">end</span>
+0220     
+0221     <span class="comment">% Check why we stopped iterating</span>
+0222     <span class="keyword">if</span> ~gradnorm_reached
+0223         stop_str = sprintf([<span class="string">'Reached max number of Lanczos iterations '</span> <span class="keyword">...</span>
+0224                <span class="string">'(options.maxiter_lanczos = %d)'</span>], options.maxiter_lanczos);
+0225     <span class="keyword">end</span>
+0226     
+0227     <span class="comment">% Construct the tangent vector eta as a linear combination of the basis</span>
+0228     <span class="comment">% vectors and make sure the result is tangent up to numerical accuracy.</span>
+0229     eta = <a href="../../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(M, x, Q(1:numel(y)), y);
+0230     eta = tangent(eta);
+0231     <span class="comment">% We could easily return the norm of eta as the norm of the coefficient</span>
+0232     <span class="comment">% vector y here, but numerical errors might accumulate.</span>
+0233     
+0234     <span class="comment">% In principle we could avoid this call by computing an appropriate</span>
+0235     <span class="comment">% linear combination of available vectors. For now at least, we favor</span>
+0236     <span class="comment">% this numerically safer approach.</span>
+0237     Heta = Hess(eta);
+0238     hesscalls = hesscalls + 1;
+0239     
+0240     stats = struct(<span class="string">'newton_iterations'</span>, newton_iterations(1:numel(y)));
+0241     
+0242     <span class="keyword">if</span> options.verbosity &gt;= 4
+0243         fprintf(<span class="string">'\n'</span>);
+0244     <span class="keyword">end</span>
+0245         
+0246 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

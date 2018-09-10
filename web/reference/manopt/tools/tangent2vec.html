@@ -4,7 +4,7 @@
 <head>
   <title>Description of tangent2vec</title>
   <meta name="keywords" content="tangent2vec">
-  <meta name="description" content="Expands a tangent vector into an orthogonal basis in the Manopt framework">
+  <meta name="description" content="Expands a tangent vector into an orthonormal basis in the Manopt framework">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,13 +21,13 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="box"><strong>Expands a tangent vector into an orthogonal basis in the Manopt framework</strong></div>
+<div class="box"><strong>Expands a tangent vector into an orthonormal basis in the Manopt framework</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="box"><strong>function vec = tangent2vec(M, x, basis, u) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Expands a tangent vector into an orthogonal basis in the Manopt framework
+<div class="fragment"><pre class="comment"> Expands a tangent vector into an orthonormal basis in the Manopt framework
 
  vec = tangent2vec(M, x, basis, u)
 
@@ -53,7 +53,7 @@
 
  where uu = tangent2vec(M, x, basis, u), vv = tangent2vec(M, x, basis, v).
 
- See also: <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a> <a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a> <a href="orthogonalize.html" class="code" title="function [orthobasis, L] = orthogonalize(M, x, basis)">orthogonalize</a> <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a> <a href="hessianmatrix.html" class="code" title="function [H, basis] = hessianmatrix(problem, x, basis)">hessianmatrix</a></pre></div>
+ See also: <a href="lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a> <a href="tangentorthobasis.html" class="code" title="function orthobasis = tangentorthobasis(M, x, n)">tangentorthobasis</a> <a href="orthogonalize.html" class="code" title="function [Q, R] = orthogonalize(M, x, A)">orthogonalize</a> <a href="grammatrix.html" class="code" title="function G = grammatrix(M, x, vectors)">grammatrix</a> <a href="hessianmatrix.html" class="code" title="function [H, basis] = hessianmatrix(problem, x, basis)">hessianmatrix</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -69,7 +69,7 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function vec = tangent2vec(M, x, basis, u)</a>
-0002 <span class="comment">% Expands a tangent vector into an orthogonal basis in the Manopt framework</span>
+0002 <span class="comment">% Expands a tangent vector into an orthonormal basis in the Manopt framework</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% vec = tangent2vec(M, x, basis, u)</span>
 0005 <span class="comment">%</span>
@@ -114,6 +114,6 @@ This function is called by:
 0044     <span class="keyword">end</span>
 0045 
 0046 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

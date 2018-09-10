@@ -55,7 +55,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="../../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li></ul>
@@ -112,111 +112,115 @@ This function is called by:
 0046 <span class="comment">%</span>
 0047 <span class="comment">%   April 8, 2015 (NB):</span>
 0048 <span class="comment">%       Got rid of lsmem input/output: now maintained in storedb.internal.</span>
-0049 
-0050 
-0051     <span class="comment">% Allow omission of the key, and even of storedb.</span>
-0052     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
-0053         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
-0054             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
-0055         <span class="keyword">end</span>
-0056         key = storedb.getNewKey();
-0057     <span class="keyword">end</span>
-0058 
-0059     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
-0060     <span class="comment">% options structure which is passed to the solver.</span>
-0061     default_options.ls_contraction_factor = .5;
-0062     default_options.ls_suff_decr = .5;
-0063     default_options.ls_max_steps = 10;
-0064     default_options.ls_initial_stepsize = 1;
-0065     
-0066     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0067         options = struct();
-0068     <span class="keyword">end</span>
-0069     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(default_options, options);
-0070     
-0071     contraction_factor = options.ls_contraction_factor;
-0072     suff_decr = options.ls_suff_decr;
-0073     max_ls_steps = options.ls_max_steps;
-0074     initial_stepsize = options.ls_initial_stepsize;
-0075     
-0076     <span class="comment">% Compute the norm of the search direction.</span>
-0077     norm_d = problem.M.norm(x, d);
+0049 <span class="comment">%</span>
+0050 <span class="comment">%   Aug. 2, 2018 (NB):</span>
+0051 <span class="comment">%       Now using storedb.remove() to keep the cache lean.</span>
+0052 
+0053 
+0054     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0055     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0056         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0057             storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>();
+0058         <span class="keyword">end</span>
+0059         key = storedb.getNewKey();
+0060     <span class="keyword">end</span>
+0061 
+0062     <span class="comment">% Backtracking default parameters. These can be overwritten in the</span>
+0063     <span class="comment">% options structure which is passed to the solver.</span>
+0064     default_options.ls_contraction_factor = .5;
+0065     default_options.ls_suff_decr = .5;
+0066     default_options.ls_max_steps = 10;
+0067     default_options.ls_initial_stepsize = 1;
+0068     
+0069     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0070         options = struct();
+0071     <span class="keyword">end</span>
+0072     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(default_options, options);
+0073     
+0074     contraction_factor = options.ls_contraction_factor;
+0075     suff_decr = options.ls_suff_decr;
+0076     max_ls_steps = options.ls_max_steps;
+0077     initial_stepsize = options.ls_initial_stepsize;
 0078     
-0079     <span class="comment">% If this is not the first iteration, then lsmem should have been</span>
-0080     <span class="comment">% filled with a suggestion for the initial step.</span>
-0081     <span class="keyword">if</span> isfield(storedb.internal, <span class="string">'lsmem'</span>)
-0082         lsmem = storedb.internal.lsmem;
-0083         <span class="keyword">if</span> isfield(lsmem, <span class="string">'init_alpha'</span>)
-0084             <span class="comment">% Pick initial step size based on where we were last time,</span>
-0085             alpha = lsmem.init_alpha;
-0086         <span class="keyword">end</span>
-0087     <span class="comment">% Otherwise, fall back to a user supplied suggestion.</span>
-0088     <span class="keyword">else</span>
-0089         alpha = initial_stepsize / norm_d;
-0090     <span class="keyword">end</span>
-0091 
-0092     <span class="comment">% Make the chosen step and compute the cost there.</span>
-0093     newx = problem.M.retr(x, d, alpha);
-0094     newkey = storedb.getNewKey();
-0095     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0096     cost_evaluations = 1;
-0097     
-0098     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
-0099     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
-0100         
-0101         <span class="comment">% Reduce the step size,</span>
-0102         alpha = contraction_factor * alpha;
+0079     <span class="comment">% Compute the norm of the search direction.</span>
+0080     norm_d = problem.M.norm(x, d);
+0081     
+0082     <span class="comment">% If this is not the first iteration, then lsmem should have been</span>
+0083     <span class="comment">% filled with a suggestion for the initial step.</span>
+0084     <span class="keyword">if</span> isfield(storedb.internal, <span class="string">'lsmem'</span>)
+0085         lsmem = storedb.internal.lsmem;
+0086         <span class="keyword">if</span> isfield(lsmem, <span class="string">'init_alpha'</span>)
+0087             <span class="comment">% Pick initial step size based on where we were last time,</span>
+0088             alpha = lsmem.init_alpha;
+0089         <span class="keyword">end</span>
+0090     <span class="comment">% Otherwise, fall back to a user supplied suggestion.</span>
+0091     <span class="keyword">else</span>
+0092         alpha = initial_stepsize / norm_d;
+0093     <span class="keyword">end</span>
+0094 
+0095     <span class="comment">% Make the chosen step and compute the cost there.</span>
+0096     newx = problem.M.retr(x, d, alpha);
+0097     newkey = storedb.getNewKey();
+0098     newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0099     cost_evaluations = 1;
+0100     
+0101     <span class="comment">% Backtrack while the Armijo criterion is not satisfied</span>
+0102     <span class="keyword">while</span> newf &gt; f0 + suff_decr*alpha*df0
 0103         
-0104         <span class="comment">% and look closer down the line</span>
-0105         newx = problem.M.retr(x, d, alpha);
-0106         newkey = storedb.getNewKey();
-0107         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
-0108         cost_evaluations = cost_evaluations + 1;
-0109         
-0110         <span class="comment">% Make sure we don't run out of budget</span>
-0111         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
-0112             <span class="keyword">break</span>;
-0113         <span class="keyword">end</span>
-0114         
-0115     <span class="keyword">end</span>
-0116     
-0117     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
-0118     <span class="keyword">if</span> newf &gt; f0
-0119         alpha = 0;
-0120         newx = x;
-0121         newkey = key;
-0122         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
-0123     <span class="keyword">end</span>
-0124     
-0125     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
-0126     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
-0127     stepsize = alpha * norm_d;
-0128 
-0129     <span class="comment">% Fill lsmem with a suggestion for what the next initial step size</span>
-0130     <span class="comment">% trial should be. On average we intend to do only one extra cost</span>
-0131     <span class="comment">% evaluation. Notice how the suggestion is not about stepsize but about</span>
-0132     <span class="comment">% alpha. This is the reason why this line search is not invariant under</span>
-0133     <span class="comment">% rescaling of the search direction d.</span>
-0134     <span class="keyword">switch</span> cost_evaluations
-0135         <span class="keyword">case</span> 1
-0136             <span class="comment">% If things go very well, push your luck.</span>
-0137             init_alpha = 2 * alpha;
-0138         <span class="keyword">case</span> 2
-0139             <span class="comment">% If things go reasonably well, try to keep pace.</span>
-0140             init_alpha = alpha;
-0141         <span class="keyword">otherwise</span>
-0142             <span class="comment">% If we backtracked a lot, the new stepsize is probably quite</span>
-0143             <span class="comment">% small: try to recover.</span>
-0144             init_alpha = 2 * alpha;
-0145     <span class="keyword">end</span>
-0146     storedb.internal.lsmem.init_alpha = init_alpha;
-0147     
-0148     <span class="comment">% Return some statistics also, for possible analysis.</span>
-0149     lsstats.costevals = cost_evaluations;
-0150     lsstats.stepsize = stepsize;
-0151     lsstats.alpha = alpha;
-0152     
-0153 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0104         <span class="comment">% Reduce the step size,</span>
+0105         alpha = contraction_factor * alpha;
+0106         
+0107         <span class="comment">% and look closer down the line.</span>
+0108         storedb.remove(newkey);              <span class="comment">% we no longer need this cache</span>
+0109         newx = problem.M.retr(x, d, alpha);
+0110         newkey = storedb.getNewKey();
+0111         newf = <a href="../../../manopt/core/getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, newx, storedb, newkey);
+0112         cost_evaluations = cost_evaluations + 1;
+0113         
+0114         <span class="comment">% Make sure we don't run out of budget.</span>
+0115         <span class="keyword">if</span> cost_evaluations &gt;= max_ls_steps
+0116             <span class="keyword">break</span>;
+0117         <span class="keyword">end</span>
+0118         
+0119     <span class="keyword">end</span>
+0120     
+0121     <span class="comment">% If we got here without obtaining a decrease, we reject the step.</span>
+0122     <span class="keyword">if</span> newf &gt; f0
+0123         alpha = 0;
+0124         newx = x;
+0125         newkey = key;
+0126         newf = f0; <span class="comment">%#ok&lt;NASGU&gt;</span>
+0127     <span class="keyword">end</span>
+0128     
+0129     <span class="comment">% As seen outside this function, stepsize is the size of the vector we</span>
+0130     <span class="comment">% retract to make the step from x to newx. Since the step is alpha*d:</span>
+0131     stepsize = alpha * norm_d;
+0132 
+0133     <span class="comment">% Fill lsmem with a suggestion for what the next initial step size</span>
+0134     <span class="comment">% trial should be. On average we intend to do only one extra cost</span>
+0135     <span class="comment">% evaluation. Notice how the suggestion is not about stepsize but about</span>
+0136     <span class="comment">% alpha. This is the reason why this line search is not invariant under</span>
+0137     <span class="comment">% rescaling of the search direction d.</span>
+0138     <span class="keyword">switch</span> cost_evaluations
+0139         <span class="keyword">case</span> 1
+0140             <span class="comment">% If things go very well, push your luck.</span>
+0141             init_alpha = 2 * alpha;
+0142         <span class="keyword">case</span> 2
+0143             <span class="comment">% If things go reasonably well, try to keep pace.</span>
+0144             init_alpha = alpha;
+0145         <span class="keyword">otherwise</span>
+0146             <span class="comment">% If we backtracked a lot, the new stepsize is probably quite</span>
+0147             <span class="comment">% small: try to recover.</span>
+0148             init_alpha = 2 * alpha;
+0149     <span class="keyword">end</span>
+0150     storedb.internal.lsmem.init_alpha = init_alpha;
+0151     
+0152     <span class="comment">% Return some statistics also, for possible analysis.</span>
+0153     lsstats.costevals = cost_evaluations;
+0154     lsstats.stepsize = stepsize;
+0155     lsstats.alpha = alpha;
+0156     
+0157 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

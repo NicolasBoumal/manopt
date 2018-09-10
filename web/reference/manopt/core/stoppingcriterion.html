@@ -42,7 +42,6 @@
   2 : Gradient norm tolerance reached;
   3 : Max time exceeded;
   4 : Max iteration count reached;
-  5 : Maximum number of cost evaluations reached;
   6 : User defined stopfun criterion triggered.
 
  The output 'reason' is a string describing the triggered event.</pre></div>
@@ -54,7 +53,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/stochasticgradient/stochasticgradient.html" class="code" title="function [x, info, options] = stochasticgradient(problem, x, options)">stochasticgradient</a>	Stochastic gradient (SG) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
+<li><a href="../../manopt/solvers/arc/arc.html" class="code" title="function [x, cost, info, options] = arc(problem, x, options)">arc</a>	Adaptive regularization by cubics (ARC) minimization algorithm for Manopt</li><li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/neldermead/neldermead.html" class="code" title="function [x, cost, info, options] = neldermead(problem, x, options)">neldermead</a>	Nelder Mead optimization algorithm for derivative-free minimization.</li><li><a href="../../manopt/solvers/pso/pso.html" class="code" title="function [xbest, fbest, info, options] = pso(problem, x, options)">pso</a>	Particle swarm optimization (PSO) for derivative-free minimization.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/stochasticgradient/stochasticgradient.html" class="code" title="function [x, info, options] = stochasticgradient(problem, x, options)">stochasticgradient</a>	Stochastic gradient (SG) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li></ul>
 <!-- crossreference -->
 
 
@@ -76,76 +75,95 @@ This function is called by:
 0014 <span class="comment">%  2 : Gradient norm tolerance reached;</span>
 0015 <span class="comment">%  3 : Max time exceeded;</span>
 0016 <span class="comment">%  4 : Max iteration count reached;</span>
-0017 <span class="comment">%  5 : Maximum number of cost evaluations reached;</span>
-0018 <span class="comment">%  6 : User defined stopfun criterion triggered.</span>
-0019 <span class="comment">%</span>
-0020 <span class="comment">% The output 'reason' is a string describing the triggered event.</span>
-0021 
-0022 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0023 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
-0024 <span class="comment">% Contributors:</span>
-0025 <span class="comment">% Change log:</span>
-0026 <span class="comment">%</span>
-0027 <span class="comment">%   April 2, 2015 (NB):</span>
-0028 <span class="comment">%       'reason' now contains the option (name and value) that triggered.</span>
-0029 
-0030 
-0031     stop = 0;
-0032     reason = <span class="string">''</span>;
-0033     
-0034     stats = info(last);
+0017 <span class="comment">%  6 : User defined stopfun criterion triggered.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% The output 'reason' is a string describing the triggered event.</span>
+0020 
+0021 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0022 <span class="comment">% Original author: Nicolas Boumal, Dec. 30, 2012.</span>
+0023 <span class="comment">% Contributors:</span>
+0024 <span class="comment">% Change log:</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   Apr. 2, 2015 (NB):</span>
+0027 <span class="comment">%       'reason' now contains the option (name and value) that triggered.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%   Aug. 3, 2018 (NB):</span>
+0030 <span class="comment">%       Removed check for costevals, as it was never used, and the new</span>
+0031 <span class="comment">%       manopt counters allow to do this in a more transparent way.</span>
+0032 <span class="comment">%       Furthermore, now, options.stopfun can have 1 or 2 outputs: the</span>
+0033 <span class="comment">%       first is a boolean indicating whether or not to stop, and the</span>
+0034 <span class="comment">%       (optional) second output is a string indicating the reason.</span>
 0035 
-0036     <span class="comment">% Target cost attained</span>
-0037     <span class="keyword">if</span> isfield(stats, <span class="string">'cost'</span>) &amp;&amp; isfield(options, <span class="string">'tolcost'</span>) &amp;&amp; <span class="keyword">...</span>
-0038        stats.cost &lt;= options.tolcost
-0039         reason = sprintf(<span class="string">'Cost tolerance reached; options.tolcost = %g.'</span>, options.tolcost);
-0040         stop = 1;
-0041         <span class="keyword">return</span>;
-0042     <span class="keyword">end</span>
-0043 
-0044     <span class="comment">% Target gradient norm attained</span>
-0045     <span class="keyword">if</span> isfield(stats, <span class="string">'gradnorm'</span>) &amp;&amp; isfield(options, <span class="string">'tolgradnorm'</span>) &amp;&amp; <span class="keyword">...</span>
-0046        stats.gradnorm &lt; options.tolgradnorm
-0047         reason = sprintf(<span class="string">'Gradient norm tolerance reached; options.tolgradnorm = %g.'</span>, options.tolgradnorm);
-0048         stop = 2;
-0049         <span class="keyword">return</span>;
-0050     <span class="keyword">end</span>
-0051 
-0052     <span class="comment">% Allotted time exceeded</span>
-0053     <span class="keyword">if</span> isfield(stats, <span class="string">'time'</span>) &amp;&amp; isfield(options, <span class="string">'maxtime'</span>) &amp;&amp; <span class="keyword">...</span>
-0054        stats.time &gt;= options.maxtime
-0055         reason = sprintf(<span class="string">'Max time exceeded; options.maxtime = %g.'</span>, options.maxtime);
-0056         stop = 3;
-0057         <span class="keyword">return</span>;
-0058     <span class="keyword">end</span>
-0059 
-0060     <span class="comment">% Allotted iteration count exceeded</span>
-0061     <span class="keyword">if</span> isfield(stats, <span class="string">'iter'</span>) &amp;&amp; isfield(options, <span class="string">'maxiter'</span>) &amp;&amp; <span class="keyword">...</span>
-0062        stats.iter &gt;= options.maxiter
-0063         reason = sprintf(<span class="string">'Max iteration count reached; options.maxiter = %g.'</span>, options.maxiter);
-0064         stop = 4;
-0065         <span class="keyword">return</span>;
-0066     <span class="keyword">end</span>
-0067     
-0068     <span class="comment">% Allotted function evaluation count exceeded</span>
-0069     <span class="keyword">if</span> isfield(stats, <span class="string">'costevals'</span>) &amp;&amp; isfield(options, <span class="string">'maxcostevals'</span>) &amp;&amp; <span class="keyword">...</span>
-0070        stats.costevals &gt;= options.maxcostevals
-0071         reason = sprintf(<span class="string">'Maximum number of cost evaluations reached; options.maxcostevals = %g.'</span>, options.maxcostevals);
-0072         stop = 5;
-0073     <span class="keyword">end</span>
-0074 
-0075     <span class="comment">% Check whether the possibly user defined stopping criterion</span>
-0076     <span class="comment">% triggers or not.</span>
-0077     <span class="keyword">if</span> isfield(options, <span class="string">'stopfun'</span>)
-0078         userstop = options.stopfun(problem, x, info, last);
-0079         <span class="keyword">if</span> userstop
-0080             reason = <span class="string">'User defined stopfun criterion triggered; see options.stopfun.'</span>;
-0081             stop = 6;
-0082             <span class="keyword">return</span>;
-0083         <span class="keyword">end</span>
-0084     <span class="keyword">end</span>
-0085 
-0086 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0036 
+0037     stop = 0;
+0038     reason = <span class="string">''</span>;
+0039     
+0040     stats = info(last);
+0041 
+0042     <span class="comment">% Target cost attained</span>
+0043     <span class="keyword">if</span> isfield(stats, <span class="string">'cost'</span>) &amp;&amp; isfield(options, <span class="string">'tolcost'</span>) &amp;&amp; <span class="keyword">...</span>
+0044        stats.cost &lt;= options.tolcost
+0045         reason = sprintf(<span class="string">'Cost tolerance reached; options.tolcost = %g.'</span>, options.tolcost);
+0046         stop = 1;
+0047         <span class="keyword">return</span>;
+0048     <span class="keyword">end</span>
+0049 
+0050     <span class="comment">% Target gradient norm attained</span>
+0051     <span class="keyword">if</span> isfield(stats, <span class="string">'gradnorm'</span>) &amp;&amp; isfield(options, <span class="string">'tolgradnorm'</span>) &amp;&amp; <span class="keyword">...</span>
+0052        stats.gradnorm &lt; options.tolgradnorm
+0053         reason = sprintf(<span class="string">'Gradient norm tolerance reached; options.tolgradnorm = %g.'</span>, options.tolgradnorm);
+0054         stop = 2;
+0055         <span class="keyword">return</span>;
+0056     <span class="keyword">end</span>
+0057 
+0058     <span class="comment">% Allotted time exceeded</span>
+0059     <span class="keyword">if</span> isfield(stats, <span class="string">'time'</span>) &amp;&amp; isfield(options, <span class="string">'maxtime'</span>) &amp;&amp; <span class="keyword">...</span>
+0060        stats.time &gt;= options.maxtime
+0061         reason = sprintf(<span class="string">'Max time exceeded; options.maxtime = %g.'</span>, options.maxtime);
+0062         stop = 3;
+0063         <span class="keyword">return</span>;
+0064     <span class="keyword">end</span>
+0065 
+0066     <span class="comment">% Allotted iteration count exceeded</span>
+0067     <span class="keyword">if</span> isfield(stats, <span class="string">'iter'</span>) &amp;&amp; isfield(options, <span class="string">'maxiter'</span>) &amp;&amp; <span class="keyword">...</span>
+0068        stats.iter &gt;= options.maxiter
+0069         reason = sprintf(<span class="string">'Max iteration count reached; options.maxiter = %g.'</span>, options.maxiter);
+0070         stop = 4;
+0071         <span class="keyword">return</span>;
+0072     <span class="keyword">end</span>
+0073 
+0074     <span class="comment">% Check whether the possibly user defined stopping criterion</span>
+0075     <span class="comment">% triggers or not.</span>
+0076     <span class="keyword">if</span> isfield(options, <span class="string">'stopfun'</span>)
+0077         <span class="comment">% options.stopfun can have 1 or 2 outputs, but checking this with</span>
+0078         <span class="comment">% nargout does not always work because it is technical to determine</span>
+0079         <span class="comment">% for anonymous functions. Thus, we use our best guess. Nargout</span>
+0080         <span class="comment">% returns -1 when it cannot determine the number of outputs, in</span>
+0081         <span class="comment">% which case we take the safer approach of assuming 1 output.</span>
+0082         <span class="keyword">switch</span> nargout(options.stopfun)
+0083             <span class="keyword">case</span> 2
+0084                 [userstop, reason] = options.stopfun(problem, x, info, last);
+0085             <span class="keyword">case</span> {1, -1}
+0086                 userstop = options.stopfun(problem, x, info, last);
+0087                 reason = [<span class="string">'User defined stopfun criterion triggered; '</span> <span class="keyword">...</span>
+0088                           <span class="string">'see options.stopfun.'</span>];
+0089             <span class="keyword">otherwise</span>
+0090                 error(<span class="string">'manopt:stoppingcriterion:stopfunoutputs'</span>, <span class="keyword">...</span>
+0091                       <span class="string">'options.stopfun must have one or two outputs.'</span>);
+0092         <span class="keyword">end</span>
+0093         <span class="keyword">if</span> userstop
+0094             stop = 6;
+0095             <span class="keyword">if</span> nargout(options.stopfun) == -1
+0096                 reason = [reason, <span class="string">'\n(A reason may have been '</span> <span class="keyword">...</span>
+0097                           <span class="string">'provided, but stoppingcriterion was '</span> <span class="keyword">...</span>
+0098                           <span class="string">'unable to determine\nthe number of '</span> <span class="keyword">...</span>
+0099                           <span class="string">'output arguments of options.stopfun.)'</span>];
+0100             <span class="keyword">end</span>
+0101             <span class="keyword">return</span>;
+0102         <span class="keyword">end</span>
+0103     <span class="keyword">end</span>
+0104 
+0105 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

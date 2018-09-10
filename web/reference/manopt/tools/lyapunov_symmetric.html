@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of lyapunov_symmetric</title>
+  <meta name="keywords" content="lyapunov_symmetric">
+  <meta name="description" content="Solves AX + XA = C when A = A', as a pseudo-inverse.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">manopt</a> &gt; <a href="index.html">tools</a> &gt; lyapunov_symmetric.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for manopt\tools&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>lyapunov_symmetric
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Solves AX + XA = C when A = A', as a pseudo-inverse.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function X = lyapunov_symmetric(A, C, tol) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Solves AX + XA = C when A = A', as a pseudo-inverse.
+
+ function X = lyapunov_symmetric(A, C)
+ function X = lyapunov_symmetric(A, C, tol)
+
+ Matrices A, C and X have size nxn. When the solution exists and is
+ unique, this is equivalent to sylvester(A, A', C) or lyap(A, -C).
+ This works for both real and complex inputs.
+
+ If C is a 3-D array of size nxnxk, then X has size nxnxk as well, and
+ each slice X(:, :, i) corresponds to the solution for the system with
+ right-hand side C(:, :, i). This is more efficient then calling the
+ function multiple times for each slice of C.
+ 
+ If the solution is not unique, the smallest-norm solution is returned.
+
+ If a solution does not exist, a minimum-residue solution is returned.
+
+ tol is a tolerance used to determine which eigenvalues are numerically
+ zero. It can be specified manually; otherwise, a default value is chosen.
+
+ Overall, if A is nxn, the output is very close to:
+   X = reshape(pinv(kron(A, eye(n)) + kron(eye(n), A))*C(:), [n, n]),
+ but it is computed far more efficiently. The most expensive step is an
+ eigendecomposition of A, whose complexity is essentially O(n^3) flops.
+
+ If A is not symmetric, only its symmetric part is used: (A+A')/2.
+
+ If C is (skew-)symmetric, then X is (skew-)symmetric (up to round-off),
+ and similarly in the complex case.
+
+ To solve one system at a time, while reusing the eigendecomposition of A,
+ call lyapunov_symmetric_eig.
+
+ See also: <a href="lyapunov_symmetric_eig.html" class="code" title="function X = lyapunov_symmetric_eig(V, lambda, C, tol)">lyapunov_symmetric_eig</a> sylvester lyap <a href="sylvester_nochecks.html" class="code" title="function [X, unique] = sylvester_nochecks(A, B, C)">sylvester_nochecks</a></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="lyapunov_symmetric_eig.html" class="code" title="function X = lyapunov_symmetric_eig(V, lambda, C, tol)">lyapunov_symmetric_eig</a>	Solves AX + XA = C when A = A', as a pseudo-inverse, given eig(A).</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../manopt/manifolds/fixedrank/fixedrankMNquotientfactory.html" class="code" title="function M = fixedrankMNquotientfactory(m, n, k)">fixedrankMNquotientfactory</a>	Manifold of m-by-n matrices of rank k with two factor quotient geometry.</li><li><a href="../../manopt/manifolds/fixedrank/fixedrankfactory_3factors.html" class="code" title="function M = fixedrankfactory_3factors(m, n, k)">fixedrankfactory_3factors</a>	Manifold of m-by-n matrices of rank k with polar quotient geometry.</li><li><a href="../../manopt/manifolds/fixedrank/fixedrankfactory_3factors_preconditioned.html" class="code" title="function M = fixedrankfactory_3factors_preconditioned(m, n, k)">fixedrankfactory_3factors_preconditioned</a>	Manifold of m-by-n matrices of rank k with three factor quotient geometry.</li><li><a href="../../manopt/manifolds/fixedranktensors/fixedrankfactory_tucker_preconditioned.html" class="code" title="function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)">fixedrankfactory_tucker_preconditioned</a>	Manifold of fixed multilinear rank tensors in Tucker format.</li><li><a href="../../manopt/manifolds/symfixedrank/elliptopefactory.html" class="code" title="function M = elliptopefactory(n, k)">elliptopefactory</a>	Manifold of n-by-n psd matrices of rank k with unit diagonal elements.</li><li><a href="../../manopt/manifolds/symfixedrank/spectrahedronfactory.html" class="code" title="function M = spectrahedronfactory(n, k)">spectrahedronfactory</a>	Manifold of n-by-n symmetric positive semidefinite matrices of rank k</li><li><a href="../../manopt/manifolds/symfixedrank/symfixedrankYYcomplexfactory.html" class="code" title="function M = symfixedrankYYcomplexfactory(n, k)">symfixedrankYYcomplexfactory</a>	Manifold of n x n complex Hermitian pos. semidefinite matrices of rank k.</li><li><a href="../../manopt/manifolds/symfixedrank/symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>	Manifold of n-by-n symmetric positive semidefinite matrices of rank k.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function X = lyapunov_symmetric(A, C, tol)</a>
+0002 <span class="comment">% Solves AX + XA = C when A = A', as a pseudo-inverse.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function X = lyapunov_symmetric(A, C)</span>
+0005 <span class="comment">% function X = lyapunov_symmetric(A, C, tol)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Matrices A, C and X have size nxn. When the solution exists and is</span>
+0008 <span class="comment">% unique, this is equivalent to sylvester(A, A', C) or lyap(A, -C).</span>
+0009 <span class="comment">% This works for both real and complex inputs.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% If C is a 3-D array of size nxnxk, then X has size nxnxk as well, and</span>
+0012 <span class="comment">% each slice X(:, :, i) corresponds to the solution for the system with</span>
+0013 <span class="comment">% right-hand side C(:, :, i). This is more efficient then calling the</span>
+0014 <span class="comment">% function multiple times for each slice of C.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% If the solution is not unique, the smallest-norm solution is returned.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% If a solution does not exist, a minimum-residue solution is returned.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% tol is a tolerance used to determine which eigenvalues are numerically</span>
+0021 <span class="comment">% zero. It can be specified manually; otherwise, a default value is chosen.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Overall, if A is nxn, the output is very close to:</span>
+0024 <span class="comment">%   X = reshape(pinv(kron(A, eye(n)) + kron(eye(n), A))*C(:), [n, n]),</span>
+0025 <span class="comment">% but it is computed far more efficiently. The most expensive step is an</span>
+0026 <span class="comment">% eigendecomposition of A, whose complexity is essentially O(n^3) flops.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% If A is not symmetric, only its symmetric part is used: (A+A')/2.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% If C is (skew-)symmetric, then X is (skew-)symmetric (up to round-off),</span>
+0031 <span class="comment">% and similarly in the complex case.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% To solve one system at a time, while reusing the eigendecomposition of A,</span>
+0034 <span class="comment">% call lyapunov_symmetric_eig.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% See also: lyapunov_symmetric_eig sylvester lyap sylvester_nochecks</span>
+0037 
+0038 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0039 <span class="comment">% Original author: Nicolas Boumal, April 17, 2018.</span>
+0040 <span class="comment">% Contributors:</span>
+0041 <span class="comment">% Change log:</span>
+0042 <span class="comment">%   Aug. 31, 2018 (NB):</span>
+0043 <span class="comment">%       Now works with C having multiple slices (nxnxk), and added some</span>
+0044 <span class="comment">%       safeguards.</span>
+0045 
+0046     n = size(A, 1);
+0047     assert(ismatrix(A) &amp;&amp; size(A, 2) == n, <span class="string">'A must be square.'</span>);
+0048     assert(size(C, 1) == n &amp;&amp; size(C, 2) == n, <span class="keyword">...</span>
+0049            <span class="string">'Each slice of C must have the same size as A.'</span>);
+0050        
+0051    <span class="keyword">if</span> ~exist(<span class="string">'tol'</span>, <span class="string">'var'</span>)
+0052        tol = [];
+0053    <span class="keyword">end</span>
+0054 
+0055     <span class="comment">% Make sure A is numerically Hermitian (or symmetric).</span>
+0056     <span class="comment">% The cost of this safety step is negligible compared to eig.</span>
+0057     A = (A+A')/2;
+0058 
+0059     <span class="comment">% V is unitary or orthogonal and lambda is real.</span>
+0060     [V, lambda] = eig(A, <span class="string">'vector'</span>);
+0061     
+0062     <span class="comment">% Solve for each slice separately.</span>
+0063     X = zeros(size(C));
+0064     <span class="keyword">for</span> k = 1 : size(C, 3)
+0065         X(:, :, k) = <a href="lyapunov_symmetric_eig.html" class="code" title="function X = lyapunov_symmetric_eig(V, lambda, C, tol)">lyapunov_symmetric_eig</a>(V, lambda, C(:, :, k), tol);
+0066     <span class="keyword">end</span>
+0067 
+0068 <span class="keyword">end</span>
+0069</pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

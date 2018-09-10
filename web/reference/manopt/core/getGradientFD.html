@@ -116,16 +116,19 @@ This function is called by:
 0058     <span class="keyword">for</span> k = 1 : numel(B)
 0059         <span class="comment">% Move in the B{k} direction</span>
 0060         xk = problem.M.retr(x, B{k}, stepsize);
-0061         <span class="comment">% Evaluate the cost there</span>
-0062         fxk = <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xk, storedb);
-0063         <span class="comment">% Finite difference</span>
-0064         df(k) = (fxk - fx)/stepsize;
-0065     <span class="keyword">end</span>
-0066     
-0067     <span class="comment">% Build the gradient approximation.</span>
-0068     gradfd = <a href="../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(problem.M, x, B, df);
+0061         keyk = storedb.getNewKey();
+0062         <span class="comment">% Evaluate the cost there</span>
+0063         fxk = <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, xk, storedb, keyk);
+0064         <span class="comment">% Don't keep this point in cache</span>
+0065         storedb.remove(keyk);
+0066         <span class="comment">% Finite difference</span>
+0067         df(k) = (fxk - fx)/stepsize;
+0068     <span class="keyword">end</span>
 0069     
-0070 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0070     <span class="comment">% Build the gradient approximation.</span>
+0071     gradfd = <a href="../../manopt/tools/lincomb.html" class="code" title="function vec = lincomb(M, x, vecs, coeffs)">lincomb</a>(problem.M, x, B, df);
+0072     
+0073 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -77,7 +77,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
+<li><a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>	Computes the MD5 hash of input data.</li><li><a href="../../../manopt/tools/lyapunov_symmetric.html" class="code" title="function X = lyapunov_symmetric(A, C, tol)">lyapunov_symmetric</a>	Solves AX + XA = C when A = A', as a pseudo-inverse.</li><li><a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>	Linear combination function for tangent vectors represented as matrices.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 <li><a href="../../../examples/maxcut.html" class="code" title="function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)">maxcut</a>	Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.</li></ul>
@@ -85,7 +85,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function X = normalize_rows(X)</a></li><li><a href="#_sub2" class="code">function PXH = project_rows(X, H)</a></li><li><a href="#_sub3" class="code">function etaproj = projection(Y, eta)</a></li><li><a href="#_sub4" class="code">function Ynew = retraction(Y, eta, t)</a></li><li><a href="#_sub5" class="code">function Ynew = exponential(Y, eta, t)</a></li><li><a href="#_sub6" class="code">function rgrad = egrad2rgrad(Y, egrad)</a></li><li><a href="#_sub7" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a></li><li><a href="#_sub8" class="code">function Y = random(n, k)</a></li><li><a href="#_sub9" class="code">function eta = randomvec(Y)</a></li></ul>
+<li><a href="#_sub1" class="code">function X = normalize_rows(X)</a></li><li><a href="#_sub2" class="code">function PXH = project_rows(X, H)</a></li><li><a href="#_sub3" class="code">function etaproj = projection(Y, eta)</a></li><li><a href="#_sub4" class="code">function Ynew = retraction(Y, eta, t)</a></li><li><a href="#_sub5" class="code">function rgrad = egrad2rgrad(Y, egrad)</a></li><li><a href="#_sub6" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a></li><li><a href="#_sub7" class="code">function Y = random(n, k)</a></li><li><a href="#_sub8" class="code">function eta = randomvec(Y)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = elliptopefactory(n, k)</a>
@@ -150,197 +150,160 @@ This function is called by:
 0060 <span class="comment">%       Used code snippets from obliquefactory to speed up projection,</span>
 0061 <span class="comment">%       retraction, egrad2rgrad and rand: the code now uses bsxfun for this.</span>
 0062 <span class="comment">%</span>
-0063 <span class="comment">%   April 3, 2015 (NB):</span>
+0063 <span class="comment">%   Apr. 3, 2015 (NB):</span>
 0064 <span class="comment">%       Replaced trace(A'*B) by A(:)'*B(:) : equivalent but faster.</span>
-0065 
-0066 <span class="comment">% TODO: modify normalize_rows and project_rows to work without transposes.</span>
-0067 <span class="comment">% TODO: enhance ehess2rhess to also use bsxfun.</span>
-0068     
-0069     
-0070     <span class="keyword">if</span> ~exist(<span class="string">'lyap'</span>, <span class="string">'file'</span>)
-0071         warning(<span class="string">'manopt:elliptopefactory:slowlyap'</span>, <span class="keyword">...</span>
-0072                [<span class="string">'The function lyap to solve Lyapunov equations seems not to '</span> <span class="keyword">...</span>
-0073                 <span class="string">'be available. This may slow down optimization over this '</span> <span class="keyword">...</span>
-0074                 <span class="string">'manifold significantly. lyap is part of the control system '</span> <span class="keyword">...</span>
-0075                 <span class="string">'toolbox.'</span>]);
-0076     <span class="keyword">end</span>
-0077     
-0078     <span class="keyword">if</span> k &lt; 2
-0079         warning(<span class="string">'manopt:elliptopefactory:lowk'</span>, <span class="keyword">...</span>
-0080                 <span class="string">'k should be an integer &gt;= 2. At k = 1, the set is discrete.'</span>);
-0081     <span class="keyword">end</span>
+0065 <span class="comment">%</span>
+0066 <span class="comment">%   Apr. 17, 2018 (NB):</span>
+0067 <span class="comment">%       Removed dependency on lyap entirely.</span>
+0068 <span class="comment">%</span>
+0069 <span class="comment">%   Sep.  6, 2018 (NB):</span>
+0070 <span class="comment">%       Removed M.exp() as it was not implemented.</span>
+0071 
+0072 <span class="comment">% TODO: modify normalize_rows and project_rows to work without transposes.</span>
+0073 <span class="comment">% TODO: enhance ehess2rhess to also use bsxfun.</span>
+0074     
+0075     <span class="keyword">if</span> k &lt; 2
+0076         warning(<span class="string">'manopt:elliptopefactory:lowk'</span>, <span class="keyword">...</span>
+0077                 <span class="string">'k should be an integer &gt;= 2. At k = 1, the set is discrete.'</span>);
+0078     <span class="keyword">end</span>
+0079     
+0080     
+0081     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1'</span>, n, k);
 0082     
-0083     
-0084     M.name = @() sprintf(<span class="string">'YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1'</span>, n, k);
-0085     
-0086     M.dim = @() n*(k-1) - k*(k-1)/2; <span class="comment">% Extra -1 is because of the diagonal constraint that</span>
+0083     M.dim = @() n*(k-1) - k*(k-1)/2; <span class="comment">% Extra -1 is because of the diagonal constraint that</span>
+0084     
+0085     <span class="comment">% Euclidean metric on the total space</span>
+0086     M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
 0087     
-0088     <span class="comment">% Euclidean metric on the total space</span>
-0089     M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
-0090     
-0091     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
-0092     
-0093     M.dist = @(Y, Z) error(<span class="string">'elliptopefactory.dist not implemented yet.'</span>);
-0094     
-0095     M.typicaldist = @() 10*k;
-0096     
-0097     M.proj = @<a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
+0088     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
+0089     
+0090     M.dist = @(Y, Z) error(<span class="string">'elliptopefactory.dist not implemented yet.'</span>);
+0091     
+0092     M.typicaldist = @() 10*k;
+0093     
+0094     M.proj = @<a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>;
+0095     
+0096     M.tangent = M.proj;
+0097     M.tangent2ambient = @(Y, eta) eta;
 0098     
-0099     M.tangent = M.proj;
-0100     M.tangent2ambient = @(Y, eta) eta;
-0101     
-0102     M.retr = @<a href="#_sub4" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
-0103     
-0104     M.egrad2rgrad = @<a href="#_sub6" class="code" title="subfunction rgrad = egrad2rgrad(Y, egrad)">egrad2rgrad</a>;
-0105     
-0106     M.ehess2rhess = @<a href="#_sub7" class="code" title="subfunction Hess = ehess2rhess(Y, egrad, ehess, eta)">ehess2rhess</a>;
+0099     M.retr = @<a href="#_sub4" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>;
+0100     
+0101     M.egrad2rgrad = @<a href="#_sub5" class="code" title="subfunction rgrad = egrad2rgrad(Y, egrad)">egrad2rgrad</a>;
+0102     
+0103     M.ehess2rhess = @<a href="#_sub6" class="code" title="subfunction Hess = ehess2rhess(Y, egrad, ehess, eta)">ehess2rhess</a>;
+0104     
+0105     <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
+0106     M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
 0107     
-0108     M.exp = @<a href="#_sub5" class="code" title="subfunction Ynew = exponential(Y, eta, t)">exponential</a>;
+0108     M.rand = @() <a href="#_sub7" class="code" title="subfunction Y = random(n, k)">random</a>(n, k);
 0109     
-0110     <span class="comment">% Notice that the hash of two equivalent points will be different...</span>
-0111     M.hash = @(Y) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(Y(:))];
-0112     
-0113     M.rand = @() <a href="#_sub8" class="code" title="subfunction Y = random(n, k)">random</a>(n, k);
-0114     
-0115     M.randvec = @<a href="#_sub9" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
-0116     
-0117     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0118     
-0119     M.zerovec = @(Y) zeros(n, k);
-0120     
-0121     M.transp = @(Y1, Y2, d) <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
-0122     
-0123     M.vec = @(Y, u_mat) u_mat(:);
-0124     M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
-0125     M.vecmatareisometries = @() true;
-0126     
-0127 <span class="keyword">end</span>
-0128 
-0129 <span class="comment">% Given a matrix X, returns the same matrix but with each column scaled so</span>
-0130 <span class="comment">% that they have unit 2-norm.</span>
-0131 <span class="comment">% See obliquefactory.</span>
-0132 <a name="_sub1" href="#_subfunctions" class="code">function X = normalize_rows(X)</a>
-0133     X = X';
-0134     norms = sqrt(sum(X.^2, 1));
-0135     X = bsxfun(@times, X, 1./norms);
-0136     X = X';
-0137 <span class="keyword">end</span>
-0138 
-0139 <span class="comment">% Orthogonal projection of each row of H to the tangent space at the</span>
-0140 <span class="comment">% corresponding row of X, seen as a point on a sphere.</span>
-0141 <span class="comment">% See obliquefactory.</span>
-0142 <a name="_sub2" href="#_subfunctions" class="code">function PXH = project_rows(X, H)</a>
-0143     X = X';
-0144     H = H';
-0145     <span class="comment">% Compute the inner product between each vector H(:, i) with its root</span>
-0146     <span class="comment">% point X(:, i), that is, X(:, i).' * H(:, i). Returns a row vector.</span>
-0147     inners = sum(X.*H, 1);
-0148     <span class="comment">% Subtract from H the components of the H(:, i)'s that are parallel to</span>
-0149     <span class="comment">% the root points X(:, i).</span>
-0150     PXH = H - bsxfun(@times, X, inners);
-0151     PXH = PXH';
-0152 <span class="keyword">end</span>
-0153 
+0110     M.randvec = @<a href="#_sub8" class="code" title="subfunction eta = randomvec(Y)">randomvec</a>;
+0111     
+0112     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0113     
+0114     M.zerovec = @(Y) zeros(n, k);
+0115     
+0116     M.transp = @(Y1, Y2, d) <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y2, d);
+0117     
+0118     M.vec = @(Y, u_mat) u_mat(:);
+0119     M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
+0120     M.vecmatareisometries = @() true;
+0121     
+0122 <span class="keyword">end</span>
+0123 
+0124 <span class="comment">% Given a matrix X, returns the same matrix but with each column scaled so</span>
+0125 <span class="comment">% that they have unit 2-norm.</span>
+0126 <span class="comment">% See obliquefactory.</span>
+0127 <a name="_sub1" href="#_subfunctions" class="code">function X = normalize_rows(X)</a>
+0128     X = X';
+0129     norms = sqrt(sum(X.^2, 1));
+0130     X = bsxfun(@times, X, 1./norms);
+0131     X = X';
+0132 <span class="keyword">end</span>
+0133 
+0134 <span class="comment">% Orthogonal projection of each row of H to the tangent space at the</span>
+0135 <span class="comment">% corresponding row of X, seen as a point on a sphere.</span>
+0136 <span class="comment">% See obliquefactory.</span>
+0137 <a name="_sub2" href="#_subfunctions" class="code">function PXH = project_rows(X, H)</a>
+0138     X = X';
+0139     H = H';
+0140     <span class="comment">% Compute the inner product between each vector H(:, i) with its root</span>
+0141     <span class="comment">% point X(:, i), that is, X(:, i).' * H(:, i). Returns a row vector.</span>
+0142     inners = sum(X.*H, 1);
+0143     <span class="comment">% Subtract from H the components of the H(:, i)'s that are parallel to</span>
+0144     <span class="comment">% the root points X(:, i).</span>
+0145     PXH = H - bsxfun(@times, X, inners);
+0146     PXH = PXH';
+0147 <span class="keyword">end</span>
+0148 
+0149 
+0150 <span class="comment">% Projection onto the tangent space, i.e., on the tangent space of</span>
+0151 <span class="comment">% ||Y(i, :)|| = 1</span>
+0152 <a name="_sub3" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
+0153     eta = <a href="#_sub2" class="code" title="subfunction PXH = project_rows(X, H)">project_rows</a>(Y, eta);
 0154 
-0155 <span class="comment">% Projection onto the tangent space, i.e., on the tangent space of</span>
-0156 <span class="comment">% ||Y(i, :)|| = 1</span>
-0157 <a name="_sub3" href="#_subfunctions" class="code">function etaproj = projection(Y, eta)</a>
-0158     [unused, k] = size(Y); <span class="comment">%#ok&lt;ASGLU&gt;</span>
-0159     eta = <a href="#_sub2" class="code" title="subfunction PXH = project_rows(X, H)">project_rows</a>(Y, eta);
-0160 
-0161     <span class="comment">% Projection onto the horizontal space</span>
-0162     YtY = Y'*Y;
-0163     SS = YtY;
-0164     AS = Y'*eta - eta'*Y;
-0165     <span class="keyword">try</span>
-0166         <span class="comment">% This is supposed to work and indeed return a skew-symmetric</span>
-0167         <span class="comment">% solution Omega.</span>
-0168         Omega = lyap(SS, -AS);
-0169     <span class="keyword">catch</span> up <span class="comment">%#ok&lt;NASGU&gt;</span>
-0170         <span class="comment">% It can happen though that SS will be rank deficient. The</span>
-0171         <span class="comment">% Lyapunov equation we solve still has a unique skew-symmetric</span>
-0172         <span class="comment">% solution, but solutions with a symmetric part now also exist,</span>
-0173         <span class="comment">% and the lyap function doesn't like that. So we want to</span>
-0174         <span class="comment">% extract the minimum norm solution. This is also useful if lyap is</span>
-0175         <span class="comment">% not available (it is part of the control system toolbox).</span>
-0176         mat = @(x) reshape(x, [k k]);
-0177         vec = @(X) X(:);
-0178         is_octave = exist(<span class="string">'OCTAVE_VERSION'</span>, <span class="string">'builtin'</span>);
-0179         <span class="keyword">if</span> ~is_octave
-0180             [vecomega, unused] = minres(@(x) vec(SS*mat(x) + mat(x)*SS), vec(AS)); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0181         <span class="keyword">else</span>
-0182             [vecomega, unused] = gmres(@(x) vec(SS*mat(x) + mat(x)*SS), vec(AS)); <span class="comment">%#ok&lt;NASGU&gt;</span>
-0183         <span class="keyword">end</span>
-0184         Omega = mat(vecomega);
-0185     <span class="keyword">end</span>
-0186     <span class="comment">% % Make sure the result is skew-symmetric (does not seem necessary).</span>
-0187     <span class="comment">% Omega = (Omega-Omega')/2;</span>
-0188     etaproj = eta - Y*Omega;
-0189 <span class="keyword">end</span>
-0190 
-0191 <span class="comment">% Retraction</span>
-0192 <a name="_sub4" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
-0193     <span class="keyword">if</span> nargin &lt; 3
-0194         t = 1.0;
-0195     <span class="keyword">end</span>
-0196     Ynew = Y + t*eta;
-0197     Ynew = <a href="#_sub1" class="code" title="subfunction X = normalize_rows(X)">normalize_rows</a>(Ynew);
-0198 <span class="keyword">end</span>
+0155     <span class="comment">% Projection onto the horizontal space</span>
+0156     YtY = Y'*Y;
+0157     SS = YtY;
+0158     AS = Y'*eta - eta'*Y;
+0159     Omega = <a href="../../../manopt/tools/lyapunov_symmetric.html" class="code" title="function X = lyapunov_symmetric(A, C, tol)">lyapunov_symmetric</a>(SS, AS);
+0160         
+0161     <span class="comment">% It does not seem necessary to enforce skew-symmetry numerically.</span>
+0162     <span class="comment">% Omega = (Omega-Omega')/2;</span>
+0163     
+0164     etaproj = eta - Y*Omega;
+0165 <span class="keyword">end</span>
+0166 
+0167 <span class="comment">% Retraction</span>
+0168 <a name="_sub4" href="#_subfunctions" class="code">function Ynew = retraction(Y, eta, t)</a>
+0169     <span class="keyword">if</span> nargin &lt; 3
+0170         t = 1.0;
+0171     <span class="keyword">end</span>
+0172     Ynew = Y + t*eta;
+0173     Ynew = <a href="#_sub1" class="code" title="subfunction X = normalize_rows(X)">normalize_rows</a>(Ynew);
+0174 <span class="keyword">end</span>
+0175 
+0176 <span class="comment">% Euclidean gradient to Riemannian gradient conversion.</span>
+0177 <span class="comment">% We only need the ambient space projection: the remainder of the</span>
+0178 <span class="comment">% projection function is not necessary because the Euclidean gradient must</span>
+0179 <span class="comment">% already be orthogonal to the vertical space.</span>
+0180 <a name="_sub5" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(Y, egrad)</a>
+0181     rgrad = <a href="#_sub2" class="code" title="subfunction PXH = project_rows(X, H)">project_rows</a>(Y, egrad);
+0182 <span class="keyword">end</span>
+0183 
+0184 <span class="comment">% Euclidean Hessian to Riemannian Hessian conversion.</span>
+0185 <span class="comment">% TODO: speed this function up using bsxfun.</span>
+0186 <a name="_sub6" href="#_subfunctions" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a>
+0187     k = size(Y, 2);
+0188 
+0189     <span class="comment">% Directional derivative of the Riemannian gradient</span>
+0190     scaling_grad = sum((egrad.*Y), 2); <span class="comment">% column vector of size n</span>
+0191     scaling_grad_repeat = scaling_grad*ones(1, k);
+0192 
+0193     Hess = ehess - scaling_grad_repeat.*eta;
+0194 
+0195     scaling_hess = sum((eta.*egrad) + (Y.*ehess), 2);
+0196     scaling_hess_repeat = scaling_hess*ones(1, k);
+0197     <span class="comment">% directional derivative of scaling_grad_repeat</span>
+0198     Hess = Hess - scaling_hess_repeat.*Y;
 0199 
-0200 <span class="comment">% Exponential map</span>
-0201 <a name="_sub5" href="#_subfunctions" class="code">function Ynew = exponential(Y, eta, t)</a>
-0202     <span class="keyword">if</span> nargin &lt; 3
-0203         t = 1.0;
-0204     <span class="keyword">end</span>
-0205 
-0206     Ynew = <a href="#_sub4" class="code" title="subfunction Ynew = retraction(Y, eta, t)">retraction</a>(Y, eta, t);
-0207     warning(<span class="string">'manopt:elliptopefactory:exp'</span>, <span class="keyword">...</span>
-0208         [<span class="string">'Exponential for fixed rank spectrahedron '</span> <span class="keyword">...</span>
-0209         <span class="string">'manifold not implemented yet. Used retraction instead.\n'</span> <span class="keyword">...</span>
-0210         <span class="string">'To disable this warning: warning(''off'', ''manopt:elliptopefactory:exp'')'</span>]);
-0211 <span class="keyword">end</span>
-0212 
-0213 <span class="comment">% Euclidean gradient to Riemannian gradient conversion.</span>
-0214 <span class="comment">% We only need the ambient space projection: the remainder of the</span>
-0215 <span class="comment">% projection function is not necessary because the Euclidean gradient must</span>
-0216 <span class="comment">% already be orthogonal to the vertical space.</span>
-0217 <a name="_sub6" href="#_subfunctions" class="code">function rgrad = egrad2rgrad(Y, egrad)</a>
-0218     rgrad = <a href="#_sub2" class="code" title="subfunction PXH = project_rows(X, H)">project_rows</a>(Y, egrad);
-0219 <span class="keyword">end</span>
-0220 
-0221 <span class="comment">% Euclidean Hessian to Riemannian Hessian conversion.</span>
-0222 <span class="comment">% TODO: speed this function up using bsxfun.</span>
-0223 <a name="_sub7" href="#_subfunctions" class="code">function Hess = ehess2rhess(Y, egrad, ehess, eta)</a>
-0224     k = size(Y, 2);
-0225 
-0226     <span class="comment">% Directional derivative of the Riemannian gradient</span>
-0227     scaling_grad = sum((egrad.*Y), 2); <span class="comment">% column vector of size n</span>
-0228     scaling_grad_repeat = scaling_grad*ones(1, k);
-0229 
-0230     Hess = ehess - scaling_grad_repeat.*eta;
-0231 
-0232     scaling_hess = sum((eta.*egrad) + (Y.*ehess), 2);
-0233     scaling_hess_repeat = scaling_hess*ones(1, k);
-0234     <span class="comment">% directional derivative of scaling_grad_repeat</span>
-0235     Hess = Hess - scaling_hess_repeat.*Y;
-0236 
-0237     <span class="comment">% Project on the horizontal space</span>
-0238     Hess = <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, Hess);
-0239 <span class="keyword">end</span>
-0240 
-0241 <span class="comment">% Random point generation on the manifold</span>
-0242 <a name="_sub8" href="#_subfunctions" class="code">function Y = random(n, k)</a>
-0243     Y = randn(n, k);
-0244     Y = <a href="#_sub1" class="code" title="subfunction X = normalize_rows(X)">normalize_rows</a>(Y);
-0245 <span class="keyword">end</span>
-0246 
-0247 <span class="comment">% Random vector generation at Y</span>
-0248 <a name="_sub9" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
-0249     eta = randn(size(Y));
-0250     eta = <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
-0251     nrm = norm(eta, <span class="string">'fro'</span>);
-0252     eta = eta / nrm;
-0253 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0200     <span class="comment">% Project on the horizontal space</span>
+0201     Hess = <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, Hess);
+0202 <span class="keyword">end</span>
+0203 
+0204 <span class="comment">% Random point generation on the manifold</span>
+0205 <a name="_sub7" href="#_subfunctions" class="code">function Y = random(n, k)</a>
+0206     Y = randn(n, k);
+0207     Y = <a href="#_sub1" class="code" title="subfunction X = normalize_rows(X)">normalize_rows</a>(Y);
+0208 <span class="keyword">end</span>
+0209 
+0210 <span class="comment">% Random vector generation at Y</span>
+0211 <a name="_sub8" href="#_subfunctions" class="code">function eta = randomvec(Y)</a>
+0212     eta = randn(size(Y));
+0213     eta = <a href="#_sub3" class="code" title="subfunction etaproj = projection(Y, eta)">projection</a>(Y, eta);
+0214     nrm = norm(eta, <span class="string">'fro'</span>);
+0215     eta = eta / nrm;
+0216 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

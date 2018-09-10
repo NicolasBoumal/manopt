@@ -57,7 +57,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function rhess = ehess2rhess(X, egrad, ehess, U)</a></li><li><a href="#_sub2" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub5" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub6" class="code">function X = normalize_columns(X)</a></li><li><a href="#_sub7" class="code">function PXH = projection(X, H)</a></li><li><a href="#_sub8" class="code">function x = random(n, m)</a></li><li><a href="#_sub9" class="code">function d = randomvec(n, m, x)</a></li></ul>
+<li><a href="#_sub1" class="code">function rhess = ehess2rhess(X, egrad, ehess, U)</a></li><li><a href="#_sub2" class="code">function y = exponential(x, d, t)</a></li><li><a href="#_sub3" class="code">function v = logarithm(x1, x2)</a></li><li><a href="#_sub4" class="code">function y = retraction(x, d, t)</a></li><li><a href="#_sub5" class="code">function d = inverse_retraction(x, y)</a></li><li><a href="#_sub6" class="code">function y = pairmean(x1, x2)</a></li><li><a href="#_sub7" class="code">function X = normalize_columns(X)</a></li><li><a href="#_sub8" class="code">function PXH = projection(X, H)</a></li><li><a href="#_sub9" class="code">function x = random(n, m)</a></li><li><a href="#_sub10" class="code">function d = randomvec(n, m, x)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function M = obliquefactory(n, m, transposed)</a>
@@ -84,20 +84,20 @@ This function is called by:
 0022 <span class="comment">% Contributors:</span>
 0023 <span class="comment">% Change log:</span>
 0024 <span class="comment">%</span>
-0025 <span class="comment">%    July 16, 2013 (NB) :</span>
+0025 <span class="comment">%    July 16, 2013 (NB)</span>
 0026 <span class="comment">%       Added 'transposed' option, mainly for ease of comparison with the</span>
 0027 <span class="comment">%       elliptope geometry.</span>
 0028 <span class="comment">%</span>
-0029 <span class="comment">%    Nov. 29, 2013 (NB) :</span>
+0029 <span class="comment">%    Nov. 29, 2013 (NB)</span>
 0030 <span class="comment">%       Added normalize_columns function to make it easier to exploit the</span>
 0031 <span class="comment">%       bsxfun formulation of column normalization, which avoids using for</span>
 0032 <span class="comment">%       loops and provides performance gains. The exponential still uses a</span>
 0033 <span class="comment">%       for loop.</span>
 0034 <span class="comment">%</span>
-0035 <span class="comment">%    April 4, 2015 (NB) :</span>
+0035 <span class="comment">%    April 4, 2015 (NB)</span>
 0036 <span class="comment">%       Log function modified to avoid NaN's appearing for close by points.</span>
 0037 <span class="comment">%</span>
-0038 <span class="comment">%    April 13, 2015 (NB) :</span>
+0038 <span class="comment">%    April 13, 2015 (NB)</span>
 0039 <span class="comment">%       Exponential now without for-loops.</span>
 0040 <span class="comment">%</span>
 0041 <span class="comment">%   Oct. 8, 2016 (NB)</span>
@@ -114,8 +114,8 @@ This function is called by:
 0052 <span class="comment">%</span>
 0053 <span class="comment">%   July 20, 2017 (NB)</span>
 0054 <span class="comment">%       Distance function is now accurate for close-by points. See notes</span>
-0055 <span class="comment">%       inside the spherefactory file for details. Also improvies distances</span>
-0056 <span class="comment">%       computation as part of the log function.</span>
+0055 <span class="comment">%       inside the spherefactory file for details. Also improves distance</span>
+0056 <span class="comment">%       computations as part of the log function.</span>
 0057 
 0058     
 0059     <span class="keyword">if</span> ~exist(<span class="string">'transposed'</span>, <span class="string">'var'</span>) || isempty(transposed)
@@ -123,7 +123,7 @@ This function is called by:
 0061     <span class="keyword">end</span>
 0062     
 0063     <span class="keyword">if</span> transposed
-0064         trnsp = @(X) X.';
+0064         trnsp = @(X) X';
 0065     <span class="keyword">else</span>
 0066         trnsp = @(X) X;
 0067     <span class="keyword">end</span>
@@ -132,7 +132,7 @@ This function is called by:
 0070     
 0071     M.dim = @() (n-1)*m;
 0072     
-0073     M.inner = @(x, d1, d2) d1(:).'*d2(:);
+0073     M.inner = @(x, d1, d2) d1(:)'*d2(:);
 0074     
 0075     M.norm = @(x, d) norm(d(:));
 0076     
@@ -140,7 +140,7 @@ This function is called by:
 0078     
 0079     M.typicaldist = @() pi*sqrt(m);
 0080     
-0081     M.proj = @(X, U) trnsp(<a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(trnsp(X), trnsp(U)));
+0081     M.proj = @(X, U) trnsp(<a href="#_sub8" class="code" title="subfunction PXH = projection(X, H)">projection</a>(trnsp(X), trnsp(U)));
 0082     
 0083     M.tangent = M.proj;
 0084     
@@ -155,7 +155,7 @@ This function is called by:
 0093         ehess = trnsp(ehess);
 0094         U = trnsp(U);
 0095         
-0096         PXehess = <a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(X, ehess);
+0096         PXehess = <a href="#_sub8" class="code" title="subfunction PXH = projection(X, H)">projection</a>(X, ehess);
 0097         inners = sum(X.*egrad, 1);
 0098         rhess = PXehess - bsxfun(@times, U, inners);
 0099         
@@ -192,7 +192,7 @@ This function is called by:
 0130         x1 = trnsp(x1);
 0131         x2 = trnsp(x2);
 0132         
-0133         v = <a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(x1, x2 - x1);
+0133         v = <a href="#_sub8" class="code" title="subfunction PXH = projection(X, H)">projection</a>(x1, x2 - x1);
 0134         dists = real(2*asin(.5*sqrt(sum((x1 - x2).^2, 1))));
 0135         norms = real(sqrt(sum(v.^2, 1)));
 0136         factors = dists./norms;
@@ -218,86 +218,100 @@ This function is called by:
 0156             td = t*d;
 0157         <span class="keyword">end</span>
 0158         
-0159         y = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(x + td);
+0159         y = <a href="#_sub7" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(x + td);
 0160         
 0161         y = trnsp(y);
 0162     <span class="keyword">end</span>
 0163 
-0164     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
-0165     
-0166     M.rand = @() trnsp(<a href="#_sub8" class="code" title="subfunction x = random(n, m)">random</a>(n, m));
-0167     
-0168     M.randvec = @(x) trnsp(<a href="#_sub9" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, trnsp(x)));
-0169     
-0170     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0171     
-0172     M.zerovec = @(x) trnsp(zeros(n, m));
-0173     
-0174     M.transp = @(x1, x2, d) M.proj(x2, d);
-0175     
-0176     M.pairmean = @<a href="#_sub5" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
-0177     <a name="_sub5" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
-0178         y = trnsp(x1+x2);
-0179         y = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(y);
-0180         y = trnsp(y);
-0181     <span class="keyword">end</span>
-0182 
-0183     <span class="comment">% vec returns a vector representation of an input tangent vector which</span>
-0184     <span class="comment">% is represented as a matrix. mat returns the original matrix</span>
-0185     <span class="comment">% representation of the input vector representation of a tangent</span>
-0186     <span class="comment">% vector. vec and mat are thus inverse of each other. They are</span>
-0187     <span class="comment">% furthermore isometries between a subspace of R^nm and the tangent</span>
-0188     <span class="comment">% space at x.</span>
-0189     vect = @(X) X(:);
-0190     M.vec = @(x, u_mat) vect(trnsp(u_mat));
-0191     M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n, m]));
-0192     M.vecmatareisometries = @() true;
-0193 
-0194 <span class="keyword">end</span>
-0195 
-0196 <span class="comment">% Given a matrix X, returns the same matrix but with each column scaled so</span>
-0197 <span class="comment">% that they have unit 2-norm.</span>
-0198 <a name="_sub6" href="#_subfunctions" class="code">function X = normalize_columns(X)</a>
-0199     <span class="comment">% This is faster than norms(X, 2, 1) for small X, and as fast for large X.</span>
-0200     nrms = sqrt(sum(X.^2, 1));
-0201     X = bsxfun(@times, X, 1./nrms);
-0202 <span class="keyword">end</span>
-0203 
-0204 <span class="comment">% Orthogonal projection of the ambient vector H onto the tangent space at X</span>
-0205 <a name="_sub7" href="#_subfunctions" class="code">function PXH = projection(X, H)</a>
-0206 
-0207     <span class="comment">% Compute the inner product between each vector H(:, i) with its root</span>
-0208     <span class="comment">% point X(:, i), that is, X(:, i).' * H(:, i). Returns a row vector.</span>
-0209     inners = sum(X.*H, 1);
-0210     
-0211     <span class="comment">% Subtract from H the components of the H(:, i)'s that are parallel to</span>
-0212     <span class="comment">% the root points X(:, i).</span>
-0213     PXH = H - bsxfun(@times, X, inners);
-0214 
-0215     <span class="comment">% % Equivalent but slow code:</span>
-0216     <span class="comment">% m = size(X, 2);</span>
-0217     <span class="comment">% PXH = zeros(size(H));</span>
-0218     <span class="comment">% for i = 1 : m</span>
-0219     <span class="comment">%     PXH(:, i) = H(:, i) - X(:, i) * (X(:, i)'*H(:, i));</span>
-0220     <span class="comment">% end</span>
-0221 
-0222 <span class="keyword">end</span>
-0223 
-0224 <span class="comment">% Uniform random sampling on the sphere.</span>
-0225 <a name="_sub8" href="#_subfunctions" class="code">function x = random(n, m)</a>
-0226 
-0227     x = <a href="#_sub6" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(randn(n, m));
+0164     <span class="comment">% Inverse retraction: see spherefactory.m for background</span>
+0165     M.invretr = @<a href="#_sub5" class="code" title="subfunction d = inverse_retraction(x, y)">inverse_retraction</a>;
+0166     <a name="_sub5" href="#_subfunctions" class="code">function d = inverse_retraction(x, y)</a>
+0167         
+0168         x = trnsp(x);
+0169         y = trnsp(y);
+0170         
+0171         d = bsxfun(@times, y, 1./sum(x.*y, 1)) - x;
+0172         
+0173         d = trnsp(d);
+0174         
+0175     <span class="keyword">end</span>
+0176     
+0177 
+0178     M.hash = @(x) [<span class="string">'z'</span> <a href="../../../manopt/tools/hashmd5.html" class="code" title="function h = hashmd5(inp)">hashmd5</a>(x(:))];
+0179     
+0180     M.rand = @() trnsp(<a href="#_sub9" class="code" title="subfunction x = random(n, m)">random</a>(n, m));
+0181     
+0182     M.randvec = @(x) trnsp(<a href="#_sub10" class="code" title="subfunction d = randomvec(n, m, x)">randomvec</a>(n, m, trnsp(x)));
+0183     
+0184     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0185     
+0186     M.zerovec = @(x) trnsp(zeros(n, m));
+0187     
+0188     M.transp = @(x1, x2, d) M.proj(x2, d);
+0189     
+0190     M.pairmean = @<a href="#_sub6" class="code" title="subfunction y = pairmean(x1, x2)">pairmean</a>;
+0191     <a name="_sub6" href="#_subfunctions" class="code">function y = pairmean(x1, x2)</a>
+0192         y = trnsp(x1+x2);
+0193         y = <a href="#_sub7" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(y);
+0194         y = trnsp(y);
+0195     <span class="keyword">end</span>
+0196 
+0197     <span class="comment">% vec returns a vector representation of an input tangent vector which</span>
+0198     <span class="comment">% is represented as a matrix. mat returns the original matrix</span>
+0199     <span class="comment">% representation of the input vector representation of a tangent</span>
+0200     <span class="comment">% vector. vec and mat are thus inverse of each other. They are</span>
+0201     <span class="comment">% furthermore isometries between a subspace of R^nm and the tangent</span>
+0202     <span class="comment">% space at x.</span>
+0203     vect = @(X) X(:);
+0204     M.vec = @(x, u_mat) vect(trnsp(u_mat));
+0205     M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n, m]));
+0206     M.vecmatareisometries = @() true;
+0207 
+0208 <span class="keyword">end</span>
+0209 
+0210 <span class="comment">% Given a matrix X, returns the same matrix but with each column scaled so</span>
+0211 <span class="comment">% that they have unit 2-norm.</span>
+0212 <a name="_sub7" href="#_subfunctions" class="code">function X = normalize_columns(X)</a>
+0213     <span class="comment">% This is faster than norms(X, 2, 1) for small X, and as fast for large X.</span>
+0214     nrms = sqrt(sum(X.^2, 1));
+0215     X = bsxfun(@times, X, 1./nrms);
+0216 <span class="keyword">end</span>
+0217 
+0218 <span class="comment">% Orthogonal projection of the ambient vector H onto the tangent space at X</span>
+0219 <a name="_sub8" href="#_subfunctions" class="code">function PXH = projection(X, H)</a>
+0220 
+0221     <span class="comment">% Compute the inner product between each vector H(:, i) with its root</span>
+0222     <span class="comment">% point X(:, i), that is, X(:, i)' * H(:, i). Returns a row vector.</span>
+0223     inners = sum(X.*H, 1);
+0224     
+0225     <span class="comment">% Subtract from H the components of the H(:, i)'s that are parallel to</span>
+0226     <span class="comment">% the root points X(:, i).</span>
+0227     PXH = H - bsxfun(@times, X, inners);
 0228 
-0229 <span class="keyword">end</span>
-0230 
-0231 <span class="comment">% Random normalized tangent vector at x.</span>
-0232 <a name="_sub9" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
-0233 
-0234     d = randn(n, m);
-0235     d = <a href="#_sub7" class="code" title="subfunction PXH = projection(X, H)">projection</a>(x, d);
-0236     d = d / norm(d(:));
+0229     <span class="comment">% % Equivalent but slow code:</span>
+0230     <span class="comment">% m = size(X, 2);</span>
+0231     <span class="comment">% PXH = zeros(size(H));</span>
+0232     <span class="comment">% for i = 1 : m</span>
+0233     <span class="comment">%     PXH(:, i) = H(:, i) - X(:, i) * (X(:, i)'*H(:, i));</span>
+0234     <span class="comment">% end</span>
+0235 
+0236 <span class="keyword">end</span>
 0237 
-0238 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0238 <span class="comment">% Uniform random sampling on the sphere.</span>
+0239 <a name="_sub9" href="#_subfunctions" class="code">function x = random(n, m)</a>
+0240 
+0241     x = <a href="#_sub7" class="code" title="subfunction X = normalize_columns(X)">normalize_columns</a>(randn(n, m));
+0242 
+0243 <span class="keyword">end</span>
+0244 
+0245 <span class="comment">% Random normalized tangent vector at x.</span>
+0246 <a name="_sub10" href="#_subfunctions" class="code">function d = randomvec(n, m, x)</a>
+0247 
+0248     d = randn(n, m);
+0249     d = <a href="#_sub8" class="code" title="subfunction PXH = projection(X, H)">projection</a>(x, d);
+0250     d = d / norm(d(:));
+0251 
+0252 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

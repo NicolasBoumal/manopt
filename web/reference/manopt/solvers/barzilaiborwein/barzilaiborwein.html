@@ -125,7 +125,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
-<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>	Checks whether an approximate gradient can be computed for this problem.</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>	Gradient approx. fnctn handle based on finite differences of the cost.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li></ul>
+<li><a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>	Apply the statsfun function to a stats structure (for solvers).</li><li><a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>	Checks whether an approximate gradient can be computed for this problem.</li><li><a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>	Checks whether the cost function can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>	Checks whether the gradient can be computed for a problem structure.</li><li><a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>	Checks whether the problem structure can give a line-search a hint.</li><li><a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>	Computes the cost function and the gradient at x in one call if possible.</li><li><a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>	Returns a structure with default option values for Manopt.</li><li><a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>	Checks for standard stopping criteria, as a helper to solvers.</li><li><a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>	Gradient approx. fnctn handle based on finite differences of the cost.</li><li><a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>	Armijo line-search based on the line-search hint in the problem structure.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../../matlabicon.gif)">
 </ul>
@@ -235,263 +235,267 @@ This function is called by:
 0097 <span class="comment">% Original author: Margherita Porcelli, May 31, 2017</span>
 0098 <span class="comment">% Contributors: Nicolas Boumal, Bruno Iannazzo</span>
 0099 <span class="comment">% Change log:</span>
-0100 
-0101     
-0102     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
-0103     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
-0104         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
-0105                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
-0106     <span class="keyword">end</span>
-0107     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem) &amp;&amp; ~<a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>(problem)
-0108         <span class="comment">% Note: we do not give a warning if an approximate gradient is</span>
-0109         <span class="comment">% explicitly given in the problem description, as in that case the</span>
-0110         <span class="comment">% user seems to be aware of the issue.</span>
-0111         warning(<span class="string">'manopt:getGradient:approx'</span>, <span class="keyword">...</span>
-0112                [<span class="string">'No gradient provided. Using an FD approximation instead (slow).\n'</span> <span class="keyword">...</span>
-0113                 <span class="string">'It may be necessary to increase options.tolgradnorm.\n'</span> <span class="keyword">...</span>
-0114                 <span class="string">'To disable this warning: warning(''off'', ''manopt:getGradient:approx'')'</span>]);
-0115         problem.approxgrad = <a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>(problem);
-0116     <span class="keyword">end</span>
-0117 
-0118     <span class="comment">% Ensure options exists as a structure</span>
-0119     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
-0120         options = struct();
-0121     <span class="keyword">end</span>
-0122     
-0123     <span class="comment">% Set local defaults here</span>
-0124     localdefaults.minstepsize = 1e-10;
-0125     localdefaults.maxiter = 1000;
-0126     localdefaults.tolgradnorm = 1e-6;
-0127 
-0128     <span class="comment">% Upper and lower bound for the Barzilai-Borwein stepsize</span>
-0129     localdefaults.lambdamax = 1e3;
-0130     localdefaults.lambdamin = 1e-3;
-0131     <span class="comment">% Initial Barzilai-Borwein stepsize</span>
-0132     localdefaults.lambda0 = 1/10;
-0133 
-0134     <span class="comment">% Barzilai-Borwein strategy (direct, inverse or alternate)</span>
-0135     localdefaults.strategy = <span class="string">'direct'</span>;
+0100 <span class="comment">%</span>
+0101 <span class="comment">%   Aug. 2, 2018 (NB):</span>
+0102 <span class="comment">%       Now using storedb.remove() to keep the cache lean.</span>
+0103 
+0104     
+0105     <span class="comment">% Verify that the problem description is sufficient for the solver.</span>
+0106     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetCost.html" class="code" title="function candoit = canGetCost(problem)">canGetCost</a>(problem)
+0107         warning(<span class="string">'manopt:getCost'</span>, <span class="keyword">...</span>
+0108                 <span class="string">'No cost provided. The algorithm will likely abort.'</span>);  
+0109     <span class="keyword">end</span>
+0110     <span class="keyword">if</span> ~<a href="../../../manopt/core/canGetGradient.html" class="code" title="function candoit = canGetGradient(problem)">canGetGradient</a>(problem) &amp;&amp; ~<a href="../../../manopt/core/canGetApproxGradient.html" class="code" title="function candoit = canGetApproxGradient(problem)">canGetApproxGradient</a>(problem)
+0111         <span class="comment">% Note: we do not give a warning if an approximate gradient is</span>
+0112         <span class="comment">% explicitly given in the problem description, as in that case the</span>
+0113         <span class="comment">% user seems to be aware of the issue.</span>
+0114         warning(<span class="string">'manopt:getGradient:approx'</span>, <span class="keyword">...</span>
+0115                [<span class="string">'No gradient provided. Using an FD approximation instead (slow).\n'</span> <span class="keyword">...</span>
+0116                 <span class="string">'It may be necessary to increase options.tolgradnorm.\n'</span> <span class="keyword">...</span>
+0117                 <span class="string">'To disable this warning: warning(''off'', ''manopt:getGradient:approx'')'</span>]);
+0118         problem.approxgrad = <a href="../../../manopt/solvers/gradientapproximations/approxgradientFD.html" class="code" title="function gradfun = approxgradientFD(problem, options)">approxgradientFD</a>(problem);
+0119     <span class="keyword">end</span>
+0120 
+0121     <span class="comment">% Ensure options exists as a structure</span>
+0122     <span class="keyword">if</span> ~exist(<span class="string">'options'</span>, <span class="string">'var'</span>) || isempty(options)
+0123         options = struct();
+0124     <span class="keyword">end</span>
+0125     
+0126     <span class="comment">% Set local defaults here</span>
+0127     localdefaults.minstepsize = 1e-10;
+0128     localdefaults.maxiter = 1000;
+0129     localdefaults.tolgradnorm = 1e-6;
+0130 
+0131     <span class="comment">% Upper and lower bound for the Barzilai-Borwein stepsize</span>
+0132     localdefaults.lambdamax = 1e3;
+0133     localdefaults.lambdamin = 1e-3;
+0134     <span class="comment">% Initial Barzilai-Borwein stepsize</span>
+0135     localdefaults.lambda0 = 1/10;
 0136 
-0137     <span class="comment">% Line-search parameters</span>
-0138     <span class="comment">% 1) Make sure the user didn't try to define a line search</span>
-0139     <span class="keyword">if</span> <a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem) || isfield(options, <span class="string">'linesearch'</span>)
-0140         error(<span class="string">'manopt:BB:ls'</span>, <span class="keyword">...</span>
-0141               [<span class="string">'The problem structure may not specify a line-search '</span> <span class="keyword">...</span>
-0142                <span class="string">'hint for the BB solver,\nand the options structure '</span> <span class="keyword">...</span>
-0143                <span class="string">'may not specify a line-search algorithm for BB.'</span>]);
-0144     <span class="keyword">end</span>
-0145     <span class="comment">% 2) Define the line-search parameters</span>
-0146     problem.linesearch = @(x, d, storedb, key) 1;
-0147     options.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>;
-0148     <span class="comment">% The Armijo sufficient decrease parameter</span>
-0149     localdefaults.ls_suff_decr = 1e-4;
-0150     <span class="comment">% The previous steps checked in the non-monotone line-search strategy</span>
-0151     localdefaults.ls_nmsteps = 10;
-0152     
-0153     
-0154     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
-0155     localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
-0156     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(localdefaults, options); 
-0157 
-0158     
-0159     <span class="comment">% Shorthands for some parameters</span>
-0160     strategy = options.strategy;
-0161     lambdamax = options.lambdamax;
-0162     lambdamin = options.lambdamin;
-0163     lambda0 = options.lambda0;
-0164     
-0165     timetic = tic();
-0166     
+0137     <span class="comment">% Barzilai-Borwein strategy (direct, inverse or alternate)</span>
+0138     localdefaults.strategy = <span class="string">'direct'</span>;
+0139 
+0140     <span class="comment">% Line-search parameters</span>
+0141     <span class="comment">% 1) Make sure the user didn't try to define a line search</span>
+0142     <span class="keyword">if</span> <a href="../../../manopt/core/canGetLinesearch.html" class="code" title="function candoit = canGetLinesearch(problem)">canGetLinesearch</a>(problem) || isfield(options, <span class="string">'linesearch'</span>)
+0143         error(<span class="string">'manopt:BB:ls'</span>, <span class="keyword">...</span>
+0144               [<span class="string">'The problem structure may not specify a line-search '</span> <span class="keyword">...</span>
+0145                <span class="string">'hint for the BB solver,\nand the options structure '</span> <span class="keyword">...</span>
+0146                <span class="string">'may not specify a line-search algorithm for BB.'</span>]);
+0147     <span class="keyword">end</span>
+0148     <span class="comment">% 2) Define the line-search parameters</span>
+0149     problem.linesearch = @(x, d, storedb, key) 1;
+0150     options.linesearch = @<a href="../../../manopt/solvers/linesearch/linesearch_hint.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_hint(problem, x, d, f0, df0, options, storedb, key)">linesearch_hint</a>;
+0151     <span class="comment">% The Armijo sufficient decrease parameter</span>
+0152     localdefaults.ls_suff_decr = 1e-4;
+0153     <span class="comment">% The previous steps checked in the non-monotone line-search strategy</span>
+0154     localdefaults.ls_nmsteps = 10;
+0155     
+0156     
+0157     <span class="comment">% Merge global and local defaults, then merge w/ user options, if any.</span>
+0158     localdefaults = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(<a href="../../../manopt/core/getGlobalDefaults.html" class="code" title="function opts = getGlobalDefaults()">getGlobalDefaults</a>(), localdefaults);
+0159     options = <a href="../../../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(localdefaults, options); 
+0160 
+0161     
+0162     <span class="comment">% Shorthands for some parameters</span>
+0163     strategy = options.strategy;
+0164     lambdamax = options.lambdamax;
+0165     lambdamin = options.lambdamin;
+0166     lambda0 = options.lambda0;
 0167     
-0168     <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
-0169     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
-0170         x = problem.M.rand();
-0171     <span class="keyword">end</span>
-0172 
-0173     <span class="comment">% Create a store database and get a key for the current x</span>
-0174     storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(options.storedepth);
-0175     key = storedb.getNewKey();
-0176     
-0177     <span class="comment">% Compute objective-related quantities for x</span>
-0178     [cost, grad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key);
-0179     gradnorm = problem.M.norm(x, grad);
-0180 
-0181     <span class="comment">% Some variables below need to store information about iterations. We</span>
-0182     <span class="comment">% preallocate for a reasonable amount of intended iterations to avoid</span>
-0183     <span class="comment">% memory re-allocations.</span>
-0184     mem_init_size = min(10000, options.maxiter+1);
-0185     
-0186     <span class="comment">% Store the cost value</span>
-0187     f = zeros(mem_init_size, 1);
-0188     f(1) = cost;
-0189     
-0190     <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
-0191     <span class="comment">% iterations so far)</span>
-0192     iter = 0;
-0193     
-0194     <span class="comment">% Save stats in a struct array info, and preallocate.</span>
-0195     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0196     info(1) = stats;
-0197     info(mem_init_size).iter = [];
-0198     
-0199     <span class="keyword">if</span> options.verbosity &gt;= 2
-0200         fprintf(<span class="string">' iter\t                cost val\t     grad. norm\n'</span>);
-0201     <span class="keyword">end</span>
-0202 
-0203     <span class="comment">% Set the initial Barzilai-Borwein stepsize</span>
-0204     lambda = lambda0;
+0168     timetic = tic();
+0169     
+0170     
+0171     <span class="comment">% If no initial point x is given by the user, generate one at random.</span>
+0172     <span class="keyword">if</span> ~exist(<span class="string">'x'</span>, <span class="string">'var'</span>) || isempty(x)
+0173         x = problem.M.rand();
+0174     <span class="keyword">end</span>
+0175 
+0176     <span class="comment">% Create a store database and get a key for the current x</span>
+0177     storedb = <a href="../../../manopt/core/StoreDB.html" class="code" title="">StoreDB</a>(options.storedepth);
+0178     key = storedb.getNewKey();
+0179     
+0180     <span class="comment">% Compute objective-related quantities for x</span>
+0181     [cost, grad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, x, storedb, key);
+0182     gradnorm = problem.M.norm(x, grad);
+0183 
+0184     <span class="comment">% Some variables below need to store information about iterations. We</span>
+0185     <span class="comment">% preallocate for a reasonable amount of intended iterations to avoid</span>
+0186     <span class="comment">% memory re-allocations.</span>
+0187     mem_init_size = min(10000, options.maxiter+1);
+0188     
+0189     <span class="comment">% Store the cost value</span>
+0190     f = zeros(mem_init_size, 1);
+0191     f(1) = cost;
+0192     
+0193     <span class="comment">% Iteration counter (at any point, iter is the number of fully executed</span>
+0194     <span class="comment">% iterations so far)</span>
+0195     iter = 0;
+0196     
+0197     <span class="comment">% Save stats in a struct array info, and preallocate.</span>
+0198     stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0199     info(1) = stats;
+0200     info(mem_init_size).iter = [];
+0201     
+0202     <span class="keyword">if</span> options.verbosity &gt;= 2
+0203         fprintf(<span class="string">' iter\t                cost val\t     grad. norm\n'</span>);
+0204     <span class="keyword">end</span>
 0205 
-0206     <span class="comment">% Start iterating until stopping criterion triggers</span>
-0207     <span class="keyword">while</span> true
+0206     <span class="comment">% Set the initial Barzilai-Borwein stepsize</span>
+0207     lambda = lambda0;
 0208 
-0209         <span class="comment">% Display iteration information</span>
-0210         <span class="keyword">if</span> options.verbosity &gt;= 2
-0211             fprintf(<span class="string">'%5d\t%+.16e\t%.8e\n'</span>, iter, cost, gradnorm);
-0212         <span class="keyword">end</span>
-0213         
-0214         <span class="comment">% Start timing this iteration</span>
-0215         timetic = tic();
+0209     <span class="comment">% Start iterating until stopping criterion triggers</span>
+0210     <span class="keyword">while</span> true
+0211 
+0212         <span class="comment">% Display iteration information</span>
+0213         <span class="keyword">if</span> options.verbosity &gt;= 2
+0214             fprintf(<span class="string">'%5d\t%+.16e\t%.8e\n'</span>, iter, cost, gradnorm);
+0215         <span class="keyword">end</span>
 0216         
-0217         <span class="comment">% Run standard stopping criterion checks</span>
-0218         [stop, reason] = <a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, <span class="keyword">...</span>
-0219                                                              info, iter+1);
-0220         
-0221         <span class="comment">% If none triggered, run specific stopping criterion check</span>
-0222         <span class="keyword">if</span> ~stop &amp;&amp; stats.stepsize &lt; options.minstepsize
-0223             stop = true;
-0224             reason = sprintf([<span class="string">'Last stepsize smaller than minimum '</span>  <span class="keyword">...</span>
-0225                               <span class="string">'allowed; options.minstepsize = %g.'</span>], <span class="keyword">...</span>
-0226                               options.minstepsize);
-0227         <span class="keyword">end</span>
-0228     
-0229         <span class="keyword">if</span> stop
-0230             <span class="keyword">if</span> options.verbosity &gt;= 1
-0231                 fprintf([reason <span class="string">'\n'</span>]);
-0232             <span class="keyword">end</span>
-0233             <span class="keyword">break</span>;
-0234         <span class="keyword">end</span>
-0235 
-0236         <span class="comment">% Pick the descent direction as minus the gradient (scaled)</span>
-0237         desc_dir = problem.M.lincomb(x, -lambda, grad);
+0217         <span class="comment">% Start timing this iteration</span>
+0218         timetic = tic();
+0219         
+0220         <span class="comment">% Run standard stopping criterion checks</span>
+0221         [stop, reason] = <a href="../../../manopt/core/stoppingcriterion.html" class="code" title="function [stop, reason] = stoppingcriterion(problem, x, options, info, last)">stoppingcriterion</a>(problem, x, options, <span class="keyword">...</span>
+0222                                                              info, iter+1);
+0223         
+0224         <span class="comment">% If none triggered, run specific stopping criterion check</span>
+0225         <span class="keyword">if</span> ~stop &amp;&amp; stats.stepsize &lt; options.minstepsize
+0226             stop = true;
+0227             reason = sprintf([<span class="string">'Last stepsize smaller than minimum '</span>  <span class="keyword">...</span>
+0228                               <span class="string">'allowed; options.minstepsize = %g.'</span>], <span class="keyword">...</span>
+0229                               options.minstepsize);
+0230         <span class="keyword">end</span>
+0231     
+0232         <span class="keyword">if</span> stop
+0233             <span class="keyword">if</span> options.verbosity &gt;= 1
+0234                 fprintf([reason <span class="string">'\n'</span>]);
+0235             <span class="keyword">end</span>
+0236             <span class="keyword">break</span>;
+0237         <span class="keyword">end</span>
 0238 
-0239         <span class="comment">% Execute the nonmonotone line search</span>
-0240         k = iter + 1; 
-0241         start = max(1, k - options.ls_nmsteps + 1);
-0242         
-0243         [stepsize, newx, newkey, lsstats] = <span class="keyword">...</span>
-0244             options.linesearch(problem, x, desc_dir, max(f(start:k)), <span class="keyword">...</span>
-0245                             -lambda * gradnorm^2, options, storedb, key);
-0246 
-0247         <span class="comment">% Updates the value of lambda</span>
-0248         lambda = lambda * lsstats.alpha;
+0239         <span class="comment">% Pick the descent direction as minus the gradient (scaled)</span>
+0240         desc_dir = problem.M.lincomb(x, -lambda, grad);
+0241 
+0242         <span class="comment">% Execute the nonmonotone line search</span>
+0243         k = iter + 1; 
+0244         start = max(1, k - options.ls_nmsteps + 1);
+0245         
+0246         [stepsize, newx, newkey, lsstats] = <span class="keyword">...</span>
+0247             options.linesearch(problem, x, desc_dir, max(f(start:k)), <span class="keyword">...</span>
+0248                             -lambda * gradnorm^2, options, storedb, key);
 0249 
-0250         <span class="comment">% Compute the new cost-related quantities for newx</span>
-0251         [newcost, newgrad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, newx, storedb, newkey);
-0252         newgradnorm = problem.M.norm(newx, newgrad);
-0253 
-0254         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
-0255         <span class="comment">% BARZILAI-BORWEIN STRATEGY</span>
+0250         <span class="comment">% Updates the value of lambda</span>
+0251         lambda = lambda * lsstats.alpha;
+0252 
+0253         <span class="comment">% Compute the new cost-related quantities for newx</span>
+0254         [newcost, newgrad] = <a href="../../../manopt/core/getCostGrad.html" class="code" title="function [cost, grad] = getCostGrad(problem, x, storedb, key)">getCostGrad</a>(problem, newx, storedb, newkey);
+0255         newgradnorm = problem.M.norm(newx, newgrad);
 0256 
-0257         <span class="comment">% Store the cost value</span>
-0258         f(iter+2) = newcost;
-0259        
-0260         <span class="comment">% Transport the old gradient to newx</span>
-0261         grad_transp = problem.M.transp(x, newx, grad);
-0262 
-0263         <span class="comment">% Compute the difference between grandients</span>
-0264         Y = problem.M.lincomb(newx, 1, newgrad, -1, grad_transp);
+0257         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0258         <span class="comment">% BARZILAI-BORWEIN STRATEGY</span>
+0259 
+0260         <span class="comment">% Store the cost value</span>
+0261         f(iter+2) = newcost;
+0262        
+0263         <span class="comment">% Transport the old gradient to newx</span>
+0264         grad_transp = problem.M.transp(x, newx, grad);
 0265 
-0266         <span class="comment">% Compute the transported step</span>
-0267         Stransp =  problem.M.lincomb(x, -lambda, grad_transp); 
+0266         <span class="comment">% Compute the difference between grandients</span>
+0267         Y = problem.M.lincomb(newx, 1, newgrad, -1, grad_transp);
 0268 
-0269         <span class="comment">% Compute the new Barzilai-Borwein step following the strategy</span>
-0270         <span class="comment">% direct strategy</span>
-0271         <span class="keyword">if</span> strcmp(strategy, <span class="string">'direct'</span>)
-0272           num = problem.M.norm(newx, Stransp)^2; 
-0273           den = problem.M.inner(newx, Stransp, Y);
-0274           <span class="keyword">if</span> den &gt; 0
-0275             lambda = min( lambdamax, max(lambdamin, num/den) );
-0276           <span class="keyword">else</span>
-0277             lambda = lambdamax;
-0278           <span class="keyword">end</span>
-0279         <span class="keyword">end</span>
-0280 
-0281         <span class="comment">% inverse strategy</span>
-0282         <span class="keyword">if</span> strcmp(strategy, <span class="string">'inverse'</span>)
-0283           num = problem.M.inner(newx, Stransp, Y);
-0284           den = problem.M.norm(newx, Y)^2;
-0285 
-0286           <span class="keyword">if</span> num &gt; 0  
-0287             lambda = min( lambdamax, max(lambdamin, num/den) );
-0288           <span class="keyword">else</span>
-0289             lambda = lambdamax;
-0290           <span class="keyword">end</span>
-0291         <span class="keyword">end</span>
-0292 
-0293         <span class="comment">% alternate strategy</span>
-0294         <span class="keyword">if</span> strcmp(strategy, <span class="string">'alternate'</span>)
-0295           num = problem.M.norm(newx, Stransp)^2; 
-0296           den = problem.M.inner(newx, Stransp, Y);
-0297           den2 = problem.M.norm(newx, Y)^2;
-0298           <span class="keyword">if</span> (den &gt; 0)  
-0299             <span class="keyword">if</span> mod(iter,2)==0
-0300                 lambda = min( lambdamax, max(lambdamin, num/den) );
-0301         <span class="keyword">else</span>
-0302                 lambda = min( lambdamax, max(lambdamin, den/den2) );
-0303             <span class="keyword">end</span>
-0304           <span class="keyword">else</span>
-0305             lambda = lambdamax;
-0306           <span class="keyword">end</span>
-0307         <span class="keyword">end</span>
-0308         
-0309         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
-0310 
-0311         <span class="comment">% Make sure we don't use too much memory for the store database</span>
-0312         storedb.purge();
+0269         <span class="comment">% Compute the transported step</span>
+0270         Stransp =  problem.M.lincomb(x, -lambda, grad_transp); 
+0271 
+0272         <span class="comment">% Compute the new Barzilai-Borwein step following the strategy</span>
+0273         <span class="comment">% direct strategy</span>
+0274         <span class="keyword">if</span> strcmp(strategy, <span class="string">'direct'</span>)
+0275           num = problem.M.norm(newx, Stransp)^2; 
+0276           den = problem.M.inner(newx, Stransp, Y);
+0277           <span class="keyword">if</span> den &gt; 0
+0278             lambda = min( lambdamax, max(lambdamin, num/den) );
+0279           <span class="keyword">else</span>
+0280             lambda = lambdamax;
+0281           <span class="keyword">end</span>
+0282         <span class="keyword">end</span>
+0283 
+0284         <span class="comment">% inverse strategy</span>
+0285         <span class="keyword">if</span> strcmp(strategy, <span class="string">'inverse'</span>)
+0286           num = problem.M.inner(newx, Stransp, Y);
+0287           den = problem.M.norm(newx, Y)^2;
+0288 
+0289           <span class="keyword">if</span> num &gt; 0  
+0290             lambda = min( lambdamax, max(lambdamin, num/den) );
+0291           <span class="keyword">else</span>
+0292             lambda = lambdamax;
+0293           <span class="keyword">end</span>
+0294         <span class="keyword">end</span>
+0295 
+0296         <span class="comment">% alternate strategy</span>
+0297         <span class="keyword">if</span> strcmp(strategy, <span class="string">'alternate'</span>)
+0298           num = problem.M.norm(newx, Stransp)^2; 
+0299           den = problem.M.inner(newx, Stransp, Y);
+0300           den2 = problem.M.norm(newx, Y)^2;
+0301           <span class="keyword">if</span> (den &gt; 0)  
+0302             <span class="keyword">if</span> mod(iter,2)==0
+0303                 lambda = min( lambdamax, max(lambdamin, num/den) );
+0304         <span class="keyword">else</span>
+0305                 lambda = min( lambdamax, max(lambdamin, den/den2) );
+0306             <span class="keyword">end</span>
+0307           <span class="keyword">else</span>
+0308             lambda = lambdamax;
+0309           <span class="keyword">end</span>
+0310         <span class="keyword">end</span>
+0311         
+0312         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 0313         
 0314         <span class="comment">% Update iterate info</span>
-0315         x = newx;
-0316         key = newkey;
-0317         cost = newcost;
-0318         grad = newgrad;
-0319         gradnorm = newgradnorm;
-0320 
-0321         <span class="comment">% iter is the number of iterations we have accomplished.</span>
-0322         iter = iter + 1;
-0323         
-0324         <span class="comment">% Log statistics for freshly executed iteration</span>
-0325         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
-0326         info(iter+1) = stats;
+0315         storedb.removefirstifdifferent(key, newkey);
+0316         x = newx;
+0317         key = newkey;
+0318         cost = newcost;
+0319         grad = newgrad;
+0320         gradnorm = newgradnorm;
+0321 
+0322         <span class="comment">% iter is the number of iterations we have accomplished.</span>
+0323         iter = iter + 1;
+0324 
+0325         <span class="comment">% Make sure we don't use too much memory for the store database.</span>
+0326         storedb.purge();
 0327         
-0328     <span class="keyword">end</span>
-0329     
-0330     info = info(1:iter+1);
-0331 
-0332     <span class="keyword">if</span> options.verbosity &gt;= 1
-0333         fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, <span class="keyword">...</span>
-0334                 info(end).time);
-0335     <span class="keyword">end</span>
-0336     
-0337     
-0338     
-0339     <span class="comment">% Routine in charge of collecting the current iteration stats</span>
-0340     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
-0341         stats.iter = iter;
-0342         stats.cost = cost;
-0343         stats.gradnorm = gradnorm;
-0344         <span class="keyword">if</span> iter == 0
-0345             stats.stepsize = NaN;
-0346             stats.time = toc(timetic);
-0347             stats.linesearch = [];
-0348         <span class="keyword">else</span>
-0349             stats.stepsize = stepsize;
-0350             stats.time = info(iter).time + toc(timetic);
-0351             stats.linesearch = lsstats;
-0352         <span class="keyword">end</span>
-0353         stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key, options, stats);
-0354     <span class="keyword">end</span>
-0355     
-0356 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0328         <span class="comment">% Log statistics for freshly executed iteration</span>
+0329         stats = <a href="#_sub1" class="code" title="subfunction stats = savestats()">savestats</a>();
+0330         info(iter+1) = stats;
+0331         
+0332     <span class="keyword">end</span>
+0333     
+0334     info = info(1:iter+1);
+0335 
+0336     <span class="keyword">if</span> options.verbosity &gt;= 1
+0337         fprintf(<span class="string">'Total time is %f [s] (excludes statsfun)\n'</span>, <span class="keyword">...</span>
+0338                 info(end).time);
+0339     <span class="keyword">end</span>
+0340     
+0341     
+0342     
+0343     <span class="comment">% Routine in charge of collecting the current iteration stats</span>
+0344     <a name="_sub1" href="#_subfunctions" class="code">function stats = savestats()</a>
+0345         stats.iter = iter;
+0346         stats.cost = cost;
+0347         stats.gradnorm = gradnorm;
+0348         <span class="keyword">if</span> iter == 0
+0349             stats.stepsize = NaN;
+0350             stats.time = toc(timetic);
+0351             stats.linesearch = [];
+0352         <span class="keyword">else</span>
+0353             stats.stepsize = stepsize;
+0354             stats.time = info(iter).time + toc(timetic);
+0355             stats.linesearch = lsstats;
+0356         <span class="keyword">end</span>
+0357         stats = <a href="../../../manopt/core/applyStatsfun.html" class="code" title="function stats = applyStatsfun(problem, x, storedb, key, options, stats)">applyStatsfun</a>(problem, x, storedb, key, options, stats);
+0358     <span class="keyword">end</span>
+0359     
+0360 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

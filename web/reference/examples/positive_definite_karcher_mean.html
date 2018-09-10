@@ -127,52 +127,55 @@ This function is called by:
 0063     problem.cost = @<a href="#_sub1" class="code" title="subfunction f = cost(X)">cost</a>;
 0064     problem.grad = @<a href="#_sub2" class="code" title="subfunction g = grad(X)">grad</a>;
 0065     
-0066     <span class="comment">% Explicitly pick an approximate Hessian for the trust-region method</span>
-0067     problem.approxhess = <a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>(problem, struct(<span class="string">'stepsize'</span>, 1e-4));
-0068     
-0069     <span class="comment">% The functions below make many redundant computations. This</span>
-0070     <span class="comment">% performance hit can be alleviated by using the caching system. We go</span>
-0071     <span class="comment">% for a simple implementation here, as a tutorial example.</span>
-0072     
-0073     <span class="comment">% Cost function</span>
-0074     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
-0075         f = 0;
-0076         <span class="keyword">for</span> k = 1 : m
-0077             f = f + M.dist(X, A(:, :, k))^2;
-0078         <span class="keyword">end</span>
-0079         f = f/(2*m);
-0080     <span class="keyword">end</span>
-0081 
-0082     <span class="comment">% Riemannian gradient of the cost function</span>
-0083     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(X)</a>
-0084         g = M.zerovec(X);
-0085         <span class="keyword">for</span> k = 1 : m
-0086             <span class="comment">% Update g in a linear combination of the form</span>
-0087             <span class="comment">% g = g - [something]/m.</span>
-0088             g = M.lincomb(X, 1, g, -1/m, M.log(X, A(:, :, k)));
-0089         <span class="keyword">end</span>
-0090     <span class="keyword">end</span>
-0091     
-0092     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
-0093     <span class="comment">% These things can be commented out of course.</span>
-0094     <span class="comment">% The slopes should agree on part of the plot at least. In this case,</span>
-0095     <span class="comment">% it is sometimes necessary to inspect the plot visually to make the</span>
-0096     <span class="comment">% call, but it is indeed correct.</span>
-0097     <span class="comment">% checkgradient(problem);</span>
-0098     <span class="comment">% pause;</span>
-0099     
-0100     <span class="comment">% Execute this if you want to force using a proper parallel vector</span>
-0101     <span class="comment">% transport. This is not necessary. If you omit this, the default</span>
-0102     <span class="comment">% vector transport is the identity map, which is (of course) cheaper</span>
-0103     <span class="comment">% and seems to perform well in practice.</span>
-0104     <span class="comment">% M.transp = M.paralleltransp;</span>
-0105     
-0106     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
-0107     <span class="comment">% Our initial guess is the first data point. Most solvers work well</span>
-0108     <span class="comment">% with this problem. Limited-memory BFGS is one good example:</span>
-0109     X = <a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>(problem, A(:, :, 1));
-0110 
-0111 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0066     <span class="comment">% Explicitly pick an approximate Hessian for the trust-region method.</span>
+0067     <span class="comment">% (This is only to show an example of how it can be done; the solver</span>
+0068     <span class="comment">% below, rlbfgs, does not use the approximate Hessian; trustregions</span>
+0069     <span class="comment">% would.)</span>
+0070     problem.approxhess = <a href="../manopt/solvers/hessianapproximations/approxhessianFD.html" class="code" title="function hessfun = approxhessianFD(problem, options)">approxhessianFD</a>(problem, struct(<span class="string">'stepsize'</span>, 1e-4));
+0071     
+0072     <span class="comment">% The functions below make many redundant computations. This</span>
+0073     <span class="comment">% performance hit can be alleviated by using the caching system. We go</span>
+0074     <span class="comment">% for a simple implementation here, as a tutorial example.</span>
+0075     
+0076     <span class="comment">% Cost function</span>
+0077     <a name="_sub1" href="#_subfunctions" class="code">function f = cost(X)</a>
+0078         f = 0;
+0079         <span class="keyword">for</span> k = 1 : m
+0080             f = f + M.dist(X, A(:, :, k))^2;
+0081         <span class="keyword">end</span>
+0082         f = f/(2*m);
+0083     <span class="keyword">end</span>
+0084 
+0085     <span class="comment">% Riemannian gradient of the cost function</span>
+0086     <a name="_sub2" href="#_subfunctions" class="code">function g = grad(X)</a>
+0087         g = M.zerovec(X);
+0088         <span class="keyword">for</span> k = 1 : m
+0089             <span class="comment">% Update g in a linear combination of the form</span>
+0090             <span class="comment">% g = g - [something]/m.</span>
+0091             g = M.lincomb(X, 1, g, -1/m, M.log(X, A(:, :, k)));
+0092         <span class="keyword">end</span>
+0093     <span class="keyword">end</span>
+0094     
+0095     <span class="comment">% Execute some checks on the derivatives for early debugging.</span>
+0096     <span class="comment">% These things can be commented out of course.</span>
+0097     <span class="comment">% The slopes should agree on part of the plot at least. In this case,</span>
+0098     <span class="comment">% it is sometimes necessary to inspect the plot visually to make the</span>
+0099     <span class="comment">% call, but it is indeed correct.</span>
+0100     <span class="comment">% checkgradient(problem);</span>
+0101     <span class="comment">% pause;</span>
+0102     
+0103     <span class="comment">% Execute this if you want to force using a proper parallel vector</span>
+0104     <span class="comment">% transport. This is not necessary. If you omit this, the default</span>
+0105     <span class="comment">% vector transport is the identity map, which is (of course) cheaper</span>
+0106     <span class="comment">% and seems to perform well in practice.</span>
+0107     <span class="comment">% M.transp = M.paralleltransp;</span>
+0108     
+0109     <span class="comment">% Issue a call to a solver. Default options are selected.</span>
+0110     <span class="comment">% Our initial guess is the first data point. Most solvers work well</span>
+0111     <span class="comment">% with this problem. Limited-memory BFGS is one good example:</span>
+0112     X = <a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>(problem, A(:, :, 1));
+0113 
+0114 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,6 +1,8 @@
 /* Created by mdot for Matlab */
 digraph m2html {
+  stiefelfactory -> solve_for_triu;
 
+  solve_for_triu [URL="solve_for_triu.html"];
   stiefelcomplexfactory [URL="stiefelcomplexfactory.html"];
   stiefelfactory [URL="stiefelfactory.html"];
   stiefelgeneralizedfactory [URL="stiefelgeneralizedfactory.html"];

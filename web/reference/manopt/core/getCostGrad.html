@@ -47,7 +47,7 @@ This function calls:
 <li><a href="StoreDB.html" class="code" title="">StoreDB</a>	</li><li><a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>	Computes the cost function at x.</li><li><a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>	Computes the gradient of the cost function at x.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../../matlabicon.gif)">
-<li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../manopt/tools/hessianextreme.html" class="code" title="function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)">hessianextreme</a>	Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
+<li><a href="../../manopt/solvers/arc/arc.html" class="code" title="function [x, cost, info, options] = arc(problem, x, options)">arc</a>	Adaptive regularization by cubics (ARC) minimization algorithm for Manopt</li><li><a href="../../manopt/solvers/barzilaiborwein/barzilaiborwein.html" class="code" title="function [x, cost, info, options] = barzilaiborwein(problem, x, options)">barzilaiborwein</a>	Riemannian Barzilai-Borwein solver with non-monotone line-search.</li><li><a href="../../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/steepestdescent/steepestdescent.html" class="code" title="function [x, cost, info, options] = steepestdescent(problem, x, options)">steepestdescent</a>	Steepest descent (gradient descent) minimization algorithm for Manopt.</li><li><a href="../../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../../manopt/tools/hessianextreme.html" class="code" title="function [y, lambda, info] = hessianextreme(problem, x, side, y0, options, storedb, key)">hessianextreme</a>	Compute an extreme eigenvector / eigenvalue of the Hessian of a problem.</li><li><a href="../../manopt/tools/hessianspectrum.html" class="code" title="function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)">hessianspectrum</a>	Returns the eigenvalues of the (preconditioned) Hessian at x.</li></ul>
 <!-- crossreference -->
 
 
@@ -74,46 +74,92 @@ This function is called by:
 0019 <span class="comment">%</span>
 0020 <span class="comment">%   April 3, 2015 (NB):</span>
 0021 <span class="comment">%       Works with the new StoreDB class system.</span>
-0022 
-0023     <span class="comment">% Allow omission of the key, and even of storedb.</span>
-0024     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
-0025         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
-0026             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
-0027         <span class="keyword">end</span>
-0028         key = storedb.getNewKey();
-0029     <span class="keyword">end</span>
-0030 
-0031 
-0032     <span class="keyword">if</span> isfield(problem, <span class="string">'costgrad'</span>)
-0033     <span class="comment">%% Compute the cost/grad pair using costgrad.</span>
-0034     
-0035         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
-0036         <span class="keyword">switch</span> nargin(problem.costgrad)
-0037             <span class="keyword">case</span> 1
-0038                 [cost, grad] = problem.costgrad(x);
-0039             <span class="keyword">case</span> 2
-0040                 <span class="comment">% Obtain, pass along, and save the store for x.</span>
-0041                 store = storedb.getWithShared(key);
-0042                 [cost, grad, store] = problem.costgrad(x, store);
-0043                 storedb.setWithShared(store, key);
-0044             <span class="keyword">case</span> 3
-0045                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
-0046                 [cost, grad] = problem.costgrad(x, storedb, key);
-0047             <span class="keyword">otherwise</span>
-0048                 up = MException(<span class="string">'manopt:getCostGrad:badcostgrad'</span>, <span class="keyword">...</span>
-0049                     <span class="string">'costgrad should accept 1, 2 or 3 inputs.'</span>);
-0050                 throw(up);
-0051         <span class="keyword">end</span>
-0052 
-0053     <span class="keyword">else</span>
-0054     <span class="comment">%% Revert to calling getCost and getGradient separately</span>
-0055     
-0056         cost = <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, key);
-0057         grad = <a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
-0058         
-0059     <span class="keyword">end</span>
-0060     
-0061 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   Aug. 2, 2018 (NB):</span>
+0024 <span class="comment">%       The value of the cost function is now always cached.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   Sep. 6, 2018 (NB):</span>
+0027 <span class="comment">%       The gradient is now also cached.</span>
+0028 
+0029     <span class="comment">% Allow omission of the key, and even of storedb.</span>
+0030     <span class="keyword">if</span> ~exist(<span class="string">'key'</span>, <span class="string">'var'</span>)
+0031         <span class="keyword">if</span> ~exist(<span class="string">'storedb'</span>, <span class="string">'var'</span>)
+0032             storedb = <a href="StoreDB.html" class="code" title="">StoreDB</a>();
+0033         <span class="keyword">end</span>
+0034         key = storedb.getNewKey();
+0035     <span class="keyword">end</span>
+0036 
+0037     <span class="comment">% Contrary to most similar functions, here, we get the store by</span>
+0038     <span class="comment">% default. This is for the caching functionality described below.</span>
+0039     store = storedb.getWithShared(key);
+0040     store_is_stale = false;
+0041     
+0042     <span class="comment">% Check if the cost or gradient are readily available from the store.</span>
+0043     force_grad_caching = true;
+0044     <span class="keyword">if</span> isfield(store, <span class="string">'cost__'</span>)
+0045         cost = store.cost__;
+0046         <span class="keyword">if</span> force_grad_caching &amp;&amp; isfield(store, <span class="string">'grad__'</span>)
+0047             grad = store.grad__;
+0048             <span class="keyword">return</span>;
+0049         <span class="keyword">else</span>
+0050             grad = <a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key); <span class="comment">% caches grad</span>
+0051             <span class="keyword">return</span>;
+0052         <span class="keyword">end</span>
+0053     <span class="keyword">end</span>
+0054     <span class="comment">% If we get here, the cost was not previously cached, but maybe the</span>
+0055     <span class="comment">% gradient was?</span>
+0056     <span class="keyword">if</span> force_grad_caching &amp;&amp; isfield(store, <span class="string">'grad__'</span>)
+0057         grad = store.grad__;
+0058         cost = <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, key); <span class="comment">% this call caches cost</span>
+0059         <span class="keyword">return</span>;
+0060     <span class="keyword">end</span>
+0061 
+0062     <span class="comment">% Neither the cost nor the gradient were available: let's compute both.</span>
+0063 
+0064     <span class="keyword">if</span> isfield(problem, <span class="string">'costgrad'</span>)
+0065     <span class="comment">%% Compute the cost/grad pair using costgrad.</span>
+0066     
+0067         <span class="comment">% Check whether this function wants to deal with storedb or not.</span>
+0068         <span class="keyword">switch</span> nargin(problem.costgrad)
+0069             <span class="keyword">case</span> 1
+0070                 [cost, grad] = problem.costgrad(x);
+0071             <span class="keyword">case</span> 2
+0072                 [cost, grad, store] = problem.costgrad(x, store);
+0073             <span class="keyword">case</span> 3
+0074                 <span class="comment">% Pass along the whole storedb (by reference), with key.</span>
+0075                 [cost, grad] = problem.costgrad(x, storedb, key);
+0076                 store_is_stale = true;
+0077             <span class="keyword">otherwise</span>
+0078                 up = MException(<span class="string">'manopt:getCostGrad:badcostgrad'</span>, <span class="keyword">...</span>
+0079                     <span class="string">'costgrad should accept 1, 2 or 3 inputs.'</span>);
+0080                 throw(up);
+0081         <span class="keyword">end</span>
+0082 
+0083     <span class="keyword">else</span>
+0084     <span class="comment">%% Revert to calling getCost and getGradient separately</span>
+0085     
+0086         <span class="comment">% The two following calls will already cache cost and grad, then</span>
+0087         <span class="comment">% the caches will be overwritten at the end of this function, with</span>
+0088         <span class="comment">% the same values (it is not a problem).</span>
+0089         cost = <a href="getCost.html" class="code" title="function cost = getCost(problem, x, storedb, key)">getCost</a>(problem, x, storedb, key);
+0090         grad = <a href="getGradient.html" class="code" title="function grad = getGradient(problem, x, storedb, key)">getGradient</a>(problem, x, storedb, key);
+0091         store_is_stale = true;
+0092         
+0093     <span class="keyword">end</span>
+0094     
+0095     <span class="keyword">if</span> store_is_stale
+0096         store = storedb.getWithShared(key);
+0097     <span class="keyword">end</span>
+0098     
+0099     <span class="comment">% Cache here.</span>
+0100     store.cost__ = cost;
+0101     <span class="keyword">if</span> force_grad_caching
+0102         store.grad__ = grad;
+0103     <span class="keyword">end</span>
+0104     
+0105     storedb.setWithShared(store, key);
+0106     
+0107 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

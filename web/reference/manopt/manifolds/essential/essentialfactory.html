@@ -257,126 +257,121 @@ This function is called by:
 0176         <span class="comment">% Q is a [3x6] matrix where each [3x3] block is a uniformly distributed</span>
 0177         <span class="comment">% matrix.</span>
 0178         
-0179         <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
-0180         <span class="comment">% Original author: Roberto Tron, Aug. 8, 2014</span>
-0181         <span class="comment">% Contributors:</span>
-0182         <span class="comment">% Change log:</span>
-0183         
-0184         <span class="keyword">if</span> nargin &lt; 1
-0185             N = 1;
-0186         <span class="keyword">end</span>
-0187         
-0188         Q = [<a href="../../../manopt/manifolds/rotations/randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(3,N) <a href="../../../manopt/manifolds/rotations/randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(3,N)];
-0189     <span class="keyword">end</span>
-0190     
-0191     M.randvec = @<a href="#_sub7" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
-0192     <a name="_sub7" href="#_subfunctions" class="code">function U = randomvec(X)</a>
-0193         U = <a href="#_sub1" class="code" title="subfunction HProjHoriz=tangentProjection(X,H)">tangentProjection</a>(X, <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/manifolds/rotations/randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>(3, 2*k)));
-0194         U = U / sqrt(M.inner([],U,U));
-0195     <span class="keyword">end</span>
-0196     
-0197     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
-0198     
-0199     M.zerovec = @(x) zeros(3, 6, k);
-0200     
-0201     M.transp = @<a href="#_sub8" class="code" title="subfunction S2 = transport(X1, X2, S1)">transport</a>;
-0202     <a name="_sub8" href="#_subfunctions" class="code">function S2 = transport(X1, X2, S1)</a>
-0203         <span class="comment">% Transport a vector from the tangent space at X1 to the tangent</span>
-0204         <span class="comment">% space at X2. This transport uses the left translation of the</span>
-0205         <span class="comment">% ambient group and preserves the norm of S1. The left translation</span>
-0206         <span class="comment">% aligns the vertical spaces at the two elements.</span>
-0207         
-0208         <span class="comment">% Group operation in the ambient group, X12=X2'*X1</span>
-0209         X12 = <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X2)),<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X1)));
-0210         X12Flat = <a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X12);
-0211         
-0212         <span class="comment">% Left translation, S2=X12*S*X12'</span>
-0213         S2 = <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X12Flat,<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(S1),<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X12Flat))));
-0214     <span class="keyword">end</span>
-0215     
-0216     M.pairmean = @<a href="#_sub9" class="code" title="subfunction Y = pairmean(X1, X2)">pairmean</a>;
-0217     <a name="_sub9" href="#_subfunctions" class="code">function Y = pairmean(X1, X2)</a>
-0218         V = M.log(X1, X2);
-0219         Y = M.exp(X1, .5*V);
-0220     <span class="keyword">end</span>
-0221     
-0222     M.dist = @(x, y) M.norm(x, M.log(x, y)); 
+0179         <span class="keyword">if</span> nargin &lt; 1
+0180             N = 1;
+0181         <span class="keyword">end</span>
+0182         
+0183         Q = [<a href="../../../manopt/manifolds/rotations/randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(3,N) <a href="../../../manopt/manifolds/rotations/randrot.html" class="code" title="function R = randrot(n, N)">randrot</a>(3,N)];
+0184     <span class="keyword">end</span>
+0185     
+0186     M.randvec = @<a href="#_sub7" class="code" title="subfunction U = randomvec(X)">randomvec</a>;
+0187     <a name="_sub7" href="#_subfunctions" class="code">function U = randomvec(X)</a>
+0188         U = <a href="#_sub1" class="code" title="subfunction HProjHoriz=tangentProjection(X,H)">tangentProjection</a>(X, <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/manifolds/rotations/randskew.html" class="code" title="function S = randskew(n, N)">randskew</a>(3, 2*k)));
+0189         U = U / sqrt(M.inner([],U,U));
+0190     <span class="keyword">end</span>
+0191     
+0192     M.lincomb = @<a href="../../../manopt/tools/matrixlincomb.html" class="code" title="function v = matrixlincomb(x, a1, d1, a2, d2) %#ok<INUSL>">matrixlincomb</a>;
+0193     
+0194     M.zerovec = @(x) zeros(3, 6, k);
+0195     
+0196     M.transp = @<a href="#_sub8" class="code" title="subfunction S2 = transport(X1, X2, S1)">transport</a>;
+0197     <a name="_sub8" href="#_subfunctions" class="code">function S2 = transport(X1, X2, S1)</a>
+0198         <span class="comment">% Transport a vector from the tangent space at X1 to the tangent</span>
+0199         <span class="comment">% space at X2. This transport uses the left translation of the</span>
+0200         <span class="comment">% ambient group and preserves the norm of S1. The left translation</span>
+0201         <span class="comment">% aligns the vertical spaces at the two elements.</span>
+0202         
+0203         <span class="comment">% Group operation in the ambient group, X12=X2'*X1</span>
+0204         X12 = <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X2)),<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X1)));
+0205         X12Flat = <a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X12);
+0206         
+0207         <span class="comment">% Left translation, S2=X12*S*X12'</span>
+0208         S2 = <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X12Flat,<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(S1),<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(X12Flat))));
+0209     <span class="keyword">end</span>
+0210     
+0211     M.pairmean = @<a href="#_sub9" class="code" title="subfunction Y = pairmean(X1, X2)">pairmean</a>;
+0212     <a name="_sub9" href="#_subfunctions" class="code">function Y = pairmean(X1, X2)</a>
+0213         V = M.log(X1, X2);
+0214         Y = M.exp(X1, .5*V);
+0215     <span class="keyword">end</span>
+0216     
+0217     M.dist = @(x, y) M.norm(x, M.log(x, y)); 
+0218     
+0219     M.vec = @(x, u_mat) u_mat(:);
+0220     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
+0221     M.vecmatareisometries = @() true;
+0222     
 0223     
-0224     M.vec = @(x, u_mat) u_mat(:);
-0225     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
-0226     M.vecmatareisometries = @() true;
+0224     
+0225     p1 = @(X) X(:,1:3,:);
+0226     p2 = @(X) X(:,4:6,:);
 0227     
 0228     
-0229     
-0230     p1 = @(X) X(:,1:3,:);
-0231     p2 = @(X) X(:,4:6,:);
+0229     vertproj = @(X,H) <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X(3,1:3,:),permute(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(H(:,1:3,:)),[1 3 2]))+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X(3,4:6,:),permute(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(H(:,4:6,:)),[1 3 2]));
+0230     
+0231     tangent2ambient = @(X, H) <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X), <a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(H)));
 0232     
 0233     
-0234     vertproj = @(X,H) <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X(3,1:3,:),permute(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(H(:,1:3,:)),[1 3 2]))+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(X(3,4:6,:),permute(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(H(:,4:6,:)),[1 3 2]));
-0235     
-0236     tangent2ambient = @(X, H) <a href="essential_sharp.html" class="code" title="function H = essential_sharp(Hp)">essential_sharp</a>(<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(<a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(X), <a href="essential_flat.html" class="code" title="function Hp = essential_flat(H)">essential_flat</a>(H)));
-0237     
-0238     
-0239 <span class="keyword">end</span>
-0240 
-0241 
-0242 <span class="comment">%% Some functions used by the essential factory</span>
+0234 <span class="keyword">end</span>
+0235 
+0236 
+0237 <span class="comment">%% Some functions used by the essential factory</span>
+0238 
+0239 <a name="_sub10" href="#_subfunctions" class="code">function v = vee3(V)</a>
+0240     v = squeeze([V(3,2,:)-V(2,3,:); V(1,3,:)-V(3,1,:); V(2,1,:)-V(1,2,:)])/2;
+0241 <span class="keyword">end</span>
+0242 
 0243 
-0244 <a name="_sub10" href="#_subfunctions" class="code">function v = vee3(V)</a>
-0245     v = squeeze([V(3,2,:)-V(2,3,:); V(1,3,:)-V(3,1,:); V(2,1,:)-V(1,2,:)])/2;
-0246 <span class="keyword">end</span>
-0247 
-0248 
-0249 <span class="comment">% Compute the exponential map in SO(3) using Rodrigues' formula</span>
-0250 <span class="comment">%  function R = rot3_exp(V)</span>
-0251 <span class="comment">% V must be a [3x3xN] array of [3x3] skew-symmetric matrices.</span>
-0252 <a name="_sub11" href="#_subfunctions" class="code">function R = rot3_exp(V)</a>
-0253     v = <a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(V);
-0254     nv = <a href="#_sub14" class="code" title="subfunction nv = cnorm(v)">cnorm</a>(v);
-0255     idxZero = nv &lt; 1e-15;
-0256     nvMod = nv;
-0257     nvMod(idxZero) = 1;
-0258     
-0259     vNorm = v./([1;1;1]*nvMod);
-0260     
-0261     <span class="comment">% Matrix exponential using Rodrigues' formula</span>
-0262     nv = shiftdim(nv,-1);
-0263     c = cos(nv);
-0264     s = sin(nv);
-0265     [VNorm,vNormShift] = <a href="essential_hat3.html" class="code" title="function [V, vShift] = essential_hat3(v)">essential_hat3</a>(vNorm);
-0266     vNormvNormT = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(vNormShift,<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(vNormShift));
-0267     R=<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(eye(3),c)+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(VNorm,s)+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(vNormvNormT,1-c);
-0268 <span class="keyword">end</span>
-0269 
-0270 
-0271 
-0272 <span class="comment">% Compute the logarithm map in SO(3)</span>
-0273 <span class="comment">%  function V = rot3_log(R)</span>
-0274 <span class="comment">% V is a [3x3xN] array of [3x3] skew-symmetric matrices</span>
-0275 <a name="_sub12" href="#_subfunctions" class="code">function V = rot3_log(R)</a>
-0276     skewR = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(R);
-0277     ctheta = (<a href="../../../manopt/tools/multitrace.html" class="code" title="function tr = multitrace(A)">multitrace</a>(R)'-1)/2;
-0278     stheta = <a href="#_sub14" class="code" title="subfunction nv = cnorm(v)">cnorm</a>(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(skewR));
-0279     theta = atan2(stheta,ctheta);
-0280     
-0281     V=skewR;
-0282     <span class="keyword">for</span> ik=1:size(R,3)
-0283         V(:,:,ik)=V(:,:,ik)/<a href="#_sub13" class="code" title="subfunction sx = sincN(x)">sincN</a>(theta(ik));
-0284     <span class="keyword">end</span>
-0285 <span class="keyword">end</span>
-0286 
+0244 <span class="comment">% Compute the exponential map in SO(3) using Rodrigues' formula</span>
+0245 <span class="comment">%  function R = rot3_exp(V)</span>
+0246 <span class="comment">% V must be a [3x3xN] array of [3x3] skew-symmetric matrices.</span>
+0247 <a name="_sub11" href="#_subfunctions" class="code">function R = rot3_exp(V)</a>
+0248     v = <a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(V);
+0249     nv = <a href="#_sub14" class="code" title="subfunction nv = cnorm(v)">cnorm</a>(v);
+0250     idxZero = nv &lt; 1e-15;
+0251     nvMod = nv;
+0252     nvMod(idxZero) = 1;
+0253     
+0254     vNorm = v./([1;1;1]*nvMod);
+0255     
+0256     <span class="comment">% Matrix exponential using Rodrigues' formula</span>
+0257     nv = shiftdim(nv,-1);
+0258     c = cos(nv);
+0259     s = sin(nv);
+0260     [VNorm,vNormShift] = <a href="essential_hat3.html" class="code" title="function [V, vShift] = essential_hat3(v)">essential_hat3</a>(vNorm);
+0261     vNormvNormT = <a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(vNormShift,<a href="../../../manopt/tools/multitransp.html" class="code" title="function b = multitransp(a, dim)">multitransp</a>(vNormShift));
+0262     R=<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(eye(3),c)+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(VNorm,s)+<a href="../../../manopt/tools/multiprod.html" class="code" title="function c = multiprod(a, b, idA, idB)">multiprod</a>(vNormvNormT,1-c);
+0263 <span class="keyword">end</span>
+0264 
+0265 
+0266 
+0267 <span class="comment">% Compute the logarithm map in SO(3)</span>
+0268 <span class="comment">%  function V = rot3_log(R)</span>
+0269 <span class="comment">% V is a [3x3xN] array of [3x3] skew-symmetric matrices</span>
+0270 <a name="_sub12" href="#_subfunctions" class="code">function V = rot3_log(R)</a>
+0271     skewR = <a href="../../../manopt/tools/multiskew.html" class="code" title="function Y = multiskew(X)">multiskew</a>(R);
+0272     ctheta = (<a href="../../../manopt/tools/multitrace.html" class="code" title="function tr = multitrace(A)">multitrace</a>(R)'-1)/2;
+0273     stheta = <a href="#_sub14" class="code" title="subfunction nv = cnorm(v)">cnorm</a>(<a href="#_sub10" class="code" title="subfunction v = vee3(V)">vee3</a>(skewR));
+0274     theta = atan2(stheta,ctheta);
+0275     
+0276     V=skewR;
+0277     <span class="keyword">for</span> ik=1:size(R,3)
+0278         V(:,:,ik)=V(:,:,ik)/<a href="#_sub13" class="code" title="subfunction sx = sincN(x)">sincN</a>(theta(ik));
+0279     <span class="keyword">end</span>
+0280 <span class="keyword">end</span>
+0281 
+0282 
+0283 <a name="_sub13" href="#_subfunctions" class="code">function sx = sincN(x)</a>
+0284     sx = sin(x)./x;
+0285     sx(x==0) = 1;
+0286 <span class="keyword">end</span>
 0287 
-0288 <a name="_sub13" href="#_subfunctions" class="code">function sx = sincN(x)</a>
-0289     sx = sin(x)./x;
-0290     sx(x==0) = 1;
-0291 <span class="keyword">end</span>
+0288 <a name="_sub14" href="#_subfunctions" class="code">function nv = cnorm(v)</a>
+0289     nv = sqrt(sum(v.^2));
+0290 <span class="keyword">end</span>
+0291 
 0292 
-0293 <a name="_sub14" href="#_subfunctions" class="code">function nv = cnorm(v)</a>
-0294     nv = sqrt(sum(v.^2));
-0295 <span class="keyword">end</span>
-0296 
-0297 
-0298</pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0293</pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

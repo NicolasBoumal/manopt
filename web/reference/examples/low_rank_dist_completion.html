@@ -150,7 +150,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../manopt/manifolds/symfixedrank/symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>	Manifold of n-by-n symmetric positive semidefinite matrices of rank k.</li><li><a href="../manopt/solvers/linesearch/linesearch_decrease.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_decrease(problem, x, d, f0, ~, options, storedb, key)">linesearch_decrease</a>	Backtracking line-search aiming merely for a decrease in cost value.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
+<li><a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>	Merges two options structures with one having precedence over the other.</li><li><a href="../manopt/manifolds/symfixedrank/symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>	Manifold of n-by-n symmetric positive semidefinite matrices of rank k.</li><li><a href="../manopt/solvers/linesearch/linesearch_decrease.html" class="code" title="function [stepsize, newx, newkey, lsstats] =linesearch_decrease(problem, x, d, f0, ~, options, storedb, key)">linesearch_decrease</a>	Backtracking line-search aiming merely for a decrease in cost value.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>	Gateway helper function to call a Manopt solver, chosen in the options.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -402,448 +402,447 @@ This function is called by:
 0239         
 0240         <span class="comment">% Make eigs silent.</span>
 0241         opts.disp = 0;
-0242         opts.issym = true;
-0243         [v, s_min] = eigs(Sy, 1, <span class="string">'SA'</span>, opts);
+0242         [v, s_min] = eigs(Sy, 1, <span class="string">'SA'</span>, opts);
+0243         
 0244         
-0245         
-0246         <span class="comment">% Check whether Y is rank deficient.</span>
-0247         vp = svd(Y);
-0248         
-0249         <span class="comment">% Stopping criterion.</span>
-0250         fprintf(<span class="string">'&gt;&gt; smin = %.3e, and min(vp) = %.3e\n'</span>,s_min,min(vp));
-0251         <span class="keyword">if</span> (s_min  &gt; params.tolSmin) || (min(vp) &lt; params.tolrankdeficiency),
-0252             <span class="keyword">break</span>;
-0253         <span class="keyword">end</span>
-0254         
-0255         <span class="comment">% Update rank</span>
-0256         rr = rr + 1;
-0257         
-0258         <span class="comment">% Compute descent direction</span>
-0259         <span class="keyword">if</span> (s_min &lt; -1e-10),
-0260             restartDir = v;
-0261         <span class="keyword">else</span>
-0262             restartDir = [];
-0263         <span class="keyword">end</span>
-0264     <span class="keyword">end</span>
+0245         <span class="comment">% Check whether Y is rank deficient.</span>
+0246         vp = svd(Y);
+0247         
+0248         <span class="comment">% Stopping criterion.</span>
+0249         fprintf(<span class="string">'&gt;&gt; smin = %.3e, and min(vp) = %.3e\n'</span>,s_min,min(vp));
+0250         <span class="keyword">if</span> (s_min  &gt; params.tolSmin) || (min(vp) &lt; params.tolrankdeficiency),
+0251             <span class="keyword">break</span>;
+0252         <span class="keyword">end</span>
+0253         
+0254         <span class="comment">% Update rank</span>
+0255         rr = rr + 1;
+0256         
+0257         <span class="comment">% Compute descent direction</span>
+0258         <span class="keyword">if</span> (s_min &lt; -1e-10),
+0259             restartDir = v;
+0260         <span class="keyword">else</span>
+0261             restartDir = [];
+0262         <span class="keyword">end</span>
+0263     <span class="keyword">end</span>
+0264     
 0265     
-0266     
-0267     <span class="comment">% Collect relevant statistics</span>
-0268     infos.time = time;
-0269     infos.cost = <a href="#_sub4" class="code" title="subfunction [f, store] = cost(Y, store)">cost</a>;
-0270     infos.rank = rank;
-0271     infos.test_error = test_error;
-0272     infos.rank_change_stats = rank_change_stats;
-0273     
-0274     <span class="comment">% Few plots.</span>
-0275     <a href="#_sub11" class="code" title="subfunction  show_plots(problem_description, infos)">show_plots</a>(problem_description, infos);
-0276     
-0277 <span class="keyword">end</span>
+0266     <span class="comment">% Collect relevant statistics</span>
+0267     infos.time = time;
+0268     infos.cost = <a href="#_sub4" class="code" title="subfunction [f, store] = cost(Y, store)">cost</a>;
+0269     infos.rank = rank;
+0270     infos.test_error = test_error;
+0271     infos.rank_change_stats = rank_change_stats;
+0272     
+0273     <span class="comment">% Few plots.</span>
+0274     <a href="#_sub11" class="code" title="subfunction  show_plots(problem_description, infos)">show_plots</a>(problem_description, infos);
+0275     
+0276 <span class="keyword">end</span>
+0277 
 0278 
 0279 
 0280 
-0281 
-0282 <span class="comment">%% Cost function evaluation.</span>
-0283 <a name="_sub1" href="#_subfunctions" class="code">function val = cost_evaluation(Y, data_train)</a>
-0284     Z = Y(data_train.rows, :) - Y(data_train.cols,:);
-0285     estimDists = sum(Z.^2, 2);
-0286     errors = (estimDists - data_train.entries);
-0287     val = 0.5*mean(errors.^2);
-0288 <span class="keyword">end</span>
+0281 <span class="comment">%% Cost function evaluation.</span>
+0282 <a name="_sub1" href="#_subfunctions" class="code">function val = cost_evaluation(Y, data_train)</a>
+0283     Z = Y(data_train.rows, :) - Y(data_train.cols,:);
+0284     estimDists = sum(Z.^2, 2);
+0285     errors = (estimDists - data_train.entries);
+0286     val = 0.5*mean(errors.^2);
+0287 <span class="keyword">end</span>
+0288 
 0289 
 0290 
 0291 
-0292 
-0293 <span class="comment">%% Local defaults</span>
-0294 <a name="_sub2" href="#_subfunctions" class="code">function localdefaults = getlocaldefaults()</a>
-0295     localdefaults.abstolcost = 1e-3;
-0296     localdefaults.reltolcost = 1e-3;
-0297     localdefaults.tolSmin = -1e-3;
-0298     localdefaults.tolrankdeficiency = 1e-3;
-0299     localdefaults.tolgradnorm = 1e-5;
-0300     localdefaults.maxiter = 100;
-0301     localdefaults.solver = @<a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>; <span class="comment">% Trust-regions</span>
-0302 <span class="keyword">end</span>
+0292 <span class="comment">%% Local defaults</span>
+0293 <a name="_sub2" href="#_subfunctions" class="code">function localdefaults = getlocaldefaults()</a>
+0294     localdefaults.abstolcost = 1e-3;
+0295     localdefaults.reltolcost = 1e-3;
+0296     localdefaults.tolSmin = -1e-3;
+0297     localdefaults.tolrankdeficiency = 1e-3;
+0298     localdefaults.tolgradnorm = 1e-5;
+0299     localdefaults.maxiter = 100;
+0300     localdefaults.solver = @<a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>; <span class="comment">% Trust-regions</span>
+0301 <span class="keyword">end</span>
+0302 
 0303 
 0304 
 0305 
 0306 
 0307 
 0308 
-0309 
-0310 <span class="comment">%% Fixed-rank optimization</span>
-0311 <a name="_sub3" href="#_subfunctions" class="code">function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_test, Y_initial, params)</a>
-0312     <span class="comment">% Common quantities that are used often in the optimization process.</span>
-0313     [n, r] = size(Y_initial);
-0314     EIJ = speye(n);
-0315     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
-0316     
-0317     <span class="comment">% Create problem structure</span>
-0318     problem.M = <a href="../manopt/manifolds/symfixedrank/symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>(n,  r);
+0309 <span class="comment">%% Fixed-rank optimization</span>
+0310 <a name="_sub3" href="#_subfunctions" class="code">function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_test, Y_initial, params)</a>
+0311     <span class="comment">% Common quantities that are used often in the optimization process.</span>
+0312     [n, r] = size(Y_initial);
+0313     EIJ = speye(n);
+0314     EIJ = EIJ(:, data_train.rows) - EIJ(:, data_train.cols);
+0315     
+0316     <span class="comment">% Create problem structure</span>
+0317     problem.M = <a href="../manopt/manifolds/symfixedrank/symfixedrankYYfactory.html" class="code" title="function M = symfixedrankYYfactory(n, k)">symfixedrankYYfactory</a>(n,  r);
+0318     
 0319     
-0320     
-0321     <span class="comment">% Cost evaluation</span>
-0322     problem.cost = @<a href="#_sub4" class="code" title="subfunction [f, store] = cost(Y, store)">cost</a>;
-0323     <a name="_sub4" href="#_subfunctions" class="code">function [f, store] = cost(Y, store)</a>
-0324         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
-0325             store.xij = EIJ'*Y;
-0326         <span class="keyword">end</span>
-0327         xij = store.xij;
-0328         estimDists = sum(xij.^2,2);
-0329         f = 0.5*mean((estimDists - data_train.entries).^2);
-0330     <span class="keyword">end</span>
-0331     
-0332     <span class="comment">% Gradient evaluation</span>
-0333     problem.grad = @<a href="#_sub5" class="code" title="subfunction [g, store] = grad(Y, store)">grad</a>;
-0334     <a name="_sub5" href="#_subfunctions" class="code">function [g, store] = grad(Y, store)</a>
-0335         N = data_train.nentries;
-0336         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
-0337             store.xij = EIJ'*Y;
-0338         <span class="keyword">end</span>
-0339         xij = store.xij;
-0340         estimDists = sum(xij.^2,2);
-0341         g = EIJ * sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N, N, N) * xij;
-0342     <span class="keyword">end</span>
+0320     <span class="comment">% Cost evaluation</span>
+0321     problem.cost = @<a href="#_sub4" class="code" title="subfunction [f, store] = cost(Y, store)">cost</a>;
+0322     <a name="_sub4" href="#_subfunctions" class="code">function [f, store] = cost(Y, store)</a>
+0323         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
+0324             store.xij = EIJ'*Y;
+0325         <span class="keyword">end</span>
+0326         xij = store.xij;
+0327         estimDists = sum(xij.^2,2);
+0328         f = 0.5*mean((estimDists - data_train.entries).^2);
+0329     <span class="keyword">end</span>
+0330     
+0331     <span class="comment">% Gradient evaluation</span>
+0332     problem.grad = @<a href="#_sub5" class="code" title="subfunction [g, store] = grad(Y, store)">grad</a>;
+0333     <a name="_sub5" href="#_subfunctions" class="code">function [g, store] = grad(Y, store)</a>
+0334         N = data_train.nentries;
+0335         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
+0336             store.xij = EIJ'*Y;
+0337         <span class="keyword">end</span>
+0338         xij = store.xij;
+0339         estimDists = sum(xij.^2,2);
+0340         g = EIJ * sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N, N, N) * xij;
+0341     <span class="keyword">end</span>
+0342     
 0343     
-0344     
-0345     <span class="comment">% Hessian evaluation</span>
-0346     problem.hess = @<a href="#_sub6" class="code" title="subfunction [Hess, store] = hess(Y, eta, store)">hess</a>;
-0347     <a name="_sub6" href="#_subfunctions" class="code">function [Hess, store] = hess(Y, eta, store)</a>
-0348         N = data_train.nentries;
-0349         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
-0350             store.xij = EIJ'*Y;
-0351         <span class="keyword">end</span>
-0352         xij = store.xij;
-0353         zij = EIJ'*eta;
-0354         estimDists = sum(xij.^2,2);
-0355         crossYZ = 2*sum(xij .* zij,2);
-0356         Hess = (EIJ*sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N,N,N))*zij + (EIJ*sparse(1:N,1:N,2 * crossYZ / N,N,N))*xij;
-0357         Hess = problem.M.proj(Y, Hess);
-0358     <span class="keyword">end</span>
+0344     <span class="comment">% Hessian evaluation</span>
+0345     problem.hess = @<a href="#_sub6" class="code" title="subfunction [Hess, store] = hess(Y, eta, store)">hess</a>;
+0346     <a name="_sub6" href="#_subfunctions" class="code">function [Hess, store] = hess(Y, eta, store)</a>
+0347         N = data_train.nentries;
+0348         <span class="keyword">if</span> ~isfield(store, <span class="string">'xij'</span>)
+0349             store.xij = EIJ'*Y;
+0350         <span class="keyword">end</span>
+0351         xij = store.xij;
+0352         zij = EIJ'*eta;
+0353         estimDists = sum(xij.^2,2);
+0354         crossYZ = 2*sum(xij .* zij,2);
+0355         Hess = (EIJ*sparse(1:N,1:N,2 * (estimDists - data_train.entries) / N,N,N))*zij + (EIJ*sparse(1:N,1:N,2 * crossYZ / N,N,N))*xij;
+0356         Hess = problem.M.proj(Y, Hess);
+0357     <span class="keyword">end</span>
+0358     
 0359     
-0360     
-0361     <span class="comment">%     % Check numerically whether gradient and Hessian are correct</span>
-0362     <span class="comment">%     checkgradient(problem);</span>
-0363     <span class="comment">%     drawnow;</span>
-0364     <span class="comment">%     pause;</span>
-0365     <span class="comment">%     checkhessian(problem);</span>
-0366     <span class="comment">%     drawnow;</span>
-0367     <span class="comment">%     pause;</span>
+0360     <span class="comment">%     % Check numerically whether gradient and Hessian are correct</span>
+0361     <span class="comment">%     checkgradient(problem);</span>
+0362     <span class="comment">%     drawnow;</span>
+0363     <span class="comment">%     pause;</span>
+0364     <span class="comment">%     checkhessian(problem);</span>
+0365     <span class="comment">%     drawnow;</span>
+0366     <span class="comment">%     pause;</span>
+0367     
 0368     
-0369     
-0370     <span class="comment">% When asked, ask Manopt to compute the test error at every iteration.</span>
-0371     <span class="keyword">if</span> ~isempty(data_test)
-0372         options.statsfun = @<a href="#_sub7" class="code" title="subfunction stats = compute_test_error(problem, Y, stats) ">compute_test_error</a>;
-0373         EIJ_test = speye(n);
-0374         EIJ_test = EIJ_test(:, data_test.rows) - EIJ_test(:, data_test.cols);
-0375     <span class="keyword">end</span>
-0376     <a name="_sub7" href="#_subfunctions" class="code">function stats = compute_test_error(problem, Y, stats) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0377         xij = EIJ_test'*Y;
-0378         estimDists_test = sum(xij.^2,2);
-0379         stats.test_error = 0.5*mean((estimDists_test - data_test.entries).^2);
-0380     <span class="keyword">end</span>
+0369     <span class="comment">% When asked, ask Manopt to compute the test error at every iteration.</span>
+0370     <span class="keyword">if</span> ~isempty(data_test)
+0371         options.statsfun = @<a href="#_sub7" class="code" title="subfunction stats = compute_test_error(problem, Y, stats) ">compute_test_error</a>;
+0372         EIJ_test = speye(n);
+0373         EIJ_test = EIJ_test(:, data_test.rows) - EIJ_test(:, data_test.cols);
+0374     <span class="keyword">end</span>
+0375     <a name="_sub7" href="#_subfunctions" class="code">function stats = compute_test_error(problem, Y, stats) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0376         xij = EIJ_test'*Y;
+0377         estimDists_test = sum(xij.^2,2);
+0378         stats.test_error = 0.5*mean((estimDists_test - data_test.entries).^2);
+0379     <span class="keyword">end</span>
+0380     
 0381     
-0382     
-0383     <span class="comment">% Stopping criteria options</span>
-0384     options.stopfun = @<a href="#_sub8" class="code" title="subfunction stopnow = mystopfun(problem, Y, info, last) ">mystopfun</a>;
-0385     <a name="_sub8" href="#_subfunctions" class="code">function stopnow = mystopfun(problem, Y, info, last) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
-0386         stopnow = (last &gt;= 5 &amp;&amp; (info(last-2).cost - info(last).cost &lt; params.abstolcost || abs(info(last-2).cost - info(last).cost)/info(last).cost &lt; params.reltolcost));
-0387     <span class="keyword">end</span>
-0388     options.tolgradnorm = params.tolgradnorm;
-0389     options.maxiter = params.maxiter;
+0382     <span class="comment">% Stopping criteria options</span>
+0383     options.stopfun = @<a href="#_sub8" class="code" title="subfunction stopnow = mystopfun(problem, Y, info, last) ">mystopfun</a>;
+0384     <a name="_sub8" href="#_subfunctions" class="code">function stopnow = mystopfun(problem, Y, info, last) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0385         stopnow = (last &gt;= 5 &amp;&amp; (info(last-2).cost - info(last).cost &lt; params.abstolcost || abs(info(last-2).cost - info(last).cost)/info(last).cost &lt; params.reltolcost));
+0386     <span class="keyword">end</span>
+0387     options.tolgradnorm = params.tolgradnorm;
+0388     options.maxiter = params.maxiter;
+0389     
 0390     
-0391     
-0392     <span class="comment">% Call appropriate algorithm</span>
-0393     options.solver = params.solver;
-0394     [Yopt, ~, infos] = <a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(problem, Y_initial, options);
-0395     [infos.rank] = deal(r);
-0396 <span class="keyword">end</span>
+0391     <span class="comment">% Call appropriate algorithm</span>
+0392     options.solver = params.solver;
+0393     [Yopt, ~, infos] = <a href="../manopt/tools/manoptsolve.html" class="code" title="function [x, cost, info, options] = manoptsolve(problem, x0, options)">manoptsolve</a>(problem, Y_initial, options);
+0394     [infos.rank] = deal(r);
+0395 <span class="keyword">end</span>
+0396 
 0397 
 0398 
 0399 
 0400 
 0401 
-0402 
-0403 <span class="comment">%% 3d Helix problem instance</span>
-0404 <a name="_sub9" href="#_subfunctions" class="code">function problem_description = get_3d_Helix_instance()</a>
-0405     
-0406     <span class="comment">% Helix curve in 3d</span>
-0407     tvec = 0:2*pi/100:2*pi;
-0408     tvec = tvec'; <span class="comment">% column vector</span>
-0409     xvec = 4*cos(3*tvec);
-0410     yvec = 4*sin(3*tvec);
-0411     zvec = 2*tvec;
-0412     Yo = [xvec, yvec, zvec];
-0413     n = size(Yo, 1); <span class="comment">% Number of points</span>
-0414     
-0415     <span class="comment">% Fraction of unknown distances</span>
-0416     fractionOfUnknown = 0.85;
-0417     
-0418     <span class="comment">% True distances among points in 3d Helix</span>
-0419     trueDists = pdist(Yo)'.^2; <span class="comment">% True distances</span>
+0402 <span class="comment">%% 3d Helix problem instance</span>
+0403 <a name="_sub9" href="#_subfunctions" class="code">function problem_description = get_3d_Helix_instance()</a>
+0404     
+0405     <span class="comment">% Helix curve in 3d</span>
+0406     tvec = 0:2*pi/100:2*pi;
+0407     tvec = tvec'; <span class="comment">% column vector</span>
+0408     xvec = 4*cos(3*tvec);
+0409     yvec = 4*sin(3*tvec);
+0410     zvec = 2*tvec;
+0411     Yo = [xvec, yvec, zvec];
+0412     n = size(Yo, 1); <span class="comment">% Number of points</span>
+0413     
+0414     <span class="comment">% Fraction of unknown distances</span>
+0415     fractionOfUnknown = 0.85;
+0416     
+0417     <span class="comment">% True distances among points in 3d Helix</span>
+0418     trueDists = pdist(Yo)'.^2; <span class="comment">% True distances</span>
+0419     
 0420     
-0421     
-0422     <span class="comment">% Add noise (set noise_level = 0 for clean measurements)</span>
-0423     noise_level = 0; <span class="comment">% 0.01;</span>
-0424     trueDists = trueDists + noise_level * std(trueDists) * randn(size(trueDists));
+0421     <span class="comment">% Add noise (set noise_level = 0 for clean measurements)</span>
+0422     noise_level = 0; <span class="comment">% 0.01;</span>
+0423     trueDists = trueDists + noise_level * std(trueDists) * randn(size(trueDists));
+0424     
 0425     
-0426     
-0427     <span class="comment">% Compute all pairs of indices</span>
-0428     H = tril(true(n), -1);
-0429     [I, J] = ind2sub([n, n], find(H(:)));
-0430     clear <span class="string">'H'</span>;
+0426     <span class="comment">% Compute all pairs of indices</span>
+0427     H = tril(true(n), -1);
+0428     [I, J] = ind2sub([n, n], find(H(:)));
+0429     clear <span class="string">'H'</span>;
+0430     
 0431     
-0432     
-0433     <span class="comment">% Train data</span>
-0434     train = false(length(trueDists), 1);
-0435     train(1:floor(length(trueDists)*(1- fractionOfUnknown))) = true;
-0436     train = train(randperm(length(train)));
-0437     
-0438     data_train.rows = I(train);
-0439     data_train.cols = J(train);
-0440     data_train.entries = trueDists(train);
-0441     data_train.nentries = length(data_train.entries);
+0432     <span class="comment">% Train data</span>
+0433     train = false(length(trueDists), 1);
+0434     train(1:floor(length(trueDists)*(1- fractionOfUnknown))) = true;
+0435     train = train(randperm(length(train)));
+0436     
+0437     data_train.rows = I(train);
+0438     data_train.cols = J(train);
+0439     data_train.entries = trueDists(train);
+0440     data_train.nentries = length(data_train.entries);
+0441     
 0442     
-0443     
-0444     <span class="comment">% Test data</span>
-0445     data_test.nentries = 1*data_train.nentries; <span class="comment">% Depends how big data that we can handle.</span>
-0446     test = false(length(trueDists),1);
-0447     test(1 : floor(data_test.nentries)) = true;
-0448     test = test(randperm(length(test)));
-0449     data_test.rows = I(test);
-0450     data_test.cols = J(test);
-0451     data_test.entries = trueDists(test);
+0443     <span class="comment">% Test data</span>
+0444     data_test.nentries = 1*data_train.nentries; <span class="comment">% Depends how big data that we can handle.</span>
+0445     test = false(length(trueDists),1);
+0446     test(1 : floor(data_test.nentries)) = true;
+0447     test = test(randperm(length(test)));
+0448     data_test.rows = I(test);
+0449     data_test.cols = J(test);
+0450     data_test.entries = trueDists(test);
+0451     
 0452     
-0453     
-0454     <span class="comment">% Rank bounds</span>
-0455     rank_initial = 1; <span class="comment">% Starting rank</span>
-0456     rank_max = n; <span class="comment">% Maximum rank</span>
+0453     <span class="comment">% Rank bounds</span>
+0454     rank_initial = 1; <span class="comment">% Starting rank</span>
+0455     rank_max = n; <span class="comment">% Maximum rank</span>
+0456     
 0457     
-0458     
-0459     <span class="comment">% Basic parameters used in optimization</span>
-0460     params = struct();
-0461     params = <a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="#_sub2" class="code" title="subfunction localdefaults = getlocaldefaults()">getlocaldefaults</a>, params);
+0458     <span class="comment">% Basic parameters used in optimization</span>
+0459     params = struct();
+0460     params = <a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(<a href="#_sub2" class="code" title="subfunction localdefaults = getlocaldefaults()">getlocaldefaults</a>, params);
+0461     
 0462     
-0463     
-0464     <span class="comment">% Problem description</span>
-0465     problem_description.data_train = data_train;
-0466     problem_description.data_test = data_test;
-0467     problem_description.n = n;
-0468     problem_description.rank_initial = rank_initial;
-0469     problem_description.rank_max = rank_max;
-0470     problem_description.params = params;
-0471     problem_description.Yo = Yo; <span class="comment">% Store original Helix structure</span>
-0472 <span class="keyword">end</span>
+0463     <span class="comment">% Problem description</span>
+0464     problem_description.data_train = data_train;
+0465     problem_description.data_test = data_test;
+0466     problem_description.n = n;
+0467     problem_description.rank_initial = rank_initial;
+0468     problem_description.rank_max = rank_max;
+0469     problem_description.params = params;
+0470     problem_description.Yo = Yo; <span class="comment">% Store original Helix structure</span>
+0471 <span class="keyword">end</span>
+0472 
 0473 
 0474 
 0475 
 0476 
-0477 
-0478 <span class="comment">%% Problem description check</span>
-0479 <a name="_sub10" href="#_subfunctions" class="code">function checked_problem_description = check_problem_description(problem_description)</a>
-0480     checked_problem_description = problem_description;
-0481     
-0482     <span class="comment">% Check train data</span>
-0483     <span class="keyword">if</span> isempty(problem_description)<span class="keyword">...</span>
-0484             || ~all(isfield(problem_description,{<span class="string">'data_train'</span>}) == 1)<span class="keyword">...</span>
-0485             || ~all(isfield(problem_description.data_train,{<span class="string">'cols'</span>, <span class="string">'rows'</span>, <span class="string">'entries'</span>}) == 1)<span class="keyword">...</span>
-0486             || isempty(problem_description.data_train.cols)<span class="keyword">...</span>
-0487             || isempty(problem_description.data_train.rows)<span class="keyword">...</span>
-0488             || isempty(problem_description.data_train.entries)
-0489         
-0490         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
-0491             <span class="string">'The training set is empty or not properly defined. We work with the default 3d Helix example.\n'</span>);
-0492         checked_problem_description = <a href="#_sub9" class="code" title="subfunction problem_description = get_3d_Helix_instance()">get_3d_Helix_instance</a>();
-0493         checked_problem_description.helix_example = true;
-0494         <span class="keyword">return</span>; <span class="comment">% No need for further check</span>
-0495     <span class="keyword">end</span>
+0477 <span class="comment">%% Problem description check</span>
+0478 <a name="_sub10" href="#_subfunctions" class="code">function checked_problem_description = check_problem_description(problem_description)</a>
+0479     checked_problem_description = problem_description;
+0480     
+0481     <span class="comment">% Check train data</span>
+0482     <span class="keyword">if</span> isempty(problem_description)<span class="keyword">...</span>
+0483             || ~all(isfield(problem_description,{<span class="string">'data_train'</span>}) == 1)<span class="keyword">...</span>
+0484             || ~all(isfield(problem_description.data_train,{<span class="string">'cols'</span>, <span class="string">'rows'</span>, <span class="string">'entries'</span>}) == 1)<span class="keyword">...</span>
+0485             || isempty(problem_description.data_train.cols)<span class="keyword">...</span>
+0486             || isempty(problem_description.data_train.rows)<span class="keyword">...</span>
+0487             || isempty(problem_description.data_train.entries)
+0488         
+0489         fprintf([<span class="string">'The training set is empty or not properly defined.\n'</span> <span class="keyword">...</span>
+0490                  <span class="string">'We work with the default 3d Helix example.\n'</span>]);
+0491         checked_problem_description = <a href="#_sub9" class="code" title="subfunction problem_description = get_3d_Helix_instance()">get_3d_Helix_instance</a>();
+0492         checked_problem_description.helix_example = true;
+0493         <span class="keyword">return</span>; <span class="comment">% No need for further check</span>
+0494     <span class="keyword">end</span>
+0495     
 0496     
-0497     
-0498     <span class="comment">% Check number of data points</span>
-0499     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'n'</span>)
-0500         error(<span class="string">'low_rank_dist_completion:problem_description'</span>,<span class="keyword">...</span>
-0501             <span class="string">'Error. The scalar corresponding to field &quot;n&quot; of problem description must be given. \n'</span>);
-0502     <span class="keyword">end</span>
+0497     <span class="comment">% Check number of data points</span>
+0498     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'n'</span>)
+0499         error(<span class="string">'low_rank_dist_completion:problem_description'</span>,<span class="keyword">...</span>
+0500             <span class="string">'Error. The scalar corresponding to field &quot;n&quot; of problem description must be given. \n'</span>);
+0501     <span class="keyword">end</span>
+0502     
 0503     
-0504     
-0505     <span class="comment">% Check initial rank</span>
-0506     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'rank_initial'</span>)<span class="keyword">...</span>
-0507             || isempty(problem_description.rank_initial)<span class="keyword">...</span>
-0508             || ~(floor(problem_description.rank_initial) == problem_description.rank_initial)
-0509         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
-0510             <span class="string">'The field &quot;rank_initial&quot; is not properly defined. We work with the default &quot;1&quot;.\n'</span>);
-0511         rank_initial = 1;
-0512     <span class="keyword">else</span>
-0513         rank_initial = problem_description.rank_initial;
-0514     <span class="keyword">end</span>
-0515     checked_problem_description.rank_initial = rank_initial;
+0504     <span class="comment">% Check initial rank</span>
+0505     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'rank_initial'</span>)<span class="keyword">...</span>
+0506             || isempty(problem_description.rank_initial)<span class="keyword">...</span>
+0507             || ~(floor(problem_description.rank_initial) == problem_description.rank_initial)
+0508         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
+0509             <span class="string">'The field &quot;rank_initial&quot; is not properly defined. We work with the default &quot;1&quot;.\n'</span>);
+0510         rank_initial = 1;
+0511     <span class="keyword">else</span>
+0512         rank_initial = problem_description.rank_initial;
+0513     <span class="keyword">end</span>
+0514     checked_problem_description.rank_initial = rank_initial;
+0515     
 0516     
-0517     
-0518     <span class="comment">% Check maximum rank</span>
-0519     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'rank_max'</span>)<span class="keyword">...</span>
-0520             || isempty(problem_description.rank_max)<span class="keyword">...</span>
-0521             || ~(floor(problem_description.rank_max) == problem_description.rank_max)<span class="keyword">...</span>
-0522             || problem_description.rank_max &gt; problem_description.n
-0523         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
-0524             <span class="string">'The field &quot;rank_max&quot; is not properly defined. We work with the default &quot;n&quot;.\n'</span>);
-0525         rank_max = problem_description.n;
-0526     <span class="keyword">else</span>
-0527         rank_max = problem_description.rank_max;
-0528     <span class="keyword">end</span>
-0529     checked_problem_description.rank_max = rank_max;
+0517     <span class="comment">% Check maximum rank</span>
+0518     <span class="keyword">if</span> ~isfield(problem_description, <span class="string">'rank_max'</span>)<span class="keyword">...</span>
+0519             || isempty(problem_description.rank_max)<span class="keyword">...</span>
+0520             || ~(floor(problem_description.rank_max) == problem_description.rank_max)<span class="keyword">...</span>
+0521             || problem_description.rank_max &gt; problem_description.n
+0522         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
+0523             <span class="string">'The field &quot;rank_max&quot; is not properly defined. We work with the default &quot;n&quot;.\n'</span>);
+0524         rank_max = problem_description.n;
+0525     <span class="keyword">else</span>
+0526         rank_max = problem_description.rank_max;
+0527     <span class="keyword">end</span>
+0528     checked_problem_description.rank_max = rank_max;
+0529     
 0530     
-0531     
-0532     <span class="comment">% Check testing dataset</span>
-0533     <span class="keyword">if</span> ~isfield(problem_description,{<span class="string">'data_test'</span>})<span class="keyword">...</span>
-0534             || ~all(isfield(problem_description.data_test,{<span class="string">'cols'</span>, <span class="string">'rows'</span>, <span class="string">'entries'</span>}) == 1)<span class="keyword">...</span>
-0535             || isempty(problem_description.data_test.cols)<span class="keyword">...</span>
-0536             || isempty(problem_description.data_test.rows)<span class="keyword">...</span>
-0537             || isempty(problem_description.data_test.entries)
-0538         
-0539         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
-0540             <span class="string">'The field &quot;data_test&quot; is not properly defined. We work with the default &quot;[]&quot;.\n'</span>);
-0541         data_test = [];
-0542     <span class="keyword">else</span>
-0543         data_test = problem_description.data_test;
-0544     <span class="keyword">end</span>
-0545     checked_problem_description.data_test = data_test;
+0531     <span class="comment">% Check testing dataset</span>
+0532     <span class="keyword">if</span> ~isfield(problem_description,{<span class="string">'data_test'</span>})<span class="keyword">...</span>
+0533             || ~all(isfield(problem_description.data_test,{<span class="string">'cols'</span>, <span class="string">'rows'</span>, <span class="string">'entries'</span>}) == 1)<span class="keyword">...</span>
+0534             || isempty(problem_description.data_test.cols)<span class="keyword">...</span>
+0535             || isempty(problem_description.data_test.rows)<span class="keyword">...</span>
+0536             || isempty(problem_description.data_test.entries)
+0537         
+0538         warning(<span class="string">'low_rank_dist_completion:problem_description'</span>, <span class="keyword">...</span>
+0539             <span class="string">'The field &quot;data_test&quot; is not properly defined. We work with the default &quot;[]&quot;.\n'</span>);
+0540         data_test = [];
+0541     <span class="keyword">else</span>
+0542         data_test = problem_description.data_test;
+0543     <span class="keyword">end</span>
+0544     checked_problem_description.data_test = data_test;
+0545     
 0546     
-0547     
-0548     <span class="comment">% Check parameters</span>
-0549     <span class="keyword">if</span> isfield(problem_description, <span class="string">'params'</span>)
-0550         params = problem_description.params;
-0551     <span class="keyword">else</span>
-0552         params = struct();
-0553     <span class="keyword">end</span>
-0554     params = <a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts1, opts2)">mergeOptions</a>(<a href="#_sub2" class="code" title="subfunction localdefaults = getlocaldefaults()">getlocaldefaults</a>, params);
-0555     checked_problem_description.params = params;
-0556      
-0557 <span class="keyword">end</span>
+0547     <span class="comment">% Check parameters</span>
+0548     <span class="keyword">if</span> isfield(problem_description, <span class="string">'params'</span>)
+0549         params = problem_description.params;
+0550     <span class="keyword">else</span>
+0551         params = struct();
+0552     <span class="keyword">end</span>
+0553     params = <a href="../manopt/core/mergeOptions.html" class="code" title="function opts = mergeOptions(opts_sub, opts_master)">mergeOptions</a>(<a href="#_sub2" class="code" title="subfunction localdefaults = getlocaldefaults()">getlocaldefaults</a>, params);
+0554     checked_problem_description.params = params;
+0555      
+0556 <span class="keyword">end</span>
+0557 
 0558 
 0559 
 0560 
-0561 
-0562 <span class="comment">%% Show plots</span>
-0563 <a name="_sub11" href="#_subfunctions" class="code">function  show_plots(problem_description, infos)</a>
-0564    
-0565     solver = problem_description.params.solver;
-0566     rank_change_stats = infos.rank_change_stats;
-0567     rank_change_stats_rank = [rank_change_stats.rank];
-0568     rank_change_stats_iter = [rank_change_stats.iter];
-0569     rank_change_stats_iter = cumsum(rank_change_stats_iter);
-0570     N = problem_description.data_train.nentries;
-0571     n = problem_description.n;
-0572     
-0573    
-0574     <span class="comment">% Plot: train error</span>
-0575     fs = 20;
-0576     figure(<span class="string">'name'</span>, <span class="string">'Training on the known distances'</span>);
-0577     
-0578     line(1:length([infos.cost]),log10([infos.cost]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5);
-0579     ax1 = gca;
-0580     
-0581     set(ax1,<span class="string">'FontSize'</span>,fs);
-0582     xlabel(ax1,<span class="string">'Number of iterations'</span>,<span class="string">'FontSize'</span>,fs);
-0583     ylabel(ax1,<span class="string">'Cost (log scale) on known distances'</span>,<span class="string">'FontSize'</span>,fs);
-0584     
-0585     ax2 = axes(<span class="string">'Position'</span>,get(ax1,<span class="string">'Position'</span>),<span class="keyword">...</span>
-0586         <span class="string">'XAxisLocation'</span>,<span class="string">'top'</span>,<span class="keyword">...</span>
-0587         <span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>,<span class="keyword">...</span>
-0588         <span class="string">'Color'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
-0589         <span class="string">'XColor'</span>,<span class="string">'k'</span>);
-0590     
-0591     set(ax2,<span class="string">'FontSize'</span>,fs);
-0592     line(1:length([infos.cost]),log10([infos.cost]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5,<span class="string">'Parent'</span>,ax2);
-0593     set(ax2,<span class="string">'XTick'</span>,rank_change_stats_iter(1:max(1,end-1)),<span class="keyword">...</span>
-0594         <span class="string">'XTickLabel'</span>,rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,<span class="keyword">...</span>
-0595         <span class="string">'YTick'</span>,[]);
-0596     
-0597     set(ax2,<span class="string">'XGrid'</span>,<span class="string">'on'</span>);
-0598     legend(func2str(solver));
-0599     title(<span class="string">'Rank'</span>);
-0600     legend <span class="string">'boxoff'</span>;
+0561 <span class="comment">%% Show plots</span>
+0562 <a name="_sub11" href="#_subfunctions" class="code">function  show_plots(problem_description, infos)</a>
+0563    
+0564     solver = problem_description.params.solver;
+0565     rank_change_stats = infos.rank_change_stats;
+0566     rank_change_stats_rank = [rank_change_stats.rank];
+0567     rank_change_stats_iter = [rank_change_stats.iter];
+0568     rank_change_stats_iter = cumsum(rank_change_stats_iter);
+0569     N = problem_description.data_train.nentries;
+0570     n = problem_description.n;
+0571     
+0572    
+0573     <span class="comment">% Plot: train error</span>
+0574     fs = 20;
+0575     figure(<span class="string">'name'</span>, <span class="string">'Training on the known distances'</span>);
+0576     
+0577     line(1:length([infos.cost]),log10([infos.cost]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5);
+0578     ax1 = gca;
+0579     
+0580     set(ax1,<span class="string">'FontSize'</span>,fs);
+0581     xlabel(ax1,<span class="string">'Number of iterations'</span>,<span class="string">'FontSize'</span>,fs);
+0582     ylabel(ax1,<span class="string">'Cost (log scale) on known distances'</span>,<span class="string">'FontSize'</span>,fs);
+0583     
+0584     ax2 = axes(<span class="string">'Position'</span>,get(ax1,<span class="string">'Position'</span>),<span class="keyword">...</span>
+0585         <span class="string">'XAxisLocation'</span>,<span class="string">'top'</span>,<span class="keyword">...</span>
+0586         <span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>,<span class="keyword">...</span>
+0587         <span class="string">'Color'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
+0588         <span class="string">'XColor'</span>,<span class="string">'k'</span>);
+0589     
+0590     set(ax2,<span class="string">'FontSize'</span>,fs);
+0591     line(1:length([infos.cost]),log10([infos.cost]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5,<span class="string">'Parent'</span>,ax2);
+0592     set(ax2,<span class="string">'XTick'</span>,rank_change_stats_iter(1:max(1,end-1)),<span class="keyword">...</span>
+0593         <span class="string">'XTickLabel'</span>,rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,<span class="keyword">...</span>
+0594         <span class="string">'YTick'</span>,[]);
+0595     
+0596     set(ax2,<span class="string">'XGrid'</span>,<span class="string">'on'</span>);
+0597     legend(func2str(solver));
+0598     title(<span class="string">'Rank'</span>);
+0599     legend <span class="string">'boxoff'</span>;
+0600     
 0601     
-0602     
-0603     <span class="comment">% Plot: test error</span>
-0604     <span class="keyword">if</span> isfield(infos, <span class="string">'test_error'</span>) &amp;&amp; ~isempty(infos.test_error)
-0605         Yo = problem_description.Yo;
-0606         
-0607         fs = 20;
-0608         figure(<span class="string">'name'</span>,<span class="string">'Test error on a set of distances different from the training set'</span>);
-0609         
-0610         line(1:length([infos.test_error]),log10([infos.test_error]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5);
-0611         ax1 = gca;
-0612         
-0613         set(ax1,<span class="string">'FontSize'</span>,fs);
-0614         xlabel(ax1,<span class="string">'Number of iterations'</span>,<span class="string">'FontSize'</span>,fs);
-0615         ylabel(ax1,<span class="string">'Cost (log scale) on testing set'</span>,<span class="string">'FontSize'</span>,fs);
-0616         
-0617         ax2 = axes(<span class="string">'Position'</span>,get(ax1,<span class="string">'Position'</span>),<span class="keyword">...</span>
-0618             <span class="string">'XAxisLocation'</span>,<span class="string">'top'</span>,<span class="keyword">...</span>
-0619             <span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>,<span class="keyword">...</span>
-0620             <span class="string">'Color'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
-0621             <span class="string">'XColor'</span>,<span class="string">'k'</span>);
-0622         
-0623         set(ax2,<span class="string">'FontSize'</span>,fs);
-0624         line(1:length([infos.test_error]),log10([infos.test_error]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5,<span class="string">'Parent'</span>,ax2);
-0625         set(ax2,<span class="string">'XTick'</span>,rank_change_stats_iter(1:max(1,end-1)),<span class="keyword">...</span>
-0626             <span class="string">'XTickLabel'</span>,rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,<span class="keyword">...</span>
-0627             <span class="string">'YTick'</span>,[]);
-0628         
-0629         set(ax2,<span class="string">'XGrid'</span>,<span class="string">'on'</span>);
-0630         legend(func2str(solver));
-0631         title(<span class="string">'Rank'</span>);
-0632         legend <span class="string">'boxoff'</span>;
+0602     <span class="comment">% Plot: test error</span>
+0603     <span class="keyword">if</span> isfield(infos, <span class="string">'test_error'</span>) &amp;&amp; ~isempty(infos.test_error)
+0604         Yo = problem_description.Yo;
+0605         
+0606         fs = 20;
+0607         figure(<span class="string">'name'</span>,<span class="string">'Test error on a set of distances different from the training set'</span>);
+0608         
+0609         line(1:length([infos.test_error]),log10([infos.test_error]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5);
+0610         ax1 = gca;
+0611         
+0612         set(ax1,<span class="string">'FontSize'</span>,fs);
+0613         xlabel(ax1,<span class="string">'Number of iterations'</span>,<span class="string">'FontSize'</span>,fs);
+0614         ylabel(ax1,<span class="string">'Cost (log scale) on testing set'</span>,<span class="string">'FontSize'</span>,fs);
+0615         
+0616         ax2 = axes(<span class="string">'Position'</span>,get(ax1,<span class="string">'Position'</span>),<span class="keyword">...</span>
+0617             <span class="string">'XAxisLocation'</span>,<span class="string">'top'</span>,<span class="keyword">...</span>
+0618             <span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>,<span class="keyword">...</span>
+0619             <span class="string">'Color'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
+0620             <span class="string">'XColor'</span>,<span class="string">'k'</span>);
+0621         
+0622         set(ax2,<span class="string">'FontSize'</span>,fs);
+0623         line(1:length([infos.test_error]),log10([infos.test_error]),<span class="string">'Marker'</span>,<span class="string">'O'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-'</span>,<span class="string">'Color'</span>,<span class="string">'blue'</span>,<span class="string">'LineWidth'</span>,1.5,<span class="string">'Parent'</span>,ax2);
+0624         set(ax2,<span class="string">'XTick'</span>,rank_change_stats_iter(1:max(1,end-1)),<span class="keyword">...</span>
+0625             <span class="string">'XTickLabel'</span>,rank_change_stats_rank(1) + 1 : rank_change_stats_rank(max(1,end-1)) + 1,<span class="keyword">...</span>
+0626             <span class="string">'YTick'</span>,[]);
+0627         
+0628         set(ax2,<span class="string">'XGrid'</span>,<span class="string">'on'</span>);
+0629         legend(func2str(solver));
+0630         title(<span class="string">'Rank'</span>);
+0631         legend <span class="string">'boxoff'</span>;
+0632         
 0633         
 0634         
-0635         
-0636     <span class="keyword">end</span>
+0635     <span class="keyword">end</span>
+0636     
 0637     
-0638     
-0639     <span class="comment">% Plot: visualize Helix curve</span>
-0640     <span class="keyword">if</span> isfield(problem_description, <span class="string">'helix_example'</span>)
-0641         jj = ceil((length(rank_change_stats_rank) + 1)/2);
+0638     <span class="comment">% Plot: visualize Helix curve</span>
+0639     <span class="keyword">if</span> isfield(problem_description, <span class="string">'helix_example'</span>)
+0640         jj = ceil((length(rank_change_stats_rank) + 1)/2);
+0641         
 0642         
-0643         
-0644         figure(<span class="string">'name'</span>,[<span class="string">'3D structure with '</span>, num2str(N/((n^2 -n)/2)),<span class="string">' fraction known distances'</span>])
-0645         fs = 20;
-0646         ax1 = gca;
-0647         set(ax1,<span class="string">'FontSize'</span>,fs);
-0648         subplot(jj,2,1);
-0649         plot3(Yo(:,1), Yo(:,2), Yo(:,3),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'b'</span>,<span class="string">'LineWidth'</span>,1.0);
-0650         title(<span class="string">'Original 3D structure'</span>);
-0651         <span class="keyword">for</span> kk = 1 : length(rank_change_stats_rank)
-0652             subplot(jj, 2, kk + 1);
-0653             rank_change_stats_kk = rank_change_stats(kk);
-0654             Ykk = rank_change_stats_kk.Y;
-0655             <span class="keyword">if</span> size(Ykk, 2) == 1,
-0656                 plot(Ykk(:,1), zeros(size(Ykk, 1)),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
-0657                 legend(func2str(solver))
-0658                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
-0659                 
-0660             <span class="keyword">elseif</span> size(Ykk, 2) == 2
-0661                 plot(Ykk(:,1), Ykk(:,2),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
-0662                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
-0663                 
-0664             <span class="keyword">else</span>  <span class="comment">% Project onto dominant 3Dsubspace</span>
-0665                 [U1, S1, V1] = svds(Ykk, 3);
-0666                 Yhat = U1*S1*V1';
-0667                 plot3(Yhat(:,1), Yhat(:,2), Yhat(:,3),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
-0668                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
-0669             <span class="keyword">end</span>
-0670             
-0671             axis equal;
-0672             
-0673         <span class="keyword">end</span>
-0674         
-0675         <span class="comment">% Trick to add a global title to the whole subplot collection.</span>
-0676         <span class="comment">% HitTest is disabled to make it easier to select the individual</span>
-0677         <span class="comment">% subplots (for example, to rotate the viewing angle).</span>
-0678         ha = axes(<span class="string">'Position'</span>,[0 0 1 1],<span class="string">'Xlim'</span>,[0 1],<span class="string">'Ylim'</span>,[0 1],<span class="string">'Box'</span>,<span class="string">'off'</span>,<span class="string">'Visible'</span>,<span class="string">'off'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>, <span class="string">'clipping'</span> , <span class="string">'off'</span> );
-0679         set(ha, <span class="string">'HitTest'</span>, <span class="string">'off'</span>);
-0680         text(0.5, 1,[<span class="string">'Recovery of Helix from '</span>,num2str(N/((n^2 -n)/2)),<span class="string">' fraction known distances'</span>],<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'VerticalAlignment'</span>, <span class="string">'top'</span>);
-0681     <span class="keyword">end</span>
-0682        
-0683 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0643         figure(<span class="string">'name'</span>,[<span class="string">'3D structure with '</span>, num2str(N/((n^2 -n)/2)),<span class="string">' fraction known distances'</span>])
+0644         fs = 20;
+0645         ax1 = gca;
+0646         set(ax1,<span class="string">'FontSize'</span>,fs);
+0647         subplot(jj,2,1);
+0648         plot3(Yo(:,1), Yo(:,2), Yo(:,3),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'b'</span>,<span class="string">'LineWidth'</span>,1.0);
+0649         title(<span class="string">'Original 3D structure'</span>);
+0650         <span class="keyword">for</span> kk = 1 : length(rank_change_stats_rank)
+0651             subplot(jj, 2, kk + 1);
+0652             rank_change_stats_kk = rank_change_stats(kk);
+0653             Ykk = rank_change_stats_kk.Y;
+0654             <span class="keyword">if</span> size(Ykk, 2) == 1,
+0655                 plot(Ykk(:,1), zeros(size(Ykk, 1)),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
+0656                 legend(func2str(solver))
+0657                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
+0658                 
+0659             <span class="keyword">elseif</span> size(Ykk, 2) == 2
+0660                 plot(Ykk(:,1), Ykk(:,2),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
+0661                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
+0662                 
+0663             <span class="keyword">else</span>  <span class="comment">% Project onto dominant 3Dsubspace</span>
+0664                 [U1, S1, V1] = svds(Ykk, 3);
+0665                 Yhat = U1*S1*V1';
+0666                 plot3(Yhat(:,1), Yhat(:,2), Yhat(:,3),<span class="string">'*'</span>,<span class="string">'Color'</span>, <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1.0);
+0667                 title([<span class="string">'Recovery at rank '</span>,num2str(size(Ykk, 2))]);
+0668             <span class="keyword">end</span>
+0669             
+0670             axis equal;
+0671             
+0672         <span class="keyword">end</span>
+0673         
+0674         <span class="comment">% Trick to add a global title to the whole subplot collection.</span>
+0675         <span class="comment">% HitTest is disabled to make it easier to select the individual</span>
+0676         <span class="comment">% subplots (for example, to rotate the viewing angle).</span>
+0677         ha = axes(<span class="string">'Position'</span>,[0 0 1 1],<span class="string">'Xlim'</span>,[0 1],<span class="string">'Ylim'</span>,[0 1],<span class="string">'Box'</span>,<span class="string">'off'</span>,<span class="string">'Visible'</span>,<span class="string">'off'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>, <span class="string">'clipping'</span> , <span class="string">'off'</span> );
+0678         set(ha, <span class="string">'HitTest'</span>, <span class="string">'off'</span>);
+0679         text(0.5, 1,[<span class="string">'Recovery of Helix from '</span>,num2str(N/((n^2 -n)/2)),<span class="string">' fraction known distances'</span>],<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'VerticalAlignment'</span>, <span class="string">'top'</span>);
+0680     <span class="keyword">end</span>
+0681        
+0682 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

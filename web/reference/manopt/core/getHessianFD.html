@@ -134,7 +134,19 @@ This function is called by:
 0076     <span class="comment">% Return the finite difference of them.</span>
 0077     hessfd = problem.M.lincomb(x, 1/c, grad1, -1/c, grad);
 0078     
-0079 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 08-Sep-2017 12:43:19 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0079     <span class="comment">% Note: if grad and grad1 are relatively large vectors, then computing</span>
+0080     <span class="comment">% their difference to obtain hessfd can result in large errors due to</span>
+0081     <span class="comment">% floating point arithmetic. As a result, even though grad and grad1</span>
+0082     <span class="comment">% are supposed to be tangent up to machine precision, the resulting</span>
+0083     <span class="comment">% vector hessfd can be significantly further from being tangent. If so,</span>
+0084     <span class="comment">% this will show in the 'residual check' in checkhessian. Thus, when</span>
+0085     <span class="comment">% using a finite difference approximation, the residual should be</span>
+0086     <span class="comment">% judged as compared to the norm of the gradient at the point under</span>
+0087     <span class="comment">% consideration. This seems not to have caused trouble. If this should</span>
+0088     <span class="comment">% become an issue for some application, the easy fix is to project the</span>
+0089     <span class="comment">% result of the FD approximation: hessfd = problem.M.proj(x, hessfd).</span>
+0090     
+0091 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

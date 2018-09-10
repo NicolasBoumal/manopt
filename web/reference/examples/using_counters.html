@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of using_counters</title>
+  <meta name="keywords" content="using_counters">
+  <meta name="description" content="Manopt example on how to use counters during optimization. Typical uses,">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">examples</a> &gt; using_counters.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for examples&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>using_counters
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Manopt example on how to use counters during optimization. Typical uses,</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function using_counters() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Manopt example on how to use counters during optimization. Typical uses,
+ as demonstrated here, include counting calls to cost, gradient and
+ Hessian functions. The example also demonstrates how to record total time
+ spent in cost/grad/hess calls iteration by iteration.
+
+ See also: statscounters incrementcounter statsfunhelper</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../manopt/manifolds/sphere/spherefactory.html" class="code" title="function M = spherefactory(n, m, gpuflag)">spherefactory</a>	Returns a manifold struct to optimize over unit-norm vectors or matrices.</li><li><a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>	Riemannian limited memory BFGS solver for smooth objective functions.</li><li><a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>	Conjugate gradient minimization algorithm for Manopt.</li><li><a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>	Riemannian trust-regions solver for optimization on manifolds.</li><li><a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>	Increment a manopt counter in a store or storedb.</li><li><a href="../manopt/tools/statscounters.html" class="code" title="function S = statscounters(names)">statscounters</a>	Create a structure for statsfunhelper to record counters in manopt</li><li><a href="../manopt/tools/statsfunhelper.html" class="code" title="function statsfun = statsfunhelper(inp1, inp2)">statsfunhelper</a>	Helper tool to create a statsfun for the options structure of solvers.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function store = prepare(x, store)</a></li><li><a href="#_sub2" class="code">function [f, store] = cost(x, store)</a></li><li><a href="#_sub3" class="code">function [g, store] = egrad(x, store)</a></li><li><a href="#_sub4" class="code">function [h, store] = ehess(x, xdot, store)</a></li><li><a href="#_sub5" class="code">function [stop, reason] = stopfun(problem, x, info, last)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function using_counters()</a>
+0002 <span class="comment">% Manopt example on how to use counters during optimization. Typical uses,</span>
+0003 <span class="comment">% as demonstrated here, include counting calls to cost, gradient and</span>
+0004 <span class="comment">% Hessian functions. The example also demonstrates how to record total time</span>
+0005 <span class="comment">% spent in cost/grad/hess calls iteration by iteration.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% See also: statscounters incrementcounter statsfunhelper</span>
+0008 
+0009 <span class="comment">% This file is part of Manopt: www.manopt.org.</span>
+0010 <span class="comment">% Original author: Nicolas Boumal, July 27, 2018.</span>
+0011 <span class="comment">% Contributors:</span>
+0012 <span class="comment">% Change log:</span>
+0013 
+0014     rng(0);
+0015 
+0016     <span class="comment">% Setup an optimization problem to illustrate the use of counters</span>
+0017     n = 1000;
+0018     A = randn(n);
+0019     A = .5*(A+A');
+0020     
+0021     manifold = <a href="../manopt/manifolds/sphere/spherefactory.html" class="code" title="function M = spherefactory(n, m, gpuflag)">spherefactory</a>(n);
+0022     problem.M = manifold;
+0023     
+0024     
+0025     <span class="comment">% Define the problem cost function and its gradient.</span>
+0026     <span class="comment">%</span>
+0027     <span class="comment">% Since the most expensive operation in computing the cost and the</span>
+0028     <span class="comment">% gradient at x is the product A*x, and since this operation is the</span>
+0029     <span class="comment">% same for both the cost and the gradient, we use the caching</span>
+0030     <span class="comment">% functionalities of manopt for this product. This function ensures the</span>
+0031     <span class="comment">% product A*x is available in the store structure. Remember that a</span>
+0032     <span class="comment">% store structure is associated to a particular point x: if cost and</span>
+0033     <span class="comment">% egrad are called on the same point x, they will see the same store.</span>
+0034     <a name="_sub1" href="#_subfunctions" class="code">function store = prepare(x, store)</a>
+0035         <span class="keyword">if</span> ~isfield(store, <span class="string">'Ax'</span>)
+0036             store.Ax = A*x;
+0037             <span class="comment">% Increment a counter for the number of matrix-vector products</span>
+0038             <span class="comment">% involving A. The names of the counters (here, Aproducts) are</span>
+0039             <span class="comment">% for us to choose: they only need to be valid structure field</span>
+0040             <span class="comment">% names. They need not have been defined in advance.</span>
+0041             store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'Aproducts'</span>);
+0042         <span class="keyword">end</span>
+0043     <span class="keyword">end</span>
+0044     <span class="comment">%</span>
+0045     problem.cost = @<a href="#_sub2" class="code" title="subfunction [f, store] = cost(x, store)">cost</a>;
+0046     <a name="_sub2" href="#_subfunctions" class="code">function [f, store] = cost(x, store)</a>
+0047         t = tic();
+0048         store = <a href="#_sub1" class="code" title="subfunction store = prepare(x, store)">prepare</a>(x, store);
+0049         f = -.5*(x'*store.Ax);
+0050         <span class="comment">% Increment a counter for the number of calls to the cost function.</span>
+0051         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'costcalls'</span>);
+0052         <span class="comment">% We also increment a counter with the amount of time spent in this</span>
+0053         <span class="comment">% function (all counters are stored as doubles; here we exploit</span>
+0054         <span class="comment">% this to track a non-integer quantity.)</span>
+0055         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'functiontime'</span>, toc(t));
+0056     <span class="keyword">end</span>
+0057     <span class="comment">%</span>
+0058     problem.egrad = @<a href="#_sub3" class="code" title="subfunction [g, store] = egrad(x, store)">egrad</a>;
+0059     <a name="_sub3" href="#_subfunctions" class="code">function [g, store] = egrad(x, store)</a>
+0060         t = tic();
+0061         store = <a href="#_sub1" class="code" title="subfunction store = prepare(x, store)">prepare</a>(x, store);
+0062         g = -store.Ax;
+0063         <span class="comment">% Count the number of calls to the gradient function.</span>
+0064         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'gradcalls'</span>);
+0065         <span class="comment">% We also record time spent in this call, atop the same counter as</span>
+0066         <span class="comment">% for the cost function.</span>
+0067         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'functiontime'</span>, toc(t));
+0068     <span class="keyword">end</span>
+0069     <span class="comment">%</span>
+0070     problem.ehess = @<a href="#_sub4" class="code" title="subfunction [h, store] = ehess(x, xdot, store) ">ehess</a>;
+0071     <a name="_sub4" href="#_subfunctions" class="code">function [h, store] = ehess(x, xdot, store) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0072         t = tic();
+0073         h = -A*xdot;
+0074         <span class="comment">% Count the number of calls to the Hessian operator and also count</span>
+0075         <span class="comment">% the matrix-vector product with A.</span>
+0076         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'hesscalls'</span>);
+0077         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'Aproducts'</span>);
+0078         <span class="comment">% We also record time spent in this call atop the cost and gradient.</span>
+0079         store = <a href="../manopt/tools/incrementcounter.html" class="code" title="function store = incrementcounter(store, countername, increment)">incrementcounter</a>(store, <span class="string">'functiontime'</span>, toc(t));
+0080     <span class="keyword">end</span>
+0081 
+0082     
+0083     <span class="comment">% Setup a callback to log statistics. We use a combination of</span>
+0084     <span class="comment">% statscounters and of statsfunhelper to indicate which counters we</span>
+0085     <span class="comment">% want the optimization algorithm to log. Here, stats is a structure</span>
+0086     <span class="comment">% where each field is a function handle corresponding to one of the</span>
+0087     <span class="comment">% counters. Before passing stats to statsfunhelper, we could decide to</span>
+0088     <span class="comment">% add more fields to stats to log other things as well.</span>
+0089     stats = <a href="../manopt/tools/statscounters.html" class="code" title="function S = statscounters(names)">statscounters</a>({<span class="string">'costcalls'</span>, <span class="string">'gradcalls'</span>, <span class="string">'hesscalls'</span>, <span class="keyword">...</span>
+0090                            <span class="string">'Aproducts'</span>, <span class="string">'functiontime'</span>});
+0091     options.statsfun = <a href="../manopt/tools/statsfunhelper.html" class="code" title="function statsfun = statsfunhelper(inp1, inp2)">statsfunhelper</a>(stats);
+0092 
+0093     <span class="comment">% As an example: we could set up a stopping criterion based on the</span>
+0094     <span class="comment">% number of matrix-vector products. A short version:</span>
+0095     <span class="comment">% options.stopfun = @(problem, x, info, last) info(last).Aproducts &gt; 250;</span>
+0096     <span class="comment">% A longer version that also returns a reason string:</span>
+0097     options.stopfun = @<a href="#_sub5" class="code" title="subfunction [stop, reason] = stopfun(problem, x, info, last) ">stopfun</a>;
+0098     <a name="_sub5" href="#_subfunctions" class="code">function [stop, reason] = stopfun(problem, x, info, last) </a><span class="comment">%#ok&lt;INUSL&gt;</span>
+0099         reason = <span class="string">'Exceeded Aproducts budget.'</span>;
+0100         stop = (info(last).Aproducts &gt; 250);   <span class="comment">% true if budget exceeded</span>
+0101         <span class="comment">% Here, info(last) contains the stats of the latest iteration.</span>
+0102         <span class="comment">% That includes all registered counters.</span>
+0103     <span class="keyword">end</span>
+0104     
+0105     <span class="comment">% Solve with different solvers to compare.</span>
+0106     options.tolgradnorm = 1e-9;
+0107     [x, xcost, infortr] = <a href="../manopt/solvers/trustregions/trustregions.html" class="code" title="function [x, cost, info, options] = trustregions(problem, x, options)">trustregions</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0108     [x, xcost, inforcg] = <a href="../manopt/solvers/conjugategradient/conjugategradient.html" class="code" title="function [x, cost, info, options] = conjugategradient(problem, x, options)">conjugategradient</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0109     [x, xcost, infobfg] = <a href="../manopt/solvers/bfgs/rlbfgs.html" class="code" title="function [x, cost, info, options] = rlbfgs(problem, x0, options)">rlbfgs</a>(problem, [], options); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0110     
+0111     
+0112     <span class="comment">% Display some statistics. The logged data is available in the info</span>
+0113     <span class="comment">% struct-arrays. Notice how the counters are available by their</span>
+0114     <span class="comment">% corresponding field name.</span>
+0115     figure(1);
+0116     subplot(3, 3, 1);
+0117     semilogy([infortr.iter], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0118              [inforcg.iter], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0119              [infobfg.iter], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0120     legend(<span class="string">'RTR'</span>, <span class="string">'RCG'</span>, <span class="string">'RLBFGS'</span>);
+0121     xlabel(<span class="string">'Iteration #'</span>);
+0122     ylabel(<span class="string">'Gradient norm'</span>);
+0123     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0124     subplot(3, 3, 2);
+0125     semilogy([infortr.costcalls], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0126              [inforcg.costcalls], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0127              [infobfg.costcalls], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0128     xlabel(<span class="string">'# cost calls'</span>);
+0129     ylabel(<span class="string">'Gradient norm'</span>);
+0130     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0131     subplot(3, 3, 3);
+0132     semilogy([infortr.gradcalls], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0133              [inforcg.gradcalls], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0134              [infobfg.gradcalls], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0135     xlabel(<span class="string">'# gradient calls'</span>);
+0136     ylabel(<span class="string">'Gradient norm'</span>);
+0137     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0138     subplot(3, 3, 4);
+0139     semilogy([infortr.hesscalls], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0140              [inforcg.hesscalls], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0141              [infobfg.hesscalls], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0142     xlabel(<span class="string">'# Hessian calls'</span>);
+0143     ylabel(<span class="string">'Gradient norm'</span>);
+0144     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0145     subplot(3, 3, 5);
+0146     semilogy([infortr.Aproducts], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0147              [inforcg.Aproducts], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0148              [infobfg.Aproducts], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0149     xlabel(<span class="string">'# matrix-vector products'</span>);
+0150     ylabel(<span class="string">'Gradient norm'</span>);
+0151     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0152     subplot(3, 3, 6);
+0153     semilogy([infortr.time], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0154              [inforcg.time], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0155              [infobfg.time], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0156     xlabel(<span class="string">'Computation time [s]'</span>);
+0157     ylabel(<span class="string">'Gradient norm'</span>);
+0158     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0159     subplot(3, 3, 7);
+0160     semilogy([infortr.functiontime], [infortr.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0161              [inforcg.functiontime], [inforcg.gradnorm], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0162              [infobfg.functiontime], [infobfg.gradnorm], <span class="string">'.-'</span>);
+0163     xlabel(<span class="string">'Time spent in cost/grad/hess [s]'</span>);
+0164     ylabel(<span class="string">'Gradient norm'</span>);
+0165     ylim([1e-12, 1e2]); set(gca, <span class="string">'YTick'</span>, [1e-12, 1e-6, 1e0]);
+0166     <span class="comment">% The following plot allows to investigate what fraction of the time is</span>
+0167     <span class="comment">% spent inside user-supplied function (cost/grad/hess) versus the total</span>
+0168     <span class="comment">% time spent by the solver. This gives a sense of the relative</span>
+0169     <span class="comment">% importance of cost function-related computational costs vs a solver's</span>
+0170     <span class="comment">% inner workings, retractions, and other solver-specific operations.</span>
+0171     subplot(3, 3, 8);
+0172     maxtime = max([[infortr.time], [inforcg.time], [infobfg.time]]);
+0173     plot([infortr.time], [infortr.functiontime], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0174          [inforcg.time], [inforcg.functiontime], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0175          [infobfg.time], [infobfg.functiontime], <span class="string">'.-'</span>, <span class="keyword">...</span>
+0176          [0, maxtime], [0, maxtime], <span class="string">'k--'</span>);
+0177     axis tight;
+0178     xlabel(<span class="string">'Total computation time [s]'</span>);
+0179     ylabel(sprintf(<span class="string">'Time spent in\ncost/grad/hess [s]'</span>));
+0180     
+0181 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 10-Sep-2018 11:48:06 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
