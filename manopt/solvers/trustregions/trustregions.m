@@ -532,7 +532,8 @@ while true
 	% Will we accept the proposal or not?
     % Check the performance of the quadratic model against the actual cost.
     rhonum = fx - fx_prop;
-    rhoden = -(M.inner(x, fgradx, eta) + .5*M.inner(x, eta, Heta));
+    vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
+    rhoden = -M.inner(x, eta, vecrho);
     % rhonum could be anything.
     % rhoden should be nonnegative, as guaranteed by tCG, baring numerical
     % errors.
