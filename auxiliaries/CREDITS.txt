@@ -21,6 +21,10 @@ We are grateful for the excellent contributions of
 * Margherita Procelli
 * Jesus Briales
 * Changshuo Liu
+* Ahmed Douik
+* Naman Agarwal
+* Brian Bullins
+* Coralia Cartis
 
 Furthermore, code written by the following people can be found in Manopt:
 

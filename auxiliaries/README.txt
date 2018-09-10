@@ -30,6 +30,7 @@ Feedback
 Please let us know how you use Manopt: it helps us develop a better toolbox.
 
 Please cite the Manopt paper in your work (as well as relevant solvers/geometries):
+
 http://jmlr.org/papers/v15/boumal14a.html
 
 @article{manopt,
@@ -47,7 +48,7 @@ http://jmlr.org/papers/v15/boumal14a.html
 For more info or help: http://www.manopt.org -- we are active on the forum!
 
 This version:
-Manopt 4.0, released Sep. 9, 2017.
+Manopt 5.0, released Sep. 10, 2018.
 
 
 GitHub: https://github.com/NicolasBoumal/manopt
