@@ -12,6 +12,7 @@ fprintf('Today is: %s\n', date());
 fprintf('Press any key AFTER you are done.\n');
 edit auxiliaries/manopt_version.m;
 edit auxiliaries/README.txt;
+edit auxiliaries/CREDITS.txt;
 pause();
 
 cd releases;
