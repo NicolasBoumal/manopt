@@ -14,6 +14,11 @@ function [x, cost, info, options] = arc(problem, x, options)
 % In most of the examples bundled with the toolbox (see link below), the
 % solver can be replaced by the present one as is.
 %
+% With the default subproblem solver (@arc_lanczos), tuning parameter
+% options.theta properly appears important for performance. Users may want
+% to try different values in the range 1e-3 to 1e3 for a particular
+% application.
+%
 % The outputs x and cost are the last reached point on the manifold and its
 % cost. The struct-array info contains information about the iterations:
 %   iter (integer)
