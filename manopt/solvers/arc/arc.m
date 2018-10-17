@@ -269,8 +269,16 @@ function [x, cost, info, options] = arc(problem, x, options)
         rho_reg = options.rho_regularization*eps*max(1, abs(cost));
         rho = (rho_num+rho_reg) / (rho_den+rho_reg);
         
+        % In principle, the subproblem solver should guarantee rho_den > 0.
+        % In practice, it may fail, in which case we reject the step.
+        subproblem_failure = (rho_den+rho_reg <= 0);
+        if subproblem_failure
+            stop_str = sprintf( ...
+                 'SUBPROBLEM FAILURE! (Though it returned: %s)', stop_str);
+        end
+        
         % Determine if the tentative step should be accepted or not.
-        if rho >= options.eta_1
+        if rho >= options.eta_1 && ~subproblem_failure
             accept = true;
             arc_str = 'acc ';
             % We accepted this step: erase cache of the previous point.
@@ -288,11 +296,11 @@ function [x, cost, info, options] = arc(problem, x, options)
         end
         
         % Update the regularization parameter.
-        if rho >= options.eta_2
+        if rho >= options.eta_2 && ~subproblem_failure
             % Very successful step
             arc_str(4) = '-';
             sigma = max(options.sigma_min, options.gamma_1 * sigma);
-        elseif rho >= options.eta_1
+        elseif rho >= options.eta_1 && ~subproblem_failure
             % Successful step
             arc_str(4) = ' ';
         else
@@ -313,6 +321,18 @@ function [x, cost, info, options] = arc(problem, x, options)
 
         if options.verbosity >= 2
             fprintf('   %5d  %s\n', hesscalls, [arc_str ' ' stop_str]);
+        end
+        
+        % When the subproblem solver fails, it would be nice to have an
+        % alternative, such as a slower but more robust solver. For now, we
+        % force the solver to terminate when that happens.
+        if subproblem_failure
+            if options.verbosity >= 1
+                fprintf(['\nThe subproblem solver failed to make ' ...
+                         'progress even on the model; this is ' ...
+                         'likely due to numerical errors.\n']);
+            end
+            break;
         end
         
     end
