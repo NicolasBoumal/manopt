@@ -176,6 +176,9 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
             end
             q = M.lincomb(x, 1/rnorm(v), v);
         end
+        
+        q = tangent(q);
+        
         Hq = Hess(q);
         hesscalls = hesscalls + 1;
         Hqm = M.lincomb(x, 1, Hq, -beta, Q{j});
