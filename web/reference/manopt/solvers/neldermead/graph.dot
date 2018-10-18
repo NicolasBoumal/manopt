@@ -1,7 +1,0 @@
-/* Created by mdot for Matlab */
-digraph m2html {
-  neldermead -> centroid;
-
-  centroid [URL="centroid.html"];
-  neldermead [URL="neldermead.html"];
-}

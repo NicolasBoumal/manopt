@@ -1,6 +1,0 @@
-/* Created by mdot for Matlab */
-digraph m2html {
-
-  complexcirclefactory [URL="complexcirclefactory.html"];
-  realphasefactory [URL="realphasefactory.html"];
-}

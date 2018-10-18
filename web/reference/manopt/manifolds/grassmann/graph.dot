@@ -1,7 +1,0 @@
-/* Created by mdot for Matlab */
-digraph m2html {
-
-  grassmanncomplexfactory [URL="grassmanncomplexfactory.html"];
-  grassmannfactory [URL="grassmannfactory.html"];
-  grassmanngeneralizedfactory [URL="grassmanngeneralizedfactory.html"];
-}

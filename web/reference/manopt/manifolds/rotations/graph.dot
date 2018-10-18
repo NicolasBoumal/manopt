@@ -1,9 +1,0 @@
-/* Created by mdot for Matlab */
-digraph m2html {
-  rotationsfactory -> randrot;
-  rotationsfactory -> randskew;
-
-  randrot [URL="randrot.html"];
-  randskew [URL="randskew.html"];
-  rotationsfactory [URL="rotationsfactory.html"];
-}
