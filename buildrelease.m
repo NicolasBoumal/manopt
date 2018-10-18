@@ -5,7 +5,7 @@ pause();
 
 reproot = pwd(); % Manopt root directory -- no slash at the end
 repreleases = '../manopt-releases/'; % relative to root (slash at the end)
-repweb = 'web/'; % relative to root (slash at the end)
+repweb = '../manopt-web/'; % relative to root (slash at the end)
 
 version_str = input('What version is this? (Between quotes. Example: ''1.0.42'') ');
 
