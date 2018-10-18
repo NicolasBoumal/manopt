@@ -3,7 +3,11 @@
 fprintf('Release? Are your sure? CTRL+C if not. Any other key if yes.\n');
 pause();
 
-version_str = input('What version is this? (between quotes. example: ''1.0.42'') ');
+reproot = pwd(); % Manopt root directory -- no slash at the end
+repreleases = '../manopt-releases/'; % relative to root (slash at the end)
+repweb = 'web/'; % relative to root (slash at the end)
+
+version_str = input('What version is this? (Between quotes. Example: ''1.0.42'') ');
 
 % This has to be done manually for now.
 fprintf('You must now manually edit these files for version names and date:\n');
@@ -15,20 +19,19 @@ edit auxiliaries/README.txt;
 edit auxiliaries/CREDITS.txt;
 pause();
 
-cd releases;
-rep = sprintf('Manopt_%s', version_str);
-mkdir(rep);
+cd(repreleases);
+repthisversion = sprintf('Manopt_%s', version_str); % no slash at the end
+mkdir(repthisversion);
 
-cd(rep);
+cd(repthisversion);
 mkdir manopt;
-cd ..;
-cd ..;
 
 % We are now back at the root of the manopt repository
+cd(reproot);
 
 % Copy everything that's needed for a release.
 
-targetrep = ['releases/', rep, '/manopt/'];
+targetrep = [repreleases, repthisversion, '/manopt/'];
 
 copyfile('importmanopt.m', targetrep, 'f');
 copyfile('examples', [targetrep, 'examples/'], 'f');
@@ -41,24 +44,32 @@ dirlist = strread(genpath(pwd()), '%s', 'delimiter', ';');
 for subdir = dirlist'
     delete([subdir{1}, '/*.asv']);
 end
-cd ..;
-cd ..;
-cd ..;
 
-cd releases;
-cd(rep);
-zip(['../../web/downloads/', rep, '.zip'], '*');
-cd ..;
-cd ..;
+% Move to the newly created folder in the new release folder
+cd(reproot);
+cd(repreleases);
+cd(repthisversion);
+
+% Compress all contents into a zip file in the web folder
+zip([reproot, '/', repweb, 'downloads/', repthisversion, '.zip'], '*');
+
+% Back to the root
+cd(reproot);
 
 % A heads up for reference generation
 fprintf('About to generate the reference for the website. Press any key.\n');
 pause();
 cd reference;
-generate_manopt_reference;
+generate_manopt_reference([repweb 'reference/']);
 
 fprintf('Now: update the website !\n');
 fprintf('Files concerned: download.html, downloads.html and tutorial.html\n');
-edit web/download.html;
-edit web/downloads.html;
-edit web/tutorial.html;
+cd(reproot);
+cd(repweb);
+edit download.html;
+edit downloads.html;
+edit tutorial.html;
+
+% And finish home
+cd(reproot);
+
