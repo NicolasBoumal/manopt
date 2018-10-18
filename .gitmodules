@@ -1,0 +1,3 @@
+[submodule "reference/m2html"]
+	path = reference/m2html
+	url = https://github.com/NicolasBoumal/m2html.git
