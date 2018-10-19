@@ -3,6 +3,7 @@ function generate_manopt_reference(target_html_dir_relative_to_manopt_root)
     % This code assumes it's run from its own directory; could be improved
     % using mfilename('fullpath') and pwd() for example.
 
+    
     % Add m2html tool to the Matlab path
     cd m2html/;
     addpath(pwd());
