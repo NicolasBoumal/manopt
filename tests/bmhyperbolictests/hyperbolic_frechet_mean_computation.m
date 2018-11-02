@@ -10,7 +10,7 @@ if ~exist('n', 'var') || isempty(n)
     n = 50;
 end
 if ~exist('N', 'var') || isempty(d)
-    d = 20;
+    N = 20;
 end
 
 % The hyperbolic manifold
