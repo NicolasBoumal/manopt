@@ -9,7 +9,7 @@ function [xopt, Y] = hyperbolic_frechet_mean_computation(n, N)
 if ~exist('n', 'var') || isempty(n)
     n = 50;
 end
-if ~exist('N', 'var') || isempty(d)
+if ~exist('N', 'var') || isempty(N)
     N = 20;
 end
 
