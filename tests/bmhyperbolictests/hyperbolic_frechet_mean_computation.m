@@ -3,7 +3,7 @@ function [xopt, Y] = hyperbolic_frechet_mean_computation(n, N)
 % compute the Frechet mean of points.
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Nicolas Boumal, Nov. 1, 2016
+% Original author: Bamdev Mishra, Nov. 2, 2018
 % Contributors:
 % Change log:
 if ~exist('n', 'var') || isempty(n)
