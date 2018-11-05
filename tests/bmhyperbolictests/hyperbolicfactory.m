@@ -186,6 +186,8 @@ function M = hyperbolicfactory(n, m, transposed)
         % norm(v(:) - v2(:))
         % M.dist(exponential(x1, v), x2)
 
+        v = projection(x1, v); % BM: for numerical reasons.
+
     end
 
     M.hash = @(x) ['z' hashmd5(x(:))];
