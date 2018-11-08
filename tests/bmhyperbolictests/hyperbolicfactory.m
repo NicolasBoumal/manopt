@@ -19,7 +19,7 @@ function M = hyperbolicfactory(n, m, transposed)
 % representation.
 %
 % Resources:
-% 1. Nickel, Maximillian and Kiela, Douwe "Learning Continuous Hierarchies in the Lorentz Model of 
+% 1. Nickel, Maximilian and Kiela, Douwe "Learning Continuous Hierarchies in the Lorentz Model of 
 % Hyperbolic Geometry", ICML, 2018.
 %
 % 2. Wilson, Benjamin and Leimeister, Matthias, "Gradient descent in hyperbolic space", arXiv preprint
