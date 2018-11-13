@@ -3,18 +3,17 @@ function S = randskew(n, N)
 % 
 % function S = randskew(n, N)
 %
-% S is an n-by-n-by-N matrix where each slice S(:, :, i) for i = 1..N is a
+% S is an n-by-n-by-N array where each slice S(:, :, i) for i = 1..N is a
 % random skew-symmetric matrix with upper triangular entries distributed
 % independently following a normal distribution (Gaussian, zero mean, unit
 % variance).
 %
-% See also: randrot
+% See also: randrot randsym
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Sept. 25, 2012.
 % Contributors: 
 % Change log: 
-
 
     if nargin < 2
         N = 1;
@@ -22,7 +21,7 @@ function S = randskew(n, N)
 
     % Subindices of the (strictly) upper triangular entries of an n-by-n
     % matrix
-    [I J] = find(triu(ones(n), 1));
+    [I, J] = find(triu(ones(n), 1));
     
     K = repmat(1:N, n*(n-1)/2, 1);
     
@@ -36,6 +35,6 @@ function S = randskew(n, N)
     % corresponding lower triangular side.
     S = zeros(n, n, N);
     S(L) = randn(size(L));
-    S = S-multitransp(S);
+    S = S - multitransp(S);
 
 end
