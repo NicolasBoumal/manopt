@@ -232,8 +232,8 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     % vectors. However, the implementation below does not need step vectors 
     % in their respective tangent spaces at x_{t}'s. Rather, it requires
     % them transported to the current point's tangent space by vector
-    % tranport. For details regarding the requirements on the the vector
-    % tranport, see the reference paper by Huang et al.
+    % transport. For details regarding the requirements on the the vector
+    % transport, see the reference paper by Huang et al.
     % In this implementation, those step vectors are iteratively 
     % transported to the current point's tangent space after every
     % iteration. Thus, at every iteration, vectors in sHistory are in the
@@ -496,7 +496,7 @@ end
 
 
 
-% BFGS step, see Wen's paper for details. This functon takes in a tangent
+% BFGS step, see Wen's paper for details. This function takes in a tangent
 % vector g, and applies an approximate inverse Hessian P to it to get Pg.
 % Then, -Pg is returned.
 %

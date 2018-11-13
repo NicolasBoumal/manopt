@@ -30,7 +30,7 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %   NB Dec. 2, 2013:
 %       If options.useRand is activated, we now make sure the preconditio-
 %       ner is not used, as was originally intended in GenRTR. In time, we
-%       may want to investigate whether useRand can be modifed to work well
+%       may want to investigate whether useRand can be modified to work well
 %       with preconditioning too.
 %
 %   NB Jan. 9, 2014:

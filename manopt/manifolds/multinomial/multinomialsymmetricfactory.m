@@ -121,7 +121,7 @@ function M = multinomialsymmetricfactory(n)
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, eta)
 
-        % Computing the direcitonal derivative of the riemannian
+        % Computing the directional derivative of the Riemannian
         % gradient
         gamma = egrad.*X ;
         gammadot = ehess.*X + egrad.*eta;

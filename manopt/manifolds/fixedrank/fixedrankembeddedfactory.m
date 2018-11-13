@@ -25,7 +25,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % Vectors in the ambient space are best represented as mxn matrices. If
 % these are low-rank, they may also be represented as structures with
-% U, S, V fields, such that Z = U*S*V'. There are no resitrictions on what
+% U, S, V fields, such that Z = U*S*V'. There are no restrictions on what
 % U, S and V are, as long as their product as indicated yields a real, mxn
 % matrix.
 %
@@ -105,7 +105,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
 
     % For a given ambient vector Z, applies it to a matrix W. If Z is given
-    % as a matrix, this is straightfoward. If Z is given as a structure
+    % as a matrix, this is straightforward. If Z is given as a structure
     % with fields U, S, V such that Z = U*S*V', the product is executed
     % efficiently.
     function ZW = apply_ambient(Z, W)
@@ -224,7 +224,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
 
 
-    % Orthographic retraction provided by Teng Zhang. One interst of the
+    % Orthographic retraction provided by Teng Zhang. One interest of the
     % orthographic retraction is that if matrices are represented in full
     % size, it can be computed without any SVDs. If for an application it
     % makes sense to represent the matrices in full size, this may be a
