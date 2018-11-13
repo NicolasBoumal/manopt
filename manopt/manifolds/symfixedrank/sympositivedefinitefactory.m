@@ -23,7 +23,7 @@ function M = sympositivedefinitefactory(n)
 %
 %
 % Note also that many of the functions involve solving linear systems in X
-% (a point on the manifold), taking matrix exponentals and logarithms, etc.
+% (a point on the manifold), taking matrix exponential and logarithms, etc.
 % It could therefore be beneficial to do some precomputation on X (an
 % eigenvalue decomposition for example) and store both X and the
 % preprocessing in a structure. This would require modifying the present

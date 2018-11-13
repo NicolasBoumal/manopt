@@ -263,7 +263,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         
         % Options for PCG
         tol_omegax_pcg = 1e-6; % BM: standard tolerance as suggested in PCG.
-        max_iterations_pcg = 15;% BM: fix this to 15 for simulations. In practice, it requires 7 to 10 iteraions.
+        max_iterations_pcg = 15;% BM: fix this to 15 for simulations. In practice, it requires 7 to 10 iterations.
         
         % Preconditioner for PCG
         M1 = kron(speyer1,SSU1) + kron(SSU1, speyer1);
@@ -304,7 +304,7 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         etaproj.U2 = eta.U2 - (X.U2*Omega2);
         etaproj.U3 = eta.U3 - (X.U3*Omega3);
         
-        % Calculate projection algong G 
+        % Calculate projection along G 
         GOmega1 = reshape(Omega1*X.G1, r1, r2, r3);
         GOmega2 = permute(reshape(Omega2*X.G2, r2, r1, r3), [2 1 3]);
         GOmega3 = permute(reshape(Omega3*X.G3, r3, r1, r2), [2 3 1]); 
@@ -360,13 +360,13 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         C  = rand(r1, r2, r3);
         
         C1 = reshape(C, r1, r2*r3);
-        CR1 = reshape(R1*C1, r1, r2, r3); % Multplication by R1
+        CR1 = reshape(R1*C1, r1, r2, r3); % Multiplication by R1
         
         C2 = reshape(permute(CR1, [2 1 3]), r2, r1*r3);
-        CR1R2 = permute(reshape(R2*C2, r2, r1, r3), [2 1 3]); % Multplication by R2
+        CR1R2 = permute(reshape(R2*C2, r2, r1, r3), [2 1 3]); % Multiplication by R2
         
         C3 = reshape(permute(CR1R2, [3 1 2]), r3, r1*r2);
-        CR1R2R3 = permute(reshape(R3*C3, r3, r1, r2), [2 3 1]); % Multplication by R3
+        CR1R2R3 = permute(reshape(R3*C3, r3, r1, r2), [2 3 1]); % Multiplication by R3
         
         X.U1 = U1;
         X.U2 = U2;
