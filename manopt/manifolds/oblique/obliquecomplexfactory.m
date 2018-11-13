@@ -36,7 +36,7 @@ function M = obliquecomplexfactory(n, m, transposed)
 %
 %   July 20, 2017 (NB)
 %       Distance function is now accurate for close-by points. See notes
-%       inside the spherefactory file for details. Also improvies distances
+%       inside the spherefactory file for details. Also improves distances
 %       computation as part of the log function.
 
     

@@ -12,7 +12,7 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
 % an initial guess, give x0 as [] (the empty matrix).
 %
 % The algorithm uses its own special non-monotone line-search strategy.
-% Therefore, no lin-search algorithm should be specified in the problem
+% Therefore, no line-search algorithm should be specified in the problem
 % structure or in the options structure.
 %
 % In most of the examples bundled with the toolbox (see link below), the

@@ -96,7 +96,7 @@ function M = multinomialfactory(n, m)
         rhess = M.proj(X, rhess);
     end
     
-    % Projection of the vector eta in the ambeint space onto the tangent
+    % Projection of the vector eta in the ambient space onto the tangent
     % space.
     M.proj = @projection;
     function etaproj = projection(X, eta)
