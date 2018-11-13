@@ -35,7 +35,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 %       made by the solver, so it can know about it.
 %
 %	Nov. 7, 2013 (NB) :
-%       The whole function has been recoded to mimick more closely the new
+%       The whole function has been recorded to mimic more closely the new
 %       version of linesearch.m. The parameters are available through the
 %       options structure passed to the solver and have the same names and
 %       same meaning as for the base linesearch. The information is logged

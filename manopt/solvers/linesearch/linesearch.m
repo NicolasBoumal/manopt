@@ -193,7 +193,7 @@ function [stepsize, newx, newkey, lsstats] = ...
     % retract to make the step from x to newx. Since the step is alpha*d:
     stepsize = alpha * norm_d;
 
-    % Save the situtation faced now so that, at the next iteration,
+    % Save the situation faced now so that, at the next iteration,
     % we will know something about the previous decision.
     storedb.internal.lsmem.f0 = f0;
     storedb.internal.lsmem.df0 = df0;
