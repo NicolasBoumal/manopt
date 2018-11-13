@@ -51,7 +51,7 @@ function X = solve_for_triu(A, H)
 % then we revert back to O(p^4) complexity. Interestingly, for X, Y close
 % by, the matrix A = X'*Y that appears in computing the inverse retraction
 % is close to identity, so that its LU factorization naturally leads to P
-% identity; thus, in such scenarion we could reduce the cost to O(p^3)
+% identity; thus, in such scenario we could reduce the cost to O(p^3)
 % without loss of stability due to the LU change of variable.
 
     p = size(A, 1);

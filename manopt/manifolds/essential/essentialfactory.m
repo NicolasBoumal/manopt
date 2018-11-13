@@ -114,7 +114,7 @@ function M = essentialfactory(k, strSigned)
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, S)
-        % Reminder: S contains skew-symmeric matrices. The actual
+        % Reminder: S contains skew-symmetric matrices. The actual
         % direction that the point X is moved along is X*S.
         RA = p1(X);
         RB = p2(X);

@@ -141,7 +141,7 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
         Hess.S = Hess.S - symm(rgrad.L'*eta.L)*X.S - X.S*symm(rgrad.R'*eta.R);
         
         % The Riemannian connection on the quotient space is the
-        % projection of the Riemmian connection in the ambient space onto the tangent space of the total space and
+        % projection of the Riemannian connection in the ambient space onto the tangent space of the total space and
         % then onto the horizontal space. 
         % This is accomplished by the following operation.
         Hess = M.proj(X, Hess);
@@ -283,7 +283,7 @@ function[BU, BV] = tangent_space_lyap(R, E, F)
     %
     % This can be solved using two calls to the Matlab's lyap.
     % However, we can still have a more efficient implementation
-    % that does not require the full functionaliyt of Matlab's lyap.
+    % that does not require the full functionality of Matlab's lyap.
     
     [U, Sigma, V] = svd(R);
     E_mod = U'*E*U;

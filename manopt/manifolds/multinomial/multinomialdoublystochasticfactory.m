@@ -103,7 +103,7 @@ function M = multinomialdoublystochasticfactory(n)
 
     % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection; 
-    function etaproj = projection(X, eta) % Projection of the vector eta in the ambeint space onto the tangent space
+    function etaproj = projection(X, eta) % Projection of the vector eta in the ambient space onto the tangent space
         A = [eye(n) X ; X' eye(n)] ;
         B = A(1:2*n,2:2*n) ;
         b = [sum(eta,2) ; sum(eta,1)'] ;
@@ -144,7 +144,7 @@ function M = multinomialdoublystochasticfactory(n)
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, eta)
 
-        % computing the direcitonal derivative of the riemannian
+        % computing the directional derivative of the Riemannian
         % gradient
         gamma = egrad.*X ;
         gammadot = ehess.*X + egrad.*eta ;
