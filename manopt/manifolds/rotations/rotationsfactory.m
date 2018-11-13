@@ -112,7 +112,7 @@ function M = rotationsfactory(n, k)
             % This is guaranteed to always yield orthogonal matrices with
             % determinant +1. Simply look at the eigenvalues of a skew
             % symmetric matrix, then at those of identity plus that matrix,
-            % and compute their product for the determinant: it's stricly
+            % and compute their product for the determinant: it's strictly
             % positive in all cases.
         end
     end

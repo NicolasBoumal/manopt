@@ -647,7 +647,7 @@ while true
             fprintf(' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n');
             fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
         end
-    % If the actual decrease is at least 3/4 of the precicted decrease and
+    % If the actual decrease is at least 3/4 of the predicted decrease and
     % the tCG (inner solve) hit the TR boundary, increase the TR radius.
     % We also keep track of the number of consecutive trust-region radius
     % increases. If there are many, this may indicate the need to adapt the

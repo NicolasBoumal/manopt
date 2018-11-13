@@ -138,7 +138,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     % The derivative is a quadratic polynomial:
     %  h'(y) = ||g|| + alpha*y - sigma*y^2.
     % Since ||g|| and sigma are positive, h' has two real roots, one
-    % posivite and one negative (strictly). The negative root is the only
+    % positive and one negative (strictly). The negative root is the only
     % root of interest. It necessarily identifies a minimizer since
     % h(0) = 0, h(-inf) = inf and h'(0) > 0.
     % 
