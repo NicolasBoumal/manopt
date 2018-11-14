@@ -148,7 +148,7 @@ function M = hyperbolicfactory(n, m, transposed)
     
 
     M.retr = @retraction;
-    % Retraction on the oblique manifold: we call the exponential directly.
+    % Retraction on the hyperbolic manifold: we call the exponential directly.
     function y = retraction(x, d, t)
         if nargin < 3
             % t = 1;
