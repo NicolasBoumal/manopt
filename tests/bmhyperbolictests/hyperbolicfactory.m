@@ -102,9 +102,9 @@ function M = hyperbolicfactory(n, m, transposed)
         X = trnsp(X);
         egrad = trnsp(egrad);
 
-        egrad = bsxfun(@times, egrad, g); % BM: correcting for the Minkowski bilinear inner product.
+        egradscaled = bsxfun(@times, egrad, g); % BM: correcting for the Minkowski bilinear inner product.
         
-        rgrad = projection(trnsp(X), trnsp(egrad)); 
+        rgrad = projection(trnsp(X), trnsp(egradscaled)); 
     end
     
     M.ehess2rhess = @ehess2rhess; % BM: okay.
