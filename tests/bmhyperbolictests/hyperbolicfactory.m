@@ -1,33 +1,73 @@
 function M = hyperbolicfactory(n, m, transposed)
-% Returns a manifold struct to optimize over matrices w/ hyperbolic column vectors.
+% Factory for matrices whose columns live on the hyperbolic manifold
 %
 % function M = hyperbolicfactory(n)
 % function M = hyperbolicfactory(n, m)
 % function M = hyperbolicfactory(n, m, transposed)
 %
-% Hyperbolic manifold: deals with matrices of size (n+1) x m such that each column
-% is a point in the hyperbolic space with the Minkowski norm = -1, i.e., it is a point in R^(n+1). 
-% The Minkowski inner product between two vectors x = [x1, x2, ..., x_{n+1}] and 
-% y = [y1, y2, ..., y_{n+1}] is defined as -x1y1 + sum_{i = 2 to n+1} xiyi.
-% The Minkowski metric is such that the hyperbolic manifold is a Riemannian submanifold of the
-% pseudo-Riemannian ambient space R^(n+1). The geometry is called the hyperboloid or the Lorentz 
-% geometry.
+% Returns a structure M which describes the hyperbolic manifold in Manopt.
+% A point on the manifold is a matrix X of size (n+1)-by-m whose columns
+% live on the hyperbolic manifold, that is, for each column x of X, we have
+%
+%   -x(1)^2 + x(2)^2 + x(3)^2 + ... + x(n+1)^2 = -1.
+%
+% Equivalently, defining the Minkowski (semi) inner product
+%
+%   <x, y> = -x(1)y(1) + x(2)y(2) + x(3)y(3) + ... + x(n+1)y(n+1)
+%
+% and the induced Minkowski (semi) norm ||x||^2 = <x, x>, we can write
+% compactly that each column of X has squared Minkowski norm equal to -1.
+%
+% The set of matrices X that satisfy this constraint is a smooth manifold.
+% Tangent vectors at X are matrices U of the same size as X. If x and u are
+% the kth columns of X and U respectively, then <x, u> = 0.
+%
+% This manifold is turned into a Riemannian manifold by restricting the
+% Minkowski inner product to each tangent space (a simple calculation
+% confirms that this metric is indeed Riemannian and not just semi
+% Riemannian, that is, it is positive definite when restricted to each
+% tangent space). This is the hyperbolic manifold: for m = 1, all of its
+% sectional curvatures are equal to -1. This is called the hyperboloid or
+% the Lorentz geometry.
+%
+% This manifold is an embedded submanifold of Euclidean space (the set of
+% matrices of size (n+1)-by-m equipped with the usual trace inner product).
+% Thus, when defining the Euclidean gradient for example (problem.egrad),
+% it should be specified as if the function were defined in Euclidean space
+% directly. The tool M.egrad2rgrad will automatically convert that gradient
+% to the correct Riemannian gradient, as needed to satisfy the metric. The
+% same is true for the Euclidean Hessian and other tools that manipulate
+% elements in the embedding space.
+%
+% Importantly, the resulting manifold is /not/ a Riemannian submanifold of
+% Euclidean space, because its metric is not obtained simply by restricting
+% the Euclidean metric to the tangent spaces. However, it is a
+% semi-Riemannian submanifold of Minkowski space, that is, the set of
+% matrices of size (n+1)-by-m equipped with the Minkowski inner product.
+% Minkowski space itself can be seen as a (linear) semi-Riemannian manifold
+% embedded in Euclidean space. This view is entirely equivalent to the one
+% described above (the Riemannian structure of the resulting manifold is
+% exactly the same), and it is useful to derive some of the tools this
+% factory provides.
 %
 % If transposed is set to true (it is false by default), then the matrices
-% are transposed: a point Y on the manifold is a matrix of size m x (n+1) and
-% each row is an element in the hyperbolic space. It is the same geometry, just a different
-% representation.
+% are transposed: a point X on the manifold is a matrix of size m-by-(n+1)
+% and each row is an element in hyperbolic space. It is the same geometry,
+% just a different representation.
+%
 %
 % Resources:
-% 1. Nickel, Maximilian and Kiela, Douwe "Learning Continuous Hierarchies in the Lorentz Model of 
-% Hyperbolic Geometry", ICML, 2018.
 %
-% 2. Wilson, Benjamin and Leimeister, Matthias, "Gradient descent in hyperbolic space", arXiv preprint
-% arXiv:1805.08207 (2018).
+% 1. Nickel and Kiela, "Learning Continuous Hierarchies in the Lorentz
+%    Model of Hyperbolic Geometry", ICML, 2018.
+%
+% 2. Wilson and Leimeister, "Gradient descent in hyperbolic space",
+%    arXiv preprint arXiv:1805.08207 (2018).
 % 
-% 3. Pennec, Xavier, "Hessian of the Riemannian squared distance", HAL INRIA, 2017.
+% 3. Pennec, "Hessian of the Riemannian squared distance", HAL INRIA, 2017.
 %
-% Ported primarily from the McTorch toolbox at https://github.com/mctorch/mctorch.
+% Ported primarily from the McTorch toolbox at
+% https://github.com/mctorch/mctorch.
 %
 % See also: spherefactory obliquefactory obliquecomplexfactory
 
@@ -35,7 +75,7 @@ function M = hyperbolicfactory(n, m, transposed)
 % This file is part of Manopt: www.manopt.org.
 % Original authors: Bamdev Mishra <bamdevm@gmail.com>, Mayank Meghwanshi, 
 % Pratik Jawanpuria, Anoop Kunchukuttan, and Hiroyuki Kasai Oct 28, 2018.
-% Contributors: 
+% Contributors: Nicolas Boumal
 % Change log:
 
     if ~exist('m', 'var') || isempty(m)
