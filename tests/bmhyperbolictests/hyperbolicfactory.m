@@ -263,6 +263,6 @@ function M = hyperbolicfactory(n, m, transposed)
     vect = @(X) X(:);
     M.vec = @(x, u_mat) vect(trnsp(u_mat));
     M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n+1, m]));
-    M.vecmatareisometries = @() true;
+    M.vecmatareisometries = @() false;
 
 end
