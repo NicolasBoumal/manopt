@@ -78,191 +78,168 @@ function M = hyperbolicfactory(n, m, transposed)
 % Contributors: Nicolas Boumal
 % Change log:
 
+    % Design note: all functions that are defined here but not exposed
+    % outside work for non-transposed representations. Only the wrappers
+    % that eventually expose functionalities handle transposition. This
+    % makes it easier to compose functions internally.
+
     if ~exist('m', 'var') || isempty(m)
         m = 1;
     end 
     
-    if ~exist('transposed', 'var') || isempty(transposed) % BM: okay
+    if ~exist('transposed', 'var') || isempty(transposed)
         transposed = false;
     end
     
-    if transposed % BM: okay.
+    if transposed
         trnsp = @(X) X';
+        trnspstr = ', transposed';
     else
         trnsp = @(X) X;
+        trnspstr = '';
     end
 
-    M.name = @() sprintf('Hyperbolic manifold H(%d, %d)', n, m); % BM: okay
+    M.name = @() sprintf('Hyperbolic manifold H(%d, %d)%s', n, m, trnspstr);
     
-    M.dim = @() (n)*m; % BM: okay
+    M.dim = @() n*m;
 
-    % For the Minkowski bilinear inner product.
-    g = ones(n+1,1); % A column vector.
-    g(1,1) = -1;
-       
-    M.inner = @myinner; % BM: okay
-    function ip = myinner(x, d1, d2)
-    	d1 = trnsp(d1);
-    	d2 = trnsp(d2);
-    	ip = minkowskiinner(d1, d2); % BM: arguments are column wise.
-    end
-    function ip = minkowskiinner(d1, d2) % BM: we assume that the arguments are column wise organized.
-        d2 = bsxfun(@times, d2, g);
-    	ip = d1(:)'*d2(:);
+    % Returns a row vector q such that q(k) is the Minkowski inner product
+    % of columns U(:, k) and V(:, k). This is defined in all of Minkowski
+    % space, not only on tangent spaces. In particular, if X is a point on
+    % the manifold, then inner_minkowski_columns(X, X) should return a
+    % vector of all -1's.
+% % %     M.inner_minkowski_columns = @inner_minkowski_columns; -- if they
+% are exposed, should work with trnsp
+    function q = inner_minkowski_columns(U, V)
+        q = -U(1, :).*V(1, :) + sum(U(2:end, :).*V(2:end, :), 1);
     end
 
-    myeps = 0;  eps; % BM: okay.
-
-    M.norm = @(x, d) sqrt(max(myinner(x, d, d), myeps)); % BM: okay to avoid negative entries.
+% % %     M.norm_minkowski_columns = @norm_minkowski_columns;
+    % Returns a row vector q such that q(k) is the Minkowski norm of column
+    % U(:, k).
+%     function q = norm_minkowski_columns(U)
+%         q = sqrt(max(0, inner_minkowski_columns(U, U)));
+%     end
     
-    M.dist = @(x, y) norm((acosh(-sum(trnsp(x).*(bsxfun(@times, trnsp(y), g)), 1))));  % BM: okay.
-        
-    M.proj = @projection;  % BM: okay.
+    % Riemannian metric: we sum over the m copies of the hyperbolic
+    % manifold, each equipped with a restriction of the Minkowski metric.
+    M.inner = @(X, U, V) sum(inner_minkowski_columns(trnsp(U), trnsp(V)));
+    
+    % Mathematically, the Riemannian metric is positive definite, hence
+    % M.inner always returns a nonnegative number when U is tangent at X.
+    % Numerically, because the inner product involves a difference of
+    % positive numbers, round-off may result in a small negative number.
+    % Taking the max against 0 avoids imaginary results.
+    M.norm = @(X, U) sqrt(max(M.inner(X, U, U), 0));
+    
+    M.dist = @(X, Y) norm(dists(trnsp(X), trnsp(Y)));
+    % This function returns a row vector of length m such that d(k) is the
+    % geodesic distance between X(:, k) and Y(:, k).
+    function d = dists(X, Y)
+        % Mathematically, each column of U = X-Y has nonnegative squared
+        % Minkowski norm. To avoid potentially imaginary results due to
+        % round-off errors, we take the max against 0.
+        U = X-Y;
+        mink_inners = inner_minkowski_columns(U, U);
+        mink_norms = sqrt(max(0, mink_inners));
+        % The formula below is equivalent to acosh(-mink_inners) but is
+        % numerically more accurate when distances are small.
+        d = 2*asinh(.5*mink_norms);
+    end
+    
+    M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
     function PU = projection(X, U)
-    	X = trnsp(X);
-    	U = trnsp(U);
-
-    	XUinner = sum(X.*(bsxfun(@times, U, g)), 1); % A row vector.
-
-        PU = U + bsxfun(@times, X, XUinner);
-
-    	PU = trnsp(PU);
-
-        % % Debug: to test whether the obtained vector is on the tangent space.
-        % X = trnsp(X);
-        % myinner(X, X, PU)  % BM: to prove that the vector belongs to the tangent space.
+        inners = inner_minkowski_columns(X, U);
+        PU = U + bsxfun(@times, X, inners);
     end
     
-    M.tangent = M.proj;  % BM: okay
+    M.tangent = M.proj;
     
-    % For Riemannian submanifolds, converting the Euclidean gradient into the
-    % Riemannian gradient amounts to an orthogonal projection. However, we first need to correct for the Minkowski bilinear inner product. 
-    M.egrad2rgrad = @egrad2rgrad;
+    % For Riemannian submanifolds, converting the Euclidean gradient into
+    % the Riemannian gradient amounts to an orthogonal projection. Here
+    % however, the manifold is not a Riemannian submanifold of Euclidean
+    % space, hence extra corrections are required to account for the change
+    % of metric.
+    M.egrad2rgrad = @(X, egrad) trnsp(egrad2rgrad(trnsp(X), trnsp(egrad)));
     function rgrad = egrad2rgrad(X, egrad)
-        X = trnsp(X);
-        egrad = trnsp(egrad);
-
-        egradscaled = bsxfun(@times, egrad, g); % BM: correcting for the Minkowski bilinear inner product.
-        
-        rgrad = projection(trnsp(X), trnsp(egradscaled)); 
+        egrad(1, :) = -egrad(1, :);
+        rgrad = projection(X, egrad);
     end
     
-    M.ehess2rhess = @ehess2rhess; % BM: okay.
+    M.ehess2rhess = @(X, egrad, ehess, U) ...
+        trnsp(ehess2rhess(trnsp(X), trnsp(egrad), trnsp(ehess), trnsp(U)));
     function rhess = ehess2rhess(X, egrad, ehess, U)
-        X = trnsp(X);
-        egrad = trnsp(egrad);
-        ehess = trnsp(ehess);
-        U = trnsp(U);
-
-        Xegradinner = sum(X.*egrad, 1); % A row vector.
-        Xegradinnerdot = sum(X.*ehess, 1) + sum(U.*egrad, 1); % A row vector.
-        rhess = bsxfun(@times, ehess, g) +bsxfun(@times, U, Xegradinner) + bsxfun(@times, X, Xegradinnerdot);
-
-        rhess = projection(trnsp(X), trnsp(rhess));
+        egrad(1, :) = -egrad(1, :);
+        ehess(1, :) = -ehess(1, :);
+        inners = inner_minkowski_columns(X, egrad);
+        rhess = projection(X, bsxfun(@times, U, inners) + ehess);
     end
     
+    % For the exponential, we cannot separate trnsp() nicely from the main
+    % function because the third input, t, is optional.
     M.exp = @exponential;
-    % Exponential on the hyperbolic manifold
-    function y = exponential(x, d, t) % BM: okay.
-        x = trnsp(x);
-        d = trnsp(d);
+    function Y = exponential(X, U, t)
+        X = trnsp(X);
+        U = trnsp(U);
         
         if nargin < 3
-            % t = 1;
-            td = d;
+            tU = U;   % corresponds to t = 1
         else
-            td = t*d;
-        end        
-
-        nrm_td = sqrt(sum(td.*(bsxfun(@times, td, g)), 1)); % BM: okay.
-
-        y = bsxfun(@times, x, cosh(nrm_td)) + ...  % BM: okay.
-            bsxfun(@times, td, sinh(nrm_td) ./ nrm_td);
-        
-        % For those columns where the step is 0, replace y by x
-        exclude = (nrm_td == 0);
-        y(:, exclude) = x(:, exclude);
-
-        y = trnsp(y);
-    end
-    
-
-    M.retr = @retraction;
-    % Retraction on the hyperbolic manifold: we call the exponential directly.
-    function y = retraction(x, d, t)
-        if nargin < 3
-            % t = 1;
-            y = exponential(x, d);
-        else
-            y = exponential(x, d, t);
+            tU = t*U;
         end
-    end
-    
-    M.log = @logarithm;
-    function v = logarithm(x1, x2)
-        x1 = trnsp(x1);
-        x2 = trnsp(x2);
         
-        theta = acosh(-sum(x1.*(bsxfun(@times, x2, g)),1));
-        fstartheta = theta./sinh(theta);
-
-        v = x2 - bsxfun(@times, x1, cosh(theta));
-        % For very close points, dists is almost equal to norms, but
-        % because they are both almost zero, the division above can return
-        % NaN's. To avoid that, we force those ratios to 1.
-        fstartheta(theta <= 1e-10) = 1;
-        v = bsxfun(@times, v, fstartheta);
+        % Compute the individual Minkowski norms of the columns of U.
+        mink_inners = inner_minkowski_columns(tU, tU);
+        mink_norms = sqrt(max(0, mink_inners));
         
-        % % Debug: another implementation
-        % proj1 = x2 + bsxfun(@times, x1, sum(x1.*(bsxfun(@times, x2, g)),1));
-        % norm1 = sqrt(sum(proj1.*(bsxfun(@times, proj1, g)),1));
-        % v1 = bsxfun(@times, proj1, theta./norm1);
-        % norm(v - v1)
+        % Coefficients for the exponential. For b, note that NaN's appear
+        % when an element of mink_norms is zero, in which case the correct
+        % convention is to define sinh(0)/0 = 1.
+        a = cosh(mink_norms);
+        b = sinh(mink_norms)./mink_norms;
+        b(isnan(b)) = 1;
+        
+        Y = bsxfun(@times, X, a) + bsxfun(@times, tU, b);
 
-        v = trnsp(v);
-
-        % % Debug: the following should output zeros.
-        % v2 = projection(x1, v);
-        % norm(v(:) - v2(:))
-        % M.dist(exponential(x1, v), x2)
-
-        v = projection(x1, v); % BM: for numerical reasons.
-
-    end
-
-    M.hash = @(x) ['z' hashmd5(x(:))];
-    
-    M.rand = @myrand;
-    function x = myrand() % BM: okay.
-    	x1 = randn(n, m);
-    	x0 = sqrt(1 + sum(x1.^2, 1));
-    	x = [x0; x1]; 
-    	x = trnsp(x);
+        Y = trnsp(Y);
     end
     
-    M.randvec = @myrandvec;
-    function u = myrandvec(x)
-    	u = randn(size(x));
-    	u = projection(x, u);
-    	u = u / norm(u(:)); % Unit norm vector.
+    M.retr = M.exp;
+    
+    M.log = @(X, Y) trnsp(logarithm(trnsp(X), trnsp(Y)));
+    function U = logarithm(X, Y)
+        d = dists(X, Y);
+        a = d./sinh(d);
+        a(isnan(a)) = 1;
+        U = projection(X, bsxfun(@times, Y, a));
     end
+
+    M.hash = @(X) ['z' hashmd5(X(:))];
+    
+    M.rand = @() trnsp(myrand());
+    function X = myrand()
+    	X1 = randn(n, m);
+    	x0 = sqrt(1 + sum(X1.^2, 1));
+    	X = [x0; X1];
+    end
+    
+    M.normalize = @(X, U) U / M.norm(X, U);
+    M.randvec = @(X) M.normalize(X, M.proj(X, randn(size(X))));
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) trnsp(zeros(n+1, m));
+    M.zerovec = @(X) zeros(size(X));
     
-    M.transp = @(x1, x2, d) M.proj(x2, d);
+    M.transp = @(X1, X2, U) M.proj(X2, U);
     
    
     % vec returns a vector representation of an input tangent vector which
-    % is represented as a matrix. mat returns the original matrix
+    % is represented as a matrix; mat returns the original matrix
     % representation of the input vector representation of a tangent
-    % vector. vec and mat are thus inverse of each other. They are
-    % furthermore isometries between a subspace of R^nm and the tangent
-    % space at x.
+    % vector; vec and mat are thus inverse of each other.
     vect = @(X) X(:);
-    M.vec = @(x, u_mat) vect(trnsp(u_mat));
-    M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n+1, m]));
+    M.vec = @(X, U_mat) vect(trnsp(U_mat));
+    M.mat = @(X, U_vec) trnsp(reshape(U_vec, [n+1, m]));
     M.vecmatareisometries = @() false;
 
 end
