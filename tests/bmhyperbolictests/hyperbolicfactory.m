@@ -108,18 +108,9 @@ function M = hyperbolicfactory(n, m, transposed)
     % space, not only on tangent spaces. In particular, if X is a point on
     % the manifold, then inner_minkowski_columns(X, X) should return a
     % vector of all -1's.
-% % %     M.inner_minkowski_columns = @inner_minkowski_columns; -- if they
-% are exposed, should work with trnsp
     function q = inner_minkowski_columns(U, V)
         q = -U(1, :).*V(1, :) + sum(U(2:end, :).*V(2:end, :), 1);
     end
-
-% % %     M.norm_minkowski_columns = @norm_minkowski_columns;
-    % Returns a row vector q such that q(k) is the Minkowski norm of column
-    % U(:, k).
-%     function q = norm_minkowski_columns(U)
-%         q = sqrt(max(0, inner_minkowski_columns(U, U)));
-%     end
     
     % Riemannian metric: we sum over the m copies of the hyperbolic
     % manifold, each equipped with a restriction of the Minkowski metric.
