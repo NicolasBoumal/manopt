@@ -11,6 +11,9 @@ function M = hyperbolicfactory(n, m, transposed)
 %
 %   -x(1)^2 + x(2)^2 + x(3)^2 + ... + x(n+1)^2 = -1.
 %
+% The positive branch is selected by M.rand(), that is, x(1) > 0, but all
+% tools work on the negative branch as well.
+%
 % Equivalently, defining the Minkowski (semi) inner product
 %
 %   <x, y> = -x(1)y(1) + x(2)y(2) + x(3)y(3) + ... + x(n+1)y(n+1)
@@ -210,7 +213,7 @@ function M = hyperbolicfactory(n, m, transposed)
     M.rand = @() trnsp(myrand());
     function X = myrand()
     	X1 = randn(n, m);
-    	x0 = sqrt(1 + sum(X1.^2, 1));
+    	x0 = sqrt(1 + sum(X1.^2, 1)); % selects positive branch
     	X = [x0; X1];
     end
     
