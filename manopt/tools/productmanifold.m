@@ -28,9 +28,17 @@ function M = productmanifold(elements)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%   NB, July 4, 2013: Added support for vec, mat, tangent.
-%                     Added support for egrad2rgrad and ehess2rhess.
-%                     Modified hash function to make hash strings shorter.
+%   NB, July 4, 2013
+%       Added support for vec, mat, tangent.
+%       Added support for egrad2rgrad and ehess2rhess.
+%       Modified hash function to make hash strings shorter.
+%
+%   NB, Dec. 17, 2018
+%       Added check all_elements_provide() to many functions, so that if,
+%       for example, one of the elements does not provide exp(), then the
+%       product manifold also won't provide exp(). This makes it easier for
+%       tools such as, for example, checkgradient, to determine whether exp
+%       is available or not.
 
 
     elems = fieldnames(elements);
@@ -39,6 +47,17 @@ function M = productmanifold(elements)
     assert(nelems >= 1, ...
            'elements must be a structure with at least one field.');
     
+	% Handy function to check if all elements provide the necessary methods
+    function answer = all_elements_provide(method_name)
+        answer = false;
+        for i = 1 : nelems
+            if ~isfield(elements.(elems{i}), method_name)
+                return;
+            end
+        end
+        answer = true;
+    end
+       
     M.name = @name;
     function str = name()
         str = 'Product manifold: ';
@@ -69,7 +88,9 @@ function M = productmanifold(elements)
 
     M.norm = @(x, d) sqrt(M.inner(x, d, d));
 
-    M.dist = @dist;
+    if all_elements_provide('dist')
+        M.dist = @dist;
+    end
     function d = dist(x, y)
         sqd = 0;
         for i = 1 : nelems
@@ -79,7 +100,9 @@ function M = productmanifold(elements)
         d = sqrt(sqd);
     end
     
-    M.typicaldist = @typicaldist;
+    if all_elements_provide('typicaldist')
+        M.typicaldist = @typicaldist;
+    end
     function d = typicaldist
         sqd = 0;
         for i = 1 : nelems
@@ -144,7 +167,9 @@ function M = productmanifold(elements)
         end
     end
     
-    M.exp = @exp;
+    if all_elements_provide('exp')
+        M.exp = @exp;
+    end
     function y = exp(x, u, t)
         if nargin < 3
             t = 1.0;
@@ -166,7 +191,9 @@ function M = productmanifold(elements)
         end
     end
     
-    M.log = @log;
+    if all_elements_provide('log')
+        M.log = @log;
+    end
     function u = log(x1, x2)
         for i = 1 : nelems
             u.(elems{i}) = elements.(elems{i}).log(x1.(elems{i}), ...
@@ -222,7 +249,9 @@ function M = productmanifold(elements)
         end
     end
 
-    M.transp = @transp;
+    if all_elements_provide('transp')
+        M.transp = @transp;
+    end
     function v = transp(x1, x2, u)
         for i = 1 : nelems
             v.(elems{i}) = elements.(elems{i}).transp(x1.(elems{i}), ...
@@ -230,7 +259,9 @@ function M = productmanifold(elements)
         end
     end
 
-    M.pairmean = @pairmean;
+    if all_elements_provide('pairmean')
+        M.pairmean = @pairmean;
+    end
     function y = pairmean(x1, x2)
         for i = 1 : nelems
             y.(elems{i}) = elements.(elems{i}).pairmean(x1.(elems{i}), ...
