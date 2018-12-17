@@ -22,7 +22,7 @@ X = M.rand();
 U = M.randvec(X);
 
 Y = M.retr(X, U);
-norm(Y'*B*Y - eye(p))
+norm(Y'*B*Y - eye(p), 'fro')
 
 % Modified Gram-Schmidt: input is a point X on the manifold and a tangent
 % vector U at X. Output is Q = Retr_X(U).
@@ -33,5 +33,16 @@ Q_MGS2 = stiefelgeneralized_retraction_MGS_twice(B, X, U);
 % except it never squares the condition number, so it should in principle
 % be numerically more robust (though it's probably slower because of the
 % loop in Matlab.)
-norm(Q_MGS'*B*Q_MGS - eye(p))
-norm(Q_MGS2'*B*Q_MGS2 - eye(p))
+norm(Q_MGS'*B*Q_MGS - eye(p), 'fro')
+norm(Q_MGS2'*B*Q_MGS2 - eye(p), 'fro')
+
+
+%%
+% Looking for a bad U
+M = stiefelgeneralizedfactory(n, p, B);
+N = tangentspherefactory(M, X); % with unit vectors, cond seems limited to sqrt(2)
+% N = tangentspacefactory(M, X); % with any tangent vector
+problem.M = N;
+sqB = sqrtm(B);
+problem.cost = @(U) -cond(sqB*(X+U)); % maximize the condition number of X+U in B-space
+U = rlbfgs(problem, [], struct('maxtime', 500));
