@@ -17,7 +17,7 @@ p = 5;
 F = randn(n);
 B = F'*F;
 
-M = stiefelgeneralizedfactory_HS_KA(n, p, B);
+M = stiefelgeneralizedfactory(n, p, B);
 X = M.rand();
 U = M.randvec(X);
 
