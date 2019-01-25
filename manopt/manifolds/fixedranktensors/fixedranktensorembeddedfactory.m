@@ -163,7 +163,7 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
     % Generate full n1-by-...-by-nd tensor in the ambient space from
     % a tangent vector.
     M.tangent2ambient = @tan2amb;
-    function E = tan2amb(X,eta)
+    function E = tan2amb(X, eta)
         E = ttm(eta.G, X.X.U);
         
         for i = 1:d
@@ -183,28 +183,28 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
     % Efficient retraction, see Kressner at al., 2014
     M.retr = @retraction;
     function Y = retraction(X, xi, alpha)
-        % if no alpha is given, assume it to be = 1
+        % if no alpha is given, assume it to be 1
         if nargin < 3
             alpha = 1.0;
         end
 
-        Q = cell(1,d);
-        R = cell(1,d);
-        for i=1:d
-            [Q{i}, R{i}] = qr( [X.X.U{i}, xi.V{i}], 0 );
+        Q = cell(1, d);
+        R = cell(1, d);
+        for i = 1:d
+            [Q{i}, R{i}] = qr([X.X.U{i}, xi.V{i}], 0);
         end
 
         S = zeros(2*r);
 
         % First block C+alpha*G, see Kressner et al., Fig. 2
         sBlock = double(X.X.core + alpha*xi.G);
-        for i=1:d
+        for i = 1:d
             sBlock = cat(i, sBlock, zeros(size(sBlock)));
         end
         S = S + sBlock;
 
         % Adjacent Blocks alpha*C, see Kressner et al., Fig. 2
-        for i=1:d
+        for i = 1:d
             sBlock = double(alpha*X.X.core);
             modes = 1:d;
             modes(i) = [];
@@ -225,27 +225,29 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
         sHosvd = hosvd(S, r);
 
         % absorb Q factors in basis matrices
-        U = cell(1,d);
-        for i=1:d
+        U = cell(1, d);
+        for i = 1:d
             U{i} = Q{i} * sHosvd.U{i};
         end
 
-        Z = ttensor( sHosvd.core, U);
+        Z = ttensor(sHosvd.core, U);
         Y.X = Z;
-        Y.Cpinv = cell(1,d);
+        Y.Cpinv = cell(1, d);
         for i = 1:d
-           Y.Cpinv{i} =  pinv(double(tenmat(Y.X.core,i)));
+            % Should consider replacing use of pinv with another
+            % preprocessed form.
+           Y.Cpinv{i} = pinv(double(tenmat(Y.X.core, i)));
         end
     end
     
     M.hash = @hashing;
     function h = hashing(X)
-        v = zeros(2*d+1,1);
-        for i=1:d
+        v = zeros(2*d+1, 1);
+        for i = 1:d
             v(i) = sum(X.X.U{i}(:));
         end
         v(d+1) = sum(X.X.core(:));
-        for i=1:d
+        for i = 1:d
             v(d+1+i) = sum(X.Cpinv{i}(:));
         end
         h = ['z' hashmd5(v)];
@@ -254,26 +256,25 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
     % Random tensor on manifold
     M.rand = @random;
     function X = random()
-        U = cell(1,d);
-        R = cell(1,d);
-        Q = cell(1,d);
-        for i=1:d
-            [U{i}, R{i}] = qr(rand(n(i),r(i)), 0);
+        U = cell(1, d);
+        R = cell(1, d);
+        for i = 1:d
+            [U{i}, R{i}] = qr(rand(n(i), r(i)), 0);
         end
-        C  = tenrand(r);
+        C = tenrand(r);
         C = ttm(C,R);
         
-        % Peform an HSOVD of the core to ensure all-orthogonality
-        Z = hosvd(C,r);
-        for i=1:d
+        % Perform an HSOVD of the core to ensure all-orthogonality
+        Z = hosvd(C, r);
+        for i = 1:d
             U{i} = U{i}*Z.U{i};
         end
         
-        Y = ttensor(Z.core,U);
+        Y = ttensor(Z.core, U);
         X.X = Y;
-        Cpinv = cell(1,d);
-        for i=1:d
-            Cpinv{i} = pinv(double(tenmat(X.X.core,i)));
+        Cpinv = cell(1, d);
+        for i = 1:d
+            Cpinv{i} = pinv(double(tenmat(X.X.core, i)));
         end
         X.Cpinv = Cpinv;
     end
@@ -284,17 +285,17 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
         G = tensor(randn(r));
         xi.G = G;
         
-        V = cell(1,d);
-        for i=1:d
-            V{i} = randn(n(i),r(i));
+        V = cell(1, d);
+        for i = 1:d
+            V{i} = randn(n(i), r(i));
         end
         xi.V = V;
         
-        xi = M.tangent(X,xi);
-        nrm = M.norm(X,xi);
+        xi = M.tangent(X, xi);
+        nrm = M.norm(X, xi);
         
         eta.G = xi.G / nrm;
-        for i=1:d
+        for i = 1:d
             xi.V{i} = xi.V{i} / nrm;
         end
         eta.V = xi.V;
