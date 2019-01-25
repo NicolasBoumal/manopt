@@ -4,26 +4,32 @@ function low_rank_tensor_completion_embedded()
 %
 % function low_rank_tensor_completion_embedded()
 %
-% !!! NOTE: The Tensor Toolbox Version 2.6 or higher (see https://www.tensortoolbox.org/
-% or https://gitlab.com/tensors/tensor_toolbox) is needed for the execution
-% of this file !!!
+% NOTE: Tensor Toolbox version 2.6 or higher is required for this factory:
+% see https://www.tensortoolbox.org/ or https://gitlab.com/tensors/tensor_toolbox
 %
 % This example demonstrates how to use the geometry factory for the
-% embedded submanifold of fixed-rank tensors, embedded_tensor_factory.
+% embedded submanifold of fixed-rank tensors in Tucker format:
+% fixedranktensorembeddedfactory.
 %
 % This geometry is described in the article
 % "A Riemannian trust-region method for low-rank tensor completion"
-% Gennadij Heidel and Volker Schulz, DOI:10.1002/nla.2175.
+% Gennadij Heidel and Volker Schulz, doi:10.1002/nla.2175.
 %
 % This can be a starting point for many optimization problems of the form:
 %
 % minimize f(X) such that rank(X) = [r1 ... rd], size(X) = [n1 ... nd].
 %
+% Important: to keep this example short, the code for the cost function,
+% gradient and Hessian do not properly exploit sparsity of the
+% observations, which leads to significant slow-downs for large tensors.
+% This example file should be considered a starting point for more
+% sophisticated implementations.
+%
 % Input:  None. This example file generates random data with noise.
 % 
 % Output: None.
 %
-% Please cite the Manopt and MATLAB Tensor Toolbox papers as well as the
+% Please cite the Manopt and Matlab Tensor Toolbox papers as well as the
 % research paper:
 %     @Article{heidel2018riemannian,
 %       Title   = {A {R}iemannian trust-region method for low-rank tensor completion},
@@ -35,20 +41,13 @@ function low_rank_tensor_completion_embedded()
 %       Pages   = {e1275},
 %       Doi     = {10.1002/nla.2175}
 %     }
+%
+% See also: fixedranktensorembeddedfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Gennadij Heidel, January 24, 2019.
 % Contributors: 
 % Change log:
-%
-
-    assert(exist('ttensor','file')==2,['It seems the Tensor Toolbox is ',...
-    'not installed. It is needed for the execution of low_rank_tensor_completion_embedded.m. ',...
-    'Please download the Toolbox first at https://www.tensortoolbox.org/',...
-    ' or https://gitlab.com/tensors/tensor_toolbox.']);
-    
-    rng('default')
-    
 
     % Random data generation with pseudo-random numbers from a 
     % uniform distribution on [0, 1].  
@@ -57,15 +56,15 @@ function low_rank_tensor_completion_embedded()
     total_entries = prod(tensor_dims);
     d = length(tensor_dims);
     
-    % Standard deviation of normally distributed noise (set sigma to 0 to get
-    % noise-free case)
+    % Standard deviation of normally distributed noise.
+    % Set sigma to 0 to test the noise-free case.
     sigma = 0.1;
     
     % Generate a random tensor A of size n1-by-...-by-nd of rank (r1, ..., rd).
-    U = cell(0);
-    R = cell(0);
-    for i=1:d
-        [U{end+1},R{end+1}] = qr(randn(tensor_dims(i), core_dims(i)), 0);
+    U = cell(1, d);
+    R = cell(1, d);
+    for i = 1:d
+        [U{i}, R{i}] = qr(randn(tensor_dims(i), core_dims(i)), 0);
     end
 
     Z.U = R;
@@ -76,23 +75,24 @@ function low_rank_tensor_completion_embedded()
     Y.G = Core;
     A = ttm(Core,Y.U);
     
-    % add noise to low-rank tensor
+    % Add noise to low-rank tensor
     A = A + sigma*tensor(randn(tensor_dims));
     
     
-    % Generate a random mask P for observed entries: P(i, j, k) = 1 if the entry
-    % (i, j, k) of A is observed, and 0 otherwise.
-    fraction = 0.1; % Fraction of known entries.
+    % Generate a random mask P for observed entries:
+    % P(i, j, k) = 1 if the entry (i, j, k) of A is observed,
+    %            = 0 otherwise.
+    fraction = 0.1; % Fraction of observed entries.
     nr = round(fraction * total_entries);
     ind = randperm(total_entries);
     ind = ind(1 : nr);
     P = false(tensor_dims);
     P(ind) = true;
-    % Hence, we know the nonzero entries in PA:
+    % Hence, we observe the nonzero entries in PA:
     P = tensor(P);
     PA = P.*A; 
     % Note that an efficient implementation would require evaluating A as a
-    % sparse tensor only at the indices of P
+    % sparse tensor only at the indices of P.
 
     
     
@@ -101,10 +101,13 @@ function low_rank_tensor_completion_embedded()
     problem.M = fixedranktensorembeddedfactory(tensor_dims, core_dims);
     
     
-    % Define the problem cost function. The store structure is used to minimize
-    % full tensor evaluations.
+    % Define the problem cost function.
+    % The store structure is used to reduce full tensor evaluations.
+    % Again: proper handling of sparse tensors would dramatically reduce
+    % the computation time for large tensors. This file only serves as a
+    % simple starting point.
     problem.cost = @cost;
-    function [f,store] = cost(X, store)
+    function [f, store] = cost(X, store)
         if ~isfield(store, 'PXmPA')
             Xfull = full(X.X);
             store.PXmPA = P.*Xfull - PA;
@@ -113,9 +116,9 @@ function low_rank_tensor_completion_embedded()
     end
 
     % Define the Euclidean gradient of the cost function, that is, the
-    % gradient of f(X) seen as a standard function of X.
+    % gradient of f(X) seen as a function of X without rank restrictions.
     problem.egrad =  @egrad;
-    function [g,store] = egrad(X, store)
+    function [g, store] = egrad(X, store)
         if ~isfield(store, 'PXmPA')
             Xfull = full(X.X);
             store.PXmPA = P.*Xfull - PA;
@@ -123,10 +126,10 @@ function low_rank_tensor_completion_embedded()
         g = store.PXmPA;
     end
     
-    % Define the Euclidean Hessian of the cost at X.
+    % Define the Euclidean Hessian of the cost at X along a vector eta.
     problem.ehess = @ehess;
-    function [H] = ehess(X, eta)
-        ambient_H = problem.M.tangent2ambient(X,eta);
+    function H = ehess(X, eta)
+        ambient_H = problem.M.tangent2ambient(X, eta);
         H = P.*ambient_H;
     end
     
@@ -136,15 +139,15 @@ function low_rank_tensor_completion_embedded()
     options.maxinner = 100;
     options.maxtime = inf;
     options.storedepth = 3;
-    % Relative residual in gradient norm wanted
-    store.PXmPA = P.*full(X0.X) - PA;
-    options.tolgradnorm = 1e-8*problem.M.norm(X0,problem.M.egrad2rgrad(X0,problem.egrad(X0,store)));        
+    % Target gradient norm
+    options.tolgradnorm = 1e-8*problem.M.norm(X0, getGradient(problem, X0));
 
-     % Minimize the cost function using Riemannian trust-regions
-    [Xtr,~,~,~] = trustregions(problem, X0, options);
+    % Minimize the cost function using Riemannian trust-regions
+    Xtr = trustregions(problem, X0, options);
 
-    % Postprocessing
+    % Display some quality metrics for the computed solution
     Xtrfull = full(Xtr.X);
     fprintf('||X-A||_F / ||A||_F = %g\n', norm(Xtrfull - A)/norm(A));
     fprintf('||PX-PA||_F / ||PA||_F = %g\n', norm(P.*Xtrfull - PA)/norm(PA));
+    
 end
