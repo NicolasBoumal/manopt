@@ -1,28 +1,32 @@
 function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
-% Manifold of fixed multilinear rank tensors in Tucker format as a submanifold
-% of a Euclidean space..
+% Manifold of tensors with fixed multilinear rank in Tucker format as a submanifold
+% of a Euclidean space.
 %
 % function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 %
-% !!! NOTE: The Tensor Toolbox Version 2.6 or higher (see https://www.tensortoolbox.org/
-% or https://gitlab.com/tensors/tensor_toolbox) is needed for the execution
-% of this file !!!
+% NOTE: Tensor Toolbox version 2.6 or higher is required for this factory:
+% see https://www.tensortoolbox.org/ or https://gitlab.com/tensors/tensor_toolbox
 %
-% n = tensor_size;
-% r = tensor_rank;
+% The set of tensors with fixed multilinear rank in Tucker format is endowed
+% with a Riemannian manifold structure as an embedded submanifold of a
+% Euclidean space. This function returns a structure M representing this
+% manifold for use with Manopt.
 %
-% A point X on the manifold is represented as a structure with two fields:
-% X: a ttensor object (see Tensor Toolbox), the actual point on the manifold
+% tensore_size is a vector ......... Please explain the input: what are the sizes / ranks?
+% tensor_rank is a vector ..........
+%
+% A point on the manifold is represented as a structure with two fields:
+% X: a ttensor object (see Tensor Toolbox), the actual point on the manifold.
 % Cpinv: a cell list of the pseudoinverses of all matricizations of X.core.
-% This is needed for efficient preprocessing.
+% (This preprocessing makes subsequent operations more efficient.)
 %
-% Tangent vectors are represented as a structure with two fields: 
+% A tangent vector is represented as a structure with two fields: 
 % G: variation in the core tensor
 % V: a cell list of variations in the core matrices
 %
 % For details, refer to the article
 % "A Riemannian trust-region method for low-rank tensor completion"
-% Gennadij Heidel and Volker Schulz, DOI:10.1002/nla.2175.
+% Gennadij Heidel and Volker Schulz, doi:10.1002/nla.2175.
 %
 % Please cite the Manopt and MATLAB Tensor Toolbox papers as well as the
 % research paper:
@@ -37,13 +41,12 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 %       Doi     = {10.1002/nla.2175}
 %     }
 %
-% See also: fixedrankfactory_tucker_preconditioned
+% See also: fixedrankfactory_tucker_preconditioned fixedrankembeddedfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Gennadij Heidel, January 24, 2019.
 % Contributors: 
 % Change log:
-%
 
     assert(exist('ttensor','file')==2,['It seems the Tensor Toolbox is ',...
     'not installed. It is needed for the execution of fixedranktensorembeddedfactory.m. ',...
