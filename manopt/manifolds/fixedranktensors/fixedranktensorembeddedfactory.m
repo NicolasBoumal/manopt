@@ -12,8 +12,11 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 % Euclidean space. This function returns a structure M representing this
 % manifold for use with Manopt.
 %
-% tensore_size is a vector ......... Please explain the input: what are the sizes / ranks?
-% tensor_rank is a vector ..........
+% The inputs tensore_size and tensor_rank are vectors of length d, where
+% d is the order (the number of modes) of the tensors considered.
+% The entries of tensor_size are the tensor dimensions in each mode.
+% The entries of tensor_rank are the multilinear ranks (Tucker ranks,
+% matricization ranks) in each mode.
 %
 % A point on the manifold is represented as a structure with two fields:
 % X: a ttensor object (see Tensor Toolbox), the actual point on the manifold.
@@ -24,9 +27,11 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 % G: variation in the core tensor
 % V: a cell list of variations in the core matrices
 %
-% TODO Please also describe how vectors in the ambient space are
-% represented. Specifically, the input to proj, the output of egrad, and
-% vectors output by the Euclidean Hessian?
+% The vectors in the ambient space (the vector E for the function M.proj
+% and the vectors egrad and ehess for the functions M.egrad2rgrad and
+% M.ehess2rhess) can be given as either full tensors (a tensor object
+% in the Tensor Toolbox) or sparse tensors(a sptensor object in the
+% Tensor Toolbox).
 %
 % For details, refer to the article
 % "A Riemannian trust-region method for low-rank tensor completion"
@@ -54,9 +59,15 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 
 % References to papers in the code:
 %
-% Kressner et al.: TODO
+% Kressner et al.:
+% "Low-rank tensor completion by Riemannian optimization"
+% D. Kressner, M. Steinlechner, B. Vandereycken
+% doi:10.1007/s10543-013-0455-z
 %
-% De Lathauwer et al.: TODO
+% De Lathauwer et al.:
+% "A multilinear singular value decomposition"
+% L. De Lathauwer, B. De Moor, J. Vandewalle
+% doi:10.1137/S0895479896305696
 
     assert(exist('ttensor', 'file') == 2, sprintf( ...
         ['It seems the Tensor Toolbox is not installed.\nIt is needed ', ...
@@ -435,7 +446,7 @@ function T = hosvd(X, r)
 end
 
 % Curvature term for Riemannian Hessian,
-% see Heidel/Schulz, 2017, Corollary 3.7
+% see Heidel/Schulz, 2018, Corollary 3.7
 function eta = curvature_term(E, X, xi)
     G = tenzeros(size(X.X.core));
     d = length(size(X.X.core));
