@@ -1,6 +1,6 @@
 function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
-% Manifold of tensors with fixed multilinear rank in Tucker format as a submanifold
-% of a Euclidean space.
+% Manifold of tensors with fixed multilinear rank in Tucker format
+% as a submanifold of a Euclidean space.
 %
 % function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 %
@@ -23,6 +23,10 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 % A tangent vector is represented as a structure with two fields: 
 % G: variation in the core tensor
 % V: a cell list of variations in the core matrices
+%
+% TODO Please also describe how vectors in the ambient space are
+% represented. Specifically, the input to proj, the output of egrad, and
+% vectors output by the Euclidean Hessian?
 %
 % For details, refer to the article
 % "A Riemannian trust-region method for low-rank tensor completion"
@@ -48,110 +52,75 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 % Contributors: 
 % Change log:
 
-    assert(exist('ttensor','file')==2,['It seems the Tensor Toolbox is ',...
-    'not installed. It is needed for the execution of fixedranktensorembeddedfactory.m. ',...
-    'Please download the Toolbox first at https://www.tensortoolbox.org/',...
-    ' or https://gitlab.com/tensors/tensor_toolbox.']);
+% References to papers in the code:
+%
+% Kressner et al.: TODO
+%
+% De Lathauwer et al.: TODO
+
+    assert(exist('ttensor', 'file') == 2, sprintf( ...
+        ['It seems the Tensor Toolbox is not installed.\nIt is needed ', ...
+         'for the execution of fixedranktensorembeddedfactory.m.\n', ...
+         'Please download the toolbox at https://www.tensortoolbox.org/', ...
+         '\nor https://gitlab.com/tensors/tensor_toolbox.']));
 
     % Tensor size and rank
     d = length(tensor_size);
-    if d~=length(tensor_rank)
-        error('Bad usage of embedded_tensor_factory. Tensor dimensions and rank do not match.')
+    if d ~= length(tensor_rank)
+        error(['Tensor dimensions and ranks do not match: ' ...
+               'the two inputs should have the same length.']);
     end
     n = tensor_size;
     r = tensor_rank;
     
     % Generate a string that describes the used manifold
-    M.name = @mfname;
-    function spf = mfname()
-        s = 'C';
-        for i=1:d
-            s = strcat(s,' x U',int2str(i));
-        end
-        s = strcat(s,' Tucker manifold of ');
-        for i=1:10
-           if n(i)<10^i
-               digits = i;
-               break;
-           end
-        end
-        s = strcat(s,'%',int2str(digits+1),'d-by-');
-        for i=2:d-1
-            s = strcat(s,'%d-by-');
-        end
-        s = strcat(s,'%d tensors of rank ');
-        for i=1:10
-           if r(i)<10^i
-               digits = i;
-               break;
-           end
-        end
-        s = strcat(s,'%',int2str(digits+1),'d-by-');
-        for i=2:d-1
-            s = strcat(s,'%d-by-');
-        end
-        s = strcat(s,'%d.');
-        spf = sprintf(s, n, r);
-    end
+    manifold_name = mfname(n, r, d);
+    M.name = @() manifold_name;
     
-    M.dim = @mfdim;
-    function mfd = mfdim()
-        mfd = prod(r);
-        for i=1:d
-            mfd = mfd + n(i)*r(i) - r(i)^2;
-        end
-    end
+    % Dimension of the manifold
+    mfdim = prod(r) + sum(r.*(n-r));
+    M.dim = @() mfdim;
     
     % Efficient inner product on tangent space exploiting orthogonality
-    % relations
     M.inner = @iproduct;
     function ip = iproduct(X, eta, zeta)
-        ip = innerprod(eta.G,zeta.G);
-        for i=1:d
-            ip = ip + innerprod(X.X.core,ttm(X.X.core,eta.V{i}'*zeta.V{i},i));
+        ip = innerprod(eta.G, zeta.G);
+        for i = 1:d
+            ip = ip + innerprod(X.X.core, ...
+                                ttm(X.X.core, eta.V{i}'*zeta.V{i}, i));
         end
     end
 
-    M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
+    M.norm = @(X, eta) sqrt(iproduct(X, eta, eta));
     
-    M.dist = @(x, y) error('embedded_tensor_factory.dist not implemented yet.');
+    M.dist = @(x, y) error('fixedranktensorembeddedfactory.dist not implemented yet.');
     
-    M.typicaldist = @() 10*mean(n)*mean(r); % To do  
+    % This number is heuristic
+    M.typicaldist = @() 10*mean(n)*mean(r);
     
-    % Riemannian gradient is the projection of the Euclidean gradient
-    M.egrad2rgrad = @egrad2rgrad;
-    function rgrad = egrad2rgrad(X, egrad)
-        rgrad = M.proj(X,egrad);
-    end
-    
-    % Riemannian Hessian is the projection of the Euclidean Hessian plus a
-    % curvature term
-    M.ehess2rhess = @ehess2rhess;
-    function Hess = ehess2rhess(X, egrad, ehess, eta) 
-        Hess = lincomb(X, 1,M.proj(X,ehess), 1, curvature_term(egrad, X, eta));
-    end
-    
+    % Orthogonal projection of a vector E in the ambient space to the
+    % tangent space at X.
     M.proj = @projection;
     function Eproj = projection(X, E)
         if ~isstruct(E)
             uList = X.X.U;
             
             % cf. Kressner et al., p. 454, bottom
-            G = ttm(E,uList,'t');
+            G = ttm(E, uList, 't');
 
             % cf. Kressner et al., p. 454, bottom
-            V = cell(1,d);
+            V = cell(1, d);
             for i = 1:d
-                % modes vector witout ith mode for ttm multiplication
+                % modes vector without ith mode for ttm multiplication
                 modes = 1:d;
                 modes(i) = [];
 
                 % list of basis matrices U without the index i
                 uListWoI = uList;
-                uListWoI(:,i) = [];
+                uListWoI(:, i) = [];
                 
                 % the term of V_i before the multiplication by the orthogonal projector
-                beforeProj = tenmat( ttm(E,uListWoI,modes,'t'), i) * X.Cpinv{i};
+                beforeProj = tenmat(ttm(E, uListWoI, modes, 't'), i) * X.Cpinv{i};
 
                 % orthogonal projection
                 V{i} = double(beforeProj - X.X.U{i}*(X.X.U{i}'*beforeProj));
@@ -160,14 +129,29 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
             Eproj.G = G;
             Eproj.V = V;
         else
-            error('embedded_tensor_factory.proj only implemented for ambient tensors so far.');
+            error(['fixedranktensorembeddedfactory.proj only ' ...
+                   'implemented for ambient tensors so far.']);
         end
         
     end
+    
+    % The Riemannian gradient is the projection of the Euclidean gradient
+    M.egrad2rgrad = @egrad2rgrad;
+    function rgrad = egrad2rgrad(X, egrad)
+        rgrad = projection(X, egrad);
+    end
+    
+    % The Riemannian Hessian is the projection of the Euclidean Hessian
+    % plus a curvature term: see code below in this file.
+    M.ehess2rhess = @ehess2rhess;
+    function Hess = ehess2rhess(X, egrad, ehess, eta) 
+        Hess = lincomb(X, 1, projection(X, ehess), ...
+                          1, curvature_term(egrad, X, eta));
+    end
 
-    % Re-orthogonalise basis matrix variations in the tangent vector
-    % When applied to a tangent vector, this should to nothing up to
-    % numerical noise
+    % Re-orthogonalize basis matrix variations in the tangent vector.
+    % When applied to a tangent vector, this should do nothing up to
+    % numerical errors.
     M.tangent = @tangent;
     function xi = tangent(X, eta)
         xi = eta;
@@ -177,26 +161,26 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
     end
 
     % Generate full n1-by-...-by-nd tensor in the ambient space from
-    % tangent vector
+    % a tangent vector.
     M.tangent2ambient = @tan2amb;
     function E = tan2amb(X,eta)
-        E = ttm(eta.G,X.X.U);
+        E = ttm(eta.G, X.X.U);
         
-        for i=1:d
-            % modes vector witout ith mode for ttm multiplication
+        for i = 1:d
+            % modes vector without ith mode for ttm multiplication
             modes = 1:d;
             modes(i) = [];
 
             % list of basis matrices U without the index i
             uListWoI = X.X.U;
-            uListWoI(:,i) = [];
+            uListWoI(:, i) = [];
 
-            E = E + ttm( ttm(X.X.core,eta.V{i},i), uListWoI, modes );
+            E = E + ttm(ttm(X.X.core, eta.V{i}, i), uListWoI, modes);
         end
         
     end
     
-    % Efficient retraction, see Kressner at al., 2014, for idea
+    % Efficient retraction, see Kressner at al., 2014
     M.retr = @retraction;
     function Y = retraction(X, xi, alpha)
         % if no alpha is given, assume it to be = 1
@@ -316,51 +300,54 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
         eta.V = xi.V;
     end
     
-    % Evalueate lambda1*eta1* + lambda2*eta2 in the tangent space
+    % Evaluate lambda1*eta1* + lambda2*eta2 in the tangent space
     M.lincomb = @lincomb;
-    function xi = lincomb(X, lambda1, eta1, lambda2, eta2)
+    function xi = lincomb(X, lambda1, eta1, lambda2, eta2) %#ok<INUSL>
         if nargin == 3
-            V = cell(1,d);
-            for i=1:d
+            V = cell(1, d);
+            for i = 1:d
                 V{i} = lambda1*eta1.V{i};
             end
             xi.G = lambda1*eta1.G;
             xi.V = V;
         elseif nargin == 5
-            V = cell(1,d);
-            for i=1:d
+            V = cell(1, d);
+            for i = 1:d
                 V{i} = lambda1*eta1.V{i} + lambda2*eta2.V{i};
             end
             xi.G = lambda1*eta1.G + lambda2*eta2.G;
             xi.V = V;
         else
-            error('Bad use of embedded_tensor_factory.lincomb.');
+            error('fixedranktensorembeddedfactory.lincomb takes 3 or 5 inputs.');
         end
     end
     
     M.zerovec = @zerovector;
-    function eta = zerovector(X)
+    function eta = zerovector(X) %#ok<INUSD>
         G = tenzeros(r);
-        V = cell(1,d);
-        for i=1:d
-            V{i} = zeros(n(i),r(i));
+        V = cell(1, d);
+        for i = 1:d
+            V{i} = zeros(n(i), r(i));
         end
-        
         eta.G = G;
         eta.V = V;
     end
 
-    % Efficient vector transport by orthogonal projection, see Kressner at al.,
-    % 2014, for idea
+    % Efficient vector transport by orthogonal projection,
+    % see Kressner at al.
     M.transp = @transport;
-    function eta = transport(X,Y,xi)
+    function eta = transport(X, Y, xi)
 
-        % Take notation from Kressner et al. paper
-        C = X.X.core; U = X.X.U; uList = U;
-        U_tilde = Y.X.U; uTildeList = U_tilde;
-        G = xi.G; V = xi.V;
+        % Follow notation from Kressner et al.
+        C = X.X.core;
+        U = X.X.U;
+        uList = U;
+        U_tilde = Y.X.U;
+        uTildeList = U_tilde;
+        G = xi.G;
+        V = xi.V;
 
-        G_tilde = ttm(ttm(G,U),U_tilde,'t');
+        G_tilde = ttm(ttm(G, U), U_tilde, 't');
 
         for i = 1:d
 
@@ -368,31 +355,31 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
             uListWoI = U;
             uListWoI{i} = V{i};
 
-            G_tilde = G_tilde + ttm(ttm(C,uListWoI),U_tilde,'t');
+            G_tilde = G_tilde + ttm(ttm(C, uListWoI), U_tilde, 't');
         end
 
-        V_tilde = cell(1,d);
+        V_tilde = cell(1, d);
         for i = 1:d
 
-            % Modes vector witout ith mode for ttm multiplication
+            % Modes vector without ith mode for ttm multiplication
             modesWoI = 1:d;
             modesWoI(i) = [];
 
             % List of basis matrices U without the index i
             uTildeListWoI = uTildeList;
-            uTildeListWoI(:,i) = [];
+            uTildeListWoI(:, i) = [];
 
-            beforeProj = ttm(ttm(G,U),uTildeListWoI,modesWoI,'t');
+            beforeProj = ttm(ttm(G, U), uTildeListWoI, modesWoI, 't');
 
             for k = 1:d
                 uListWoK = uList;
                 uListWoK{k} = V{k};
 
-                beforeProj = beforeProj +...
-                    ttm(ttm(C,uListWoK),uTildeListWoI,modesWoI,'t');
+                beforeProj = beforeProj + ...
+                       ttm(ttm(C, uListWoK), uTildeListWoI, modesWoI, 't');
             end
 
-            beforeProj = tenmat(beforeProj,i) * Y.Cpinv{i};
+            beforeProj = tenmat(beforeProj, i) * Y.Cpinv{i};
 
             V_tilde{i} = double(beforeProj - U_tilde{i}*(U_tilde{i}'*beforeProj));
         end
@@ -404,11 +391,11 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
     M.vec = @(X, eta) [eta.V{1}(:); eta.V{2}(:); eta.V{3}(:);eta.G(:)];
 
     M.mat = @normrep;
-    function eta = normrep(X, eta_vec)
+    function eta = normrep(X, eta_vec) %#ok<INUSL>
         
-        V = cell(1,d);
+        V = cell(1, d);
         first_ind = 1;
-        for i=1:d
+        for i = 1:d
             V{i} = reshape(eta_vec(first_ind : first_ind + n(i)*r(i)-1), n(i), r(i));
             first_ind = first_ind + n(i)*r(i);
         end
@@ -425,61 +412,97 @@ end
 
 % Higher-order SVD, see De Lathauwer et al., 2000
 function T = hosvd(X, r)
-    if (ndims(X) == length(r))
+    if ndims(X) == length(r)
         d = ndims(X);
     else
         error('Dimensions of tensor and multilinear rank vector do not match.')
     end
 
-    % store matrices U of r left singular vectors of X and store ina cell array
-    uList = cell(1,d);
-    for i=1:d
-        % convert do double because svds of tenmat impossible
-        A = double(tenmat(X,i));
-        [U,~,~] = svds(A,r(i));
+    % Store matrices U of r left singular vectors of X and store them
+    % in a cell array
+    uList = cell(1, d);
+    for i = 1:d
+        % Cast to double because svds of tenmat is undefined
+        A = double(tenmat(X, i));
+        [U, ~, ~] = svds(A, r(i));
         uList{i} = U;
     end
 
-    C = ttm(X,uList,'t');
+    C = ttm(X, uList, 't');
 
-    T = ttensor(C,uList);
+    T = ttensor(C, uList);
 end
 
-% Curvature term for Riemannian Hessian, see Heidel/Schulz, 2017, Corollary 3.7
+% Curvature term for Riemannian Hessian,
+% see Heidel/Schulz, 2017, Corollary 3.7
 function eta = curvature_term(E, X, xi)
     G = tenzeros(size(X.X.core));
     d = length(size(X.X.core));
-    V = cell(1,d);
+    V = cell(1, d);
 
-    for i=1:d
+    for i = 1:d
         modesWoI = 1:d;
         modesWoI(i) = [];
 
         uListWoI = X.X.U;
         uListWoI(:,i) = [];
         
-        EUit = ttm(E,uListWoI,modesWoI,'t');
-        Gi = double(tenmat(xi.G,i));
-        Ci = double(tenmat(X.X.core,i));
+        EUit = ttm(E, uListWoI, modesWoI, 't');
+        Gi = double(tenmat(xi.G, i));
+        Ci = double(tenmat(X.X.core, i));
         
-        G = G + ttm(EUit,xi.V{i},i,'t')...
-            - ttm(X.X.core,double(xi.V{i}'*(tenmat(EUit,i)*X.Cpinv{i})),i); 
+        G = G + ttm(EUit,xi.V{i}, i, 't')...
+              - ttm(X.X.core, ...
+                    double(xi.V{i}'*(tenmat(EUit,i)*X.Cpinv{i})), i); 
         
         Cplusi2 = X.Cpinv{i}'*X.Cpinv{i};
-        Vi = (tenmat(EUit,i)*Gi')*Cplusi2 + (tenmat(EUit,i)*X.Cpinv{i})*(Ci*Gi')*Cplusi2;
+        Vi = (tenmat(EUit, i)*Gi')*Cplusi2 + ...
+             (tenmat(EUit, i)*X.Cpinv{i})*(Ci*Gi')*Cplusi2;
         for k = 1:length(modesWoI)
             modesWoIWoK = modesWoI;
             modesWoIWoK(k) = [];
             
             uListWoIWoK = uListWoI;
-            uListWoIWoK(:,k) = [];
+            uListWoIWoK(:, k) = [];
 
-            EUiEUkdott = ttm(ttm(E,uListWoIWoK,modesWoIWoK,'t'),xi.V{modesWoI(k)},modesWoI(k),'t');
-            Vi = Vi + tenmat(EUiEUkdott,i)*X.Cpinv{i};
+            EUiEUkdott = ttm(ttm(E, uListWoIWoK, modesWoIWoK, 't'), ...
+                             xi.V{modesWoI(k)}, modesWoI(k), 't');
+            Vi = Vi + tenmat(EUiEUkdott, i)*X.Cpinv{i};
         end
         V{i} = double(Vi - X.X.U{i}*(X.X.U{i}'*Vi));
     end
 
     eta.G = G;
     eta.V = V;
+end
+
+function spf = mfname(n, r, d)
+    s = 'C';
+    for i = 1:d
+        s = strcat(s, ' x U',int2str(i));
+    end
+    s = strcat(s, ' Tucker manifold of ');
+    for i = 1:10
+       if n(i) < 10^i
+           digits = i;
+           break;
+       end
+    end
+    s = strcat(s, '%', int2str(digits+1), 'd-by-');
+    for i = 2:d-1
+        s = strcat(s, '%d-by-');
+    end
+    s = strcat(s, '%d tensors of rank ');
+    for i = 1:10
+       if r(i)<10^i
+           digits = i;
+           break;
+       end
+    end
+    s = strcat(s, '%', int2str(digits+1), 'd-by-');
+    for i = 2:d-1
+        s = strcat(s, '%d-by-');
+    end
+    s = strcat(s, '%d');
+    spf = sprintf(s, n, r);
 end
