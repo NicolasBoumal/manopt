@@ -27,10 +27,10 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 % G: variation in the core tensor
 % V: a cell list of variations in the core matrices
 %
-% The vectors in the ambient space (the vector E for the function M.proj
-% and the vectors egrad and ehess for the functions M.egrad2rgrad and
-% M.ehess2rhess) can be given as either full tensors (a tensor object
-% in the Tensor Toolbox) or sparse tensors(a sptensor object in the
+% Vectors in the ambient space (e.g., vector E for the function M.proj
+% and vectors egrad and ehess for the functions M.egrad2rgrad and
+% M.ehess2rhess) can be given as either full tensors (tensor objects
+% in the Tensor Toolbox) or sparse tensors (sptensor objects in the
 % Tensor Toolbox).
 %
 % For details, refer to the article
