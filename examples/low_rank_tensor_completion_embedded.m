@@ -69,11 +69,11 @@ function low_rank_tensor_completion_embedded()
 
     Z.U = R;
     Z.G = tenrand(core_dims);
-    Core = ttm(Z.G,Z.U);
+    Core = ttm(Z.G, Z.U);
 
     Y.U = U;
     Y.G = Core;
-    A = ttm(Core,Y.U);
+    A = ttm(Core, Y.U);
     
     % Add noise to low-rank tensor
     A = A + sigma*tensor(randn(tensor_dims));
@@ -96,8 +96,8 @@ function low_rank_tensor_completion_embedded()
 
     
     
-    % Pick the submanifold of tensors of size n1-by-...-by-nd of rank
-    % (r1, ..., rd).
+    % Pick the submanifold of tensors of size n1-by-...-by-nd of
+    % multilinear rank (r1, ..., rd).
     problem.M = fixedranktensorembeddedfactory(tensor_dims, core_dims);
     
     
@@ -105,7 +105,8 @@ function low_rank_tensor_completion_embedded()
     % The store structure is used to reduce full tensor evaluations.
     % Again: proper handling of sparse tensors would dramatically reduce
     % the computation time for large tensors. This file only serves as a
-    % simple starting point.
+    % simple starting point. See help for the Tensor Toolbox regarding
+    % sparse tensors. Same comment for gradient and Hessian below.
     problem.cost = @cost;
     function [f, store] = cost(X, store)
         if ~isfield(store, 'PXmPA')
