@@ -144,7 +144,7 @@ function M = rotationsfactory(n, k)
     end
     
     % A second order retraction is implemented here. To force its use,
-    % after creating the factory M, execute M.retr = M.retr2.
+    % after creating the factory M, execute M.retr = M.retr_polar.
     M.retr_polar = @retraction_polar;
     function Y = retraction_polar(X, U, t)
         if nargin == 3
