@@ -64,13 +64,15 @@ function M = multinomialfactory(n, m)
     
     M.typicaldist = @() m*pi/2; % This is an approximation.
     
-    % Column vector of ones of length n. 
+    % Column vector of ones of length n.
+    % TODO: eliminate e by using bsxfun
     e = ones(n, 1);
     
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
-        lambda = -sum(X.*egrad, 1); % Row vector of length m.
-        rgrad = X.*egrad + (e*lambda).*X; % This is in the tangent space.
+        Xegrad = X.*egrad;
+        lambda = -sum(Xegrad, 1); % Row vector of length m.
+        rgrad = Xegrad + (e*lambda).*X; % This is in the tangent space.
     end
     
     M.ehess2rhess = @ehess2rhess;
@@ -78,13 +80,16 @@ function M = multinomialfactory(n, m)
         
         % Riemannian gradient computation.
         % lambda is a row vector of length m.
-        lambda = - sum(X.*egrad, 1);
-        rgrad =  X.*egrad + (e*lambda).*X;
+        Xegrad = X.*egrad;
+        lambda = - sum(Xegrad, 1);
+        rgrad =  Xegrad + (e*lambda).*X;
         
         % Directional derivative of the Riemannian gradient.
         % lambdadot is a row vector of length m.
-        lambdadot = -sum(eta.*egrad, 1) - sum(X.*ehess, 1); 
-        rgraddot = eta.*egrad + X.*ehess + (e*lambdadot).*X + (e*lambda).*eta;
+        Xehess = X.*ehess;
+        etaegrad = eta.*egrad;
+        lambdadot = -sum(etaegrad, 1) - sum(Xehess, 1); 
+        rgraddot = etaegrad + Xehess + (e*lambdadot).*X + (e*lambda).*eta;
         
         % Correction term because of the non-constant metric that we
         % impose. The computation of the correction term follows the use of

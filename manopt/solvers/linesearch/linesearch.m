@@ -68,7 +68,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 %       The linesearch is now invariant under rescaling of the cost
 %       function f. That is, if f is replaced by 8*f (and hence the
 %       directional derivatives of f are scaled accordingly), the
-%       stepsizes computed will not change.
+%       computed stepsizes will not change.
 % 
 %   Nov. 7, 2013 (NB):
 %       The linesearch is now invariant under rescaling of the search
