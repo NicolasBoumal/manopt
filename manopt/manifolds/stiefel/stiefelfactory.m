@@ -124,8 +124,6 @@ function M = stiefelfactory(n, p, k, gpuflag)
         end
     end
 
-    % This inverse retraction is valid for both the QR retraction and the
-    % polar retraction.
     M.invretr_qr = @invretr_qr;
     function U = invretr_qr(X, Y)
         XtY = multiprod(multitransp(X), Y);
@@ -164,8 +162,6 @@ function M = stiefelfactory(n, p, k, gpuflag)
         end
     end
     
-    % This inverse retraction is valid for both the QR retraction and the
-    % polar retraction.
     M.invretr_polar = @invretr_polar;
     function U = invretr_polar(X, Y)
         XtY = multiprod(multitransp(X), Y);
