@@ -511,10 +511,8 @@ while true
     end
     
     
-    % This is only computed for logging purposes, because it may be useful
-    % for some user-defined stopping criteria. If this is not cheap for
-    % specific applications (compared to evaluating the cost), we should
-    % reconsider this.
+    % This is computed for logging purposes and may be useful for some
+    % user-defined stopping criteria.
     norm_eta = M.norm(x, eta);
     
     if options.debug > 0
