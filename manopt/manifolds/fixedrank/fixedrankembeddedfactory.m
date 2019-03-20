@@ -32,6 +32,18 @@ function M = fixedrankembeddedfactory(m, n, k)
 % The chosen geometry yields a Riemannian submanifold of the embedding
 % space R^(mxn) equipped with the usual trace (Frobenius) inner product.
 %
+% The tools
+%    X_triplet = M.matrix2triplet(X_matrix) and
+%    X_matrix = M.triplet2matrix(X_triplet)
+% can be used to easily convert between full matrix representation (as a
+% matrix of size mxn) and triplet representation as a structure with fields
+% U, S, V. The tool matrix2triplet also accepts an optional second input r
+% to choose the rank of the triplet representation. By default, r = k. If
+% the input matrix X_matrix has rank more than r, the triplet represents
+% its best rank-r approximation in the Frobenius norm (truncated SVD).
+% Note that these conversions are computationally expensive for large m
+% and n: this is mostly useful for small matrices and for prototyping.
+%
 %
 % Please cite the Manopt paper as well as the research paper:
 %     @Article{vandereycken2013lowrank,
@@ -80,6 +92,11 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 %    Sep.  6, 2018 (NB):
 %       Removed M.exp() as it was not implemented.
+%
+%    March 20, 2019 (NB):
+%       Added M.matrix2triplet and M.triplet2matrix to allow easy
+%       conversion between matrix representations either as full matrices
+%       or as triplets (U, S, V).
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -307,6 +324,35 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
     M.mat = @(X, Zvec) projection(X, reshape(Zvec, [m, n]));
     M.vecmatareisometries = @() true;
+    
+    % It is sometimes useful to switch between representation of matrices
+    % as triplets or as full matrices of size m x n. The function to
+    % convert a matrix to a triplet, matrix2triplet, allows to specify the
+    % rank of the representation. By default, it is equal to k. Omit the
+    % second input (or set to inf) to get a full SVD triplet (in economy
+    % format). If so, the resulting triplet does not represent a point on
+    % the manifold.
+    M.matrix2triplet = @matrix2triplet;
+    function X_triplet = matrix2triplet(X_matrix, r)
+        if ~exist('r', 'var') || isempty(r) || r <= 0
+            r = k;
+        end
+        if r < min(m, n)
+            [U, S, V] = svds(X_matrix, r);
+        else
+            [U, S, V] = svd(X_matrix, 'econ');
+        end
+        X_triplet.U = U;
+        X_triplet.S = S;
+        X_triplet.V = V;
+    end
+    M.triplet2matrix = @triplet2matrix;
+    function X_matrix = triplet2matrix(X_triplet)
+        U = X_triplet.U;
+        S = X_triplet.S;
+        V = X_triplet.V;
+        X_matrix = U*S*V';
+    end
 
 end
 
