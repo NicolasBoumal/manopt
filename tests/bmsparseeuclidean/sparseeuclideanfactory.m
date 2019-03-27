@@ -33,7 +33,7 @@ function M = sparseeuclideanfactory(A)
     
     M.typicaldist = @() sqrt(prod(dimensions_vec));
     
-    M.proj = @(x, d) d;
+    M.proj = @(x, d) S.*d;
     
     M.egrad2rgrad = @(x, g) S.*g;
     
