@@ -127,8 +127,13 @@ function M = symfixedrankpolarfactory(m, k)
             t = 1.0;
         end
         
-        U = chol(X.B);
-        Y.B = U'*expm(U'\(t*eta.B)/U)*U;
+        B = X.B;
+        tetaB = t*eta.B;
+
+ 		%		Another approach.
+        %		Y.B = symm(B*real(expm(B\(tetaB))));
+        Y.B = symm(B + tetaB + .5*tetaB*(B\tetaB));  
+
         Y.U = uf(X.U + t*eta.U);
     end
     
