@@ -212,6 +212,7 @@ for j = 1 : options.maxinner
     
     % If only a nonlinear Hessian approximation is available, this is
     % only approximately correct, but saves an additional Hessian call.
+    % TODO: this computation is redundant with that of r, L234. Clean up.
     new_Heta = lincomb(1, Heta, -alpha, Hmdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
