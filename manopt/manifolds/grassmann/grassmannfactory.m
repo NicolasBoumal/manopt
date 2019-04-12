@@ -108,6 +108,8 @@ function M = grassmannfactory(n, p, k, gpuflag)
         XtY = multiprod(multitransp(x), y);
         for kk = 1 : k
             cos_princ_angle = svd(XtY(:, :, kk));
+            % For x and y closer than ~sqrt(eps), this function is
+            % inaccurate, and typically returns values close to ~sqrt(eps).
             square_d = square_d + sum(real(acos(cos_princ_angle)).^2);
         end
         d = sqrt(square_d);
