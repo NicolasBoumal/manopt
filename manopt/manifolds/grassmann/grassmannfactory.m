@@ -66,6 +66,10 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %
 %   Aug. 3, 2018 (NB):
 %       Added GPU support: just set gpuflag = true.
+%
+%   Apr. 19, 2019 (NB):
+%       ehess2rhess: to ensure horizontality, it makes sense to project
+%       last, same as in stiefelfactory.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -133,10 +137,9 @@ function M = grassmannfactory(n, p, k, gpuflag)
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
-        PXehess = projection(X, ehess);
         XtG = multiprod(multitransp(X), egrad);
         HXtG = multiprod(H, XtG);
-        rhess = PXehess - HXtG;
+        rhess = projection(X, ehess - HXtG);
     end
     
     M.retr = @retraction;
