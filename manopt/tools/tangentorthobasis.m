@@ -20,7 +20,7 @@ function orthobasis = tangentorthobasis(M, x, n)
 %  B = tangentorthobasis(M, x, n);
 %  B = orthogonalize(M, x, B);
 %
-% See also: grammatrix orthogonalize lincomb plotprofile
+% See also: grammatrix orthogonalize lincomb tangent2vec plotprofile
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 28, 2016.
