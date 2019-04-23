@@ -113,9 +113,10 @@ function M = symfixedrankpolarfactory(m, k)
         etaproj.U = eta.U - X.U*omega;
         etaproj.B = eta.B - (X.B*omega - omega*X.B);
         
-        %         neta.U = eta.U - etaproj.U;
-        %         neta.B = eta.B - etaproj.B;
-        %         M.inner(X, neta, etaproj)
+		%		% Debug
+        %       neta.U = eta.U - etaproj.U;
+        %		neta.B = eta.B - etaproj.B;
+        %       M.inner(X, neta, etaproj)
     end
     
     M.tangent = M.proj;
