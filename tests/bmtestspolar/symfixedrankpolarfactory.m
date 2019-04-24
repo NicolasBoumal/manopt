@@ -3,8 +3,8 @@ function M = symfixedrankpolarfactory(m, k)
 %
 % function M = symfixedrankpolarfactory(m, k)
 %
-% The first-order geometry follows the balanced quotient geometry described 
-% in the paper, 
+% The first-order geometry follows the balanced quotient geometry described
+% in the paper,
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
 % G. Meyer, B. Bonnabel and R. Sepulchre, ICML 2011.
 %
@@ -22,7 +22,7 @@ function M = symfixedrankpolarfactory(m, k)
 %
 % Tangent vectors are represented as a structure with two fields: U and B.
 %
-% 
+%
 % For first-order geometry, please cite the Manopt paper as well as the research paper:
 %     @InProceedings{meyer2011linear,
 %       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
@@ -45,14 +45,14 @@ function M = symfixedrankpolarfactory(m, k)
 %
 %
 % See also symfixedrankYYfactory sympositivedefinitefactory
-
-% This file is part of Manopt: www.manopt.org.
-% Original author: Bamdev Mishra, April 05, 2019.
-% Contributors:
-% Change log:
-%
-
-    M.name = @() sprintf('LSL'' quotient manifold of %dx%d matrices of rank %d', m, m, k);
+    
+    % This file is part of Manopt: www.manopt.org.
+    % Original author: Bamdev Mishra, April 05, 2019.
+    % Contributors:
+    % Change log:
+    %
+    
+    M.name = @() sprintf('UBU'' quotient manifold of %dx%d matrices of rank %d', m, m, k);
     
     M.dim = @() m*k - k*(k-1)/2;
     
@@ -87,7 +87,7 @@ function M = symfixedrankpolarfactory(m, k)
         % Directional derivatives of the Riemannian gradient.
         Hess.U = ehess.U - eta.U*symm(X.U'*egrad.U);
         Hess.U = stiefel_proj(X.U, Hess.U);
-          
+        
         Hess.B = X.B*symm(ehess.B)*X.B +  2*symm(eta.B*symm(egrad.B)*X.B);
         
         % Correction factor for the non-constant metric on the factor B.
@@ -107,16 +107,21 @@ function M = symfixedrankpolarfactory(m, k)
         % Then, projection onto the horizontal space.
         SS = X.B*X.B;
         AS = X.B*(skew(X.U'*eta.U) - 2*skew(X.B\eta.B))*X.B;
-        omega = mylinearsystem(SS, AS);
-        %         norm(omega + omega','fro')
         
-        etaproj.U = eta.U - X.U*omega;
-        etaproj.B = eta.B - (X.B*omega - omega*X.B);
+        % Compute skew-symmetric Omega.
+        % To solve the system SS*Omega + Omega*SS - B*Omega*B = AS
+        Omega = mylinearsystem(SS, AS);
         
-		%		% Debug
-        %       neta.U = eta.U - etaproj.U;
-        %		neta.B = eta.B - etaproj.B;
-        %       M.inner(X, neta, etaproj)
+        %         % Debug: Omega is skew-symmetric.
+        %         norm(Omega + Omega','fro')
+        
+        etaproj.U = eta.U - X.U*Omega;
+        etaproj.B = eta.B - (X.B*Omega - Omega*X.B);
+        
+        %         % Debug
+        %         neta.U = eta.U - etaproj.U;
+        %         neta.B = eta.B - etaproj.B;
+        %         M.inner(X, neta, etaproj)
     end
     
     M.tangent = M.proj;
@@ -130,11 +135,11 @@ function M = symfixedrankpolarfactory(m, k)
         
         B = X.B;
         tetaB = t*eta.B;
-
- 		%		Another approach.
-        %		Y.B = symm(B*real(expm(B\(tetaB))));
-        Y.B = symm(B + tetaB + .5*tetaB*(B\tetaB));  
-
+        
+        % Another approach.
+        % Y.B = symm(B*real(expm(B\(tetaB))));
+        Y.B = symm(B + tetaB + .5*tetaB*(B\tetaB));
+        
         Y.U = uf(X.U + t*eta.U);
     end
     
@@ -196,15 +201,15 @@ function A = uf(A)
 end
 
 function Omega = mylinearsystem(Bsq, RHS)
-	% We want to sove the system Bsq*Omega + Omega*Bsq - B*Omega*B = RHS
-	[u, s2] = eig(Bsq);
-	s2 = diag(s2);
-	s = sqrt(s2);
-	rhs = u'*RHS*u;
-	e = ones(size(Bsq,1),1);% column vector of ones.
-	Omega = u*(rhs./(e*s2' + s2*e' -s*s'))*u';
-
-    % 	% Debug
-    % 	B = u*diag(s)*u';
-    % 	norm(Bsq*Omega + Omega*Bsq - B*Omega*B - RHS,'fro')/norm(RHS,'fro')
+    % We want to sove the system Bsq*Omega + Omega*Bsq - B*Omega*B = RHS.
+    [u, s2] = eig(Bsq);
+    s2 = diag(s2);
+    s = sqrt(s2);
+    rhs = u'*RHS*u;
+    e = ones(size(Bsq,1),1);% column vector of ones.
+    Omega = u*(rhs./(e*s2' + s2*e' -s*s'))*u';
+    
+    %     % Debug
+    %     B = u*diag(s)*u';
+    %     norm(Bsq*Omega + Omega*Bsq - B*Omega*B - RHS,'fro')/norm(RHS,'fro')
 end
