@@ -109,7 +109,7 @@ function M = symmetricfactory(n, k)
 end
 
 % Former, easier versions for vec / mat. They had the disadvantage of
-% giving vector representations of length k*n^2, instead of k*n*(n+1).
+% giving vector representations of length k*n^2, instead of k*n*(n+1)/2.
 % M.vec = @(x, u_mat) u_mat(:);
 % M.mat = @(x, u_vec) reshape(u_vec, [m, n]);
 % M.vecmatareisometries = @() true;
