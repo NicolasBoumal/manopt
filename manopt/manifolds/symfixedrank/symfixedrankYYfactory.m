@@ -17,7 +17,7 @@ function M = symfixedrankYYfactory(n, k)
 % here.
 %
 % Notice that this manifold is not complete: if optimization leads Y to be
-% rank-deficient, the geometry will break down. Hence, this geometry should
+% rank deficient, the geometry will break down. Hence, this geometry should
 % only be used if it is expected that the points of interest will have rank
 % exactly k. Reduce k if that is not the case.
 % 
