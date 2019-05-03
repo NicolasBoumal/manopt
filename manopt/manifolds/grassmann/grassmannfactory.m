@@ -70,6 +70,9 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %   Apr. 19, 2019 (NB):
 %       ehess2rhess: to ensure horizontality, it makes sense to project
 %       last, same as in stiefelfactory.
+%
+%   May 3, 2019 (NB):
+%       Added explanation about vector transport relation to retraction.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -248,7 +251,35 @@ function M = grassmannfactory(n, p, k, gpuflag)
     
     M.zerovec = @(x) zeros(n, p, k, array_type);
     
-    % This transport is compatible with the polar retraction.
+    % This transport is compatible with the polar retraction, in the
+    % following sense:
+    %
+    % n = 7; p = 3;
+    % Gr = grassmannfactory(n, p);
+    % X = Gr.rand();
+    % U = Gr.randvec(X);
+    % V = Gr.randvec(X);
+    % [Q, ~] = qr(randn(p));
+    % Gr.transp(X*Q, Gr.retr(X*Q, V*Q), U*Q) % these two
+    % Gr.transp(X, Gr.retr(X, V), U)*Q       % are equal (up to eps)
+    %
+    % That is, if we transport U, the horizontal lift of some tangent
+    % vector at X, to Y, and Y = Retr_X(V) with V the horizontal lift of
+    % some tangent vector at X, we get the horizontal lift of some tangent
+    % vector at Y. If we displace X, U, V to XQ, UQ, VQ for some arbitrary
+    % orthogonal matrix Q, we get a horizontal lift of some vector at YQ.
+    % Importantly, these two vectors are the lifts of the same tangent
+    % vector, only lifted at Y and YQ.
+    %
+    % However, this vector transport is /not/ fully invariant, in the sense
+    % that transporting U from X to some arbitrary Y may well yield the
+    % lift of a different vector when compared to transporting U from X
+    % from YQ, where Q is an arbitrary orthogonal matrix, even though YQ is
+    % equivalent to Y. Specifically:
+    %
+    % Y = Gr.rand();
+    % Gr.transp(X, Y*Q, U) - Gr.transp(X, Y, U)*Q   % this is not zero.
+    %
     M.transp = @(x1, x2, d) projection(x2, d);
     
     M.vec = @(x, u_mat) u_mat(:);
