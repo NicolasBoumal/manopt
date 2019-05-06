@@ -8,7 +8,7 @@ function checkmanifold(M)
 % indeed a valid description of a Riemannian manifold.
 %
 % This tool is work in progress: your suggestions for additional tests are
-% welcome on our forum.
+% welcome on our forum or as pull requests on GitHub.
 %
 % See also: checkretraction
 
@@ -37,7 +37,8 @@ function checkmanifold(M)
     for k = 1 : numel(list_of_functions)
         field = list_of_functions{k};
         if ~(isfield(M, field) && isa(M.(field), 'function_handle'))
-            fprintf('M.%s should be a function handle.\n', field);
+            fprintf(['M.%s should ideally (but does not have to) be ' ...
+                     'a function handle.\n'], field);
         end
     end
     
