@@ -1,128 +1,5 @@
-function [x, cost, info, options] = arc(problem, x, options)
-% Adaptive regularization by cubics (ARC) minimization algorithm for Manopt
-%
-% function [x, cost, info, options] = arc(problem)
-% function [x, cost, info, options] = arc(problem, x0)
-% function [x, cost, info, options] = arc(problem, x0, options)
-% function [x, cost, info, options] = arc(problem, [], options)
-%
-% Apply the ARC minimization algorithm to the problem defined in the
-% problem structure, starting at x0 if it is provided (otherwise, at a
-% random point on the manifold). To specify options whilst not specifying
-% an initial guess, give x0 as [] (the empty matrix).
-%
-% In most of the examples bundled with the toolbox (see link below), the
-% solver can be replaced by the present one as is.
-%
-% With the default subproblem solver (@arc_lanczos), tuning parameter
-% options.theta properly appears important for performance. Users may want
-% to try different values in the range 1e-3 to 1e3 for a particular
-% application.
-%
-% The outputs x and cost are the last reached point on the manifold and its
-% cost. The struct-array info contains information about the iterations:
-%   iter (integer)
-%       The (outer) iteration number, i.e., number of steps considered
-%       so far (whether accepted or rejected). The initial guess is 0.
-%	cost (double)
-%       The corresponding cost value.
-%	gradnorm (double)
-%       The (Riemannian) norm of the gradient.
-%	hessiancalls (integer)
-%       The number of Hessian calls issued by the subproblem solver to
-%       compute this iterate.
-%	time (double)
-%       The total elapsed time in seconds to reach the corresponding cost.
-%	rho (double)
-%       The regularized performance ratio for the iterate.
-%       See options.rho_regularization.
-%	rhonum, rhoden (double)
-%       Numerator and denominator of the performance ratio, before
-%       regularization.
-%	accepted (boolean)
-%       Whether the proposed iterate was accepted or not.
-%	stepsize (double)
-%       The (Riemannian) norm of the vector returned by the subproblem
-%       solver and which is retracted to obtain the proposed next iterate.
-%       If accepted = true for the corresponding iterate, this is the size
-%       of the step from the previous to the new iterate. If accepted is
-%       false, the step was not executed and this is the size of the
-%       rejected step.
-%	sigma (double)
-%       The cubic regularization parameter at the outer iteration.
-%   And possibly additional information logged by options.statsfun or by
-%   the subproblem solver.
-% For example, type [info.gradnorm] to obtain a vector of the successive
-% gradient norms reached and [info.time] to obtain a vector with the
-% corresponding computation times to reach that point.
-%
-% The options structure is used to overwrite the default values. All
-% options have a default value and are hence optional. To force an option
-% value, pass an options structure with a field options.optionname, where
-% optionname is one of the following. The default value is indicated
-% between parentheses. The subproblem solver may also accept options.
-%
-%   tolgradnorm (1e-6)
-%       The algorithm terminates if the norm of the gradient drops below this.
-%   maxiter (1000)
-%       The algorithm terminates if maxiter (outer) iterations have been executed.
-%   maxtime (Inf)
-%       The algorithm terminates if maxtime seconds elapsed.
-%   sigma_0 (100 / trust-regions default maximum radius)
-%       Initial regularization parameter.
-%   sigma_min (1e-7)
-%       Minimum regularization parameter.
-%   eta_1 (0.1)
-%       If rho is below this, the step is unsuccessful (rejected).
-%   eta_2 (0.9)
-%       If rho exceeds this, the step is very successful.
-%   gamma_1 (0.1)
-%       Shrinking factor for regularization parameter if very successful.
-%   gamma_2 (1.5)
-%       Expansion factor for regularization parameter if unsuccessful.
-%   subproblemsolver (@arc_lanczos)
-%       Function handle to a subproblem solver. The subproblem solver will
-%       also see this options structure, so that parameters can be passed
-%       to it through here as well.
-%   rho_regularization (1e3)
-%       See help for the same parameter in the trustregions solver.
-%   statsfun (none)
-%       Function handle to a function that will be called after each
-%       iteration to provide the opportunity to log additional statistics.
-%       They will be returned in the info struct. See the generic Manopt
-%       documentation about solvers for further information.
-%   stopfun (none)
-%       Function handle to a function that will be called at each iteration
-%       to provide the opportunity to specify additional stopping criteria.
-%       See the generic Manopt documentation about solvers for further
-%       information.
-%   verbosity (3)
-%       Integer number used to tune the amount of output the algorithm
-%       generates during execution (mostly as text in the command window).
-%       The higher, the more output. 0 means silent.
-%   storedepth (2)
-%       Maximum number of different points x of the manifold for which a
-%       store structure will be kept in memory in the storedb. If the
-%       caching features of Manopt are not used, this is irrelevant. As of
-%       version 5.0, this is not particularly important.
-%
-%
-% Please cite the Manopt paper as well as the research paper:
-% @article{agarwal2018arcfirst,
-%   author  = {Agarwal, N. and Boumal, N. and Bullins, B. and Cartis, C.},
-%   title   = {Adaptive regularization with cubics on manifolds with a first-order analysis},
-%   journal = {arXiv preprint arXiv:1806.00065},
-%   year    = {2018}
-% }
-% 
-%
-% See also: trustregions conjugategradient manopt/examples arc_lanczos
-
-% This file is part of Manopt: www.manopt.org.
-% Original authors: May 1, 2018,
-%    Naman Agarwal, Brian Bullins, Nicolas Boumal and Coralia Cartis.
-% Contributors: 
-% Change log: 
+function [x, cost, info, options] = arc_sub_comparison(problem, x, options)
+%Run ARC with Lanczos, but also run CG at each subproblem for comparison.
 
     M = problem.M;
     
@@ -246,7 +123,10 @@ function [x, cost, info, options] = arc(problem, x, options)
         % stop_str is a string describing why the solver terminated; and
         % substats is some statistics about the solver's work to be logged.
         [eta, Heta, hesscalls, stop_str, substats] = ...
-             options.subproblemsolver(problem, x, grad, gradnorm, ...
+             arc_lanczos(problem, x, grad, gradnorm, ...
+                                             sigma, options, storedb, key);
+        [~, ~, ~, ~, cg_substats] = ...
+             arc_conjugate_gradient(problem, x, grad, gradnorm, ...
                                              sigma, options, storedb, key);
         
         etanorm = M.norm(x, eta);
@@ -361,7 +241,8 @@ function [x, cost, info, options] = arc(problem, x, options)
             stats.rhonum = NaN;
             stats.rhoden = NaN;
             stats.accepted = true;
-            stats.subproblem = struct();
+            stats.lanczos = struct();
+            stats.cg = struct();
         else
             stats.hessiancalls = hesscalls;
             stats.stepsize = etanorm;
@@ -370,7 +251,8 @@ function [x, cost, info, options] = arc(problem, x, options)
             stats.rhonum = rho_num;
             stats.rhoden = rho_den;
             stats.accepted = accept;
-            stats.subproblem = substats;
+            stats.lanczos = substats;
+            stats.cg = cg_substats;
         end
         
         % Similar to statsfun with trustregions: the x and store passed to
