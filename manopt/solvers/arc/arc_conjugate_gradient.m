@@ -12,17 +12,17 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
 %
 % where eta is a tangent vector at x on the manifold given by problem.M,
 % g = grad is a tangent vector at x, H[eta] is the result of applying the
-% Hessian of the problem at x along eta and the inner product and norm
+% Hessian of the problem at x along eta, and the inner product and norm
 % are those from the Riemannian structure on the tangent space T_x M.
 %
-% The solve is approximate in the sense that the returned s only ought to
-% satisfy the following conditions:
+% The solve is approximate in the sense that the returned eta only ought
+% to satisfy the following conditions:
 %
-%     ||gradient of m at s|| <= theta*||s||^2   and   m(s) <= m(0),
+%   ||gradient of m at eta|| <= theta*||eta||^2   and   m(eta) <= m(0),
 %
 % where theta is specified in options.theta (see below for default value.)
-% Since the gradient of the model at 0 is g, if it is zero, then s = 0 is
-% returned. This is the only scenario where s = 0 is returned.
+% Since the gradient of the model at 0 is g, if it is zero, then eta = 0
+% is returned. This is the only scenario where eta = 0 is returned.
 %
 % Numerical errors can perturb the described expected behavior.
 %
@@ -45,7 +45,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
 %   beta_type ('P-R')
 %     The update rule for calculating beta:
 %     'F-R' for Fletcher-Reeves, 'P-R' for Polak-Ribiere, and 'H-S' for
-%     Hestenes-Steifel.
+%     Hestenes-Stiefel.
 %
 % Outputs:
 %     eta: approximate solution to the cubic regularized subproblem at x
