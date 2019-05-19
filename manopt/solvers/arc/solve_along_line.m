@@ -6,8 +6,16 @@ function eta = solve_along_line(M, point, x, y, g, Hy, sigma)
 %         on the tangent space T_(point)M, and a constant sigma.
 %
 % Outputs: minimizer eta if eta is positive real; otherwise returns eta = 0
+
+% This file is part of Manopt: www.manopt.org.
+% Original authors: May 2, 2019,
+%    Bryan Zhu, Nicolas Boumal.
+% Contributors:
+% Change log: 
     
+    % Magnitude tolerance for imaginary part of roots.
     im_tol = 1e-05;
+    
     inner = @(u, v) M.inner(point, u, v);
     rnorm = @(u) M.norm(point, u);
 
@@ -31,7 +39,7 @@ function eta = solve_along_line(M, point, x, y, g, Hy, sigma)
     D = 2 * s2 * xy * (xy^2 + xx * yy) - 2 * yHy * const;
     E = s2 * xx * xy^2 - const^2;
     
-    coeffs = [A B C D E];
+    coeffs = [A, B, C, D, E];
     poly_roots = roots(coeffs);    
     eta = 0;
     min_val = func(0);

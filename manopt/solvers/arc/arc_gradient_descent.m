@@ -50,8 +50,9 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
 %           end of execution, so that it may be cheaper to return it here.
 %     hesscalls: number of Hessian calls during execution
 %     stop_str: string describing why the subsolver stopped
-%     stats: a structure specifying some statistics about inner work
-%            (currently unused)
+%     stats: a structure specifying some statistics about inner work - 
+%            we record the model cost value and model gradient norm at each
+%            inner iteration.
 
 % This file is part of Manopt: www.manopt.org.
 % Original authors: May 2, 2019,
@@ -102,11 +103,13 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
     gradnorm_reached = false;
     j = 1;
     while j < options.maxiter_gradient
-        % Calculate the gradient
+        % Calculate the gradient of the model
         eta_norm = rnorm(eta);
         neg_mgrad = M.lincomb(x, 1, Heta, 1, grad);
         neg_mgrad = M.lincomb(x, -1, neg_mgrad, -sigma * eta_norm, eta);
         neg_mgrad = tangent(neg_mgrad);
+        
+        % Compute some statistics
         gradnorms(j) = rnorm(neg_mgrad);
         func_values(j) = inner(grad, eta) + 0.5 * inner(eta, Heta) + (sigma/3) * eta_norm^3;
 
