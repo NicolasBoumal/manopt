@@ -54,14 +54,17 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
 %           end of execution, so that it may be cheaper to return it here.
 %     hesscalls: number of Hessian calls during execution
 %     stop_str: string describing why the subsolver stopped
-%     stats: a structure specifying some statistics about inner work
-%            (currently unused)
+%     stats: a structure specifying some statistics about inner work - 
+%            we record the model cost value and model gradient norm at each
+%            inner iteration.
 
 % This file is part of Manopt: www.manopt.org.
 % Original authors: May 2, 2019,
 %    Bryan Zhu, Nicolas Boumal.
 % Contributors:
 % Change log: 
+
+% TODO: Support preconditioning through getPrecon().
 
     % Some shortcuts
     M = problem.M;
@@ -114,11 +117,13 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
     gradnorm_reached = false;
     j = 1;
     while j < maxiter
-        % Calculate the gradient
+        % Calculate the gradient of the model
         eta_norm = rnorm(eta);
         new_grad = M.lincomb(x, 1, Heta, 1, grad);
         new_grad = M.lincomb(x, -1, new_grad, -sigma * eta_norm, eta);
         new_grad = tangent(new_grad);
+        
+        % Compute some statistics
         gradnorms(j) = rnorm(new_grad);
         func_values(j) = inner(grad, eta) + 0.5 * inner(eta, Heta) + (sigma/3) * eta_norm^3;
         
@@ -153,7 +158,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
         % Find the optimal step in the conjugate direction
         alpha = solve_along_line(M, x, eta, new_conj, grad, Hn_conj, sigma);
         if alpha == 0
-            stop_str = 'Reached optimum within search direction';
+            stop_str = 'Unable to make further progress in search direction';
             gradnorm_reached = true;
             break;
         end
