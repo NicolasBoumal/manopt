@@ -90,7 +90,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
         eta = M.zerovec(x);
         Heta = eta;
         stop_str = 'Cost gradient is zero';
-        stats = struct('newton_iterations', 0);
+        stats = struct('newton_iterations', 0, 'gradnorms', 0, 'func_values', 0);
         return;
     end
     
@@ -107,8 +107,11 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     end
     options = mergeOptions(localdefaults, options);
     
-    % Vector where we keep track of the Newton root finder's work
+    % Vectors where we keep track of the Newton root finder's work, the
+    % gradient norm, and the function values at each inner iteration
     newton_iterations = zeros(n, 1);
+    gradnorms = zeros(n, 1);
+    func_values = zeros(n, 1);
     
     % Lanczos iteratively produces an orthonormal basis of tangent vectors
     % which tridiagonalize the Hessian. The corresponding tridiagonal
@@ -144,7 +147,6 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     % 
     % We take the real part only to be safe.
     y = min(real(roots([-sigma, alpha, gradnorm])));
-    
     
     % Main Lanczos iteration
     gradnorm_reached = false;
@@ -199,9 +201,11 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
         model_gradnorm = norm(gradnorm*eye(j+1, 1) + ...
                               T(1:j+1, 1:j)*y + ...
                               sigma*norm(y)*[y ; 0]);
+        gradnorms(j) = model_gradnorm;
+        func_values(j) = y(1)*gradnorm + 0.5 * dot(y, T(1:j, 1:j)*y) + (sigma/3) * norm(y)^3;
 
         if options.verbosity >= 4
-            fprintf('\nModel grad norm %.16e', model_gradnorm);
+            fprintf('\nModel grad norm: %.16e, Iterate norm: %.16e', model_gradnorm, norm(y));
         end
         
         % Check termination condition
@@ -218,13 +222,14 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
         [y, newton_iter] = minimize_cubic_newton(T(1:j+1, 1:j+1), ...
                                      gradnorm*eye(j+1, 1), sigma, options);
         newton_iterations(j+1) = newton_iter;
-        
     end
     
     % Check why we stopped iterating
+    points = numel(y);
     if ~gradnorm_reached
         stop_str = sprintf(['Reached max number of Lanczos iterations ' ...
                '(options.maxiter_lanczos = %d)'], options.maxiter_lanczos);
+        points = points - 1;
     end
     
     % Construct the tangent vector eta as a linear combination of the basis
@@ -240,7 +245,9 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     Heta = Hess(eta);
     hesscalls = hesscalls + 1;
     
-    stats = struct('newton_iterations', newton_iterations(1:numel(y)));
+    stats = struct('newton_iterations', newton_iterations(1:points), ...
+                   'gradnorms', gradnorms(1:points), ...
+                   'func_values', func_values(1:points));
     
     if options.verbosity >= 4
         fprintf('\n');
