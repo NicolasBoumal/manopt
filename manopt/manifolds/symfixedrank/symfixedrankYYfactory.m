@@ -45,7 +45,7 @@ function M = symfixedrankYYfactory(n, k)
 %       Doi     = {10.1137/080731359}
 %     }
 %
-% See also: elliptopefactory spectrahedronfactory
+% See also: elliptopefactory spectrahedronfactory symfixedrankYYcomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
