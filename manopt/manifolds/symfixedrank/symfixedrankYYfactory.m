@@ -8,7 +8,7 @@ function M = symfixedrankYYfactory(n, k)
 % full-rank Y's, such that X has rank exactly k. The point X is numerically
 % represented by Y (this is more efficient than working with X, which may
 % be big). Tangent vectors are represented as matrices of the same size as
-% Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y. The metric is the
+% Y, call them Ydot, so that Xdot = Y Ydot' + Ydot Y'. The metric is the
 % canonical Euclidean metric on Y.
 % 
 % Since for any orthogonal Q of size k, it holds that (YQ)(YQ)' = YY',
