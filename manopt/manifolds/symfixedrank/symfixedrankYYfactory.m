@@ -31,9 +31,15 @@ function M = symfixedrankYYfactory(n, k)
 % M. Journee, P.-A. Absil, F. Bach and R. Sepulchre,
 % "Low-Rank Optimization on the Cone of Positive Semidefinite Matrices".
 % Paper link: http://www.di.ens.fr/~fbach/journee2010_sdp.pdf
+% The expressions for the distance and the logarithm come from the 2018
+% preprint:
+% Estelle Massart, P.-A. Absil, 
+% "Quotient geometry with simple geodesics for the manifold of fixed-rank
+% positive-semidefinite matrices".
+% Paper link: https://sites.uclouvain.be/absil/2018-06/quotient_tech_report.pdf
 % 
 % 
-% Please cite the Manopt paper as well as the research paper:
+% Please cite the Manopt paper as well as the research papers:
 %     @Article{journee2010low,
 %       Title   = {Low-rank optimization on the cone of positive semidefinite matrices},
 %       Author  = {Journ{\'e}e, M. and Bach, F. and Absil, P.-A. and Sepulchre, R.},
@@ -45,11 +51,21 @@ function M = symfixedrankYYfactory(n, k)
 %       Doi     = {10.1137/080731359}
 %     }
 %
+%     @TechReport{massart2018quotient,
+%       author        = {Massart, Estelle and Absil, P.-A.},
+%       title         = {Quotient geometry with simple geodesics for the manifold of fixed-rank positive-semidefinite matrices},
+%       institution   = {UCLouvain},
+%       year          = {2018},
+%       number        = {UCL-INMA-2018.06-v2},
+%       note          = {Preprint: \url{http://sites.uclouvain.be/absil/2018.06}},
+%     }
+% 
+
 % See also: elliptopefactory spectrahedronfactory symfixedrankYYcomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
-% Contributors:
+% Contributors: Estelle Massart
 % Change log:
 %
 %   July 10, 2013 (NB):
@@ -64,7 +80,9 @@ function M = symfixedrankYYfactory(n, k)
 %
 %   Sep.  6, 2018 (NB):
 %       Removed M.exp() as it was not implemented.
-
+%
+%   June 7, 2019  (EM):
+%       Added M.dist, M.exp, M.log and M.invretr.
 
 	M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
 
@@ -75,7 +93,7 @@ function M = symfixedrankYYfactory(n, k)
 
 	M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
 
-	M.dist = @(Y, Z) error('symfixedrankYYfactory.dist not implemented yet.');
+	M.dist = @(Y, Z) norm(logarithm(Y,Z),'fro');
 
 	M.typicaldist = @() 10*k;
 
@@ -93,14 +111,25 @@ function M = symfixedrankYYfactory(n, k)
 	M.tangent = M.proj;
 	M.tangent2ambient = @(Y, eta) eta;
 
-	M.retr = @retraction;
-	function Ynew = retraction(Y, eta, t)
+	M.exp = @exponential;
+	function Ynew = exponential(Y, eta, t)
 		if nargin < 3
 			t = 1.0;
 		end
 		Ynew = Y + t*eta;
-	end
+    end
 
+    M.retr = M.exp;
+    
+    M.log = @logarithm;
+    function eta = logarithm(Y, Z)
+        YtZ = Y'*Z;
+        [U,~,V] = svd(YtZ);
+        Qt = V*U';
+        eta = Z*Qt - Y;
+    end
+
+    M.invretr = M.log;
 
 	M.egrad2rgrad = @(Y, eta) eta;
 	M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
