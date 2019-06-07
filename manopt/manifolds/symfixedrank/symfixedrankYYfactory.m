@@ -84,39 +84,39 @@ function M = symfixedrankYYfactory(n, k)
 %   June 7, 2019  (EM):
 %       Added M.dist, M.exp, M.log and M.invretr.
 
-	M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
+    M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d', n, k);
 
-	M.dim = @() k*n - k*(k-1)/2;
+    M.dim = @() k*n - k*(k-1)/2;
 
-	% Euclidean metric on the total space
-	M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
+    % Euclidean metric on the total space
+    M.inner = @(Y, eta, zeta) eta(:)'*zeta(:);
 
-	M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
+    M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
 
-	M.dist = @(Y, Z) norm(logarithm(Y,Z),'fro');
+    M.dist = @(Y, Z) norm(logarithm(Y,Z),'fro');
 
-	M.typicaldist = @() 10*k;
+    M.typicaldist = @() 10*k;
 
-	M.proj = @projection;
-	function etaproj = projection(Y, eta)
-		% Projection onto the horizontal space
-		YtY = Y'*Y;
-		SS = YtY;
-		AS = Y'*eta - eta'*Y;
-		% Omega = lyap(SS, -AS);
-		Omega = lyapunov_symmetric(SS, AS);
-		etaproj = eta - Y*Omega;
-	end
+    M.proj = @projection;
+    function etaproj = projection(Y, eta)
+        % Projection onto the horizontal space
+        YtY = Y'*Y;
+        SS = YtY;
+        AS = Y'*eta - eta'*Y;
+        % Omega = lyap(SS, -AS);
+        Omega = lyapunov_symmetric(SS, AS);
+        etaproj = eta - Y*Omega;
+    end
 
-	M.tangent = M.proj;
-	M.tangent2ambient = @(Y, eta) eta;
+    M.tangent = M.proj;
+    M.tangent2ambient = @(Y, eta) eta;
 
-	M.exp = @exponential;
-	function Ynew = exponential(Y, eta, t)
-		if nargin < 3
-			t = 1.0;
-		end
-		Ynew = Y + t*eta;
+    M.exp = @exponential;
+    function Ynew = exponential(Y, eta, t)
+        if nargin < 3
+            t = 1.0;
+        end
+        Ynew = Y + t*eta;
     end
 
     M.retr = M.exp;
@@ -124,40 +124,40 @@ function M = symfixedrankYYfactory(n, k)
     M.log = @logarithm;
     function eta = logarithm(Y, Z)
         YtZ = Y'*Z;
-        [U,~,V] = svd(YtZ);
+        [U, ~, V] = svd(YtZ);
         Qt = V*U';
         eta = Z*Qt - Y;
     end
 
     M.invretr = M.log;
 
-	M.egrad2rgrad = @(Y, eta) eta;
-	M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
+    M.egrad2rgrad = @(Y, eta) eta;
+    M.ehess2rhess = @(Y, egrad, ehess, U) M.proj(Y, ehess);
 
-	% Notice that the hash of two equivalent points will be different...
-	M.hash = @(Y) ['z' hashmd5(Y(:))];
+    % Notice that the hash of two equivalent points will be different...
+    M.hash = @(Y) ['z' hashmd5(Y(:))];
 
-	M.rand = @random;
-	function Y = random()
-		Y = randn(n, k);
-	end
+    M.rand = @random;
+    function Y = random()
+        Y = randn(n, k);
+    end
 
-	M.randvec = @randomvec;
-	function eta = randomvec(Y)
-		eta = randn(n, k);
-		eta = projection(Y, eta);
-		nrm = M.norm(Y, eta);
-		eta = eta / nrm;
-	end
+    M.randvec = @randomvec;
+    function eta = randomvec(Y)
+        eta = randn(n, k);
+        eta = projection(Y, eta);
+        nrm = M.norm(Y, eta);
+        eta = eta / nrm;
+    end
 
-	M.lincomb = @matrixlincomb;
+    M.lincomb = @matrixlincomb;
 
-	M.zerovec = @(Y) zeros(n, k);
+    M.zerovec = @(Y) zeros(n, k);
 
-	M.transp = @(Y1, Y2, d) projection(Y2, d);
-		
-	M.vec = @(Y, u_mat) u_mat(:);
-	M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
-	M.vecmatareisometries = @() true;
+    M.transp = @(Y1, Y2, d) projection(Y2, d);
+        
+    M.vec = @(Y, u_mat) u_mat(:);
+    M.mat = @(Y, u_vec) reshape(u_vec, [n, k]);
+    M.vecmatareisometries = @() true;
 
 end
