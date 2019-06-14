@@ -1,12 +1,14 @@
-function D = dlogm(X, H)
+function [D, fX] = dlogm(X, H)
 % Fréchet derivative of the matrix logarithm.
 %
-% function D = dlogm(X, H)
+% function [D, fX] = dlogm(X, H)
 %
 % Computes the directional derivative (the Fréchet derivative) of logm at X
 % along H (square matrices).
 %
 % Thus, D = lim_(t -> 0) (logm(X + tH) - logm(X)) / t.
+%
+% The second output is fX = logm(X), though it may be less accurate.
 % 
 % See also: dfunm dexpm dsqrtm
 
@@ -14,7 +16,9 @@ function D = dlogm(X, H)
 % Original author: Nicolas Boumal, July 3, 2015.
 % Contributors:
 % Change log:
+%
+%   June 14, 2019 (NB): now also outputs logm(X) as a by-product.
     
-    D = dfunm(@logm, X, H);
+    [D, fX] = dfunm(@logm, X, H);
     
 end

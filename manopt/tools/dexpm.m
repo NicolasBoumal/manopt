@@ -1,7 +1,7 @@
-function D = dexpm(X, H)
+function [D, fX] = dexpm(X, H)
 % Fréchet derivative of the matrix exponential.
 %
-% function D = dexpm(X, H)
+% function [D, fX] = dexpm(X, H)
 %
 % Computes the directional derivative (the Fréchet derivative) of expm at X
 % along H (square matrices).
@@ -11,6 +11,8 @@ function D = dexpm(X, H)
 % Note: the adjoint of dexpm(X, .) is dexpm(X', .), which is a fact often
 % useful to derive gradients of matrix functions involving expm(X).
 % (This is wrt the inner product inner = @(A, B) real(trace(A'*B))).
+%
+% The second output is fX = expm(X), though it may be less accurate.
 % 
 % See also: dfunm dlogm dsqrtm
 
@@ -18,7 +20,9 @@ function D = dexpm(X, H)
 % Original author: Nicolas Boumal, July 3, 2015.
 % Contributors:
 % Change log:
+%
+%   June 14, 2019 (NB): now also outputs expm(X) as a by-product.
     
-    D = dfunm(@expm, X, H);
+    [D, fX] = dfunm(@expm, X, H);
     
 end
