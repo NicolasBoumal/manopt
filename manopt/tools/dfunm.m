@@ -1,7 +1,7 @@
-function D = dfunm(funm, X, H)
+function [D, fX] = dfunm(funm, X, H)
 % Fréchet derivative of matrix functions.
 %
-% function D = dfunm(funm, X, H)
+% function [D, fX] = dfunm(funm, X, H)
 %
 % Computes the directional derivative (the Fréchet derivative) of a matrix
 % function (such as @logm, @expm, ...) at X along H (square matrices),
@@ -14,6 +14,9 @@ function D = dfunm(funm, X, H)
 %
 % Thus, D = lim_(t -> 0) (funm(X + tH) - funm(X)) / t.
 %
+% The second output is fX = funm(X), which comes out as a by-product. It
+% may be less accurate than calling funm(X) directly.
+%
 % This code is simple, but may not be the most efficient. In particular, it
 % requires computing the matrix function on matrices which are four times
 % as big, and which may have lost important structure (such as symmetry).
@@ -24,6 +27,8 @@ function D = dfunm(funm, X, H)
 % Original author: Nicolas Boumal, July 3, 2015.
 % Contributors:
 % Change log:
+%
+%   June 14, 2019 (NB): now also outputs funm(X) as a by-product.
     
     n = size(X, 1);
     
@@ -35,5 +40,6 @@ function D = dfunm(funm, X, H)
     Z = zeros(n);
     A = funm([X, H ; Z, X]);
     D = A(1:n, (n+1):end);
+    fX = A(1:n, 1:n);
     
 end
