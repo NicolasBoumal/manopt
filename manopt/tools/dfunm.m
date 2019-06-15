@@ -17,6 +17,11 @@ function [D, fX] = dfunm(funm, X, H)
 % The second output is fX = funm(X), which comes out as a by-product. It
 % may be less accurate than calling funm(X) directly.
 %
+% Note: under mild conditions, the adjoint of dfunm(X, .) is dfunm(X', .),
+% which is a fact often useful to derive gradients of matrix functions
+% involving funm(X).
+% (This is wrt the inner product inner = @(A, B) real(trace(A'*B))).
+%
 % This code is simple, but may not be the most efficient. In particular, it
 % requires computing the matrix function on matrices which are four times
 % as big, and which may have lost important structure (such as symmetry).
