@@ -35,6 +35,9 @@ function checkdiff(problem, x, d, force_gradient)
 %
 %   Sep. 6, 2018 (NB):
 %       Now checks whether M.exp() is available; uses retraction otherwise.
+%
+%   June 18, 2019 (NB):
+%       Now issues a warning if the cost function returns complex values.
 
     if ~exist('force_gradient', 'var')
         force_gradient = false;
@@ -155,6 +158,11 @@ function checkdiff(problem, x, d, force_gradient)
         fprintf(['The linear model appears to be exact ' ...
                  '(within numerical precision),\n'...
                  'hence the slope computation is irrelevant.\n']);
+    end
+    
+    if ~(isreal(value) && isreal(f0))
+        fprintf(['# The cost function appears to return complex values' ...
+              '.\n# Please ensure real outputs.\n']);
     end
     
 end
