@@ -22,7 +22,7 @@ function b = multitransp(a, dim)
 %       If A is ................ a 5x(9x3)x2 array of 9x3 matrices,
 %       C = MULTITRANSP(A, 2) is a 5x(3x9)x2 array of 3x9 matrices.
 %
-%    See also PERMUTE, IPERMUTE, MULTIPROD, MULTITRACE, MULTISCALE.
+%    See also PERMUTE, IPERMUTE, MULTIPROD, MULTITRACE, MULTISCALE, MULTIHCONJ.
 
 % $ Version: 1.0 $
 % CODE      by:                 Paolo de Leva (IUSM, Rome, IT) 2005 Sep 9
