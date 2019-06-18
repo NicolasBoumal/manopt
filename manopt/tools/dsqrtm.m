@@ -23,6 +23,13 @@ function [D, fX] = dsqrtm(X, H)
 %
 %   June 14, 2019 (NB): now also outputs sqrtm(X) as a by-product.
     
+    % Note: following Higham, 'Functions of Matrices', 2008, page 58: this
+    % could also be computed as fX = sqrtm(X), then solving the Sylvester
+    % equation fX*D + D*fX = H, e.g. via , D = sylvester(fX, fX, H).
+    % If X has special structure (e.g., if it is symmetric or Hermitian),
+    % then this may be faster and more accurate. This should be tested
+    % before considering a replacement.
+
     [D, fX] = dfunm(@sqrtm, X, H);
     
 end
