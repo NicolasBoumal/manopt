@@ -50,6 +50,8 @@ function M = rotationsfactory(n, k)
 %   Sep.  06, 2018 (NB)
 %       Added M.isotransp, which is equal to M.transp since it is
 %       isometric.
+%   June 18, 2019 (NB)
+%       Using qr_unique for the QR-based retraction.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -90,30 +92,25 @@ function M = rotationsfactory(n, k)
         symXtEgrad = multisym(XtEgrad);
 		XtEhess = multiprod(Xt, Ehess);
 		Rhess = multiskew( XtEhess - multiprod(H, symXtEgrad) );
-	end
+    end
     
+    % This QR-based retraction is only a first-order approximation
+    % of the exponential map, not a second-order one.
     M.retr_qr = @retraction_qr;
     function Y = retraction_qr(X, U, t)
-        if nargin == 3
-            tU = t*U;
+        % It is necessary to call qr_unique rather than simply qr to ensure
+        % this is a retraction, to avoid spurious column sign flips.
+        XU = multiprod(X, U);
+        if nargin < 3
+            Y = qr_unique(X + XU);
         else
-            tU = U;
+            Y = qr_unique(X + t*XU);
         end
-        Y = X + multiprod(X, tU);
-        for kk = 1 : k
-            % This QR-based retraction is only a first-order approximation
-            % of the exponential map, not a second-order one.
-            [Q, R] = qr(Y(:, :, kk));
-            % The instruction with R ensures we are not flipping signs
-            % of some columns, which should never happen in modern Matlab
-            % versions but may be an issue with older versions.
-            Y(:, :, kk) = Q * diag(sign(sign(diag(R))+.5));
-            % This is guaranteed to always yield orthogonal matrices with
-            % determinant +1. Simply look at the eigenvalues of a skew
-            % symmetric matrix, then at those of identity plus that matrix,
-            % and compute their product for the determinant: it's strictly
-            % positive in all cases.
-        end
+        % This is guaranteed to always yield orthogonal matrices with
+        % determinant +1. Indeed: look at the eigenvalues of a skew
+        % symmetric matrix, then at those of "identity plus that matrix",
+        % and compute their product for the determinant: it is strictly
+        % positive in all cases.
     end
 
     M.invretr_qr = @inverse_retraction_qr;
