@@ -38,6 +38,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 %                       directly accessible, and their inverses are also
 %                       implemented.
 %  Aug.  2, 2018 (NB) : Added GPU support: just set gpuflag = true.
+%  June 18, 2019 (NB) : Using qr_unique for retr and rand.
 
     assert(n >= p, 'The dimension n must be larger than the dimension p.');
     
@@ -82,7 +83,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
         symXtU = multisym(XtU);
         Up = U - multiprod(X, symXtU);
         
-% The code above is equivalent to, but much faster than, the code below.
+% The code above is equivalent to, but faster than, the code below.
 %         
 %     Up = zeros(size(U));
 %     function A = sym(A), A = .5*(A+A'); end
@@ -110,17 +111,12 @@ function M = stiefelfactory(n, p, k, gpuflag)
     
     M.retr_qr = @retraction_qr;
     function Y = retraction_qr(X, U, t)
+        % It is necessary to call qr_unique rather than simply qr to ensure
+        % this is a retraction, to avoid spurious column sign flips.
         if nargin < 3
-            Y = X + U;
+            Y = qr_unique(X + U);
         else
-            Y = X + t*U;
-        end
-        for kk = 1 : k
-            [Q, R] = qr(Y(:, :, kk), 0);
-            % The instruction with R ensures we are not flipping signs
-            % of some columns, which should never happen in modern Matlab
-            % versions but may be an issue with older versions.
-            Y(:, :, kk) = Q * diag(sign(sign(diag(R))+.5));
+            Y = qr_unique(X + t*U);
         end
     end
 
@@ -216,14 +212,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 
     M.hash = @(X) ['z' hashmd5(X(:))];
     
-    M.rand = @random;
-    function X = random()
-        X = randn(n, p, k, array_type);
-        for kk = 1 : k
-            [Q, unused] = qr(X(:, :, kk), 0);  %#ok<ASGLU>
-            X(:, :, kk) = Q;
-        end
-    end
+    M.rand = @() qr_unique(randn(n, p, k, array_type));
     
     M.randvec = @randomvec;
     function U = randomvec(X)

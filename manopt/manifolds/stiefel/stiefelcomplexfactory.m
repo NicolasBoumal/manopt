@@ -46,6 +46,7 @@ function M = stiefelcomplexfactory(n, p, k)
 % Original author: Hiroyuki Sato, April 27, 2015.
 % Contributors: 
 % Change log: 
+%   June 18, 2019 (NB) : Using qr_unique for retr and rand.
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
@@ -94,16 +95,12 @@ function M = stiefelcomplexfactory(n, p, k)
     
     M.retr = @retraction;
     function Y = retraction(X, U, t)
+        % It is necessary to call qr_unique rather than simply qr to ensure
+        % this is a retraction, to avoid spurious column sign flips.
         if nargin < 3
-            t = 1.0;
-        end
-        Y = X + t*U;
-        for i = 1 : k
-            [Q, R] = qr(Y(:, :, i), 0);
-            % The instruction with R assures we are not flipping signs
-            % of some columns, which should never happen in modern Matlab
-            % versions but may be an issue with older versions.
-            Y(:, :, i) = Q * diag(sign(sign(diag(R))+.5));
+            Y = qr_unique(X + U);
+        else
+            Y = qr_unique(X + t*U);
         end
     end
     
@@ -127,14 +124,7 @@ function M = stiefelcomplexfactory(n, p, k)
 
     M.hash = @(X) ['z' hashmd5([real(X(:)) ; imag(X(:))])]; %! X(:) -> [real(X(:)) ; imag(X(:))]
     
-    M.rand = @random;
-    function X = random()
-        X = zeros(n, p, k);
-        for i = 1 : k
-            [Q, unused] = qr(randn(n, p) + 1i*randn(n,p), 0); %#ok<NASGU> %! Complex version
-            X(:, :, i) = Q;
-        end
-    end
+    M.rand = @() qr_unique(randn(n, p, k) + 1i*randn(n, p, k));
     
     M.randvec = @randomvec;
     function U = randomvec(X)
