@@ -1,6 +1,7 @@
 function S = randsym(n, N)
 % Generates random symmetric matrices with normal entries.
 % 
+% function S = randsym(n)
 % function S = randsym(n, N)
 %
 % S is an n-by-n-by-N array where each slice S(:, :, i) for i = 1..N is a
@@ -8,13 +9,15 @@ function S = randsym(n, N)
 % independently following a normal distribution (Gaussian, zero mean, unit
 % variance).
 %
-% See also: randrot randskew
+% By default, N = 1.
+%
+% See also: randrot randskew randherm randskewh
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Oct. 23, 2018.
 % Contributors: 
 % Change log: 
-%       Oct. 23 (NB):
+%       Oct. 23, 2018 (NB):
 %           This is not technically necessary for the rotations factory,
 %           but it is counter-intuitive to have access to a function called
 %           randskew yet not have one for randsym.

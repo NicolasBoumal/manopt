@@ -1,6 +1,7 @@
 function S = randskew(n, N)
 % Generates random skew symmetric matrices with normal entries.
 % 
+% function S = randskew(n)
 % function S = randskew(n, N)
 %
 % S is an n-by-n-by-N array where each slice S(:, :, i) for i = 1..N is a
@@ -8,7 +9,9 @@ function S = randskew(n, N)
 % independently following a normal distribution (Gaussian, zero mean, unit
 % variance).
 %
-% See also: randrot randsym
+% By default, N = 1.
+%
+% See also: randrot randsym randskewh
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Sept. 25, 2012.
