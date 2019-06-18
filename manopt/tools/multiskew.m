@@ -6,7 +6,7 @@ function Y = multiskew(X)
 % Y is a 3D matrix the same size as X. Each slice Y(:, :, i) is the
 % skew-symmetric part of the slice X(:, :, i).
 %
-% See also: multiprod multitransp multiscale multisym
+% See also: multiskewh multiprod multitransp multiscale multisym
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Jan. 31, 2013.
