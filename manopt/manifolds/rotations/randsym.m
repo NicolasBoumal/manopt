@@ -21,9 +21,16 @@ function S = randsym(n, N)
 %           This is not technically necessary for the rotations factory,
 %           but it is counter-intuitive to have access to a function called
 %           randskew yet not have one for randsym.
+%       June 19, 2019 (NB):
+%           Now handles the case n = 1 properly.
 
     if nargin < 2
         N = 1;
+    end
+    
+    if n == 1
+        S = randn(1, 1, N);
+        return;
     end
 
     % Subindices of the (strictly) upper triangular entries of an n-by-n
