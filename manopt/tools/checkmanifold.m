@@ -42,6 +42,16 @@ function checkmanifold(M)
         end
     end
     
+    %% Check random generators
+    try
+        x = M.rand();
+        v = M.randvec(x);
+        fprintf('Random tangent vector norm: %g (should be 1).\n', ...
+                M.norm(x, v));
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check rand, randvec.\n');
+    end
+    
     %% Checking exp and dist
     try
         x = M.rand();
@@ -49,10 +59,41 @@ function checkmanifold(M)
         t = randn(1);
         y = M.exp(x, v, t);
         d = M.dist(x, y);
-        fprintf('dist(x, M.exp(x, v, t)) - abs(t)*M.norm(x, v) = %g (should be zero)\n', d - abs(t)*M.norm(x, v));
+        fprintf('dist(x, M.exp(x, v, t)) - abs(t)*M.norm(x, v) = %g (should be zero).\n', d - abs(t)*M.norm(x, v));
     catch up %#ok<NASGU>
         fprintf('Couldn''t check exp and dist.\n');
         % Perhaps we want to rethrow(up) ?
+        % Alternatively, we could check if exp and dist are available and
+        % silently pass this test if not, but this way is more informative.
+    end
+    
+    %% Checking mat, vec, vecmatareisometries
+    try
+        x = M.rand();
+        u = M.randvec(x);
+        v = M.randvec(x);
+        U = M.vec(x, u);
+        V = M.vec(x, v);
+        if ~iscolumn(U) || ~iscolumn(V)
+            fprintf('M.vec should return column vectors: they are not.\n');
+        end
+        if ~isreal(U) || ~isreal(V)
+            fprintf('M.vec should return real vectors: they are not real.\n');
+        end
+        fprintf('M.vec seems to return real column vectors, as intended.\n');
+        ru = M.norm(x, M.lincomb(x, 1, M.mat(x, U), -1, u));
+        rv = M.norm(x, M.lincomb(x, 1, M.mat(x, V), -1, v));
+        fprintf(['Checking mat/vec are inverse pairs: ' ...
+                 '%g, %g (should be two zeros).\n'], ru, rv);
+        if M.vecmatareisometries()
+            fprintf('M.vecmatareisometries says true.\n');
+        else
+            fprintf('M.vecmatareisometries says false.\n');
+        end
+        fprintf('If true, this should be zero: %g.\n', ...
+                    U(:).'*V(:) - M.inner(x, u, v));
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check mat, vec, vecmatareisometries.\n');
     end
 
 end
