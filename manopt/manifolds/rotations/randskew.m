@@ -17,9 +17,16 @@ function S = randskew(n, N)
 % Original author: Nicolas Boumal, Sept. 25, 2012.
 % Contributors: 
 % Change log: 
+%       June 19, 2019 (NB):
+%           Now handles the case n = 1 properly.
 
     if nargin < 2
         N = 1;
+    end
+    
+    if n == 1
+        S = zeros(1, 1, N);
+        return;
     end
 
     % Subindices of the (strictly) upper triangular entries of an n-by-n
