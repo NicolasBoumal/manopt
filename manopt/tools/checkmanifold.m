@@ -85,6 +85,10 @@ function checkmanifold(M)
         rv = M.norm(x, M.lincomb(x, 1, M.mat(x, V), -1, v));
         fprintf(['Checking mat/vec are inverse pairs: ' ...
                  '%g, %g (should be two zeros).\n'], ru, rv);
+        a = randn(1);
+        b = randn(1);
+        fprintf('Checking if vec is linear: %g (should be zero).\n', ...
+                norm(M.vec(x, M.lincomb(x, a, u, b, v)) - (a*U + b*V)));
         if M.vecmatareisometries()
             fprintf('M.vecmatareisometries says true.\n');
         else
