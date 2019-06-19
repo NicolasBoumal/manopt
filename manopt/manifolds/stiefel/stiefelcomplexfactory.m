@@ -140,6 +140,6 @@ function M = stiefelcomplexfactory(n, p, k)
     
     M.vec = @(x, u_mat) [real(u_mat(:)) ; imag(u_mat(:))];
     M.mat = @(x, u_vec) reshape(u_vec(1:(n*p*k)) + 1i*u_vec((n*p*k+1):end), [n, p, k]);
-    M.vecmatareisometries = @() true; % TODO : to check.
+    M.vecmatareisometries = @() true;
 
 end
