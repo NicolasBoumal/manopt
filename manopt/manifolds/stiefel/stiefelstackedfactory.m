@@ -111,11 +111,7 @@ function M = stiefelstackedfactory(m, d, k)
             % Orthonormalize the rows of Y3(:, :, i):
             [u, s, v] = svd(Y3(:, :, i), 'econ'); %#ok<ASGLU>
             Y3(:, :, i) = u*v';
-            % Alternative code if one desires to use QR instead of SVD.
-            % The instruction with the signs of R assures we are not
-            % flipping signs of some columns.
-            % [Q, R] = qr(Y3(:, :, i)', 0);
-            % Y3(:, :, i) = (Q * diag(sign(sign(diag(R))+.5)))';
+            % Alternatively, one could also use qr_unique as retraction.
         end
         Y = to2D(Y3);
     end
@@ -147,7 +143,7 @@ function M = stiefelstackedfactory(m, d, k)
     function Y = random()
         Y3 = zeros(d, k, m);
         for i = 1 : m
-            [Q, unused] = qr(randn(k, d), 0); %#ok<NASGU>
+            [Q, unused] = qr(randn(k, d), 0); %#ok<ASGLU>
             Y3(:, :, i) = Q';
         end
         Y = to2D(Y3);
