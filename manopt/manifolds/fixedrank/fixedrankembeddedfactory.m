@@ -68,14 +68,13 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Added function tangent to work with checkgradient.
 %
 %   June 24, 2014 (NB):
-%       A couple modifications following
-%       Bart Vandereycken's feedback:
+%       A couple modifications following Bart's feedback:
 %       - The checksum (hash) was replaced for a faster alternative: it's a
 %         bit less "safe" in that collisions could arise with higher
 %         probability, but they're still very unlikely.
 %       - The vector transport was changed.
 %       The typical distance was also modified, hopefully giving the
-%       trustregions method a better initial guess for the trust region
+%       trustregions method a better initial guess for the trust-region
 %       radius, but that should be tested for different cost functions too.
 %
 %    July 11, 2014 (NB):
@@ -275,8 +274,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     %M.hash = @(X) ['z' hashmd5([X.U(:) ; X.S(:) ; X.V(:)])];
     
     M.rand = @random;
-    % Factors U and V live on Stiefel manifolds, hence we will reuse
-    % their random generator.
+    % Factors U, V live on Stiefel manifolds: reuse their random generator.
     stiefelm = stiefelfactory(m, k);
     stiefeln = stiefelfactory(n, k);
     function X = random()
@@ -286,8 +284,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
     
     % Generate a random tangent vector at X.
-    % TODO: consider a possible imbalance between the three components Up,
-    % Vp and M, when m, n and k are widely different (which is typical).
+    % Note: this may not be the uniform distribution over the set of
+    % unit-norm tangent vectors.
     M.randvec = @randomvec;
     function Z = randomvec(X)
         Z.Up = randn(m, k);
