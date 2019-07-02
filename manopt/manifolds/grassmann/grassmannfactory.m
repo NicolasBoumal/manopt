@@ -274,7 +274,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
     % However, this vector transport is /not/ fully invariant, in the sense
     % that transporting U from X to some arbitrary Y may well yield the
     % lift of a different vector when compared to transporting U from X
-    % from YQ, where Q is an arbitrary orthogonal matrix, even though YQ is
+    % to YQ, where Q is an arbitrary orthogonal matrix, even though YQ is
     % equivalent to Y. Specifically:
     %
     % Y = Gr.rand();
