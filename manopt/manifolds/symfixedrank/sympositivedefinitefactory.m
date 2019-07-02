@@ -73,25 +73,25 @@ function M = sympositivedefinitefactory(n)
     M.dim = @() n*(n+1)/2;
     
 	% Helpers to avoid computing full matrices simply to extract their trace
-	vec     = @(A) A(:);
-	trinner = @(A, B) vec(A')'*vec(B);  % = trace(A*B)
-	trnorm  = @(A) sqrt(trinner(A, A)); % = sqrt(trace(A^2))
+	vec  = @(A) A(:);
+	trAB = @(A, B) vec(A')'*vec(B);  % = trace(A*B)
+	trAA = @(A) sqrt(trAB(A, A));    % = sqrt(trace(A^2))
 	
     % Choice of the metric on the orthonormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
     % cone is its natural bi-invariant metric.
 	% The result is equal to: trace( (X\eta) * (X\zeta) )
-    M.inner = @(X, eta, zeta) trinner(X\eta, X\zeta);
+    M.inner = @(X, eta, zeta) trAB(X\eta, X\zeta);
     
     % Notice that X\eta is *not* symmetric in general.
 	% The result is equal to: sqrt(trace((X\eta)^2))
     % There should be no need to take the real part, but rounding errors
     % may cause a small imaginary part to appear, so we discard it.
-    M.norm = @(X, eta) real(trnorm(X\eta));
+    M.norm = @(X, eta) real(trAA(X\eta));
     
     % Same here: X\Y is not symmetric in general.
     % Same remark about taking the real part.
-    M.dist = @(X, Y) real(trnorm(real(logm(X\Y))));
+    M.dist = @(X, Y) real(trAA(real(logm(X\Y))));
     
     
     M.typicaldist = @() sqrt(n*(n+1)/2);
