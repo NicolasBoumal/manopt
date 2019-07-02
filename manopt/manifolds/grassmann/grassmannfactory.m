@@ -280,7 +280,15 @@ function M = grassmannfactory(n, p, k, gpuflag)
     % Y = Gr.rand();
     % Gr.transp(X, Y*Q, U) - Gr.transp(X, Y, U)*Q   % this is not zero.
     %
-    M.transp = @(x1, x2, d) projection(x2, d);
+    % However, the following vectors are equal:
+    %
+    % Gr.transp(X, Y*Q, U) - Gr.transp(X, Y, U)     % this *is* zero.
+    %
+    % For this to be a proper vector transport from [X] to [Y] in general,
+    % assuming X'Y is invertible, one should multiply the output of this
+    % function on the right with the polar factor of X'*Y, that is,
+    % multiply by u*v' where [u, s, v] = svd(X'*Y), for each slice.
+    M.transp = @(X, Y, U) projection(Y, U);
     
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
