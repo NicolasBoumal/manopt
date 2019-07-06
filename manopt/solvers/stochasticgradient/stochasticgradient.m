@@ -59,6 +59,9 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 %                   Hiroyuki Sato <hsato@ms.kagu.tus.ac.jp>, 22 April 2016.
 % Contributors: Nicolas Boumal
 % Change log: 
+%
+% 	06 July 2019 (BM):  
+%   	Added preconditioner support. This allows to use adaptive algorithms.
     
 
     % Verify that the problem description is sufficient for the solver.
@@ -149,10 +152,13 @@ function [x, info, options] = stochasticgradient(problem, x, options)
         
         % Compute partial gradient on this batch.
         pgrad = getPartialGradient(problem, x, idx_batch, storedb, key);
+
+        % Apply preconditioner to the partial gradient.
+        Ppgrad = getPrecon(problem, x, pgrad, storedb, key);
         
         % Compute a step size and the corresponding new point x.
         [stepsize, newx, newkey, ssstats] = ...
-                           options.stepsizefun(problem, x, pgrad, iter, ...
+                           options.stepsizefun(problem, x, Ppgrad, iter, ...
                                                options, storedb, key);
         
         % Make the step: transfer iterate, remove cache from previous x.
