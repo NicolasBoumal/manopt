@@ -26,7 +26,8 @@ function M = rotationsfactory(n, k)
 % By default, the retraction is only a first-order approximation of the
 % exponential. To force the use of a second-order approximation, call
 % M.retr = M.retr_polar after creating M. This switches from a QR-based
-% computation to an SVD-based computation.
+% computation to an SVD-based computation. If used, you may want to modify
+% M.invretr accordingly.
 %
 % By default, k = 1.
 %
