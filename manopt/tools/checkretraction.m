@@ -23,6 +23,10 @@ function checkretraction(M, x, v)
 		error(['This manifold has no exponential (M.exp): ' ...
                'no reference to compare the retraction.']);
 	end
+	if ~isfield(M, 'dist')
+		error(['This manifold has no distance (M.dist): ' ...
+               'this is required to run this check.']);
+	end
 
     if ~exist('x', 'var') || isempty(x)
         x = M.rand();

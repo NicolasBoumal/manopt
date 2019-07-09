@@ -17,6 +17,13 @@ function M = stiefelfactory(n, p, k, gpuflag)
 % i = 1 : k if k > 1. Tangent vectors are represented as matrices the same
 % size as points.
 %
+% The default retraction is QR-based: it is only a first-order retraction.
+% To use the polar retraction (which is second order), run
+%    M.retr = M.retr_polar;
+% after creating M with this factory. This can be reverted with
+%    M.retr = M.retr_qr;
+% If used, you may also want to update M.invretr similarly.
+%
 % Set gpuflag = true to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations can be done on the GPU directly.
 %
@@ -39,6 +46,8 @@ function M = stiefelfactory(n, p, k, gpuflag)
 %                       implemented.
 %  Aug.  2, 2018 (NB) : Added GPU support: just set gpuflag = true.
 %  June 18, 2019 (NB) : Using qr_unique for retr and rand.
+%  July  9, 2019 (NB) : Added a comment about QR retraction being first
+%                       order only.
 
     assert(n >= p, 'The dimension n must be larger than the dimension p.');
     
