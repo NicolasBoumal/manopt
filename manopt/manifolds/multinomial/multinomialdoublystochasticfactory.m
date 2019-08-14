@@ -8,17 +8,17 @@ function M = multinomialdoublystochasticfactory(n)
 % each column and each row sum to one.
 %
 % Points on the manifold and tangent vectors are represented naturally as
-% symmetric matrices of size n. The Riemannian metric imposed on the
-% manifold is the Fisher metric, that is, if X is a point on the manifold
-% and U, V are two tangent vectors:
+% matrices of size n. The Riemannian metric imposed on the manifold is the
+% Fisher metric, that is, if X is a point on the manifold and U, V are two
+% tangent vectors:
 %
 %     M.inner(X, U, V) = <U, V>_X = sum(sum(U.*V./X)).
 %
-% The  retraction here provided is only first order. Consequently, the
+% The retraction here provided is only first order. Consequently, the
 % slope test in the checkhessian tool is only valid at points X where the
 % gradient is zero. Furthermore, if some entries of X are very close to
 % zero, this may cause numerical difficulties that can also lead to a
-% failed slope test. More generally, it is important the the solution of
+% failed slope test. More generally, it is important that the solution of
 % the optimization problem should have positive entries, sufficiently far
 % away from zero to avoid numerical issues.
 %
@@ -41,7 +41,7 @@ function M = multinomialdoublystochasticfactory(n)
 % See also: multinomialsymmetricfactory multinomialfactory
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Ahmed Douik, March 06, 2018.
+% Original author: Ahmed Douik, March 6, 2018.
 % Contributors: Nicolas Boumal
 % Change log:
 %
@@ -87,15 +87,15 @@ function M = multinomialdoublystochasticfactory(n)
     M.randvec = @randomvec;
     function eta = randomvec(X) % A random vector in the tangent space
         % A random vector in the ambient space
-        Z = randn(n, n) ; 
+        Z = randn(n, n);
         % Projection of the vector onto the tangent space
-        A = [eye(n) X ; X' eye(n)] ;
-        B = A(1:2*n,2:2*n) ;
-        b = [sum(Z,2) ; sum(Z,1)'] ;
-        zeta = B\(b - A(:,1)) ;
-        alpha = [1 ; zeta(1:n-1)] ;
-        beta = zeta(n:2*n-1) ;
-        eta = Z - (alpha*e' + e*beta').*X ;
+        A = [eye(n) X ; X' eye(n)];
+        B = A(1:2*n,2:2*n);
+        b = [sum(Z,2) ; sum(Z,1)'];
+        zeta = B\(b - A(:,1));
+        alpha = [1 ; zeta(1:n-1)];
+        beta = zeta(n:2*n-1);
+        eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector
         nrm = M.norm(X, eta);
         eta = eta / nrm;
@@ -104,13 +104,13 @@ function M = multinomialdoublystochasticfactory(n)
     % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection; 
     function etaproj = projection(X, eta) % Projection of the vector eta in the ambient space onto the tangent space
-        A = [eye(n) X ; X' eye(n)] ;
-        B = A(1:2*n,2:2*n) ;
-        b = [sum(eta,2) ; sum(eta,1)'] ;
-        zeta = B\(b - A(:,1)) ;
-        alpha = [1 ; zeta(1:n-1)] ;
-        beta = zeta(n:2*n-1) ;
-        etaproj = eta - (alpha*e' + e*beta').*X ;
+        A = [eye(n) X ; X' eye(n)];
+        B = A(1:2*n,2:2*n);
+        b = [sum(eta,2) ; sum(eta,1)'];
+        zeta = B\(b - A(:,1));
+        alpha = [1 ; zeta(1:n-1)];
+        beta = zeta(n:2*n-1);
+        etaproj = eta - (alpha*e' + e*beta').*X;
     end
 
     M.tangent = M.proj;
@@ -119,14 +119,14 @@ function M = multinomialdoublystochasticfactory(n)
     % Conversion of Euclidean to Riemannian gradient
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad) % projection of the euclidean gradient
-        mu = (X.*egrad) ; 
-        A = [eye(n) X ; X' eye(n)] ;
-        B = A(1:2*n,2:2*n) ;
-        b = [sum(mu,2) ; sum(mu,1)'] ;
-        zeta = B\(b - A(:,1)) ;
-        alpha = [1 ; zeta(1:n-1)] ;
-        beta = zeta(n:2*n-1) ;
-        rgrad = mu - (alpha*e' + e*beta').*X ;
+        mu = (X.*egrad);
+        A = [eye(n) X ; X' eye(n)];
+        B = A(1:2*n, 2:2*n);
+        b = [sum(mu, 2) ; sum(mu, 1)'];
+        zeta = B\(b - A(:, 1));
+        alpha = [1 ; zeta(1:n-1)];
+        beta = zeta(n:2*n-1);
+        rgrad = mu - (alpha*e' + e*beta').*X;
     end
 
     % First-order retraction
@@ -136,7 +136,7 @@ function M = multinomialdoublystochasticfactory(n)
             t = 1.0;
         end
         Y = X.*exp(t*(eta./X));
-        Y = doubly_stochastic(Y) ;
+        Y = doubly_stochastic(Y);
         Y = max(Y, eps);
     end
 
@@ -146,37 +146,37 @@ function M = multinomialdoublystochasticfactory(n)
 
         % computing the directional derivative of the Riemannian
         % gradient
-        gamma = egrad.*X ;
-        gammadot = ehess.*X + egrad.*eta ;
+        gamma = egrad.*X;
+        gammadot = ehess.*X + egrad.*eta;
         
-        A = [eye(n) X ; X' eye(n)] ;
-        Adot = [zeros(n) eta ; eta' zeros(n)] ;
-        B = A(1:2*n,2:2*n) ;
-        Bdot = Adot(1:2*n,2:2*n) ;
-        b = [sum(gamma,2) ; sum(gamma,1)'] ;
-        bdot = [sum(gammadot,2) ; sum(gammadot,1)'] ;
-        zeta = B\(b - A(:,1)) ;
-        alpha = [1 ; zeta(1:n-1)] ;
-        beta = zeta(n:2*n-1) ;
+        A = [eye(n) X ; X' eye(n)];
+        Adot = [zeros(n) eta ; eta' zeros(n)];
+        B = A(1:2*n, 2:2*n);
+        Bdot = Adot(1:2*n, 2:2*n);
+        b = [sum(gamma,2) ; sum(gamma,1)'];
+        bdot = [sum(gammadot,2) ; sum(gammadot,1)'];
+        zeta = B\(b - A(:,1));
+        alpha = [1 ; zeta(1:n-1)];
+        beta = zeta(n:2*n-1);
         
-        zetadot = B\(bdot - Adot(:,1)-Bdot*zeta) ;
-        alphadot = [0 ; zetadot(1:n-1)] ;
-        betadot = zetadot(n:2*n-1) ;
+        zetadot = B\(bdot - Adot(:,1)-Bdot*zeta);
+        alphadot = [0 ; zetadot(1:n-1)];
+        betadot = zetadot(n:2*n-1);
         
-        S = (alpha*e' + e*beta') ;
-        deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta ;
+        S = (alpha*e' + e*beta');
+        deltadot = gammadot - (alphadot*e' + e*betadot').*X - S.*eta;
 
         % projecting gamma
         delta = gamma - S.*X;
 
         % computing and projecting nabla
-        nabla = deltadot - 0.5*(delta.*eta)./X ;
-        A = [eye(n) X ; X' eye(n)] ;
-        B = A(1:2*n,2:2*n) ;
-        b = [sum(nabla,2) ; sum(nabla,1)'] ;
-        zeta = B\(b - A(:,1)) ;
-        alpha = [1 ; zeta(1:n-1)] ;
-        beta = zeta(n:2*n-1) ;
+        nabla = deltadot - 0.5*(delta.*eta)./X;
+        A = [eye(n) X ; X' eye(n)];
+        B = A(1:2*n, 2:2*n);
+        b = [sum(nabla,2) ; sum(nabla, 1)'];
+        zeta = B\(b - A(:,1));
+        alpha = [1 ; zeta(1:n-1)];
+        beta = zeta(n:2*n-1);
         rhess = nabla - (alpha*e' + e*beta').*X; 
     end
 
