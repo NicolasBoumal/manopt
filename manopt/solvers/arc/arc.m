@@ -14,10 +14,10 @@ function [x, cost, info, options] = arc(problem, x, options)
 % In most of the examples bundled with the toolbox (see link below), the
 % solver can be replaced by the present one as is.
 %
-% With the default subproblem solver (@arc_lanczos), tuning parameter
-% options.theta properly appears important for performance. Users may want
-% to try different values in the range 1e-3 to 1e3 for a particular
-% application.
+% With the default subproblem solver (@arc_conjugate_gradient), tuning
+% parameter options.theta properly appears important for performance.
+% Users may want to try different values in the range 1e-3 to 1e3 for a
+% particular application.
 %
 % The outputs x and cost are the last reached point on the manifold and its
 % cost. The struct-array info contains information about the iterations:
@@ -80,10 +80,13 @@ function [x, cost, info, options] = arc(problem, x, options)
 %       Shrinking factor for regularization parameter if very successful.
 %   gamma_2 (1.5)
 %       Expansion factor for regularization parameter if unsuccessful.
-%   subproblemsolver (@arc_lanczos)
+%   subproblemsolver (@arc_conjugate_gradient)
 %       Function handle to a subproblem solver. The subproblem solver will
 %       also see this options structure, so that parameters can be passed
-%       to it through here as well.
+%       to it through here as well. Built-in solvers included:
+%           arc_lanczos
+%           arc_conjugate_gradient
+%           arc_gradient_descent
 %   rho_regularization (1e3)
 %       See help for the same parameter in the trustregions solver.
 %   statsfun (none)
@@ -110,19 +113,23 @@ function [x, cost, info, options] = arc(problem, x, options)
 % Please cite the Manopt paper as well as the research paper:
 % @article{agarwal2018arcfirst,
 %   author  = {Agarwal, N. and Boumal, N. and Bullins, B. and Cartis, C.},
-%   title   = {Adaptive regularization with cubics on manifolds with a first-order analysis},
+%   title   = {Adaptive regularization with cubics on manifolds},
 %   journal = {arXiv preprint arXiv:1806.00065},
 %   year    = {2018}
 % }
 % 
 %
-% See also: trustregions conjugategradient manopt/examples arc_lanczos
+% See also: trustregions conjugategradient manopt/examples arc_lanczos arc_conjugate_gradient
 
 % This file is part of Manopt: www.manopt.org.
 % Original authors: May 1, 2018,
 %    Naman Agarwal, Brian Bullins, Nicolas Boumal and Coralia Cartis.
 % Contributors: 
 % Change log: 
+%
+%   Aug 14, 2019 (NB):
+%       Default subproblem solver for ARC is now arc_conjugate_gradient
+%       instead of arc_lanczos.
 
     M = problem.M;
     
@@ -163,7 +170,7 @@ function [x, cost, info, options] = arc(problem, x, options)
     localdefaults.gamma_1 = 0.1;
     localdefaults.gamma_2 = 5;
     localdefaults.storedepth = 2;
-    localdefaults.subproblemsolver = @arc_lanczos;
+    localdefaults.subproblemsolver = @arc_conjugate_gradient;
     localdefaults.rho_regularization = 1e3;
     
     % Merge global and local defaults, then merge w/ user options, if any.
