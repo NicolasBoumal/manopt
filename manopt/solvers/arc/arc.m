@@ -78,7 +78,7 @@ function [x, cost, info, options] = arc(problem, x, options)
 %       If rho exceeds this, the step is very successful.
 %   gamma_1 (0.1)
 %       Shrinking factor for regularization parameter if very successful.
-%   gamma_2 (1.5)
+%   gamma_2 (2)
 %       Expansion factor for regularization parameter if unsuccessful.
 %   subproblemsolver (@arc_conjugate_gradient)
 %       Function handle to a subproblem solver. The subproblem solver will
@@ -129,7 +129,7 @@ function [x, cost, info, options] = arc(problem, x, options)
 %
 %   Aug 14, 2019 (NB):
 %       Default subproblem solver for ARC is now arc_conjugate_gradient
-%       instead of arc_lanczos.
+%       instead of arc_lanczos. Default gamma_2 changed to 2 from 5.
 
     M = problem.M;
     
@@ -168,7 +168,7 @@ function [x, cost, info, options] = arc(problem, x, options)
     localdefaults.eta_1 = 0.1;
     localdefaults.eta_2 = 0.9;
     localdefaults.gamma_1 = 0.1;
-    localdefaults.gamma_2 = 5;
+    localdefaults.gamma_2 = 2;
     localdefaults.storedepth = 2;
     localdefaults.subproblemsolver = @arc_conjugate_gradient;
     localdefaults.rho_regularization = 1e3;
