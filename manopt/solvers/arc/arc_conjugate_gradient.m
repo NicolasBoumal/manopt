@@ -90,6 +90,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
     localdefaults.theta = 0.25;
     localdefaults.maxiter_cg = 500;
     localdefaults.beta_type = 'P-R';
+    localdefaults.subproblemstop = 'sqrule';
     
     % Merge local defaults with user options, if any
     if ~exist('options', 'var') || isempty(options)
@@ -128,11 +129,29 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
         func_values(j) = inner(grad, eta) + 0.5 * inner(eta, Heta) + (sigma/3) * eta_norm^3;
         
         if options.verbosity >= 4
-            fprintf('\nModel grad norm: %.16e, Iterate norm: %.16e', rnorm(new_grad), eta_norm);
+            fprintf('\nModel grad norm: %.16e, Iterate norm: %.16e', gradnorms(j), eta_norm);
         end
 
         % Check termination condition
-        if rnorm(new_grad) <= options.theta * eta_norm^2
+        % TODO -- factor this out, as it is the same for all subsolvers.
+        % TODO -- I haven't found a scenario where sqrule doens't win.
+        % TODO -- 1e-4 might be too small (g, s, ss seem equivalent).
+        switch lower(options.subproblemstop)
+            case 'sqrule'
+                stop = (gradnorms(j) <= options.theta * eta_norm^2);
+            case 'grule'
+                stop = (gradnorms(j) <= min(1e-4, sqrt(gradnorms(1)))*gradnorms(1));
+            case 'srule'
+                stop = (gradnorms(j) <= min(1e-4, eta_norm)*gradnorms(1));
+            case 'ssrule'
+                stop = (gradnorms(j) <= min(1e-4, eta_norm/max(1, sigma))*gradnorms(1));
+            otherwise
+                error(['Unknown value for options.subproblemstop.\n' ...
+                       'Possible values: ''sqrule'', ''grule'', ' ...
+                       '''srule'', ''ssrule''.\n']); % ...
+                       % 'Current value: ', options.subproblemstop, '\n']);
+        end
+        if stop
             stop_str = 'Model grad norm condition satisfied';
             gradnorm_reached = true;
             break;
