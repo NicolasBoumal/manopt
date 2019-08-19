@@ -40,7 +40,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
 %     Stopping criterion parameter for subproblem solver: the gradient of
 %     the model at the returned step should have norm no more than theta
 %     times the squared norm of the step.
-%   maxiter_cg (500)
+%   maxinner (the manifold's dimension)
 %     Maximum number of iterations of the conjugate gradient algorithm.
 %   beta_type ('P-R')
 %     The update rule for calculating beta:
@@ -63,6 +63,9 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
 %    Bryan Zhu, Nicolas Boumal.
 % Contributors:
 % Change log: 
+%
+%   Aug. 19, 2019 (NB):
+%       Option maxiter_cg renamed to maxinner to match trustregions.
 
 % TODO: Support preconditioning through getPrecon().
 
@@ -88,7 +91,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
     
     % Set local defaults here
     localdefaults.theta = 0.25;
-    localdefaults.maxiter_cg = 500;
+    localdefaults.maxinner = n;
     localdefaults.beta_type = 'P-R';
     localdefaults.subproblemstop = 'sqrule';
     
@@ -112,7 +115,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
     Hp_conj = M.lincomb(x, -1, hess_grad);
     
     % Main conjugate gradients iteration
-    maxiter = min(options.maxiter_cg, n);
+    maxiter = min(options.maxinner, 3*n);
     gradnorms = zeros(maxiter, 1);
     func_values = zeros(maxiter, 1);
     gradnorm_reached = false;
@@ -192,7 +195,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_conjugate_gradient(proble
     % Check why we stopped iterating
     if ~gradnorm_reached
         stop_str = sprintf(['Reached max number of conjugate gradient iterations ' ...
-               '(options.maxiter_cg = %d)'], options.maxiter_cg);
+               '(options.maxinner = %d)'], options.maxinner);
         j = j - 1;
     end
     

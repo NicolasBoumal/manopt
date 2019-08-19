@@ -40,7 +40,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
 %     Stopping criterion parameter for subproblem solver: the gradient of
 %     the model at the returned step should have norm no more than theta
 %     times the squared norm of the step.
-%   maxiter_gradient (100)
+%   maxinner (100)
 %     Maximum number of iterations of the gradient descent algorithm.
 %
 % Outputs:
@@ -59,6 +59,9 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
 %    Bryan Zhu, Nicolas Boumal.
 % Contributors:
 % Change log: 
+%
+%   Aug. 19, 2019 (NB):
+%       Option maxiter_gradient renamed to maxinner to match trustregions.
 
     % Some shortcuts
     M = problem.M;
@@ -81,7 +84,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
     
     % Set local defaults here
     localdefaults.theta = 0.5;
-    localdefaults.maxiter_gradient = 100;
+    localdefaults.maxinner = 100;
     
     % Merge local defaults with user options, if any
     if ~exist('options', 'var') || isempty(options)
@@ -98,11 +101,11 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
     Heta = M.lincomb(x, -R_c / (1 * gradnorm), hess_grad);
     
     % Main gradient descent iteration
-    gradnorms = zeros(options.maxiter_gradient, 1);
-    func_values = zeros(options.maxiter_gradient, 1);
+    gradnorms = zeros(options.maxinner, 1);
+    func_values = zeros(options.maxinner, 1);
     gradnorm_reached = false;
     j = 1;
-    while j < options.maxiter_gradient
+    while j < options.maxinner
         % Calculate the gradient of the model
         eta_norm = rnorm(eta);
         neg_mgrad = M.lincomb(x, 1, Heta, 1, grad);
@@ -137,7 +140,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_gradient_descent(problem,
     % Check why we stopped iterating
     if ~gradnorm_reached
         stop_str = sprintf(['Reached max number of gradient descent iterations ' ...
-               '(options.maxiter_gradient = %d)'], options.maxiter_gradient);
+               '(options.maxinner = %d)'], options.maxinner);
         j = j - 1;
     end
     

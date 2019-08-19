@@ -40,7 +40,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
 %     Stopping criterion parameter for subproblem solver: the gradient of
 %     the model at the returned step should have norm no more than theta
 %     times the squared norm of the step.
-%   maxiter_lanczos (M.dim())
+%   maxinner (M.dim())
 %     Maximum number of iterations of the Lanczos process, which is nearly
 %     the same as the maximum number of calls to the Hessian.
 %   maxiter_newton (100)
@@ -67,6 +67,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
 % Change log: 
 %   Aug 16, 2019 (NB):
 %       Default value for theta changed from 50 to 0.5.
+%       Option maxiter_lanczos renamed to maxinner to match trustregions.
 
 % TODO: think whether we can save the Lanczos basis in the storedb at the
 % given key in case we get a rejection, and simply "start where we left
@@ -98,7 +99,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     
     % Set local defaults here
     localdefaults.theta = .5;
-    localdefaults.maxiter_lanczos = n;
+    localdefaults.maxinner = n;
     % The following are here for the Newton solver called below
     localdefaults.maxiter_newton = 100;
     localdefaults.tol_newton = 1e-16;
@@ -152,7 +153,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     
     % Main Lanczos iteration
     gradnorm_reached = false;
-    for j = 1 : min(options.maxiter_lanczos, n) - 1
+    for j = 1 : min(options.maxinner, n) - 1
 
         % Knowing that j Lanczos steps have been executed completely, now
         % execute the j+1st step to produce Q{j+1} and populate the
@@ -230,7 +231,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     points = numel(y);
     if ~gradnorm_reached
         stop_str = sprintf(['Reached max number of Lanczos iterations ' ...
-               '(options.maxiter_lanczos = %d)'], options.maxiter_lanczos);
+               '(options.maxinner = %d)'], options.maxinner);
         points = points - 1;
     end
     
