@@ -306,7 +306,11 @@ function [x, cost, info, options] = arc(problem, x, options)
         if rho >= options.eta_2 && ~subproblem_failure
             % Very successful step
             arc_str(4) = '-';
-            sigma = max(options.sigma_min, options.gamma_1 * sigma);
+            if options.gamma_1 > 0
+                sigma = max(options.sigma_min, options.gamma_1 * sigma);
+            else
+                sigma = max(options.sigma_min, min(sigma, gradnorm)); % TODO document this
+            end
         elseif rho >= options.eta_1 && ~subproblem_failure
             % Successful step
             arc_str(4) = ' ';
