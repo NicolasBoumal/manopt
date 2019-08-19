@@ -36,7 +36,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
 %     storedb, key: caching data for problem at x
 %
 % Options specific to this subproblem solver:
-%   theta (50)
+%   theta (.5)
 %     Stopping criterion parameter for subproblem solver: the gradient of
 %     the model at the returned step should have norm no more than theta
 %     times the squared norm of the step.
@@ -65,6 +65,8 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
 %    Naman Agarwal, Brian Bullins, Nicolas Boumal and Coralia Cartis.
 % Contributors: 
 % Change log: 
+%   Aug 16, 2019 (NB):
+%       Default value for theta changed from 50 to 0.5.
 
 % TODO: think whether we can save the Lanczos basis in the storedb at the
 % given key in case we get a rejection, and simply "start where we left
@@ -95,7 +97,7 @@ function [eta, Heta, hesscalls, stop_str, stats] = arc_lanczos(problem, x, grad,
     end
     
     % Set local defaults here
-    localdefaults.theta = 50;
+    localdefaults.theta = .5;
     localdefaults.maxiter_lanczos = n;
     % The following are here for the Newton solver called below
     localdefaults.maxiter_newton = 100;
