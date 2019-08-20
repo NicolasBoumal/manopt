@@ -59,6 +59,12 @@ function M = multinomialdoublystochasticfactory(n)
 %        for efficiency when n is large.
 
     e = ones(n, 1);
+    
+    function [alpha, beta] = mylinearsolve(A, b)
+        [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-4, 50);
+        alpha = zeta(1:n, 1);
+        beta = zeta(n+1:end, 1);
+    end
 
     M.name = @() sprintf('%dx%d doubly-stochastic matrices with positive entries', n, n);
 
@@ -95,9 +101,7 @@ function M = multinomialdoublystochasticfactory(n)
         % Projection of the vector onto the tangent space
         A = [eye(n) X ; X' eye(n)];
         b = [sum(Z,2) ; sum(Z,1)'];
-        [zeta,~,~,iter] = pcg(sparse(A), b, 1e-6, 50);
-        alpha = zeta(1:n, 1);
-        beta = zeta(n+1:end, 1);
+        [alpha, beta] = mylinearsolve(A, b);
         eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector
         nrm = M.norm(X, eta);
@@ -109,9 +113,7 @@ function M = multinomialdoublystochasticfactory(n)
     function etaproj = projection(X, eta) % Projection of the vector eta in the ambeint space onto the tangent space
         A = [eye(n) X ; X' eye(n)];
         b = [sum(eta,2) ; sum(eta,1)'];
-        [zeta,~,~,iter] = pcg(sparse(A), b, 1e-6, 50);
-        alpha = zeta(1:n, 1);
-        beta = zeta(n+1:end, 1);
+        [alpha, beta] = mylinearsolve(A, b);
         etaproj = eta - (alpha*e' + e*beta').*X;
     end
 
@@ -124,9 +126,7 @@ function M = multinomialdoublystochasticfactory(n)
         mu = (X.*egrad); 
         A = [eye(n) X ; X' eye(n)];
         b = [sum(mu,2) ; sum(mu,1)'];
-        [zeta,~,~,iter] = pcg(sparse(A), b, 1e-6, 50);
-        alpha = zeta(1:n, 1);
-        beta = zeta(n+1:end, 1);
+        [alpha, beta] = mylinearsolve(A, b);
         rgrad = mu - (alpha*e' + e*beta').*X;
     end
 
@@ -156,14 +156,9 @@ function M = multinomialdoublystochasticfactory(n)
         Bdot = Adot(1:2*n,2:2*n);
         b = [sum(gamma,2) ; sum(gamma,1)'];
         bdot = [sum(gammadot,2) ; sum(gammadot,1)'];
-        [zeta,~,~,iter] = pcg(sparse(A), b, 1e-6, 50);
-        alpha = zeta(1:n, 1);
-        beta = zeta(n+1:end, 1);
+        [alpha, beta] = mylinearsolve(A, b);
+        [alphadot, betadot] = mylinearsolve(A, bdot-Adot*[alpha; beta]);
         
-        [zetadot,~,~,iter] = pcg(sparse(A), bdot-Adot*[alpha; beta], 1e-6, 50);
-        alphadot = zetadot(1:n, 1);
-        betadot = zetadot(n+1:end, 1);
-                
         S = (alpha*e' + e*beta');
         deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta;
 
