@@ -61,7 +61,7 @@ function M = multinomialdoublystochasticfactory(n)
     e = ones(n, 1);
     
     function [alpha, beta] = mylinearsolve(A, b)
-        [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-4, 50);
+        [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 50);
         alpha = zeta(1:n, 1);
         beta = zeta(n+1:end, 1);
     end
