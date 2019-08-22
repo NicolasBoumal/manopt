@@ -56,12 +56,16 @@ function M = multinomialdoublystochasticfactory(n)
 %
 %    Aug. 19, 2019 (AD, BM, NB):
 %        Fixed typos in comments; replaced some linear solves with pcg
-%        for efficiency when n is large.
+%        for efficiency when n is large. By default, pcg is not used:
+%        comments in the code indicate how to use it if need be. The
+%        main change has been to factor out these linear solves.
 
     e = ones(n, 1);
     
     function [alpha, beta] = mylinearsolve(A, b)
-        [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 50);
+    	zeta = sparse(A)\b; % sparse might not be better perf.-wise.
+    	% For large n use the pcg solver instead of \.
+        % [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 100);
         alpha = zeta(1:n, 1);
         beta = zeta(n+1:end, 1);
     end
@@ -100,7 +104,7 @@ function M = multinomialdoublystochasticfactory(n)
         Z = randn(n, n);
         % Projection of the vector onto the tangent space
         A = [eye(n) X ; X' eye(n)];
-        b = [sum(Z,2) ; sum(Z,1)'];
+        b = [sum(Z, 2) ; sum(Z, 1)'];
         [alpha, beta] = mylinearsolve(A, b);
         eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector
@@ -112,7 +116,7 @@ function M = multinomialdoublystochasticfactory(n)
     M.proj = @projection; 
     function etaproj = projection(X, eta) % Projection of the vector eta in the ambeint space onto the tangent space
         A = [eye(n) X ; X' eye(n)];
-        b = [sum(eta,2) ; sum(eta,1)'];
+        b = [sum(eta, 2) ; sum(eta, 1)'];
         [alpha, beta] = mylinearsolve(A, b);
         etaproj = eta - (alpha*e' + e*beta').*X;
     end
@@ -125,7 +129,7 @@ function M = multinomialdoublystochasticfactory(n)
     function rgrad = egrad2rgrad(X, egrad) % projection of the euclidean gradient
         mu = (X.*egrad); 
         A = [eye(n) X ; X' eye(n)];
-        b = [sum(mu,2) ; sum(mu,1)'];
+        b = [sum(mu, 2) ; sum(mu, 1)'];
         [alpha, beta] = mylinearsolve(A, b);
         rgrad = mu - (alpha*e' + e*beta').*X;
     end
@@ -152,10 +156,8 @@ function M = multinomialdoublystochasticfactory(n)
         
         A = [eye(n) X ; X' eye(n)];
         Adot = [zeros(n) eta ; eta' zeros(n)];
-        B = A(1:2*n,2:2*n);
-        Bdot = Adot(1:2*n,2:2*n);
-        b = [sum(gamma,2) ; sum(gamma,1)'];
-        bdot = [sum(gammadot,2) ; sum(gammadot,1)'];
+        b = [sum(gamma, 2) ; sum(gamma, 1)'];
+        bdot = [sum(gammadot, 2) ; sum(gammadot, 1)'];
         [alpha, beta] = mylinearsolve(A, b);
         [alphadot, betadot] = mylinearsolve(A, bdot-Adot*[alpha; beta]);
         
@@ -167,13 +169,7 @@ function M = multinomialdoublystochasticfactory(n)
 
         % computing and projecting nabla
         nabla = deltadot - 0.5*(delta.*eta)./X;
-        A = [eye(n) X ; X' eye(n)];
-        B = A(1:2*n,2:2*n);
-        b = [sum(nabla,2) ; sum(nabla,1)'];
-        zeta = B\(b - A(:,1));
-        alpha = [1 ; zeta(1:n-1)];
-        beta = zeta(n:2*n-1);
-        rhess = nabla - (alpha*e' + e*beta').*X; 
+        rhess = projection(X, nabla);
     end
 
 
