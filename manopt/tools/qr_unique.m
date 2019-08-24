@@ -11,10 +11,10 @@ function [Q, R] = qr_unique(A)
 % If A has full column rank, then R has positive reals on its diagonal.
 % Otherwise, it may have zeros on its diagonal.
 %
-% This is equivalent to a call to Matlab's qr(A, 0), up to a rescaling of
-% the columns of Q and of the rows of R to ensure the stated properties of
-% the diagonal of R. If A has full column rank, this decomposition is
-% unique, hence the name of the function.
+% This is equivalent to a call to Matlab's qr(A, 0), up to possible
+% sign/phase changes of the columns of Q and of the rows of R to ensure
+% the stated properties of the diagonal of R. If A has full column rank,
+% this decomposition is unique, hence the name of the function.
 %
 % If A is a 3D array, then Q, R are also 3D arrays and this function is
 % applied to each slice separately.
