@@ -68,7 +68,9 @@ function M = multinomialdoublystochasticfactory(n)
         % [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 100);
         %
         % Even faster is to create a function handle
-        % computing A*x (x is a given vector)
+        % computing A*x (x is a given vector). 
+        % Make sure that A is not created, and X is only 
+        % passed with mylinearsolve and not A.
         % [zeta, ~, ~, iter] = pcg(@mycompute, b, 1e-6, 100);
         %
         % function Ax = mycompute(x)
