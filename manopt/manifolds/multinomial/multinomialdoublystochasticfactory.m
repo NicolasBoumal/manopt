@@ -66,6 +66,21 @@ function M = multinomialdoublystochasticfactory(n)
     	zeta = sparse(A)\b; % sparse might not be better perf.-wise.
     	% For large n use the pcg solver instead of \.
         % [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 100);
+        %
+        % Even faster is to create a function handle
+        % computing A*x (x is a given vector). 
+        % Make sure that A is not created, and X is only 
+        % passed with mylinearsolve and not A.
+        % [zeta, ~, ~, iter] = pcg(@mycompute, b, 1e-6, 100);
+        %
+        % function Ax = mycompute(x)
+        %     xtop = x(1:n,1);
+        %     xbottom = x(n+1:end,1);
+        %     Axtop = xtop + X*xbottom;
+        %     Axbottom = X'*xtop + xbottom;
+        %     Ax = [Axtop; Axbottom];
+        % end
+        
         alpha = zeta(1:n, 1);
         beta = zeta(n+1:end, 1);
     end
