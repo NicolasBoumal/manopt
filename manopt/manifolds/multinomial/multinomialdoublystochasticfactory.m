@@ -170,11 +170,10 @@ function M = multinomialdoublystochasticfactory(n)
         gammadot = ehess.*X + egrad.*eta;
         
         A = [eye(n) X ; X' eye(n)];
-        Adot = [zeros(n) eta ; eta' zeros(n)];
         b = [sum(gamma, 2) ; sum(gamma, 1)'];
         bdot = [sum(gammadot, 2) ; sum(gammadot, 1)'];
         [alpha, beta] = mylinearsolve(A, b);
-        [alphadot, betadot] = mylinearsolve(A, bdot-Adot*[alpha; beta]);
+        [alphadot, betadot] = mylinearsolve(A, bdot- [eta*beta; eta'*alpha]);
         
         S = (alpha*e' + e*beta');
         deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta;
