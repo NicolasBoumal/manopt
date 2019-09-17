@@ -21,7 +21,8 @@ function M = sparseeuclideanfactory(A)
     dimensions_vec = size(A);
     assert(length(dimensions_vec) == 2, 'A should be a matrix (or a vector).');
     [I, J] = find(A);
-	S = sparse(I, J, ones(length(I),1), dimensions_vec(1), dimensions_vec(2));
+    nvals = length(I);
+    S = sparse(I, J, ones(nvals, 1), dimensions_vec(1), dimensions_vec(2), nvals);
 	nvals = length(I);
       
     M.size = @() dimensions_vec;
