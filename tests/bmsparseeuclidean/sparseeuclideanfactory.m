@@ -23,7 +23,6 @@ function M = euclideansparsefactory(A)
     [I, J] = find(A);
     nvals = length(I);
     S = sparse(I, J, ones(nvals, 1), dimensions_vec(1), dimensions_vec(2), nvals);
-	nvals = length(I);
       
     M.size = @() dimensions_vec;
     
