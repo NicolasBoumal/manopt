@@ -1,5 +1,5 @@
 function M = sparseeuclideanfactory(A)
-% Returns a manifold struct to optimize over real matrices with sparsity pattern that of A.
+% Returns a manifold struct to optimize over real matrices with given sparsity pattern.
 %
 % function M = sparseeuclideanfactory(A)
 %
