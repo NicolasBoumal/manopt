@@ -79,7 +79,7 @@ function M = euclideansparsefactory(A)
     
     M.pairmean = @(x1, x2) .5*(x1+x2);
     
-    M.vec = @(x, u_mat) u_mat(:);
+    M.vec = @(x, u_mat) nonzeros(u_mat);
     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
     M.vecmatareisometries = @() true;
 
