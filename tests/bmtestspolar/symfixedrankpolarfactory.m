@@ -53,7 +53,7 @@ function M = symfixedrankpolarfactory(m, k)
     % Change log:
     %
     
-    M.name = @() sprintf('UBU'' quotient manifold of %dx%d matrices of rank %d', m, m, k);
+    M.name = @() sprintf('UBU'' quotient manifold of %dx%d symmetric, positive semidefinite matrices of rank %d', m, m, k);
     
     M.dim = @() m*k - k*(k-1)/2;
     
