@@ -33,7 +33,7 @@ function M = euclideansparsefactory(A)
     
     M.inner = @(x, d1, d2) d1(:).'*d2(:);
     
-    M.norm = @(x, d) norm(d(:), 'fro');
+    M.norm = @(x, d) norm(d, 'fro');
     
     M.dist = @(x, y) norm(x(:) - y(:), 'fro');
     
