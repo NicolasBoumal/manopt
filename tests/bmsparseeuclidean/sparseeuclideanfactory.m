@@ -62,7 +62,7 @@ function M = euclideansparsefactory(A)
 
     M.hash = @(x) ['z' hashmd5(nonzeros(x))];
     
-    M.rand = @() S.*randn(dimensions_vec);
+    M.rand = @() sprandn(S);
     
     M.randvec = @randvec;
     function u = randvec(x) %#ok<INUSD>
