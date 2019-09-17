@@ -26,7 +26,8 @@ function M = euclideansparsefactory(A)
       
     M.size = @() dimensions_vec;
     
-    M.name = @() sprintf('Euclidean space R^(%s) with fixed sparsity pattern containg %s non-zero entries', num2str(dimensions_vec), num2str(nvals));
+    M.name = @() sprintf('Euclidean space R^(%dx%d) with fixed sparsity pattern containg %d non-zero entries', ...
+                                        dimensions_vec(1), dimensions_vec(2), nvals);
     
     M.dim = @() nvals;
     
