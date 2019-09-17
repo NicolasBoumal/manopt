@@ -78,6 +78,33 @@ function M = symfixedrankpolarfactory(m, k)
     skew = @(X) .5*(X-X');
     symm = @(X) .5*(X+X');
     stiefel_proj = @(U, H) H - U*symm(U'*H);
+
+	% It is sometimes useful to switch between representation of matrices
+	% as pairs or as full matrices of size m x m. The function to
+	% convert a matrix to a pair, matrix2pair, allows to specify the
+	% rank of the representation. By default, it is equal to k. Omit the
+	% second input (or set to inf) to get a full EVD pair (in economy
+	% format). If so, the resulting pair does not represent a point on
+	% the manifold.
+	M.matrix2pair = @matrix2pair;
+	function X_pair = matrix2pair(X_matrix, r)
+	    if ~exist('r', 'var') || isempty(r) || r <= 0
+	        r = k;
+	    end
+	    if r < min(m, n)
+	        [U, B] = eigs(X_matrix, r);
+	    else
+	        [U, B] = eig(X_matrix);
+	    end
+	    X_pair.U = U;
+	    X_pair.B = B;
+	end
+	M.pair2matrix = @pair2matrix;
+	function X_matrix = pair2matrix(X_pair)
+	    U = X_pair.U;
+	    B = X_pair.B;
+	    X_matrix = U*B*U';
+	end
     
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
