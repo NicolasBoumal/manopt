@@ -34,7 +34,7 @@ function M = symfixedrankpolarfactory(m, k)
 % For second-order geometry, please cite the Manopt paper as well as the research paper:
 %     @Article{mishra2014fixedrank,
 %       Title   = {Fixed-rank matrix factorizations and {Riemannian} low-rank optimization},
-%       Author  = {Mishra, B. and Meyer, G. and Bonnabel, B. and Sepulchre, R.},
+%       Author  = {Mishra, B. and Meyer, G. and Bonnabel, S. and Sepulchre, R.},
 %       Journal = {Computational Statistics},
 %       Year    = {2014},
 %       Number  = {3-4},
