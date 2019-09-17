@@ -146,7 +146,7 @@ function M = symfixedrankpolarfactory(m, k)
         eta.B = symm(eta.B);
         
         % Then, projection onto the horizontal space.
-        SS = X.B*X.B;
+        SS = X.B*X.B';
         AS = X.B*(skew(X.U'*eta.U) - 2*skew(X.B\eta.B))*X.B;
         
         % Compute skew-symmetric Omega.
