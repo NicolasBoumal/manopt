@@ -46,6 +46,7 @@ function M = multinomialsymmetricfactory(n)
     % Helpers
     e = ones(n, 1);
     symm = @(X) .5*(X+X');
+    maxDSiters = 100 + 2*n;
 
     M.name = @() sprintf('%dx%d symmetric doubly-stochastic matrices with positive entries', n, n);
 
@@ -71,7 +72,7 @@ function M = multinomialsymmetricfactory(n)
     M.rand = @random;
     function X = random()
         Z = symm(abs(randn(n, n)));     % Random point in the ambient space
-        X = symm(doubly_stochastic(Z)); % Projection on the manifold
+        X = symm(doubly_stochastic(Z, maxDSiters)); % Projection on the manifold
     end
 
     % Pick a random vector in the tangent space at X, of norm 1
@@ -113,7 +114,7 @@ function M = multinomialsymmetricfactory(n)
             t = 1.0;
         end
         Y = X.*exp(t*(eta./X));
-        Y = symm(doubly_stochastic(Y));
+        Y = symm(doubly_stochastic(Y, maxDSiters));
         Y = max(Y, eps);
     end
 
