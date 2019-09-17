@@ -58,10 +58,12 @@ function M = multinomialdoublystochasticfactory(n)
 %        Fixed typos in comments; replaced some linear solves with pcg
 %        for efficiency when n is large. By default, pcg is used:
 %        comments in the code what are other possibilities and how they 
-%        differ.
+%        differ. Added maxDSiters to doubly_stochastic argument.
 %        The main change has been to factor out these linear solves.
 
     e = ones(n, 1);
+
+    maxDSiters = 2*n;
     
     function [alpha, beta] = mylinearsolve(X, b)
     	% zeta = sparse(A)\b; % sparse might not be better perf.-wise.
@@ -112,7 +114,7 @@ function M = multinomialdoublystochasticfactory(n)
     M.rand = @random;
     function X = random()
         Z = abs(randn(n, n));     % Random point in the ambient space
-        X = doubly_stochastic(Z); % Projection on the Manifold
+        X = doubly_stochastic(Z, maxDSiters); % Projection on the Manifold
     end
 
     % Pick a random vector in the tangent space at X.
@@ -156,7 +158,7 @@ function M = multinomialdoublystochasticfactory(n)
             t = 1.0;
         end
         Y = X.*exp(t*(eta./X));
-        Y = doubly_stochastic(Y);
+        Y = doubly_stochastic(Y, maxDSiters);
         Y = max(Y, eps);
     end
 
