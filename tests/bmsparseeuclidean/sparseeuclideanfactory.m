@@ -67,7 +67,7 @@ function M = euclideansparsefactory(A)
     M.randvec = @randvec;
     function u = randvec(x) %#ok<INUSD>
         u = sprandn(S);
-        u = u / norm(u(:), 'fro');
+        u = u / norm(u, 'fro');
     end
     
     M.lincomb = @matrixlincomb;
