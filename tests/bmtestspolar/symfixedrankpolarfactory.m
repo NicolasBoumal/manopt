@@ -1,5 +1,5 @@
 function M = symfixedrankpolarfactory(m, k)
-% Manifold of m-by-m symmetric positive definite matrices of rank k with polar quotient geometry.
+% Manifold of symmetric, positive semidefinite matrices of size m and rank k with polar quotient geometry.
 %
 % function M = symfixedrankpolarfactory(m, k)
 %
