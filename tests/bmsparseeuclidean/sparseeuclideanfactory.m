@@ -72,7 +72,7 @@ function M = euclideansparsefactory(A)
     
     M.lincomb = @matrixlincomb;
     
-    M.zerovec = @(x) zeros(dimensions_vec);
+    M.zerovec = @(x) spalloc(dimensions_vec(1), dimensions_vec(2), nvals);
     
     M.transp = @(x1, x2, d) d;
     M.isotransp = M.transp; % the transport is isometric
