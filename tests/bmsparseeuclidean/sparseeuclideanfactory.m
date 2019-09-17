@@ -1,4 +1,4 @@
-function M = sparseeuclideanfactory(A)
+function M = euclideansparsefactory(A)
 % Returns a manifold struct to optimize over real matrices with given sparsity pattern.
 %
 % function M = euclideansparsefactory(A)
