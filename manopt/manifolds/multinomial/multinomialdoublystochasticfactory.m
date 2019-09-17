@@ -57,7 +57,7 @@ function M = multinomialdoublystochasticfactory(n)
 %    Aug. 19, 2019 (AD, BM, NB):
 %        Fixed typos in comments; replaced some linear solves with pcg
 %        for efficiency when n is large. By default, pcg is used:
-%        comments in the code what are other possibilities and how they 
+%        comments in the code indicate other possibilities and how they 
 %        differ. Added maxDSiters to doubly_stochastic argument.
 %        The main change has been to factor out these linear solves.
 
