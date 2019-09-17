@@ -23,6 +23,11 @@ function M = symfixedrankpolarfactory(m, k)
 % These are the horizontal lifts of the tangent vectors on the quotient 
 % manifold.
 %
+% The total space is the Cartesian product of the Stiefel and symmetric
+% positive definite manifolds. An element in the total space, therefore, is
+% is also represented as a structure with two fields: U and B. This is 
+% also the output in M.tangent2ambient.
+%
 %
 % For first-order geometry, please cite the Manopt paper as well as the research paper:
 %     @InProceedings{meyer2011linear,
