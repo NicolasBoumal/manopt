@@ -46,7 +46,7 @@ function M = multinomialsymmetricfactory(n)
     % Helpers
     e = ones(n, 1);
     symm = @(X) .5*(X+X');
-    maxDSiters = 2*n;
+    maxDSiters = 100 + 2*n;
 
     M.name = @() sprintf('%dx%d symmetric doubly-stochastic matrices with positive entries', n, n);
 
