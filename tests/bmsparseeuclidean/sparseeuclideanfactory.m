@@ -1,7 +1,7 @@
 function M = sparseeuclideanfactory(A)
 % Returns a manifold struct to optimize over real matrices with given sparsity pattern.
 %
-% function M = sparseeuclideanfactory(A)
+% function M = euclideansparsefactory(A)
 %
 % Returns M, a structure describing the Euclidean space of real matrices,
 % equipped with the standard Frobenius distance and associated trace inner
