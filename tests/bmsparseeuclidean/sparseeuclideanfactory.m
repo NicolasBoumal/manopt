@@ -60,7 +60,7 @@ function M = euclideansparsefactory(A)
 	
     M.log = @(x, y) y-x;
 
-    M.hash = @(x) ['z' hashmd5(x(:))];
+    M.hash = @(x) ['z' hashmd5(nonzeros(x))];
     
     M.rand = @() S.*randn(dimensions_vec);
     
