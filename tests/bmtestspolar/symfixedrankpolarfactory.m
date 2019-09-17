@@ -181,6 +181,7 @@ function M = symfixedrankpolarfactory(m, k)
         % Y.B = symm(B*real(expm(B\(tetaB))));
         Y.B = symm(B + tetaB + .5*tetaB*(B\tetaB));
         
+        % Polar factor computation
         Y.U = uf(X.U + t*eta.U);
     end
     
