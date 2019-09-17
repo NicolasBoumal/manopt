@@ -35,7 +35,7 @@ function M = euclideansparsefactory(A)
     
     M.norm = @(x, d) norm(d, 'fro');
     
-    M.dist = @(x, y) norm(x(:) - y(:), 'fro');
+    M.dist = @(x, y) norm(x - y, 'fro');
     
     M.typicaldist = @() sqrt(prod(dimensions_vec));
     
