@@ -56,14 +56,19 @@ function M = multinomialdoublystochasticfactory(n)
 %
 %    Aug. 19, 2019 (AD, BM, NB):
 %        Fixed typos in comments; replaced some linear solves with pcg
-%        for efficiency when n is large. By default, pcg is not used:
-%        comments in the code indicate how to use it if need be. The
-%        main change has been to factor out these linear solves.
+%        for efficiency when n is large. By default, pcg is used:
+%        comments in the code indicate other possibilities and how they 
+%        differ. Added maxDSiters to doubly_stochastic argument.
+%        The main change has been to factor out these linear solves.
 
     e = ones(n, 1);
+
+    maxDSiters = 100 + 2*n;
     
-    function [alpha, beta] = mylinearsolve(A, b)
-    	zeta = sparse(A)\b; % sparse might not be better perf.-wise.
+    function [alpha, beta] = mylinearsolve(X, b)
+    	% zeta = sparse(A)\b; % sparse might not be better perf.-wise.
+        % where A = [eye(n) X ; X' eye(n)];
+        %
     	% For large n use the pcg solver instead of \.
         % [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 100);
         %
@@ -71,15 +76,15 @@ function M = multinomialdoublystochasticfactory(n)
         % computing A*x (x is a given vector). 
         % Make sure that A is not created, and X is only 
         % passed with mylinearsolve and not A.
-        % [zeta, ~, ~, iter] = pcg(@mycompute, b, 1e-6, 100);
-        %
-        % function Ax = mycompute(x)
-        %     xtop = x(1:n,1);
-        %     xbottom = x(n+1:end,1);
-        %     Axtop = xtop + X*xbottom;
-        %     Axbottom = X'*xtop + xbottom;
-        %     Ax = [Axtop; Axbottom];
-        % end
+        [zeta, ~, ~, iter] = pcg(@mycompute, b, 1e-6, 100);
+        
+        function Ax = mycompute(x)
+            xtop = x(1:n,1);
+            xbottom = x(n+1:end,1);
+            Axtop = xtop + X*xbottom;
+            Axbottom = X'*xtop + xbottom;
+            Ax = [Axtop; Axbottom];
+        end
         
         alpha = zeta(1:n, 1);
         beta = zeta(n+1:end, 1);
@@ -109,7 +114,7 @@ function M = multinomialdoublystochasticfactory(n)
     M.rand = @random;
     function X = random()
         Z = abs(randn(n, n));     % Random point in the ambient space
-        X = doubly_stochastic(Z); % Projection on the Manifold
+        X = doubly_stochastic(Z, maxDSiters); % Projection on the Manifold
     end
 
     % Pick a random vector in the tangent space at X.
@@ -118,9 +123,8 @@ function M = multinomialdoublystochasticfactory(n)
         % A random vector in the ambient space
         Z = randn(n, n);
         % Projection of the vector onto the tangent space
-        A = [eye(n) X ; X' eye(n)];
         b = [sum(Z, 2) ; sum(Z, 1)'];
-        [alpha, beta] = mylinearsolve(A, b);
+        [alpha, beta] = mylinearsolve(X, b);
         eta = Z - (alpha*e' + e*beta').*X;
         % Normalizing the vector
         nrm = M.norm(X, eta);
@@ -130,9 +134,8 @@ function M = multinomialdoublystochasticfactory(n)
     % Projection of vector eta in the ambient space to the tangent space.
     M.proj = @projection; 
     function etaproj = projection(X, eta) % Projection of the vector eta in the ambeint space onto the tangent space
-        A = [eye(n) X ; X' eye(n)];
         b = [sum(eta, 2) ; sum(eta, 1)'];
-        [alpha, beta] = mylinearsolve(A, b);
+        [alpha, beta] = mylinearsolve(X, b);
         etaproj = eta - (alpha*e' + e*beta').*X;
     end
 
@@ -143,9 +146,8 @@ function M = multinomialdoublystochasticfactory(n)
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad) % projection of the euclidean gradient
         mu = (X.*egrad); 
-        A = [eye(n) X ; X' eye(n)];
         b = [sum(mu, 2) ; sum(mu, 1)'];
-        [alpha, beta] = mylinearsolve(A, b);
+        [alpha, beta] = mylinearsolve(X, b);
         rgrad = mu - (alpha*e' + e*beta').*X;
     end
 
@@ -156,7 +158,7 @@ function M = multinomialdoublystochasticfactory(n)
             t = 1.0;
         end
         Y = X.*exp(t*(eta./X));
-        Y = doubly_stochastic(Y);
+        Y = doubly_stochastic(Y, maxDSiters);
         Y = max(Y, eps);
     end
 
@@ -169,11 +171,10 @@ function M = multinomialdoublystochasticfactory(n)
         gamma = egrad.*X;
         gammadot = ehess.*X + egrad.*eta;
         
-        A = [eye(n) X ; X' eye(n)];
         b = [sum(gamma, 2) ; sum(gamma, 1)'];
         bdot = [sum(gammadot, 2) ; sum(gammadot, 1)'];
-        [alpha, beta] = mylinearsolve(A, b);
-        [alphadot, betadot] = mylinearsolve(A, bdot- [eta*beta; eta'*alpha]);
+        [alpha, beta] = mylinearsolve(X, b);
+        [alphadot, betadot] = mylinearsolve(X, bdot- [eta*beta; eta'*alpha]);
         
         S = (alpha*e' + e*beta');
         deltadot = gammadot - (alphadot*e' + e*betadot').*X- S.*eta;
