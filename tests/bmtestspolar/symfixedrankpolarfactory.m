@@ -58,7 +58,9 @@ function M = symfixedrankpolarfactory(m, k)
     M.dim = @() m*k - k*(k-1)/2;
     
     % Choice of the metric on the orthonormal space is motivated by the symmetry present in the
-    % space. The metric on the positive definite space is its natural metric.
+    % space. The metric on the positive definite space is its natural 
+    % bi-invarint metric. The metric on the Stiefel manifold is the
+    % standard Euclidean metric.
     M.inner = @(X, eta, zeta) eta.U(:).'*zeta.U(:)  ...
         + trace( (X.B\eta.B) * (X.B\zeta.B) );
     
