@@ -255,4 +255,5 @@ function Omega = mylinearsystem(Bsq, RHS)
     %     % Debug
     %     B = u*diag(s)*u';
     %     norm(Bsq*Omega + Omega*Bsq - B*Omega*B - RHS,'fro')/norm(RHS,'fro')
+    
 end
