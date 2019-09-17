@@ -16,7 +16,7 @@ function M = sparseeuclideanfactory(A)
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Mar. 28, 2019.
 % Change log: 
-%
+%    May 3, 2019 (NB): adapted many functions to take better advantage of sparsity.
 	
 	dimensions_vec = size(A);
 	[I,J] = find(A);
