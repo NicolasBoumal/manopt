@@ -214,7 +214,7 @@ function M = symfixedrankpolarfactory(m, k)
     
     M.transp = @(x1, x2, d) projection(x2, d);
     
-    % vec and mat are not isometries, because of the scaled inner metric.
+    % vec and mat are not isometries, because of the scaled inner product.
     M.vec = @(X, U) [U.U(:) ; U.B(:)];
     M.mat = @(X, u) struct('U', reshape(u(1:(m*k)), m, k), ...
         'B', reshape(u((m*k+1): end), k, k));
