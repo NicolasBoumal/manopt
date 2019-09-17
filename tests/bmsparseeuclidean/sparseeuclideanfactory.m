@@ -66,7 +66,7 @@ function M = euclideansparsefactory(A)
     
     M.randvec = @randvec;
     function u = randvec(x) %#ok<INUSD>
-        u = S.*randn(dimensions_vec);
+        u = sprandn(S);
         u = u / norm(u(:), 'fro');
     end
     
