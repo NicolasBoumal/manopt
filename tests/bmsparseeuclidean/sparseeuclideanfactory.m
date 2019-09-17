@@ -7,6 +7,10 @@ function M = sparseeuclideanfactory(A)
 % equipped with the standard Frobenius distance and associated trace inner
 % product, as a manifold for Manopt.
 %
+% The matrices are represented as sparse matrices, that their sparsity pattern 
+% is fixed. The tangent vectors are represented in the same way as points 
+% since this is a Euclidean space.
+%
 % See also: euclideanfactory euclideancomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
