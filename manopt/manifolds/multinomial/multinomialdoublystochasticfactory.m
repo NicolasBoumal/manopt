@@ -63,7 +63,7 @@ function M = multinomialdoublystochasticfactory(n)
 
     e = ones(n, 1);
 
-    maxDSiters = 2*n;
+    maxDSiters = 100 + 2*n;
     
     function [alpha, beta] = mylinearsolve(X, b)
     	% zeta = sparse(A)\b; % sparse might not be better perf.-wise.
