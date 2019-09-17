@@ -237,6 +237,7 @@ function d = lincomb(x, a1, d1, a2, d2) %#ok<INLSL>
     
 end
 
+% Polar factor computation
 function A = uf(A)
     [U, unused, R] = svd(A, 0); %#ok
     A = U*R';
