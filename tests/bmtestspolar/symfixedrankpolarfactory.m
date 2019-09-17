@@ -115,19 +115,25 @@ function M = symfixedrankpolarfactory(m, k)
     
     M.ehess2rhess = @ehess2rhess;
     function Hess = ehess2rhess(X, egrad, ehess, eta)
-        
-        % Riemannian gradient for the factor B.
-        rgrad.B = X.B*symm(egrad.B)*X.B;
-        
+        % Mathematical development of the below computation is
+        % as follows.
+        % We first compute the Riemannian gradient for the factor B.
+        % rgrad.B = X.B*symm(egrad.B)*X.B;
+        %
         % Directional derivatives of the Riemannian gradient.
+        % Hess.U = ehess.U - eta.U*symm(X.U'*egrad.U);
+        % Hess.U = stiefel_proj(X.U, Hess.U);
+        %
+        % Hess.B = X.B*symm(ehess.B)*X.B +  2*symm(eta.B*symm(egrad.B)*X.B);
+        %
+        % Finally, a correction factor for the non-constant metric on the factor B.
+        % Hess.B = Hess.B - symm(eta.B*(X.B\rgrad.B));
         Hess.U = ehess.U - eta.U*symm(X.U'*egrad.U);
         Hess.U = stiefel_proj(X.U, Hess.U);
-        
-        Hess.B = X.B*symm(ehess.B)*X.B +  2*symm(eta.B*symm(egrad.B)*X.B);
-        
-        % Correction factor for the non-constant metric on the factor B.
-        Hess.B = Hess.B - symm(eta.B*(X.B\rgrad.B));
-        
+
+        Hess.B = X.B*symm(ehess.B)*X.B + symm(eta.B*symm(egrad.B)*X.B);
+
+		
         % Projection onto the horizontal space.
         Hess = M.proj(X, Hess);
     end
