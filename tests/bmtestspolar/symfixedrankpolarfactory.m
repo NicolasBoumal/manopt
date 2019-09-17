@@ -6,27 +6,28 @@ function M = symfixedrankpolarfactory(m, k)
 % The first-order geometry follows the balanced quotient geometry described
 % in the paper,
 % "Linear regression under fixed-rank constraints: a Riemannian approach",
-% G. Meyer, B. Bonnabel and R. Sepulchre, ICML 2011.
+% G. Meyer, S. Bonnabel and R. Sepulchre, ICML 2011.
 %
 % Paper link: http://www.icml-2011.org/papers/350_icmlpaper.pdf.
 %
 % The second-order geometry follows from the paper
 % "Fixed-rank matrix factorizations and Riemannian low-rank optimization",
-% B. Mishra, R. Meyer, B. Bonnabel and R. Sepulchre,
+% B. Mishra, G. Meyer, S. Bonnabel and R. Sepulchre,
 % Computational Statistics, 29(3 - 4), pp. 591 - 621, 2014.
 %
 % A point X on the manifold is represented as a structure with two
 % fields: U and B. The matrix U (mxk) is orthonormal,
-% while the matrix B (kxk) is a symmetric positive definite full rank
-% matrix.
+% while the matrix B (kxk) is a symmetric, positive definite.
 %
 % Tangent vectors are represented as a structure with two fields: U and B.
+% These are the horizontal lifts of the tangent vectors on the quotient 
+% manifold.
 %
 %
 % For first-order geometry, please cite the Manopt paper as well as the research paper:
 %     @InProceedings{meyer2011linear,
 %       Title        = {Linear regression under fixed-rank constraints: a {R}iemannian approach},
-%       Author       = {Meyer, G. and Bonnabel, B. and Sepulchre, R.},
+%       Author       = {Meyer, G. and Bonnabel, S. and Sepulchre, R.},
 %       Booktitle    = {{28th International Conference on Machine Learning}},
 %       Year         = {2011},
 %       Organization = {{ICML}}
