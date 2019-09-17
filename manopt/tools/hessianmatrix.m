@@ -46,6 +46,8 @@ function [H, basis] = hessianmatrix(problem, x, basis)
 % Contributors: 
 % Change log: 
 
+% TODO: refactor using operator2matrix
+
 
     % No warning if an approximate Hessian is available, as then the user
     % is presumably aware of what they are doing.
