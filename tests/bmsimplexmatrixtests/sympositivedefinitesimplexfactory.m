@@ -10,12 +10,13 @@ function M = sympositivedefinitesimplexfactory(n, k)
 %
 % The Riemannian structure enforced on the manifold 
 % M:={(X1, X2,...) : X1 + X2 + ... = I } is a submanifold structure of the 
-% total space defined as
-% the k Cartesian product of R^{nxn} Euclidean spaces, endowed with the
-% usual Euclidean inner product.
+% total space defined as the k Cartesian product of symmetric positive 
+% definite Riemannian manifold (of n-by-n matrices) endowed with the bi-invariant metric.
+%
 %
 % A point X on the manifold is represented as multidimensional array
 % of size n-by-n-by-k. Each n-by-n matrix is symmetric positive definite.
+%
 %
 % Please cite the Manopt paper as well as the research paper:
 %
@@ -26,7 +27,7 @@ function M = sympositivedefinitesimplexfactory(n, k)
 %       year={2019}
 %     }
 %
-% See also sympositivedefinitesimplexcomplexfactory multinomialfactory
+% See also sympositivedefinitesimplexcomplexfactory multinomialfactory sympositivedefinitefactory
 
     % This file is part of Manopt: www.manopt.org.
     % Original author: Bamdev Mishra, September 18, 2019.
