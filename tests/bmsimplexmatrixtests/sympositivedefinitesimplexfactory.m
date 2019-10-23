@@ -13,9 +13,13 @@ function M = sympositivedefinitesimplexfactory(n, k)
 % total space defined as the k Cartesian product of symmetric positive 
 % definite Riemannian manifold (of n-by-n matrices) endowed with the bi-invariant metric.
 %
-%
 % A point X on the manifold is represented as multidimensional array
 % of size n-by-n-by-k. Each n-by-n matrix is symmetric positive definite.
+%
+% The embedding space is the k Cartesian product of matrices of size
+% n-by-n (symmetry not required). The Euclidean gradient and Hessian expressions 
+% needed for egrad2rgrad and ehess2rhess are in the embedding space
+% endowed with the Euclidean metric.
 %
 %
 % Please cite the Manopt paper as well as the research paper:

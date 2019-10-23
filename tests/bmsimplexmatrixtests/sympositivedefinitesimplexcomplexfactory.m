@@ -13,9 +13,16 @@ function M = sympositivedefinitesimplexcomplexfactory(n, k)
 % total space defined as the k Cartesian product of Hermitian positive 
 % definite Riemannian manifold (of n-by-n matrices) endowed with the bi-invariant metric.
 %
-%
 % A point X on the manifold is represented as multidimensional array
 % of size n-by-n-by-k. Each n-by-n matrix is Hermitian positive definite.
+% Tangent vectors are represented as n-by-n-by-k multidimensional arrays, where
+% each n-by-n matrix is Hermitian.
+%
+% The embedding space is the k Cartesian product of complex matrices of size
+% n-by-n (Hermitian not required). The Euclidean gradient and Hessian expressions 
+% needed for egrad2rgrad and ehess2rhess are in the embedding space endowed with the 
+% usual metric for the complex plane identified with R^2.
+%
 %
 % Please cite the Manopt paper as well as the research paper:
 %
