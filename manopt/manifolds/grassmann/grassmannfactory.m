@@ -73,6 +73,9 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %
 %   May 3, 2019 (NB):
 %       Added explanation about vector transport relation to retraction.
+%
+%   Nov. 13, 2019 (NB):
+%       Added pairmean function.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -289,6 +292,15 @@ function M = grassmannfactory(n, p, k, gpuflag)
     % function on the right with the polar factor of X'*Y, that is,
     % multiply by u*v' where [u, s, v] = svd(X'*Y), for each slice.
     M.transp = @(X, Y, U) projection(Y, U);
+    
+    % The mean of two points is here defined as the midpoint of a
+    % minimizing geodesic connecting the two points. If the log of (X1, X2)
+    % is not uniquely defined, then the returned object may not be
+    % meaningful; in other words: this works best if (X1, X2) are close.
+    M.pairmean = @pairmean;
+    function Y = pairmean(X1, X2)
+        Y = M.exp(X1, .5*M.log(X1, X2));
+    end
     
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
