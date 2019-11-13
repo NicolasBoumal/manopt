@@ -161,7 +161,7 @@ function M = spherefactory(n, m, gpuflag)
             u = v / dist_x1x2;
             utd = u(:)'*d(:);
             Td = d + (cos(dist_x1x2)-1)*utd*u ...
-                    -  sin(dist_x1x2)   *utd*x1;
+                    -  sin(dist_x1x2)  *utd*x1;
         else
             % x1 == x2, so the transport is identity
             Td = d;
