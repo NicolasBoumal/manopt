@@ -187,7 +187,7 @@ function M = sympositivedefinitefactory(n)
     % present factory.
     M.paralleltransp = @parallel_transport;
     function zeta = parallel_transport(X, Y, eta)
-        E = sqrtm((Y/X));
+        E = sqrtm(Y/X);
         zeta = E*eta*E';
     end
     
