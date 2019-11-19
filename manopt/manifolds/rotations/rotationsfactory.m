@@ -53,6 +53,9 @@ function M = rotationsfactory(n, k)
 %       isometric.
 %   June 18, 2019 (NB)
 %       Using qr_unique for the QR-based retraction.
+%   Nov. 19, 2019 (NB)
+%       Clarified that the isometric transport is not parallel transport
+%       along geodesics.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -229,8 +232,11 @@ function M = rotationsfactory(n, k)
     
     M.zerovec = @(x) zeros(n, n, k);
     
+    % Cheap vector transport
     M.transp = @(x1, x2, d) d;
-    M.isotransp = M.transp; % the transport is isometric
+    % This transporter is isometric (but it is /not/ parallel transport
+    % along geodesics.)
+    M.isotransp = M.transp;
     
     M.pairmean = @pairmean;
     function Y = pairmean(X1, X2)
