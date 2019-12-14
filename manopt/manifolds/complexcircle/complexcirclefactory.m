@@ -139,7 +139,7 @@ function M = complexcirclefactory(n, m, gpuflag)
         nv = abs(v);
         factors = di ./ nv;
         factors(di <= 1e-10) = 1;
-		v = v .* factors;
+        v = v .* factors;
     end
     
     M.hash = @(z) ['z' hashmd5( [real(z(:)) ; imag(z(:))] ) ];

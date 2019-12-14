@@ -34,7 +34,7 @@ function Pd = getPrecon(problem, x, d, storedb, key)
     
     if isfield(problem, 'precon')
     %% Precondition using precon.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.precon)
             case 2

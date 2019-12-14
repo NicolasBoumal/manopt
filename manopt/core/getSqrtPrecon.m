@@ -36,7 +36,7 @@ function sqrtPd = getSqrtPrecon(problem, x, d, storedb, key)
     
     if isfield(problem, 'sqrtprecon')
     %% Apply sqrtprecon for the square root of the preconditioner
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.sqrtprecon)
             case 2

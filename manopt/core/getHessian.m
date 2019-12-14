@@ -36,7 +36,7 @@ function hess = getHessian(problem, x, d, storedb, key)
     
     if isfield(problem, 'hess')
     %% Compute the Hessian using hess.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.hess)
             case 2
@@ -61,7 +61,7 @@ function hess = getHessian(problem, x, d, storedb, key)
         % We will need the Euclidean gradient for the conversion from the
         % Euclidean Hessian to the Riemannian Hessian.
         egrad = getEuclideanGradient(problem, x, storedb, key);
-		
+        
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.ehess)
             case 2

@@ -43,7 +43,7 @@ function M = positivefactory(m, n)
     M.name = @() sprintf('Element-wise positive %dx%d matrices', m, n);
     
     M.dim = @() m*n;
-    	
+        
     % The metric is the scale invariant metric for scalars.
     M.inner = @myinner;
     function innerproduct = myinner(X, eta, zeta)

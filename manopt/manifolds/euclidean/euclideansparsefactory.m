@@ -33,7 +33,7 @@ function M = euclideansparsefactory(A)
 % Original author: Bamdev Mishra, Mar. 28, 2019.
 % Change log: 
 %    May 3, 2019 (NB): adapted many functions to take advantage of sparsity a bit more.
-	
+    
     dimensions_vec = size(A);
     assert(length(dimensions_vec) == 2, 'A should be a matrix (or a vector).');
     [I, J] = find(A);
@@ -73,7 +73,7 @@ function M = euclideansparsefactory(A)
     end
     
     M.retr = M.exp;
-	
+    
     M.log = @(x, y) y-x;
 
     M.hash = @(x) ['z' hashmd5(nonzeros(x))];

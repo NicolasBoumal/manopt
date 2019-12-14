@@ -59,14 +59,14 @@ function M = spherecomplexfactory(n, m)
     
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
-	M.ehess2rhess = @ehess2rhess;
-	function rhess = ehess2rhess(x, egrad, ehess, u)
+    M.ehess2rhess = @ehess2rhess;
+    function rhess = ehess2rhess(x, egrad, ehess, u)
         rhess = M.proj(x, ehess) - real((x(:)'*egrad(:)))*u;
-	end
+    end
     
-	M.tangent = M.proj;
+    M.tangent = M.proj;
     
     M.exp = @exponential;
     

@@ -79,7 +79,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
-	        'than the dimension p of the subspaces.']);
+            'than the dimension p of the subspaces.']);
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
@@ -156,21 +156,21 @@ function M = grassmannfactory(n, p, k, gpuflag)
             Y = X + t*U;
         end
         for kk = 1 : k
-		
+        
             % Compute the polar factorization of Y = X+tU
             [u, s, v] = svd(Y(:, :, kk), 'econ'); %#ok
             Y(:, :, kk) = u*v';
-			
+            
             % Another way to compute this retraction uses QR instead of SVD.
             % As compared with the Stiefel factory, we do not need to
-			% worry about flipping signs of columns here, since only
-			% the column space is important, not the actual columns.
+            % worry about flipping signs of columns here, since only
+            % the column space is important, not the actual columns.
             % We prefer the polar factor to the Q-factor computation for
             % reasons explained below: see M.transp.
             %
             % [Q, unused] = qr(Y(:, :, kk), 0); %#ok
             % Y(:, :, kk) = Q;
-			
+            
         end
     end
     

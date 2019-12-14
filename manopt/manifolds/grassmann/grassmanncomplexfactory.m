@@ -31,7 +31,7 @@ function M = grassmanncomplexfactory(n, p, k)
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
-	        'than the dimension p of the subspaces.']);
+            'than the dimension p of the subspaces.']);
     
     if ~exist('k', 'var') || isempty(k)
         k = 1;
@@ -77,7 +77,7 @@ function M = grassmanncomplexfactory(n, p, k)
     
     M.tangent = M.proj;
     
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
@@ -94,18 +94,18 @@ function M = grassmanncomplexfactory(n, p, k)
         end
         Y = X + t*U;
         for i = 1 : k 
-		
+        
             % Compute the polar factorization of Y = X+tU
             [u, s, v] = svd(Y(:, :, i), 'econ'); %#ok
             Y(:, :, i) = u*v';
-			
+            
             % Another popular retraction uses QR instead of SVD.
             % As compared with the Stiefel factory, we do not need to
             % worry about flipping signs of columns here, since only
             % the column space is important, not the actual columns.
             % [Q, unused] = qr(Y(:, :, i), 0); %#ok
             % Y(:, :, i) = Q;
-			
+            
         end
     end
     

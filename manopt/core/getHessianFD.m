@@ -44,7 +44,7 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
         key = storedb.getNewKey();
     end
 
-	% Step size
+    % Step size
     norm_d = problem.M.norm(x, d);
     
     % First, check whether the step d is not too small

@@ -208,7 +208,7 @@ function [x, cost, info, options] = neldermead(problem, x, options)
         end
         
         % If the reflected point is worse than the second to worst point,
-		% contract.
+        % contract.
         if costr >= costs(end-1)
             if costr < costs(end)
                 % do an outside contraction

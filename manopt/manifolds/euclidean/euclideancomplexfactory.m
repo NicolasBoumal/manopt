@@ -69,7 +69,7 @@ function M = euclideancomplexfactory(m, n)
     end
     
     M.retr = M.exp;
-	
+    
     M.log = @(x, y) y-x;
 
     M.hash = @(x) ['z' hashmd5([real(x(:)) ; imag(x(:))])];

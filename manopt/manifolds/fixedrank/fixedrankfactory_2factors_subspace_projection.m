@@ -198,14 +198,14 @@ function omega = nested_sylvester(sym_mat, asym_mat)
     %
     %     X*sym_mat + sym_mat*X = asym_mat
     %     omega*sym_mat+sym_mat*omega = X
-	% 
+    % 
     % Mishra, Meyer, Bonnabel and Sepulchre,
-	% 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
+    % 'Fixed-rank matrix factorizations and Riemannian low-rank optimization'
     
     % Solve each Lyapunov equation efficiently, exploiting the fact
-	% that it is twice the same sym_mat matrix that comes into play.
-	[V, lambda] = eig(sym_mat, 'vector');
-	X = lyapunov_symmetric_eig(V, lambda, asym_mat);
-	omega = lyapunov_symmetric_eig(V, lambda, X);
+    % that it is twice the same sym_mat matrix that comes into play.
+    [V, lambda] = eig(sym_mat, 'vector');
+    X = lyapunov_symmetric_eig(V, lambda, asym_mat);
+    omega = lyapunov_symmetric_eig(V, lambda, X);
     
 end

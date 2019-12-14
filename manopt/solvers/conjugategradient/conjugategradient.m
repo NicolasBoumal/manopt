@@ -287,10 +287,10 @@ while true
     % Apply the CG scheme to compute the next search direction.
     %
     % This paper https://www.math.lsu.edu/~hozhang/papers/cgsurvey.pdf
-	% by Hager and Zhang lists many known beta rules. The rules defined
+    % by Hager and Zhang lists many known beta rules. The rules defined
     % here can be found in that paper (or are provided with additional
     % references), adapted to the Riemannian setting.
-	% 
+    % 
     if strcmpi(options.beta_type, 'steep') || ...
        strcmpi(options.beta_type, 'S-D')              % Gradient Descent
         

@@ -108,7 +108,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
     
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)

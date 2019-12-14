@@ -87,7 +87,7 @@ function gradfd = gradientFD(stepsize, subspacedim, problem, x, storedb, key)
 % This function does the actual work.
 %
 % Original code: Nov. 1, 2016 (NB).
-	
+    
     % Evaluate the cost at the root point
     fx = getCost(problem, x, storedb, key);
 

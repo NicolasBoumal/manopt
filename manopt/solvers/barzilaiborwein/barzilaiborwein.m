@@ -300,8 +300,8 @@ function [x, cost, info, options] = barzilaiborwein(problem, x, options)
           den2 = problem.M.norm(newx, Y)^2;
           if (den > 0)  
             if mod(iter,2)==0
-            	lambda = min( lambdamax, max(lambdamin, num/den) );
-	    else
+                lambda = min( lambdamax, max(lambdamin, num/den) );
+        else
                 lambda = min( lambdamax, max(lambdamin, den/den2) );
             end
           else

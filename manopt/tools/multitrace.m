@@ -18,6 +18,6 @@ function tr = multitrace(A)
            ['multitrace is only well defined for matrix arrays of 3 ' ...
             'or less dimensions.']);
 
-	tr = diagsum(A, 1, 2);
+    tr = diagsum(A, 1, 2);
 
 end

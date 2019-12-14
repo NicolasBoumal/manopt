@@ -113,7 +113,7 @@ function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
 % This function does the actual work.
 %
 % Original code: Dec. 30, 2012 (NB).
-	
+    
     % Extract the input vector norm.
     norm_xdot = problem.M.norm(x, xdot);
     

@@ -32,8 +32,8 @@ function M = fixedrankMNquotientfactory(m, n, k)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors:
 % Change log:
-%		NB, April 17, 2018: added M.tangent
-%		NB, April 18, 2018: removed lyap dependency
+%     NB, April 17, 2018: added M.tangent
+%     NB, April 18, 2018: removed lyap dependency
     
     
     M.name = @() sprintf('MN'' quotient manifold of %dx%d matrices of rank %d', m, n, k);
@@ -94,8 +94,8 @@ function M = fixedrankMNquotientfactory(m, n, k)
         etaproj.N = eta.N + X.N*omega;
         
     end
-	
-	M.tangent = M.proj;
+    
+    M.tangent = M.proj;
     
     M.exp = @exponential;
     function Y = exponential(X, eta, t)

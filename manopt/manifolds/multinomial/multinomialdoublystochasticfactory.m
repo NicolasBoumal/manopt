@@ -66,10 +66,10 @@ function M = multinomialdoublystochasticfactory(n)
     maxDSiters = 100 + 2*n;
     
     function [alpha, beta] = mylinearsolve(X, b)
-    	% zeta = sparse(A)\b; % sparse might not be better perf.-wise.
+        % zeta = sparse(A)\b; % sparse might not be better perf.-wise.
         % where A = [eye(n) X ; X' eye(n)];
         %
-    	% For large n use the pcg solver instead of \.
+        % For large n use the pcg solver instead of \.
         % [zeta, ~, ~, iter] = pcg(sparse(A), b, 1e-6, 100);
         %
         % Even faster is to create a function handle

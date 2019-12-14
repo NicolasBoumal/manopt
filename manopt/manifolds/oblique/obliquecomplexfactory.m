@@ -68,7 +68,7 @@ function M = obliquecomplexfactory(n, m, transposed)
     
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, U)
@@ -117,12 +117,12 @@ function M = obliquecomplexfactory(n, m, transposed)
         v = projection(x1, x2 - x1);
         dists = real(2*asin(.5*sqrt(sum(trnsp(abs(x - y).^2), 1))));
         norms = sqrt(sum(real(v).^2 + imag(v).^2, 1));
-		factors = dists./norms;
+        factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
         % because they are both almost zero, the division above can return
         % NaN's. To avoid that, we force those ratios to 1.
-		factors(dists <= 1e-10) = 1;
-		v = bsxfun(@times, v, factors);
+        factors(dists <= 1e-10) = 1;
+        v = bsxfun(@times, v, factors);
         
         v = trnsp(v);
     end
@@ -181,8 +181,8 @@ end
 % Given a matrix X, returns the same matrix but with each column scaled so
 % that they have unit 2-norm.
 function X = normalize_columns(X)
-	norms = sqrt(sum(real(X).^2 + imag(X).^2, 1));
-	X = bsxfun(@times, X, 1./norms);
+    norms = sqrt(sum(real(X).^2 + imag(X).^2, 1));
+    X = bsxfun(@times, X, 1./norms);
 end
 
 % Orthogonal projection of the ambient vector H onto the tangent space at X

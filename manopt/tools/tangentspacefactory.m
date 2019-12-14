@@ -57,7 +57,7 @@ function N = tangentspacefactory(M, x)
     else
         N.tangent = N.proj;
     end
-		
+        
     N.egrad2rgrad = N.proj;
     N.ehess2rhess = @(y, eg, eh, d) M.proj(x, eh);
     N.exp = @exponential;

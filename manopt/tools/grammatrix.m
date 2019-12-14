@@ -33,10 +33,10 @@ function G = grammatrix(M, x, vectors)
             
             vj = vectors{j};
             G(i, j) = M.inner(x, vi, vj);
-			
-			% Manopt is designed to work with real inner products,
-			% but it does not hurt to allow for complex inner products
-			% here by taking the conjugate.
+            
+            % Manopt is designed to work with real inner products,
+            % but it does not hurt to allow for complex inner products
+            % here by taking the conjugate.
             G(j, i) = G(i, j)';
             
         end

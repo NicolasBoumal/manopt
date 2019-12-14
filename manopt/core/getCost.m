@@ -52,7 +52,7 @@ function cost = getCost(problem, x, storedb, key)
 
     if isfield(problem, 'cost')
     %% Compute the cost function using cost.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.cost)
             case 1
@@ -74,7 +74,7 @@ function cost = getCost(problem, x, storedb, key)
         
     elseif isfield(problem, 'costgrad')
     %% Compute the cost function using costgrad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.costgrad)
             case 1
