@@ -180,7 +180,7 @@ function M = sympositivedefinitefactory(n)
     
     % For reference, a proper vector transport is given here, following
     % work by Sra and Hosseini: "Conic geometric optimisation on the
-    % manifold of positive definite matrices", to appear in SIAM J. Optim.
+    % manifold of positive definite matrices", in SIAM J. Optim.
     % in 2015; also available here: http://arxiv.org/abs/1312.1039
     % This will not be used by default. To force the use of this transport,
     % execute "M.transp = M.paralleltransp;" on your M returned by the
