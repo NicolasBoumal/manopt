@@ -54,7 +54,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 % Contributors: 
 % Change log: 
 %
-%	Sept. 13, 2013 (NB):
+%   Sept. 13, 2013 (NB):
 %       User control over the parameters of the linesearch via the options
 %       ls_contraction_factor, ls_optimism, ls_suff_decr and ls_max_steps.
 %       See in code for the effect of those.
@@ -64,7 +64,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 %       when df0 > 0). Direction reversal is a decision that needs to be
 %       made by the solver, so it can know about it.
 % 
-%	Sept. 13, 2013 (NB):
+%   Sept. 13, 2013 (NB):
 %       The linesearch is now invariant under rescaling of the cost
 %       function f. That is, if f is replaced by 8*f (and hence the
 %       directional derivatives of f are scaled accordingly), the

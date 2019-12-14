@@ -40,33 +40,33 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   iter (integer)
 %       The (outer) iteration number, or number of steps considered
 %       (whether accepted or rejected). The initial guess is 0.
-%	cost (double)
+%   cost (double)
 %       The corresponding cost value.
-%	gradnorm (double)
+%   gradnorm (double)
 %       The (Riemannian) norm of the gradient.
-%	numinner (integer)
+%   numinner (integer)
 %       The number of inner iterations executed to compute this iterate.
 %       Inner iterations are truncated-CG steps. Each one requires a
 %       Hessian (or approximate Hessian) evaluation.
-%	time (double)
+%   time (double)
 %       The total elapsed time in seconds to reach the corresponding cost.
-%	rho (double)
+%   rho (double)
 %       The performance ratio for the iterate.
-%	rhonum, rhoden (double)
+%   rhonum, rhoden (double)
 %       Regularized numerator and denominator of the performance ratio:
 %       rho = rhonum/rhoden. See options.rho_regularization.
-%	accepted (boolean)
+%   accepted (boolean)
 %       Whether the proposed iterate was accepted or not.
-%	stepsize (double)
+%   stepsize (double)
 %       The (Riemannian) norm of the vector returned by the inner solver
 %       tCG and which is retracted to obtain the proposed next iterate. If
 %       accepted = true for the corresponding iterate, this is the size of
 %       the step from the previous to the new iterate. If accepted is
 %       false, the step was not executed and this is the size of the
 %       rejected step.
-%	Delta (double)
+%   Delta (double)
 %       The trust-region radius at the outer iteration.
-%	cauchy (boolean)
+%   cauchy (boolean)
 %       Whether the Cauchy point was used or not (if useRand is true).
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
@@ -92,13 +92,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       The algorithm terminates if maxiter (outer) iterations were executed.
 %   maxtime (Inf)
 %       The algorithm terminates if maxtime seconds elapsed.
-%	miniter (3)
+%   miniter (3)
 %       Minimum number of outer iterations (used only if useRand is true).
-%	mininner (1)
+%   mininner (1)
 %       Minimum number of inner iterations (for tCG).
-%	maxinner (problem.M.dim() : the manifold's dimension)
+%   maxinner (problem.M.dim() : the manifold's dimension)
 %       Maximum number of inner iterations (for tCG).
-%	Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
+%   Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
 %       Maximum trust-region radius. If you specify this parameter but not
 %       Delta0, then Delta0 will be set to 1/8 times this parameter.
 %   Delta0 (Delta_bar/8)
@@ -107,21 +107,21 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       may pay off to try to tune this parameter to shorten the plateau.
 %       You should not set this parameter without setting Delta_bar too (at
 %       a larger value).
-%	useRand (false)
+%   useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated.
-%	kappa (0.1)
+%   kappa (0.1)
 %       tCG inner kappa convergence tolerance.
 %       kappa > 0 is the linear convergence target rate: tCG will terminate
 %       early if the residual was reduced by a factor of kappa.
-%	theta (1.0)
+%   theta (1.0)
 %       tCG inner theta convergence tolerance.
 %       1+theta (theta between 0 and 1) is the superlinear convergence
 %       target rate. tCG will terminate early if the residual was reduced
 %       by a power of 1+theta.
-%	rho_prime (0.1)
+%   rho_prime (0.1)
 %       Accept/reject threshold : if rho is at least rho_prime, the outer
 %       iteration is accepted. Otherwise, it is rejected. In case it is
 %       rejected, the trust-region radius will have been decreased.
@@ -211,10 +211,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % finite-differences of the gradient. The resulting method is called
 % RTR-FD. Some convergence theory for it is available in this paper:
 % @incollection{boumal2015rtrfd
-% 	author={Boumal, N.},
-% 	title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
-% 	year={2015},
-% 	booktitle={Geometric Science of Information}
+%    author={Boumal, N.},
+%    title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
+%    year={2015},
+%    booktitle={Geometric Science of Information}
 % }
 
 

@@ -45,10 +45,10 @@ function hessfun = approxhessianFD(problem, options)
 % is available in this paper:
 %
 % @incollection{boumal2015rtrfd
-% 	author={Boumal, N.},
-% 	title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
-% 	year={2015},
-% 	booktitle={Geometric Science of Information}
+%   author={Boumal, N.},
+%   title={Riemannian trust regions with finite-difference Hessian approximations are globally convergent},
+%   year={2015},
+%   booktitle={Geometric Science of Information}
 % }
 
 % This file is part of Manopt: www.manopt.org.
@@ -114,7 +114,7 @@ function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
 %
 % Original code: Dec. 30, 2012 (NB).
 	
-	% Extract the input vector norm.
+    % Extract the input vector norm.
     norm_xdot = problem.M.norm(x, xdot);
     
     % First, check whether the step xdot is not too small.

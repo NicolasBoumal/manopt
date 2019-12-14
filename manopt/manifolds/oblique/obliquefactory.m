@@ -22,27 +22,27 @@ function M = obliquefactory(n, m, transposed)
 % Contributors: 
 % Change log: 
 %
-%	July 16, 2013 (NB)
+%   July 16, 2013 (NB)
 %       Added 'transposed' option, mainly for ease of comparison with the
 %       elliptope geometry.
 %
-%	Nov. 29, 2013 (NB)
+%   Nov. 29, 2013 (NB)
 %       Added normalize_columns function to make it easier to exploit the
 %       bsxfun formulation of column normalization, which avoids using for
 %       loops and provides performance gains. The exponential still uses a
 %       for loop.
 %
-%	April 4, 2015 (NB)
+%   April 4, 2015 (NB)
 %       Log function modified to avoid NaN's appearing for close by points.
 %
-%	April 13, 2015 (NB)
+%   April 13, 2015 (NB)
 %       Exponential now without for-loops.
 %
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
 %       as a particular case.
 %
-%  Oct. 21, 2016 (NB)
+%   Oct. 21, 2016 (NB)
 %       Bug caught in M.log: the function called v = M.proj(x1, x2 - x1),
 %       which internally applies transp to inputs and outputs. But since
 %       M.log had already taken care of transposing things, this introduced

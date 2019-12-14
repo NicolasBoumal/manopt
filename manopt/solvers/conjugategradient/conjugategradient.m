@@ -120,7 +120,7 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %   Sept. 13, 2013, NB:
 %       Now logging beta parameter too.
 %    
-%	Nov. 7, 2013, NB:
+%   Nov. 7, 2013, NB:
 %       The search direction is no longer normalized before it is passed
 %       to the linesearch. This way, it is up to the designers of the
 %       linesearch to decide whether they want to use the norm of the
@@ -130,7 +130,7 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %       norm information. The base linesearch does not. You may select it
 %       by setting options.linesearch = @linesearch;
 %
-%	Nov. 29, 2013, NB:
+%   Nov. 29, 2013, NB:
 %       Documentation improved: options are now explicitly described.
 %       Removed the Daniel rule for beta: it was not appropriate for
 %       preconditioned CG and I could not find a proper reference for it.
