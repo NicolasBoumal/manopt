@@ -25,24 +25,12 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % Vectors in the ambient space are best represented as mxn matrices. If
 % these are low-rank, they may also be represented as structures with
-% U, S, V fields, such that Z = U*S*V'. There are no restrictions on what
+% U, S, V fields, such that Z = U*S*V'. There are no resitrictions on what
 % U, S and V are, as long as their product as indicated yields a real, mxn
 % matrix.
 %
 % The chosen geometry yields a Riemannian submanifold of the embedding
 % space R^(mxn) equipped with the usual trace (Frobenius) inner product.
-%
-% The tools
-%    X_triplet = M.matrix2triplet(X_matrix) and
-%    X_matrix = M.triplet2matrix(X_triplet)
-% can be used to easily convert between full matrix representation (as a
-% matrix of size mxn) and triplet representation as a structure with fields
-% U, S, V. The tool matrix2triplet also accepts an optional second input r
-% to choose the rank of the triplet representation. By default, r = k. If
-% the input matrix X_matrix has rank more than r, the triplet represents
-% its best rank-r approximation in the Frobenius norm (truncated SVD).
-% Note that these conversions are computationally expensive for large m
-% and n: this is mostly useful for small matrices and for prototyping.
 %
 %
 % Please cite the Manopt paper as well as the research paper:
@@ -68,13 +56,14 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Added function tangent to work with checkgradient.
 %
 %   June 24, 2014 (NB):
-%       A couple modifications following Bart's feedback:
+%       A couple modifications following
+%       Bart Vandereycken's feedback:
 %       - The checksum (hash) was replaced for a faster alternative: it's a
 %         bit less "safe" in that collisions could arise with higher
 %         probability, but they're still very unlikely.
 %       - The vector transport was changed.
 %       The typical distance was also modified, hopefully giving the
-%       trustregions method a better initial guess for the trust-region
+%       trustregions method a better initial guess for the trust region
 %       radius, but that should be tested for different cost functions too.
 %
 %    July 11, 2014 (NB):
@@ -91,11 +80,6 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 %    Sep.  6, 2018 (NB):
 %       Removed M.exp() as it was not implemented.
-%
-%    March 20, 2019 (NB):
-%       Added M.matrix2triplet and M.triplet2matrix to allow easy
-%       conversion between matrix representations either as full matrices
-%       or as triplets (U, S, V).
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -121,7 +105,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
 
     % For a given ambient vector Z, applies it to a matrix W. If Z is given
-    % as a matrix, this is straightforward. If Z is given as a structure
+    % as a matrix, this is straightfoward. If Z is given as a structure
     % with fields U, S, V such that Z = U*S*V', the product is executed
     % efficiently.
     function ZW = apply_ambient(Z, W)
@@ -240,7 +224,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
 
 
-    % Orthographic retraction provided by Teng Zhang. One interest of the
+    % Orthographic retraction provided by Teng Zhang. One interst of the
     % orthographic retraction is that if matrices are represented in full
     % size, it can be computed without any SVDs. If for an application it
     % makes sense to represent the matrices in full size, this may be a
@@ -274,7 +258,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     %M.hash = @(X) ['z' hashmd5([X.U(:) ; X.S(:) ; X.V(:)])];
     
     M.rand = @random;
-    % Factors U, V live on Stiefel manifolds: reuse their random generator.
+    % Factors U and V live on Stiefel manifolds, hence we will reuse
+    % their random generator.
     stiefelm = stiefelfactory(m, k);
     stiefeln = stiefelfactory(n, k);
     function X = random()
@@ -284,8 +269,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
     
     % Generate a random tangent vector at X.
-    % Note: this may not be the uniform distribution over the set of
-    % unit-norm tangent vectors.
+    % TODO: consider a possible imbalance between the three components Up,
+    % Vp and M, when m, n and k are widely different (which is typical).
     M.randvec = @randomvec;
     function Z = randomvec(X)
         Z.Up = randn(m, k);
@@ -322,35 +307,6 @@ function M = fixedrankembeddedfactory(m, n, k)
     end
     M.mat = @(X, Zvec) projection(X, reshape(Zvec, [m, n]));
     M.vecmatareisometries = @() true;
-    
-    % It is sometimes useful to switch between representation of matrices
-    % as triplets or as full matrices of size m x n. The function to
-    % convert a matrix to a triplet, matrix2triplet, allows to specify the
-    % rank of the representation. By default, it is equal to k. Omit the
-    % second input (or set to inf) to get a full SVD triplet (in economy
-    % format). If so, the resulting triplet does not represent a point on
-    % the manifold.
-    M.matrix2triplet = @matrix2triplet;
-    function X_triplet = matrix2triplet(X_matrix, r)
-        if ~exist('r', 'var') || isempty(r) || r <= 0
-            r = k;
-        end
-        if r < min(m, n)
-            [U, S, V] = svds(X_matrix, r);
-        else
-            [U, S, V] = svd(X_matrix, 'econ');
-        end
-        X_triplet.U = U;
-        X_triplet.S = S;
-        X_triplet.V = V;
-    end
-    M.triplet2matrix = @triplet2matrix;
-    function X_matrix = triplet2matrix(X_triplet)
-        U = X_triplet.U;
-        S = X_triplet.S;
-        V = X_triplet.V;
-        X_matrix = U*S*V';
-    end
 
 end
 
