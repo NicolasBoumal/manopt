@@ -29,6 +29,11 @@ function N = tangentspacefactory(M, x)
 %       Following a comment by Jesus Briales on the Manopt forum, the
 %       function N.proj now calls M.proj(x, .) instead of M.proj(y, .).
 %       Furthermore, N.ehess2rhess was corrected in the same way.
+%
+%   Dec. 14, 2019 (NB):
+%       Fixed N.tangent so that it should now work with factories that
+%       have a non-identity tangent2ambient, e.g., fixedrankembeddedfactory
+%       and rotationsfactory.
 
     % N is the manifold we build. y will be a point on N, thus also a
     % tangent vector to M at x. This is a typical Euclidean space, hence it
@@ -47,7 +52,12 @@ function N = tangentspacefactory(M, x)
     N.norm  = @(y, u) M.norm(x, u);
     N.proj  = @(y, u) M.proj(x, u);
     N.typicaldist = @() sqrt(N.dim());
-    N.tangent = N.proj;
+    if isfield(M, 'tangent2ambient')
+        N.tangent = @(y, u) M.proj(x, M.tangent2ambient(x, u));
+    else
+        N.tangent = N.proj;
+    end
+		
     N.egrad2rgrad = N.proj;
     N.ehess2rhess = @(y, eg, eh, d) M.proj(x, eh);
     N.exp = @exponential;
