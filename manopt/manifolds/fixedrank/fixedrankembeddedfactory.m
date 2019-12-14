@@ -64,7 +64,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 % Contributors: Bart Vandereycken, Eitan Levin
 % Change log: 
 %
-%	Feb. 20, 2014 (NB):
+%   Feb. 20, 2014 (NB):
 %       Added function tangent to work with checkgradient.
 %
 %   June 24, 2014 (NB):
