@@ -43,7 +43,7 @@ function grad = getPartialGradient(problem, x, I, storedb, key)
     
     if isfield(problem, 'partialgrad')
     %% Compute the partial gradient using partialgrad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.partialgrad)
             case 2

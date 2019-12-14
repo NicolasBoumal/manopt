@@ -33,7 +33,7 @@ function t = getLinesearch(problem, x, d, storedb, key)
 
     if isfield(problem, 'linesearch')
     %% Compute the line-search hint function using linesearch.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.linesearch)
             case 2

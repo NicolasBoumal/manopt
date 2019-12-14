@@ -87,7 +87,7 @@ function M = spectrahedronfactory(n, k)
         SS = YtY;
         AS = Y'*eta - eta'*Y;
         % Omega = lyap(SS, -AS);
-		Omega = lyapunov_symmetric(SS, AS);
+        Omega = lyapunov_symmetric(SS, AS);
         etaproj = eta - Y*Omega;
     end
     
@@ -118,7 +118,7 @@ function M = spectrahedronfactory(n, k)
         
     end
     
-	
+    
     % Notice that the hash of two equivalent points will be different...
     M.hash = @(Y) ['z' hashmd5(Y(:))];
     

@@ -74,8 +74,8 @@ function M = euclideanfactory(m, n)
     end
     
     M.retr = M.exp;
-	
-	M.log = @(x, y) y-x;
+    
+    M.log = @(x, y) y-x;
 
     M.hash = @(x) ['z' hashmd5(x(:))];
     

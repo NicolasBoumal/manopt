@@ -47,7 +47,7 @@ function M = productmanifold(elements)
     assert(nelems >= 1, ...
            'elements must be a structure with at least one field.');
     
-	% Handy function to check if all elements provide the necessary methods
+    % Handy function to check if all elements provide the necessary methods
     function answer = all_elements_provide(method_name)
         answer = false;
         for i = 1 : nelems

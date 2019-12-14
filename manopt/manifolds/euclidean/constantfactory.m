@@ -41,7 +41,7 @@ function M = constantfactory(A)
     M.exp = @(x, d, t) A;
     
     M.retr = M.exp;
-	
+    
     M.log = @(x, y) zeros(size(A));
 
     M.hash = @(x) 'z1';

@@ -88,7 +88,7 @@ function M = stiefelstackedfactory(m, d, k)
     
     M.tangent = M.proj;
     
-	M.egrad2rgrad = M.proj;
+    M.egrad2rgrad = M.proj;
     
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(Y, egrad, ehess, Ydot)

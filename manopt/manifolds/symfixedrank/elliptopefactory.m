@@ -126,8 +126,8 @@ end
 % See obliquefactory.
 function X = normalize_rows(X)
     X = X';
-	norms = sqrt(sum(X.^2, 1));
-	X = bsxfun(@times, X, 1./norms);
+    norms = sqrt(sum(X.^2, 1));
+    X = bsxfun(@times, X, 1./norms);
     X = X';
 end
 

@@ -14,10 +14,10 @@ function sqnorm = multisqnorm(A)
 % Change log: 
 
 
-	assert(ndims(A) <= 3, ...
+    assert(ndims(A) <= 3, ...
            ['multisqnorm is only well defined for matrix arrays of 3 ' ...
             'or less dimensions.']);
-	[n, m, N] = size(A);
+    [n, m, N] = size(A);
     
     % This is equivalent to squeeze(sum(norms(A, 2, 1).^2)), but faster.
     sqnorm = sum(reshape(A, n*m, N).^2, 1)';

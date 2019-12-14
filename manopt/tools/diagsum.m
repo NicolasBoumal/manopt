@@ -76,7 +76,7 @@ else
     %perform trace, discard resulting singleton dimensions
     tracedtensor=sum(sum(tensor1.*selector, d1), d2);
     tracedtensor=squeeze(tracedtensor);
-	
+    
     
 end
 

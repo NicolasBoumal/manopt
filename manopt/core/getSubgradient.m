@@ -35,7 +35,7 @@ function subgrad = getSubgradient(problem, x, tol, storedb, key)
     
     if isfield(problem, 'subgrad')
     %% Compute a subgradient using subgrad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.subgrad)
             case 1

@@ -63,19 +63,19 @@ function M = unitaryfactory(n, k)
     
     M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @(X, U) multiprod(X, U);
-	
-	M.egrad2rgrad = M.proj;
-	
-	M.ehess2rhess = @ehess2rhess;
-	function Rhess = ehess2rhess(X, Egrad, Ehess, H)
+    
+    M.egrad2rgrad = M.proj;
+    
+    M.ehess2rhess = @ehess2rhess;
+    function Rhess = ehess2rhess(X, Egrad, Ehess, H)
         % Reminder : H contains skew-Hermitian matrices. The actual
         % direction that the point X is moved along is X*H.
-		Xt = multihconj(X);
-		XtEgrad = multiprod(Xt, Egrad);
+        Xt = multihconj(X);
+        XtEgrad = multiprod(Xt, Egrad);
         symXtEgrad = multiherm(XtEgrad);
-		XtEhess = multiprod(Xt, Ehess);
-		Rhess = multiskewh( XtEhess - multiprod(H, symXtEgrad) );
-	end
+        XtEhess = multiprod(Xt, Ehess);
+        Rhess = multiskewh( XtEhess - multiprod(H, symXtEgrad) );
+    end
     
     % This QR-based retraction is only a first-order approximation
     % of the exponential map, not a second-order one.
@@ -125,7 +125,7 @@ function M = unitaryfactory(n, k)
     
     M.log = @logarithm;
     function U = logarithm(X, Y)
-		U = multiprod(multihconj(X), Y);
+        U = multiprod(multihconj(X), Y);
         for kk = 1 : k
             U(:, :, kk) = logm(U(:, :, kk));
         end

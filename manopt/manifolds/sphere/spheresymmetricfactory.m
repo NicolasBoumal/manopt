@@ -46,18 +46,18 @@ function M = spheresymmetricfactory(n)
     end
     
     M.tangent = @proj;
-	
+    
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
-	M.egrad2rgrad = @proj;
-	
-	M.ehess2rhess = @ehess2rhess;
-	function rhess = ehess2rhess(x, egrad, ehess, u)
+    M.egrad2rgrad = @proj;
+    
+    M.ehess2rhess = @ehess2rhess;
+    function rhess = ehess2rhess(x, egrad, ehess, u)
         % these are not explicitly required, given the use.
         % egrad = (egrad + egrad.')/2;
         % ehess = (ehess + ehess.')/2;
         rhess = proj(x, ehess) - (x(:)'*egrad(:))*u;
-	end
+    end
     
     M.exp = @exponential;
     

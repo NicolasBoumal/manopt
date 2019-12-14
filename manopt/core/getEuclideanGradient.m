@@ -70,7 +70,7 @@ function egrad = getEuclideanGradient(problem, x, storedb, key)
     
     if isfield(problem, 'egrad')
     %% Compute the Euclidean gradient using egrad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.egrad)
             case 1

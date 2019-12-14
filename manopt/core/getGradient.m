@@ -57,7 +57,7 @@ function grad = getGradient(problem, x, storedb, key)
     
     if isfield(problem, 'grad')
     %% Compute the gradient using grad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.grad)
             case 1

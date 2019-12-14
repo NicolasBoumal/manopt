@@ -31,7 +31,7 @@ function approxgrad = getApproxGradient(problem, x, storedb, key)
 
     if isfield(problem, 'approxgrad')
     %% Compute the approximate gradient using approxgrad.
-		
+        
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.approxgrad)
             case 1

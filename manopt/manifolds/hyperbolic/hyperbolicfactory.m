@@ -212,9 +212,9 @@ function M = hyperbolicfactory(n, m, transposed)
     
     M.rand = @() trnsp(myrand());
     function X = myrand()
-    	X1 = randn(n, m);
-    	x0 = sqrt(1 + sum(X1.^2, 1)); % selects positive branch
-    	X = [x0; X1];
+        X1 = randn(n, m);
+        x0 = sqrt(1 + sum(X1.^2, 1)); % selects positive branch
+        X = [x0; X1];
     end
     
     M.normalize = @(X, U) U / M.norm(X, U);

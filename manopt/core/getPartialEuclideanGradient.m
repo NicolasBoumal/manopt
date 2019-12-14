@@ -42,7 +42,7 @@ function egrad = getPartialEuclideanGradient(problem, x, I, storedb, key)
     
     if isfield(problem, 'partialegrad')
     %% Compute the partial Euclidean gradient using partialegrad.
-	
+    
         % Check whether this function wants to deal with storedb or not.
         switch nargin(problem.partialegrad)
             case 2

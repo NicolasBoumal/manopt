@@ -64,10 +64,10 @@ function [H, basis] = hessianmatrix(problem, x, basis)
     % Unless an orthonormal basis for the tangent space at x is provided,
     % pick a random one.
     if ~exist('basis', 'var') || isempty(basis)
-	    n = problem.M.dim();
+        n = problem.M.dim();
         basis = tangentorthobasis(problem.M, x, n);
-	else
-	    n = numel(basis);
+    else
+        n = numel(basis);
     end
     
     % Create a store database and get a key for x

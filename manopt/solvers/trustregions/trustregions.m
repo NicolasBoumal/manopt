@@ -433,7 +433,7 @@ consecutive_TRminus = 0;
 % **********************
 while true
     
-	% Start clock for this outer iteration
+    % Start clock for this outer iteration
     ticstart = tic();
 
     % Run standard stopping criterion checks
@@ -520,14 +520,14 @@ while true
     end
     
 
-	% Compute the tentative next iterate (the proposal)
-	x_prop  = M.retr(x, eta);
+    % Compute the tentative next iterate (the proposal)
+    x_prop  = M.retr(x, eta);
     key_prop = storedb.getNewKey();
 
-	% Compute the function value of the proposal
-	fx_prop = getCost(problem, x_prop, storedb, key_prop);
+    % Compute the function value of the proposal
+    fx_prop = getCost(problem, x_prop, storedb, key_prop);
 
-	% Will we accept the proposal or not?
+    % Will we accept the proposal or not?
     % Check the performance of the quadratic model against the actual cost.
     rhonum = fx - fx_prop;
     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
@@ -733,13 +733,13 @@ while true
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
-		fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
-				accstr, trstr, k, numit, srstr);
-		fprintf('       f(x) : %+e     |grad| : %e\n',fx,norm_grad);
-		if options.debug > 0
-			fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
-		end
-		fprintf('        rho : %e\n',rho);
+        fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
+                accstr, trstr, k, numit, srstr);
+        fprintf('       f(x) : %+e     |grad| : %e\n',fx,norm_grad);
+        if options.debug > 0
+            fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
+        end
+        fprintf('        rho : %e\n',rho);
     end
     if options.debug > 0
         fprintf('DBG: cos ang(eta,gradf): %d\n',testangle);

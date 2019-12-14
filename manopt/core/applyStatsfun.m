@@ -23,8 +23,8 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 
-	if isfield(options, 'statsfun')
-		
+    if isfield(options, 'statsfun')
+        
         switch nargin(options.statsfun)
             case 3
                 stats = options.statsfun(problem, x, stats);
@@ -38,6 +38,6 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
                 warning('manopt:statsfun', ...
                         'statsfun unused: wrong number of inputs');
         end
-	end
+    end
 
 end
