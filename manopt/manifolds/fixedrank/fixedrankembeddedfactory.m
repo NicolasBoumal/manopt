@@ -61,7 +61,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
-% Contributors: 
+% Contributors: Bart Vandereycken, Eitan Levin
 % Change log: 
 %
 %	Feb. 20, 2014 (NB):
@@ -96,6 +96,12 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Added M.matrix2triplet and M.triplet2matrix to allow easy
 %       conversion between matrix representations either as full matrices
 %       or as triplets (U, S, V).
+%
+%    Dec. 14, 2019 (EL):
+%       The original retraction code was repaced with a somewhat slower but
+%       numerically more stable version. With the original code, trouble could
+%       arise when the matrices Up, Vp defining the tangent vector being
+%       retracted were ill-conditioned.
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -217,6 +223,13 @@ function M = fixedrankembeddedfactory(m, n, k)
             t = 1.0;
         end
 
+        % Mathematically, Z.Up is orthogonal to X.U, and likewise for
+        % Z.Vp compared to X.V. Thus, in principle, we could call QR
+        % on Z.Up and Z.Vp alone, which should be about 4 times faster
+        % than the calls here where we orthonormalize twice as many
+        % vectors. However, when Z.Up, Z.Vp are poorly conditioned,
+        % orthonormalizing them can lead to loss of orthogonality
+        % against X.U, X.V.
         [Qu, Ru] = qr([X.U, t*Z.Up], 0);
         [Qv, Rv] = qr([X.V, t*Z.Vp], 0);
         
@@ -225,14 +238,14 @@ function M = fixedrankembeddedfactory(m, n, k)
         % asymptotic complexity to call svd then trim rather than call
         % svds. Also, apparently Matlab calls ARPACK in a suboptimal way
         % for svds in this scenario.
-        [U,S,V] = svd(Ru*[X.S + t*Z.M, eye(k); eye(k), zeros(k)]*Rv');
+        [U, S, V] = svd(Ru*[X.S + t*Z.M, eye(k); eye(k), zeros(k)]*Rv');
     
         Y.U = Qu*U(:, 1:k); 
         Y.V = Qv*V(:, 1:k); 
         Y.S = S(1:k, 1:k);
         
         % equivalent but very slow code
-        % [U S V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);
+        % [U, S, V] = svds(X.U*X.S*X.V' + t*(X.U*Z.M*X.V' + Z.Up*X.V' + X.U*Z.Vp'), k);
         % Y.U = U; Y.V = V; Y.S = S;
     end
 
