@@ -53,7 +53,7 @@ function M = fixedrankfactory_2factors(m, n, k)
 %   July 10, 2013 (NB):
 %       Added vec, mat, tangent, tangent2ambient.
 %
-%	July 03, 2015 (BM):
+%   July 03, 2015 (BM):
 %      Cosmetic changes including avoiding storing the inverse of a
 %       k-by-k matrix.
 %

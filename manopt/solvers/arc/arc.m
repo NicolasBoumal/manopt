@@ -24,31 +24,31 @@ function [x, cost, info, options] = arc(problem, x, options)
 %   iter (integer)
 %       The (outer) iteration number, i.e., number of steps considered
 %       so far (whether accepted or rejected). The initial guess is 0.
-%	cost (double)
+%   cost (double)
 %       The corresponding cost value.
-%	gradnorm (double)
+%   gradnorm (double)
 %       The (Riemannian) norm of the gradient.
-%	hessiancalls (integer)
+%   hessiancalls (integer)
 %       The number of Hessian calls issued by the subproblem solver to
 %       compute this iterate.
-%	time (double)
+%   time (double)
 %       The total elapsed time in seconds to reach the corresponding cost.
-%	rho (double)
+%   rho (double)
 %       The regularized performance ratio for the iterate.
 %       See options.rho_regularization.
-%	rhonum, rhoden (double)
+%   rhonum, rhoden (double)
 %       Numerator and denominator of the performance ratio, before
 %       regularization.
-%	accepted (boolean)
+%   accepted (boolean)
 %       Whether the proposed iterate was accepted or not.
-%	stepsize (double)
+%   stepsize (double)
 %       The (Riemannian) norm of the vector returned by the subproblem
 %       solver and which is retracted to obtain the proposed next iterate.
 %       If accepted = true for the corresponding iterate, this is the size
 %       of the step from the previous to the new iterate. If accepted is
 %       false, the step was not executed and this is the size of the
 %       rejected step.
-%	sigma (double)
+%   sigma (double)
 %       The cubic regularization parameter at the outer iteration.
 %   And possibly additional information logged by options.statsfun or by
 %   the subproblem solver.

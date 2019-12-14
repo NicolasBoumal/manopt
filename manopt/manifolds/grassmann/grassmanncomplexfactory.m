@@ -101,8 +101,8 @@ function M = grassmanncomplexfactory(n, p, k)
 			
             % Another popular retraction uses QR instead of SVD.
             % As compared with the Stiefel factory, we do not need to
-			% worry about flipping signs of columns here, since only
-			% the column space is important, not the actual columns.
+            % worry about flipping signs of columns here, since only
+            % the column space is important, not the actual columns.
             % [Q, unused] = qr(Y(:, :, i), 0); %#ok
             % Y(:, :, i) = Q;
 			

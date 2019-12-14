@@ -31,13 +31,13 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % iterations:
 %   iter (integer)
 %       The iteration number. The initial guess is 0.
-%	cost (double)
+%   cost (double)
 %       The corresponding cost value.
-%	gradnorm (double)
+%   gradnorm (double)
 %       The (Riemannian) norm of the gradient.
-%	time (double)
+%   time (double)
 %       The total elapsed time in seconds to reach the corresponding cost.
-%	stepsize (double)
+%   stepsize (double)
 %       The size of the step from the previous to the new iterate.
 %   accepted (Boolean)
 %       true if step is accepted in the cautious update. 0 otherwise.

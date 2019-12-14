@@ -60,8 +60,8 @@ function [x, info, options] = stochasticgradient(problem, x, options)
 % Contributors: Nicolas Boumal
 % Change log: 
 %
-% 	06 July 2019 (BM):  
-%   	Added preconditioner support. This allows to use adaptive algorithms.
+%   06 July 2019 (BM):  
+%      Added preconditioner support. This allows to use adaptive algorithms.
     
 
     % Verify that the problem description is sufficient for the solver.
