@@ -65,7 +65,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     % This is for illustration purposes only.
     if ~exist('L', 'var') || isempty(L)
         n = 20;
-        A = triu(randn(n) <= .4, 1);
+        A = triu(rand(n) <= .4, 1);
         A = A+A';
         D = diag(sum(A, 2));
         L = D-A;
