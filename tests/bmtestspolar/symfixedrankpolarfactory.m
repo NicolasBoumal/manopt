@@ -66,7 +66,7 @@ function M = symfixedrankpolarfactory(m, k)
     % space. The metric on the positive definite space is its natural 
     % bi-invarint metric. The metric on the Stiefel manifold is the
     % standard Euclidean metric.
-    trinner = @(A, B) A(:)'*B(:)
+    trinner = @(A, B) A(:)'*B(:);
     M.inner = @inner;
     function ip = inner(X, eta, zeta) 
     	Binvetazeta = X.B \ [eta.B, zeta.B];
