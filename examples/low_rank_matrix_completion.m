@@ -29,10 +29,10 @@ function low_rank_matrix_completion()
 % 
     
     % Random data generation. First, choose the size of the problem.
-    % We will complete a matrix of size mxn of rank k:
+    % We will complete a matrix of size mxn of rank k.
     m = 200;
-    n = 500;
-    k = 10;
+    n = 200;
+    k = 5;
     % Generate a random mxn matrix A of rank k
     L = randn(m, k);
     R = randn(n, k);
@@ -207,8 +207,6 @@ function low_rank_matrix_completion()
     
     
     
-    
-    
 
     % If the problem has a small enough dimension, we may (for analysis
     % purposes) compute the spectrum of the Hessian at a point X. This may
@@ -217,10 +215,15 @@ function low_rank_matrix_completion()
     % differences of the gradient and try to estimate its "spectrum" (it's
     % not a proper linear operator). This can give some intuition, but
     % should not be relied upon.
-    if problem.M.dim() < 100
-        fprintf('Computing the spectrum of the Hessian...');
+    if problem.M.dim() < 2000
+        fprintf('Computing the spectrum of the Hessian...\n');
         s = hessianspectrum(problem, X);
-        hist(s);
+        subplot(1, 2, 1);
+        histogram(s);
+        title('Histogram of eigenvalues of the Hessian at the solution');
+        subplot(1, 2, 2);
+        histogram(log10(abs(s)));
+        title('Histogram of log_{10}(|eigenvalues|) of the Hessian at the solution');
     end
     
     
