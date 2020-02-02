@@ -30,16 +30,16 @@ function checkhessian(problem, x, d)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%
-%   March 26, 2017 (JB):
-%       Detects if the approximated quadratic model is exact
-%       and provides the user with the corresponding feedback.
 % 
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
 %
 %   Nov. 1, 2016 (NB):
 %       Issues a call to getGradient rather than getDirectionalDerivative.
+%
+%   March 26, 2017 (JB):
+%       Detects if the approximated quadratic model is exact
+%       and provides the user with the corresponding feedback.
 %
 %   Dec. 6, 2017 (NB):
 %       Added message in case tangent2ambient might be necessary in
@@ -52,6 +52,9 @@ function checkhessian(problem, x, d)
 %       Now checks whether M.exp() is available; uses retraction otherwise
 %       and issues a message that the user should check whether the
 %       retraction is second-order or not.
+%
+%   Feb. 1, 2020 (NB):
+%       Added an explicit linearity check.
 
         
     % Verify that the problem description is sufficient.
@@ -196,11 +199,27 @@ function checkhessian(problem, x, d)
                  'vector.\nPlease verify this manually.']);
     end    
     
-    %% Check that the Hessian at x is symmetric.
+    %% Check that the Hessian at x is linear and symmetric.
     d1 = problem.M.randvec(x);
     d2 = problem.M.randvec(x);
     h1 = getHessian(problem, x, d1, storedb, xkey);
     h2 = getHessian(problem, x, d2, storedb, xkey);
+    
+    % Linearity check
+    a = randn(1);
+    b = randn(1);
+    ad1pbd2 = problem.M.lincomb(x, a, d1, b, d2);
+    had1pbd2 = getHessian(problem, x, ad1pbd2, storedb, xkey);
+    ahd1pbhd2 = problem.M.lincomb(x, a, h1, b, h2);
+    errvec = problem.M.lincomb(x, 1, had1pbd2, -1, ahd1pbhd2);
+    errvecnrm = problem.M.norm(x, errvec);
+    had1pbd2nrm = problem.M.norm(x, had1pbd2);
+    fprintf(['||a*H[d1] + b*H[d2] - H[a*d1+b*d2]|| should be zero, or ' ...
+             'very close.\n\tValue: %g (norm of H[a*d1+b*d2]: %g)\n'], ...
+             errvecnrm, had1pbd2nrm);
+    fprintf('If it is far from 0, then the Hessian is not linear.\n');
+    
+    % Symmetry check
     v1 = problem.M.inner(x, d1, h2);
     v2 = problem.M.inner(x, h1, d2);
     value = v1-v2;
