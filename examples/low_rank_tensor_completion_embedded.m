@@ -49,6 +49,11 @@ function low_rank_tensor_completion_embedded()
 % Contributors: 
 % Change log:
 
+    if ~exist('tenrand', 'file')
+        fprintf('Tensor Toolbox version 2.6 or higher is required.\n');
+        return;
+    end
+
     % Random data generation with pseudo-random numbers from a 
     % uniform distribution on [0, 1].  
     tensor_dims = [60 40 20];
