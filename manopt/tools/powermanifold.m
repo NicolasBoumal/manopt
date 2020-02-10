@@ -24,8 +24,14 @@ function Mn = powermanifold(M, n)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log:
-%   NB, July 4, 2013: Added support for vec, mat, tangent.
-%                     Added support for egrad2rgrad and ehess2rhess.
+%
+%   July  4, 2013 (NB):
+%       Added support for vec, mat, tangent.
+%       Added support for egrad2rgrad and ehess2rhess.
+%
+%   Feb. 10, 2020 (NB):
+%       Added warnings about calling egrad2rgrad and ehess2rhess without
+%       storedb and key, even if the base manifold allows them.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
@@ -93,6 +99,11 @@ function Mn = powermanifold(M, n)
         end
     end
     
+    if nargin(M.egrad2rgrad) > 2
+        warning('manopt:powermanifold:egrad2rgrad', ...
+               ['Power manifolds call M.egrad2rgrad with only two ', ...
+                'inputs:\nstoredb and key won''t be available.']);
+    end
     Mn.egrad2rgrad = @egrad2rgrad;
     function g = egrad2rgrad(x, g)
         for i = 1 : n
@@ -100,6 +111,11 @@ function Mn = powermanifold(M, n)
         end
     end
     
+    if nargin(M.ehess2rhess) > 4
+        warning('manopt:powermanifold:ehess2rhess', ...
+               ['Power manifolds call M.ehess2rhess with only four ', ...
+                'inputs:\nstoredb and key won''t be available.']);
+    end
     Mn.ehess2rhess = @ehess2rhess;
     function h = ehess2rhess(x, eg, eh, h)
         for i = 1 : n

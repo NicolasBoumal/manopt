@@ -24,6 +24,9 @@ function hess = getHessian(problem, x, d, storedb, key)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   Feb. 10, 2020 (NB):
+%       Allowing M.ehess2rhess to take (storedb, key) as extra inputs.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -81,7 +84,16 @@ function hess = getHessian(problem, x, d, storedb, key)
         end
         
         % Convert to the Riemannian Hessian
-        hess = problem.M.ehess2rhess(x, egrad, ehess, d);
+        switch nargin(problem.M.ehess2rhess)
+            case 4
+                hess = problem.M.ehess2rhess(x, egrad, ehess, d);
+            case 6
+                hess = problem.M.ehess2rhess(x, egrad, ehess, d, storedb, key);
+            otherwise
+                up = MException('manopt:getHessian:ehess2rhess', ...
+                    'ehess2rhess should accept 4 or 6 inputs.');
+                throw(up);
+        end
         
     else
     %% Attempt the computation of an approximation of the Hessian.

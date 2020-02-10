@@ -28,17 +28,22 @@ function M = productmanifold(elements)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
-%   NB, July 4, 2013
+%
+%   July  4, 2013 (NB):
 %       Added support for vec, mat, tangent.
 %       Added support for egrad2rgrad and ehess2rhess.
 %       Modified hash function to make hash strings shorter.
 %
-%   NB, Dec. 17, 2018
+%   Dec. 17, 2018 (NB):
 %       Added check all_elements_provide() to many functions, so that if,
 %       for example, one of the elements does not provide exp(), then the
 %       product manifold also won't provide exp(). This makes it easier for
 %       tools such as, for example, checkgradient, to determine whether exp
 %       is available or not.
+%
+%   Feb. 10, 2020 (NB):
+%       Added warnings about calling egrad2rgrad and ehess2rhess without
+%       storedb and key, even if some base manifolds allow them.
 
 
     elems = fieldnames(elements);
@@ -158,12 +163,28 @@ function M = productmanifold(elements)
                                                x.(elems{i}), g.(elems{i}));
         end
     end
+    for ii = 1 : nelems
+        if nargin(elements.(elems{ii}).egrad2rgrad) > 2
+            warning('manopt:productmanifold:egrad2rgrad', ...
+                   ['Product manifolds call M.egrad2rgrad with only two ', ...
+                    'inputs:\nstoredb and key won''t be available.']);
+            break;
+        end
+    end
 
     M.ehess2rhess = @ehess2rhess;
     function h = ehess2rhess(x, eg, eh, h)
         for i = 1 : nelems
             h.(elems{i}) = elements.(elems{i}).ehess2rhess(...
                  x.(elems{i}), eg.(elems{i}), eh.(elems{i}), h.(elems{i}));
+        end
+    end
+    for ii = 1 : nelems
+        if nargin(elements.(elems{ii}).ehess2rhess) > 4
+            warning('manopt:productmanifold:ehess2rhess', ...
+                   ['Product manifolds call M.ehess2rhess with only two ', ...
+                    'inputs:\nstoredb and key won''t be available.']);
+            break;
         end
     end
     
