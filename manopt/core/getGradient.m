@@ -32,6 +32,9 @@ function grad = getGradient(problem, x, storedb, key)
 %       the new storedb 'remove' functionalities that keep the number of
 %       cached points down to a minimum. If the gradient is obtained via
 %       costgrad, the cost is also cached.
+%
+%   Feb. 10, 2020 (NB):
+%       Allowing M.egrad2rgrad to take (storedb, key) as extra inputs.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -53,6 +56,10 @@ function grad = getGradient(problem, x, storedb, key)
         grad = store.grad__;
         return;
     end
+    
+    % We don't normally compute the cost value, but if we get it as a side
+    % result, then we may as well take note of it for caching.
+    cost_computed = false;
     
     
     if isfield(problem, 'grad')
@@ -95,12 +102,24 @@ function grad = getGradient(problem, x, storedb, key)
                     'costgrad should accept 1, 2 or 3 inputs.');
                 throw(up);
         end
+        
+        cost_computed = true;
     
     elseif canGetEuclideanGradient(problem)
     %% Compute the Riemannian gradient using the Euclidean gradient.
         
         egrad = getEuclideanGradient(problem, x, storedb, key);
-        grad = problem.M.egrad2rgrad(x, egrad);
+        % Convert to the Riemannian gradient
+        switch nargin(problem.M.egrad2rgrad)
+            case 2
+                grad = problem.M.egrad2rgrad(x, egrad);
+            case 4
+                grad = problem.M.egrad2rgrad(x, egrad, storedb, key);
+            otherwise
+                up = MException('manopt:getGradient:egrad2rgrad', ...
+                    'egrad2rgrad should accept 2 or 4 inputs.');
+                throw(up);
+        end
         store_is_stale = true;
     
     elseif canGetPartialGradient(problem)
@@ -140,7 +159,7 @@ function grad = getGradient(problem, x, storedb, key)
     end
     % If we got the gradient via costgrad, then the cost has also been
     % computed and we can cache it.
-    if exist('cost', 'var')
+    if cost_computed
         store.cost__ = cost;
     end
 
