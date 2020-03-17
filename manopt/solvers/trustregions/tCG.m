@@ -152,7 +152,6 @@ end
 stop_tCG = 5;
 
 % Begin inner/tCG loop.
-j = 0;
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
