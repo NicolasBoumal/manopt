@@ -74,6 +74,16 @@ function hessfun = approxhessianFD(problem, options)
 %       aligned with the other Hessian approximations to come (which may
 %       want to use storedb.internal), and now allows specifying the step
 %       size.
+%
+%   March 17, 2020 (NB):
+%       Following a bug report by Marco Sutti, added a the instruction
+%           storedb.remove(key1);
+%       to avoid memory usage ramping up when many inner iterations are
+%       needed inside ot tCG for trustregions. The deciding factor is that
+%       there is no need to cache the gradient at the artificially produced
+%       point used here for finite differencing, as this point is not
+%       visible outside of this function: there is no reason we would visit
+%       it again.
 
     % This Hessian approximation is based on the gradient:
     % check availability.
@@ -136,6 +146,10 @@ function hessfd = hessianFD(stepsize, problem, x, xdot, storedb, key)
     x1 = problem.M.retr(x, xdot, c);
     key1 = storedb.getNewKey();
     grad1 = getGradient(problem, x1, storedb, key1);
+    
+    % Remove any caching associated to that new point, since there is no
+    % reason we would be visiting it again.
+    storedb.remove(key1);
     
     % Transport grad1 back from x1 to x.
     grad1 = problem.M.transp(x1, x, grad1);
