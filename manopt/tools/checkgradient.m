@@ -84,6 +84,7 @@ function checkgradient(problem, x, d)
         err = problem.M.norm(x, residual);
         fprintf('The residual should be 0, or very close. Residual: %g.\n', err);
         fprintf('If it is far from 0, then the gradient is not in the tangent space.\n');
+        fprintf('In certain cases (e.g., hyperbolicfactory), the tangency test is inconclusive.\n');
     else
         fprintf(['Unfortunately, Manopt was unable to verify that the '...
                  'gradient is indeed a tangent vector.\nPlease verify ' ...
