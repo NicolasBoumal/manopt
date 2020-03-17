@@ -35,6 +35,16 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
 %   Nov. 1, 2016 (NB):
 %       Removed exception in case of unavailable gradient, as getGradient
 %       now knows to fall back to an approximate gradient if need be.
+%
+%   March 17, 2020 (NB):
+%       Following a bug report by Marco Sutti, added a the instruction
+%           storedb.remove(key1);
+%       to avoid memory usage ramping up when many inner iterations are
+%       needed inside ot tCG for trustregions. The deciding factor is that
+%       there is no need to cache the gradient at the artificially produced
+%       point used here for finite differencing, as this point is not
+%       visible outside of this function: there is no reason we would visit
+%       it again.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -69,6 +79,10 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
     x1 = problem.M.retr(x, d, c);
     key1 = storedb.getNewKey();
     grad1 = getGradient(problem, x1, storedb, key1);
+    
+    % Remove any caching associated to that new point, since there is no
+    % reason we would be visiting it again.
+    storedb.remove(key1);
     
     % Transport grad1 back from x1 to x.
     grad1 = problem.M.transp(x1, x, grad1);
