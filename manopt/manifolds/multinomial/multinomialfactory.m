@@ -89,7 +89,7 @@ function M = multinomialfactory(n, m)
         for mm = 1 : m
             x = X(:, mm);
             s = sqrt(x);
-            us = U(:, mm) ./ s ./ 2;
+            us = tU(:, mm) ./ s ./ 2;
             un = norm(us);
             if un < eps
                 Y(:, mm) = X(:, mm);
