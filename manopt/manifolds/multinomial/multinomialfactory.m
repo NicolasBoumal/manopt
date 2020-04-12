@@ -60,7 +60,7 @@ function M = multinomialfactory(n, m)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(X, Y) error('multinomialfactory.dist not implemented yet.');
+    M.dist = @(X, Y) norm( 2*acos(sum(sqrt(X.*Y),1)) );
     
     M.typicaldist = @() m*pi/2; % This is an approximation.
     
