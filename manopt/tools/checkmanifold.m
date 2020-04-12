@@ -16,6 +16,9 @@ function checkmanifold(M)
 % Original author: Nicolas Boumal, Aug. 31, 2018.
 % Contributors: 
 % Change log: 
+%   April 12, 2020 (NB):
+%       Now checking M.dist(x, M.exp(x, v, t)) for several values of t
+%       because this test is only valid for norm(x, tv) <= inj(x).
 
     assert(isstruct(M), 'M must be a structure.');
     
@@ -56,10 +59,14 @@ function checkmanifold(M)
     try
         x = M.rand();
         v = M.randvec(x);
-        t = randn(1);
-        y = M.exp(x, v, t);
-        d = M.dist(x, y);
-        fprintf('dist(x, M.exp(x, v, t)) - abs(t)*M.norm(x, v) = %g (should be zero).\n', d - abs(t)*M.norm(x, v));
+        for t = logspace(-8, 1, 10)
+            y = M.exp(x, v, t);
+            d = M.dist(x, y);
+            err = d - abs(t)*M.norm(x, v);
+            fprintf(['dist(x, M.exp(x, v, t)) - abs(t)*M.norm(x, v) = ' ...
+                     '%g (t = %.1e; should be zero for small enough t).\n'], ...
+                     err, t);
+        end
     catch up %#ok<NASGU>
         fprintf('Couldn''t check exp and dist.\n');
         % Perhaps we want to rethrow(up) ?
