@@ -24,11 +24,11 @@ function M = multinomialfactory(n, m)
 %
 % Link to the paper: http://arxiv.org/abs/1504.01777.
 %
-% The exponential and logarithmic map and the distance are taken from
-% F. Åström, S. Petra, B. Schmitzer, C. Schnörr, ?Image Labeling by
-% Assignment?, Journal of Mathematical Imaging and Vision, 58(2),
-% pp. 221?238, 2017.
-% doi: https://doi.org/10.1007/s10851-016-0702-4
+% The exponential and logarithmic map and the distance appear in:
+% F. Astrom, S. Petra, B. Schmitzer, C. Schnorr,
+% "Image Labeling by Assignment",
+% Journal of Mathematical Imaging and Vision, 58(2), pp. 221?238, 2017.
+% doi: 10.1007/s10851-016-0702-4
 % arxiv: https://arxiv.org/abs/1603.05285
 %
 % Please cite the Manopt paper as well as the research paper:
@@ -45,7 +45,7 @@ function M = multinomialfactory(n, m)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, April 06, 2015.
-% Contributors:
+% Contributors: Ronny Bergmann
 % Change log:
 %
 %    Sep. 6, 2018 (NB):
@@ -70,7 +70,7 @@ function M = multinomialfactory(n, m)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(X, Y) norm( 2*acos(sum(sqrt(X.*Y),1)) );
+    M.dist = @(X, Y) norm(2*acos(sum(sqrt(X.*Y), 1)));
     
     M.typicaldist = @() m*pi/2; % This is an approximation.
     
@@ -87,14 +87,14 @@ function M = multinomialfactory(n, m)
         end
         Y = zeros(size(X));
         for mm = 1 : m
-            x = X(:,mm);
+            x = X(:, mm);
             s = sqrt(x);
-            us = U(:,mm) ./ s ./ 2;
+            us = U(:, mm) ./ s ./ 2;
             un = norm(us);
             if un < eps
-                Y(:,mm) = X(:,mm);
+                Y(:, mm) = X(:, mm);
             else
-                Y(:,mm) = (cos(un).*s +  sin(un)/un.*us).^2;
+                Y(:, mm) = (cos(un).*s + sin(un)/un.*us).^2;
             end
         end
     end
@@ -102,8 +102,8 @@ function M = multinomialfactory(n, m)
     M.log = @logarithm;
     function U = logarithm(X,Y)
         a = sqrt(X.*Y);
-        s = sum(a,1);
-        U = 2*acos(s) ./ sqrt(1-s.^2) .* ( a - s.*X);
+        s = sum(a, 1);
+        U = 2*acos(s) ./ sqrt(1-s.^2) .* (a - s.*X);
     end
     
     M.egrad2rgrad = @egrad2rgrad;
