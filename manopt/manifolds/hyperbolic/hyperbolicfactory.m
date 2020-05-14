@@ -80,6 +80,8 @@ function M = hyperbolicfactory(n, m, transposed)
 % Pratik Jawanpuria, Anoop Kunchukuttan, and Hiroyuki Kasai Oct 28, 2018.
 % Contributors: Nicolas Boumal
 % Change log:
+%   May 14, 2020 (NB):
+%       Clarified comments about distance computation.
 
     % Design note: all functions that are defined here but not exposed
     % outside work for non-transposed representations. Only the wrappers
@@ -105,6 +107,8 @@ function M = hyperbolicfactory(n, m, transposed)
     M.name = @() sprintf('Hyperbolic manifold H(%d, %d)%s', n, m, trnspstr);
     
     M.dim = @() n*m;
+    
+    M.typicaldist = @() sqrt(n*m);
 
     % Returns a row vector q such that q(k) is the Minkowski inner product
     % of columns U(:, k) and V(:, k). This is defined in all of Minkowski
@@ -134,11 +138,13 @@ function M = hyperbolicfactory(n, m, transposed)
         % Minkowski norm. To avoid potentially imaginary results due to
         % round-off errors, we take the max against 0.
         U = X-Y;
-        mink_inners = inner_minkowski_columns(U, U);
-        mink_norms = sqrt(max(0, mink_inners));
-        % The formula below is equivalent to acosh(-mink_inners) but is
-        % numerically more accurate when distances are small.
+        mink_sqnorms = max(0, inner_minkowski_columns(U, U));
+        mink_norms = sqrt(mink_sqnorms);
         d = 2*asinh(.5*mink_norms);
+        % The formula above is equivalent to
+        % d = max(0, real(acosh(-inner_minkowski_columns(X, Y))));
+        % but is numerically more accurate when distances are small.
+        % When distances are large, it is better to use the acosh formula.
     end
     
     M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
