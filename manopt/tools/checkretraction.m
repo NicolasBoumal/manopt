@@ -12,7 +12,7 @@ function checkretraction(M, x, v)
 % vector v at x if one is provided (otherwise, a tangent vector at x is
 % picked at random.)
 %
-% See also: checkdiff checkgradient checkhessian
+% See also: checkmanifold checkdiff checkgradient checkhessian
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Oct. 21, 2016.

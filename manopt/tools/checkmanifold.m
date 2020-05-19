@@ -126,6 +126,9 @@ function checkmanifold(M)
     else
         fprintf('M.dim() not tested because it is > %d.\n', dim_threshold);
     end
+    
+    %% Recommend calling checkretraction
+    fprintf('It is recommended also to call checkretraction.\n');
 
 end
 

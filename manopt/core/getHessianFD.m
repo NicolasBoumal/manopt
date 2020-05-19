@@ -37,10 +37,10 @@ function hessfd = getHessianFD(problem, x, d, storedb, key)
 %       now knows to fall back to an approximate gradient if need be.
 %
 %   March 17, 2020 (NB):
-%       Following a bug report by Marco Sutti, added a the instruction
+%       Following a bug report by Marco Sutti, added the instruction
 %           storedb.remove(key1);
 %       to avoid memory usage ramping up when many inner iterations are
-%       needed inside ot tCG for trustregions. The deciding factor is that
+%       needed inside of tCG for trustregions. The deciding factor is that
 %       there is no need to cache the gradient at the artificially produced
 %       point used here for finite differencing, as this point is not
 %       visible outside of this function: there is no reason we would visit
