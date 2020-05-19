@@ -33,6 +33,8 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %       Journal = {Arxiv preprint arXiv:1506.02159},
 %       Year    = {2015}
 %     }
+%
+% See also fixedranktensorembeddedfactory
 
 % Original authors: Hiroyuki Kasai and Bamdev Mishra, June 5, 2015.
 % Contributors: 

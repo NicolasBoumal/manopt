@@ -57,7 +57,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Doi     = {10.1137/110845768}
 %     }
 %
-% See also: fixedrankfactory_2factors fixedrankfactory_3factors
+% See also: fixedrankfactory_2factors fixedrankfactory_3factors fixedranktensorembeddedfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
