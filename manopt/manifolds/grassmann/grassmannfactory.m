@@ -20,6 +20,8 @@ function M = grassmannfactory(n, p, k, gpuflag)
 % i = 1 : k if k > 1. Each n x p matrix is a numerical representation of
 % the vector subspace its columns span.
 %
+% The retraction is based on a polar factorization and is second order.
+%
 % Set gpuflag = true to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations can be done on the GPU directly.
 %
