@@ -3,9 +3,10 @@ Manopt is a Matlab toolbox for optimization on manifolds.
 Installation instructions, documentation and updates are available online:
 http://www.manopt.org
 
-Manopt is copyright by Nicolas Boumal (nicolasboumal@gmail.com)
-and is distributed under the terms of the GNU General Public License (GPL)
-version 3 (or later). See the files LICENSE.TXT, COPYING.TXT and CREDITS.TXT.
+This is open source software.
+Manopt is copyright by Nicolas Boumal (nicolasboumal@gmail.com) and is
+distributed under the terms of the GNU General Public License (GPL)
+version 3 (or later). See files LICENSE.TXT, COPYING.TXT and CREDITS.TXT.
 
 Contact: manopttoolbox@gmail.com
 
@@ -33,22 +34,23 @@ Please cite the Manopt paper in your work (as well as relevant solvers/geometrie
 
 http://jmlr.org/papers/v15/boumal14a.html
 
-@article{manopt,
-  author  = {Nicolas Boumal and Bamdev Mishra and P.-A. Absil and Rodolphe Sepulchre},
-  title   = {{M}anopt, a {M}atlab Toolbox for Optimization on Manifolds},
-  journal = {Journal of Machine Learning Research},
-  year    = {2014},
-  volume  = {15},
-  pages   = {1455--1459},
-  url     = {http://www.manopt.org}
-}
+@Article{manopt,
+    author = {Boumal, N. and Mishra, B. and Absil, P.-A. and Sepulchre, R.},
+    journal = {Journal of Machine Learning Research},
+    title = {{M}anopt, a {M}atlab Toolbox for Optimization on Manifolds},
+    year = {2014},
+    number = {42},
+    pages = {1455--1459},
+    volume = {15},
+    url = {https://www.manopt.org},
+} 
 
 
 
 For more info or help: http://www.manopt.org -- we are active on the forum!
 
 This version:
-Manopt 5.0, released Sep. 10, 2018.
+Manopt 6.0, released May 19, 2020.
 
 
 GitHub: https://github.com/NicolasBoumal/manopt
