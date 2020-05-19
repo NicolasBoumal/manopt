@@ -99,9 +99,9 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 %    Dec. 14, 2019 (EL):
 %       The original retraction code was repaced with a somewhat slower but
-%       numerically more stable version. With the original code, trouble could
-%       arise when the matrices Up, Vp defining the tangent vector being
-%       retracted were ill-conditioned.
+%       numerically more stable version. With the original code, trouble
+%       could arise when the matrices Up, Vp defining the tangent vector
+%       being retracted were ill-conditioned.
 %
 %    Jan. 28, 2020 (NB):
 %       In retraction code, moved parameter t around to highlight the fact
