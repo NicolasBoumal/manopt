@@ -19,6 +19,8 @@ function checkmanifold(M)
 %   April 12, 2020 (NB):
 %       Now checking M.dist(x, M.exp(x, v, t)) for several values of t
 %       because this test is only valid for norm(x, tv) <= inj(x).
+%   May 19, 2020 (NB):
+%       Now checking M.dim().
 
     assert(isstruct(M), 'M must be a structure.');
     
@@ -105,6 +107,24 @@ function checkmanifold(M)
                     U(:).'*V(:) - M.inner(x, u, v));
     catch up %#ok<NASGU>
         fprintf('Couldn''t check mat, vec, vecmatareisometries.\n');
+    end
+    
+    %% Checking dim
+    dim_threshold = 200;
+    if M.dim() <= dim_threshold
+        x = M.rand();
+        n = M.dim() + 1;
+        B = cell(n, 1);
+        for k = 1 : n
+            B{k} = M.randvec(x);
+        end
+        G = grammatrix(M, x, B);
+        eigG = sort(real(eig(G)), 'descend');
+        fprintf('Testing M.dim() (works best when dimension is small):\n');
+        fprintf('\tIf this number is machine-precision zero, then M.dim() may be too large: %g\n', eigG(n-1));
+        fprintf('\tIf this number is not machine-precision zero, then M.dim() may be too small: %g\n', eigG(n));
+    else
+        fprintf('M.dim() not tested because it is > %d.\n', dim_threshold);
     end
 
 end
