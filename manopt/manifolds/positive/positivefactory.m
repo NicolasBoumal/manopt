@@ -87,7 +87,16 @@ function M = positivefactory(m, n)
         % It is unclear whether this is the numerically most stable way to
         % implement this operation. If you run into trouble with this
         % factory, please get in touch on the forum.
-        Y = (X.*(exp((t*eta)./X)));
+        
+        % Use exp
+        % Y = (X.*(exp((t*eta)./X)));
+
+        % Avoid using exp by truncating to second order terms.
+        teta = t*eta;
+        Y = X + teta + 0.5*((teta.^2)./X);
+
+        % For numerical reasons, so that we avoid entries going to zero:
+        Y = max(Y, eps);
     end
     
     M.log = @logarithm;

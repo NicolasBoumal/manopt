@@ -118,10 +118,20 @@ function M = multinomialfactory(n, m)
             t = 1.0;
         end
         % A first-order retraction.
-        Y = X.*exp(t*(eta./X)); % Based on mapping for positive scalars.
-        Y = Y./(e*(sum(Y, 1))); % Projection onto the constraint set.
-        % For numerical reasons, so that we avoid entries going to zero:
+        % If you run into trouble with this
+        % factory, please get in touch on the forum.
+
+        % Use exp
+        % Y = X.*exp(t*(eta./X)); % Based on mapping for positive scalars.
+        
+        % Avoid using exp by truncating to second order terms.
+        teta = t*eta;
+        Y = X + teta + 0.5*((teta.^2)./X);
+
+		% For numerical reasons, so that we avoid entries going to zero:
         Y = max(Y, eps);
+        
+        Y = Y./(e*(sum(Y, 1))); % Projection onto the constraint set.
     end
     
     
