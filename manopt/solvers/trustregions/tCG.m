@@ -141,6 +141,11 @@ end
 % increase. It is then important to terminate the tCG iterations and return
 % the previous (the best-so-far) iterate. The variable below will hold the
 % model value.
+%
+% This computation could be further improved based on Section 17.4.1 in
+% Conn, Gould, Toint, Trust Region Methods, 2000.
+% If we make this change, then also modify trustregions to gather this
+% value from tCG rather than recomputing it itself.
 model_fun = @(eta, Heta) inner(eta, grad) + .5*inner(eta, Heta);
 if ~options.useRand
     model_value = 0;
