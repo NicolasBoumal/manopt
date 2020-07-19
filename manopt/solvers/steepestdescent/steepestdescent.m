@@ -68,6 +68,10 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %       store structure will be kept in memory in the storedb for caching.
 %       For the SD algorithm, a store depth of 2 should always be
 %       sufficient.
+%   hook (none)
+%       A function handle which allows the user to change the current point
+%       x at the beginning of each iteration, before the stopping criterion
+%       is evaluated. See applyStatsfun for help on how to use this option.
 %
 %
 % See also: conjugategradient trustregions manopt/solvers/linesearch manopt/examples
@@ -82,6 +86,9 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %
 %   Aug. 2, 2018 (NB):
 %       Now using storedb.remove() to keep the cache lean.
+%
+%   July 19, 2020 (NB):
+%       Added support for options.hook.
 
     
     % Verify that the problem description is sufficient for the solver.
@@ -159,6 +166,15 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         
         % Start timing this iteration.
         timetic = tic();
+
+        % Apply the hook function if there is one: this allows external code to
+        % move x to another point. If the point is changed (indicated by a true
+        % value for the boolean 'hooked'), we update our knowledge about x.
+        [x, key, info, hooked] = applyHook(problem, x, storedb, key, options, info, k+1);
+        if hooked
+            [cost, grad] = getCostGrad(problem, x, storedb, key);
+            gradnorm = problem.M.norm(x, grad);
+        end
         
         % Run standard stopping criterion checks.
         [stop, reason] = stoppingcriterion(problem, x, options, ...

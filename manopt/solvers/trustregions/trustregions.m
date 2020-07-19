@@ -170,6 +170,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       If memory usage is an issue, you may try to lower this number.
 %       Profiling or manopt counters may then help to investigate if a
 %       performance hit was incurred as a result.
+%   hook (none)
+%       A function handle which allows the user to change the current point
+%       x at the beginning of each iteration, before the stopping criterion
+%       is evaluated. See applyStatsfun for help on how to use this option.
 %
 % Notice that statsfun is called with the point x that was reached last,
 % after the accept/reject decision. Hence: if the step was accepted, we get
@@ -293,6 +297,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   NB Aug. 2, 2018:
 %       Using storedb.remove() to keep the cache lean, which allowed to
 %       reduce storedepth to 2 from 20 (by default).
+%
+%   NB July 19, 2020:
+%       Added support for options.hook.
 
 M = problem.M;
 
@@ -436,6 +443,15 @@ while true
     % Start clock for this outer iteration
     ticstart = tic();
 
+    % Apply the hook function if there is one: this allows external code to
+    % move x to another point. If the point is changed (indicated by a true
+    % value for the boolean 'hooked'), we update our knowledge about x.
+    [x, key, info, hooked] = applyHook(problem, x, storedb, key, options, info, k+1);
+    if hooked
+        [fx, fgradx] = getCostGrad(problem, x, storedb, key);
+        norm_grad = M.norm(x, fgradx);
+    end
+    
     % Run standard stopping criterion checks
     [stop, reason] = stoppingcriterion(problem, x, options, info, k+1);
     

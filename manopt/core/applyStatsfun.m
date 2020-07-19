@@ -13,7 +13,7 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 % be read but not modified (modifications will be lost) ; the store
 % structure will contain the store.shared field.
 %
-% See also: 
+% See also: applyHook
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 3, 2013.
@@ -39,5 +39,9 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
                         'statsfun unused: wrong number of inputs');
         end
     end
+    
+    % Always create a field called 'hooked' for the benefit of applyHook.
+    % This is to be set to either true or false by applyHook.
+    stats.hooked = NaN;
 
 end
