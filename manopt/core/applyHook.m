@@ -22,7 +22,7 @@ function [newx, newkey, info, hooked] = applyHook(problem, x, storedb, key, opti
 % struct-array. (This requires the field 'hooked' to exist in the first
 % place: applyStatsfun ensures this.)
 %
-% The options.hook function can have these prototypes:
+% The options.hook function handle can have these prototypes:
 %
 %   [newx, hooked]                = hook(problem, x)
 %   [newx, newkey, hooked]        = hook(problem, x, storedb, key)
