@@ -82,6 +82,8 @@ function M = hyperbolicfactory(n, m, transposed)
 % Change log:
 %   May 14, 2020 (NB):
 %       Clarified comments about distance computation.
+%   July 13, 2020 (NB):
+%       Added pairmean function.
 
     % Design note: all functions that are defined here but not exposed
     % outside work for non-transposed representations. Only the wrappers
@@ -232,6 +234,7 @@ function M = hyperbolicfactory(n, m, transposed)
     
     M.transp = @(X1, X2, U) M.proj(X2, U);
     
+    M.pairmean = @(x1, x2) M.exp(x1, M.log(x1, x2), .5);
    
     % vec returns a vector representation of an input tangent vector which
     % is represented as a matrix; mat returns the original matrix
