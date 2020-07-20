@@ -32,7 +32,7 @@ function [newx, newkey, info, hooked] = applyHook(problem, x, storedb, key, opti
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 19, 2020.
-% Contributors: 
+% Contributors: Eitan Levin
 % Change log: 
 
     if isfield(options, 'hook')
