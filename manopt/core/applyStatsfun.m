@@ -22,6 +22,9 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
 %   April 3, 2015 (NB):
 %       Works with the new StoreDB class system.
+%
+%   July 19, 2020 (NB):
+%       Creates a field called 'hooked' in stats structures, for applyHook.
 
     if isfield(options, 'statsfun')
         
