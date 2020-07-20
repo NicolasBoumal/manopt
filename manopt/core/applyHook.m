@@ -41,7 +41,7 @@ function [newx, newkey, info, hooked] = applyHook(problem, x, storedb, key, opti
         nout = nargout(options.hook);
         
         if nin == 2 && nout == 2
-            [newx, hooked] = hook(problem, x);
+            [newx, hooked] = options.hook(problem, x);
             if hooked
                 storedb.remove(key);
                 newkey = storedb.getNewKey();
@@ -49,14 +49,14 @@ function [newx, newkey, info, hooked] = applyHook(problem, x, storedb, key, opti
                 newkey = key;
             end
         elseif nin == 4 && nout == 3
-            [newx, newkey, hooked] = hook(problem, x, storedb, key);
+            [newx, newkey, hooked] = options.hook(problem, x, storedb, key);
             if hooked
                 storedb.removefirstifdifferent(key, newkey);
             end
         elseif nin == 5 && nout == 4
             stats = info(last);
             [newx, newkey, hooked, stats] = ...
-                                     hook(problem, x, storedb, key, stats);
+                             options.hook(problem, x, storedb, key, stats);
             info(last) = stats;
             if hooked
                 storedb.removefirstifdifferent(key, newkey);

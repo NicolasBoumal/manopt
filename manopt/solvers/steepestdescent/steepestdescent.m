@@ -170,7 +170,8 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         % Apply the hook function if there is one: this allows external code to
         % move x to another point. If the point is changed (indicated by a true
         % value for the boolean 'hooked'), we update our knowledge about x.
-        [x, key, info, hooked] = applyHook(problem, x, storedb, key, options, info, k+1);
+        [x, key, info, hooked] = applyHook(problem, x, storedb, key, ...
+                                                    options, info, iter+1);
         if hooked
             [cost, grad] = getCostGrad(problem, x, storedb, key);
             gradnorm = problem.M.norm(x, grad);
@@ -237,7 +238,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
     
     
     
-    % Routine in charge of collecting the current iteration stats
+    % Routine in charge of collecting the current iteration stats.
     function stats = savestats()
         stats.iter = iter;
         stats.cost = cost;
