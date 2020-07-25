@@ -173,7 +173,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   hook (none)
 %       A function handle which allows the user to change the current point
 %       x at the beginning of each iteration, before the stopping criterion
-%       is evaluated. See applyStatsfun for help on how to use this option.
+%       is evaluated. See applyHook for help on how to use this option.
 %
 % Notice that statsfun is called with the point x that was reached last,
 % after the accept/reject decision. Hence: if the step was accepted, we get

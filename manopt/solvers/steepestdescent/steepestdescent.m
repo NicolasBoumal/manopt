@@ -71,7 +71,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %   hook (none)
 %       A function handle which allows the user to change the current point
 %       x at the beginning of each iteration, before the stopping criterion
-%       is evaluated. See applyStatsfun for help on how to use this option.
+%       is evaluated. See applyHook for help on how to use this option.
 %
 %
 % See also: conjugategradient trustregions manopt/solvers/linesearch manopt/examples
