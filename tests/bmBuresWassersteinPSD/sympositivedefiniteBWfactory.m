@@ -8,17 +8,27 @@ function M = sympositivedefiniteBWfactory(n)
 % matrix X (nxn). Tangent vectors are symmetric matrices of the same size
 % (but not necessarily definite).
 %
-
+%
+% Please cite the Manopt paper as well as the research paper:
+% @article{malago2018wasserstein,
+%  title={Wasserstein Riemannian geometry of Gaussian densities},
+%  author={Malag{\`o}, Luigi and Montrucchio, Luigi and Pistone, Giovanni},
+%  journal={Information Geometry},
+%  volume={1},
+%  number={2},
+%  pages={137--179},
+%  year={2018},
+%  publisher={Springer}
+%  }
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, January 23, 2020.
 % Contributors:
 % Change log:
     
-    
     symm = @(X) .5*(X+X');
     
-    M.name = @() sprintf('Symmetric positive definite geometry of %dx%d matrices with the Wasserstein metric', n, n);
+    M.name = @() sprintf('Symmetric positive definite geometry of %dx%d matrices with the Bures-Wasserstein metric', n, n);
     
     M.dim = @() n*(n+1)/2;
     
@@ -43,15 +53,12 @@ function M = sympositivedefiniteBWfactory(n)
         d = sqrt(trace(X) + trace(Y) - 2*trace(symm(sqrtm(Xhalf*Y*Xhalf))));
     end
     
-    
-    
     M.typicaldist = @() sqrt(n*(n+1)/2); % BM: okay    
     
     M.egrad2rgrad = @egrad2rgrad;
     function eta = egrad2rgrad(X, eta)
         eta = 4*symm(eta*X);
     end
-    
     
     M.ehess2rhess = @ehess2rhess;
     function Hess = ehess2rhess(X, egrad, ehess, eta)
@@ -67,7 +74,6 @@ function M = sympositivedefiniteBWfactory(n)
             - symm(rgrad * eta1) ...
             + 2*symm(X*symm(rgrad1 * eta1));
     end
-    
     
     M.proj = @(X, eta) symm(eta);
     
@@ -95,8 +101,6 @@ function M = sympositivedefiniteBWfactory(n)
     function H = logarithm(X, Y)
         H = symm(myhalf(X, Y) + myhalf(Y, X) - 2*X);
     end
-    
-    
     
     M.hash = @(X) ['z' hashmd5(X(:))];
     
