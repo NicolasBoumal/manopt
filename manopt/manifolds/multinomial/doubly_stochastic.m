@@ -85,7 +85,7 @@ function B = doubly_stochastic(A, maxiter, mode, checkperiod)
 
         if any(isinf(d_2)) || any(isnan(d_2)) || any(isinf(d_1)) || any(isnan(d_1))
             warning('DoublyStochasticProjection:NanInfEncountered', ...
-                    'Nan or Inf occured at iter %d, error ! %e \n', iter, gap);
+                    'Nan or Inf occured at iter %d. \n', iter);
             d_1 = d_1_prev;
             d_2 = d_2_prev;
             break;
