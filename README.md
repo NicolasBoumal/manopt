@@ -24,5 +24,7 @@ Check out these two books, freely available online:
  * Absil, Mahony and Sepulchre, [Optimization Algorithms on Matrix Manifolds](https://press.princeton.edu/absil), 2008
  
 
+
 Cheers,
+
 Nicolas and Bamdev
