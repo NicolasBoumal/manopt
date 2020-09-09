@@ -130,8 +130,7 @@ function M = positivefactory(m, n)
     % present factory.
     M.paralleltransp = @parallel_transport;
     function zeta = parallel_transport(X, Y, eta)
-        E = sqrt(Y./X);
-        zeta = E.*eta.*E;
+        zeta = eta.*Y./X;
     end
     
     % vec and mat are not isometries, because of the unusual inner metric.
