@@ -1,11 +1,30 @@
 function M = poincareballfactory(k, n, gpuflag)
-% Factory for matrices whose columns live on the Poincare ball manifold
+% Factory for matrices whose columns live in the Poincare ball manifold
 %
+% function M = poincareballfactory(k)
 % function M = poincareballfactory(k, n)
+%
+% Manifold of k-by-n real matrices whose columns live in the Poincare ball.
+% By default, n = 1, which corresponds to a single Poincare ball.
+% The metric is such that each ball has constant sectional curvature -1.
+%
+% This manifold is an open submanifold of R^{kxn}, so that tangent vectors
+% and vectors in the embedding space are represented as real matrices of
+% size kxn, without any restrictions. Points are likewise represented as
+% real matrices of size kxn such that each column has (Euclidean 2-norm)
+% strictly less than 1. The embedding space is endowed with its usual
+% Euclidean structure (with the trace inner product): the tools egrad2rgrad
+% and ehess2rhess thus expect to be given Euclidean gradients and Hessians.
 %
 % Set gpuflag = true to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations can be done on the GPU directly.
+% 
+% See also: hyperbolicfactory
 
+% This file is part of Manopt: www.manopt.org.
+% Original author: Quentin Rebjock, Sep. 28, 2020
+% Contributors: NB
+% Change log: 
 
     if ~exist('n', 'var') || isempty(n)
         n = 1;
@@ -35,7 +54,7 @@ function M = poincareballfactory(k, n, gpuflag)
     
     M.conformal_factor = @(x) 2 ./ (1 - sum(x .* x, 1));
     
-    M.inner = @(x, d1, d2) sum((d1 .* d2) * (M.conformal_factor(x).^2));
+    M.inner = @(x, u, v) sum(sum(u .* v, 1) .* (M.conformal_factor(x).^2));
     
     M.norm = @(x, d) sqrt(M.inner(x, d, d));
     
@@ -47,15 +66,15 @@ function M = poincareballfactory(k, n, gpuflag)
         d = sqrt(sum(acosh(1 + 2 * norms2diff ./ (1 - norms2x) ./ (1 - norms2y)) .^ 2));
     end
 
-    M.typicaldist = @() M.dim / 8;
+    M.typicaldist = @() M.dim() / 8;
     
     % Identity map since the embedding space is the tangent space.
     M.proj = @(x, d) d;
     
     M.tangent = M.proj;
     
-    % The Poincaré ball is not a Riemannian submanifold and the
-    % Euclidean gradient cannot simply be projected.
+    % The Poincare ball is not a Riemannian submanifold hence the Euclidean 
+    % gradient is not just a projection of the Euclidean gradient.
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(x, egrad)
         factor = M.conformal_factor(x);
@@ -65,7 +84,11 @@ function M = poincareballfactory(k, n, gpuflag)
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(x, egrad, ehess, u)
         factor = M.conformal_factor(x);
-        rhess = (u .* sum(egrad .* x, 1) - egrad .* sum(u .* x, 1) - x .* sum(u .* egrad, 1) + ehess ./ factor) ./factor;
+        rhess = ( u .* sum(egrad .* x, 1) - ...
+                  egrad .* sum(u .* x, 1) - ...
+                  x .* sum(u .* egrad, 1) + ...
+                  ehess ./ factor ...
+                ) ./factor;
     end
 
     M.mobius_addition = @mobius_addition;
@@ -73,32 +96,49 @@ function M = poincareballfactory(k, n, gpuflag)
         sp = sum(x .* y, 1);
         norm2x = sum(x .* x, 1);
         norm2y = sum(y .* y, 1);
-        res = (x .* (1 + 2 .* sp + norm2y) + y .* (1 - norm2x)) ./ (1 + 2 .* sp + norm2x .* norm2y);
+        res = ( x .* (1 + 2 .* sp + norm2y) + y .* (1 - norm2x) ) ...
+                                       ./ (1 + 2 .* sp + norm2x .* norm2y);
     end
 
     M.exp = @exponential;
-    
-    M.retr = @retraction;
-    M.invretr = @inverse_retraction;
-    
     M.log = @logarithm;
+    
+    M.retr = M.exp;
+    M.invretr = M.log;
+    
+    % This is not a parallel transport.
+    M.transp = @(x1, x2, v) v;
     
     M.hash = @(x) ['z' hashmd5(x(:))];
     
     % Columns are sampled uniformly at random in the unit ball.
-    M.rand = @() sample_ball_uniformly(k, n);
+    M.rand = @() sample_ball_uniformly(k, n, array_type);
     
-    M.randvec = @(x) randn(k, n);
+    M.randvec = @randvec;
+    function v = randvec(x)
+        v = randn(k, n, array_type);
+        v = v / M.norm(x, v);
+    end
     
-    M.zerovec = @(x) zeros(k, n);
+    M.zerovec = @(x) zeros(k, n, array_type);
+    
+    M.lincomb = @matrixlincomb;
     
     M.pairmean = @pairmean;
     function y = pairmean(x1, x2)
         y = M.exp(x1, M.log(x1, x2) / 2);
     end
 
-    M.vec = @(x, u_mat) u_mat(:);
-    M.mat = @(x, u_vec) reshape(u_vec, [k, n]);
+    M.vec = @vec;
+    function u_vec = vec(x, u_mat)
+        u_vec = bsxfun(@times, u_mat, M.conformal_factor(x));
+        u_vec = u_vec(:);
+    end
+    M.mat = @mat;
+    function u_mat = mat(x, u_vec)
+        u_mat = reshape(u_vec, [k, n]);
+        u_mat = bsxfun(@times, u_mat, 1./M.conformal_factor(x));
+    end
     M.vecmatareisometries = @() true;
     
     
@@ -132,23 +172,6 @@ function y = exponential(x, d, t)
     y = mobius_addition(x, w);
 end
 
-% Exponential map is cheap so use it as a retraction.
-function y = retraction(x, d, t)
-    if nargin == 2
-        % t = 1;
-        td = d;
-    else
-        td = t*d;
-    end
-    y = exponential(x, td);
-end
-
-% Given x and y two points on the manifold, if there exists a tangent
-% vector d at x such that Retr_x(d) = y, this function returns d.
-function d = inverse_retraction(x, y)
-    d = logarithm(x, y);
-end
-
 function v = logarithm(x, y)
     w = mobius_addition(-x, y);
     normsw = vecnorm(w);
@@ -156,9 +179,9 @@ function v = logarithm(x, y)
     v = w .* factor .* atanh(normsw) ./ normsw;
 end
 
-function x = sample_ball_uniformly(k, n)
-    isotropic = randn(k, n);
+function x = sample_ball_uniformly(k, n, array_type)
+    isotropic = randn(k, n, array_type);
     isotropic = isotropic ./ vecnorm(isotropic);
-    radiuses = rand(1, n) .^ (1 / k);
+    radiuses = rand(1, n, array_type) .^ (1 / k);
     x = isotropic .* radiuses;
 end
