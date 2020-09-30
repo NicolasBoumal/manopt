@@ -1,6 +1,5 @@
 function test_poincareball()
 
-    clear all; clc; close all;
     k = 3;
     n = 10;
     manifold = poincareballfactory(k, n);
@@ -8,22 +7,11 @@ function test_poincareball()
     problem.M = manifold;
     
     P = manifold.rand();
-    problem.cost = @cost;
-    function f = cost(X)
-        f = norm(X - P, 'F').^2;
-    end
-    
-    problem.grad = @(X) problem.M.egrad2rgrad(X, egrad(X));
-    function g = egrad(X)
-        g = 2 * (X - P);
-    end
-    
-    problem.hess = @(X, U) problem.M.ehess2rhess(X, egrad(X), ehess(X, U), U);
-    function Ress = ehess(X, eta)
-        Ress = 2 * eta;
-    end
+    problem.cost = @(X) .5*norm(X-P, 'fro').^2;
+    problem.egrad = @(X) X-P;
+    problem.ehess = @(X, U) U;
 
-% % Check numerically whether gradient and Ressian are correct
+    % Check numerically whether gradient and Ressian are correct
     checkgradient(problem);
     drawnow;
     pause;
@@ -38,17 +26,25 @@ function test_poincareball()
     options.maxiter = inf;
     options.maxinner = 30;
     options.maxtime = 120;
-    options.tolgradnorm = 1e-5;
+    options.tolgradnorm = 1e-10;
     
     % Pick an algorithm to solve the problem
-    [Xopt costopt info] = trustregions(problem, X0, options);
-    % [Xopt costopt info] = steepestdescent(problem, X0, options);
-    % [Xopt costopt info] = conjugategradient(problem, X0, options);
+    Xopt = trustregions(problem, X0, options);
+    % [Xopt, costopt, info] = steepestdescent(problem, X0, options);
+    % [Xopt, costopt, info] = conjugategradient(problem, X0, options);
     
-    evs = real(hessianspectrum(problem, Xopt));
+    % Curiously enough, the optimizer sometimes doesn't find the solution
+    % P. When this happens, the erroneous columns of Xopt tend to have norm
+    % very close to 1, which is also where numerics become tricky.
+    Xopt - P
+    sum(Xopt.^2)
+    sum(P.^2)
+    
+    evs = hessianspectrum(problem, Xopt);
     evs = real(evs);
-    max(evs)/min(evs)
     stairs(sort(evs));
     title(['Eigenvalues of the Hessian of the cost function ' ...
-        'at the solution']);
+           'at the solution']);
+    fprintf('Hessian condition number at solution: %g\n', ...
+            max(abs(evs))/min(abs(evs)));
 end
