@@ -72,7 +72,7 @@ function M = hyperbolicfactory(n, m, transposed)
 % Ported primarily from the McTorch toolbox at
 % https://github.com/mctorch/mctorch.
 %
-% See also: spherefactory obliquefactory obliquecomplexfactory
+% See also: poincareballfactory spherefactory obliquefactory obliquecomplexfactory
 
 
 % This file is part of Manopt: www.manopt.org.
