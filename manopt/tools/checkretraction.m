@@ -80,5 +80,6 @@ function checkretraction(M, x, v)
     fprintf('The slope must be at least 2 to have a proper retraction.\n');
     fprintf('For the retraction to be second order, the slope should be 3.\n');
     fprintf('It appears the slope is: %g.\n', poly(1));
+    fprintf('(If the code for M.retr and M.exp coincide, the test is meaningless.)\n');
 
 end
