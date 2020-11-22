@@ -1,12 +1,17 @@
 function M = sympositivedefiniteBWfactory(n)
-% Manifold of n-by-n symmetric positive definite matrices with
-% the Bures-Wassterstein geometry.
+% Manifold of n-by-n symmetric positive definite matrices with the
+% Bures-Wassterstein geometry.
 %
 % function M = sympositivedefiniteBWfactory(n)
 %
 % A point X on the manifold is represented as a symmetric positive definite
 % matrix X (nxn). Tangent vectors are symmetric matrices of the same size
 % (but not necessarily definite).
+%
+% The Euclidean embedding space is the set of symmetric matrices of size n
+% with their usual trace inner product (Frobenius norm). In particular,
+% this means egrad and ehess (for Euclidean gradients and Hessians), if
+% implemented, must return symmetric matrices.
 %
 %
 % Please cite the Manopt paper as well as the research paper:
@@ -35,22 +40,21 @@ function M = sympositivedefiniteBWfactory(n)
     % Helpers to avoid computing full matrices simply to extract their trace
     vec  = @(A) A(:);
     trAB = @(A, B) vec(A')'*vec(B);  % = trace(A*B)
-    trAA = @(A) sqrt(trAB(A, A));    % = sqrt(trace(A^2))
     
     % Choice of the metric on the orthonormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
     % cone is the Bures-Wasserstein metric.
     M.inner = @myinner;
     function ip = myinner(X, eta, zeta)
-        ip = 0.5*trAB(symm(lyap(X, -eta)), zeta); % BM: okay
+        ip = 0.5*trAB(symm(lyapunov_symmetric(X, eta)), zeta); % BM: okay
     end
     
-    M.norm = @(X, eta) sqrt(myinner(X, eta, eta));
+    M.norm = @(X, eta) real(sqrt(myinner(X, eta, eta)));
     
     M.dist = @mydist;
     function d = mydist(X, Y)
         Xhalf = sqrtm(X);
-        d = sqrt(trace(X) + trace(Y) - 2*trace(symm(sqrtm(Xhalf*Y*Xhalf))));
+        d = real(sqrt(trace(X) + trace(Y) - 2*trace(symm(sqrtm(Xhalf*Y*Xhalf)))));
     end
     
     M.typicaldist = @() sqrt(n*(n+1)/2); % BM: okay    
@@ -67,8 +71,8 @@ function M = sympositivedefiniteBWfactory(n)
         
         % Correction factor for the non-constant BW metric
         rgrad = egrad2rgrad(X, egrad);
-        rgrad1 = lyap(X, -rgrad);
-        eta1 = lyap(X, -eta);
+        rgrad1 = lyapunov_symmetric(X, rgrad);
+        eta1 = lyapunov_symmetric(X, eta);
         Hess = Hess ...
             - symm(rgrad1 * eta) ...
             - symm(rgrad * eta1) ...
@@ -86,7 +90,7 @@ function M = sympositivedefiniteBWfactory(n)
             t = 1.0;
         end
         teta = t*eta;
-        teta1 = symm(lyap(X, -teta));
+        teta1 = symm(lyapunov_symmetric(X, teta));
         Y = X + teta + teta1*X*teta1;
     end
     
