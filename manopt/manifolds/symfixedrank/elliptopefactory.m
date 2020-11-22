@@ -14,7 +14,7 @@ function M = elliptopefactory(n, k)
 % The diagonal constraints on X (X(i, i) == 1 for all i) translate to
 % unit-norm constraints on the rows of Y: norm(Y(i, :)) == 1 for all i.
 % The set of such Y's forms the oblique manifold. But because for any
-% orthogonal Q of size k, it holds that (YQ)(YQ)' = YY', we "group" all
+% orthogonal Q of size k it holds that (YQ)(YQ)' = YY', we "group" all
 % matrices of the form YQ in an equivalence class. The set of equivalence
 % classes is a Riemannian quotient manifold, implemented here.
 %

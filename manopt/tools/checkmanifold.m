@@ -89,7 +89,8 @@ function checkmanifold(M)
         if ~isreal(U) || ~isreal(V)
             fprintf('M.vec should return real vectors: they are not real.\n');
         end
-        fprintf('M.vec seems to return real column vectors, as intended.\n');
+        fprintf(['Unless otherwise stated, M.vec seems to return real ' ...
+                 'column vectors, as intended.\n']);
         ru = M.norm(x, M.lincomb(x, 1, M.mat(x, U), -1, u));
         rv = M.norm(x, M.lincomb(x, 1, M.mat(x, V), -1, v));
         fprintf(['Checking mat/vec are inverse pairs: ' ...
