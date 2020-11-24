@@ -1,23 +1,30 @@
-
-% Efficient computation of the Weingarten map, as given by:
-% (arXiv link)
-
+function Y = TT_weingarten(V, Z, ind)
+% Weingarten map computation for the fixed TT-rank manifold.
+%
 % Y = TT_weingarten(V, Z, ind)
-
-% A function for the Weingarten map for the manifold of fixed rank TT - tensors.
-
+% 
+% This function implements the efficient way of computing the Weingarten
+% map for the Riemannian submanifold of fixed TT-rank tensors embedded in
+% its natural embedding Euclidean space, as described in the paper:
+%
+%   Psenka and Boumal,
+%   Second-order optimization for tensors with fixed tensor-train rank,
+%   Optimization workshop at NeurIPS 2020.
+% 
 % Y is the output tangent vector, V is a tangent vector (which contains
-% needed information of base point X), Z is a tensor.
-
+% needed information of base point X), Z is a tensor (embedding space).
+% 
 % TT_weingarten supports the following formats for Z:
 % 1) Full
 % 2) TT-format (any rank)
-% 3) sparse, with non-zero indices given by ind (same format as
-%     fixedTTrankfactory.m)
+% 3) sparse, with non-zero indices indexed by ind (see fixedTTrankfactory).
+%
+% See also: fixedTTrankfactory
 
-% Author of TT_weingarten.m: Michael Psenka
-
-function Y = TT_weingarten(V, Z, ind)
+% This file is part of Manopt: www.manopt.org.
+% Original author: Michael Psenka, Nov. 24, 2020.
+% Contributors: Nicolas Boumal
+% Change log:
 
     % Preliminary tangent vector set-up for Y
     d = V.order;
@@ -25,7 +32,7 @@ function Y = TT_weingarten(V, Z, ind)
     n = V.size;
     
 
-    Y = V; % all properties except for dU cores inhereted from V
+    Y = V; % all properties except for dU cores inherited from V
     normV = norm(V);
     V = (1 / normV) * V;
     Y.dU = cell(1, d);
@@ -43,7 +50,7 @@ function Y = TT_weingarten(V, Z, ind)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Pre-calculate all R-components as needed for tangent space conversion
-    R = cell(1, d - 1);
+    R = cell(1, d-1);
     % Intermediary used to calculate R-terms for re-orthogonalization
     Xr = V.U;
 
@@ -52,7 +59,7 @@ function Y = TT_weingarten(V, Z, ind)
         sz = size(Xr{k});
 
         if length(sz) == 2
-            sz = [sz, 1];
+            sz = [sz, 1]; %#ok<AGROW>
         end
 
         [Q, R{k - 1}] = qr_unique(unfold(Xr{k}, 'right')');
@@ -87,7 +94,7 @@ function Y = TT_weingarten(V, Z, ind)
         XtVgTmp = conj(unfold(tmp2, 'right')) * unfold(V.U{k}, 'right').';
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%% CASES FOR TYPE OF EUCLIDEIDEAN GRADIENT Z %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%% CASES FOR TYPE OF EUCLIDEAN GRADIENT Z %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if isa(Z, 'TTeMPS') || isa(Z, 'TTeMPS_tangent_orth')% Z either TT-tensor or tangent vec
 
@@ -100,9 +107,9 @@ function Y = TT_weingarten(V, Z, ind)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         ZVr = cell(1, d); % stores values of V_<^T(Z<k>)
-        Zr = cell(1, d); % stores values of X_<^T(Z<k>)
+        Zr = cell(1, d);  % stores values of X_<^T(Z<k>)
         ZVl = cell(1, d); % stores values of (Z<k>)^T(V_>)
-        Zl = cell(1, d); % stores values of (Z<k>)^T(X_>)
+        Zl = cell(1, d);  % stores values of (Z<k>)^T(X_>)
 
         % % Computation of ZVr and Zr
         % ZVr{d} = conj(unfold(dUR{d}, 'right')) * unfold(Z.U{d}, 'right').';
@@ -120,8 +127,8 @@ function Y = TT_weingarten(V, Z, ind)
         %     Zr{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
         % end
 
-        ZVr{d} = conj(unfold(Z.U{d}, 'right')) * unfold(V.dU{d}, 'right').';
-        XtVgTmp = conj(unfold(Z.U{d}, 'right')) * unfold(V.U{d}, 'right').';
+        ZVr{d}  = conj(unfold(Z.U{d}, 'right')) * unfold(V.dU{d}, 'right').';
+        XtVgTmp = conj(unfold(Z.U{d}, 'right')) * unfold(V.U{d},  'right').';
 
         for k = (d - 1):-1:2
             tmp = tensorprod(Z.U{k}, ZVr{k + 1}', 3);
@@ -157,7 +164,7 @@ function Y = TT_weingarten(V, Z, ind)
         % Computation of ZVl and Zl
 
         ZVl{1} = unfold(dUR{1}, 'left')' * unfold(Z.U{1}, 'left');
-        Zl{1} = unfold(V.U{1}, 'left')' * unfold(Z.U{1}, 'left');
+        Zl{1}  = unfold(V.U{1}, 'left')' * unfold(Z.U{1}, 'left');
 
         for k = 2:(d - 1)
             % (V_k-1)(U_k)
@@ -246,7 +253,7 @@ function Y = TT_weingarten(V, Z, ind)
         % pause;
 
         % 1st and last cases special, so they're computed outside the loop
-        UL = unfold(V.U{1}, 'left');
+        UL  = unfold(V.U{1}, 'left');
         dUL = unfold(dUR{1}, 'left');
 
         % right variational term without (I - UU^T) projection
@@ -255,13 +262,14 @@ function Y = TT_weingarten(V, Z, ind)
         Y.dU{1} = -dUL * UL' * ZZ{1} + rightV - UL * (UL' * rightV);
 
         for k = 2:(d - 1)
-            UL = unfold(V.U{k}, 'left');
+            UL  = unfold(V.U{k}, 'left');
             dUL = unfold(dUR{k}, 'left');
 
             % right variational term without (I - UU^T) projection
             rightV = (Zv{k} - ZZ{k} * XtVg{k + 1}) / R{k};
 
-            Y.dU{k} = vZ{k} - UL * (UL' * vZ{k}) - dUL * UL' * ZZ{k} + rightV - UL * (UL' * rightV);
+            Y.dU{k} = vZ{k} - UL * (UL' * vZ{k}) - dUL * UL' * ZZ{k} ...
+                       + rightV - UL * (UL' * rightV);
         end
 
         Y.dU{d} = vZ{d};
@@ -433,12 +441,12 @@ function Y = TT_weingarten(V, Z, ind)
         % Final U core projector mult for vZ
 
         % 1st core separate since vZ{1} = 0 up until now. Purely for efficiency
-        U = unfold(V.U{1}, 'left');
+        U  = unfold(V.U{1},  'left');
         dU = unfold(V.dU{1}, 'left');
         vZ{1} = -dU * U' * ZZ{1};
 
         for k = 2:(d - 1)
-            U = unfold(V.U{k}, 'left');
+            U  = unfold(V.U{k},  'left');
             dU = unfold(V.dU{k}, 'left');
             vZ{k} = vZ{k} - U * (U' * vZ{k});
             % vZtmp{k} = dU * U' * vZtmp{k};
@@ -471,7 +479,7 @@ function Y = TT_weingarten(V, Z, ind)
         % Double loop to represent P_k DP_m, 1 <= k < d
         for k = 1:(d - 1)
 
-            UL = unfold(V.U{k}, 'left');
+            UL  = unfold(V.U{k},  'left');
             dUL = unfold(V.dU{k}, 'left');
 
             for m = 1:(k - 1)
@@ -547,7 +555,7 @@ function Y = TT_weingarten(V, Z, ind)
             % if 1==1
 
         % 1st and last cases special, so they're computed outside the loop
-        UL = unfold(V.U{1}, 'left');
+        UL  = unfold(V.U{1}, 'left');
         dUL = unfold(dUR{1}, 'left');
 
         % right variational term without (I - UU^T) projection
@@ -555,7 +563,7 @@ function Y = TT_weingarten(V, Z, ind)
         Y.dU{1} = -dUL * UL' * ZZ{1} + rightV - UL * (UL' * rightV);
 
         for k = 2:(d - 1)
-            UL = unfold(V.U{k}, 'left');
+            UL  = unfold(V.U{k}, 'left');
             dUL = unfold(dUR{k}, 'left');
 
             % right variational term without (I - UU^T) projection
@@ -712,7 +720,7 @@ function Y = TT_weingarten(V, Z, ind)
         % Double loop to represent P_k DP_m, 1 <= k < d
         for k = 1:(d - 1)
 
-            UL = unfold(V.U{k}, 'left');
+            UL  = unfold(V.U{k}, 'left');
             dUL = unfold(dUR{k}, 'left');
 
             for m = 1:(k - 1)
@@ -761,7 +769,7 @@ end
 % Efficient ZtX term for P_k DP_m, m > k
 % Zp here is the projection of Z (just dU cores)
 % V is only passed for access to U and V cores
-function ZtX = crossTermMatrixRight(k, m, Zp, V);
+function ZtX = crossTermMatrixRight(k, m, Zp, V)
     ZtX = conj(unfold(Zp{m}, 'right')) * unfold(V.V{m}, 'right').';
 
     for p = (m - 1):-1:k
@@ -774,7 +782,7 @@ end
 % Efficient XtZ term for P_k DP_m, m < k
 % Zp here is the projection of Z
 % V is only passed for access to U and V cores
-function XtZ = crossTermMatrixLeft(k, m, Zp, V);
+function XtZ = crossTermMatrixLeft(k, m, Zp, V) %#ok<DEFNU>
 
     XtZ = unfold(V.U{m}, 'left')' * unfold(Zp{m}, 'left');
 
@@ -788,7 +796,7 @@ end
 % Efficient VtZ (more accurately kron(eye(n(k)), V') * Z) term for P_k DP_m, m < k
 % Zp here is the projection of Z, dURm is normally parametrized dU{m}
 % V is only passed for access to U and V cores
-function VtZ = crossTermVariational(k, m, Zp, dURm, V);
+function VtZ = crossTermVariational(k, m, Zp, dURm, V)
 
     VtZ = unfold(dURm, 'left')' * unfold(Zp{m}, 'left');
 

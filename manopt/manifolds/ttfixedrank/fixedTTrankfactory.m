@@ -1,72 +1,71 @@
-
 function M = fixedTTrankfactory(n, r, ind)
-
-% Manifold struct to optimize over tensors of fixed Tensor Train (TT) rank
-% with an embedded geometry.
-
+% Manifold of tensors of fixed Tensor Train (TT) rank, embedded geometry
+% 
 % EXTERNAL REQUIREMENT: TTeMPS_1.1, which can be found here:
 % https://www.epfl.ch/labs/anchp/index-html/software/ttemps/
-
-% Constructor has two overflow calls:
-
+% 
 % function M = fixedTTrankfactory(n, r)
-
-% n is a vector denoting the embedding space dimension (thus d=size(n) is the
-% order of the tensor), and r is a vector denoting the TT-rank of all tensors
-% in the manifold, where size(r) = d + 1. We also enforce r(1) = r(d+1) = 1
-
 % function M = fixedTTrankfactory(n, r, ind)
-
-% If only sparse tensors in the embedding space are considered (e.g. tensor
-% completion), the parameter ind can be passed, where ind is a (p,size(n)) size
-% matrix denoting the set of multi-indices of non-zero entries, of which there are k.
-% See TTeMPS_1.1/algorithms/completion/makeOmegaSet.m for an example on constructing
-% ind.
-
-% Main paper link for Manopt Tensor Train library: (link to arXiv).
-
-% Steinlechner's thesis Section 4 contains details on the manifold of tensors
-% with fixed Tensor Train rank: https://infoscience.epfl.ch/record/217938?ln=en
-
-% Points X in the manifold are represented by the TT-cores, which is given by the
-% cell array X.U. We enforce the TT-cores in X.U to be 'left-orthogonalized' (see
-% Steinlechner's thesis, Section 4.2.1), as many algorithms require X.U to be
-% left-orthogonalized.
-
-% Tangent vectors Z in the tangent space of a TT-tensor X are represented as a
-% structure of 3 cell-arrays:
-
+% 
+% Inputs:
+%   n is a vector denoting the embedding space dimension,
+%     R^{n(1) x ... x n(d)} (d = length(n) is the order of the tensor)
+%   r is a vector denoting the TT-rank of all tensors in the manifold,
+%     where length(r) = d + 1. We also enforce r(1) = r(d+1) = 1.
+%   ind (optional): if only sparse tensors in the embedding space are
+%     considered (as is the case for tensor completion in particular), the
+%     parameter ind can be passed, where ind is a matrix of size p-by-d
+%     whose rows contain the multi-indices of the p non-zero entries.
+%     See TTeMPS_1.1/algorithms/completion/makeOmegaSet.m for an example
+%     on constructing ind.
+% 
+% A point X on the manifold is represented through its TT-cores, stored in
+% the cell array X.U. We enforce the TT-cores in X.U to be
+% 'left-orthogonalized' (see Steinlechner's thesis, Section 4.2.1), because
+% many algorithms require X.U to be left-orthogonalized.
+% 
+% A tangent vector Z in the tangent space of a TT-tensor X is represented
+% as a structure containing 3 cell-arrays:
+% 
 % 1) Z.U, which is exactly X.U of the base point X
 % 2) Z.V, the right-orthogonalization of X.U
-% 3) Z.dU, the 'variational cores' that parametrize the tangent vector Z itself.
-%          This is given by the 'alternative representation' in Section 3 of
-%          the main paper.
+% 3) Z.dU, the 'variational cores' that parametrize the tangent vector Z
+%          itself. This matches the 'alternative representation' of tangent
+%          vectors discussed in the Psenka and Boumal paper (see below).
+% 
+% The first-order Riemannian geometry of the manifold of fixed TT-rank
+% tensors is described in detail in Steinlechner's PhD thesis, Section 4:
+%   https://infoscience.epfl.ch/record/217938?ln=en
+% TTeMPS also comes from that work.
+%
+% The second-order Riemannien geometry (necessary for the ehess2rhess tool)
+% is described in the following paper:
+%   Psenka and Boumal,
+%   Second-order optimization for tensors with fixed tensor-train rank,
+%   Optimization workshop at NeurIPS 2020.
+% 
+% Please cite the Manopt paper as well as the relevant research papers.
+% 
+% See also: fixedrankembeddedfactory fixedranktensorembeddedfactory
 
+% This file is part of Manopt: www.manopt.org.
+% Original author: Michael Psenka, Nov. 24, 2020.
+% Contributors: Nicolas Boumal
+% Change log: 
 
-% Please cite the Manopt paper as well as the research paper:
-%     @Article{vandereycken2013lowrank,
-%       Title   = {Low-rank matrix completion by {Riemannian} optimization},
-%       Author  = {Vandereycken, B.},
-%       Journal = {SIAM Journal on Optimization},
-%       Year    = {2013},
-%       Number  = {2},
-%       Pages   = {1214--1236},
-%       Volume  = {23},
-%       Doi     = {10.1137/110845768}
-%     }
-
-% This file is part of Manopt: www.manopt.org
-
-% Author of fixedTTrankfactory.m: Michael Psenka
-    % order of tensors
+    % Order of tensors
     d = numel(n);
+    
+    assert(length(r) == d+1, ...
+                    'Vector r must have length equal to length(n)+1.');
+    assert(r(1) == 1 && r(end) == 1, ...
+                    'The first and last entry of r must be equal to 1.');
 
     M.name = @() sprintf('Manifold of tensor order %d, dimension %s, and TT-rank %s', ...
         d, mat2str(n), mat2str(r));
 
-    M.dim = @dimVal;
-
-    function k = dimVal()
+    M.dim = @dim;
+    function k = dim()
         k = 0;
 
         for m = 1:(d-1)
@@ -78,49 +77,48 @@ function M = fixedTTrankfactory(n, r, ind)
 
     % Creates random unit-norm TT-tensor of TT-rank r.
     M.rand = @random;
-
     function X = random()
         % Gaussian random cores
         X = TTeMPS_rand(r, n);
-        % left-orthogonalize X
+        % Left-orthogonalize X
         X = orthogonalize(X, d);
-        % normalize
-        X.U{d} = (1 / norm(X.U{d})) * X.U{d}; % efficient transformation to unit norm
+        % Normalize (efficient transformation to unit norm)
+        X.U{d} = (1 / norm(X.U{d})) * X.U{d};
     end
 
-    % Uses the TT-SVD algorithm to project a full array to a TT-tensor of TT-rank r
+    % Uses the TT-SVD algorithm to project a full array to a TT-tensor
+    % of TT-rank r
     M.from_array = @fromArray;
 
     function X = fromArray(Y)
         % TTeMPS implementation of TT-SVD
         X = TTeMPS.from_array(Y, r);
-        %left-orthogonalized version of X
+        % Left-orthogonalized version of X
         X = orthogonalize(X, d);
     end
 
-    % Creates random unit norm tangent vector at X on manifold
-    M.randvec = @randomTangent;
+    % Creates random unit norm tangent vector at X on manifold.
+    % Optional argument Xr of right-orthogonalized X.
     % TODO name randvec and use randn
-
-    % optional argument Xr of right-orthogonalized X
+    M.randvec = @randomTangent;
     function Z = randomTangent(X, Xr)
         if nargin == 1
             % If not provided, right orthogonalize X
-            Xr = orthogonalize(X, 1); %right-orthogonalized version of X
+            Xr = orthogonalize(X, 1); % right-orthogonalized version of X
         end
 
-        Z = TTeMPS_tangent_orth(X, Xr); % two arguments --> random unit norm tangent
+        % Two arguments --> random unit-norm tangent vector
+        Z = TTeMPS_tangent_orth(X, Xr);
     end
 
     M.zerovec = @zeroVector;
-
     function Z0 = zeroVector(X)
         % X could be given as base point or tangent vector
         if isa(X, 'TTeMPS')
-            % for TTeMPS function, one argument --> zero vec at point
+            % For TTeMPS function, one argument --> zero vec at point
             Z0 = TTeMPS_tangent_orth(X); 
         elseif isa(X, 'TTeMPS_tangent_orth')
-            % if tangent vec, simply set dU cores to 0
+            % If tangent vec, simply set dU cores to 0
             Z0 = X;
             for k = 1:d
                 Z0.dU{k} = zeros(r(k), n(k), r(k + 1));
@@ -133,22 +131,21 @@ function M = fixedTTrankfactory(n, r, ind)
 
     % Note that innerprod has an overflow in TTeMPS for TT-tensor arguments
     M.inner = @(x, u, v) innerprod(u, v);
-    M.norm = @(x, v) sqrt(innerprod(v, v));
+    M.norm = @(x, v) real(sqrt(innerprod(v, v)));
     M.dist = @(x, y) error('tensor_fixed_TT_rank_factory.dist not implemented yet.');
     M.typicaldist = @() M.dim();
 
 
-    % Given Z in tangent vector format, projects the components U_i
-    % such that they satisfy the tangent space constraints up to numerical
-    % errors (i.e. enforce that they satisfy the so-called 'gauge conditions').
-    % If Z was indeed a tangent vector at X, this should barely
-    % affect Z (it would not at all if we had infinite numerical accuracy).
-
+    % Given Z in tangent vector format, projects the components U_i such
+    % that they satisfy the tangent space constraints up to numerical
+    % errors (i.e., enforce that they satisfy the so-called gauge
+    % conditions). If Z was indeed a tangent vector at X, this should
+    % barely affect Z (it would not at all if we had infinite numerical
+    % accuracy).
     M.tangent = @tangent;
-
     function Z = tangent(X, Zin, Xr)
-        % Here, we project to normal spaces of U^L for all cores except for the last core
-        Z = Zin; % merely used to get TTeMPS_tangent_orth class structure
+        % Project to normal spaces of U^L for all but the last core
+        Z = Zin; % this copies the TTeMPS_tangent_orth class structure
         for k = 1:(d-1)
             dUL = unfold(Zin.dU{k}, 'left');
             UL = unfold(X.U{k}, 'left');
@@ -160,48 +157,35 @@ function M = fixedTTrankfactory(n, r, ind)
     end
 
 
-    % Applies a linear transformation to tensor W. Z is a matrix, and W is
-    % a tensor, which must be flattened into a vector before applying Z.
-
-    function ZW = apply_matrix(Z, W)
-        disp('TO-DO');
-    end
-
+    % It would be useful to implement the following efficienctly.
+    % 
+    % Applies a linear transformation to tensor W.
+    % Z is a matrix, and W is a tensor, which must be flattened into a
+    % vector before applying Z.
+    % function ZW = apply_matrix(Z, W)
+    %     ...
+    % end
+    % 
     % Same as apply_ambient, but applies Z' to W.
-    function ZtW = apply_matrix_transpose(Z, W)
-        disp('TO-DO');
-    end
+    % function ZtW = apply_matrix_transpose(Z, W)
+    %     ...
+    % end
 
-    % Compute linear combination of two TT-tensors
-    % Note that '+' and scalar multiplication both
-    % have overflows in the TTeMPS library.
-    M.lincomb = @lin_comb;
-
-    function XY = lin_comb(x, a1, u1, a2, u2)
-
-        if nargin == 3% only a1 and u1 specified
-            XY = a1 * u1;
-
-        elseif nargin == 4% a2 additional specified
-            XY = a1 * u1 + aa2int;
-
-        else
-            XY = (a1 * u1) + (a2 * u2);
-        end
-
-    end
+    % Compute linear combination of two TT-tensors.
+    % Note that '+' and scalar multiplication are both overloaded in the
+    % TTeMPS library.
+    M.lincomb = @matrixlincomb;
 
 
     % Orthogonal projection of an ambient vector Z represented as full
     % array of size n to the tangent space of TT-tensor Z.
-    M.proj = @projection;
-
     % Two possible calls: either xR (right orthogonalized) is known or not.
+    M.proj = @projection;
     function Zproj = projection(X, Z)
 
         Xr = orthogonalize(X, 1); %right-orthogonalized version of X
 
-        % Checks if using sparse ambient space
+        % Check if using sparse ambient space
         if exist('ind', 'var')
             Zproj = TTeMPS_tangent_orth(X, Xr, Z, ind);
         else
@@ -219,9 +203,7 @@ function M = fixedTTrankfactory(n, r, ind)
     % H, which is a tangent vector.
     % Curvature part denotes the Weingarten map part. Euclidean part is the
     % Euclidean hessian projection part,
-
     M.ehess2rhess = @ehess2rhess;
-
     function rhess = ehess2rhess(X, egrad, ehess, H)
 
         % Euclidean part
@@ -235,48 +217,46 @@ function M = fixedTTrankfactory(n, r, ind)
         end
     end
 
-    %{
-    Converts a tangent vector to the TT format
-    %}
+    % Converts a tangent vector to the TT format
     M.tangent2TT = @tangent2TT;
-
-    function Z_TT = tangent2TT(X, Z)
+    function Z_TT = tangent2TT(X, Z) %#ok<INUSL>
         Z_TT = tangent_to_TTeMPS(Z);
     end
 
-    % TODO: tangent2ambient
+    % It would be useful to implement the following efficienctly.
+    % 
+    % M.tangent2ambient = @tangent2ambient;
+    % function Zamb = tangent2ambient(X, Z)
+    %     ...
+    % end
 
     % Retraction for the fixed TT - rank manifold
     M.retr = @retraction;
-
-    function Y = retraction(X, Z, t)
+    function Y = retraction(X, Z, t) %#ok<INUSL>
 
         if nargin < 3
             t = 1;
         end
 
-    
         Y = tangentAdd(Z, t, true);
         Y = orthogonalize(Y, d); % ?
 
     end
 
-    % Vector transport(see Steinleichner thesis)
+    % Vector transport(see Steinleichner's thesis)
+    % Computes a tangent vector at X2 that "looks like" the tangent vector
+    % Z1 at X1. This is not necessarily a parallel transport.
     M.transp = @project_tangent;
-
-
-    % Computes a tangent vector at X2 that "looks like" the tangent vector Z1 at X1
-    % This is not necessarily a parallel transport.
-    function Z2 = project_tangent(X1, X2, Z1)
+    function Z2 = project_tangent(X1, X2, Z1) %#ok<INUSL>
         Z2 = projection(X2, Z1);
     end
 
-     % The function 'vec' is isometric from the tangent space at X to real
+    % The function 'vec' is isometric from the tangent space at X to real
     % vectors by flattening dU cores and stringing out to one vector.
     % The function 'mat' is the left-inverse of 'vec'. It is sometimes
     % useful to apply 'tangent' to the output of 'mat'.
     M.vec = @vec;
-    function Zvec = vec(X, Z)
+    function Zvec = vec(X, Z) %#ok<INUSL>
         Zvec = Z.dU{1}(:);
         for k = 2:d
             Zvec = [Zvec; Z.dU{k}(:)];
@@ -294,11 +274,9 @@ function M = fixedTTrankfactory(n, r, ind)
 
     end
 
-    % This is true; see Section 3, 'An alternative parametrization...' of Main paper
-    M.vecmatareisometries = @checkisometries;
-   
-    function bool = checkisometries()
-        bool = true;
-    end
+    % That vec/mat are isometries is checked in the Psenka & Boumal paper,
+    % in relation to the discussion of an alternative parametrization of
+    % the tangent spaces.
+    M.vecmatareisometries = @() true;
 
 end

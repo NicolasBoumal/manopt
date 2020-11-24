@@ -1,4 +1,9 @@
-/*mex -lmwlapack -lmwblas -largeArrayDims weingarten_omega.c 
+/*
+ * Compile with:
+ *
+ * mex -lmwlapack -lmwblas -largeArrayDims weingarten_omega.c 
+ *
+ * or simply run install_mex.m
 
 Framework for code: TTeMPS_tangent_orth_omega.c
 from Michael Steinlechner's TTeMPS Toolbox
@@ -10,14 +15,22 @@ Efficiently calculates the heavier part of the Weingarten map
 when assuming sparsity (the set of non-zero points is denoted
 by omega in Steinlechner's literature on tensor trains).
 
-Comments for all 7 inputs are listed beside each variable
+Comments for all 7 inputs are listed beside each variable.
 
 There are three outputs. ZZ is the original orthogonal
 projection of the sparse tensor. vZ is (I \tens V')ZX'
-and Zv is (I \tens X')ZV' (see review paper for details)*/
+and Zv is (I \tens X')ZV' (see Psenka & Boumal paper for details).
 
-//TODO: try to make more efficient (not use LdRtmp?)
+This file is part of Manopt: www.manopt.org.
+Original author: Michael Psenka, Nov. 24, 2020.
+Contributors: Nicolas Boumal
+Change log:
 
+*/
+    
+
+// TODO: try to make more efficient (not use LdRtmp?)
+    
 #define U_SLICE(i, j) &U[i][(ind[d * j + i] - 1) * r[i] * r[i + 1]]
 #define V_SLICE(i, j) &V[i][(ind[d * j + i] - 1) * r[i] * r[i + 1]]
 #define dU_SLICE(i, j) &dUR[i][(ind[d * j + i] - 1) * r[i] * r[i + 1]]
