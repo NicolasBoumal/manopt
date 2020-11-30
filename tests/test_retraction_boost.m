@@ -1,9 +1,10 @@
-%% Sept., 16, 2017
+%% Sept. 16, 2017
 %  Testing whether a retraction can be boosted into
 %  a higher order retraction by integration (time stepping).
 %  It seems yes -- there ought to be more efficient ways.
-
-clear all, close all, clc;
+%
+% See also test_retraction_boost_metric_projection.m
+clear, close all, clc;
 
 %%
 n = 5;
@@ -51,6 +52,6 @@ end
 
 %%
 loglog(h, g(1, :), h, g(2, :), h, g(3, :));
-tilte('Distance to geodesic');
+title('Distance to geodesic');
 legend('Single retraction', 'Multi retraction, isotransp', 'Multi retraction, transp');
 xlabel('Step size');
