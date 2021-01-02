@@ -66,8 +66,10 @@ function statsfun = statsfunhelper(inp1, inp2)
         error('statsfunhelper takes 1 or 2 inputs. If 1 input, it must be a structure.');
     end
 
+    statsfun = @(problem, x, stats, store) thestatsfun(S, problem, x, stats, store);
 
-    function stats = thestatsfun(problem, x, stats, store)
+    
+    function stats = thestatsfun(S, problem, x, stats, store)
         names = fieldnames(S);
         for it = 1 : length(names)
             name = names{it};
@@ -86,7 +88,5 @@ function statsfun = statsfunhelper(inp1, inp2)
             end
         end
     end
-
-    statsfun = @thestatsfun;
 
 end
