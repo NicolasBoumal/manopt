@@ -160,14 +160,14 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
     
     % Main loop rank search
     rank_search = 0;
-    while (rr <= rank_max), % When r = n a global min is attained for sure.
+    while (rr <= rank_max) % When r = n a global min is attained for sure.
         rank_search = rank_search + 1;
         
         fprintf('>> Rank %d <<\n', rr);
         
         % Follow the descent direction to compute an iterate in a higher dimension
-        if (rr > rank_initial),
-            if isempty(restartDir), % If no restart dir avail. do a random restart
+        if (rr > rank_initial)
+            if isempty(restartDir) % If no restart dir avail. do a random restart
                 disp('No restart dir available, random restart is performed');
                 Y = randn(n, rr);
                 
@@ -247,7 +247,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         
         % Stopping criterion.
         fprintf('>> smin = %.3e, and min(vp) = %.3e\n',s_min,min(vp));
-        if (s_min  > params.tolSmin) || (min(vp) < params.tolrankdeficiency),
+        if (s_min  > params.tolSmin) || (min(vp) < params.tolrankdeficiency)
             break;
         end
         
@@ -255,7 +255,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
         rr = rr + 1;
         
         % Compute descent direction
-        if (s_min < -1e-10),
+        if (s_min < -1e-10)
             restartDir = v;
         else
             restartDir = [];
@@ -414,7 +414,8 @@ function problem_description = get_3d_Helix_instance()
     % Fraction of unknown distances
     fractionOfUnknown = 0.85;
     
-    % True distances among points in 3d Helix
+    % True distances among points in 3d Helix.
+    % The pdist function is part of the Statistics and ML toolbox.
     trueDists = pdist(Yo)'.^2; % True distances
     
     
@@ -651,7 +652,7 @@ function  show_plots(problem_description, infos)
             subplot(jj, 2, kk + 1);
             rank_change_stats_kk = rank_change_stats(kk);
             Ykk = rank_change_stats_kk.Y;
-            if size(Ykk, 2) == 1,
+            if size(Ykk, 2) == 1
                 plot(Ykk(:,1), zeros(size(Ykk, 1)),'*','Color', 'r','LineWidth',1.0);
                 legend(func2str(solver))
                 title(['Recovery at rank ',num2str(size(Ykk, 2))]);
