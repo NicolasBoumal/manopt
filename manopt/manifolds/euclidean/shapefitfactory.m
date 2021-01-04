@@ -26,6 +26,9 @@ function M = shapefitfactory(VJt)
 %       M.tangent = M.proj now, instead of being identity. This is notably
 %       necessary so that checkgradient will pick up on gradients that do
 %       not lie in the appropriate tangent space.
+%
+%   Jan. 4, 2021 (NB):
+%       Changes for compatibility with Octave 6.1.0.
     
     [d, n] = size(VJt);
 
@@ -41,9 +44,9 @@ function M = shapefitfactory(VJt)
     
     M.typicaldist = @() sqrt(d*n);
     
-    M.proj = @(T, U) projection(U);
     VJt_normed = VJt / norm(VJt, 'fro');
-    function PU = projection(U)
+    M.proj = @(T, U) projection(U, VJt_normed);
+    function PU = projection(U, VJt_normed)
         % Center the columns
         PU = bsxfun(@minus, U, mean(U, 2));
         % Remove component along VJt
@@ -54,7 +57,7 @@ function M = shapefitfactory(VJt)
     
     M.egrad2rgrad = M.proj;
     
-    M.ehess2rhess = @(x, eg, eh, d) projection(eh);
+    M.ehess2rhess = @(x, eg, eh, d) projection(eh, VJt_normed);
     
     M.tangent = M.proj;
     
@@ -73,14 +76,14 @@ function M = shapefitfactory(VJt)
 
     M.hash = @(x) ['z' hashmd5(x(:))];
     
-    M.randvec = @(x) randvec();
-    function u = randvec()
-        u = projection(randn(d, n));
+    M.randvec = @(x) randvec(VJt, VJt_normed);
+    function u = randvec(VJt, VJt_normed)
+        u = projection(randn(size(VJt)), VJt_normed);
         u = u / norm(u, 'fro');
     end
     
     % We exploit the fact that VJt_normed belongs to the manifold
-    M.rand = @() VJt_normed + randn(1) * randvec();
+    M.rand = @() VJt_normed + randn(1) * randvec(VJt, VJt_normed);
     
     M.lincomb = @matrixlincomb;
     

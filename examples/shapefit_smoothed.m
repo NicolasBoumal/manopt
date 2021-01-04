@@ -47,6 +47,9 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
 % Original author: Nicolas Boumal, June 18, 2015.
 % Contributors: 
 % Change log: 
+%
+%   Jan. 4, 2021 (NB):
+%       Changes for compatibility with Octave 6.1.0.
 
 
     % Generic useful functions
@@ -113,7 +116,8 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
     % difference ti - tj on the orthogonal space to v_ij.
     % If the alignment is compatible with the data, then this is zero.
     % A(T) is a d x m matrix.
-    function AT = A(T)
+    A = @(T) Afun(T, V, J);
+    function AT = Afun(T, V, J)
         TJ = T*J;
         AT = TJ - bsxfun(@times, V, sum(V .* TJ, 1));
     end
