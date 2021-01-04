@@ -49,8 +49,12 @@ function M = essentialfactory(k, strSigned)
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
 % Contributors: Bamdev Mishra, May 15, 2015.
-%
-%
+% Change log:
+%   Jan. 4, 2021 (NB):
+%       Compatibility with Octave 6.1.0: moved quite a few nested functions
+%       to end-of-file functions, and made tangent2ambient accessible as
+%       M.tangent2ambient (which should have been the case already).
+
 % RT: General implementation note: to streamline component-wise
 % computations, in tangentProjection and exponential,
 % we flatten out the arguments into [3 x 3 x 2K] arrays, compute the
@@ -220,16 +224,7 @@ function M = essentialfactory(k, strSigned)
     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
     M.vecmatareisometries = @() true;
     
-    
-    
-    p1 = @(X) X(:,1:3,:);
-    p2 = @(X) X(:,4:6,:);
-    
-    
-    vertproj = @(X,H) multiprod(X(3,1:3,:),permute(vee3(H(:,1:3,:)),[1 3 2]))+multiprod(X(3,4:6,:),permute(vee3(H(:,4:6,:)),[1 3 2]));
-    
-    tangent2ambient = @(X, H) essential_sharp(multiprod(essential_flat(X), essential_flat(H)));
-    
+    M.tangent2ambient = @tangent2ambient;
     
 end
 
@@ -289,5 +284,19 @@ function nv = cnorm(v)
     nv = sqrt(sum(v.^2));
 end
 
+function M = vertproj(X, H)
+    M = multiprod(X(3, 1:3, :), permute(vee3(H(:, 1:3, :)), [1 3 2])) + ...
+        multiprod(X(3, 4:6, :), permute(vee3(H(:, 4:6, :)), [1 3 2]));
+end
 
+function M = p1(X)
+    M = X(:, 1:3, :);
+end
 
+function M = p2(X)
+    M = X(:, 4:6, :);
+end
+
+function U = tangent2ambient(X, H)
+    U = essential_sharp(multiprod(essential_flat(X), essential_flat(H)));
+end
