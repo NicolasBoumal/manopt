@@ -94,11 +94,11 @@ function doubly_stochastic_denoising()
     
     
     %% Display
-    figure() ;
-    semilogy(S1, 'red', 'Marker', '*', 'LineWidth', 2, ...
+    figure();
+    semilogy(S1, 'Color', 'red', 'Marker', '*', 'LineWidth', 2, ...
                  'DisplayName', 'Conjugate Gradient Algorithm');
-    hold on ;
-    semilogy(S2, 'blue', 'Marker', '+', 'LineWidth', 2, ...
+    hold on;
+    semilogy(S2, 'Color', 'blue', 'Marker', '+', 'LineWidth', 2, ...
                  'DisplayName', 'Trust Regions Method');
     
     set(gca, 'YGrid', 'on', 'XGrid', 'on');

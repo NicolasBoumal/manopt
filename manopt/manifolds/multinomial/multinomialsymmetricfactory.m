@@ -42,11 +42,11 @@ function M = multinomialsymmetricfactory(n)
 %
 %    Sep. 6, 2018 (NB):
 %        Removed M.exp() as it was not implemented.
-
-    % Helpers
-    e = ones(n, 1);
-    symm = @(X) .5*(X+X');
-    maxDSiters = 100 + 2*n;
+%
+%   Jan. 4, 2021 (NB):
+%       Compatibility with Octave 6.1.0, at the cost of having duplicated
+%       the definition of maxDSiters and of having replaced all occurrences
+%       of 'e' with its formerly defined value, namely, ones(n, 1).
 
     M.name = @() sprintf('%dx%d symmetric doubly-stochastic matrices with positive entries', n, n);
 
@@ -71,6 +71,7 @@ function M = multinomialsymmetricfactory(n)
     % Pick a random point on the manifold
     M.rand = @random;
     function X = random()
+        maxDSiters = 100 + 2*n;
         Z = symm(abs(randn(n, n)));     % Random point in the ambient space
         X = symm(doubly_stochastic(Z, maxDSiters)); % Projection on the manifold
     end
@@ -82,7 +83,7 @@ function M = multinomialsymmetricfactory(n)
         Z = symm(randn(n, n)) ; 
         % Projection to the tangent space
         alpha = sum((eye(n) + X)\(Z),2) ;
-        eta = Z - (alpha*e' + e*alpha').*X ;
+        eta = Z - (alpha*ones(n, 1)' + ones(n, 1)*alpha').*X ;
         % Normalizing the vector
         nrm = M.norm(X, eta);
         eta = eta / nrm;
@@ -93,7 +94,7 @@ function M = multinomialsymmetricfactory(n)
     M.proj = @projection; 
     function etaproj = projection(X, eta)
         alpha = sum((eye(n) + X)\(eta), 2);
-        etaproj = eta - (alpha*e' + e*alpha').*X;
+        etaproj = eta - (alpha*ones(n, 1)' + ones(n, 1)*alpha').*X;
     end
 
     M.tangent = M.proj;
@@ -104,7 +105,7 @@ function M = multinomialsymmetricfactory(n)
     function rgrad = egrad2rgrad(X, egrad)
         mu = sum((X.*egrad), 2);
         alpha = (eye(n) + X)\mu;
-        rgrad = (egrad - alpha*e' - e*alpha').*X; 
+        rgrad = (egrad - alpha*ones(n, 1)' - ones(n, 1)*alpha').*X; 
     end
 
     % First-order retraction
@@ -113,6 +114,7 @@ function M = multinomialsymmetricfactory(n)
         if nargin < 3
             t = 1.0;
         end
+        maxDSiters = 100 + 2*n;
         Y = X.*exp(t*(eta./X));
         Y = symm(doubly_stochastic(Y, maxDSiters));
         Y = max(Y, eps);
@@ -129,8 +131,8 @@ function M = multinomialsymmetricfactory(n)
         alpha = sum((eye(n) + X)\(gamma), 2);
         m = (eye(n)+X)\eta;
         alphadot = sum((eye(n) + X)\(gammadot - m*gamma), 2);
-        S = (alpha*e' + e*alpha');
-        deltadot = gammadot - (alphadot*e' + e*alphadot').*X - S.*eta;
+        S = (alpha*ones(n, 1)' + ones(n, 1)*alpha');
+        deltadot = gammadot - (alphadot*ones(n, 1)' + ones(n, 1)*alphadot').*X - S.*eta;
 
         % Projecting gamma
         delta = gamma - S.*X; 
@@ -138,7 +140,7 @@ function M = multinomialsymmetricfactory(n)
         % Computing and projecting nabla
         nabla = deltadot - 0.5*(delta.*eta)./X;
         w = sum((eye(n) + X)\(nabla), 2);
-        rhess = nabla - (w*e' + e*w').*X; 
+        rhess = nabla - (w*ones(n, 1)' + ones(n, 1)*w').*X; 
         
     end
 
@@ -147,9 +149,17 @@ function M = multinomialsymmetricfactory(n)
     M.hash = @(X) ['z' hashmd5(X(:))];
     M.lincomb = @matrixlincomb;
     M.zerovec = @(X) zeros(n, n);
-    M.transp = @(X1, X2, d) projection(X2, d);
     M.vec = @(X, U) U(:);
     M.mat = @(X, u) reshape(u, n, n);
     M.vecmatareisometries = @() false;
+    
+    M.transp = @transp;
+    function U = transp(X1, X2, d)
+        U = projection(X2, d);
+    end
         
+end
+
+function A = symm(Z)
+    A = .5*(Z+Z');
 end
