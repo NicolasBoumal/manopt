@@ -32,6 +32,9 @@ function Mn = powermanifold(M, n)
 %   Feb. 10, 2020 (NB):
 %       Added warnings about calling egrad2rgrad and ehess2rhess without
 %       storedb and key, even if the base manifold allows them.
+%
+%   Jan. 4, 2021 (NB):
+%       Changes for compatibility with Octave 6.1.0: see len_vec.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
@@ -227,16 +230,16 @@ function Mn = powermanifold(M, n)
         rand_x = M.rand();
         zero_u = M.zerovec(rand_x);
         len_vec = length(M.vec(rand_x, zero_u));
-
-        Mn.vec = @vec;
+        
+        Mn.vec = @(x, u_mat) vec(x, u_mat, len_vec, M, n);
         
         if isfield(M, 'mat')
-            Mn.mat = @mat;
+            Mn.mat = @(x, u_vec) mat(x, u_vec, len_vec, M, n);
         end
         
     end
     
-    function u_vec = vec(x, u_mat)
+    function u_vec = vec(x, u_mat, len_vec, M, n)
         u_vec = zeros(len_vec, n);
         for i = 1 : n
             u_vec(:, i) = M.vec(x{i}, u_mat{i});
@@ -244,7 +247,7 @@ function Mn = powermanifold(M, n)
         u_vec = u_vec(:);
     end
 
-    function u_mat = mat(x, u_vec)
+    function u_mat = mat(x, u_vec, len_vec, M, n)
         u_mat = cell(n, 1);
         u_vec = reshape(u_vec, len_vec, n);
         for i = 1 : n
