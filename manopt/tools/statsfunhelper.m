@@ -57,6 +57,8 @@ function statsfun = statsfunhelper(inp1, inp2)
 % Original author: Nicolas Boumal, Dec. 17, 2014.
 % Contributors: 
 % Change log: 
+%     Jan 2, 2021 (NB):
+%         Passing S to thestatsfun explicitly for compatibility with Octave 6.
 
     if (nargin == 1) && isstruct(inp1)
         S = inp1;
