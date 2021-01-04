@@ -45,6 +45,14 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
 %
 %    Sep.  6, 2018 (NB):
 %        Removed M.exp() as it was not implemented.
+%
+%   Jan. 4, 2021 (NB):
+%       Compatibility with Octave 6.1.0. Besides some of the steps also
+%       taken in other factories, a special issue here was: as M.transp
+%       calls the nested function 'projection', it is important to defined
+%       M.transp as an explicit nested function and not as an anonymous
+%       function with @, as otherwise the scope of the mother (helper)
+%       function was invisible to 'projection' when called through transp.
 
     if length(tensor_rank) > 3
         error('Bad usage of fixedrankfactory_tucker_preconditioned. Currently, only handles 3-order tensors.');
@@ -60,11 +68,22 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
     r2 = tensor_rank(2);
     r3 = tensor_rank(3);
     
-    
-    speyer1 = speye(r1); % Sparse version of identity that is used in M.proj
+    % Sparse version of identity that is used in M.proj
+    speyer1 = speye(r1);
     speyer2 = speye(r2);
     speyer3 = speye(r3);
     
+    M = fixedrankfactory_tucker_preconditioned_helper(...
+                        tensor_size, tensor_rank, ...
+                        n1, n2, n3, r1, r2, r3, speyer1, speyer2, speyer3);
+                              
+end
+
+
+% This is the actual factory
+function M = fixedrankfactory_tucker_preconditioned_helper(...
+                     tensor_size, tensor_rank, ...
+                     n1, n2, n3, r1, r2, r3, speyer1, speyer2, speyer3) %#ok<INUSL>
 
     M.name = @() sprintf('G x U1 x U2 x U3 quotient Tucker manifold of %d-by-%d-by-%d tensor of rank %d-by-%d-by-%d.', n1, n2, n3, r1, r2, r3);
     
@@ -107,9 +126,6 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
     M.dist = @(x, y) error('fixedrankfactory_tucker_preconditioned.dist not implemented yet.');
     
     M.typicaldist = @() 10*n1*r1; % BM: To do  
-    
-    skew = @(X) .5*(X-X');
-    symm = @(X) .5*(X+X');
     
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
@@ -244,7 +260,6 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
         ASU3 = 2*symm(X.G3G3t*(X.U3'*eta.U3)*X.G3G3t);
         BU3 = lyapunov_symmetric(SSU3, ASU3);
         eta.U3 = eta.U3 - X.U3*(BU3/X.G3G3t);
-        
 
         eta_G1 = reshape(eta.G, r1, r2*r3); 
         eta_G2 = reshape(permute(eta.G, [2 1 3]), r2, r1*r3); 
@@ -399,9 +414,12 @@ function M = fixedrankfactory_tucker_preconditioned(tensor_size, tensor_rank)
     M.lincomb = @lincomb;
     
     M.zerovec = @(X) struct('U1', zeros(n1, r1), 'U2', zeros(n2, r2), ...
-        'U3', zeros(n3, r3), 'G', zeros(r1, r2, r3));
+                            'U3', zeros(n3, r3), 'G',  zeros(r1, r2, r3));
     
-    M.transp = @(x1, x2, d) projection(x2, d);
+    M.transp = @transp;
+    function v = transp(x1, x2, d) %#ok<INUSL>
+        v = projection(x2, d);
+    end
     
     % vec and mat are not isometries, because of the scaled metric.
     M.vec = @(X, U1) [U1.U1(:); U1.U2(:); U1.U3(:); U1.G(:)];
@@ -433,10 +451,16 @@ function d = lincomb(X, a1, d1, a2, d2) %#ok<INUSL>
     
 end
 
-function U = uf(A) % U factor of Polar factorization of a tall matrix A.
+% U factor of Polar factorization of a tall matrix A.
+function U = uf(A)
     [L, unused, R] = svd(A, 0); %#ok
     U = L*R';
 end
 
+function A = symm(Z)
+    A = .5*(Z+Z');
+end
 
-
+function A = skew(Z)
+    A = .5*(Z-Z');
+end
