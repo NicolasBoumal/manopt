@@ -13,6 +13,12 @@ function using_gpu()
 % Contributors: 
 % Change log: 
 
+
+    if exist('OCTAVE_VERSION', 'builtin')
+        warning('manopt:usinggpu', 'Octave does not handle GPUs at this time.');
+        return;
+    end
+
     if gpuDeviceCount() <= 0
         warning('manopt:usinggpu', 'No GPU available: cannot run example.');
         return;

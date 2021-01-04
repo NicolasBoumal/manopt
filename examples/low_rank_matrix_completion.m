@@ -215,14 +215,19 @@ function low_rank_matrix_completion()
     % differences of the gradient and try to estimate its "spectrum" (it's
     % not a proper linear operator). This can give some intuition, but
     % should not be relied upon.
+    if exist('OCTAVE_VERSION', 'builtin') == 0
+        hstgrm = @histogram;
+    else
+        hstgrm = @hist;
+    end
     if problem.M.dim() < 2000
         fprintf('Computing the spectrum of the Hessian...\n');
         s = hessianspectrum(problem, X);
         subplot(1, 2, 1);
-        histogram(s);
+        hstgrm(s);
         title('Histogram of eigenvalues of the Hessian at the solution');
         subplot(1, 2, 2);
-        histogram(log10(abs(s)));
+        hstgrm(log10(abs(s)));
         title('Histogram of log_{10}(|eigenvalues|) of the Hessian at the solution');
     end
     
