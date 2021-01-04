@@ -48,7 +48,8 @@ function M = grassmanngeneralizedfactory(n, p, B)
 % Contributors:
 %
 % Change log:
-%   
+%   Jan. 4, 2021 (NB):
+%       Moved symm() function to end of file for compatibility with Octave 6.1.0
     
     assert(n >= p, ...
         ['The dimension n of the ambient space must be larger ' ...
@@ -216,9 +217,7 @@ function M = grassmanngeneralizedfactory(n, p, B)
     M.mat = @(X, u_vec) reshape(u_vec, [n, p]);
     M.vecmatareisometries = @() false;
     
-    % Some auxiliary functions
-    symm = @(D) (D + D')/2;
-    
+    % Some auxiliary functions    
     function X = guf(Y)
         % Generalized polar decomposition of an n-by-p matrix Y.
         % X'*B*X is identity.
@@ -253,4 +252,8 @@ function M = grassmanngeneralizedfactory(n, p, B)
         u = Y*(v/s); % u'*B*u is identity.
     end
     
+end
+
+function A = symm(Z)
+    A = (Z + Z')/2;
 end
