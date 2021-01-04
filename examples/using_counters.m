@@ -11,7 +11,10 @@ function using_counters()
 % Contributors: 
 % Change log: 
 
-    rng(0);
+    % Fix random seed in Matlab (this particular syntax fails in Octave).
+    if exist('OCTAVE_VERSION', 'builtin') == 0
+        rng(0);
+    end
 
     % Setup an optimization problem to illustrate the use of counters
     n = 1000;
