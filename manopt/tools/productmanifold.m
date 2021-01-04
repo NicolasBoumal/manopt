@@ -44,6 +44,13 @@ function M = productmanifold(elements)
 %   Feb. 10, 2020 (NB):
 %       Added warnings about calling egrad2rgrad and ehess2rhess without
 %       storedb and key, even if some base manifolds allow them.
+%
+%   Jan. 4, 2021 (NB):
+%       Changes for compatibility with Octave 6.1.0: by introducing a
+%       "helper" function, we separate out the pre-computations. This way,
+%       all pre-computed quantities are passed as input to the helper
+%       function. This makes them available to nested subfunctions.
+%       The extra step is not necessary in Matlab.
 
 
     elems = fieldnames(elements);
@@ -51,7 +58,49 @@ function M = productmanifold(elements)
     
     assert(nelems >= 1, ...
            'elements must be a structure with at least one field.');
+
+    % Below are some precomputations for the mat/vec pair.
+    %
+    % Gather the length of the column vector representations of tangent
+    % vectors for each of the manifolds. Raise a flag if any of the base
+    % manifolds has no vec function available.
+    vec_available = true;
+    vec_lens = zeros(nelems, 1);
+    for ii = 1 : nelems
+        Mi = elements.(elems{ii});
+        if isfield(Mi, 'vec')
+            rand_x = Mi.rand();
+            zero_u = Mi.zerovec(rand_x);
+            vec_lens(ii) = length(Mi.vec(rand_x, zero_u));
+        else
+            vec_available = false;
+            break;
+        end
+    end
+    vec_pos = cumsum([1 ; vec_lens]);
+    %
+    vecmatareisometries = vec_available;
+    for ii = 1 : nelems
+        if ~isfield(elements.(elems{ii}), 'vecmatareisometries') || ...
+           ~elements.(elems{ii}).vecmatareisometries()
+            vecmatareisometries = false;
+            break;
+        end
+    end
+    %
+    % Above are some precomputations for the mat/vec pair.
     
+    % The helper function is the actual factory.
+    M = productmanifoldhelper(elements, elems, nelems, vec_available, ...
+                              vec_pos, vecmatareisometries);
+    
+end
+
+
+function M = productmanifoldhelper(elements, elems, nelems, ...
+                                   vec_available, vec_pos, ...
+                                   vecmatareisometries)
+
     % Handy function to check if all elements provide the necessary methods
     function answer = all_elements_provide(method_name)
         answer = false;
@@ -289,25 +338,6 @@ function M = productmanifold(elements)
                                                         x2.(elems{i}));
         end
     end
-
-
-    % Gather the length of the column vector representations of tangent
-    % vectors for each of the manifolds. Raise a flag if any of the base
-    % manifolds has no vec function available.
-    vec_available = true;
-    vec_lens = zeros(nelems, 1);
-    for ii = 1 : nelems
-        Mi = elements.(elems{ii});
-        if isfield(Mi, 'vec')
-            rand_x = Mi.rand();
-            zero_u = Mi.zerovec(rand_x);
-            vec_lens(ii) = length(Mi.vec(rand_x, zero_u));
-        else
-            vec_available = false;
-            break;
-        end
-    end
-    vec_pos = cumsum([1 ; vec_lens]);
     
     if vec_available
         M.vec = @vec;
@@ -332,14 +362,6 @@ function M = productmanifold(elements)
         end
     end
 
-    vecmatareisometries = true;
-    for ii = 1 : nelems
-        if ~isfield(elements.(elems{ii}), 'vecmatareisometries') || ...
-           ~elements.(elems{ii}).vecmatareisometries()
-            vecmatareisometries = false;
-            break;
-        end
-    end
     M.vecmatareisometries = @() vecmatareisometries;    
 
 end
