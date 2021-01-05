@@ -37,13 +37,7 @@ function Y = TT_weingarten(V, Z, ind)
     V = (1 / normV) * V;
     Y.dU = cell(1, d);
 
-    % yuk = V;
 
-    % xL = TTeMPS_rand(r, n);
-    % xL.U = V.U;
-
-    % xR = TTeMPS_rand(r, n);
-    % xR.U = V.V;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Begin calculating variational components
@@ -111,21 +105,6 @@ function Y = TT_weingarten(V, Z, ind)
         ZVl = cell(1, d); % stores values of (Z<k>)^T(V_>)
         Zl = cell(1, d);  % stores values of (Z<k>)^T(X_>)
 
-        % % Computation of ZVr and Zr
-        % ZVr{d} = conj(unfold(dUR{d}, 'right')) * unfold(Z.U{d}, 'right').';
-        % Zr{d} = conj(unfold(V.U{d}, 'right')) * unfold(Z.U{d}, 'right').';
-
-        % for k = (d - 1):-1:2% recursive definition: V_k = (V_k-1)(U_k) + (X_k-1)(dU_k)
-        %     % (V_k-1)(U_k)
-        %     tmp = tensorprod(V.U{k}, ZVr{k + 1}', 3);
-        %     ZVr{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        %     % + (X_k-1)(dU_k)
-        %     tmp = tensorprod(dUR{k}, Zr{k + 1}', 3);
-        %     ZVr{k} = ZVr{k} + conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        %     % update Zr to keep up w/ recursive definition
-        %     tmp = tensorprod(V.U{k}, Zr{k + 1}', 3);
-        %     Zr{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        % end
 
         ZVr{d}  = conj(unfold(Z.U{d}, 'right')) * unfold(V.dU{d}, 'right').';
         XtVgTmp = conj(unfold(Z.U{d}, 'right')) * unfold(V.U{d},  'right').';
@@ -142,17 +121,7 @@ function Y = TT_weingarten(V, Z, ind)
         for k=1:d
             ZVr{k} = ZVr{k}';
         end
-        % XtVg{d} = conj(unfold(V.V{d}, 'right')) * unfold(V.dU{d}, 'right').';
-        % XtVgTmp = conj(unfold(V.V{d}, 'right')) * unfold(V.U{d}, 'right').';
-
-        % for k = (d - 1):-1:2
-        %     tmp = tensorprod(V.V{k}, XtVg{k + 1}', 3);
-        %     XtVg{k} = conj(unfold(tmp, 'right')) * unfold(V.U{k}, 'right').';
-
-        %     tmp2 = tensorprod(V.V{k}, XtVgTmp', 3);
-        %     XtVg{k} = XtVg{k} + conj(unfold(tmp2, 'right')) * unfold(dUR{k}, 'right').';
-        %     XtVgTmp = conj(unfold(tmp2, 'right')) * unfold(V.U{k}, 'right').';
-        % end
+   
 
         Zr{d} = conj(unfold(V.V{d}, 'right')) * unfold(Z.U{d}, 'right').';
 
@@ -221,36 +190,6 @@ function Y = TT_weingarten(V, Z, ind)
         end
         % %%%%%%%%%%%%%%%%%%%%%%%%% TESTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        % t = 2^(-12) / norm(V); % amount we want to move along V
-
-        % Xplus = TTeMPS(V.U);
-
-        % for k = 1:d
-        %     Xplus.U{k} = Xplus.U{k} + t * dUR{k};
-        % end
-
-        % ZPP{d} = conj(unfold(Xplus.U{d}, 'right')) * unfold(Z.U{d}, 'right').';
-
-        % for k = (d - 1):-1:2
-        %     tmp = tensorprod(Xplus.U{k}, ZPP{k + 1}', 3);
-        %     ZPP{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        % end
-
-        % Zr{d} = conj(unfold(V.U{d}, 'right')) * unfold(Z.U{d}, 'right').';
-
-        % for k = (d - 1):-1:2
-        %     tmp = tensorprod(V.U{k}, Zr{k + 1}', 3);
-        %     Zr{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        % end
-
-        % % for k = (d - 1):-1:2
-        % %     tmp = tensorprod(Xplus.U{k}, ZPP{k + 1}', 3);
-        % %     ZPP{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
-        % % end
-
-
-        % norm((ZPP{3} - Zr{3}) / t - ZVr{3}) / norm(ZVr{3})
-        % pause;
 
         % 1st and last cases special, so they're computed outside the loop
         UL  = unfold(V.U{1}, 'left');
@@ -293,7 +232,6 @@ function Y = TT_weingarten(V, Z, ind)
             dUL = unfold(dUR{k}, 'left');
 
             for m = 1:(k - 1)
-                % XtZ = crossTermMatrixLeft(k, m, ZZ, V);
                 VtZ = crossTermVariational(k, m, ZZ, dUR{m}, V);
                 projUVtZ = VtZ - UL * (UL' * VtZ);
 
@@ -449,7 +387,6 @@ function Y = TT_weingarten(V, Z, ind)
             U  = unfold(V.U{k},  'left');
             dU = unfold(V.dU{k}, 'left');
             vZ{k} = vZ{k} - U * (U' * vZ{k});
-            % vZtmp{k} = dU * U' * vZtmp{k};
 
             vZ{k} = vZ{k} - dU * U' * ZZ{k};
 
@@ -461,7 +398,6 @@ function Y = TT_weingarten(V, Z, ind)
 
         Y.dU{d} = vZ{d};
 
-        % Y.dU{d} = reshape(vZ{d}, [r(d), n(d), 1]);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%                  CROSS TERMS                 %%%%%%%%%%%%%%%%%%
@@ -483,21 +419,16 @@ function Y = TT_weingarten(V, Z, ind)
             dUL = unfold(V.dU{k}, 'left');
 
             for m = 1:(k - 1)
-                % XtZ = crossTermMatrixLeft(k, m, ZZ, V);
                 VtZ = crossTermVariational(k, m, ZZ, dUR{m}, V);
 
                 projUVtZ = VtZ - UL * (UL' * VtZ);
 
-                Y.dU{k} = Y.dU{k} - projUVtZ; %+ dUL * XtZ;
-
-                % Y.dU{k} = Y.dU{k} - (projUk * kron(eye(n(k)), Vllk') - dUkL * Xlek') * Zkm;
+                Y.dU{k} = Y.dU{k} - projUVtZ; 
             end
 
             for m = (k + 1):d
                 ZtX = crossTermMatrixRight(k + 1, m, ZZ, V);
                 Y.dU{k} = Y.dU{k} + dUL * ZtX;
-
-                %         Y.dU{k} = Y.dU{k} + dUkL * Zkm' * Xg{k+1};
             end
 
         end
@@ -507,8 +438,6 @@ function Y = TT_weingarten(V, Z, ind)
             VtZ = crossTermVariational(d, m, ZZ, dUR{m}, V);
 
             Y.dU{d} = Y.dU{d} - VtZ;
-
-            %     Y.dU{d} = Y.dU{d} - kron(eye(n(d)), Vlld') * Zkm;
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FINAL RESHAPE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -535,7 +464,6 @@ function Y = TT_weingarten(V, Z, ind)
         %%%%%%%%%%%%%%%               DIAGONAL TERMS                 %%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        % if 1==1% Full weingarten map (no internal finite differences)
         [ZZ, vZ, Zv] = weingarten_omega(n, r, CU, CV, CdUR, ind.', Z);
 
         for k = 1:d
@@ -552,7 +480,6 @@ function Y = TT_weingarten(V, Z, ind)
 
 
             
-            % if 1==1
 
         % 1st and last cases special, so they're computed outside the loop
         UL  = unfold(V.U{1}, 'left');
@@ -576,134 +503,6 @@ function Y = TT_weingarten(V, Z, ind)
 
         Y.dU{d} = vZ{d};
 
-            % else
-            %     % 1st and last cases special, so they're computed outside the loop
-            %     UL = unfold(V.U{1}, 'left');
-            %     dUL = unfold(dUR{1}, 'left');
-
-            %     % right variational term without (I - UU^T) projection
-            %     rightV = (-1*ZZ{1} * XtVg{2}) / R{1};
-            %     Y.dU{1} = -dUL * UL' * ZZ{1} + rightV - UL * (UL' * rightV);
-
-            %     for k = 2:(d - 1)
-            %         UL = unfold(V.U{k}, 'left');
-            %         dUL = unfold(dUR{k}, 'left');
-
-            %         % right variational term without (I - UU^T) projection
-            %         rightV = (-1*ZZ{k} * XtVg{k + 1}) / R{k};
-            %         Y.dU{k} = -1*dUL * UL' * ZZ{k} + rightV - UL * (UL' * rightV);
-            %         % norm(vZ{k} - UL * (UL' * vZ{k}) + (Zv{k} - UL * (UL' * Zv{k})) / R{k}) / norm(V)
-            %         % norm(V)
-            %     end
-
-
-            %     Y.dU{d} = zeros(n(d)*r(d),1);...vZ{d};
-
-            % end
-
-        % else % internal finite differences
-        %     disp('IF YOU SEE THIS, YOURE USING INTERNAL FINITE DIFF')
-        %     t = 2^(-12) / norm(V); % amount we want to move along V
-
-        %     Xplus = TTeMPS(V.U);
-
-        %     for k = 1:d
-        %         Xplus.U{k} = Xplus.U{k} + t * dUR{k};
-        %     end
-
-        %     % re-inforce left-orthogonal condition
-        %     % Xplus = orthogonalize((1/t)*Xplus, d);
-
-        %     % Pre-calculate all R-components as needed for tangent space conversion
-        %     Rplus = cell(1, d - 1);
-        %     % Intermediary used to calculate R-terms for re-orthogonalization
-        %     XplusR = Xplus;
-
-        %     for k = d:-1:2
-
-        %         sz = size(XplusR.U{k});
-
-        %         if length(sz) == 2
-        %             sz = [sz, 1];
-        %         end
-
-        %         [Q, Rplus{k - 1}] = qr_unique(unfold(XplusR.U{k}, 'right')');
-        %         XplusR.U{k} = reshape(Q', [size(Q, 2), sz(2), sz(3)]);
-
-        %         XplusR.U{k - 1} = tensorprod(XplusR.U{k - 1}, Rplus{k - 1}, 3);
-        %     end
-
-        %     % permuted U, V, and dU cells for the efficient computation in C
-        %     CplusU = cell(1, d);
-        %     CplusV = cell(1, d);
-
-        %     for k = 1:d
-        %         CplusU{k} = permute(Xplus.U{k}, [1 3 2]);
-        %         CplusV{k} = permute(XplusR.U{k}, [1 3 2]);
-        %     end
-
-        %     Xplusproj = TTeMPS_tangent_orth_omega(n, r, CplusU, CplusV, ind.', Z);
-
-        %     % transform back to original permutation, flattened
-        %     for k = 1:d
-        %         inner_dU{k} = reshape(inner_dU{k}, [r(k), r(k + 1), n(k)]);
-        %         inner_dU{k} = unfold(permute(inner_dU{k}, [1 3 2]), 'left');
-
-        %         Xplusproj{k} = reshape(Xplusproj{k}, [r(k), r(k + 1), n(k)]);
-        %         Xplusproj{k} = unfold(permute(Xplusproj{k}, [1 3 2]), 'left');
-        %     end
-
-        %     % 1st and last cases special, so they're computed outside the loop
-        %     UL = unfold(V.U{1}, 'left');
-        %     dUL = unfold(V.dU{1}, 'left');
-        %     % finite diff to estimate Zv{1} / R{1}
-        %     finDiff = Xplusproj{1} * ((1 / t) * (Rplus{1} / R{1})) - (1 / t) * inner_dU{1};
-        %     % right variational term without (I - UU^T) projection
-        %     rightV = finDiff - (inner_dU{1} * XtVg{2}) / R{1};
-
-        %     Y.dU{1} = -dUL * UL' * inner_dU{1} + rightV - UL * (UL' * rightV);
-
-        %     for k = 2:(d - 1)
-        %         UL = unfold(V.U{k}, 'left');
-        %         dUL = unfold(V.dU{k}, 'left');
-
-        %         % finite diff to estimate vZ{k} + Zv{k} / R{k}
-        %         finDiff = Xplusproj{k} * ((1 / t) * (Rplus{k} / R{k})) - (1 / t) * inner_dU{k};
-        %         % terms with vZ and Zv terms without (I - UU^T) projection
-        %         variational = finDiff - (inner_dU{k} * XtVg{k + 1}) / R{k};
-
-        %         Y.dU{k} = -1 * dUL * UL' * inner_dU{k} + variational - UL * (UL' * variational);
-        %     end
-
-        %     % finite diff to estimate vZ{d}
-        %     finDiff = (1 / t) * (Xplusproj{d} - inner_dU{d});
-        %     Y.dU{d} = finDiff;
-
-
-        %     ZZ = inner_dU; % cross term calculation uses ZZ as the name for these
-
-        % end
-
-        % difv = Xplusproj{1} * ((1/t)*(Rplus{1} / R{1})) -  (1/t) * inner_dU{1};
-        % U = unfold(V.U{1}, 'left');
-        % difv = difv - U * (U' * difv);
-        % analy = Zv{1} / R{1};
-        % analy = analy - U * (U' * analy);
-        % norm(difv - analy, 'fro')
-        % for k = 2:(d-1)
-        %     difv = Xplusproj{k} * ((1/t)*(Rplus{k} / R{k})) - (1/t) * inner_dU{k};
-        %     U = unfold(V.U{k}, 'left');
-        %     difv = difv - U * (U' * difv);
-        %     analy = vZ{k} + Zv{k} / R{k};
-        %     analy = analy - U * (U' * analy);
-        %     norm(difv - analy, 'fro')
-        % end
-        % difv = (1/t)*(Xplusproj{d} - inner_dU{d});
-        % norm(difv - vZ{d}, 'fro')
-
-        % pause;
-
-        % transform back to original permutation, flattened
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%                  CROSS TERMS                 %%%%%%%%%%%%%%%%%%
