@@ -143,7 +143,7 @@ function M = fixedTTrankfactory(n, r, ind)
     % barely affect Z (it would not at all if we had infinite numerical
     % accuracy).
     M.tangent = @tangent;
-    function Z = tangent(X, Zin, Xr)
+    function Z = tangent(X, Zin)
         % Project to normal spaces of U^L for all but the last core
         Z = Zin; % this copies the TTeMPS_tangent_orth class structure
         for k = 1:(d-1)
@@ -232,6 +232,11 @@ function M = fixedTTrankfactory(n, r, ind)
 
     % Retraction for the fixed TT - rank manifold
     M.retr = @retraction;
+
+    % NOTE: X not used in the function because Z is
+    % a structure that contains all information of
+    % X. X is kept as an argument to keep consistency
+    % with standard manifold factory format
     function Y = retraction(X, Z, t) %#ok<INUSL>
 
         if nargin < 3
@@ -239,7 +244,7 @@ function M = fixedTTrankfactory(n, r, ind)
         end
 
         Y = tangentAdd(Z, t, true);
-        Y = orthogonalize(Y, d); % ?
+        Y = orthogonalize(Y, d);
 
     end
 
@@ -257,9 +262,17 @@ function M = fixedTTrankfactory(n, r, ind)
     % useful to apply 'tangent' to the output of 'mat'.
     M.vec = @vec;
     function Zvec = vec(X, Z) %#ok<INUSL>
-        Zvec = Z.dU{1}(:);
-        for k = 2:d
-            Zvec = [Zvec; Z.dU{k}(:)];
+        X_size = 0;
+        for k = 1:d
+            X_size = X_size + numel(Z.dU{k});
+        end
+        Zvec = zeros(X_size,1);
+        index = 1;
+        ind_step = numel(Z.dU{1});
+        for k = 1:d
+            Zvec(index:index+ind_step-1) = Z.dU{index}(:);
+            index = index 1;
+            ind_step = numel(Z.dU{index});
         end
     end
 
