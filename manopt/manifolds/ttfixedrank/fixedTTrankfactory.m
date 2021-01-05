@@ -271,7 +271,7 @@ function M = fixedTTrankfactory(n, r, ind)
         ind_step = numel(Z.dU{1});
         for k = 1:d
             Zvec(index:index+ind_step-1) = Z.dU{index}(:);
-            index = index 1;
+            index = index + 1;
             ind_step = numel(Z.dU{index});
         end
     end
