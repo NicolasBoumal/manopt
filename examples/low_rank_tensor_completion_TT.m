@@ -1,14 +1,29 @@
-% Script that runs a tensor completion problem, where tensors are controlled
-% by a low Tensor-Train rank.
+function low_rank_tensor_completion_TT()
+% Example file for the manifold encoded in fixedTTrankfactory.
+%
+% The script runs a tensor completion task, where tensors are controlled
+% by a low Tensor-Train rank. The factory fixedTTrankfactory rests heavily
+% on TTeMPS 1.1 (slightly modified for Manopt), coded by M. Steinlechner.
+% See manopt/manifolds/ttfixedrank/TTeMPS_1.1/ for license and installation
+% instruction (in particular, certain MEX files may require compiling).
+%
+% This script generates results from figure 1 of the following paper:
+%   Michael Psenka and Nicolas Boumal
+%   Second-order optimization for tensors with fixed tensor-train rank
+%   NeurIPS OPT2020 workshop
+%   https://arxiv.org/abs/2011.13395
+%
+% See also: fixedTTrankfactory
 
-% Generates results from figure 1 of main paper:
-% (arxiv link)
-
-% Clear workspace in MATLAB
-clear all; close all; clc;
+% This file is part of Manopt and is copyrighted. See the license file.
+%
+% Main author: Michael Psenka, Jan. 6, 2021
+% Contributors: Nicolas Boumal
+%
+% Change log:
 
 % Set the random seed for reproducible results.
-rng(15);
+% rng(15);
 
 % order of the tensors
 d = 9;
@@ -24,7 +39,8 @@ omegaRatio_ = 0.1;
 
 prob_dist = [1 1 1 1];
 
-count = 10;
+% How many times should the experiments be run? Set to 10 in the paper.
+count = 1;
 
 % create a cell for storing final output tensors for each method.
 % Want number dependent on whether we vary the ranks or the omega ratios
@@ -167,9 +183,7 @@ lightblue(end + 1) = 0.7;
 midred(end + 1) = 0.7;
 midblue(end + 1) = 0.7;
 
-close all;
-
-hold off
+figure;
 
 for k = 1:count
     A = targets_{k};
@@ -182,16 +196,11 @@ for k = 1:count
     semilogy(stats_als{k}.time, test_als{k}, 'color', lightblue, 'linewidth', 2)
 end
 
-hold on
 legend({'FD-TR', 'RTR', 'RTTC', 'ALS'})
 xlabel('Time (s)')
 ylabel('Test Cost')
 
-pause;
-
-close all;
-
-hold off
+figure;
 
 for k = 1:count
     A = targets_{k};
@@ -204,15 +213,12 @@ for k = 1:count
     semilogy(stats_als{k}.time, cost_als{k}, 'color', lightblue, 'linewidth', 2)
 end
 
-hold on
 legend({'FD-TR', 'RTR', 'RTTC', 'ALS'})
 xlabel('Time (s)')
 ylabel('Training Cost')
 
-pause;
 
-close all;
-hold off
+figure;
 
 for k = 1:count
     A = targets_{k};
@@ -224,12 +230,12 @@ for k = 1:count
     semilogy(stats_tt{k}.time, (stats_tt{k}.gradnorm) / stats_tt{k}.gradnorm(1), 'color', lightred, 'linewidth', 2)
 end
 
-hold on
 legend({'FD-TR', 'RTR', 'RTTC'})
 xlabel('Time (s)')
 ylabel('Gradient Norm')
 
-pause;
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

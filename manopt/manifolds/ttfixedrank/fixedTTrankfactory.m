@@ -3,7 +3,7 @@ function M = fixedTTrankfactory(n, r, ind)
 % 
 % NOTE: this manifold requires the use of a modified version of TTeMPS_1.1,
 % which is packaced with Manopt and can be found in 
-% manopt/manopt/manifolds/ttfixedrank/TTeMPS_1.1
+% /manopt/manifolds/ttfixedrank/TTeMPS_1.1/
 % 
 % function M = fixedTTrankfactory(n, r)
 % function M = fixedTTrankfactory(n, r, ind)
@@ -39,11 +39,12 @@ function M = fixedTTrankfactory(n, r, ind)
 %   https://infoscience.epfl.ch/record/217938?ln=en
 % TTeMPS also comes from that work.
 %
-% The second-order Riemannien geometry (necessary for the ehess2rhess tool)
+% The second-order Riemannian geometry (necessary for the ehess2rhess tool)
 % is described in the following paper:
 %   Psenka and Boumal,
 %   Second-order optimization for tensors with fixed tensor-train rank,
 %   Optimization workshop at NeurIPS 2020.
+%   https://arxiv.org/abs/2011.13395
 % 
 % Please cite the Manopt paper as well as the relevant research papers.
 % 
