@@ -11,6 +11,11 @@ function [eta] = precond_laplace_noSaddle( L, xi, xL, xR )
     n = xi.size;
     d = xi.order;
 
+    if nargin == 2
+        xL = TTeMPS(xi.U);
+        xR = TTeMPS(xi.V);
+    end
+
     %L = repmat({L.L0}, 1, d); % for now, all L are the same
 
     % left side matrices. Solved later by Kronecker structure for core 2,... d

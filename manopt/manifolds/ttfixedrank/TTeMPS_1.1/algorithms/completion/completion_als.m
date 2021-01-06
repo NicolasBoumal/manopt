@@ -29,7 +29,7 @@ function [X,cost,test,stats] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X
     X = orthogonalize( X, 1 );
 
     t = tic;
-    stats.time = [];
+    stats.time = [0];
     stats.conv = false;
 
 	for i = 1:opts.maxiter
@@ -44,16 +44,16 @@ function [X,cost,test,stats] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X
             X = orth_at( X, mu, 'left' );
         end
 		cost(2*i-1) = sqrt(2*func(A_Omega, X, Omega)) / norm_A_Omega;
-		test(2*i-1) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
-        fprintf(1,'\nFinished forward sweep.\n    Cost: %e\n    Test: %e\n', cost(2*i-1), test(2*i-1) );
+		
 
         if cost(2*i-1) < opts.tol 
             disp(sprintf('CONVERGED AFTER %i HALF-SWEEPS. Rel. residual smaller than %0.3g', ...
                           2*i-1, opts.tol))
             stats.conv = true;
             cost = cost(1:2*i-1,1);
+            stats.time = [stats.time stats.time(end)+toc(t)];
+            test(2*i-1) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
             test = test(1:2*i-1,1);
-            stats.time = [stats.time toc(t)];
             break
         end
 
@@ -64,14 +64,18 @@ function [X,cost,test,stats] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X
                               i, opts.reltol))
                 stats.conv = false;
                 cost = cost(1:2*i-1,1);
+                stats.time = [stats.time stats.time(end)+toc(t)];
+                test(2*i-1) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
                 test = test(1:2*i-1,1);
-                stats.time = [stats.time toc(t)];
                 break
             end
         end
 
-        stats.time = [stats.time toc(t)];
+        stats.time = [stats.time stats.time(end)+toc(t)];
+        test(2*i-1) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
+        t = tic;
 
+        fprintf(1,'\nFinished forward sweep.\n    Cost: %e\n    Test: %e\n', cost(2*i-1), test(2*i-1) );
         % ===================
         % BACKWARD SWEEP:
         % ===================
@@ -83,16 +87,16 @@ function [X,cost,test,stats] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X
         end
 
 		cost(2*i) = sqrt(2*func(A_Omega, X, Omega)) / norm_A_Omega;
-		test(2*i) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
-        fprintf(1,'\nFinished backward sweep.\n    Cost: %e\n    Test: %e\n', cost(2*i), test(2*i) );
+		
 
         if cost(2*i) < opts.tol
             disp(sprintf('CONVERGED AFTER %i HALF-SWEEPS. Rel. residual smaller than %0.3g', ...
                           2*i, opts.tol))
             stats.conv = true;
             cost = cost(1:2*i,1);
+            stats.time = [stats.time stats.time(end)+toc(t)];
+            test(2*i) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
             test = test(1:2*i,1);
-            stats.time = [stats.time toc(t)];
             break
         end
         
@@ -103,20 +107,26 @@ function [X,cost,test,stats] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X
                               2*i, opts.reltol))
                 stats.conv = false;
                 cost = cost(1:2*i,1);
+                stats.time = [stats.time stats.time(end)+toc(t)];
+                test(2*i) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
                 test = test(1:2*i,1);
-                stats.time = [stats.time toc(t)];
                 break
             end
         end
 
-        stats.time = [stats.time toc(t)];
+        stats.time = [stats.time stats.time(end)+toc(t)];
+        test(2*i) = sqrt(2*func(A_Gamma, X, Gamma)) / norm_A_Gamma;
+        t = tic;
+        fprintf(1,'\nFinished backward sweep.\n    Cost: %e\n    Test: %e\n', cost(2*i), test(2*i) );
         
         
         disp('_______________________________________________________________')
     end
 
-    
-    
+    % This is to match original shape of stats.time, since we artificially start w/ [0]
+    % for consistency in how we count time
+    stats.time = stats.time(2:end);
+
 end
 
 

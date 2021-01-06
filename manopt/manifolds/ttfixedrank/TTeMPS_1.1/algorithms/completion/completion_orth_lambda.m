@@ -10,7 +10,7 @@
 %   Michael Steinlechner, 2013-2016
 %   Questions and contact: michael.steinlechner@epfl.ch
 %   BSD 2-clause license, see LICENSE.txt
-function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma, X, opts )
+function [xL,cost,test,stats] = completion_orth_lambda( A_Omega, Omega, A_Gamma, Gamma, X, opts, lambda )
 	
     if ~isfield( opts, 'maxiter');  opts.maxiter = 100;     end
     if ~isfield( opts, 'cg');       opts.cg = true;         end
@@ -21,6 +21,8 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
 	
 
     n = X.size;
+    nn = prod(n);
+    sizeOmega = numel(A_Omega);
 	r = X.rank;
 	
 	xL = X;
@@ -30,18 +32,20 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
     norm_A_Gamma = norm( A_Gamma );
 	
 	cost = zeros(opts.maxiter,1);
-    test = zeros(opts.maxiter,1);
-    stats.gradnorm = zeros(opts.maxiter,1);
+	test = zeros(opts.maxiter,1);
 
     t = tic;
-    stats.time = [0];
+    stats.time = [];
     stats.conv = false;
 
 	for i = 1:opts.maxiter
 		grad = euclidgrad(A_Omega, xL, Omega);
-		xi = TTeMPS_tangent_orth(xL, xR, grad, Omega);
-        ip_xi_xi = innerprod(xi, xi);
-        stats.gradnorm(i) = sqrt(abs(ip_xi_xi));
+        xi = TTeMPS_tangent_orth(xL, xR, grad, Omega);
+        
+        % This is where we add normalization
+        d = xL.order;
+        xi.dU{d} = xi.dU{d} + (lambda * sizeOmega / nn) * xL.U{d};
+		ip_xi_xi = innerprod(xi, xi);
 
         if sqrt( abs(ip_xi_xi) ) < opts.gradtol 
             if cost(i) < opts.tol
@@ -54,10 +58,7 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
             end
             cost = cost(1:i,1);
             test = test(1:i,1);
-            stats.gradnorm = stats.gradnorm(1:i,1);
-
-            stats.time = [stats.time stats.time(end) + toc(t)];
-            stats.time = stats.time(2:end);
+            stats.time = [stats.time toc(t)];
             return
         end
 
@@ -76,26 +77,24 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
 			end
 		end
 		
-		%line search
+        %line search
+        % Note we have to include normalization for this explicit line search
 		eta_Omega = at_Omega( eta, Omega );
-		alpha = -(eta_Omega'*grad) / norm(eta_Omega)^2;
+		alpha = -(eta_Omega'*grad + (lambda * sizeOmega / nn) * xL.U{d}(:)' * eta.dU{d}(:)) / (norm(eta_Omega)^2 + (lambda * sizeOmega / nn) * innerprod(eta, eta));
 		
 		X = tangentAdd( eta, alpha, true );
 		xL = orthogonalize( X, X.order );
 		xR = orthogonalize( X, 1 );
-        cost(i) = sqrt(2*func(A_Omega, xL, Omega )) / norm_A_Omega;
-        
+		cost(i) = sqrt(2*func(A_Omega, xL, Omega )) / norm_A_Omega;
+		test(i) = sqrt(2*func(A_Gamma, xL, Gamma )) / norm_A_Gamma;
 
         if cost(i) < opts.tol
             disp(sprintf('CONVERGED AFTER %i STEPS. Rel. residual smaller than %0.3g', ...
                           i, opts.tol))
             stats.conv = true;
             cost = cost(1:i,1);
-            stats.gradnorm = stats.gradnorm(1:i,1);
-            stats.time = [stats.time stats.time(end)+toc(t)];
-            test(i) = sqrt(2*func(A_Gamma, xL, Gamma )) / norm_A_Gamma;
             test = test(1:i,1);
-            stats.time = stats.time(2:end);
+            stats.time = [stats.time toc(t)];
             return
         end
 
@@ -112,11 +111,8 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
                 end
 
                 cost = cost(1:i,1);
-                stats.gradnorm = stats.gradnorm(1:i,1);
-                stats.time = [stats.time stats.time(end)+toc(t)];
-                test(i) = sqrt(2*func(A_Gamma, xL, Gamma )) / norm_A_Gamma;
                 test = test(1:i,1);
-                stats.time = stats.time(2:end);
+                stats.time = [stats.time toc(t)];
                 return
             end
         end
@@ -124,12 +120,8 @@ function [xL,cost,test,stats] = completion_orth( A_Omega, Omega, A_Gamma, Gamma,
 		ip_xi_xi_old = ip_xi_xi;
 		xi_trans = TTeMPS_tangent_orth( xL, xR, xi );
 
-        stats.time = [stats.time stats.time(end)+toc(t)];
-        test(i) = sqrt(2*func(A_Gamma, xL, Gamma )) / norm_A_Gamma;
-        t = tic;
-    end
-    
-    stats.time = stats.time(2:end);
+        stats.time = [stats.time toc(t)];
+	end
 
     
 

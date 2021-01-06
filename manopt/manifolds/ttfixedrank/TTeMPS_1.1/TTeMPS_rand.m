@@ -10,7 +10,6 @@ function x = TTeMPS_rand( r, n )
     %   Michael Steinlechner, 2013-2016
     %   Questions and contact: michael.steinlechner@epfl.ch
     %   BSD 2-clause license, see LICENSE.txt
-
     
     if length(r) ~= length(n)+1
         error('Size mismatch in arguments')
@@ -18,7 +17,7 @@ function x = TTeMPS_rand( r, n )
 
     U = cell(1, length(n));
     for i=1:length(n)
-        U{i} = rand( r(i), n(i), r(i+1) );
+        U{i} = randn( r(i), n(i), r(i+1) );
     end
     x = TTeMPS( U );
 end

@@ -13,7 +13,7 @@ function x = truncate( x, r )
     x = x.orthogonalize( x.order );
 
     for i = x.order:-1:2
-        [U,S,V] = svd( unfold( x.U{i}, 'right'), 'econ' );
+        [U,S,V] = svd( unfold( x.U{i}, 'right'), 'econ');
         s = min( r(i), length(S));
         U = U(:,1:s);
         V = V(:,1:s);

@@ -11,18 +11,19 @@
 
 clear all;
 close all;
+clc;
 
 rng(11);
 n = 20;
 d = 5;
-r = 10;
+r = 5;
 
 nn = n*ones(1,d);
-%rr = [1, r*ones(1,d-1), 1];
+% rr = [1, r*ones(1,d-1), 1];
 rr = [1 15 20 20 15 1];
 
 % Choose one.
-%operatorname = 'diffusion';
+% operatorname = 'diffusion';
 operatorname = 'newton';
 
 if strcmpi(operatorname,'diffusion')
@@ -38,7 +39,7 @@ filename = [operatorname, '_d', num2str(d), '_n', num2str(n), '_r', num2str(r)];
 
 if ~exist(['amen/', filename, '.mat'],'file')
 
-    rng(11);
+    % rng(11);
 
     % Lapl_op   : pure dD Laplacian as TTeMPS_op_laplace for preconditioning
     Riem_CG_TOL = 1e-5; % can be low
@@ -65,8 +66,57 @@ if ~exist(['amen/', filename, '.mat'],'file')
 
     % One micro step of ALS decreases the error by a huge
     % factor. Make the result of one micro step the initial guess.
-    X0 = construct_initial_guess(A, F, rr, nn);
-    X0_amen = construct_initial_guess(A, F, [1,1*ones(1,d-1),1], nn);
+    % X0 = construct_initial_guess(A, F, rr, nn);
+    X0 = TTeMPS_rand(rr, nn);
+    X0_amen = X0;...construct_initial_guess(A, F, [1,1*ones(1,d-1),1], nn);
+
+    %%%%%%%%%%%%%%%%%%%%%%% MANOPT NEW TEST CASE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    disp('Now testing: Trust Regions!!')
+
+    % Initialize TT fixed rank factory
+    TT = fixedTTrankfactory(nn, rr);
+
+    % Set up problem in Manopt
+    problem.M = TT;
+
+    % Setting up the original tensor competion problem for Manopt
+    problem.cost = @(x) cost_lin(x, A, F);
+    problem.egrad = @(x) euclidgrad(x, A, F);
+    problem.ehess = @(x, u) euclidhess(u, A);
+    % problem.precon = @(x, u) precond_laplace_noSaddle(prec_P_op, u);
+    
+    alpha_0 = 1;
+
+    options.Delta0 = alpha_0;
+    options.Delta_bar = 1e50;
+    options.maxiter = 400;
+    options.maxinner = 1000;
+    options.maxtime = inf;
+    options.tolgradnorm = 1e-10;
+    % Collects cost on test points throughout iterations
+    % options.statsfun = @(problem, x, stats) stats_test(problem, x, stats, A_Gamma, Gamma);
+
+    checkgradient(problem);
+    checkhessian(problem);
+    pause;
+
+    % [xL, costManopt, stats] = trustregions(problem, X0, options);
+
+    % norm(xL)
+    pause;
+
+    % alpha_0 = 1;
+
+    % options.Delta0 = alpha_0;
+    % options.Delta_bar = 1e50;
+    % options.maxiter = 400;
+    % options.maxinner = 1000;
+    % options.maxtime = inf;
+    % options.tolgradnorm = 1e-10;
+
+    % problem.ehess = @(x, u) euclidhess(u, A);
+
+    % [xL2, costManopt, stats] = trustregions(problem, xL, options);
 
     % ==============================
     % TEST CASE 1: SIMPLE AMEn
@@ -81,6 +131,13 @@ if ~exist(['amen/', filename, '.mat'],'file')
     tic
     [X_amen_prec1, residuum_amen_prec1, cost_amen_prec1, times_amen_prec1] = amen_fast( A, F, X0_amen, opts )
     t_amen_prec1 = toc;
+    norm(X_amen_prec1)
+    pause;
+
+    [xL, costManopt, stats] = trustregions(problem, X_amen_prec1, options);
+
+    norm(xL)
+    pause;
 
     % ==============================
     % TEST CASE 1: SIMPLE AMEn
@@ -95,6 +152,8 @@ if ~exist(['amen/', filename, '.mat'],'file')
     tic
     [X_amen_prec2, residuum_amen_prec2, cost_amen_prec2, times_amen_prec2] = amen_fast( A, F, X0_amen, opts )
     t_amen_prec2 = toc;
+    norm(X_amen_prec2)
+    pause;
     
     
     % ==============================
@@ -140,6 +199,9 @@ if ~exist(['amen/', filename, '.mat'],'file')
                    'X_amen_prec2','residuum_amen_prec2', 'cost_amen_prec2', 'times_amen_prec2', ...
                    'X_SD1','residuum_SD1', 'gradnorm_SD1', 'cost_SD1', 'times_SD1', ...
                    'X_tn', 'residuum_tn', 'gradnorm_tn', 'cost_tn', 'times_tn')
+
+
+    
 else
     load(['amen/', filename, '.mat'])
 end
@@ -240,3 +302,19 @@ xlabel('Time [s]')
 ylabel('Relative residual')
 set(gca,'fontsize',16)
 ylim([1e-10,1e1])
+
+
+function c = cost_lin(X, A, F)
+    grad = euclidgrad(X, A, F);
+    c = 0.5 * innerprod( X, grad);
+end
+
+
+function g = euclidgrad(X, A, F)
+    g = (1/ (20^5))*(apply(A, X) - F);
+end
+
+function h = euclidhess(u, A)
+    uTT = tangent_to_TTeMPS(u);
+    h = (1/ (20^5))*apply(A, uTT);
+end
