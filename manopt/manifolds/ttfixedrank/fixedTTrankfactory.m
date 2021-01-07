@@ -81,7 +81,7 @@ function M = fixedTTrankfactory(n, r, ind)
     M.rand = @random;
     function X = random()
         % Gaussian random cores
-        X = TTeMPS_rand(r, n);
+        X = TTeMPS_randn(r, n);
         % Left-orthogonalize X
         X = orthogonalize(X, d);
         % Normalize (efficient transformation to unit norm)
@@ -225,12 +225,11 @@ function M = fixedTTrankfactory(n, r, ind)
         Z_TT = tangent_to_TTeMPS(Z);
     end
 
-    % It would be useful to implement the following efficienctly.
-    % 
-    % M.tangent2ambient = @tangent2ambient;
-    % function Zamb = tangent2ambient(X, Z)
-    %     ...
-    % end
+    % It would be useful to implement the following more efficiently...
+    M.tangent2ambient = @tangent2ambient;
+    function Zamb = tangent2ambient(X, Z) %#ok<INUSL>
+        Zamb = full(Z);
+    end
 
     % Retraction for the fixed TT - rank manifold
     M.retr = @retraction;
@@ -250,7 +249,7 @@ function M = fixedTTrankfactory(n, r, ind)
 
     end
 
-    % Vector transport(see Steinleichner's thesis)
+    % Vector transport (see Steinlechner's thesis)
     % Computes a tangent vector at X2 that "looks like" the tangent vector
     % Z1 at X1. This is not necessarily a parallel transport.
     M.transp = @project_tangent;

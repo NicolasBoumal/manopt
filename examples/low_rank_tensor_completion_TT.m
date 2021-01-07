@@ -95,7 +95,7 @@ for p = 1:count
     omegas_{p} = Omega;
     gammas_{p} = Gamma;
 
-    A = TTeMPS_rand(rTarg, n);
+    A = TTeMPS_randn(rTarg, n);
     targets_{p} = A;
 
     % vector representing observed points of A at Omega and Gamma
@@ -103,7 +103,7 @@ for p = 1:count
     A_Gamma = A(Gamma);
 
     % Starting point for optimization. Forced to be unit norm
-    X0 = TTeMPS_rand(r, n);
+    X0 = TTeMPS_randn(r, n);
     X0 = (1 / norm(X0)) * X0;
     X0 = orthogonalize(X0, X0.order);
 
