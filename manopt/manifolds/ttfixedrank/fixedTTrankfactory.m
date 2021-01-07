@@ -267,13 +267,18 @@ function M = fixedTTrankfactory(n, r, ind)
         for k = 1:d
             X_size = X_size + numel(Z.dU{k});
         end
+        % initialize full flattened vector in memory
         Zvec = zeros(X_size,1);
-        index = 1;
+        % starting index to fill Zvec
+        ind_start = 1;
+        % how many entries to fill Zvec
         ind_step = numel(Z.dU{1});
         for k = 1:d
-            Zvec(index:index+ind_step-1) = Z.dU{index}(:);
-            index = index + 1;
-            ind_step = numel(Z.dU{index});
+            Zvec(ind_start:ind_start+ind_step-1) = Z.dU{k}(:);
+            ind_start = ind_start+ind_step;
+            if k < d % avoids indexing error at end of loop
+                ind_step = numel(Z.dU{k+1});
+            end
         end
     end
 
