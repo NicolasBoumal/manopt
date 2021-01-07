@@ -101,7 +101,6 @@ function M = fixedTTrankfactory(n, r, ind)
 
     % Creates random unit norm tangent vector at X on manifold.
     % Optional argument Xr of right-orthogonalized X.
-    % TODO name randvec and use randn
     M.randvec = @randomTangent;
     function Z = randomTangent(X, Xr)
         if nargin == 1
@@ -109,8 +108,19 @@ function M = fixedTTrankfactory(n, r, ind)
             Xr = orthogonalize(X, 1); % right-orthogonalized version of X
         end
 
-        % Two arguments --> random unit-norm tangent vector
-        Z = TTeMPS_tangent_orth(X, Xr);
+        % Returns tangent vector structure with Gaussian random cores
+        Z_struc = TTeMPS_tangent_orth(X, Xr);
+
+        % Note: the cores do not necessarily satisfy the gauge conditions
+        % for tanget vectors (see Steinlechner's PhD thesis Sec. 4.4)
+        % Enforcing these conditions is implemented in tangent(X, Z)
+        Z = tangent(X, Z_struc);
+
+        % Note that ||Z|| = ||Z.dU{d}||_F \ne 1 in general after the call
+        % to tangent. We then need to renormalize.
+
+        Z = (1/norm(Z))*Z;
+
     end
 
     M.zerovec = @zeroVector;
