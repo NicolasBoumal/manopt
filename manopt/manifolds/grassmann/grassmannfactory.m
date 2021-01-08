@@ -78,6 +78,10 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %
 %   Nov. 13, 2019 (NB):
 %       Added pairmean function.
+%
+%   Jan. 8, 2021 (NB)
+%       Added tangent2ambient/tangent2ambient_is_identity pair.
+%       Here, 'ambient' refers to the total space.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -140,6 +144,9 @@ function M = grassmannfactory(n, p, k, gpuflag)
     end
     
     M.tangent = M.proj;
+    
+    M.tangent2ambient_is_identity = true;
+    M.tangent2ambient = @(X, U) U;
     
     M.egrad2rgrad = M.proj;
     

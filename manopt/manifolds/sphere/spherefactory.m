@@ -52,6 +52,9 @@ function M = spherefactory(n, m, gpuflag)
 %
 %   Aug. 3, 2018 (NB)
 %       Added GPU support: just set gpuflag = true.
+%
+%   Jan. 8, 2021 (NB)
+%       Added tangent2ambient/tangent2ambient_is_identity pair.
     
     
     if ~exist('m', 'var') || isempty(m)
@@ -110,6 +113,9 @@ function M = spherefactory(n, m, gpuflag)
     M.proj = @(x, d) d - x*(x(:)'*d(:));
     
     M.tangent = M.proj;
+    
+    M.tangent2ambient_is_identity = true;
+    M.tangent2ambient = @(X, U) U;
     
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.

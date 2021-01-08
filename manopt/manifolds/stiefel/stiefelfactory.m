@@ -48,6 +48,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 %  June 18, 2019 (NB) : Using qr_unique for retr and rand.
 %  July  9, 2019 (NB) : Added a comment about QR retraction being first
 %                       order only.
+%  Jan.  8, 2021 (NB) : Added tangent2ambient+tangent2ambient_is_identity.
 
     assert(n >= p, 'The dimension n must be larger than the dimension p.');
     
@@ -105,6 +106,9 @@ function M = stiefelfactory(n, p, k, gpuflag)
     end
     
     M.tangent = M.proj;
+    
+    M.tangent2ambient_is_identity = true;
+    M.tangent2ambient = @(X, U) U;
     
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
