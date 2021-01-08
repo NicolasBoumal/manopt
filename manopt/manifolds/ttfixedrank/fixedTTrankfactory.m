@@ -101,7 +101,6 @@ function M = fixedTTrankfactory(n, r, ind)
 
     % Creates random unit norm tangent vector at X on manifold.
     % Optional argument Xr of right-orthogonalized X.
-    % TODO name randvec and use randn
     M.randvec = @randomTangent;
     function Z = randomTangent(X, Xr)
         if nargin == 1
