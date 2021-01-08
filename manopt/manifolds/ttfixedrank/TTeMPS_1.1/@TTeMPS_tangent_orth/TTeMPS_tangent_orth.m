@@ -65,7 +65,7 @@ classdef TTeMPS_tangent_orth
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-                % default constructor which just returns a random unit norm tangent vector
+            % default constructor which just returns a random unit norm tangent vector
             elseif nargin == 2
                 % Y.U = xL.U;
                 % Y.V = xR.U;
@@ -119,7 +119,7 @@ classdef TTeMPS_tangent_orth
                     Znew = tangent_to_TTeMPS(Z);
                     Y = TTeMPS_tangent_orth(xL, xR, Znew);
 
-                elseif ~sampled% Z is a full array
+                elseif ~sampled % Z is a full array
 
                     ZZ = cell(1, d);
 
