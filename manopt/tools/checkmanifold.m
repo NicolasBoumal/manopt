@@ -21,6 +21,8 @@ function checkmanifold(M)
 %       because this test is only valid for norm(x, tv) <= inj(x).
 %   May 19, 2020 (NB):
 %       Now checking M.dim().
+%   Jan  8, 2021 (NB):
+%       Added partial checks of M.inner, M.tangent2ambient, M.proj, ...
 
     assert(isstruct(M), 'M must be a structure.');
     
@@ -53,9 +55,56 @@ function checkmanifold(M)
         v = M.randvec(x);
         fprintf('Random tangent vector norm: %g (should be 1).\n', ...
                 M.norm(x, v));
+        z = M.lincomb(x, 1, v, -1, v);
+        fprintf('norm(v - v)_x = %g (should be 0).\n', M.norm(x, z));
     catch up %#ok<NASGU>
-        fprintf('Couldn''t check rand, randvec.\n');
+        fprintf('Couldn''t check rand, randvec, lincomb.\n');
     end
+    
+    %% Check inner product
+    try
+        x = M.rand();
+        
+        % Check symmetry
+        u = M.randvec(x);
+        v = M.randvec(x);
+        uv = M.inner(x, u, v);
+        vu = M.inner(x, v, u);
+        fprintf('<u, v>_x = %g, <v, u>_x = %g, difference = %g (should be 0).\n', uv, vu, uv-vu);
+        
+        % Check linearity (and owing to symmetry: bilinearity)
+        a = randn();
+        b = randn();
+        w = M.lincomb(x, a, u, b, v);
+        z = M.randvec(x);
+        wz = M.inner(x, w, z);
+        wzbis = a*M.inner(x, u, z) + b*M.inner(x, v, z);
+        fprintf('<au+bv, z>_x = %g, a<u, z>_x + b<v, z>_x = %g, difference = %g (should be 0).\n', wz, wzbis, wz-wzbis);
+        
+        % Should check positive definiteness too: it's somehow part of the
+        % check for M.dim() below.
+        
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check inner.\n');
+    end
+    
+    %% Check tangent2ambient, proj, norm
+    try
+        x = M.rand();
+        v = M.randvec(x);
+        va = M.tangent2ambient(x, v);
+        vp = M.proj(x, va);
+        v_min_vp = M.lincomb(x, 1, v, -1, vp);
+        df = M.norm(x, v_min_vp);
+        fprintf('Norm of tangent vector minus its projection to tangent space: %g (should be zero).\n', df);
+        
+        % Should check that proj is linear, self-adjoint, idempotent.
+        % The issue for generic code is that manifolds do not provide means
+        % to generate random vectors in the ambient space.
+        
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check tangent2ambient, proj, norm\n');
+    end    
     
     %% Checking exp and dist
     try
