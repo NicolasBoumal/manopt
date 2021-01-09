@@ -78,7 +78,7 @@ classdef TTeMPS_tangent_orth
                 Y = TTeMPS_tangent_orth(xL, xR, Y);
       
                 % count number of nonzero dU cores
-                % if manifold has positive dimension, num_nonzero > 1
+                % if manifold has positive dimension, num_nonzero > 0
                 % with probability 1
                 num_nonzero = 0;
                 for k = 1:d
