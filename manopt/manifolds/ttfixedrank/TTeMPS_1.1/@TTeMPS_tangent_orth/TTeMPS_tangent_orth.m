@@ -76,9 +76,22 @@ classdef TTeMPS_tangent_orth
                 end
 
                 Y = TTeMPS_tangent_orth(xL, xR, Y);
+      
+                % count number of nonzero dU cores
+                % if manifold has positive dimension, num_nonzero > 1
+                % with probability 1
+                num_nonzero = 0;
+                for k = 1:d
+                    if norm(Y.dU{k}(:)) > 1e-14
+                        num_nonzero = num_nonzero + 1;
+                    end
+                end
 
-                for i = 1:d
-                    Y.dU{i} = Y.dU{i} / (sqrt(d) * norm(Y.dU{i}(:)));
+                % normalize vec to unit norm based on non-zero dU cores
+                for k = 1:d
+                    if norm(Y.dU{k}(:)) > 1e-14
+                        Y.dU{k} = Y.dU{k} / (sqrt(num_nonzero) * norm(Y.dU{k}(:)));
+                    end
                 end
 
             else
