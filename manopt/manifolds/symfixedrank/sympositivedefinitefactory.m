@@ -84,7 +84,10 @@ function M = sympositivedefinitefactory(n)
     M.inner = @(X, eta, zeta) trAB(X\eta, X\zeta);
     
     % Notice that X\eta is *not* symmetric in general.
-    % The result is equal to: sqrt(trace((X\eta)^2))
+    % The result is equal to: sqrt(trace((X\eta)^2)).
+    % Thus, we compute the sum of the squared eigenvalues of X\eta, which
+    % in general is different from summing the squared singular values:
+    % that is why it is not equivalent to compute the Frobenius norm here.
     % There should be no need to take the real part, but rounding errors
     % may cause a small imaginary part to appear, so we discard it.
     M.norm = @(X, eta) real(trAA(X\eta));
