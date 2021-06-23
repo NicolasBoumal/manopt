@@ -25,16 +25,24 @@ function N = tangentspherefactory(M, x)
 %   Nov 27, 2015 (NB):
 %       Extra projection added in the retraction, to prevent numerical
 %       drift.
+%
+%   Jun 23, 2021 (QR):
+%       Extra projection in retraction changed to M.tangent.
+%
+%   Jun 23, 2021 (NB):
+%       Several fixes to the logic of this factory that should help for
+%       more sophisticated manifolds where representations of points,
+%       tangent vectors and ambient vectors are not straightforward.
 
-    % N is the manifold we build. y will be a point on N, thus also a
-    % tangent vector to M at x. This is a typical Riemannian submanifold of
-    % a Euclidean space, hence it will be easy to describe in terms of the
-    % tools available for M.
+    % N is the manifold we build.
+    % y is a point on N, thus also a tangent vector to M at x.
+    % This is a typical Riemannian submanifold of a Euclidean space,
+    % hence it is easy to describe in terms of the tools available for M.
     N = struct();
     
-    % u, u1 and u2 will be tangent vectors to N at y. The tangent space to
-    % N at y is a subspace of the tangent space to M at x, thus u, u1 and
-    % u2 are also tangent vectors to M at x.
+    % u, u1 and u2 are tangent vectors to N at y.
+    % The tangent space to N at y is a subspace of the tangent space to M
+    % at x, thus u, u1 and u2 are also tangent vectors to M at x.
     
     N.dim   = @() M.dim() - 1;
     N.inner = @(y, u1, u2) M.inner(x, u1, u2);
@@ -50,15 +58,14 @@ function N = tangentspherefactory(M, x)
             t = 1;
         end
         y_plus_tu = M.lincomb(x, 1, y, t, u);
-        % This extra projection is not required mathematically,
-        % but appears to be necessary numerically, sometimes.
-        % The reason is that, as many retractions are operated,
-        % there is a risk that the points generated would leave
-        % the tangent space. If this proves to be a huge slow down,
-        % one could consider adding a type of counter that only
-        % executes this extra projection every so often, instead
-        % of at every call.
-        y_plus_tu = M.proj(x, y_plus_tu);
+        % Mathematically, y_plus_tu is exactly in the tangent space to M at
+        % x. However, numerically, it may 'leave' the tangent space
+        % slightly. The extra 'projection' on the next line is not required
+        % mathematically but helps prevent numerical issues sometimes.
+        % If this proves to be a huge slow down, one could consider adding
+        % a type of counter that only executes this extra step every so
+        % often, instead of at every call.
+        y_plus_tu = M.tangent(x, y_plus_tu);
         nrm = M.norm(x, y_plus_tu);
         yy = M.lincomb(x, 1/nrm, y_plus_tu);
     end
@@ -70,13 +77,23 @@ function N = tangentspherefactory(M, x)
     end
     N.randvec = @randvec;
     function u = randvec(y)
-        u = N.proj(y, N.rand());
+        u = N.proj(y, M.randvec(x));
         nrm = N.norm(y, u);
         u = M.lincomb(x, 1/nrm, u);
     end
-    N.zerovec = M.zerovec;
-    N.lincomb = M.lincomb;
+    N.zerovec = @(y) M.zerovec(x);
     N.transp = @(y1, y2, u) N.proj(y2, u);
     N.hash = @(y) ['z' hashmd5(M.vec(x, y))];
+    
+    N.lincomb = @Nlincomb;
+    function v = Nlincomb(y, a1, d1, a2, d2) %#ok<INUSL>
+        if nargin == 3
+            v = M.lincomb(x, a1, d1);
+        elseif nargin == 5
+            v = M.lincomb(x, a1, d1, a2, d2);
+        else
+            error('lincomb takes either 3 or 5 inputs.');
+        end
+    end
     
 end
