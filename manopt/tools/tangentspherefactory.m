@@ -39,6 +39,7 @@ function N = tangentspherefactory(M, x)
     % This is a typical Riemannian submanifold of a Euclidean space,
     % hence it is easy to describe in terms of the tools available for M.
     N = struct();
+    N.name = @() sprintf('Sphere in a tangent space of [%s]', M.name());
     
     % u, u1 and u2 are tangent vectors to N at y.
     % The tangent space to N at y is a subspace of the tangent space to M
