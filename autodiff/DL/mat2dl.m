@@ -1,4 +1,10 @@
 function dlx = mat2dl(x)
+
+    if ~isstruct(x) && ~iscell(x) && ~isnumeric(x)
+        up = MException('manopt:autodiff:mat2dl', ...
+                    'mat2dl should only accept structs, cells or arrays.');
+        throw(up);
+    end
     
     if isstruct(x)
         dlx = mat2dl_stuct(x);

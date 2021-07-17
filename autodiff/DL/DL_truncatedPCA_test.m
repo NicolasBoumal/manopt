@@ -12,8 +12,14 @@ problem.cost = @(X) cost(A,X);
 
 autogradfunc = autograd(problem);
 problem.egrad = @(x) egradcompute(autogradfunc,x);
-    
+autohessfunc = autohess(problem);
+problem.ehess = @(x,xdot) ehesscompute(autohessfunc,x,xdot);    
+
+figure;
 checkgradient(problem);
+figure;
+checkhessian(problem);
+
     
  function f = cost(A,X)
     U = X.U;

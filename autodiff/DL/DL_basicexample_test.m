@@ -1,7 +1,7 @@
-n=10000;
+n=1000;
 A = randn(n);
 A = .5*(A+A');
-
+    
 manifold = spherefactory(n);
 
 mycostfunction = @(x) -x'*(A*x);
@@ -11,13 +11,17 @@ problem.M = manifold;
 
 autogradfunc = autograd(problem);
 problem.egrad = @(x) egradcompute(autogradfunc,x);
+autohessfunc = autohess(problem);
+problem.ehess = @(x,xdot) ehesscompute(autohessfunc,x,xdot);
 
 
 figure;
 checkgradient(problem);
+figure;
+checkhessian(problem);
 
-options.maxiter = 100;
-[x, xcost, info] = steepestdescent(problem,[],options);         
+%options.maxiter = 100;
+[x, xcost, info] = trustregions(problem);         
 
 
 % Display some statistics.

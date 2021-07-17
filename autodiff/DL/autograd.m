@@ -5,7 +5,7 @@ function autogradfunc = autograd(problem)
     
     function [y egrad] = autogradfunc0(mycostfunction,x)
         y = mycostfunction(x);
-        egrad = dlgradient(y,x,'RetainData',true);
+        egrad = dlgradient(y,x,'RetainData',false, 'EnableHigherDerivatives',false);
     end
 
     autogradfunc = @(x) autogradfunc0(mycostfunction,x);

@@ -5,17 +5,27 @@ X(:, P(1:outliers)) = 30*randn(2, outliers);
 epsilon = 1e-5;
     
     
-manifold = grassmannfactory(2, 1);
+manifold = grassmannfactory(2, 1);  
 problem.M = manifold;
 problem.cost = @(U) mycostfunction(U,X,epsilon);
+
+
 autogradfunc = autograd(problem);
 problem.egrad = @(x) egradcompute(autogradfunc,x);
-    
+autohessfunc = autohess(problem);
+problem.ehess = @(x,xdot) ehesscompute(autohessfunc,x,xdot);
+
+
+
 figure;
 checkgradient(problem);
+figure
+checkhessian(problem);
+
+
 
 [U, ~, ~] = svds(X, 1);
-[U, Ucost, info] = steepestdescent(problem,U);  
+[U, Ucost, info] = trustregions(problem,U);  
 figure;
 semilogy([info.iter], [info.gradnorm], '.-');
 xlabel('Iteration #');

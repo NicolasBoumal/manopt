@@ -1,5 +1,11 @@
 function x = dl2mat(dlx)
     
+    if ~isstruct(dlx) && ~iscell(dlx) && ~isnumeric(dlx)
+        up = MException('manopt:autodiff:dl2mat', ...
+                    'dl2mat should only accept structs, cells or arrays.');
+        throw(up);
+    end
+
     if isstruct(dlx)
         x = dl2mat_stuct(dlx);
     elseif iscell(dlx)
