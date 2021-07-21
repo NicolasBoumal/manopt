@@ -1,8 +1,6 @@
 function autohessfunc = autohess(problem)
 
     mycostfunction = problem.cost;
-    x = problem.M.rand();
-    xdot = problem.M.rand();
     
     function ehess = autohessfunc0(mycostfunction,x,xdot)
         y = mycostfunction(x);
@@ -12,6 +10,15 @@ function autohessfunc = autohess(problem)
         ehess = dlgradient(z,x,'RetainData',false, 'EnableHigherDerivatives',false); 
     end
 
-    autohessfunc = @(x,xdot) autohessfunc0(mycostfunction,x,xdot);
+    %autohessfunc = @(x,xdot) autohessfunc0(mycostfunction,x,xdot);
+    func = @(x,xdot) autohessfunc0(mycostfunction,x,xdot);
+    autohessfunc = dlaccelerate(func);
+    clearCache(autohessfunc)
+    %x = problem.M.rand();
+    %x = mat2dl(x);
+    %xdot = problem.M.rand();
+    %xdot = mat2dl(xdot)
+    %ehess = dlfeval(autohessfunc,x,xdot);
     
 end
+    
