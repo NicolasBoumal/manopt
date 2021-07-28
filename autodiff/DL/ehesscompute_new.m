@@ -1,8 +1,8 @@
 function [ehess,store] = ehesscompute_new(problem,x,xdot,store)
     
     % xdot = mat2dl(xdot);
-    mycostfunction = problem.cost;
     
+    mycostfunction = problem.cost;
     if ~isfield(store,'dlegrad') 
         
         tm = deep.internal.recording.TapeManager();
@@ -29,9 +29,14 @@ function [ehess,store] = ehesscompute_new(problem,x,xdot,store)
 
         dlx = mat2dl(x);
         dlx = deep.internal.recording.recordContainer(dlx);
-        y = mycostfunction(dlx);
-        dlegrad = dlgradient(y,dlx,'RetainData',true,'EnableHigherDerivatives',true);
-   
+        if isfield(problem,'Xmat') && (problem.Xmat == true)
+            [y,Xmat] = mycostfunction(dlx);
+            dlx = Xmat;
+            dlegrad = dlgradient(y,dlx,'RetainData',true,'EnableHigherDerivatives',true);
+        else
+            y = mycostfunction(dlx);
+            dlegrad = dlgradient(y,dlx,'RetainData',true,'EnableHigherDerivatives',true);
+        end
     end
     
 end
