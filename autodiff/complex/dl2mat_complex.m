@@ -6,7 +6,7 @@ function x = dl2mat_complex(dlx)
         throw(up);
     end
 
-    if isstruct(dlx)
+    if isstruct(dlx) && (~isfield(dlx,'real'))
         x = dl2mat_struct(dlx);
     elseif iscell(dlx)
         x = dl2mat_cell(dlx);

@@ -21,8 +21,7 @@ function [ehess,store] = ehesscompute_complex(problem,x,xdot,store)
     dlegrad = store.dlegrad;
     dlx = store.dlx;
     z = cinnerprodgeneral(dlegrad,xdot);
-    ehess.real = dlgradient(z,dlx.real,'RetainData',false,'EnableHigherDerivatives',false);
-    ehess.imag = dlgradient(z,dlx.imag,'RetainData',false,'EnableHigherDerivatives',false);
+    ehess = dlgradient(z,dlx,'RetainData',false,'EnableHigherDerivatives',false);
     ehess = dl2mat_complex(ehess);
     
     
@@ -32,9 +31,7 @@ function [ehess,store] = ehesscompute_complex(problem,x,xdot,store)
         dlx = deep.internal.recording.recordContainer(dlx);
         
         y = mycostfunction(dlx);
-        y = y.real;
-        egrad.real = dlgradient(y,dlx.real,'RetainData',true,'EnableHigherDerivatives',true);
-        egrad.imag = dlgradient(y,dlx.imag,'RetainData',true,'EnableHigherDerivatives',true);
+        dlegrad = dlgradient(y,dlx,'RetainData',true,'EnableHigherDerivatives',true);
         
     end
     

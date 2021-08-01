@@ -1,24 +1,23 @@
 function innerpro = cinnerprodgeneral(x,y)
-    % Compute inner product between x and y. In this case, x is supposed to 
-    % be a general dlarray structure with fields real and imag
+    % Compute inner product between x and y(complex case).
 
     if ~((isstruct(x) && isstruct(y)) || (iscell(x) && iscell(y))...,
-            || (isnumeric(x) && isnumeric(y)))
+            || (isnumeric(x) && isnumeric(y)) || (isstruct(x) && isnumeric(y)))
         
-        up = MException('manopt:autodiff:innerprodgeneral' ,...
-            'innerprodgeneral should only accept structs, cells or arrays.');
+        up = MException('manopt:autodiff:cinnerprodgeneral' ,...
+            'cinnerprodgeneral should only accept structs, cells or arrays.');
         throw(up);
         
     end
     
-    if isstruct(x) && isstruct(y)
+    if isstruct(x) && isstruct(y) && (~isfield(x,'real')) && (~isfield(y,'real'))
         innerpro  = cinnerprodgeneral_struct(x,y);
     elseif iscell(x) && iscell(y)
         innerpro = cinnerprodgeneral_cell(x,y);
     else
-        dotproduct = cdotprod(x,y);
-        innerpro.real = sum(dotproduct.real,'all');
-        innerpro.imag = sum(dotproduct.imag,'all');
+        xconj = cconj(x);
+        product = cdotprod(xconj,y);
+        innerpro = sum(creal(product),'all');
     end
     
     function innerpro = cinnerprodgeneral_struct(x,y)
@@ -27,22 +26,16 @@ function innerpro = cinnerprodgeneral(x,y)
         elems = fieldnames(x);
         nelems = numel(elems);
         for ii = 1:nelems
-            if isstruct(x.(elems{ii})) && (~isfield(x.(elems{ii}),'real'))
-                innerpro.real = innerpro.real + cinnerprodgeneral_struct(...,
-                    x.(elems{ii}),y.(elems{ii})).real;
-                innerpro.imag = innerpro.imag + cinnerprodgeneral_struct(...,
-                    x.(elems{ii}),y.(elems{ii})).imag;
+            if isstruct(x.(elems{ii})) && (~isfield(x.(elems{ii}),'real')) && (~isfield(y,'real'))
+                innerpro = innerpro + cinnerprodgeneral_struct(...,
+                    x.(elems{ii}),y.(elems{ii}));
             elseif iscell(x.(elems{ii}))
-                innerpro.real = innerpro.real + cinnerprodgeneral_cell(...,
-                    x.(elems{ii}),y.(elems{ii})).real;
-                innerpro.imag = innerpro.imag + cinnerprodgeneral_cell(...,
-                    x.(elems{ii}),y.(elems{ii})).imag;
+                innerpro = innerpro + cinnerprodgeneral_cell(...,
+                    x.(elems{ii}),y.(elems{ii}));
             else
-                dotproduct = cdotprod(x.(elems{ii}),y.(elems{ii}));
-                innerprodreal = sum(dotproduct.real,'all');
-                innerprodimag = sum(dotproduct.imag,'all');
-                innerpro.real = innerpro.real + innerprodreal;
-                innerpro.imag = innerpro.imag + innerprodimag;
+                xconj = cconj(x.(elems{ii}));
+                product = cdotprod(xconj,y.(elems{ii}));
+                innerpro = sum(creal(product),'all');
             end
         end
     end
@@ -52,22 +45,16 @@ function innerpro = cinnerprodgeneral(x,y)
         innerpro.imag = 0;
         ncell = length(x);
         for ii = 1:ncell
-            if isstruct(x{ii}) && (~isfield(x.(elems{ii}),'real'))
-                innerpro.real = innerpro.real + cinnerprodgeneral_struct(...,
-                    x{ii},y{ii}).real;
-                innerpro.imag = innerpro.imag + cinnerprodgeneral_struct(...,
-                    x{ii},y{ii}).imag;
+            if isstruct(x{ii}) && (~isfield(x{ii},'real')) && (~isfield(y,'real'))
+                innerpro = innerpro + cinnerprodgeneral_struct(...,
+                    x{ii},y{ii});
             elseif iscell(x{ii})
-                innerpro.real = innerpro.real + cinnerprodgeneral_cell(...,
-                    x{ii},y{ii}).real;
-                innerpro.imag = innerpro.imag + cinnerprodgeneral_cell(...,
-                    x{ii},y{ii}).imag;
+                innerpro = innerpro + cinnerprodgeneral_cell(...,
+                    x{ii},y{ii});
             else
-                dotproduct = cdotprod(x{ii},y{ii});
-                innerprodreal = sum(dotproduct.real,'all');
-                innerprodimag = sum(dotproduct.imag,'all');
-                innerpro.real = innerpro.real + innerprodreal;
-                innerpro.imag = innerpro.imag + innerprodimag;
+                xconj = cconj(x{ii});
+                product = cdotprod(xconj,y{ii});
+                innerpro = sum(creal(product),'all');
             end
         end
     end
