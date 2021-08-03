@@ -1,20 +1,24 @@
 function autogradfunc = autograd(problem)
 
-    mycostfunction = problem.cost;
+    costfunction = problem.cost;
     
-    function [y egrad] = autogradfunc0(mycostfunction,x)
+    function [y egrad] = autogradfuncinternel(costfunction,x)
+       
+        y = costfunction(x);
+        if isstruct(y) && isfield(y,'real')
+            y = creal(y);
+        end
+        egrad = dlgradient(y,x,'RetainData',false,'EnableHigherDerivatives',false);
         
-        if isfield(problem,'Xmat') && (problem.Xmat == true)
-            [y,Xmat] = mycostfunction(x);
-            egrad = dlgradient(y,Xmat,'RetainData',false,'EnableHigherDerivatives',false);
-        else
-            y = mycostfunction(x);
-            egrad = dlgradient(y,x,'RetainData',false,'EnableHigherDerivatives',false);
+        if (contains(problem.M.name(),'Product rotations manifold') &&..., 
+            contains(problem.M.name(),'anchors'))
+        A = problem.M.A;
+        egrad(:, :, A) = 0;
         end
     end
     
-    %autogradfunc = @(x) autogradfunc0(mycostfunction,x);
-    func = @(x) autogradfunc0(mycostfunction,x);
+    func = @(x) autogradfuncinternel(costfunction,x);
     autogradfunc = dlaccelerate(func);
-    %clearCache(autogradfunc)
+    clearCache(autogradfunc);
+    
 end
