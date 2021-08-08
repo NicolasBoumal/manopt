@@ -33,7 +33,7 @@ function problem = preprocessAD(problem)
 %% Check if AD can be applied to the manifold and cost function
     
     assert(isfield(problem,'M') && isfield(problem,'cost'),...,
-    'problem must contain fields M and cost.');
+    'the problem structure must contain fields M and cost.');
     
     % if gradient and hessian information is provided already, just return
     if (isfield(problem,'egrad') && isfield(problem,'ehess'))..., 
@@ -62,14 +62,14 @@ function problem = preprocessAD(problem)
         x = problem.M.rand();
         try
             dlx = mat2dl(x);
-            cost_testdlx = problem.cost(dlx);
+            costtestdlx = problem.cost(dlx);
         catch ME
             % detect complex number by looking up error message
             if (strcmp(ME.identifier,'deep:dlarray:ComplexNotSupported'))
                 try
                     dlx = mat2dl_complex(x);
-                    cost_testx = problem.cost(x);
-                    cost_testdlx = problem.cost(dlx);
+                    costtestx = problem.cost(x);
+                    costtestdlx = problem.cost(dlx);
                 catch
                     warning(['Auto differentiation failed. '...
                     'Cost function contains complex numbers. Check if '...
@@ -94,8 +94,9 @@ function problem = preprocessAD(problem)
 %% Use AD to compute euclidean gradient and euclidean hessian
 
     problem.autogradfunc = autograd(problem);
-    problem.egrad = @(x) egradcompute(problem.autogradfunc,complexflag,x);
-    problem.ehess = @(x,xdot,store) ehesscompute(problem,complexflag,x,xdot,store);
+    problem.egrad = @(x) egradcompute(problem,x,complexflag);
+    problem.costgrad = @(x) costgradcompute(problem,x,complexflag);
+    problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
     
     % some functions are not supported to differentiate with AD.
     % e.g.cat(3,A,B). Check availablility of egrad, if not, remove fields
@@ -114,6 +115,6 @@ function problem = preprocessAD(problem)
     end
     
     warning(['It seems no gradient was provided. '...
-                    'Auto differentiation is used to compute egrad and ehess']);
+                    'Automatic differentiation is used to compute egrad and ehess']);
     
 end
