@@ -1,22 +1,17 @@
 function traceA = ctrace(A)
     
-    assert(size(A,1)==size(A,2),'Input should be a square matrix')
     if isstruct(A) && isfield(A,'real')
+        assert(size(A.real,1)==size(A.real,2),'Input should be a square matrix')
         n = size(A.real,1);
         realA = A.real;
         imagA = A.imag;
-        traceA.real=0;
-        traceA.imag=0;
-        for i = 1:n
-            traceA.real = traceA.real + realA(i,i);
-            traceA.imag = traceA.imag + imagA(i,i);
-        end
+        traceA.real = sum(realA(1:n+1:end));
+        traceA.imag = sum(imagA(1:n+1:end));
+        
     elseif isnumeric(A)
+        assert(size(A,1)==size(A,2),'Input should be a square matrix')
         n = size(A,1);
-        traceA = 0;
-        for i = 1:n
-            traceA = traceA + A(i,i);
-        end
+        traceA = sum(A(1:n+1:end));
     else
         ME = MException('ctrace:inputError', ...
         'Input does not have the expected format.');
