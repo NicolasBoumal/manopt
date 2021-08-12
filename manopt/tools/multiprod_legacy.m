@@ -1,6 +1,8 @@
-function c = multiprod(a, b, idA, idB)
+function c = multiprod_legacy(a, b, idA, idB)
 % Multiplying 1-D or 2-D subarrays contained in two N-D arrays.
 % 
+%   THIS ORIGINAL MULTIPROD IS NOW CALLED MULTIPROD_LEGACY IN MANOPT
+%
 %   C = MULTIPROD(A,B) is equivalent  to C = MULTIPROD(A,B,[1 2],[1 2])
 %   C = MULTIPROD(A,B,[D1 D2]) is eq. to C = MULTIPROD(A,B,[D1 D2],[D1 D2])
 %   C = MULTIPROD(A,B,D1) is equival. to C = MULTIPROD(A,B,D1,D1)
@@ -160,7 +162,7 @@ function c = multiprod(a, b, idA, idB)
 %       C = MULTIPROD(A, B, 2) is .......... a 5x(1)x2   3-D array, while
 %   4b) C = MULTIPROD(A, B, [2 0], [0 2]) is a 5x(6x6)x2 4-D array
 %
-%   See also DOT2, OUTER, CROSS2, BAXFUN, MULTITRANSP, MULTITRACE, MULTISCALE.
+%   See also MULTIPROD, DOT2, OUTER, CROSS2, BAXFUN, MULTITRANSP, MULTITRACE, MULTISCALE.
 
 % $ Version: 2.1 $
 % CODE      by:            Paolo de Leva
@@ -180,7 +182,7 @@ end
 
 % ESC 1 - Special simple case (both A and B are 2D), solved using C = A * B
 
-     if ndims(a)==2 && ndims(b)==2 && ...
+     if ismatrix(a) && ismatrix(b) && ...
          isequal(idA,[1 2]) && isequal(idB,[1 2])
          c = a * b; return
      end
@@ -205,17 +207,17 @@ end
          c = squash2D_mtimes(a,b, idA,idB, sizeA,sizeB, squashOK); 
      elseif timesOK % TIMES (preferred w.r. to SX + TIMES)
          if sumOK, c = sum(a .* b, sumOK);
-         else      c =     a .* b; end
+         else,     c =     a .* b; end
      elseif sxtimesOK % SX + TIMES
          if sumOK, c = sum(bsxfun(@times, a, b), sumOK);
-         else      c =     bsxfun(@times, a, b); end
+         else,     c =     bsxfun(@times, a, b); end
      elseif mtimesOK % MTIMES (rarely used)
          c = a * b;
      end
 
 % MAIN 3 - Reshaping C (by inserting or removing singleton dimensions)
 
-     [sizeC sizeCisnew] = adjustsize(size(c), shiftC, false, delC, false);
+     [sizeC, sizeCisnew] = adjustsize(size(c), shiftC, false, delC, false);
      if sizeCisnew, c = reshape(c, sizeC); end
 
 
@@ -531,13 +533,13 @@ function [sizeA, sizeisnew] = adjustsize(sizeA0, shiftA, addA, delA, swapA)
     % Dimension shifting (by adding or deleting trailing singleton dim.)
     if     shiftA>0, [sizeA,newA1] = addsing(sizeA0, 1, shiftA);
     elseif shiftA<0, [sizeA,newA1] = delsing(sizeA0, 1,-shiftA); 
-    else   sizeA = sizeA0;  newA1  = false;
+    else,  sizeA = sizeA0;  newA1  = false;
     end
     % Modifying block size (by adding, deleting, or moving singleton dim.)
     if      addA, [sizeA,newA2] = addsing(sizeA, addA+shiftA, 1); % 1D-->2D 
     elseif  delA, [sizeA,newA2] = delsing(sizeA, delA+shiftA, 1); % 2D-->1D
     elseif swapA, [sizeA,newA2] = swapdim(sizeA,swapA+shiftA); % ID Swapping
-    else                 newA2  = false;
+    else,                newA2  = false;
     end
     sizeisnew = newA1 || newA2;
 

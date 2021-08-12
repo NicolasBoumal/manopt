@@ -19,5 +19,5 @@ function tr = multitrace(A)
             'or fewer dimensions.']);
 
     tr = diagsum(A, 1, 2);
-
+    
 end
