@@ -16,7 +16,7 @@ function tr = multitrace(A)
     
     assert(ndims(A) <= 3, ...
            ['multitrace is only well defined for matrix arrays of 3 ' ...
-            'or less dimensions.']);
+            'or fewer dimensions.']);
 
     tr = diagsum(A, 1, 2);
 
