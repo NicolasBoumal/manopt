@@ -33,7 +33,7 @@ function b = multihconj_legacy(a, dim)
     if nargin == 1, dim = 1; end
 
     % Transposing
-    b = multitransp(a, dim);
+    b = multitransp_legacy(a, dim);
 
     %Conjugating
     b = conj(b);

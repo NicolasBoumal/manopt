@@ -33,7 +33,7 @@ function B = multitransp(A, unused) %#ok<INUSD>
     assert(nargin == 1, ...
            'The new multitransp only takes one input. Check multitransp_legacy.');
 
-    if exist('pagetranspose', 'builtin') % Added to Matlab R2020b
+    if exist('pagetranspose', 'file') % Added to Matlab R2020b
         B = pagetranspose(A);
     else
     %   warning('manopt:multi', ...

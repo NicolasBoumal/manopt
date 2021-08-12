@@ -33,7 +33,7 @@ function B = multihconj(A, unused) %#ok<INUSD>
     assert(nargin == 1, ...
            'The new multihconj only takes one input. Check multihconj_legacy.');
 
-    if exist('pagectranspose', 'builtin') % Added to Matlab R2020b
+    if exist('pagectranspose', 'file') % Added to Matlab R2020b
         B = pagectranspose(A);
     else
     %   warning('manopt:multi', ...
