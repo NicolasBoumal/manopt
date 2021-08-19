@@ -1,40 +1,46 @@
-function b = multitransp(a, dim)
-% Transposing arrays of matrices.
-% 
-%    B = MULTITRANSP(A) is equivalent to B = MULTITRANSP(A, DIM), where
-%    DIM = 1.
+function B = multitransp(A, unused) %#ok<INUSD>
+% Transpose the matrix slices of an N-D array (no complex conjugate)
 %
-%    B = MULTITRANSP(A, DIM) is equivalent to
-%    B = PERMUTE(A, [1:DIM-1, DIM+1, DIM, DIM+2:NDIMS(A)]), where A is an
-%    array containing N P-by-Q matrices along its dimensions DIM and DIM+1,
-%    and B is an array containing the Q-by-P transpose (.') of those N
-%    matrices along the same dimensions. N = NUMEL(A) / (P*Q), i.e. N is
-%    equal to the number of elements in A divided by the number of elements
-%    in each matrix.
+% function B = multitransp(A)
 %
-%    MULTITRANSP, PERMUTE and IPERMUTE are a generalization of TRANSPOSE
-%    (.') for N-D arrays.
+% If A is a 3-D array, then B is a 3-D array such that
 %
-%    Example:
-%       A 5-by-9-by-3-by-2 array may be considered to be a block array
-%       containing ten 9-by-3 matrices along dimensions 2 and 3. In this
-%       case, its size is so indicated:  5-by-(9-by-3)-by-2 or 5x(9x3)x2.
-%       If A is ................ a 5x(9x3)x2 array of 9x3 matrices,
-%       C = MULTITRANSP(A, 2) is a 5x(3x9)x2 array of 3x9 matrices.
+%     B(:, :, i) = A(:, :, i).'
 %
-%    See also PERMUTE, IPERMUTE, MULTIPROD, MULTITRACE, MULTISCALE, MULTIHCONJ.
+% for each i. If A is an N-D array, then B is an N-D array with the slices
+% A(:, :, i, j, k, ...) transposed.
+%
+% This function is just a wrapper for pagetranspose, with a fallback call
+% to multitransp_legacy in case pagetranspose is not available.
+% If pagetranspose is available, it is better to call it directly.
+% Note that pagemtimes also allows to compute products with transposes
+% without explicitly transposing arrays.
+%
+% See also: multiprod multihconj multiscale multiskew multiskewh multitrace
 
-% $ Version: 1.0 $
-% CODE      by:                 Paolo de Leva (IUSM, Rome, IT) 2005 Sep 9
-% COMMENTS  by:                 Code author                    2006 Nov 21
-% OUTPUT    tested by:          Code author                    2005 Sep 13
-% -------------------------------------------------------------------------
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, Aug. 12, 2021.
+% Contributors: Xiaowen Jiang
+% Change log: 
+%
+%   Aug. 12, 2021 (NB):
+%       Matlab R2020b introduced a built-in function pagetranspose which
+%       does essentially everything we ever needed to do with multitransp
+%       in Manopt. Accordingly, multitransp became a wrapper for
+%       pagetranspose, and the old code for multitransp remains available
+%       as multitransp_legacy.
 
-% Setting DIM if not supplied.
-if nargin == 1, dim = 1; end
+    assert(nargin == 1, ...
+           'The new multitransp only takes one input. Check multitransp_legacy.');
 
-% Transposing
-order = [1:dim-1, dim+1, dim, dim+2:ndims(a)];
-b = permute(a, order);
+    if exist('pagetranspose', 'file') % Added to Matlab R2020b
+        B = pagetranspose(A);
+    else
+    %   warning('manopt:multi', ...
+    %          ['Matlab R2020b introduced pagetranspose.\n' ...
+    %           'Calling the old code multitransp_legacy instead.\n' ...
+    %           'To disable this warning: warning(''off'', ''manopt:multi'')']);
+        B = multitransp_legacy(A);
+    end
 
 end

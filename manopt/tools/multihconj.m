@@ -1,38 +1,46 @@
-function b = multihconj(a, dim)
-%MULTIHCONJ  Hermitian conjugating arrays of matrices.
-%    B = MULTIHCONJ(A) is equivalent to B = MULTIHCONJ(A, DIM), where
-%    DIM = 1.
+function B = multihconj(A, unused) %#ok<INUSD>
+% Hermitian-conjugate transpose the matrix slices of an N-D array
 %
-%    B = MULTIHCONJ(A, DIM) is equivalent to
-%    B = PERMUTE(A, [1:DIM-1, DIM+1, DIM, DIM+2:NDIMS(A)]), where A is an
-%    array containing N P-by-Q matrices along its dimensions DIM and DIM+1,
-%    and B is an array containing the Q-by-P Hermitian conjugate (') of
-%    those N matrices along the same dimensions. N = NUMEL(A) / (P*Q), i.e.
-%    N is equal to the number of elements in A divided by the number of
-%    elements in each matrix.
+% function B = multihconj(A)
 %
+% If A is a 3-D array, then B is a 3-D array such that
 %
-%    Example:
-%       A 5-by-9-by-3-by-2 array may be considered to be a block array
-%       containing ten 9-by-3 matrices along dimensions 2 and 3. In this
-%       case, its size is so indicated:  5-by-(9-by-3)-by-2 or 5x(9x3)x2.
-%       If A is ................ a 5x(9x3)x2 array of 9x3 matrices,
-%       C = MULTIHCONJ(A, 2) is a 5x(3x9)x2 array of 3x9 matrices.
+%     B(:, :, i) = A(:, :, i)'
 %
-%    See also MULTITRANSP MULTIHERM.
+% for each i. If A is an N-D array, then B is an N-D array with the slices
+% A(:, :, i, j, k, ...) Hermitian-conjugate transposed.
+%
+% This function is just a wrapper for pagectranspose, with a fallback call
+% to multihconj_legacy in case pagectranspose is not available.
+% If pagectranspose is available, it is better to call it directly.
+% Note that pagemtimes also allows to compute products with (c)transposes
+% without explicitly (c)transposing arrays.
+%
+% See also: multiprod multitransp multiscale multiskew multiskewh multitrace
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Hiroyuki Sato, April 27, 2015.
-% Contributors: 
+% Original author: Nicolas Boumal, Aug. 12, 2021.
+% Contributors: Xiaowen Jiang
 % Change log: 
+%
+%   Aug. 12, 2021 (NB):
+%       Matlab R2020b introduced a built-in function pagectranspose which
+%       does essentially everything we ever needed to do with multihconj
+%       in Manopt. Accordingly, multihconj became a wrapper for
+%       pagectranspose, and the old code for multihconj remains available
+%       as multihconj_legacy.
 
-    % Setting DIM if not supplied.
-    if nargin == 1, dim = 1; end
+    assert(nargin == 1, ...
+           'The new multihconj only takes one input. Check multihconj_legacy.');
 
-    % Transposing
-    b = multitransp(a, dim);
-
-    %Conjugating
-    b = conj(b);
+    if exist('pagectranspose', 'file') % Added to Matlab R2020b
+        B = pagectranspose(A);
+    else
+    %   warning('manopt:multi', ...
+    %          ['Matlab R2020b introduced pagectranspose.\n' ...
+    %           'Calling the old code multihconj_legacy instead.\n' ...
+    %           'To disable this warning: warning(''off'', ''manopt:multi'')']);
+        B = multihconj_legacy(A);
+    end
 
 end

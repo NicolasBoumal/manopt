@@ -3,9 +3,9 @@ function A = multiscale(scale, A)
 %
 % function A = multiscale(scale, A)
 %
-% Given a vector scale of length N and a 3-dimensional matrix A of size
-% n-by-m-by-N, returns a matrix A of same size such that
-% A(:, :, k) := scale(k) * A(:, :, k);
+% Given a vector scale of length N and a 3-D array A of size
+% n-by-m-by-N, returns an array B of same size as A such that
+% B(:, :, k) = scale(k) * A(:, :, k);
 %
 % See also: multiprod multitransp multitrace
 
@@ -17,12 +17,12 @@ function A = multiscale(scale, A)
 
     assert(ndims(A) <= 3, ...
            ['multiscale is only well defined for matrix arrays of 3 ' ...
-            'or less dimensions.']);
+            'or fewer dimensions.']);
     [n, m, N] = size(A);
     assert(numel(scale) == N, ...
            ['scale must be a vector whose length equals the third ' ...
             'dimension of A, that is, the number of 2D matrix slices ' ...
-            'in the 3D matrix A.']);
+            'in the 3D array A.']);
 
     scale = scale(:);
     A = reshape(bsxfun(@times, reshape(A, n*m, N), scale'), n, m, N);
