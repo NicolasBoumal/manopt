@@ -15,7 +15,7 @@ function problem = preprocessAD(problem)
 % In the case that the manifold is the set of fixed-rank matrices with 
 % an embedded geometry, it is more efficient to compute the Riemannian 
 % gradient directly. However, computing the exact Riemannian Hessian by 
-% vecctor product via AD is currently not supported. By calling 
+% vector product via AD is currently not supported. By calling 
 % preprocessAD, the problem struct with additional fields grad and costgrad
 % is returned.
 
