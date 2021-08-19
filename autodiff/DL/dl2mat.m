@@ -7,19 +7,19 @@ function x = dl2mat(dlx)
     end
 
     if isstruct(dlx)
-        x = dl2mat_stuct(dlx);
+        x = dl2mat_struct(dlx);
     elseif iscell(dlx)
         x = dl2mat_cell(dlx);
     else
         x = extractdata(dlx);
     end
     
-    function x = dl2mat_stuct(dlx)
+    function x = dl2mat_struct(dlx)
         elems = fieldnames(dlx);
         nelems = numel(elems);
         for ii = 1:nelems
             if isstruct(dlx.(elems{ii}))
-                x.(elems{ii}) = dl2mat_stuct(dlx.(elems{ii}));
+                x.(elems{ii}) = dl2mat_struct(dlx.(elems{ii}));
             elseif iscell(dlx.(elems{ii}))
                 x.(elems{ii}) = dl2mat_cell(dlx.(elems{ii}));
             else
@@ -31,7 +31,7 @@ function x = dl2mat(dlx)
         ncell = length(dlx);
         for ii = 1:ncell
             if isstruct(dlx{ii})
-                x{ii} = dl2mat_stuct(dlx{ii});
+                x{ii} = dl2mat_struct(dlx{ii});
             elseif iscell(dlx{ii})
                 x{ii} = dl2mat_cell(dlx{ii});
             else

@@ -14,22 +14,26 @@ function innerpro = innerprodgeneral(x,y)
     elseif iscell(x) && iscell(y)
         innerpro = innerprodgeneral_cell(x,y);
     else
-        innerpro = sum(x.*y,'all');
+        innerpro = x(:)'*y(:);
     end
     
     function innerpro = innerprodgeneral_struct(x,y)
         innerpro = 0;
-        elems = fieldnames(x);
+        elemsx = fieldnames(x);
+        elemsy = fieldnames(y);
+        [elems,ix,iy] = intersect(elemsx,elemsy, 'stable');
         nelems = numel(elems);
         for ii = 1:nelems
-            if isstruct(x.(elems{ii}))
+            if isstruct(x.(elemsx{ix(ii)}))
                 innerpro = innerpro + innerprodgeneral_struct(...,
-                    x.(elems{ii}),y.(elems{ii}));
+                    x.(elemsx{ix(ii)}),y.(elemsy{iy(ii)}));
             elseif iscell(x.(elems{ii}))
                 innerpro = innerpro + innerprodgeneral_cell(...,
-                    x.(elems{ii}),y.(elems{ii}));
+                    x.(elemsx{ix(ii)}),y.(elemsy{iy(ii)}));
             else
-                innerpro = innerpro + sum(x.(elems{ii}).* y.(elems{ii}),'all');
+                xelem = x.(elemsx{ix(ii)});
+                yelem = y.(elemsy{iy(ii)});
+                innerpro = innerpro + xelem(:)'*yelem(:);
             end
         end
     end
@@ -43,7 +47,9 @@ function innerpro = innerprodgeneral(x,y)
             elseif iscell(x{ii})
                 innerpro = innerpro + innerprodgeneral_cell(x{ii},y{ii});
             else
-                innerpro = innerpro + sum(x{ii}.* y{ii},'all');
+                xii = x{ii};
+                yii = y{ii};
+                innerpro = innerpro + xii(:)'*yii(:);
             end
         end
     end

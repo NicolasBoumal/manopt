@@ -1,3 +1,4 @@
+clc;clear;
 n = 200;
 m = 2000;
 p = 10;
@@ -16,11 +17,7 @@ problem.M = manifold;
 problem.cost = @(U) mycostfunction(U,X,epsilon);
 
 
-autogradfunc = autograd(problem);
-problem.egrad = @(x) egradcompute(autogradfunc,x);
-autohessfunc = autohess(problem);
-%problem.ehess = @(x,xdot) ehesscompute(problem,x,xdot);
-problem.ehess = @(x,xdot,store) ehesscompute_new(problem,x,xdot,store);
+problem = preprocessAD(problem);
 
 
 figure;

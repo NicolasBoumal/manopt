@@ -7,19 +7,19 @@ function dlx = mat2dl(x)
     end
     
     if isstruct(x)
-        dlx = mat2dl_stuct(x);
+        dlx = mat2dl_struct(x);
     elseif iscell(x)
         dlx = mat2dl_cell(x);
     else
         dlx = dlarray(x);
     end
     
-    function dlx = mat2dl_stuct(x)
+    function dlx = mat2dl_struct(x)
         elems = fieldnames(x);
         nelems = numel(elems);
         for ii = 1:nelems
             if isstruct(x.(elems{ii}))
-                dlx.(elems{ii}) = mat2dl_stuct(x.(elems{ii}));
+                dlx.(elems{ii}) = mat2dl_struct(x.(elems{ii}));
             elseif iscell(x.(elems{ii}))
                 dlx.(elems{ii}) = mat2dl_cell(x.(elems{ii}));
             else
@@ -31,7 +31,7 @@ function dlx = mat2dl(x)
         ncell = length(x);
         for ii = 1:ncell
             if isstruct(x{ii})
-                dlx{ii} = mat2dl_stuct(x{ii});
+                dlx{ii} = mat2dl_struct(x{ii});
             elseif iscell(x{ii})
                 dlx{ii} = mat2dl_cell(x{ii});
             else

@@ -1,3 +1,4 @@
+clc; clear;
 m = 42;
 n = 60;
 p = 5;
@@ -9,11 +10,8 @@ M = productmanifold(tuple);
     
 problem.M = M;
 problem.cost = @(X) cost(A,X);
-
-autogradfunc = autograd(problem);
-problem.egrad = @(x) egradcompute(autogradfunc,x);
-% autohessfunc = autohess(problem);
-problem.ehess = @(x,xdot,store) ehesscompute_new(problem,x,xdot,store);    
+ 
+problem = preprocessAD(problem);
 
 figure;
 checkgradient(problem);

@@ -35,5 +35,6 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
     
     % convert egrad to rgrad
     grad = problem.M.egrad2rgrad(x,egrad);
+    cost = dl2mat(cost);
     
 end
