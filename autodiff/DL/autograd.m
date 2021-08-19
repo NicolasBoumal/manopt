@@ -32,13 +32,23 @@ function autogradfunc = autograd(problem,fixedrankflag)
         autogradfunc = @(x,A,B) autogradfuncinternelfixedrankembedded(x,A,B);
     elseif fixedrankflag == 0
         func = @(x) autogradfuncinternel(x);
-        % accelerate 
-        autogradfunc = dlaccelerate(func);
-        clearCache(autogradfunc);
+        % accelerate
+        try
+            autogradfunc = dlaccelerate(func); % Introduced in Matlab 2021a
+            clearCache(autogradfunc);
+        catch
+            warning('manopt:dlaccelerate', ...
+                    ['Function dlaccelerate is not available:\nPlease ' ...
+                     'upgrade to Matlab 2021a and latest deep\nlearning ' ...
+                     'toolbox version if possible.\nMeanwhile, auto-diff ' ...
+                     'may be somewhat slower and problem.ehess may need to be removed.\n' ...
+                     'To disable this warning: warning(''off'', ''manopt:dlaccelerate'')']);
+            autogradfunc = func;
+        end
     end
     
     % define Euclidean gradient function
-    function [y egrad] = autogradfuncinternel(x)
+    function [y, egrad] = autogradfuncinternel(x)
             
         y = costfunction(x);
         % in case that the user forgot to take the real part of the cost
