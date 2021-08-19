@@ -18,11 +18,13 @@ function innerpro = cinnerprodgeneral(x,y)
         xconj = cconj(x);
         product = cdotprod(xconj,y);
         innerpro = sum(creal(product),'all');
+        % slower
+        % xcol = cmat2col(x);
+        % innerpro = creal(cprod(ctransp(xcol),xcol));
     end
     
     function innerpro = cinnerprodgeneral_struct(x,y)
-        innerpro.real = 0;
-        innerpro.imag = 0;
+        innerpro = 0;
         elemsx = fieldnames(x);
         elemsy = fieldnames(y);
         [elems,ix,iy] = intersect(elemsx,elemsy, 'stable');
@@ -38,14 +40,13 @@ function innerpro = cinnerprodgeneral(x,y)
             else
                 xconj = cconj(x.(elemsx{ix(ii)}));
                 product = cdotprod(xconj,y.(elemsy{iy(ii)}));
-                innerpro = sum(creal(product),'all');
+                innerpro = innerpro + sum(creal(product),'all');
             end
         end
     end
 
     function innerpro = cinnerprodgeneral_cell(x,y)
-        innerpro.real = 0;
-        innerpro.imag = 0;
+        innerpro = 0;
         ncell = length(x);
         for ii = 1:ncell
             if isstruct(x{ii}) && (~isfield(x{ii},'real')) && (~isfield(y{ii},'real'))
@@ -57,7 +58,7 @@ function innerpro = cinnerprodgeneral(x,y)
             else
                 xconj = cconj(x{ii});
                 product = cdotprod(xconj,y{ii});
-                innerpro = sum(creal(product),'all');
+                innerpro = innerpro + sum(creal(product),'all');
             end
         end
     end
