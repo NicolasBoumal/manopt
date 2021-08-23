@@ -14,8 +14,8 @@ function autogradfunc = autograd(problem,fixedrankflag)
 % See also: egradcompute, 
     
     % check availability 
-    assert(isfield(problem,'M') && isfield(problem,'cost'),...,
-    'problem structure must contain fields M and cost.');
+    assert(isfield(problem,'M') && isfield(problem,'cost'),...
+    'problem structure must contain the fields M and cost.');
     assert(exist('dlarray', 'file') == 2, ['Deep learning tool box is '... 
     'needed for automatic differentiation'])
     
@@ -32,23 +32,23 @@ function autogradfunc = autograd(problem,fixedrankflag)
         autogradfunc = @(x,A,B) autogradfuncinternelfixedrankembedded(x,A,B);
     elseif fixedrankflag == 0
         func = @(x) autogradfuncinternel(x);
-        % accelerate
+        % accelerate 
         try
             autogradfunc = dlaccelerate(func); % Introduced in Matlab 2021a
             clearCache(autogradfunc);
         catch
             warning('manopt:dlaccelerate', ...
                     ['Function dlaccelerate is not available:\nPlease ' ...
-                     'upgrade to Matlab 2021a and latest deep\nlearning ' ...
+                     'upgrade to Matlab 2021a and the latest deep\nlearning ' ...
                      'toolbox version if possible.\nMeanwhile, auto-diff ' ...
-                     'may be somewhat slower and problem.ehess may need to be removed.\n' ...
+                     'may be somewhat slower.\n The hessian is not available as well.\n' ...
                      'To disable this warning: warning(''off'', ''manopt:dlaccelerate'')']);
             autogradfunc = func;
         end
     end
     
     % define Euclidean gradient function
-    function [y, egrad] = autogradfuncinternel(x)
+    function [y egrad] = autogradfuncinternel(x)
             
         y = costfunction(x);
         % in case that the user forgot to take the real part of the cost
@@ -63,9 +63,11 @@ function autogradfunc = autograd(problem,fixedrankflag)
         
         % in case that the user is optimizing over anchoredrotationsfactory
         % egrad of anchors with indices in A should be zero
-        if (contains(problem.M.name(),'Product rotations manifold') &&..., 
-            contains(problem.M.name(),'anchors'))
-            A = problem.M.A;
+        problem_name = problem.M.name();
+        if (contains(problem_name,'Product rotations manifold') &&..., 
+            contains(problem_name,'anchors') &&...,
+            ~startsWith(problem_name,'Product manifold'))
+            A = findA_rotation(problem);
             egrad(:, :, A) = 0;
         end
     end
@@ -78,5 +80,5 @@ function autogradfunc = autograd(problem,fixedrankflag)
         g1 = costfunction(X1); g2 = costfunction(X2);
         egrad.A = dlgradient(g1,A);  egrad.B = dlgradient(g2,B);
     end
-
+    
 end

@@ -85,13 +85,16 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     dlegrad = store.dlegrad;
     dlx = store.dlx;
     
-    % To compute Euclidean Hessian vector product, rotations manifold and 
-    % unitary manifold requires first converting the representation of the
-    % tangent vector into the ambient space.  
-    if startsWith(problem.M.name(),'Rotations manifold SO')..., 
-            ||  startsWith(problem.M.name(),'Unitary manifold')...,
-            || (contains(problem.M.name(),'Product rotations manifold') &&..., 
-            contains(problem.M.name(),'anchors'))
+    % To compute Euclidean Hessian vector product, rotations manifold, 
+    % unitary manifold and essential manifold requires first converting 
+    % the representation of the tangent vector into the ambient space. 
+    % if the problem is a product manifold, in addition to the above
+    % manifolds, xdot of the other manifolds remain the same
+    if contains(problem.M.name(),'Rotations manifold SO','IgnoreCase',true)..., 
+            ||  contains(problem.M.name(),'Unitary manifold','IgnoreCase',true)...,
+            || (contains(problem.M.name(),'Product rotations manifold','IgnoreCase',true) &&..., 
+            contains(problem.M.name(),'anchors'))...,
+            || contains(problem.M.name(),'essential','IgnoreCase',true)
         xdot = problem.M.tangent2ambient(x, xdot);
     end 
     
@@ -117,7 +120,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     % ehess of anchors with indices in A should be zero
     if (contains(problem.M.name(),'Product rotations manifold') &&..., 
             contains(problem.M.name(),'anchors'))
-        A = problem.M.A;
+        A = findA_rotation(problem);
         ehess(:, :, A) = 0;
     end
     
