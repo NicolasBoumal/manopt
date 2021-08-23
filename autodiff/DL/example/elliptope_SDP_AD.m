@@ -132,7 +132,7 @@ function [Y, problem, S] = elliptope_SDP_AD(A, p, Y0)
     end
     
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     function f = cost_AD(Y)
         AY = A*Y;
         diagAYYt = sum(AY .* Y, 2);

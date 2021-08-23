@@ -358,7 +358,7 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     end
     
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     problem.cost = @cost_AD;
         function f = cost_AD(Y)
             xij = EIJ'*Y;

@@ -69,7 +69,7 @@ function [X, info] = dominant_invariant_subspace_AD(A, p)
     % redundant computations.
     
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     % Notice that the function trace is not supported for AD so far.
     % Replace it with ctrace described in the file functions_AD.m
     problem.cost = @(X)    -.5*ctrace(X'*A*X);

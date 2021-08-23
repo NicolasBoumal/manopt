@@ -131,7 +131,7 @@ function [Y, problem, S] = elliptope_SDP_complex_AD(A, p, Y0)
     end
 
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     % Notice that this is a complex manifold. The cost function should
     % be defined differently. See complex_example_AD.m and functions_AD.m  
     % to get more details. 

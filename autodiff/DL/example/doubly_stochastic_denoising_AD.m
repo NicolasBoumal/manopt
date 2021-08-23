@@ -65,7 +65,7 @@ function doubly_stochastic_denoising_AD()
     % problem.ehess = @(X, U) U;   % Euclidean Hessian
     
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     % Notice that the function norm is not supported for AD so far.
     % Replace it with cnormfro described in the file functions_AD.m.
     problem.cost = @(X) 0.5*cnormfro(A-X)^2;

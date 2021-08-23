@@ -106,11 +106,11 @@ function low_rank_matrix_completion_AD()
     % Replace it with cnormfro described in the file functions_AD.m.
     % Also, operations between sparse matrices and dlarrays are not 
     % supported for now. convert PA into a full matrix.
+    PA_full = full(PA);
+    P_full = full(P);
     problem.cost = @cost_AD;
         function f = cost_AD(X)
             Xmat = X.U*X.S*X.V';
-            PA_full = full(PA);
-            P_full = full(P);
             f = .5*cnormfro( P_full.*Xmat - PA_full)^2;
         end
     

@@ -121,7 +121,7 @@ function [A, R] = generalized_procrustes_AD(A_measure)
     % problem.hess = @hess;
     
     % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box
+    % automatic differentiation provided in the deep learning tool box(slower)
     problem.cost = @cost_AD;
         function f = cost_AD(X)
             R = X.R;
