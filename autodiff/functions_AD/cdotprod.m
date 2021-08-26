@@ -25,3 +25,4 @@ function cdotprodAB = cdotprod(A,B)
         throw(ME);
         
     end
+end
