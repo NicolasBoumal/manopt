@@ -1,17 +1,27 @@
 function autogradfunc = autograd(problem,fixedrankflag)
-% Apply automatic differentiation to computing Euclidean gradient
+% Apply automatic differentiation to computing the Euclidean gradient
 %
 % function autogradfunc = autograd(problem)
 % function autogradfunc = autograd(problem,fixedrankflag)
 %
-% Returns an AcceleratedFunction which is used to compute Euclidean 
-% gradients. See https://ch.mathworks.com/help/deeplearning/ref/deep.
-% acceleratedfunction.html for more descriptions about AcceleratedFunction.
-
+% Returns an AcceleratedFunction or a function handle which can be used to 
+% compute Euclidean gradients. See https://ch.mathworks.com/help/
+% deeplearning/ref/deep.acceleratedfunction.html for more descriptions 
+% about AcceleratedFunction.
+%
 % Note: to evaluate the Euclidean gradient of a certain point x(x should be
 % of type dlarray), call dfeval(autogradfunc,x) instead of autogradfunc(x).
+%
+% See also: egradcompute
 
-% See also: egradcompute, 
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, Aug. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log: 
+%
+% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
+% and the product manifold which contains fixedrankembeddedfactory
+% or anchoredrotationsfactory
     
     % check availability 
     assert(isfield(problem,'M') && isfield(problem,'cost'),...

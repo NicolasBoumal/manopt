@@ -1,24 +1,28 @@
 function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
-% Computes the Euclidean Hessian of the cost function at x along xdot using AD.
-
+% Computes the Euclidean Hessian of the cost function at x along xdot via AD.
+%
 % function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
-
+%
 % Returns the Euclidean Hessian of the cost function described in the
 % problem structure at the point x along xdot. Returns store structure 
 % which stores the Euclidean gradient and trace in order to avoid redundant
 % computation of hessian vector product for the same point x.
-
+%
 % complexflag is bool variable which indicates whether or not the cost  
 % function and the manifold described in the problem structure involves 
 % complex numbers.
-
+%
 % Note: the Euclidean hessian by-vector product is obtained through
 % differentiating the inner product between egrad and xdot, thus the 
 % result is valid only when second-order partial derivatives commute. 
-
+%
 % See also: mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
 % innerprodgeneral, cinnerprodgeneral, 
-    
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, Aug. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log:     
 
     %% Prepare Euclidean gradient
    
