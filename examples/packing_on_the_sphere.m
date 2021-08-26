@@ -49,7 +49,8 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 %   June 24, 2014 (NB) : Now shifting exponentials to alleviate numerical
 %                        trouble when epsilon is too small.
 %   
-    
+%   Aug. 21, 2021 (XJ) : Added AD to compute the egrad and the ehess  
+
     if ~exist('d', 'var') || isempty(d)
         % Dimension of the embedding space: R^d
         d = 3;
@@ -136,6 +137,22 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     problem.cost = @cost;
     problem.grad = @grad;
 
+    % An alternatie way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning tool box(slower)
+    % Notice that the function triu is not supported for AD so far.
+    % Replace it with ctriu described in the file functions_AD.m
+    % problem.cost = @cost_AD;
+    %    function f = cost_AD(X)
+    %        XXt = X*X';
+    %        s = max(max(ctriu(XXt, 1)));
+    %        expXXt = exp((XXt-s)/epsilon);
+    %        expXXt(1:(n+1):end) = 0;
+    %        u = sum(sum(ctriu(expXXt, 1)));
+    %        f = s + epsilon*log(u);
+    %    end
+    % call preprocessAD to automatically obtain the egrad
+    % problem = preprocessAD(problem,'egrad');
+    
     % For debugging, it's always nice to check the gradient a few times.
     % checkgradient(problem);
     % pause;

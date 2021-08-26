@@ -46,6 +46,8 @@ function [Z, P, X, A] = sparse_pca(A, m, gamma)
 % 
 % Change log:
 % 
+%   Aug. 23, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess  
 
     % If no input is provided, generate random data for a quick demo
     if nargin == 0
@@ -123,6 +125,21 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
         end
         G = store.G;
     end
+
+    % An alternatie way to compute the egrad is to use automatic
+    % differentiation provided in the deep learning tool box(slower).
+    % Notice that the function norm is not supported for AD so far.
+    % Replace it with cnormfor described in the file functions_AD.m.
+    % Notice that the abs function is not differentiable mathematically.
+    % Instead the subgradient is computed automatically.
+    % problem.cost = @cost_AD;
+    % function f = cost_AD(X)
+    %    AtX = A'*X;
+    %    absAtX = abs(AtX);
+    %    pos = max(0, absAtX - gamma);
+    %    f = -.5*cnormfro(pos)^2;
+    % end
+    % problem = preprocessAD(problem,'egrad');
 
     % checkgradient(problem);
     % pause;

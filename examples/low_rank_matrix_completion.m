@@ -26,7 +26,9 @@ function low_rank_matrix_completion()
 % Contributors: Bart Vandereycken
 % 
 % Change log:
-% 
+%   
+%    Xiaowen Jiang Aug. 20, 2021
+%       Added AD to compute the egrad and the ehess  
     
     % Random data generation. First, choose the size of the problem.
     % We will complete a matrix of size mxn of rank k.
@@ -98,7 +100,24 @@ function low_rank_matrix_completion()
         ehess = P.*Xdot;
     end
     
-
+    % An alternatie way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning tool box(slower)
+    % Notice that the function norm is not supported for AD so far.
+    % Replace it with cnormfro described in the file functions_AD.m.
+    % Also, operations between sparse matrices and dlarrays are not 
+    % supported for now. convert PA into a full matrix.
+    % PA_full = full(PA);
+    % P_full = full(P);
+    % problem.cost = @cost_AD;
+    %    function f = cost_AD(X)
+    %        Xmat = X.U*X.S*X.V';
+    %        f = .5*cnormfro( P_full.*Xmat - PA_full)^2;
+    %    end
+    
+    % Computating the ehess for the set of fixed-rank matrices with 
+    % an embedded geometry is currently not supported.
+    % Call preprocessAD to automatically obtain the grad
+    % problem = preprocessAD(problem);
 
 
     % Check consistency of the gradient and the Hessian. Useful if you

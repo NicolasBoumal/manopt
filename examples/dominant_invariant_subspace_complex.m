@@ -44,6 +44,21 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
     problem.egrad = @(X)    -2*A*X;
     problem.ehess = @(X, H) -2*A*H;
     
+    % An alternatie way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning tool box(slower)
+    % Notice that this is a complex manifold. The cost function should be
+    % defined differently. See complex_example_AD.m and functions_AD.m to 
+    % get more details. 
+    % problem.cost = @cost_complex;
+    %    function f = cost_complex(X)
+    %        AX = cprod(A,X);
+    %        Xtransp = ctransp(X);
+    %        product = cprod(Xtransp,AX);
+    %        f = -creal(ctrace(product));
+    %    end
+    % call preprocessAD to automatically obtain the egrad and the ehess
+    % problem = preprocessAD(problem);
+    
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.
     % checkgradient(problem);

@@ -50,7 +50,9 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
 %
 %   Jan. 4, 2021 (NB):
 %       Changes for compatibility with Octave 6.1.0.
-
+%
+%   Aug. 23, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess  
 
     % Generic useful functions
     center_cols = @(A) bsxfun(@minus, A, mean(A, 2));
@@ -137,6 +139,25 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
     problem.egrad = @(T) Astar(A(T));
     problem.ehess = @(T, Tdot) Astar(A(Tdot));
 
+    % An alternatie way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning tool box(slower)
+    % Notice that the function norm is not supported for AD so far.
+    % Replace it with cnormfor described in the file functions_AD.m.
+    % Also operations between sparse matrices and dlarrys is not supported
+    % so far. Transform V,J into full matrices. AD does not support bsxfunc 
+    % as well. Translate it into the expression of repmat and .*. The whole
+    % makes it much slower than specifying the egrad and the ehess.
+    % V_full = full(V);
+    % J_full = full(J);
+    % problem.cost  = @(T) 0.5*cnormfro(A_AD(T))^2;
+    % function AT = A_AD(T)
+    %    sum1 = sum(V_full .* (T*J_full), 1);
+    %    repsum1 = repmat(sum1,size(sum1,1),1);
+    %    AT = T*J_full - V_full.*repsum1;
+    % end
+    % call preprocessAD to automatically obtain the egrad and the ehess    
+    % problem = preprocessAD(problem);
+    
     T_lsq = trustregions(problem);
     
 
@@ -164,6 +185,11 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         problem.egrad = @(T) Astar(bsxfun(@times, A(T), ...
                                     1./sqrt(sqnorm_cols(A(T)) + delta^2)));
 
+        % AD version      
+        % problem = rmfield(problem, 'egrad');
+        % problem = rmfield(problem, 'autogradfunc');
+        % problem = preprocessAD(problem,'egrad');                        
+                                
         % Solve, using the previous solution as initial guess.
         T_hub = trustregions(problem, T_hub);
         
