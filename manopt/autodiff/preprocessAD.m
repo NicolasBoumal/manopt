@@ -7,22 +7,23 @@ function problem = preprocessAD(problem,varargin)
 %
 % Check if the automatic differentiation provided in the deep learning tool
 % box can be applied to computing the euclidean gradient and the euclidean
-% hessian given the manifold and cost function described in the problem
+% hessian given the manifold and the cost function described in the problem
 % structure. If AD fails for some reasons, the original problem structure 
 % is returned and the approx. of gradient or hessian will then be used 
 % as usual. Otherwise, the problem structure with additional fields: 
 % egrad, costgrad and ehess is returned. If the user only wants the  
-% gradient or the hessian information,the second argument 'egrad' or  
+% gradient or the hessian information, the second argument 'egrad' or  
 % 'ehess' should be specified. If the egrad or the ehess is alrealdy 
-% provided by the user, the complement information is returned by feeding 
-% only the problem structure. e.g. if the user has already specified the 
-% egrad or grad, he can call problem = preprocessAD(problem,'ehess') or 
-% problem = preprocessAD(problem) to obtain the ehess via AD.
+% provided by the user, the complement information is returned by calling 
+% preprocessAD(problem). e.g. if the user has already provided the gradient 
+% information, he can call problem = preprocessAD(problem,'ehess') or 
+% problem = preprocessAD(problem) to obtain the ehess via AD. In this
+% case, the ehess is computed according to the egrad instead of the cost.
 %
 % In the case that the manifold is the set of fixed-rank matrices with 
 % an embedded geometry, it is more efficient to compute the Riemannian 
 % gradient directly. However, computing the exact Riemannian Hessian by 
-% vecctor product via AD is currently not supported. By calling 
+% vector product via AD is currently not supported. By calling 
 % preprocessAD, the problem struct with additional fields grad and costgrad
 % is returned. Besides, optimizing on fixedranktensorembeddedfactory and 
 % fixedTTrankfactory via AD is currently not supported.
@@ -30,18 +31,21 @@ function problem = preprocessAD(problem,varargin)
 % Note: The current functionality of AD relies on Matlab's deep learning
 % tool box, which has the inconvenient effect that we cannot control the
 % limitations. Firstly, AD does not support sparse matrices so far. Try 
-% converting sparse arrays into full arrays in the cost function. Secondly, 
-% math operations involving complex numbers are currently not supported for
-% dlarray. To deal with complex problems, see complex_example_AD.m and 
-% functions_AD.m for more information.Thirdly, check the list of functions
-% with AD supportwhen defining the cost function. See the website: 
+% converting sparse arrays into full arrays in the cost function. Secondly,
+% math operations involving complex numbers between dlarrays is not 
+% supported for Matlab R2021a or earlier. To fully exploit the convenience 
+% of AD, please update to Matlab R2021b or later if possible. If the user 
+% cannot have access to Matlab R2021b or later, manopt provides an 
+% alternative way to deal with complex problems. see complex_example_AD.m 
+% and functions_AD.m for more information.Thirdly, check the list of 
+% functions with AD support when defining the cost function. See the website
 % https://ww2.mathworks.cn/help/deeplearning/ug/list-of-functions-with
-% -dlarray-support.html and functions_AD.m for brief introduction. To run
-% AD on GPU, set gpuflag = true in the problem structure and store 
-% related arrays on GPU as usual.See using_gpu_AD for more information.
+% -dlarray-support.html and functions_AD.m for more details. 
+% To run AD on GPU, set gpuflag = true in the problem structure and store 
+% related arrays on GPU as usual. See using_gpu_AD for more information.
 %
-% See also: mat2dl_complex, autograd, egradcompute, ehesscompute
-% complex_example_AD, functions_AD, using_gpu_AD
+% See also: autograd, egradcompute, ehesscompute, complex_example_AD
+% functions_AD, using_gpu_AD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -78,20 +82,35 @@ function problem = preprocessAD(problem,varargin)
         warning('manopt:dl',['It seems the Deep learning tool box is not installed.'...
          '\nIt is needed for automatic differentiation.\nPlease install the'...
          'latest version of the deep learning tool box and \nupgrade to Matlab'...
-         ' 2021a if possible.'])
+         ' R2021b or later if possible.'])
         return
     else 
         % complexflag is used to detect if the problem defined contains
-        % complex numbers.
+        % complex numbers and meanwhile the Matlab version is R2021a or earlier.
         complexflag = false;
         % check if AD can be applied to the cost function by passing a
         % point on the manifold to problem.cost.
         x = problem.M.rand();
+        problem_name = problem.M.name();
+        % check fixed-rank exceptions
+        if  (startsWith(problem_name,'Product manifold') &&...,
+            ((sum(isfield(x,{'U','S','V'}))==3) &&..., 
+        (contains(problem_name(),'rank','IgnoreCase',true)))) || ...,
+        (exist('tenrand', 'file')==2 && isfield(x,'X') && ...,
+        isa(x.X,'ttensor')) || isa(x,'TTeMPS')
+            warning('manopt:AD:fixedrankembedded',['Automatic differentiation' ...
+                ' currently does not support fixedranktensorembeddedfactory,\n'...
+                'fixedTTrankfactory, and product manifolds containing '...
+                'fixedrankembeddedfactory.']);           
+            return
+        end
         try
             dlx = mat2dl(x);
             costtestdlx = problem.cost(dlx);
         catch ME
             % detect complex number by looking up error message
+            % Note: the error deep:dlarray:ComplexNotSupported is removed 
+            % in Matlab R2021b or later
             if (strcmp(ME.identifier,'deep:dlarray:ComplexNotSupported'))
                 try
                     dlx = mat2dl_complex(x);
@@ -100,8 +119,8 @@ function problem = preprocessAD(problem,varargin)
                 catch
                     warning('manopt:complex',['Automatic differentiation failed. '...
                     'Problem defining the cost function.'...
-                    '\nVariables contain complex numbers.'...
-                    'See complex_example_AD.m and functions_AD.m for more\n'...
+                    '\nVariables contain complex numbers. Check the version of'...
+                    'the Matlab and see complex_example_AD.m\nand functions_AD.m for more'...
                     'information about how to deal with complex problems']);
                     return
                 end
@@ -123,7 +142,7 @@ function problem = preprocessAD(problem,varargin)
     if ~(exist('dlaccelerate', 'file') == 2)
         warning('manopt:dlaccelerate', ...
             ['Function dlaccelerate is not available:\nPlease ' ...
-            'upgrade to Matlab 2021a and the latest deep\nlearning ' ...
+            'upgrade to Matlab 2021a or later and the latest deep\nlearning ' ...
             'toolbox version if possible.\nMeanwhile, auto-diff ' ...
             'may be somewhat slower.\nThe hessian is not available as well.\n' ...
             'To disable this warning: warning(''off'', ''manopt:dlaccelerate'')']);
@@ -135,10 +154,10 @@ function problem = preprocessAD(problem,varargin)
     % only the Riemannian gradient can be computed via AD so far.
     fixedrankflag = 0;
     if (sum(isfield(x,{'U','S','V'}))==3) &&..., 
-        (contains(problem.M.name(),'rank','IgnoreCase',true)) &&...,
-        (~startsWith(problem.M.name(),'Product manifold'))
-        if ~(exist('varargin', 'var') && strcmp(varargin,'egrad'))
-            warning('manopt:fixedrankAD',['computating the exact hessian via '...
+        (contains(problem_name,'rank','IgnoreCase',true)) &&...,
+        (~startsWith(problem_name,'Product manifold'))
+        if ~(nargin==2 && strcmp(varargin,'egrad'))
+            warning('manopt:fixedrankAD',['Computating the exact hessian via '...
             'AD is currently not supported.\n'...
             'To disable this warning: warning(''off'', ''manopt:fixedrankAD'')']);
         end
