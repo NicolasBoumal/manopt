@@ -100,18 +100,18 @@ function low_rank_matrix_completion()
         ehess = P.*Xdot;
     end
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function norm is not supported for AD so far.
-    % Replace it with cnormfro described in the file functions_AD.m.
-    % Also, operations between sparse matrices and dlarrays are not 
-    % supported for now. convert PA into a full matrix.
+    % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
+    % functions_AD.m. Also, operations between sparse matrices and dlarrays 
+    % are not supported for now. convert PA and P into full matrices.
     % PA_full = full(PA);
     % P_full = full(P);
     % problem.cost = @cost_AD;
     %    function f = cost_AD(X)
     %        Xmat = X.U*X.S*X.V';
-    %        f = .5*cnormfro( P_full.*Xmat - PA_full)^2;
+    %        f = .5*cnormsqfro(P_full.*Xmat - PA_full);
     %    end
     
     % Computating the ehess for the set of fixed-rank matrices with 

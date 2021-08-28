@@ -54,8 +54,8 @@ function essential_svd
         gdot = essential_ehessE2ehess(X, egradE, ehessE, S); % Converts Hessian in E to X.
     end
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
     % call preprocessAD to automatically obtain the egrad and the ehess
     % problem = preprocessAD(problem);
     

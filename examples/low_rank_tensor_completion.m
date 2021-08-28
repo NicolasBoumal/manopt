@@ -218,12 +218,12 @@ function low_rank_tensor_completion()
         Hess.G = M0array + M1array + M2array + M3array; 
     end
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function norm is not supported for AD so far.
-    % Replace it with cnormfro described in the file functions_AD.m.
-    % Also, operations between sparse matrices and dlarrays are not 
-    % supported for now. convert PA and P into full matrices.
+    % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
+    % functions_AD.m. Also, operations between sparse matrices and dlarrays 
+    % are not supported for now. convert PA and P into full arrays.
     % problem.cost = @cost_AD;
     % PA_full = full(PA);
     % P_full = full(P);
@@ -231,9 +231,9 @@ function low_rank_tensor_completion()
     %        Xmultiarray = tucker2multiarray(X);
     %        Diffmultiarray = P_full.*Xmultiarray - PA_full;
     %        Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
-    %        f = .5*cnormfro(Diffmultiarray_flat)^2;
+    %        f = .5*cnormsqfro(Diffmultiarray_flat);
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
  
 

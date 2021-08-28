@@ -59,7 +59,8 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %   April 3, 2015 (NB):
 %       L products now counted with the new shared memory system. This is
 %       more reliable and more flexible than using a global variable.
-
+%   Aug  20, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess  
 
     % If no inputs are provided, generate a random graph Laplacian.
     % This is for illustration purposes only.
@@ -215,6 +216,12 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     % problem.cost  = @(Y)  -trace(Y'*L*Y)/4;
     % problem.egrad = @(Y) -(L*Y)/2;
     % problem.ehess = @(Y, U) -(L*U)/2;
+
+    % It's also possible to compute the egrad and the ehess via AD but is 
+    % much slower. Notice that the function trace is not supported for AD 
+    % so far. Replace it with ctrace described in the file functions_AD.m.
+    % problem.cost  = @(Y)  -ctrace(Y'*L*Y)/4;
+    % problem = preprocessAD(problem);
     
     % Instead of the prototyping version, the functions below describe the
     % cost, gradient and Hessian using the caching system (the store

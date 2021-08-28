@@ -131,15 +131,16 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
         H = manifold.proj(Y, SYdot);
     end
 
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the gradient and the hessian is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % Define the cost function without the store structure
     % function f = cost_AD(Y)
     %    AY = A*Y;
     %    diagAYYt = sum(AY .* Y, 2);
     %    f = .5*sum(diagAYYt);
     % end
     % problem.cost = @cost_AD;
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
 
     % If no initial guess is available, tell Manopt to use a random one.

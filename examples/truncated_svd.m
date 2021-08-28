@@ -118,17 +118,18 @@ function [U, S, V, info] = truncated_svd(A, p)
         h.V = -(AtUdot*AtU'*V + AtU*AtUdot'*V + AtU*AtU'*Vdot);
     end
 
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
-    % Notice that the function norm is not supported for AD so far.
-    % Replace it with cnormfor described in the file functions_AD.m.
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox 
+    % (slower). Notice that the function norm is not supported for AD so 
+    % far. Replace norm(...,'fro') with backup function cnormsqfro 
+    % described in the file functions_AD.m.
     % problem.cost = @cost_AD;
     %    function f = cost_AD(X)
     %        U = X.U;
     %        V = X.V;
-    %        f = -.5*cnormfro(U'*A*V)^2;
+    %        f = -.5*cnormsqfro(U'*A*V);
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess 
+    % call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
     
     % Execute some checks on the derivatives for early debugging.

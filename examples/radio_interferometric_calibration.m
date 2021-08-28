@@ -40,7 +40,9 @@ function xsol = radio_interferometric_calibration(N, K)
 %       the modified metric in the symfixedrankYYcomplexfactory file, 
 %       where a factor of 2 was removed from the metric. Accordingly, 
 %       a factor of 2 was added to egrad and ehess operations.
-    
+%   Aug  31, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess
+
     % Generate some random data to test the function
     
     if ~exist('N', 'var') || isempty(N)
@@ -145,8 +147,14 @@ function xsol = radio_interferometric_calibration(N, K)
         end
     end
     
-    
-    
+
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox.
+    % Notice that the for loop in the cost function can make AD much
+    % slower. Call preprocessAD to prepare AD for the problem structure.
+    % problem = preprocessAD(problem);
+
+
     % Execute some checks on the derivatives for early debugging.
     % checkgradient(problem);
     % pause;

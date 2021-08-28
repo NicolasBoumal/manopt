@@ -50,8 +50,8 @@ function [U, cost] = robust_pca(X, d)
 %   April 8, 2015 (NB):
 %       Built-in test data for quick tests; added comment about centering.
 %
-%   Aug. 20, 2021 (XJ)
-%       Added AD to compute the egrad and the ehess  
+%   Aug  20, 2021 (XJ):
+%       Added AD to compute the egrad 
 
 
     % If no inputs, generate random data for illustration purposes.
@@ -94,8 +94,8 @@ function [U, cost] = robust_pca(X, d)
 	options.verbosity = 2; % Change this number for more or less output
     warning('off', 'manopt:getHessian:approx');
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the egrad is to use automatic
+    % differentiation provided in the deep learning toolbox (slower)
     % call preprocessAD to automatically obtain the egrad 
     % problem = preprocessAD(problem,'egrad');
     

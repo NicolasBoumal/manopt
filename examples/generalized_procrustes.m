@@ -22,7 +22,7 @@ function [A, R] = generalized_procrustes(A_measure)
 % Change log:
 %   
 %    Xiaowen Jiang Aug. 20, 2021
-%       Added AD to compute the egrad and the ehess
+%       Added AD to compute the grad and the hess
 
     if ~exist('A_measure', 'var')
         % Generate random data to test the method.
@@ -122,8 +122,8 @@ function [A, R] = generalized_procrustes(A_measure)
     problem.grad = @grad;
     problem.hess = @hess;
 
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the gradient and the hessian is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
     % problem.cost = @cost_AD;
     %    function f = cost_AD(X)
     %        R = X.R;
@@ -131,7 +131,7 @@ function [A, R] = generalized_procrustes(A_measure)
     %        E = multiprod(R, A) - A_measure;
     %        f = (E(:)'*E(:))/(2*N);
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
     
     % For debugging, it's always nice to check the gradient a few times.

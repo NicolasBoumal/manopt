@@ -127,7 +127,7 @@ function [Y, infos, problem_description] =  low_rank_dist_completion(problem_des
 %                   Corrected some logic flaws while plotting and storing
 %                   rank information. A typo was also corrected.
 %   August 20 2021 (XJ):
-%                   Added AD to compute the egrad and the ehss
+%                   Added AD to compute the egrad and the ehess
     
     % Check problem description
     if ~exist('problem_description', 'var')
@@ -357,15 +357,15 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
         Hess = problem.M.proj(Y, Hess);
     end
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
     % problem.cost = @cost_AD;
     %    function f = cost_AD(Y)
     %        xij = EIJ'*Y;
     %        estimDists = sum(xij.^2,2);
     %        f = 0.5*mean((estimDists - data_train.entries).^2);
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
     
     %     % Check numerically whether gradient and Hessian are correct

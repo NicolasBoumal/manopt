@@ -34,8 +34,8 @@ function [X, info] = dominant_invariant_subspace(A, p)
 %       We specify a max and initial trust region radius in the options.
 %   NB Jan. 20, 2018:
 %       Added a few comments regarding implementation of the cost.
-%   XJ Aug. 20, 2021
-%       Added AD to compute the egrad and the ehess
+%   XJ Aug. 31, 2021
+%       Added AD to compute the grad and the hess
 
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
@@ -68,12 +68,14 @@ function [X, info] = dominant_invariant_subspace(A, p)
     % caching capabilities of Manopt (the store structures) to save on
     % redundant computations.
     
-    % An alternatie way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning tool box(slower)
+    % An alternative way to compute the gradient and the hessian is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower).
     % Notice that the function trace is not supported for AD so far.
     % Replace it with ctrace described in the file functions_AD.m
     % problem.cost = @(X)    -.5*ctrace(X'*A*X);
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % It's also feasible to specify the cost in a more efficient way
+    % problem.cost = @(X)    -.5*sum(sum(X .* (A*X))); 
+    % Call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
