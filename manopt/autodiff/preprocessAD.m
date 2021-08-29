@@ -194,8 +194,9 @@ function problem = preprocessAD(problem,varargin)
     % if only the gradient information is provided, compute ehess     
         elseif ~isfield(problem,'ehess') && ~isfield(problem,'hess')...,
             && (isfield(problem,'costgrad') || isfield(problem,'grad')...,
-            || isfield(problem,'egrad')) && (fixedrankflag == 0)
-    
+            || isfield(problem,'egrad')) && (fixedrankflag == 0) &&...,
+            (exist('dlaccelerate', 'file') == 2)
+
             problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
         
     % otherwise compute both egrad and ehess via automatic differentiation      
@@ -203,7 +204,9 @@ function problem = preprocessAD(problem,varargin)
             problem.autogradfunc = autograd(problem);
             problem.egrad = @(x) egradcompute(problem,x,complexflag);
             problem.costgrad = @(x) costgradcompute(problem,x,complexflag);
-            problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
+            if exist('dlaccelerate', 'file') == 2
+                problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
+            end
         end
         
         case 2
@@ -219,6 +222,7 @@ function problem = preprocessAD(problem,varargin)
             
         otherwise
             error('Too many input arguments');
+
     end
             
     
@@ -241,7 +245,7 @@ function problem = preprocessAD(problem,varargin)
                 problem = rmfield(problem,'autogradfunc');
                 problem = rmfield(problem,'egrad');
                 problem = rmfield(problem,'costgrad');
-            if ~hessianflag
+            if ~hessianflag && (exist('dlaccelerate', 'file') == 2)
                 problem = rmfield(problem,'ehess');
             end
             return
@@ -254,7 +258,7 @@ function problem = preprocessAD(problem,varargin)
             problem = rmfield(problem,'autogradfunc');
             problem = rmfield(problem,'egrad');
             problem = rmfield(problem,'costgrad');
-            if ~hessianflag
+            if ~hessianflag && (exist('dlaccelerate', 'file') == 2)
                problem = rmfield(problem,'ehess');
             end
             return

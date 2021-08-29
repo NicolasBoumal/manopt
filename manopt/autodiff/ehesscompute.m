@@ -5,6 +5,8 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
 % function [ehess,store] = ehesscompute(problem,x,xdot,store)
 % function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
 %
+% This file requires the Matlab version to be R2021a or later.
+%
 % Returns the Euclidean Hessian of the cost function described in the
 % problem structure at the point x along xdot. Returns store structure 
 % which stores the Euclidean gradient and trace in order to avoid redundant
@@ -21,7 +23,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
 % euclidean gradient is computed according to the egrad and otherwise 
 % according to the cost function.
 %
-% See also: mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
+% See also: preprocessAD, mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
 % innerprodgeneral, cinnerprodgeneral, 
 
 % This file is part of Manopt: www.manopt.org.
@@ -35,8 +37,10 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     assert(isfield(problem,'M') && isfield(problem,'cost'),...,
     'problem structure must contain fields M and cost.');
     assert(exist('dlarray', 'file') == 2, ['Deep learning tool box is '... 
-    'needed for automatic differentiation'])
-    
+    'needed for automatic differentiation']);
+    assert(exist('dlaccelerate', 'file') == 2, ['AD failed when computing'...
+        'the hessian. Please upgrade to Matlab R2021a or later.'])
+
     % check whether the user has specified the egrad already
     egradflag = false;
     if isfield(problem,'egrad') && ~isfield(problem,'autogradfunc')
@@ -98,7 +102,8 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
         if ~egradflag
             y = costfunction(dlx);
             % in case that the user forgot to take the real part of the cost
-            % when dealing with complex problems, take the real part for AD
+            % when dealing with complex problems and meanwhile the Matlab
+            % version is R2021a or earlier, take the real part for AD
             if isstruct(y) && isfield(y,'real')
                 y = creal(y);
             end
@@ -121,7 +126,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     % unitary manifold and essential manifold requires first converting 
     % the representation of the tangent vector into the ambient space. 
     % if the problem is a product manifold, in addition to the above
-    % manifolds, xdot of the other manifolds remain the same
+    % manifolds, the xdot of the other manifolds remain the same
     if contains(problem.M.name(),'Rotations manifold SO','IgnoreCase',true)..., 
             ||  contains(problem.M.name(),'Unitary manifold','IgnoreCase',true)...,
             || (contains(problem.M.name(),'Product rotations manifold','IgnoreCase',true) &&..., 
@@ -152,7 +157,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     % ehess of anchors with indices in A should be zero
     if (contains(problem.M.name(),'Product rotations manifold') &&..., 
             contains(problem.M.name(),'anchors'))
-        A = findA_rotation(problem);
+        A = findA_anchors(problem);
         ehess(:, :, A) = 0;
     end
     

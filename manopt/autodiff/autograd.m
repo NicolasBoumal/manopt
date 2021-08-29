@@ -12,7 +12,7 @@ function autogradfunc = autograd(problem,fixedrankflag)
 % Note: to evaluate the Euclidean gradient of a certain point x(x should be
 % of type dlarray), call dfeval(autogradfunc,x) instead of autogradfunc(x).
 %
-% See also: egradcompute
+% See also: preprocessAD, egradcompute, costgradcompute
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -23,25 +23,28 @@ function autogradfunc = autograd(problem,fixedrankflag)
 % and the product manifold which contains fixedrankembeddedfactory
 % or anchoredrotationsfactory
     
-    % check availability 
+    % Check availability 
     assert(isfield(problem,'M') && isfield(problem,'cost'),...
     'problem structure must contain the fields M and cost.');
     assert(exist('dlarray', 'file') == 2, ['Deep learning tool box is '... 
     'needed for automatic differentiation'])
     
-    % set fixedrankflag to zero if the manifold struct is not 
+    % Set fixedrankflag to zero if the manifold struct is not 
     % fixed(multilinear)-rank matrices or tensors with an embedded geometry
+    % or tensors of fixed Tensor Train (TT) rank
     if ~exist('fixedrankflag','var')|| isempty(fixedrankflag)
         fixedrankflag = 0;
     end
 
-    % obtain the euclidean gradient function via AD
+    % Obtain the euclidean gradient function via AD
     costfunction = problem.cost;
+    % Set fixedrankflag to 1 if the manifold is fixed-rank matrices with
+    % an embedded geometry. The other two cases are not implemented yet.
     if fixedrankflag == 1
         % AcceleratedFunction can lead to a slow down in this case
         autogradfunc = @(x,A,B) autogradfuncinternelfixedrankembedded(x,A,B);
     elseif fixedrankflag == 0
-        func = @(x) autogradfuncinternel(x);
+        func = @ autogradfuncinternel;
         % accelerate 
         try
             autogradfunc = dlaccelerate(func); % Introduced in Matlab 2021a
@@ -49,7 +52,7 @@ function autogradfunc = autograd(problem,fixedrankflag)
         catch
             warning('manopt:dlaccelerate', ...
                     ['Function dlaccelerate is not available:\nPlease ' ...
-                     'upgrade to Matlab 2021a and the latest deep\nlearning ' ...
+                     'upgrade to Matlab 2021a or later and the latest deep\nlearning ' ...
                      'toolbox version if possible.\nMeanwhile, auto-diff ' ...
                      'may be somewhat slower.\n The hessian is not available as well.\n' ...
                      'To disable this warning: warning(''off'', ''manopt:dlaccelerate'')']);
@@ -61,13 +64,14 @@ function autogradfunc = autograd(problem,fixedrankflag)
     function [y egrad] = autogradfuncinternel(x)
             
         y = costfunction(x);
-        % in case that the user forgot to take the real part of the cost
-        % when dealing with complex problems, take the real part for AD
+        % In case that the user forgot to take the real part of the cost
+        % when dealing with complex problems with Matlab R2021a or earlier, 
+        % take the real part for AD
         if isstruct(y) && isfield(y,'real')
             y = creal(y);
         end
         
-        % call dlgradient to compute the Euclidean gradient. by default, 
+        % Call dlgradient to compute the Euclidean gradient. by default, 
         % 'RetainData' and 'EnableHigherDerivatives' are set to false
         egrad = dlgradient(y,x);
         
@@ -77,11 +81,12 @@ function autogradfunc = autograd(problem,fixedrankflag)
         if (contains(problem_name,'Product rotations manifold') &&..., 
             contains(problem_name,'anchors') &&...,
             ~startsWith(problem_name,'Product manifold'))
-            A = findA_rotation(problem);
+            A = findA_anchors(problem);
             egrad(:, :, A) = 0;
         end
     end
     
+    % fixedrankembeddedfactory part
     % obtain the product of egrad and V and the product of egrad
     % transpose and U by differentiating g1 and g2 w.r.t A and B
     function [g1,egrad] = autogradfuncinternelfixedrankembedded(x,A,B)
