@@ -1,5 +1,20 @@
 function traceA = ctrace(A)
-    
+% Computes the sum of diagonal elements of A.
+%
+% function traceA = ctrace(A)
+%
+% Returns the sum of diagonal elements of A. The input A does not
+% necessarily to be a square matrix. The function supports both numeric 
+% arrays and structs with fields real and imag. Note that trace currently
+% does not support dlarrays and ctrace can be seen as a backup function.
+%
+% See also: functions_AD
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, July. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log:
+
     if isstruct(A) && isfield(A,'real')
         assert(length(size(A.real))==2,'Input should be a 2-D array')
         m = size(A.real,1);

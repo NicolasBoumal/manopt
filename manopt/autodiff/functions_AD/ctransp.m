@@ -1,4 +1,17 @@
 function Xtransp = ctransp(X)
+% Computes the conjugate-transpose of X
+%
+% function Xtransp = ctransp(X)
+%
+% This function can be seen as the operator ' but is compatible with
+% both dlarrays and structs with fields real and iamg.
+%
+% See also: functions_AD
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, July. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log:
 
     if isstruct(X) && isfield(X,'real')
         Xreal = X.real;
