@@ -1,11 +1,27 @@
 function x = dl2mat_complex(dlx)
-    
-    if ~isstruct(dlx) && ~iscell(dlx) && ~isnumeric(dlx)
-        up = MException('manopt:autodiff:dl2mat', ...
-                    'dl2mat should only accept structs, cells or arrays.');
+% Convert dlx which stores complex numbers in a structure into double
+%
+% function dlx = dl2mat_complex(x)
+% 
+% The iput dlx can be defined recursively by arrays, structs and cells. 
+% Each part of dlx is a struct containing dlarrays with fields real and imag 
+% which indicate the real and imaginary part of the stored complex numbers. 
+% The function converts the struct of each part back to complex numbers. 
+%
+% See also: mat2dl_complex, functions_AD
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, July. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log:     
+
+    if ~isstruct(dlx) && ~iscell(dlx) 
+        up = MException('manopt:autodiff:dl2mat_complex', ...
+                    'dl2mat_complex should only accept a struct or a cell.');
         throw(up);
     end
 
+    % recursively convert each part of dlx into double
     if isstruct(dlx) && (~isfield(dlx,'real'))
         x = dl2mat_struct(dlx);
     elseif iscell(dlx)
@@ -13,9 +29,10 @@ function x = dl2mat_complex(dlx)
     else
         x.real = extractdata(dlx.real);
         x.imag = extractdata(dlx.imag);
-        x = x.real + i*x.imag;
+        % recover complex numbers
+        x = x.real + 1i*x.imag;
     end
-    
+    % convert dlx into double if dlx is a struct
     function x = dl2mat_struct(dlx)
         elems = fieldnames(dlx);
         nelems = numel(elems);
@@ -25,10 +42,12 @@ function x = dl2mat_complex(dlx)
             elseif iscell(dlx.(elems{ii})) 
                 x.(elems{ii}) = dl2mat_cell(dlx.(elems{ii}));
             else
-                x.(elems{ii}) = extractdata(dlx.(elems{ii}).real) + i*extractdata(dlx.(elems{ii}).imag);
+                % recover complex numbers
+                x.(elems{ii}) = extractdata(dlx.(elems{ii}).real) + 1i*extractdata(dlx.(elems{ii}).imag);
             end
         end
     end
+    % convert dlx into double if dlx is a cell
     function x = dl2mat_cell(dlx)
         ncell = length(dlx);
         for ii = 1:ncell
@@ -37,7 +56,8 @@ function x = dl2mat_complex(dlx)
             elseif iscell(dlx{ii})
                 x{ii} = dl2mat_cell(dlx{ii});
             else
-                x{ii} = extractdata(dlx{ii}.real) + i*extractdata(dlx{ii}.imag);
+                % recover complex numbers
+                x{ii} = extractdata(dlx{ii}.real) + 1i*extractdata(dlx{ii}.imag);
             end
         end
     end
