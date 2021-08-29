@@ -29,7 +29,7 @@ function basic_example_AD()
     ' 2021a if possible.'])
     
     % Generate the problem data.
-    n = 1000;
+    n = 10000;
     A = randn(n);
     A = .5*(A+A');
     
@@ -50,9 +50,9 @@ function basic_example_AD()
     % problem = preprocessAD(problem);
 
     % If the user only wants the gradient or the hessian information,
-    % indicate the second argument of preprocessAD to be 'egrad' or 'ehess'
+    % set the second argument of preprocessAD to be 'egrad' or 'ehess'
 
-    % e.g. provide the gradient only and use FN approximation of hessian
+    % e.g. Provide the gradient only and use FN approximation of hessian
     % (which is often faster than providing the exact hessian).
     % problem = preprocessAD(problem,'egrad');
 
