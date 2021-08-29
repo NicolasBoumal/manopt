@@ -1,5 +1,27 @@
 function innerpro = cinnerprodgeneral(x,y)
-    % Compute inner product between x and y(complex case).
+% Compute the Euclidean inner product between x and y in the complex case
+%
+% function innerpro = cinnerprodgeneral(x,y)
+%
+% The input x and y are numeric data structures which can be defined  
+% recursively by arrays, structs and cells. Each part of x and y should 
+% be a struct which contains the fields real and iamg which indicate
+% the real and imaginary part of the stored complex numbers. The inner
+% product between x and y is defined as sum(real(conj(x(:)).*y(:))).
+% The return is the sum of the inner products over each part of x and y.
+% In case that x and y are structs with different fields, the inner products
+% are computed only for the common fields.
+%
+% Note: Operations between dlarrays containing complex numbers have been
+% introduced in Matlab R2021b or later. This file is only useful for Matlab
+% R2021a or earlier. It will be discarded when Matlab R2021b is stable. 
+% 
+% See also: cinnerprodgeneral 
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, Aug. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log: 
 
     if ~((isstruct(x) && isstruct(y)) || (iscell(x) && iscell(y))...,
             || (isnumeric(x) && isnumeric(y)) || (isstruct(x) && isnumeric(y)))
@@ -9,7 +31,7 @@ function innerpro = cinnerprodgeneral(x,y)
         throw(up);
         
     end
-    
+    % recursively compute the inner product 
     if isstruct(x) && isstruct(y) && (~isfield(x,'real')) && (~isfield(y,'real'))
         innerpro  = cinnerprodgeneral_struct(x,y);
     elseif iscell(x) && iscell(y)
@@ -23,10 +45,12 @@ function innerpro = cinnerprodgeneral(x,y)
         % innerpro = creal(cprod(ctransp(xcol),xcol));
     end
     
+    % struct case
     function innerpro = cinnerprodgeneral_struct(x,y)
         innerpro = 0;
         elemsx = fieldnames(x);
         elemsy = fieldnames(y);
+        % find the common fields
         [elems,ix,iy] = intersect(elemsx,elemsy, 'stable');
         nelems = numel(elems);
         for ii = 1:nelems
@@ -44,7 +68,8 @@ function innerpro = cinnerprodgeneral(x,y)
             end
         end
     end
-
+    
+    % cell case
     function innerpro = cinnerprodgeneral_cell(x,y)
         innerpro = 0;
         ncell = length(x);
