@@ -13,6 +13,8 @@ function A = multiscale(scale, A)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%   Aug. 29, 2021 (NB):
+%       Corrected bug that occurred for complex 'scale' vector.
 
 
     assert(ndims(A) <= 3, ...
@@ -25,6 +27,6 @@ function A = multiscale(scale, A)
             'in the 3D array A.']);
 
     scale = scale(:);
-    A = reshape(bsxfun(@times, reshape(A, n*m, N), scale'), n, m, N);
+    A = reshape(bsxfun(@times, reshape(A, n*m, N), scale.'), n, m, N);
 
 end
