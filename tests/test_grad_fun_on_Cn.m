@@ -6,12 +6,14 @@ b = randn(m, 1) + 1i*randn(m, 1);
 problem.M = euclideancomplexfactory(n, 1);
 z = @(x) squeeze(multiprod(x', multiprod(A, x))) - b;
 problem.cost = @(x) real(z(x)'*z(x));
-problem.grad = ...
-    @(x) 2*squeeze(multiprod(A, x))*conj(z(x)) + ...
-         2*squeeze(multiprod(multihconj(A), x))*z(x);
-checkgradient(problem);
+% problem.grad = ...
+%    @(x) 2*squeeze(multiprod(A, x))*conj(z(x)) + ...
+%         2*squeeze(multiprod(multihconj(A), x))*z(x);
+% checkgradient(problem);
 
-% TODO: check if AD works on this example in R2021b.
+% check if AD works on this example in R2021b.
+problem = preprocessAD(problem);
+checkgradient(problem);
 
 %{
 % Equivalent code without anything fancy
@@ -19,7 +21,6 @@ pause;
 problem.cost = @(x) cost(x, A, b);
 problem.grad = @(x) grad(x, A, b);
 checkgradient(problem);
-
 function f = cost(x, A, b)
     f = 0;
     m = size(A, 3);
@@ -29,7 +30,6 @@ function f = cost(x, A, b)
         f = f + abs(z(k))^2;
     end
 end
-
 function g = grad(x, A, b)
     g = zeros(size(x));
     m = size(A, 3);
