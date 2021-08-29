@@ -1,5 +1,5 @@
 function innerpro = cinnerprodgeneral(x,y)
-% Compute the Euclidean inner product between x and y in the complex case
+% Computes the Euclidean inner product between x and y in the complex case
 %
 % function innerpro = cinnerprodgeneral(x,y)
 %

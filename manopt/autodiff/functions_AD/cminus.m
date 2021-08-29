@@ -1,10 +1,10 @@
-function plusAB = cplus(A,B)
-% Computes the sum of A and B
+function miusAB = cminus(A,B)
+% Computes the difference of A and B
 %
-% function plusAB = cplus(A,B)
+% function miusAB = cminus(A,B)
 %
-% Returns the sum of A and B. This function can be seen as A+B but is
-% compatible with dlarrays and structs with fields real and imag.
+% Returns the difference of A and B. This function can be seen as A-B but 
+% is compatible with dlarrays and structs with fields real and imag.
 %
 % See also: functions_AD
 
@@ -16,24 +16,24 @@ function plusAB = cplus(A,B)
     if isnumeric(A) && isstruct(B) && isfield(B,'real')
         realA = real(A);
         imagA = imag(A);
-        plusAB.real = realA + B.real;
-        plusAB.imag = imagA + B.imag;
+        miusAB.real = realA - B.real;
+        miusAB.imag = imagA - B.imag;
         
     elseif isstruct(A) && isnumeric(B) && isfield(A,'real')
         realB = real(B);
         imagB = imag(B);
-        plusAB.real = realB + A.real;
-        plusAB.imag = imagB + A.imag;
+        miusAB.real = realB - A.real;
+        miusAB.imag = imagB - A.imag;
     
     elseif isnumeric(A) && isnumeric(B)
-        plusAB = A+B;
+        miusAB = A-B;
     
     elseif isstruct(A) && isstruct(B) && isfield(A,'real') && isfield(B,'real')
-        plusAB.real = A.real+B.real;
-        plusAB.imag = A.imag+B.imag;
+        miusAB.real = A.real-B.real;
+        miusAB.imag = A.imag-B.imag;
     
     else
-        ME = MException('cplus:inputError', ...
+        ME = MException('cminus:inputError', ...
         'Input does not have the expected format.');
         throw(ME);
     end

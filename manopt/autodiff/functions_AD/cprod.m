@@ -1,4 +1,17 @@
 function prodAB = cprod(A,B)
+% Computes the product of A and B
+%
+% function prodAB = cprod(A,B)
+%
+% Returns the product of A and B. This function can be seen as A*B but is
+% compatible with dlarrays and structs with fields real and imag.
+%
+% See also: functions_AD
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, July. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log: 
 
     if isnumeric(A) && isstruct(B) && isfield(B,'real')
         realA = real(A);
@@ -25,3 +38,5 @@ function prodAB = cprod(A,B)
         throw(ME);
         
     end
+
+end

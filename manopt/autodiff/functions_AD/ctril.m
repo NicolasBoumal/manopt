@@ -1,9 +1,9 @@
-function Xtriu = ctriu(X,k)
-% Extracts the upper triangular part of X.
+function Xtriu = ctril(X,k)
+% Extracts the lower triangular part of X.
 %
-% function Xtriu = ctriu(X,k)
+% function Xtriu = ctril(X,k)
 %
-% This function can be seen as triu(X,k) but is compatible with dlarrays
+% This function can be seen as tril(X,k) but is compatible with dlarrays
 % and structs with fields real and imag.
 %
 % See also: functions_AD
@@ -16,17 +16,17 @@ function Xtriu = ctriu(X,k)
     switch nargin
         case 1
             if isstruct(X) && isfield(X,'real')
-                index0 = find(triu(ones(size(X.real)))==0);
+                index0 = find(tril(ones(size(X.real)))==0);
                 Xtriu = X;
                 Xtriu.real(index0) = 0;
                 Xtriu.imag(index0) = 0;
         
             elseif isnumeric(X) && ~isdlarray(X)
-                Xtriu = triu(X);
+                Xtriu = tril(X);
             
             elseif isdlarray(X)
                 Xtriu = dlarray(zeros(size(X)));
-                index1 = find(triu(ones(size(X)))==1);
+                index1 = find(tril(ones(size(X)))==1);
                 Xtriu(index1) = X(index1);
                 
             else
@@ -36,21 +36,21 @@ function Xtriu = ctriu(X,k)
             end
         case 2
             if isstruct(X) && isfield(X,'real')
-                index0 = find(triu(ones(size(X.real)),k)==0);
+                index0 = find(tril(ones(size(X.real)),k)==0);
                 Xtriu = X;
                 Xtriu.real(index0) = 0;
                 Xtriu.imag(index0) = 0;
         
             elseif isnumeric(X) && ~isdlarray(X)
-                Xtriu = triu(X,k);
+                Xtriu = tril(X,k);
             
             elseif isdlarray(X)
                 Xtriu = dlarray(zeros(size(X)));
-                index1 = find(triu(ones(size(X)),k)==1);
+                index1 = find(tril(ones(size(X)),k)==1);
                 Xtriu(index1) = X(index1);
                 
             else
-                ME = MException('ctriu:inputError', ...
+                ME = MException('ctril:inputError', ...
                 'Input does not have the expected format.');
                 throw(ME);
             end

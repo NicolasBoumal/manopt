@@ -1,4 +1,17 @@
 function cdotprodAB = cdotprod(A,B)
+% Computes the element-wise multiplication between A and B
+%
+% function cdotprodAB = cdotprod(A,B)
+%
+% Returns the element-wise multiplication of A and B. The input A and B 
+% can be either a numeric array or a struct with fields real and imag.
+%
+% See also: functions_AD
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Xiaowen Jiang, July. 31, 2021.
+% Contributors: Nicolas Boumal
+% Change log: 
 
     if isnumeric(A) && isstruct(B) && isfield(B,'real')
         realA = real(A);
@@ -25,4 +38,5 @@ function cdotprodAB = cdotprod(A,B)
         throw(ME);
         
     end
+
 end
