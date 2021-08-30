@@ -44,7 +44,7 @@ function manoptAD()
 % the user should try using the basic functions in the folder 
 % /functions_AD when defining the cost function. An alternative way is 
 % to define one's own basic functions. These functions should 
-% accept both numerical arrays and structures with fields real and imag. 
+% accept both numeric arrays and structures with fields real and imag. 
 % See cprod and complex_example_AD as examples.
 %
 % See also: preprocessAD, complex_example_AD
