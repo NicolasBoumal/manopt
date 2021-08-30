@@ -31,7 +31,7 @@ function complextest_AD3()
     % problem.cost  = @(X) -real(X.x'*A*X.y{1});
     
     % For Matlab R2021a or earlier, translate the cost function into a 
-    % particular format with the basic functions in manoptAD.m
+    % particular format with the basic functions in /functions_AD
     problem.cost  = @(X) -creal(cprod(cprod(ctransp(X.x), A), X.y{1}));
 
     % Define the gradient and the hessian via automatic differentiation
