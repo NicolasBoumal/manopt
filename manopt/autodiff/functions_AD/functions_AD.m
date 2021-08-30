@@ -19,7 +19,7 @@ function functions_AD()
 %
 % For Matlab R2021b or later: Complex numbers are supported. Users only
 % need to take care of those functions which do not support dlarray. Here 
-% is the list of common functions wihout AD support and they should be  
+% is the list of common functions without AD support and they should be  
 % replaced by the corresponding backup functions when specifying the cost.
 % trace->ctrace               triu->ctriu                    tril->ctril     
 % norm(...,'fro') ->cnormfro              norm(...,'fro')^2 ->cnormsqfro 
