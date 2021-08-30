@@ -37,15 +37,15 @@ function problem = preprocessAD(problem,varargin)
 % of AD, please update to Matlab R2021b or later if possible. If the user 
 % cannot have access to Matlab R2021b or later, manopt provides an 
 % alternative way to deal with complex problems. see complex_example_AD.m 
-% and functions_AD.m for more information. Thirdly, check the list of 
-% functions with AD support when defining the cost function. See the website
-% https://ww2.mathworks.cn/help/deeplearning/ug/list-of-functions-with
-% -dlarray-support.html and functions_AD.m for more details. 
-% To run AD on GPU, set gpuflag = true in the problem structure and store 
-% related arrays on GPU as usual. See using_gpu_AD for more information.
+% and manoptAD for more information. Thirdly, check the list of functions
+% with AD support when defining the cost function. See the official website
+% https://ww2.mathworks.cn/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
+% and manoptAD for more information. To run AD on GPU, set gpuflag = true 
+% in the problem structure and store related arrays on GPU as usual. 
+% See using_gpu_AD for more details.
 %
 % See also: autograd, egradcompute, ehesscompute, complex_example_AD
-% functions_AD, using_gpu_AD
+% manoptAD, using_gpu_AD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -80,9 +80,9 @@ function problem = preprocessAD(problem,varargin)
     % check availability.
     elseif ~(exist('dlarray', 'file') == 2)
         warning('manopt:dl',['It seems the Deep learning tool box is not installed.'...
-         '\nIt is needed for automatic differentiation.\nPlease install the'...
-         'latest version of the deep learning tool box and \nupgrade to Matlab'...
-         ' R2021b or later if possible.'])
+         '\nIt is needed for automatic differentiation.\nPlease install the '...
+         'latest version of the deep learning tool box and \nupgrade to Matlab '...
+         'R2021b or later if possible.'])
         return
     else 
         % complexflag is used to detect if the problem defined contains
@@ -98,7 +98,7 @@ function problem = preprocessAD(problem,varargin)
         (contains(problem_name(),'rank','IgnoreCase',true)))) || ...,
         (exist('tenrand', 'file')==2 && isfield(x,'X') && ...,
         isa(x.X,'ttensor')) || isa(x,'TTeMPS')
-            warning('manopt:AD:fixedrankembedded',['Automatic differentiation' ...
+            warning('manopt:AD:fixedrankembedded',['Automatic differentiation ' ...
                 ' currently does not support fixedranktensorembeddedfactory,\n'...
                 'fixedTTrankfactory, and product manifolds containing '...
                 'fixedrankembeddedfactory.']);           
@@ -119,9 +119,9 @@ function problem = preprocessAD(problem,varargin)
                 catch
                     warning('manopt:complex',['Automatic differentiation failed. '...
                     'Problem defining the cost function.'...
-                    '\nVariables contain complex numbers. Check the version of'...
-                    'the Matlab and see complex_example_AD.m\nand functions_AD.m for more'...
-                    'information about how to deal with complex problems']);
+                    '\nVariables contain complex numbers. Check the version of '...
+                    'the Matlab and see \ncomplex_example_AD.m and manoptAD for more '...
+                    'information about how to deal\nwith complex problems.']);
                     return
                 end
                 % if no error appears, set complexflag to true
@@ -134,7 +134,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://ww2.mathworks.cn/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see functions_AD.m for more information.']);
+                    'and see manoptAD for more information.']);
                 return   
             end
         end                   
@@ -241,7 +241,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://ww2.mathworks.cn/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see functions_AD.m for more information.']);
+                    'and see manoptAD for more information.']);
                 problem = rmfield(problem,'autogradfunc');
                 problem = rmfield(problem,'egrad');
                 problem = rmfield(problem,'costgrad');
@@ -277,7 +277,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://ww2.mathworks.cn/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see functions_AD.m for more information.']);
+                    'and see manoptAD for more information.']);
             problem = rmfield(problem,'ehess');
             return
         end
@@ -299,7 +299,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://ww2.mathworks.cn/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see functions_AD.m for more information.']);
+                    'and see manoptAD for more information.']);
             problem = rmfield(problem,'autogradfunc');                
             problem = rmfield(problem,'grad');
             problem = rmfield(problem,'costgrad');

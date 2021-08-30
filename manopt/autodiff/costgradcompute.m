@@ -33,11 +33,16 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
         dlx = mat2dl(x);
     end
 
-    % Starting from Matlab R2021b, AcceleratedFunction should only accept
-    % input of fixed size. When dealing with preconditioned problems, the
-    % representation of the point on the manifold varies at the beginning  
-    % of each algorithm, though the cost function doe not change. In this 
-    % case, the old cache should be cleared.    
+    % In Matlab R2021b Prerelease, AcceleratedFunction can only accept
+    % the input with a fixed data structure. If the representation of 
+    % a point on the manifold varies when running a certain algorithm, 
+    % the AcceleratedFunction fail to work properly. For example, note that  
+    % AcceleratedFunction is sensitive to the order in which the fields of 
+    % the structure have been defined. If a point on a manifold is
+    % represented as a structure and meanwhile the order of the fields 
+    % defined in the retr and the rand functions in a manifold factory are 
+    % inconsistent, an error will occur. In this case, the old cache should 
+    % be cleared in order to accept the new input.
     if isa(problem.autogradfunc,'deep.AcceleratedFunction')
         try
             % compute egrad according to autogradfunc
@@ -46,11 +51,17 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
             % clear the old cache
             clearCache(problem.autogradfunc);
             [cost,egrad] = dlfeval(problem.autogradfunc,dlx);
+            warning('manopt:AD:cachedlaccelerte', ...
+            ['The representation of points on the manifold is inconsistent.\n'...
+            'AcceleratedFunction has to clear its old cache to accept the new '...
+            'representation of the input.\nPlease check the consistency when '...
+            'writing the manifold factory.'
+            'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerte'')']);            
         end
-    else
+     else
         [cost,egrad] = dlfeval(problem.autogradfunc,dlx);
-    end
-    
+     end
+
     % convert egrad back to numerical arrays
     if complexflag == true
         egrad = dl2mat_complex(egrad);
@@ -60,7 +71,7 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
     
     % convert egrad to rgrad
     grad = problem.M.egrad2rgrad(x,egrad);
-    % convert cost back to a numerical number
+    % convert cost back to a numeric number
     cost = dl2mat(cost);
     
 end

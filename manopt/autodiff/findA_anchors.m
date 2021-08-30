@@ -5,7 +5,7 @@ function A = findA_anchors(problem)
 %
 % Returns the indices of the anchors for the rotation matrices manifold.
 %
-% See also:
+% See also: anchoredrotationsfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

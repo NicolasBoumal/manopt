@@ -8,16 +8,16 @@ function dlx = mat2dl_complex(x)
 % part of x into a struct containing dlarrays with fields real and imag 
 % which indicate the real and imaginary part of the stored complex numbers. 
 %
-% See also: dl2mat_complex, functions_AD
+% See also: dl2mat_complex, manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log:     
 
-    if ~isstruct(x) && ~iscell(x) 
+    if ~isstruct(x) && ~iscell(x) && ~isnumeric(x)
         up = MException('manopt:autodiff:mat2dl_complex', ...
-                    'mat2dl_complex should only accept a struct or a cell');
+                    'mat2dl_complex should only accept a struct, a cell or a numeric array');
         throw(up);
     end
 

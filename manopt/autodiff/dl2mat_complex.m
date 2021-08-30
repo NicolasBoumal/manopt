@@ -8,7 +8,7 @@ function x = dl2mat_complex(dlx)
 % which indicate the real and imaginary part of the stored complex numbers. 
 % The function converts the struct of each part back to complex numbers. 
 %
-% See also: mat2dl_complex, functions_AD
+% See also: mat2dl_complex, manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.
