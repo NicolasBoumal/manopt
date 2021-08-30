@@ -36,10 +36,10 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
     % In Matlab R2021b Prerelease, AcceleratedFunction can only accept
     % the input with a fixed data structure. If the representation of 
     % a point on the manifold varies when running a certain algorithm, 
-    % the AcceleratedFunction fail to work properly. For example, note that  
-    % AcceleratedFunction is sensitive to the order in which the fields of 
-    % the structure have been defined. If a point on a manifold is
-    % represented as a structure and meanwhile the order of the fields 
+    % the AcceleratedFunction then fails to work properly. A special case   
+    % is that AcceleratedFunction is sensitive to the order in which the 
+    % fields of the structure have been defined. If a point on a manifold 
+    % is represented as a structure and meanwhile the order of the fields 
     % defined in the retr and the rand functions in a manifold factory are 
     % inconsistent, an error will occur. In this case, the old cache should 
     % be cleared in order to accept the new input.
