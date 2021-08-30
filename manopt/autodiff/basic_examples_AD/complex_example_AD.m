@@ -7,11 +7,11 @@ function complex_example_AD()
 % please update to the latest version if possible. If the user cannot have 
 % access to Matlab R2021b or later, manopt provides an alternative way to 
 % deal with complex problems which requires the user to define the cost 
-% funtion using the preliminary functions listed in the file functions_AD.m 
+% funtion using the preliminary functions listed in the file manoptAD.m 
 % or to define their own functions following the rules described in that 
 % file. See the following as an example.
 %
-% See also: functions_AD.m 
+% See also: manoptAD.m 
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
@@ -37,12 +37,12 @@ function complex_example_AD()
     
     % Define the problem cost function 
     % For Matlab R2021b or later, define the problem cost function as usual
-    problem.cost  = @(X) -.5*real(X'*A*X);
+    % problem.cost  = @(X) -.5*real(X'*A*X);
     
     % For Matlab R2021a or earlier, translate the cost function into a 
-    % particular format with cfunctions in functions_AD.m
-    % problem.cost  = @(X) -creal(cprod(cprod(ctransp(X), A), X));
-
+    % particular format with cfunctions in manoptAD.m
+    problem.cost  = @(X) -creal(cprod(cprod(ctransp(X), A), X));
+    
     % Define the gradient and the hessian via automatic differentiation
     problem = preprocessAD(problem);
 

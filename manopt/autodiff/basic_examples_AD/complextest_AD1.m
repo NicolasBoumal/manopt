@@ -25,11 +25,11 @@ function complextest_AD1()
     problem.M = productmanifold(manifold);  %struct
     
     % For Matlab R2021b or later, define the problem cost function as usual
-    problem.cost  = @(X) -real(X.x'*A*X.y);
+    % problem.cost  = @(X) -real(X.x'*A*X.y);
     
     % For Matlab R2021a or earlier, translate the cost function into a 
-    % particular format with cfunctions in functions_AD.m
-    % problem.cost  = @(X) -creal(cprod(cprod(ctransp(X.x), A), X.y));
+    % particular format with cfunctions in manoptAD.m
+    problem.cost  = @(X) -creal(cprod(cprod(ctransp(X.x), A), X.y));
 
     % Define the gradient and the hessian via automatic differentiation
     problem = preprocessAD(problem);

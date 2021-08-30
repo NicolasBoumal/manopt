@@ -7,7 +7,7 @@ function basic_example_AD()
 % please update to R2021b or later if possible.
 % 
 %
-% See also: preprocessAD, functions_AD.m 
+% See also: preprocessAD, manoptAD.m 
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
@@ -52,7 +52,7 @@ function basic_example_AD()
     % If the user only wants the gradient or the hessian information,
     % set the second argument of preprocessAD to be 'egrad' or 'ehess'
 
-    % e.g. Provide the gradient only and use FN approximation of hessian
+    % e.g. Provide the gradient only and use FD approximation of hessian
     % (which is often faster than providing the exact hessian).
     % problem = preprocessAD(problem,'egrad');
 
