@@ -29,7 +29,7 @@ function basic_example_AD()
     ' 2021a if possible.'])
     
     % Generate the problem data.
-    n = 10000;
+    n = 100;
     A = randn(n);
     A = .5*(A+A');
     
