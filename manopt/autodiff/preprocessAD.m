@@ -36,7 +36,7 @@ function problem = preprocessAD(problem,varargin)
 % supported for Matlab R2021a or earlier. To fully exploit the convenience 
 % of AD, please update to Matlab R2021b or later if possible. If the user 
 % cannot have access to Matlab R2021b or later, manopt provides an 
-% alternative way to deal with complex problems. see complex_example_AD.m 
+% alternative way to deal with complex problems. see complex_example_AD 
 % and manoptAD for more information. Thirdly, check the list of functions
 % with AD support when defining the cost function. See the official website
 % https://ww2.mathworks.cn/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
