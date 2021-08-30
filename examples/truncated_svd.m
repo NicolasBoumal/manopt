@@ -121,7 +121,7 @@ function [U, S, V, info] = truncated_svd(A, p)
     % An alternative way to compute the egrad and the ehess is to use 
     % automatic differentiation provided in the deep learning toolbox 
     % (slower). Notice that the function norm is not supported for AD so 
-    % far. Replace norm(...,'fro') with backup function cnormsqfro 
+    % far. Replace norm(...,'fro')^2 with the backup function cnormsqfro 
     % described in the file functions_AD.m.
     % problem.cost = @cost_AD;
     %    function f = cost_AD(X)
