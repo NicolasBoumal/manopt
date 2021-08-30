@@ -7,8 +7,8 @@ function complex_example_AD()
 % please update to the latest version if possible. If the user cannot have 
 % access to Matlab R2021b or later, manopt provides an alternative way to 
 % deal with complex problems which requires the user to define the cost 
-% funtion using the basic functions listed in the file manoptAD.m or to
-% define their own functions following the rules described in that file.
+% funtion using the basic functions listed in the folder /functions_AD or 
+% to define their own functions following the rules described in that file.
 % See the following as an example.
 %
 % See also: manoptAD.m 
