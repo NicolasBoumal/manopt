@@ -8,7 +8,7 @@ function traceA = ctrace(A)
 % arrays and structs with fields real and imag. Note that trace currently
 % does not support dlarrays and ctrace can be seen as a backup function.
 %
-% See also: functions_AD
+% See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

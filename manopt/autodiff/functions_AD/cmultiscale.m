@@ -6,7 +6,7 @@ function Ascale = cmultiscale(scale, A)
 % Basically the same as multiscale but is compatible with dlarrays
 % and structs with fields real and imag.
 %
-% See also: functions_AD, multiscale
+% See also: manoptAD, multiscale
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

@@ -6,7 +6,7 @@ function cdotprodAB = cdotprod(A,B)
 % Returns the element-wise multiplication of A and B. The input A and B 
 % can be either a numeric array or a struct with fields real and imag.
 %
-% See also: functions_AD
+% See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

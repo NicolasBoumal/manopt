@@ -6,7 +6,7 @@ function xsum = csum(x,n)
 % This function can be seen as sum(x,n) but is compatible with
 % structs with fields real and imag.
 %
-% See also: functions_AD
+% See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

@@ -7,7 +7,7 @@ function Xnormfro = cnormfro(X)
 % norm(...,'fro') but is compatible with dlarrays and structs with fields
 % real and imag. Supports both real and complex numbers.
 %
-% See also: functions_AD
+% See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

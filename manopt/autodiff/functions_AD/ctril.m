@@ -6,7 +6,7 @@ function Xtriu = ctril(X,k)
 % This function can be seen as tril(X,k) but is compatible with dlarrays
 % and structs with fields real and imag.
 %
-% See also: functions_AD
+% See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
