@@ -24,10 +24,12 @@ function functions_AD()
 % trace->ctrace               triu->ctriu                    tril->ctril     
 % norm(...,'fro') ->cnormfro              norm(...,'fro')^2 ->cnormsqfro 
 % diag->cdiag           multiscale->cmultiscale
-% Besides, bsxfunc is not supported. The user may have to translate it
+% All the other multi*** functions in manopt are supported.
+% bsxfunc is not supported. The user may have to translate it
 % into repmat and .* expressions. Concatenating arrays along the third 
-% dimension cat(A,B,3) is not supported.
-% All the other multi- functions in manopt are supported.
+% dimension cat(A,B,3) is not supported. 
+% Besides, the common functions: sqrtm, logm, expm, eig, svd, det, cumsum, 
+% movsum, cumprod, \, mod, rem, vecnorm, bandwidth are not supported. 
 %
 % For Matlab R2021a or earlier, in addition to the functions mentioned  
 % above, dot is not supported. The element-wise multiplication can be 
