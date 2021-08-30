@@ -143,7 +143,7 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
     % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function norm is not supported for AD so far.
     % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
-    % functions_AD.m. Also operations between sparse matrices and dlarrys 
+    % manoptAD.m. Also operations between sparse matrices and dlarrys 
     % is not supported so far. Transform V,J into full matrices. AD does 
     % not support bsxfunc as well. Translate it into the expression of 
     % repmat and .*. The whole thing would make the computation much slower 

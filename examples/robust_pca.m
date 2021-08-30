@@ -95,8 +95,8 @@ function [U, cost] = robust_pca(X, d)
     warning('off', 'manopt:getHessian:approx');
     
     % An alternative way to compute the egrad is to use automatic
-    % differentiation provided in the deep learning toolbox (slower)
-    % call preprocessAD to automatically obtain the egrad 
+    % differentiation provided in the deep learning toolbox (slower).
+    % Call preprocessAD to automatically obtain the egrad 
     % problem = preprocessAD(problem,'egrad');
     
     for iter = 1 : n_iterations

@@ -219,7 +219,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
 
     % It's also possible to compute the egrad and the ehess via AD but is 
     % much slower. Notice that the function trace is not supported for AD 
-    % so far. Replace it with ctrace described in the file functions_AD.m.
+    % so far. Replace it with ctrace described in the file manoptAD.m.
     % problem.cost  = @(Y)  -ctrace(Y'*L*Y)/4;
     % problem = preprocessAD(problem);
     

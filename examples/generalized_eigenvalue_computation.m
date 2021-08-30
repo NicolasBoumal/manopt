@@ -85,7 +85,7 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
     % An alternative way to compute the egrad and the ehess is to use 
     % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function trace is not supported for AD so far.
-    % Replace it with ctrace described in the file functions_AD.m
+    % Replace it with ctrace described in the file manoptAD.m
     % problem.cost = @(X)    -.5*ctrace(X'*A*X);
     % call preprocessAD to automatically obtain the egrad and the ehess
     % problem = preprocessAD(problem);
