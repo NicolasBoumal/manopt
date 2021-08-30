@@ -40,7 +40,7 @@ function complex_example_AD()
     % problem.cost  = @(X) -.5*real(X'*A*X);
     
     % For Matlab R2021a or earlier, translate the cost function into a 
-    % particular format with the basic functions in manoptAD.m
+    % particular format with the basic functions in /functions_AD
     problem.cost  = @(X) -creal(cprod(cprod(ctransp(X), A), X));
     
     % Define the gradient and the hessian via automatic differentiation
