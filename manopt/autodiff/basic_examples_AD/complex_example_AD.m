@@ -11,7 +11,7 @@ function complex_example_AD()
 % to define their own functions following the rules described in that file.
 % See the following as an example.
 %
-% See also: manoptAD.m 
+% See also: manoptAD
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
