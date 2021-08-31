@@ -7,7 +7,7 @@ function basic_example_AD()
 % please update to R2021b or later if possible.
 % 
 %
-% See also: preprocessAD, manoptAD.m 
+% See also: preprocessAD, manoptAD
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
