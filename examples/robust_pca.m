@@ -114,6 +114,7 @@ function [U, cost] = robust_pca(X, d)
     
     % If working with the auto-generated input, plot the results.
     if nargin == 0
+        figure;
         scatter(X(1,:), X(2,:));
         hold on;
         plot(U(1)*[-1, 1]*100, U(2)*[-1 1]*100, 'r');

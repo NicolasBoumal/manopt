@@ -183,6 +183,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     x = best_x;
     cutvalue = best_cutvalue;
     
+    figure;
     plot(time, -cost, '.-');
     xlabel('Time [s]');
     ylabel('Relaxed cut value');

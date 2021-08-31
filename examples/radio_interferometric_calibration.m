@@ -69,8 +69,8 @@ function xsol = radio_interferometric_calibration(N, K)
     V = zeros(K*B,K);
     
     ck = 1;
-    for ci = 1 : N -1,
-        for cj = ci + 1 : N,
+    for ci = 1 : N -1
+        for cj = ci + 1 : N
             % Compute cross correlation of each receiver pair.
             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
             ck = ck + 1;
@@ -102,8 +102,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function fval = cost(x)
         fval = 0.0;
         ck = 1;
-        for p = 1 : N - 1,
-            for q = p + 1 : N,
+        for p = 1 : N - 1
+            for q = p + 1 : N
                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual
                 fval = fval + real(res(:)'*res(:)); % Add norm of the residual.
                 ck = ck + 1;
@@ -119,8 +119,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function grad = egrad(x)
         grad = zeros(K*N, K);
         ck = 1;
-        for p = 1 : N - 1,
-            for q = p+1 : N,
+        for p = 1 : N - 1
+            for q = p+1 : N
                 res = 2*(V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
@@ -135,8 +135,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function hess = ehess(x, eta)
         hess = zeros(K*N, K);
         ck = 1;
-        for p = 1 : N-1,
-            for q = p+1:N,
+        for p = 1 : N-1
+            for q = p+1:N
                 res = 2*(V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
                 resdot = 2*(-x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual derivative
                 
@@ -178,7 +178,7 @@ function xsol = radio_interferometric_calibration(N, K)
     title('Convergence of the trust-regions algorithm');
 
     % Make a plot of estimation error (only for K = 2).
-    if K == 2,
+    if K == 2
         % Find unitary ambiguity first by solving min ||J - xsol U||.
         % This has a closed-form solution.
         [u, ignore, v] = svd(xsol'*J); %#ok<ASGLU>
