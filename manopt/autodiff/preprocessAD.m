@@ -106,7 +106,7 @@ function problem = preprocessAD(problem,varargin)
         end
         try
             dlx = mat2dl(x);
-            costtestdlx = problem.cost(dlx);
+            costtestdlx = problem.cost(dlx); %#ok<NASGU>
         catch ME
             % detect complex number by looking up error message
             % Note: the error deep:dlarray:ComplexNotSupported is removed 
@@ -114,8 +114,8 @@ function problem = preprocessAD(problem,varargin)
             if (strcmp(ME.identifier,'deep:dlarray:ComplexNotSupported'))
                 try
                     dlx = mat2dl_complex(x);
-                    costtestx = problem.cost(x);
-                    costtestdlx = problem.cost(dlx);
+                    costtestx = problem.cost(x); %#ok<NASGU>
+                    costtestdlx = problem.cost(dlx); %#ok<NASGU>
                 catch
                     warning('manopt:complex',['Automatic differentiation failed. '...
                     'Problem defining the cost function.'...
