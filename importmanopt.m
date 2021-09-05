@@ -17,11 +17,6 @@ cd manopt;
 addpath(genpath(pwd));
 cd ..;
 
-% Recursively add autodiff directories to the Matlab path.
-cd autodiff;
-addpath(genpath(pwd));
-cd ..;
-
 % Ask user if the path should be saved or not
 fprintf('Manopt was added to Matlab''s path.\n');
 response = input('Save path for future Matlab sessions? [Y/N] ', 's');
