@@ -1,8 +1,8 @@
-function egrad = egradcompute(problem,x,complexflag)
-% Computes the Euclidean gradient of the cost function at x via AD
+function egrad = egradcompute(problem, x, complexflag)
+% Computes the Euclidean gradient of the cost function at x via AD.
 %
-% function egrad = egradcompute(autogradfunc,x)
-% function egrad = egradcompute(autogradfunc,x,complexflag)
+% function egrad = egradcompute(autogradfunc, x)
+% function egrad = egradcompute(autogradfunc, x, complexflag)
 %
 % Returns the Euclidean gradient of the cost function described in 
 % autogradfunc at the point x.
@@ -10,17 +10,17 @@ function egrad = egradcompute(problem,x,complexflag)
 % Note: the problem structure must contain the field autogradfunc.
 % autogradfunc should be either an AcceleratedFunction or a function handle  
 % which contains dlgradient. x is a point on the target manifold. 
-% complexflag is bool variable which indicates whether or not the problem
+% complexflag is a boolean variable which indicates whether the problem
 % described in problem involves complex numbers and meanwhile the Matlab
 % version installed is R2021a or earlier.
 %
-% See also: autograd, mat2dl, mat2dl_complex, dl2mat, dl2mat_complex
+% See also: manoptAD autograd mat2dl mat2dl_complex dl2mat dl2mat_complex
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
-%
+
 % To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
 % and the product manifold which contains fixedrankembeddedfactory
 % or anchoredrotationsfactory
@@ -64,7 +64,7 @@ function egrad = egradcompute(problem,x,complexflag)
             'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerte'')']);
         end
     else
-        [~,egrad] = dlfeval(problem.autogradfunc,dlx);
+        [~, egrad] = dlfeval(problem.autogradfunc,dlx);
     end
 
     % convert egrad back to numeric arrays

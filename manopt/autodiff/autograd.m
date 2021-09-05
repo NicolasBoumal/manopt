@@ -44,7 +44,7 @@ function autogradfunc = autograd(problem, fixedrankflag)
         % AcceleratedFunction can lead to a slow down in this case
         autogradfunc = @(x,A,B) autogradfuncinternelfixedrankembedded(x,A,B);
     else
-        func = @ autogradfuncinternel;
+        func = @autogradfuncinternal;
         % accelerate 
         try
             autogradfunc = dlaccelerate(func); % Introduced in Matlab 2021a
@@ -61,19 +61,19 @@ function autogradfunc = autograd(problem, fixedrankflag)
     end
     
     % define Euclidean gradient function
-    function [y egrad] = autogradfuncinternel(x)
+    function [y, egrad] = autogradfuncinternal(x)
             
         y = costfunction(x);
         % In case that the user forgot to take the real part of the cost
         % when dealing with complex problems with Matlab R2021a or earlier, 
         % take the real part for AD
-        if isstruct(y) && isfield(y,'real')
+        if iscstruct(y)
             y = creal(y);
         end
         
         % Call dlgradient to compute the Euclidean gradient. by default, 
         % 'RetainData' and 'EnableHigherDerivatives' are set to false
-        egrad = dlgradient(y,x);
+        egrad = dlgradient(y, x);
         
         % in case that the user is optimizing over anchoredrotationsfactory
         % egrad of anchors with indices in A should be zero
@@ -89,7 +89,7 @@ function autogradfunc = autograd(problem, fixedrankflag)
     % fixedrankembeddedfactory part
     % obtain the product of egrad and V and the product of egrad
     % transpose and U by differentiating g1 and g2 w.r.t A and B
-    function [g1,egrad] = autogradfuncinternelfixedrankembedded(x,A,B)
+    function [g1, egrad] = autogradfuncinternelfixedrankembedded(x, A, B)
         X1.U = A; X1.S = eye(size(x.S,1)); X1.V = x.V;
         X2.U = x.U; X2.S = eye(size(x.S,1)); X2.V = B;
         g1 = costfunction(X1); g2 = costfunction(X2);

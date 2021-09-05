@@ -1,7 +1,7 @@
-function [cost,grad] = costgradcompute(problem,x,complexflag)
+function [cost, grad] = costgradcompute(problem, x, complexflag)
 % Computes the cost and the gradient at x via AD in one call 
 %
-% function [cost,egrad] = costgradcompute(problem,x,complexflag)
+% function [cost, egrad] = costgradcompute(problem, x, complexflag)
 %
 % Returns the cost and the gradient of the cost function described in 
 % the problem structure at the point x.
@@ -13,7 +13,7 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
 % described in autogradfunc involves complex numbers and meanwhile the
 % Matlab version is R2021a or earlier.
 %
-% See also: autograd, mat2dl, mat2dl_complex, dl2mat, dl2mat_complex
+% See also: manoptAD autograd mat2dl mat2dl_complex dl2mat dl2mat_complex
     
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -46,12 +46,12 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
     if isa(problem.autogradfunc,'deep.AcceleratedFunction')
         try
             % compute egrad according to autogradfunc
-            [cost,egrad] = dlfeval(problem.autogradfunc,dlx);
+            [cost, egrad] = dlfeval(problem.autogradfunc, dlx);
         catch
             % clear the old cache
             clearCache(problem.autogradfunc);
-            [cost,egrad] = dlfeval(problem.autogradfunc,dlx);
-            warning('manopt:AD:cachedlaccelerte', ...
+            [cost, egrad] = dlfeval(problem.autogradfunc, dlx);
+            warning('manopt:AD:cachedlaccelerate', ...
             ['The representation of points on the manifold is inconsistent.\n'...
             'AcceleratedFunction has to clear its old cache to accept the new '...
             'representation of the input.\nPlease check the consistency when '...
@@ -59,7 +59,7 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
             'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerte'')']);            
         end
      else
-        [cost,egrad] = dlfeval(problem.autogradfunc,dlx);
+        [cost, egrad] = dlfeval(problem.autogradfunc, dlx);
      end
 
     % convert egrad back to numerical arrays
@@ -70,8 +70,8 @@ function [cost,grad] = costgradcompute(problem,x,complexflag)
     end
     
     % convert egrad to rgrad
-    grad = problem.M.egrad2rgrad(x,egrad);
-    % convert cost back to a numeric number
+    grad = problem.M.egrad2rgrad(x, egrad);
+    % convert cost back to a numeric format
     cost = dl2mat(cost);
     
 end

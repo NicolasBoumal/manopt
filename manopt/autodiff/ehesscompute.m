@@ -1,16 +1,16 @@
-function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
+function [ehess,store] = ehesscompute(problem, x, xdot, store, complexflag)
 % Computes the Euclidean Hessian of the cost function at x along xdot via AD.
 %
-% function [ehess,store] = ehesscompute(problem,x,xdot)
-% function [ehess,store] = ehesscompute(problem,x,xdot,store)
-% function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
+% function [ehess, store] = ehesscompute(problem, x, xdot)
+% function [ehess, store] = ehesscompute(problem, x, xdot, store)
+% function [ehess, store] = ehesscompute(problem, x, xdot, store, complexflag)
 %
-% This file requires the Matlab version to be R2021a or later.
+% This file requires Matlab R2021a or later.
 %
 % Returns the Euclidean Hessian of the cost function described in the
 % problem structure at the point x along xdot. Returns store structure 
-% which stores the Euclidean gradient and trace in order to avoid redundant
-% computation of hessian by-vector product at the same point x.
+% which stores the Euclidean gradient and AD trace in order to avoid
+% redundant computation of hessian by-vector product at the same point x.
 %
 % complexflag is bool variable which indicates whether or not the cost  
 % function and the manifold described in the problem structure involves 
@@ -23,8 +23,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
 % euclidean gradient is computed according to the egrad and otherwise 
 % according to the cost function.
 %
-% See also: manoptAD, mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
-% innerprodgeneral, cinnerprodgeneral, 
+% See also: manoptAD mat2dl dl2mat dl2mat_complex mat2dl_complex innerprodgeneral cinnerprodgeneral
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -104,7 +103,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
             % in case that the user forgot to take the real part of the cost
             % when dealing with complex problems and meanwhile the Matlab
             % version is R2021a or earlier, take the real part for AD
-            if isstruct(y) && isfield(y,'real')
+            if iscstruct(y)
                 y = creal(y);
             end
             % call dlgradient to compute the Euclidean gradient
@@ -117,8 +116,8 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     %% compute the Euclidean Hessian of the cost function at x along xdot
     
     % prepare ingredients 
-    tm = store.tm;
-    record = store.record;
+    tm = store.tm; %#ok<NASGU>
+    record = store.record; %#ok<NASGU>
     dlegrad = store.dlegrad;
     dlx = store.dlx;
     
@@ -137,9 +136,9 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
     
     % compute the inner product between the Euclidean gradient and xdot
     if complexflag == true
-        z = cinnerprodgeneral(dlegrad,xdot);
+        z = cinnerprodgeneral(dlegrad, xdot);
     else
-        z = innerprodgeneral(dlegrad,xdot);
+        z = innerprodgeneral(dlegrad, xdot);
     end
     
     % compute derivatives of the inner product w.r.t. dlx
