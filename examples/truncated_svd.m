@@ -41,7 +41,8 @@ function [U, S, V, info] = truncated_svd(A, p)
 % 
 % Change log:
 % 
-
+%   Aug. 23, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess  
     
     % Generate some random data to test the function if none is given.
     if ~exist('A', 'var') || isempty(A)
@@ -116,7 +117,20 @@ function [U, S, V, info] = truncated_svd(A, p)
         h.U = -(AVdot*AV'*U + AV*AVdot'*U + AV*AV'*Udot);
         h.V = -(AtUdot*AtU'*V + AtU*AtUdot'*V + AtU*AtU'*Vdot);
     end
-    
+
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox 
+    % (slower). Notice that the function norm is not supported for AD so 
+    % far. Replace norm(...,'fro') with the backup function cnormsqfro 
+    % described in manoptADhelp
+    % problem.cost = @cost_AD;
+    %    function f = cost_AD(X)
+    %        U = X.U;
+    %        V = X.V;
+    %        f = -.5*cnormsqfro(U'*A*V);
+    %    end
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.

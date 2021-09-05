@@ -19,7 +19,10 @@ function essential_svd
 % This file is part of Manopt: www.manopt.org.
 % Original author: Roberto Tron, Aug. 8, 2014
 % Contributors: Bamdev Mishra, May 15, 2015.
-
+% Change log:
+%
+%    Xiaowen Jiang Aug. 20, 2021
+%       Added AD to compute the egrad and the ehess 
 
     % Make data for the test
     N = 2;    % Number of matrices to process in parallel.
@@ -51,6 +54,10 @@ function essential_svd
         gdot = essential_ehessE2ehess(X, egradE, ehessE, S); % Converts Hessian in E to X.
     end
     
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
     
     % Numerically check the differentials.
     % checkgradient(problem); pause;

@@ -56,7 +56,9 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % Original author: Nicolas Boumal, June 28, 2016
 % Contributors:
 % Change log:
-
+%
+%    Xiaowen Jiang Aug. 20, 2021
+%       Added AD to compute the egrad and the ehess 
 
     % If no inputs are provided, since this is an example file, generate
     % a random Erdos-Renyi graph. This is for illustration purposes only.
@@ -129,6 +131,17 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
         H = manifold.proj(Y, SYdot);
     end
 
+    % An alternative way to compute the gradient and the hessian is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % Define the cost function without the store structure
+    % function f = cost_AD(Y)
+    %    AY = A*Y;
+    %    diagAYYt = sum(AY .* Y, 2);
+    %    f = .5*sum(diagAYYt);
+    % end
+    % problem.cost = @cost_AD;
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
 
     % If no initial guess is available, tell Manopt to use a random one.
     if ~exist('Y0', 'var') || isempty(Y0)

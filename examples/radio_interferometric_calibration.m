@@ -40,7 +40,9 @@ function xsol = radio_interferometric_calibration(N, K)
 %       the modified metric in the symfixedrankYYcomplexfactory file, 
 %       where a factor of 2 was removed from the metric. Accordingly, 
 %       a factor of 2 was added to egrad and ehess operations.
-    
+%   Aug  31, 2021 (XJ):
+%       Added AD to compute the egrad and the ehess
+
     % Generate some random data to test the function
     
     if ~exist('N', 'var') || isempty(N)
@@ -67,8 +69,8 @@ function xsol = radio_interferometric_calibration(N, K)
     V = zeros(K*B,K);
     
     ck = 1;
-    for ci = 1 : N -1,
-        for cj = ci + 1 : N,
+    for ci = 1 : N -1
+        for cj = ci + 1 : N
             % Compute cross correlation of each receiver pair.
             V(K*(ck-1)+1:K*ck,:) = J(K*(ci-1)+1:K*ci,:)*C*J(K*(cj-1)+1:K*cj,:)';
             ck = ck + 1;
@@ -100,8 +102,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function fval = cost(x)
         fval = 0.0;
         ck = 1;
-        for p = 1 : N - 1,
-            for q = p + 1 : N,
+        for p = 1 : N - 1
+            for q = p + 1 : N
                 res = V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'; % Residual
                 fval = fval + real(res(:)'*res(:)); % Add norm of the residual.
                 ck = ck + 1;
@@ -117,8 +119,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function grad = egrad(x)
         grad = zeros(K*N, K);
         ck = 1;
-        for p = 1 : N - 1,
-            for q = p+1 : N,
+        for p = 1 : N - 1
+            for q = p+1 : N
                 res = 2*(V(K*(ck-1)+1:K*ck,:) - x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
                 grad(K*(p-1)+1:K*p,:) = grad(K*(p-1)+1:K*p,:) - res*x(K*(q-1)+1:K*q,:)*C';
                 grad(K*(q-1)+1:K*q,:) = grad(K*(q-1)+1:K*q,:) - res'*x(K*(p-1)+1:K*p,:)*C;
@@ -133,8 +135,8 @@ function xsol = radio_interferometric_calibration(N, K)
     function hess = ehess(x, eta)
         hess = zeros(K*N, K);
         ck = 1;
-        for p = 1 : N-1,
-            for q = p+1:N,
+        for p = 1 : N-1
+            for q = p+1:N
                 res = 2*(V(K*(ck-1)+1:K*ck,:) -x(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual
                 resdot = 2*(-x(K*(p-1)+1:K*p,:)*C*eta(K*(q-1)+1:K*q,:)'  - eta(K*(p-1)+1:K*p,:)*C*x(K*(q-1)+1:K*q,:)'); % Residual derivative
                 
@@ -145,8 +147,14 @@ function xsol = radio_interferometric_calibration(N, K)
         end
     end
     
-    
-    
+
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox.
+    % Notice that the for loop in the cost function can make AD much
+    % slower. Call manoptAD to prepare AD for the problem structure.
+    % problem = manoptAD(problem);
+
+
     % Execute some checks on the derivatives for early debugging.
     % checkgradient(problem);
     % pause;
@@ -170,7 +178,7 @@ function xsol = radio_interferometric_calibration(N, K)
     title('Convergence of the trust-regions algorithm');
 
     % Make a plot of estimation error (only for K = 2).
-    if K == 2,
+    if K == 2
         % Find unitary ambiguity first by solving min ||J - xsol U||.
         % This has a closed-form solution.
         [u, ignore, v] = svd(xsol'*J); %#ok<ASGLU>

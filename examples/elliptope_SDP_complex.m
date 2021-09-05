@@ -56,7 +56,9 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
 % Original author: Nicolas Boumal, Oct. 21, 2016
 % Contributors:
 % Change log:
-
+%
+%    Xiaowen Jiang Aug. 20, 2021
+%       Added AD to compute the egrad and the ehess
 
     % If no inputs are provided, since this is an example file, generate
     % a random complex matrix. This is for illustration purposes only.
@@ -127,6 +129,31 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
         SYdot = A*Ydot - bsxfun(@times, Ydot, store.diagAYYt);
         H = manifold.proj(Y, SYdot);
     end
+
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox
+    % (slower). AD does not support complex numbers if the Matlab version
+    % is R2021a or earlier. The cost function should be defined differently
+    % In this case. See complex_example_AD.m and manoptADhelp.m for more
+    % information.
+    % problem.cost = @cost_AD;
+    %    function f = cost_AD(Y)
+    %        AY = cprod(A, Y);
+    %        diagAYYt = csum(creal(cdottimes(AY, cconj(Y))), 2);
+    %        f = .5*csum(diagAYYt);
+    %    end
+    % Call manoptAD to automatically obtain egrad and ehess:
+    % problem = manoptAD(problem);
+
+    % If the version of Matlab installed is R2021b or later, specify the 
+    % cost function in the normal way and call manoptAD. 
+    % problem.cost = @cost_AD;
+    %    function f = cost_AD(Y)
+    %        AY = A*Y;
+    %        diagAYYt = sum(real(AY .* conj(Y)), 2);
+    %        f = .5*sum(diagAYYt);
+    %    end
+    % problem = manoptAD(problem);
 
 
     % If no initial guess is available, tell Manopt to use a random one.

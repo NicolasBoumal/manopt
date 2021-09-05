@@ -33,7 +33,9 @@ function low_rank_tensor_completion()
 % Contributors:
 % 
 % Change log:
-% 
+%
+%   Xiaowen Jiang Aug. 20, 2021
+%       Added AD to compute the egrad and the ehess  
     
 
     % Random data generation with pseudo-random numbers from a 
@@ -216,7 +218,23 @@ function low_rank_tensor_completion()
         Hess.G = M0array + M1array + M2array + M3array; 
     end
     
-
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % Notice that the function norm is not supported for AD so far.
+    % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
+    % manoptADhelp.m. Also, operations between sparse matrices and dlarrays 
+    % are not supported for now. convert PA and P into full arrays.
+    % problem.cost = @cost_AD;
+    % PA_full = full(PA);
+    % P_full = full(P);
+    %    function f = cost_AD(X)
+    %        Xmultiarray = tucker2multiarray(X);
+    %        Diffmultiarray = P_full.*Xmultiarray - PA_full;
+    %        Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
+    %        f = .5*cnormsqfro(Diffmultiarray_flat);
+    %    end
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
  
 
     % Check consistency of the gradient and the Hessian. Useful if you

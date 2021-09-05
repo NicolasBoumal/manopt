@@ -34,7 +34,10 @@ function doubly_stochastic_denoising()
 % Original author: Ahmed Douik, March 15, 2018.
 % Contributors:
 % Change log:
-    
+%
+%    Xiaowen Jiang Aug. 31, 2021
+%       Added AD to compute the egrad and the ehess  
+
     %% Generate input data
     n = 100;
     sigma = 1/n^2;
@@ -61,6 +64,15 @@ function doubly_stochastic_denoising()
     problem.egrad = @(X) X - A;  % Euclidean gradient
     problem.ehess = @(X, U) U;   % Euclidean Hessian
 
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower).
+    % Notice that the function norm is not supported for AD so far.
+    % Replace the expression norm(..., 'fro')^2 with cnormsqfro described
+    % in the file manoptADhelp.m.
+    % problem.cost = @(X) 0.5*cnormsqfro(A-X);
+    % Call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
+    
     % Check consistency of the gradient and the Hessian. Useful if you
     % adapt this example for a new cost function and you would like to make
     % sure there is no mistake. These checks are optional of course.

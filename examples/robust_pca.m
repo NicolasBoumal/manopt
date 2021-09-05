@@ -49,7 +49,9 @@ function [U, cost] = robust_pca(X, d)
 %
 %   April 8, 2015 (NB):
 %       Built-in test data for quick tests; added comment about centering.
-
+%
+%   Aug  20, 2021 (XJ):
+%       Added AD to compute the egrad 
 
 
     % If no inputs, generate random data for illustration purposes.
@@ -91,6 +93,12 @@ function [U, cost] = robust_pca(X, d)
 	reduction = .5;
 	options.verbosity = 2; % Change this number for more or less output
     warning('off', 'manopt:getHessian:approx');
+    
+    % An alternative way to compute the egrad is to use automatic
+    % differentiation provided in the deep learning toolbox (slower).
+    % Call manoptAD to automatically obtain the egrad 
+    % problem = manoptAD(problem,'egrad');
+    
     for iter = 1 : n_iterations
         U = trustregions(problem, U, options);
         epsilon = epsilon * reduction;
@@ -106,6 +114,7 @@ function [U, cost] = robust_pca(X, d)
     
     % If working with the auto-generated input, plot the results.
     if nargin == 0
+        figure;
         scatter(X(1,:), X(2,:));
         hold on;
         plot(U(1)*[-1, 1]*100, U(2)*[-1 1]*100, 'r');

@@ -30,7 +30,9 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
 % Contributors:
 %
 % Change log:
-
+%
+%    Aug. 20, 2021(XJ)
+%       Added AD to compute the egrad and the ehess 
 
     % If no inputs are provided, generate a  discrete Laplacian operator.
     % This is for illustration purposes only.
@@ -82,7 +84,22 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
         h = L*U + alpha*diag(L\rhoXdot)*X + alpha*diag(L\rhoX)*U;
     end
     
-    
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % Notice that the function trace is not supported for AD so far.
+    % Replace it with ctrace described in the file manoptADhelp.m.
+    % Also, operations between sparse matices and dlarrys are not
+    % supported. Convert L into a full matrix for the use of AD.
+    % The operation \ is not supported for AD. Convert it to inv()*
+    % L_full = full(L);
+    % problem.cost = @cost_AD;
+    %    function val = cost_AD(X)
+    %        rhoX = sum(X.^2, 2); % diag(X*X'); 
+    %        val = 0.5*ctrace(X'*(L_full*X)) + (alpha/4)*(rhoX'*(inv(L_full)*rhoX));
+    %    end
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
+
     % Check whether gradient and Hessian computations are correct.
     % checkgradient(problem);
     % pause;

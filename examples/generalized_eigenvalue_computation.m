@@ -47,7 +47,8 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
 %     Aug. 10, 2016 (NB): the eigenvectors Xsol are now rotated by Vsol
 %     before they are returned, to ensure the output matches what you would
 %     normally expect calling eigs.
-    
+%     Aug. 20, 2021 (XJ): Added AD to compute the egrad and the ehess 
+
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
         n = 128;
@@ -80,6 +81,14 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
     problem.cost  = @(X)    -trace(X'*A*X);
     problem.egrad = @(X)    -2*(A*X); % Only Euclidean gradient needed.
     problem.ehess = @(X, H) -2*(A*H); % Only Euclidean Hessian needed.
+    
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox (slower)
+    % Notice that the function trace is not supported for AD so far.
+    % Replace it with ctrace described in the file manoptADhelp.m
+    % problem.cost = @(X)    -.5*ctrace(X'*A*X);
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.

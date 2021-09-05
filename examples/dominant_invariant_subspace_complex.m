@@ -1,7 +1,7 @@
 function [X, info] = dominant_invariant_subspace_complex(A, p)
 % Returns a unitary basis of the dominant invariant p-subspace of A.
 %
-% function X = dominant_invariant_subspace(A, p)
+% function X = dominant_invariant_subspace_complex(A, p)
 %
 % Input: A complex, Hermitian matrix A of size nxn and an integer p < n.
 % Output: A complex, unitary matrix X of size nxp such that trace(X'*A*X)
@@ -21,7 +21,11 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
 % Contributors:
 %
 % Change log:
-    
+%    
+%   Xiaowen Jiang Aug. 31, 2021
+%       Added AD to compute the egrad and the ehess  
+
+
     % Generate some random data to test the function
     if ~exist('A', 'var') || isempty(A)
         A = randn(128) + 1i*randn(128);
@@ -44,6 +48,29 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
     problem.egrad = @(X)    -2*A*X;
     problem.ehess = @(X, H) -2*A*H;
     
+    % An alternative way to compute the egrad and the ehess is to use 
+    % automatic differentiation provided in the deep learning toolbox
+    % (slower). AD does not support complex numbers if the Matlab version
+    % is R2021a or earlier. The cost function should be defined differently
+    % In this case. See complex_example_AD.m and manoptADhelp.m for more
+    % information.
+    % problem.cost = @cost_complex;
+    %    function f = cost_complex(X)
+    %        AX = cprod(A,X);
+    %        Xtransp = ctransp(X);
+    %        product = cprod(Xtransp,AX);
+    %        f = -creal(ctrace(product));
+    %    end
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
+    
+    % If the version of Matlab installed is R2021b or later, specify the 
+    % cost function in the normal way and call manoptAD. Notice that
+    % the function trace is not supported for AD so far. Replace it with 
+    % ctrace described in the file manoptADhelp.m
+    % problem.cost  = @(X)    -real(ctrace(X'*A*X));
+    % problem = manoptAD(problem);
+
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.
     % checkgradient(problem);
