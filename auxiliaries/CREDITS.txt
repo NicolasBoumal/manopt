@@ -30,12 +30,14 @@ We are grateful for the excellent contributions of
 * Estelle Massart
 * Eitan Levin
 * Ronny Bergmann
+* Michael Psenka
+* Quentin Rebjock
+* Xiaowen Jiang
 
 Furthermore, code written by the following people can be found in Manopt:
 
-* Chris Baker
-* Pierre-Antoine Absil
-* Kyle Gallivan
+* Chris Baker, Pierre-Antoine Absil, Kyle Gallivan (GenRTR basis for trustregions)
+* Michael Steinlechner, Daniel Kressner, Bart Vandereycken (TTeMPS)
 * Paolo de Leva
 * Wynton Moore
 * Michael Kleder
