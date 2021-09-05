@@ -7,7 +7,7 @@ function Ascale = cmultiscale(scale, A)
 % fields real and imag, which means this can be used for automatic
 % differentiation with complex arrays in older Matlab versions.
 %
-% See also: manoptAD multiscale
+% See also: manoptADhelp multiscale
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

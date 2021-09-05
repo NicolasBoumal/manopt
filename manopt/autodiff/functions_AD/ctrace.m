@@ -9,7 +9,7 @@ function traceA = ctrace(A)
 % is not currently supported by dlarrays which we use for automatic
 % differentiation: ctrace is a backup function.
 %
-% See also: manoptAD
+% See also: manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July 31, 2021.

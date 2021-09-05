@@ -8,7 +8,7 @@ function dlx = mat2dl_complex(x)
 % part of x into a struct containing dlarrays with fields real and imag 
 % which indicate the real and imaginary part of the stored complex numbers. 
 %
-% See also: dl2mat_complex, manoptAD
+% See also: dl2mat_complex, manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

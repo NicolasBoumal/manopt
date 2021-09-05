@@ -6,7 +6,7 @@ function Xcol = cmat2col(X)
 % Returns X(:) where the input X can be either a numeric array or a 
 % struct with fields real and imag.
 %
-% See also: manoptAD
+% See also: manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

@@ -222,7 +222,7 @@ function low_rank_tensor_completion()
     % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function norm is not supported for AD so far.
     % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
-    % manoptAD.m. Also, operations between sparse matrices and dlarrays 
+    % manoptADhelp.m. Also, operations between sparse matrices and dlarrays 
     % are not supported for now. convert PA and P into full arrays.
     % problem.cost = @cost_AD;
     % PA_full = full(PA);

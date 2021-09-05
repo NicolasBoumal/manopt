@@ -16,7 +16,7 @@ function innerpro = cinnerprodgeneral(x, y)
 % introduced in Matlab R2021b or later. This file is only useful for Matlab
 % R2021a or earlier. It will be discarded when Matlab R2021b is stable. 
 % 
-% See also: innerprodgeneral, manoptAD
+% See also: innerprodgeneral, manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

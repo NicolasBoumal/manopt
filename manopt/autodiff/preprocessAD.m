@@ -37,15 +37,15 @@ function problem = preprocessAD(problem,varargin)
 % of AD, please update to Matlab R2021b or later if possible. If the user 
 % cannot have access to Matlab R2021b or later, manopt provides an 
 % alternative way to deal with complex problems. see complex_example_AD 
-% and manoptAD for more information. Thirdly, check the list of functions
+% and manoptADhelp for more information. Thirdly, check the list of functions
 % with AD support when defining the cost function. See the official website
 % https://ch.mathworks.com/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
-% and manoptAD for more information. To run AD on GPU, set gpuflag = true 
+% and manoptADhelp for more information. To run AD on GPU, set gpuflag = true 
 % in the problem structure and store related arrays on GPU as usual. 
 % See using_gpu_AD for more details.
 %
 % See also: autograd, egradcompute, ehesscompute, complex_example_AD
-% manoptAD, using_gpu_AD
+% manoptADhelp, using_gpu_AD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
@@ -117,11 +117,13 @@ function problem = preprocessAD(problem,varargin)
                     costtestx = problem.cost(x); %#ok<NASGU>
                     costtestdlx = problem.cost(dlx); %#ok<NASGU>
                 catch
-                    warning('manopt:complex',['Automatic differentiation failed. '...
-                    'Problem defining the cost function.'...
-                    '\nVariables contain complex numbers. Check the version of '...
-                    'the Matlab and see \ncomplex_example_AD.m and manoptAD for more '...
-                    'information about how to deal\nwith complex problems.']);
+                    warning('manopt:complex', ...
+                    ['Automatic differentiation failed. ' ...
+                     'Problem defining the cost function.\n' ...
+                     'Variables contain complex numbers. ' ...
+                     'Check your Matlab version and see\n' ...
+                     'complex_example_AD.m and manoptADhelp.m for help ' ...
+                     'about how to deal with complex variables.']);
                     return
                 end
                 % if no error appears, set complexflag to true
@@ -134,7 +136,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://www.mathworks.ch/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see manoptAD for more information.']);
+                    ' and see manoptADhelp for more information.']);
                 return   
             end
         end                   
@@ -241,7 +243,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://www.mathworks.ch/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see manoptAD for more information.']);
+                    'and see manoptADhelp for more information.']);
                 problem = rmfield(problem,'autogradfunc');
                 problem = rmfield(problem,'egrad');
                 problem = rmfield(problem,'costgrad');
@@ -277,7 +279,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://www.mathworks.ch/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see manoptAD for more information.']);
+                    'and see manoptADhelp for more information.']);
             problem = rmfield(problem,'ehess');
             return
         end
@@ -299,7 +301,7 @@ function problem = preprocessAD(problem,varargin)
                     '<a href = "https://www.mathworks.ch/help/deeplearning'...
                     '/ug/list-of-functions-with-dlarray-support.html">'...
                     'Check the list of functions with AD support.</a>'...
-                    'and see manoptAD for more information.']);
+                    'and see manoptADhelp for more information.']);
             problem = rmfield(problem,'autogradfunc');                
             problem = rmfield(problem,'grad');
             problem = rmfield(problem,'costgrad');

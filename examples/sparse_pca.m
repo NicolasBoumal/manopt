@@ -130,7 +130,7 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
     % differentiation provided in the deep learning toolbox (slower).
     % Notice that the function norm is not supported for AD so far.
     % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
-    % manoptAD.m. Notice that the abs function is not differentiable 
+    % manoptADhelp.m. Notice that the abs function is not differentiable 
     % mathematically. Instead the subgradient is computed automatically.
     % problem.cost = @cost_AD;
     % function f = cost_AD(X)

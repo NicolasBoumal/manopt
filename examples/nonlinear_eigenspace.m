@@ -87,7 +87,7 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
     % An alternative way to compute the egrad and the ehess is to use 
     % automatic differentiation provided in the deep learning toolbox (slower)
     % Notice that the function trace is not supported for AD so far.
-    % Replace it with ctrace described in the file manoptAD.m.
+    % Replace it with ctrace described in the file manoptADhelp.m.
     % Also, operations between sparse matices and dlarrys are not
     % supported. Convert L into a full matrix for the use of AD.
     % The operation \ is not supported for AD. Convert it to inv()*

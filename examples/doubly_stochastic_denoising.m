@@ -68,7 +68,7 @@ function doubly_stochastic_denoising()
     % automatic differentiation provided in the deep learning toolbox (slower).
     % Notice that the function norm is not supported for AD so far.
     % Replace the expression norm(..., 'fro')^2 with cnormsqfro described
-    % in the file manoptAD.m.
+    % in the file manoptADhelp.m.
     % problem.cost = @(X) 0.5*cnormsqfro(A-X);
     % Call preprocessAD to prepare AD for the problem structure
     % problem = preprocessAD(problem);

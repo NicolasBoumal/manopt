@@ -52,7 +52,7 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
     % automatic differentiation provided in the deep learning toolbox
     % (slower). AD does not support complex numbers if the Matlab version
     % is R2021a or earlier. The cost function should be defined differently
-    % In this case. See complex_example_AD.m and manoptAD.m for more
+    % In this case. See complex_example_AD.m and manoptADhelp.m for more
     % information.
     % problem.cost = @cost_complex;
     %    function f = cost_complex(X)
@@ -67,7 +67,7 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
     % If the version of Matlab installed is R2021b or later, specify the 
     % cost function in the normal way and call preprocessAD. Notice that
     % the function trace is not supported for AD so far. Replace it with 
-    % ctrace described in the file manoptAD.m
+    % ctrace described in the file manoptADhelp.m
     % problem.cost  = @(X)    -real(ctrace(X'*A*X));
     % problem = preprocessAD(problem);
 

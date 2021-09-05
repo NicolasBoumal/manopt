@@ -140,7 +140,7 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     % An alternative way to compute the grad is to use automatic
     % differentiation provided in the deep learning toolbox (slower)
     % Notice that the function triu is not supported for AD so far.
-    % Replace it with ctriu described in the file manoptAD.m
+    % Replace it with ctriu described in the file manoptADhelp.m
     % problem.cost = @cost_AD;
     %    function f = cost_AD(X)
     %        XXt = X*X';

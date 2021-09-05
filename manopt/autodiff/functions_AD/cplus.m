@@ -6,7 +6,7 @@ function plusAB = cplus(A,B)
 % Returns the sum of A and B. This function can be seen as A+B but is
 % compatible with dlarrays and structs with fields real and imag.
 %
-% See also: manoptAD
+% See also: manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.

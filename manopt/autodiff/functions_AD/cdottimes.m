@@ -6,7 +6,7 @@ function cdottimesAB = cdottimes(A, B)
 % Returns the element-wise multiplication of A and B. The inputs A and B 
 % can be either numeric arrays or structs with fields real and imag.
 %
-% See also: manoptAD
+% See also: manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July 31, 2021.

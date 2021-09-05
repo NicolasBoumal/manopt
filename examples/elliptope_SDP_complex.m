@@ -134,7 +134,7 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
     % automatic differentiation provided in the deep learning toolbox
     % (slower). AD does not support complex numbers if the Matlab version
     % is R2021a or earlier. The cost function should be defined differently
-    % In this case. See complex_example_AD.m and manoptAD.m for more
+    % In this case. See complex_example_AD.m and manoptADhelp.m for more
     % information.
     % problem.cost = @cost_AD;
     %    function f = cost_AD(Y)

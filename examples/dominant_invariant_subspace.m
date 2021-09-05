@@ -71,7 +71,7 @@ function [X, info] = dominant_invariant_subspace(A, p)
     % An alternative way to compute the gradient and the hessian is to use 
     % automatic differentiation provided in the deep learning toolbox (slower).
     % Notice that the function trace is not supported for AD so far.
-    % Replace it with ctrace described in manoptAD
+    % Replace it with ctrace described in manoptADhelp
     % problem.cost = @(X)    -.5*ctrace(X'*A*X);
     % It's also feasible to specify the cost in a more efficient way
     % problem.cost = @(X)    -.5*sum(sum(X .* (A*X))); 

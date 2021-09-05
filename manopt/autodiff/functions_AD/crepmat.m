@@ -6,7 +6,7 @@ function Xrepmat = crepmat(X, varargin)
 % This function can be seen as repmat(X,varargin) but is compatible with
 % structs with fields real and imag.
 %
-% See also: manoptAD
+% See also: manoptADhelp
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, July. 31, 2021.
