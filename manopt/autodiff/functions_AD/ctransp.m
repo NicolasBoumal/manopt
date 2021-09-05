@@ -13,7 +13,7 @@ function Xtransp = ctransp(X)
 % Contributors: Nicolas Boumal
 % Change log:
 
-    if isstruct(X) && isfield(X,'real')
+    if iscstruct(X)
         Xreal = X.real;
         Ximag = X.imag;
         Xtransp.real = Xreal';
@@ -22,7 +22,7 @@ function Xtransp = ctransp(X)
         Xtransp = X';
     else
         ME = MException('ctransp:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end
 

@@ -13,14 +13,14 @@ function xconj = cconj(x)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if isstruct(x) && isfield(x,'real')
+    if iscstruct(x)
         xconj.real = x.real;
         xconj.imag = -x.imag;
     elseif isnumeric(x)
         xconj = conj(x);
     else
         ME = MException('cconj:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end
 

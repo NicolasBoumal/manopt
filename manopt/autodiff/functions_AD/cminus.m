@@ -13,28 +13,28 @@ function miusAB = cminus(A,B)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if isnumeric(A) && isstruct(B) && isfield(B,'real')
+    if isnumeric(A) && iscstruct(B)
         realA = real(A);
         imagA = imag(A);
         miusAB.real = realA - B.real;
         miusAB.imag = imagA - B.imag;
         
-    elseif isstruct(A) && isnumeric(B) && isfield(A,'real')
+    elseif iscstruct(A) && isnumeric(B)
         realB = real(B);
         imagB = imag(B);
         miusAB.real = realB - A.real;
         miusAB.imag = imagB - A.imag;
     
     elseif isnumeric(A) && isnumeric(B)
-        miusAB = A-B;
+        miusAB = A - B;
     
-    elseif isstruct(A) && isstruct(B) && isfield(A,'real') && isfield(B,'real')
-        miusAB.real = A.real-B.real;
-        miusAB.imag = A.imag-B.imag;
+    elseif iscstruct(A) && iscstruct(B)
+        miusAB.real = A.real - B.real;
+        miusAB.imag = A.imag - B.imag;
     
     else
         ME = MException('cminus:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end
 

@@ -1,4 +1,4 @@
-function Xrepmat = crepmat(X,varargin)
+function Xrepmat = crepmat(X, varargin)
 % Replicates an array.
 %
 % function Xrepmat = crepmat(X,varargin)
@@ -13,16 +13,16 @@ function Xrepmat = crepmat(X,varargin)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if isstruct(X) && isfield(X,'real')
-        Xrepmat.real = repmat(X.real,varargin{:});
-        Xrepmat.imag = repmat(X.imag,varargin{:});
+    if iscstruct(X)
+        Xrepmat.real = repmat(X.real, varargin{:});
+        Xrepmat.imag = repmat(X.imag, varargin{:});
         
     elseif isnumeric(X)
-        Xrepmat = repmat(X,varargin{:});
+        Xrepmat = repmat(X, varargin{:});
         
     else
         ME = MException('crepmat:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
         
     end

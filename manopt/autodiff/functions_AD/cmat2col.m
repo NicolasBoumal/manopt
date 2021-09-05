@@ -13,7 +13,7 @@ function Xcol = cmat2col(X)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if isstruct(X) && isfield(X,'real')
+    if iscstruct(X)
         Xreal = X.real;
         Ximag = X.imag;
         Xcol.real = Xreal(:);
@@ -22,7 +22,7 @@ function Xcol = cmat2col(X)
         Xcol = X(:);
     else
         ME = MException('cmat2col:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end
     

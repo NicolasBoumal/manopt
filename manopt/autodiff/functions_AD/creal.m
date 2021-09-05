@@ -13,13 +13,13 @@ function Xreal = creal(X)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if isstruct(X) && isfield(X,'real')
+    if iscstruct(X)
         Xreal = X.real;
-    elseif isnumeric(X) 
+    elseif isnumeric(X)
         Xreal = real(X);
     else
         ME = MException('creal:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end
 

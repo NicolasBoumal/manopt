@@ -10,14 +10,14 @@ function Xindex = cindex(X)
 % See also: manoptAD
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Xiaowen Jiang, July. 31, 2021.
+% Original author: Xiaowen Jiang, July 31, 2021.
 % Contributors:
 % Change log: 
 
-    fprintf(['This is an template. Please create your own function '...
-        'following the instructions in the comments.'])
+    fprintf(['cindex: This is a template. Please create your own ' ...
+             'function following the instructions in the comments.'])
 
-    % if isstruct(X) && isfield(X,'real')
+    % if iscstruct(X)
     %    Xindex.real = X(...);
     %    Xindex.imag = X(...);
     % elseif isnumeric(X)

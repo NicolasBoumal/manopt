@@ -1,7 +1,7 @@
-function innerpro = cinnerprodgeneral(x,y)
+function innerpro = cinnerprodgeneral(x, y)
 % Computes the Euclidean inner product between x and y in the complex case
 %
-% function innerpro = cinnerprodgeneral(x,y)
+% function innerpro = cinnerprodgeneral(x, y)
 %
 % The input x and y are numeric data structures which can be defined  
 % recursively by arrays, structs and cells. Each part of x and y should 

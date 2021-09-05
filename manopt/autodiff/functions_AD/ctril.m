@@ -1,4 +1,4 @@
-function Xtriu = ctril(X,k)
+function Xtriu = ctril(X, k)
 % Extracts the lower triangular part of X.
 %
 % function Xtriu = ctril(X,k)
@@ -15,7 +15,7 @@ function Xtriu = ctril(X,k)
 
     switch nargin
         case 1
-            if isstruct(X) && isfield(X,'real')
+            if iscstruct(X)
                 index0 = find(tril(ones(size(X.real)))==0);
                 Xtriu = X;
                 Xtriu.real(index0) = 0;
@@ -35,7 +35,7 @@ function Xtriu = ctril(X,k)
                 throw(ME);
             end
         case 2
-            if isstruct(X) && isfield(X,'real')
+            if iscstruct(X)
                 index0 = find(tril(ones(size(X.real)),k)==0);
                 Xtriu = X;
                 Xtriu.real(index0) = 0;
@@ -51,11 +51,10 @@ function Xtriu = ctril(X,k)
                 
             else
                 ME = MException('ctril:inputError', ...
-                'Input does not have the expected format.');
+                                'Input does not have the expected format.');
                 throw(ME);
             end
     otherwise
         error('Too many input arguments.');
     end
 end
-

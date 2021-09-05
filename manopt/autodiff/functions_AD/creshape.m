@@ -1,4 +1,4 @@
-function Xreshape = creshape(X,varargin)
+function Xreshape = creshape(X, varargin)
 % Reshapes X.
 %
 % function Xreshape = creshape(X,varargin)
@@ -13,16 +13,16 @@ function Xreshape = creshape(X,varargin)
 % Contributors: Nicolas Boumal
 % Change log:
 
-    if isstruct(X) && isfield(X,'real')
-        Xreshape.real = reshape(X.real,varargin{:});
-        Xreshape.imag = reshape(X.imag,varargin{:});
+    if iscstruct(X)
+        Xreshape.real = reshape(X.real, varargin{:});
+        Xreshape.imag = reshape(X.imag, varargin{:});
         
     elseif isnumeric(X)
-        Xreshape = reshape(X,varargin{:});
+        Xreshape = reshape(X, varargin{:});
         
     else
         ME = MException('creshape:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
         
     end

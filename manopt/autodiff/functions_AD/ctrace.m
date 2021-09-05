@@ -43,7 +43,7 @@ function traceA = ctrace(A)
 
     else
         ME = MException('ctrace:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
         
     end

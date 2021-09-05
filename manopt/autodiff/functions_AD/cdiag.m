@@ -15,8 +15,8 @@ function diagX = cdiag(X)
 % Contributors: Nicolas Boumal
 % Change log:
 
-    if isstruct(X) && isfield(X,'real')
-        assert(length(size(X.real))==2,'Input should be a 2-D array')
+    if iscstruct(X)
+        assert(length(size(X.real)) == 2, 'Input should be a 2-D array')
         m = size(X.real,1);
         n = size(X.real,2);
         realX = X.real;
@@ -30,7 +30,7 @@ function diagX = cdiag(X)
         end
 
     elseif isnumeric(X)
-        assert(length(size(X))==2,'Input should be a 2-D array')
+        assert(length(size(X)) == 2, 'Input should be a 2-D array')
         m = size(X,1);
         n = size(X,2);
         if n >= m
@@ -41,7 +41,7 @@ function diagX = cdiag(X)
 
     else
         ME = MException('cdiag:inputError', ...
-        'Input does not have the expected format.');
+                        'Input does not have the expected format.');
         throw(ME);
     end    
 
