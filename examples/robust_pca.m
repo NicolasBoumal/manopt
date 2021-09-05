@@ -96,8 +96,8 @@ function [U, cost] = robust_pca(X, d)
     
     % An alternative way to compute the egrad is to use automatic
     % differentiation provided in the deep learning toolbox (slower).
-    % Call preprocessAD to automatically obtain the egrad 
-    % problem = preprocessAD(problem,'egrad');
+    % Call manoptAD to automatically obtain the egrad 
+    % problem = manoptAD(problem,'egrad');
     
     for iter = 1 : n_iterations
         U = trustregions(problem, U, options);

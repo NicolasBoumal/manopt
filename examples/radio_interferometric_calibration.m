@@ -151,8 +151,8 @@ function xsol = radio_interferometric_calibration(N, K)
     % An alternative way to compute the egrad and the ehess is to use 
     % automatic differentiation provided in the deep learning toolbox.
     % Notice that the for loop in the cost function can make AD much
-    % slower. Call preprocessAD to prepare AD for the problem structure.
-    % problem = preprocessAD(problem);
+    % slower. Call manoptAD to prepare AD for the problem structure.
+    % problem = manoptAD(problem);
 
 
     % Execute some checks on the derivatives for early debugging.

@@ -7,7 +7,7 @@ function basic_example_AD()
 % please update to R2021b or later if possible.
 % 
 %
-% See also: preprocessAD, manoptADhelp
+% See also: manoptAD, manoptADhelp
 
 % This file is part of Manopt and is copyrighted. See the license file.
 %
@@ -41,20 +41,20 @@ function basic_example_AD()
     problem.cost  = @(x) -x'*(A*x);
     
     % Provide the gradient and the hessian via automatic differentiation
-    problem = preprocessAD(problem);
+    problem = manoptAD(problem);
     
     % If the egrad has already been provided, the ehess will be computed 
     % according to the egrad, which maybe faster based on the expression 
     % of the egrad.
     % problem.egrad = @(x) -2*(A*x);
-    % problem = preprocessAD(problem);
+    % problem = manoptAD(problem);
 
     % If the user only wants the gradient or the hessian information,
-    % set the second argument of preprocessAD to be 'egrad' or 'ehess'
+    % set the second argument of manoptAD to be 'egrad' or 'ehess'
 
     % e.g. Provide the gradient only and use FD approximation of hessian
     % (which is often faster than providing the exact hessian).
-    % problem = preprocessAD(problem,'egrad');
+    % problem = manoptAD(problem,'egrad');
 
     % Numerically check gradient and Hessian consistency.
     figure;

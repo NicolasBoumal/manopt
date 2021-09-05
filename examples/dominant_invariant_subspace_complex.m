@@ -61,15 +61,15 @@ function [X, info] = dominant_invariant_subspace_complex(A, p)
     %        product = cprod(Xtransp,AX);
     %        f = -creal(ctrace(product));
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess
-    % problem = preprocessAD(problem);
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
     
     % If the version of Matlab installed is R2021b or later, specify the 
-    % cost function in the normal way and call preprocessAD. Notice that
+    % cost function in the normal way and call manoptAD. Notice that
     % the function trace is not supported for AD so far. Replace it with 
     % ctrace described in the file manoptADhelp.m
     % problem.cost  = @(X)    -real(ctrace(X'*A*X));
-    % problem = preprocessAD(problem);
+    % problem = manoptAD(problem);
 
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.

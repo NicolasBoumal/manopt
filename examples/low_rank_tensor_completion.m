@@ -233,8 +233,8 @@ function low_rank_tensor_completion()
     %        Diffmultiarray_flat = reshape(Diffmultiarray, n1, n2*n3);
     %        f = .5*cnormsqfro(Diffmultiarray_flat);
     %    end
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
  
 
     % Check consistency of the gradient and the Hessian. Useful if you

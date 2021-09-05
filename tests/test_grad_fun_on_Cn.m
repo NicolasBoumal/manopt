@@ -12,7 +12,7 @@ problem.cost = @(x) real(z(x)'*z(x));
 % checkgradient(problem);
 
 % check if AD works on this example in R2021b.
-problem = preprocessAD(problem);
+problem = manoptAD(problem);
 checkgradient(problem);
 
 %{

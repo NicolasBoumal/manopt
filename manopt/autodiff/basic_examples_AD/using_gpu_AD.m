@@ -39,7 +39,7 @@ function using_gpu_AD()
     % First, setup and run the optimization problem on the CPU.
     problem_cpu.M = grassmannfactory(n, p, 1); % 1 copy of Grassmann(n, p)
     problem_cpu.cost = @(X) .5*inner(X, A*X);  % Rayleigh quotient to be minimized
-    problem_cpu = preprocessAD(problem_cpu);       % Obtain the egrad and ehess via AD 
+    problem_cpu = manoptAD(problem_cpu);       % Obtain the egrad and ehess via AD 
     X0 = problem_cpu.M.rand();                 % Random initial guess
     tic_cpu = tic();
     X_cpu = trustregions(problem_cpu, X0);     % run any solver
@@ -50,7 +50,7 @@ function using_gpu_AD()
     A = gpuArray(A);
     problem_gpu.M = grassmannfactory(n, p, 1, true); % true is the GPU flag;
     problem_gpu.cost = @(X) .5*inner(X, A*X);        % Code for cost
-    problem_gpu = preprocessAD(problem_gpu);         % Work on gpu now            
+    problem_gpu = manoptAD(problem_gpu);         % Work on gpu now            
     X0 = gpuArray(X0);
     tic_gpu = tic();
     X_gpu = trustregions(problem_gpu, X0);

@@ -116,8 +116,8 @@ function low_rank_matrix_completion()
     
     % Computating the ehess for the set of fixed-rank matrices with 
     % an embedded geometry is currently not supported.
-    % Call preprocessAD to automatically obtain the grad
-    % problem = preprocessAD(problem);
+    % Call manoptAD to automatically obtain the grad
+    % problem = manoptAD(problem);
 
 
     % Check consistency of the gradient and the Hessian. Useful if you

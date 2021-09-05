@@ -70,8 +70,8 @@ function doubly_stochastic_denoising()
     % Replace the expression norm(..., 'fro')^2 with cnormsqfro described
     % in the file manoptADhelp.m.
     % problem.cost = @(X) 0.5*cnormsqfro(A-X);
-    % Call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % Call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     % Check consistency of the gradient and the Hessian. Useful if you
     % adapt this example for a new cost function and you would like to make

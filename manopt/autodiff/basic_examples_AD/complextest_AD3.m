@@ -35,7 +35,7 @@ function complextest_AD3()
     problem.cost  = @(X) -creal(cprod(cprod(ctransp(X.x), A), X.y{1}));
 
     % Define the gradient and the hessian via automatic differentiation
-    problem = preprocessAD(problem);
+    problem = manoptAD(problem);
 
     % Numerically check gradient and Hessian consistency.
     figure;

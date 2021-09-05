@@ -44,7 +44,7 @@ function complex_example_AD()
     problem.cost  = @(X) -creal(cprod(cprod(ctransp(X), A), X));
     
     % Define the gradient and the hessian via automatic differentiation
-    problem = preprocessAD(problem);
+    problem = manoptAD(problem);
 
     % Numerically check gradient and Hessian consistency.
     figure;

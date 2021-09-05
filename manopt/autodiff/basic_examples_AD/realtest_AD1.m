@@ -28,7 +28,7 @@ function realtest_AD1()
     problem.cost  = @(X) -X.x'*(A*X.y);
     
     % Define the gradient and the hessian via automatic differentiation
-    problem = preprocessAD(problem);
+    problem = manoptAD(problem);
 
     % Numerically check gradient and Hessian consistency.
     figure;

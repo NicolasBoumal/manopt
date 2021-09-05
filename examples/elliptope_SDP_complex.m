@@ -142,18 +142,18 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
     %        diagAYYt = csum(creal(cdottimes(AY, cconj(Y))), 2);
     %        f = .5*csum(diagAYYt);
     %    end
-    % Call preprocessAD to automatically obtain egrad and ehess:
-    % problem = preprocessAD(problem);
+    % Call manoptAD to automatically obtain egrad and ehess:
+    % problem = manoptAD(problem);
 
     % If the version of Matlab installed is R2021b or later, specify the 
-    % cost function in the normal way and call preprocessAD. 
+    % cost function in the normal way and call manoptAD. 
     % problem.cost = @cost_AD;
     %    function f = cost_AD(Y)
     %        AY = A*Y;
     %        diagAYYt = sum(real(AY .* conj(Y)), 2);
     %        f = .5*sum(diagAYYt);
     %    end
-    % problem = preprocessAD(problem);
+    % problem = manoptAD(problem);
 
 
     % If no initial guess is available, tell Manopt to use a random one.

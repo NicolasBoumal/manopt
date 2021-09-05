@@ -23,7 +23,7 @@ function [ehess,store] = ehesscompute(problem,x,xdot,store,complexflag)
 % euclidean gradient is computed according to the egrad and otherwise 
 % according to the cost function.
 %
-% See also: preprocessAD, mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
+% See also: manoptAD, mat2dl, dl2mat, dl2mat_complex, mat2dl_complex, 
 % innerprodgeneral, cinnerprodgeneral, 
 
 % This file is part of Manopt: www.manopt.org.

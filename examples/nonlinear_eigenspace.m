@@ -97,8 +97,8 @@ function Xsol = nonlinear_eigenspace(L, k, alpha)
     %        rhoX = sum(X.^2, 2); % diag(X*X'); 
     %        val = 0.5*ctrace(X'*(L_full*X)) + (alpha/4)*(rhoX'*(inv(L_full)*rhoX));
     %    end
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
 
     % Check whether gradient and Hessian computations are correct.
     % checkgradient(problem);

@@ -75,8 +75,8 @@ function [X, info] = dominant_invariant_subspace(A, p)
     % problem.cost = @(X)    -.5*ctrace(X'*A*X);
     % It's also feasible to specify the cost in a more efficient way
     % problem.cost = @(X)    -.5*sum(sum(X .* (A*X))); 
-    % Call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % Call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
     % These can be commented out.

@@ -139,7 +139,7 @@ function [P, X] = sparse_pca_stiefel_l1(A, m, gamma)
     %    pos = max(0, absAtX - gamma);
     %    f = -.5*cnormsqfro(pos);
     % end
-    % problem = preprocessAD(problem,'egrad');
+    % problem = manoptAD(problem,'egrad');
 
     % checkgradient(problem);
     % pause;

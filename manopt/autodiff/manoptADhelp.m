@@ -47,7 +47,7 @@ function manoptADhelphelp()
 % accept both numeric arrays and structures with fields real and imag. 
 % See cprod and complex_example_AD as examples.
 %
-% See also: preprocessAD, complex_example_AD
+% See also: manoptAD, complex_example_AD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

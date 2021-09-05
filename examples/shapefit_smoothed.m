@@ -156,8 +156,8 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
     %    repsum1 = repmat(sum1,size(sum1,1),1);
     %    AT = T*J_full - V_full.*repsum1;
     % end
-    % call preprocessAD to prepare AD for the problem structure   
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure   
+    % problem = manoptAD(problem);
     
     T_lsq = trustregions(problem);
     
@@ -189,7 +189,7 @@ function [T_hub, T_lsq, T_cvx] = shapefit_smoothed(V, J)
         % AD version      
         % problem = rmfield(problem, 'egrad');
         % problem = rmfield(problem, 'autogradfunc');
-        % problem = preprocessAD(problem,'egrad');                        
+        % problem = manoptAD(problem,'egrad');                        
                                 
         % Solve, using the previous solution as initial guess.
         T_hub = trustregions(problem, T_hub);

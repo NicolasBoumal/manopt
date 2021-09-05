@@ -131,8 +131,8 @@ function [A, R] = generalized_procrustes(A_measure)
     %        E = multiprod(R, A) - A_measure;
     %        f = (E(:)'*E(:))/(2*N);
     %    end
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     % For debugging, it's always nice to check the gradient a few times.
     % checkgradient(problem);

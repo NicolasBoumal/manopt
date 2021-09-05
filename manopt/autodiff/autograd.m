@@ -12,7 +12,7 @@ function autogradfunc = autograd(problem,fixedrankflag)
 % Note: to evaluate the Euclidean gradient of a certain point x(x should be
 % of type dlarray), call dfeval(autogradfunc,x) instead of autogradfunc(x).
 %
-% See also: preprocessAD, egradcompute, costgradcompute
+% See also: manoptAD, egradcompute, costgradcompute
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

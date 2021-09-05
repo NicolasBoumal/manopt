@@ -150,8 +150,8 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     %        u = sum(sum(ctriu(expXXt, 1)));
     %        f = s + epsilon*log(u);
     %    end
-    % Call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem,'egrad');
+    % Call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem,'egrad');
     
     % For debugging, it's always nice to check the gradient a few times.
     % checkgradient(problem);

@@ -222,7 +222,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     % much slower. Notice that the function trace is not supported for AD 
     % so far. Replace it with ctrace described in the file manoptADhelp.m.
     % problem.cost  = @(Y)  -ctrace(Y'*L*Y)/4;
-    % problem = preprocessAD(problem);
+    % problem = manoptAD(problem);
     
     % Instead of the prototyping version, the functions below describe the
     % cost, gradient and Hessian using the caching system (the store

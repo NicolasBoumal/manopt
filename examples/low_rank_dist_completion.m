@@ -365,8 +365,8 @@ function [Yopt, infos] = low_rank_dist_completion_fixedrank(data_train, data_tes
     %        estimDists = sum(xij.^2,2);
     %        f = 0.5*mean((estimDists - data_train.entries).^2);
     %    end
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     %     % Check numerically whether gradient and Hessian are correct
     %     checkgradient(problem);

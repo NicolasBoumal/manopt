@@ -140,8 +140,8 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
     %    f = .5*sum(diagAYYt);
     % end
     % problem.cost = @cost_AD;
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
 
     % If no initial guess is available, tell Manopt to use a random one.
     if ~exist('Y0', 'var') || isempty(Y0)

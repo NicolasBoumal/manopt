@@ -43,7 +43,7 @@ problem.cost = @(X) sum(sum(triu(1./(1-X'*X), 1))) / n^2;
 % elements. To avoid this problem, first take the upper triangular part by
 % calling ctriu before dot division.
 % problem.cost = @(X) sum(sum(ctriu(1./ctriu((1-X'*X), 1),1))) / n^2;
-% problem = preprocessAD(problem);
+% problem = manoptAD(problem);
 
 % Attempt to minimize the cost. Since the gradient is not provided, Manopt
 % approximates it with finite differences. This is /slow/, since for each

@@ -87,8 +87,8 @@ function [Xsol, Ssol] = generalized_eigenvalue_computation(A, B, p)
     % Notice that the function trace is not supported for AD so far.
     % Replace it with ctrace described in the file manoptADhelp.m
     % problem.cost = @(X)    -.5*ctrace(X'*A*X);
-    % call preprocessAD to automatically obtain the egrad and the ehess
-    % problem = preprocessAD(problem);
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.

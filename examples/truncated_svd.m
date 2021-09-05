@@ -129,8 +129,8 @@ function [U, S, V, info] = truncated_svd(A, p)
     %        V = X.V;
     %        f = -.5*cnormsqfro(U'*A*V);
     %    end
-    % call preprocessAD to prepare AD for the problem structure
-    % problem = preprocessAD(problem);
+    % call manoptAD to prepare AD for the problem structure
+    % problem = manoptAD(problem);
     
     % Execute some checks on the derivatives for early debugging.
     % These things can be commented out of course.

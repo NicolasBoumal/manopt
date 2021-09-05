@@ -56,8 +56,8 @@ function essential_svd
     
     % An alternative way to compute the egrad and the ehess is to use 
     % automatic differentiation provided in the deep learning toolbox (slower)
-    % call preprocessAD to automatically obtain the egrad and the ehess
-    % problem = preprocessAD(problem);
+    % call manoptAD to automatically obtain the egrad and the ehess
+    % problem = manoptAD(problem);
     
     % Numerically check the differentials.
     % checkgradient(problem); pause;
