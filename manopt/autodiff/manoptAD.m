@@ -31,11 +31,22 @@ function problem = manoptAD(problem, flag)
 % Support for complex variables in automatic differentation is added in
 %   Matlab version R2021b or later.
 % There is also better support for Hessian computations in that version.
-% Otherwise, see manoptADhelp for a workaround, or set the 'egrad' flag to
-% tell Manopt not to try to compute Hessians with AD.
+% Otherwise, see manoptADhelp and complex_example_AD for a workaround, or
+% set the 'egrad' flag to tell Manopt not to compute Hessians with AD.
 %
 % If AD fails for some reasons, the original problem structure 
 % is returned with a warning trying to hint at what the issue may be.
+% Mostly, issues arise because the manoptAD relies on the Deep Learning
+% Toolbox, which itself relies on the dlarray data type, and only a subset
+% of Matlab functions support dlarrays:
+% 
+%   See manoptADhelp for more about limitations and workarounds.
+%   See
+%   https://ch.mathworks.com/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
+%   for an official list of functions that support dlarray.
+%
+% In particular, sparse matrices are not supported, as well as certain
+% standard functions including trace() which can be replaced by ctrace().
 %
 % There are a few limitations pertaining to specific manifolds.
 % For example:
@@ -43,21 +54,21 @@ function problem = manoptAD(problem, flag)
 %   fixedranktensorembeddedfactory: no AD support.
 %   fixedTTrankfactory: no AD support.
 %
-% Note: The current functionality of AD relies on Matlab's deep learning
-% tool box, which has the inconvenient effect that we cannot control the
-% limitations. Firstly, AD does not support sparse matrices so far. Try 
-% converting sparse arrays into full arrays in the cost function. Secondly,
-% math operations involving complex numbers between dlarrays is not 
-% supported for Matlab R2021a or earlier. To fully exploit the convenience 
-% of AD, please update to Matlab R2021b or later if possible. If the user 
-% cannot have access to Matlab R2021b or later, manopt provides an 
-% alternative way to deal with complex problems. see complex_example_AD 
-% and manoptADhelp for more information. Thirdly, check the list of functions
-% with AD support when defining the cost function. See the official website
-% https://ch.mathworks.com/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
-% and manoptADhelp for more information. To run AD on GPU, set gpuflag = true 
-% in the problem structure and store related arrays on GPU as usual. 
-% See using_gpu_AD for more details.
+% Importantly, while AD is convenient and very efficient in terms of human
+% time, it is not efficient in terms of CPU time: it is expected that AD
+% slows down gradient computations by a factor of about 5. Moreover, while
+% AD can most often computed Hessians as well, it is often more efficient
+% to compute Hessians with finite differences (which is the default in
+% Manopt when the Hessian is not provided by the user).
+% Thus: it is often the case that
+%   problem = manoptAD(problem, 'egrad');
+% leads to better overall runtime than
+%   problem = manoptAD(problem, 'egrad');
+% when calling trustregions(problem).
+%
+% Some manifold factories in Manopt support GPUs: automatic differentiation
+% should work with them too, as usual. See using_gpu_AD for more details.
+%
 %
 % See also: manoptADhelp autograd egradcompute ehesscompute complex_example_AD using_gpu_AD
 
