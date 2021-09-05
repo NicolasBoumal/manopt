@@ -1,4 +1,4 @@
-function manoptADhelphelp()
+function manoptADhelp()
 % This file provides certain comments regarding the use of automatic
 % differentiation in manopt. It summarizes the limitations to define the  
 % cost function when the user wants to use automatic differentiation to 
