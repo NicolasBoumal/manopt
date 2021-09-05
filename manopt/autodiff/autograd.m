@@ -1,8 +1,8 @@
-function autogradfunc = autograd(problem,fixedrankflag)
+function autogradfunc = autograd(problem, fixedrankflag)
 % Apply automatic differentiation to computing the Euclidean gradient
 %
 % function autogradfunc = autograd(problem)
-% function autogradfunc = autograd(problem,fixedrankflag)
+% function autogradfunc = autograd(problem, fixedrankflag)
 %
 % Returns an AcceleratedFunction or a function handle which can be used to 
 % compute Euclidean gradients. See https://ch.mathworks.com/help/
@@ -29,21 +29,21 @@ function autogradfunc = autograd(problem,fixedrankflag)
     assert(exist('dlarray', 'file') == 2, ['Deep learning tool box is '... 
     'needed for automatic differentiation'])
     
-    % Set fixedrankflag to zero if the manifold struct is not 
+    % Set fixedrankflag to false if the manifold struct is not 
     % fixed(multilinear)-rank matrices or tensors with an embedded geometry
     % or tensors of fixed Tensor Train (TT) rank
-    if ~exist('fixedrankflag','var')|| isempty(fixedrankflag)
-        fixedrankflag = 0;
+    if ~exist('fixedrankflag', 'var')|| isempty(fixedrankflag)
+        fixedrankflag = false;
     end
 
     % Obtain the euclidean gradient function via AD
     costfunction = problem.cost;
-    % Set fixedrankflag to 1 if the manifold is fixed-rank matrices with
+    % Set fixedrankflag to true if the manifold is fixed-rank matrices with
     % an embedded geometry. The other two cases are not implemented yet.
-    if fixedrankflag == 1
+    if fixedrankflag
         % AcceleratedFunction can lead to a slow down in this case
         autogradfunc = @(x,A,B) autogradfuncinternelfixedrankembedded(x,A,B);
-    elseif fixedrankflag == 0
+    else
         func = @ autogradfuncinternel;
         % accelerate 
         try
