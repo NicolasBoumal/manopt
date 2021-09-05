@@ -1,32 +1,47 @@
-function problem = manoptAD(problem, varargin) 
-% Preprocess automatic differentiation for the problem structure
+function problem = manoptAD(problem, flag) 
+% Preprocess automatic differentiation for a manopt problem structure
 %
 % function problem = manoptAD(problem)
 % function problem = manoptAD(problem, 'egrad')
 % function problem = manoptAD(problem, 'ehess')
 %
-% Check if the automatic differentiation provided in the deep learning tool
-% box can be applied to computing the euclidean gradient and the euclidean
-% hessian given the manifold and the cost function described in the problem
-% structure. If AD fails for some reasons, the original problem structure 
-% is returned and the approx. of gradient or hessian will then be used 
-% as usual. Otherwise, the problem structure with additional fields: 
-% egrad, costgrad and ehess is returned. If the user only wants the  
-% gradient or the hessian information, the second argument 'egrad' or  
-% 'ehess' should be specified. If the egrad or the ehess is alrealdy 
-% provided by the user, the complement information is returned by calling 
-% manoptAD(problem). e.g. if the user has already provided the gradient 
-% information, he can call problem = manoptAD(problem,'ehess') or 
-% problem = manoptAD(problem) to obtain the ehess via AD. In this
-% case, the ehess is computed according to the egrad instead of the cost.
+% Given a manopt problem structure with problem.cost and problem.M defined,
+% this tool adds the following fields to the problem structure:
+%   problem.egrad
+%   problem.costgrad
+%   problem.ehess
 %
-% In the case that the manifold is the set of fixed-rank matrices with 
-% an embedded geometry, it is more efficient to compute the Riemannian 
-% gradient directly. However, computing the exact Riemannian Hessian by 
-% vector product via AD is currently not supported. By calling 
-% manoptAD, the problem struct with additional fields grad and costgrad
-% is returned. Besides, optimizing on fixedranktensorembeddedfactory and 
-% fixedTTrankfactory via AD is currently not supported.
+% A field problem.autogradfunc is also created for internal use.
+%
+% The fields egrad and ehess correspond to Euclidean gradients and Hessian.
+% They are obtained through automatic differentation of the cost function.
+%
+% As an optional second input, the user may specify the string
+%   'egrad' -- in which case problem.ehess is not created.
+%   'ehess' -- in which case the tool assumes the user already provides
+%              problem.egrad, and it uses that.
+%
+% More generally, if problem.egrad is already provided, this tool will
+% build problem.ehess based on problem.egrad rather than based on the cost.
+% 
+% This function requires the following:
+%   Matlab version R2021a or later.
+%   Deep Learning Toolbox version 14.2 or later.
+%
+% Support for complex variables in automatic differentation is added in
+%   Matlab version R2021b or later.
+% There is also better support for Hessian computations in that version.
+% Otherwise, see manoptADhelp for a workaround, or set the 'egrad' flag to
+% tell Manopt not to try to compute Hessians with AD.
+%
+% If AD fails for some reasons, the original problem structure 
+% is returned with a warning trying to hint at what the issue may be.
+%
+% There are a few limitations pertaining to specific manifolds.
+% For example:
+%   fixedrankembeddedfactory: no Hessian AD support.
+%   fixedranktensorembeddedfactory: no AD support.
+%   fixedTTrankfactory: no AD support.
 %
 % Note: The current functionality of AD relies on Matlab's deep learning
 % tool box, which has the inconvenient effect that we cannot control the
@@ -44,24 +59,23 @@ function problem = manoptAD(problem, varargin)
 % in the problem structure and store related arrays on GPU as usual. 
 % See using_gpu_AD for more details.
 %
-% See also: autograd, egradcompute, ehesscompute, complex_example_AD
-% manoptADhelp, using_gpu_AD
+% See also: manoptADhelp autograd egradcompute ehesscompute complex_example_AD using_gpu_AD
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
-%
+
 % To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
 % and the product manifold which contains fixedrankembeddedfactory
 % or anchoredrotationsfactory
 
 %% Check if AD can be applied to the manifold and the cost function
     
-    assert(isfield(problem,'M') && isfield(problem,'cost'), ... 
+    assert(isfield(problem, 'M') && isfield(problem, 'cost'), ... 
               'the problem structure must contain the fields M and cost.');
-    if nargin==2 
-        assert(strcmp(varargin,'egrad')|| strcmp(varargin,'ehess'), ...
+    if nargin == 2 
+        assert(strcmp(flag, 'egrad') || strcmp(flag, 'ehess'), ...
             'the second argument should be either ''egrad'' or ''ehess''');
     end
     % if the gradient and hessian information is provided already, return
@@ -158,7 +172,7 @@ function problem = manoptAD(problem, varargin)
     if (sum(isfield(x,{'U','S','V'}))==3) &&...
         (contains(problem_name,'rank','IgnoreCase',true)) &&...
         (~startsWith(problem_name,'Product manifold'))
-        if ~(nargin==2 && strcmp(varargin,'egrad'))
+        if ~(nargin==2 && strcmp(flag,'egrad'))
             warning('manopt:fixedrankAD',['Computating the exact hessian via '...
             'AD is currently not supported.\n'...
             'To disable this warning: warning(''off'', ''manopt:fixedrankAD'')']);
@@ -212,13 +226,13 @@ function problem = manoptAD(problem, varargin)
         end
         
         case 2
-    % provide the relevant fields according to varargin
-            if strcmp(varargin,'egrad')
+    % provide the relevant fields according to flag
+            if strcmp(flag,'egrad')
                 problem.autogradfunc = autograd(problem);
                 problem.egrad = @(x) egradcompute(problem,x,complexflag);
                 problem.costgrad = @(x) costgradcompute(problem,x,complexflag);
                 hessianflag = true;
-            elseif strcmp(varargin,'ehess') && (exist('dlaccelerate', 'file') == 2)
+            elseif strcmp(flag,'ehess') && (exist('dlaccelerate', 'file') == 2)
                 problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
             end
             
