@@ -38,7 +38,7 @@ function innerpro = cinnerprodgeneral(x,y)
         innerpro = cinnerprodgeneral_cell(x,y);
     else
         xconj = cconj(x);
-        product = cdotprod(xconj,y);
+        product = cdottimes(xconj,y);
         innerpro = sum(creal(product),'all');
         % slower
         % xcol = cmat2col(x);
@@ -63,8 +63,8 @@ function innerpro = cinnerprodgeneral(x,y)
                     x.(elemsx{ix(ii)}),y.(elemsy{iy(ii)}));
             else
                 xconj = cconj(x.(elemsx{ix(ii)}));
-                product = cdotprod(xconj,y.(elemsy{iy(ii)}));
-                innerpro = innerpro + sum(creal(product),'all');
+                product = cdottimes(xconj, y.(elemsy{iy(ii)}));
+                innerpro = innerpro + sum(creal(product), 'all');
             end
         end
     end
@@ -82,8 +82,8 @@ function innerpro = cinnerprodgeneral(x,y)
                     x{ii},y{ii});
             else
                 xconj = cconj(x{ii});
-                product = cdotprod(xconj,y{ii});
-                innerpro = innerpro + sum(creal(product),'all');
+                product = cdottimes(xconj, y{ii});
+                innerpro = innerpro + sum(creal(product), 'all');
             end
         end
     end

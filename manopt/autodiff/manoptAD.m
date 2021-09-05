@@ -38,7 +38,7 @@ function manoptAD()
 %
 % For Matlab R2021a or earlier, in addition to the functions mentioned  
 % above, dot is not supported. The element-wise multiplication can be 
-% replaced by cdotprod. Moreover, to deal with complex problems, manopt 
+% replaced by cdottimes. Moreover, to deal with complex problems, manopt 
 % converts complex numbers into a structure with fields real and imag.
 % See mat2dl_complex and dl2mat_complex for more details. In this case,
 % the user should try using the basic functions in the folder 

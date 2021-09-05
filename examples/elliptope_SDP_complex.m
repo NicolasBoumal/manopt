@@ -139,7 +139,7 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
     % problem.cost = @cost_AD;
     %    function f = cost_AD(Y)
     %        AY = cprod(A, Y);
-    %        diagAYYt = csum(creal(cdotprod(AY, cconj(Y))), 2);
+    %        diagAYYt = csum(creal(cdottimes(AY, cconj(Y))), 2);
     %        f = .5*csum(diagAYYt);
     %    end
     % Call preprocessAD to automatically obtain egrad and ehess:
