@@ -142,7 +142,7 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
     %        diagAYYt = csum(creal(cdotprod(AY, cconj(Y))), 2);
     %        f = .5*csum(diagAYYt);
     %    end
-    % call preprocessAD to automatically obtain the egrad and the ehess
+    % Call preprocessAD to automatically obtain egrad and the ehess:
     % problem = preprocessAD(problem);
 
     % If the version of Matlab installed is R2021b or later, specify the 
