@@ -30,18 +30,3 @@ function cdottimesAB = cdottimes(A, B)
     end
 
 end
-
-function flag = iscstruct(A)
-    flag = ( isstruct(A) && isfield(A, 'real') && isfield(A, 'imag') );
-end
-
-function B = tocstruct(A)
-    if iscstruct(A)
-        B = A;
-    elseif isnumeric(A)
-        B.real = real(A);
-        B.imag = imag(A);
-    else
-        error('Input does not have the expected format.');
-    end
-end
