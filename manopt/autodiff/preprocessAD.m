@@ -39,7 +39,7 @@ function problem = preprocessAD(problem,varargin)
 % alternative way to deal with complex problems. see complex_example_AD 
 % and manoptAD for more information. Thirdly, check the list of functions
 % with AD support when defining the cost function. See the official website
-% https://ww2.mathworks.cn/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
+% https://ch.mathworks.com/help/deeplearning/ug/list-of-functions-with-dlarray-support.html
 % and manoptAD for more information. To run AD on GPU, set gpuflag = true 
 % in the problem structure and store related arrays on GPU as usual. 
 % See using_gpu_AD for more details.
@@ -58,20 +58,20 @@ function problem = preprocessAD(problem,varargin)
 
 %% Check if AD can be applied to the manifold and the cost function
     
-    assert(isfield(problem,'M') && isfield(problem,'cost'),...,
-    'the problem structure must contain the fields M and cost.');
+    assert(isfield(problem,'M') && isfield(problem,'cost'), ... 
+              'the problem structure must contain the fields M and cost.');
     if nargin==2 
-        assert(strcmp(varargin,'egrad')|| strcmp(varargin,'ehess'),...,
-        'the second argument should be either ''egrad'' or ''ehess''');       
+        assert(strcmp(varargin,'egrad')|| strcmp(varargin,'ehess'), ...
+            'the second argument should be either ''egrad'' or ''ehess''');
     end
     % if the gradient and hessian information is provided already, return
-    if  (isfield(problem,'egrad') && isfield(problem,'ehess'))..., 
-            || (isfield(problem,'egrad') && isfield(problem,'hess'))...,
-            || (isfield(problem,'grad') && isfield(problem,'ehess'))...,
-            || (isfield(problem,'grad') && isfield(problem,'hess'))...,
-            || (isfield(problem,'costgrad') && isfield(problem,'ehess'))...,
+    if  (isfield(problem,'egrad') && isfield(problem,'ehess'))...
+            || (isfield(problem,'egrad') && isfield(problem,'hess'))...
+            || (isfield(problem,'grad') && isfield(problem,'ehess'))...
+            || (isfield(problem,'grad') && isfield(problem,'hess'))...
+            || (isfield(problem,'costgrad') && isfield(problem,'ehess'))...
             || (isfield(problem,'costgrad') && isfield(problem,'hess'))
-        return 
+        return
     % AD does not support euclideansparsefactory so far.
     elseif contains(problem.M.name(),'sparsity')
          warning('manopt:sparse',['Automatic differentiation currently does not support '...
@@ -93,10 +93,10 @@ function problem = preprocessAD(problem,varargin)
         x = problem.M.rand();
         problem_name = problem.M.name();
         % check fixed-rank exceptions
-        if  (startsWith(problem_name,'Product manifold') &&...,
-            ((sum(isfield(x,{'U','S','V'}))==3) &&..., 
-        (contains(problem_name(),'rank','IgnoreCase',true)))) || ...,
-        (exist('tenrand', 'file')==2 && isfield(x,'X') && ...,
+        if  (startsWith(problem_name,'Product manifold') &&...
+            ((sum(isfield(x,{'U','S','V'}))==3) &&...
+        (contains(problem_name(),'rank','IgnoreCase',true)))) || ...
+        (exist('tenrand', 'file')==2 && isfield(x,'X') && ...
         isa(x.X,'ttensor')) || isa(x,'TTeMPS')
             warning('manopt:AD:fixedrankembedded',['Automatic differentiation ' ...
                 ' currently does not support fixedranktensorembeddedfactory,\n'...
@@ -153,8 +153,8 @@ function problem = preprocessAD(problem,varargin)
     % with an embedded geometry. for fixedrankembedded factory, 
     % only the Riemannian gradient can be computed via AD so far.
     fixedrankflag = 0;
-    if (sum(isfield(x,{'U','S','V'}))==3) &&..., 
-        (contains(problem_name,'rank','IgnoreCase',true)) &&...,
+    if (sum(isfield(x,{'U','S','V'}))==3) &&...
+        (contains(problem_name,'rank','IgnoreCase',true)) &&...
         (~startsWith(problem_name,'Product manifold'))
         if ~(nargin==2 && strcmp(varargin,'egrad'))
             warning('manopt:fixedrankAD',['Computating the exact hessian via '...
@@ -164,7 +164,7 @@ function problem = preprocessAD(problem,varargin)
         % set the fixedrankflag to 1 to prepare for autgrad
         fixedrankflag = 1;
         % if no gradient information is provided, compute grad using AD
-        if ~isfield(problem,'egrad') && ~isfield(problem,'grad')...,
+        if ~isfield(problem,'egrad') && ~isfield(problem,'grad')...
             && ~isfield(problem,'costgrad')
             problem.autogradfunc = autograd(problem,fixedrankflag);
             problem.grad = @(x) gradcomputefixedrankembedded(problem,x);
@@ -182,8 +182,8 @@ function problem = preprocessAD(problem,varargin)
         case 1
     % if only the hessian information is provided, compute egrad 
     % hessianflag indicates whether or not ehess or hess has provided already 
-        if ~isfield(problem,'egrad') && ~isfield(problem,'grad')...,
-            && ~isfield(problem,'costgrad') && (isfield(problem,'ehess')...,
+        if ~isfield(problem,'egrad') && ~isfield(problem,'grad')...
+            && ~isfield(problem,'costgrad') && (isfield(problem,'ehess')...
             || isfield(problem,'hess'))
         
             problem.autogradfunc = autograd(problem);
@@ -192,9 +192,9 @@ function problem = preprocessAD(problem,varargin)
             hessianflag = true;
         
     % if only the gradient information is provided, compute ehess     
-        elseif ~isfield(problem,'ehess') && ~isfield(problem,'hess')...,
-            && (isfield(problem,'costgrad') || isfield(problem,'grad')...,
-            || isfield(problem,'egrad')) && (fixedrankflag == 0) &&...,
+        elseif ~isfield(problem,'ehess') && ~isfield(problem,'hess')...
+            && (isfield(problem,'costgrad') || isfield(problem,'grad')...
+            || isfield(problem,'egrad')) && (fixedrankflag == 0) &&...
             (exist('dlaccelerate', 'file') == 2)
 
             problem.ehess = @(x,xdot,store) ehesscompute(problem,x,xdot,store,complexflag);
@@ -264,7 +264,7 @@ function problem = preprocessAD(problem,varargin)
             return
         end
     % if only the egrad or grad is provided, check ehess
-    elseif ~isfield(problem,'autogradfunc') && (fixedrankflag == 0) &&...,
+    elseif ~isfield(problem,'autogradfunc') && (fixedrankflag == 0) &&...
             ~hessianflag && isfield(problem,'ehess')
         % randomly generate a point in the tangent space at x
         xdot = problem.M.randvec(x);
