@@ -54,6 +54,6 @@ function manoptAD()
 % Contributors: Nicolas Boumal
 % Change log:
 
-    fprintf('This file is just a documentation.');
+    fprintf('The file manoptAD is just for documentation: run ''help manoptAD''.');
 
 end
