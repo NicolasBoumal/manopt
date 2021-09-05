@@ -7,6 +7,16 @@ function manoptADhelp()
 %
 %   help manoptAD
 %
+% Examples using AD can be found in the folder:
+%
+%   /manopt/autodiff/basic_examples_AD
+%
+% More sophisticated examples can also be found in
+%
+%   /examples
+%
+% by reading the comments inside the scripts.
+%
 % The comments here provide further information about how to use AD. These
 % comments are necessary because of certain limitations both of the AD
 % capabilities of the Deep Learning Toolbox and of Manopt's ability to
