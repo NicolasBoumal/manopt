@@ -48,7 +48,7 @@ function M = sympositivedefinitesimplexfactory(n, k)
     % Original author: Bamdev Mishra, September 18, 2019.
     % Contributors: NB
     % Change log: Comments updated, 16 Dec 2019
-    %
+    %             Removed typos in Hessian expression, 01 Nov, 2021
     
     symm = @(X) .5*(X+X');
     
@@ -116,16 +116,18 @@ function M = sympositivedefinitesimplexfactory(n, k)
     
     
     M.egrad2rgrad = @egrad2rgrad;
-    function eta = egrad2rgrad(X, eta)
+    function rgrad = egrad2rgrad(X, egrad)
+        egradscaled = nan(size(egrad));
         for kk = 1:k
-            eta(:,:,kk) = X(:,:,kk)*symm(eta(:,:,kk))*X(:,:,kk);
+            egradscaled(:,:,kk) = X(:,:,kk)*symm(egrad(:,:,kk))*X(:,:,kk);
         end
         
         % Project onto the set X1dot + X2dot + ... = 0.
-        eta = M.proj(X, eta);
+        % That is rgrad = Xk*egradk*Xk + Xk*Lambdasol*Xk
+        rgrad = M.proj(X, egradscaled);
         
-        %	% Debug
-        % 	norm(sum(eta,3), 'fro') % BM: this should be zero.
+        %   % Debug
+        %   norm(sum(rgrad,3), 'fro') % BM: this should be zero.
     end
     
     
@@ -133,14 +135,46 @@ function M = sympositivedefinitesimplexfactory(n, k)
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         Hess = nan(size(X));
         
+        egradscaled = nan(size(egrad));
+        egradscaleddot = nan(size(egrad));
         for kk = 1:k
-            % % Directional derivatives of the Riemannian gradient
-            % Hess(:,:,kk) = X(:,:,kk)*symm(ehess(:,:,kk))*X(:,:,kk) + 2*symm(eta(:,:,kk)*symm(egrad(:,:,kk))*X(:,:,kk));
-            
-            % % Correction factor for the non-constant metric
-            % Hess(:,:,kk) = Hess(:,:,kk) - symm(eta(:,:,kk)*symm(egrad(:,:,kk))*X(:,:,kk));
-            
-            Hess(:,:,kk) = X(:,:,kk)*symm(ehess(:,:,kk))*X(:,:,kk) + symm(eta(:,:,kk)*symm(egrad(:,:,kk))*X(:,:,kk));
+            egradk = symm(egrad(:,:,kk));
+            ehessk = symm(ehess(:,:,kk));
+            Xk = X(:,:,kk);
+            etak = eta(:,:,kk);
+
+            egradscaled(:,:,kk) = Xk*egradk*Xk;
+            egradscaleddot(:,:,kk) = Xk*ehessk*Xk + 2*symm(etak*egradk*Xk);
+        end
+
+        % Compute Lambdasol
+        RHS = - sum(egradscaled,3);
+        [Lambdasol] = mylinearsolve(X, RHS);
+
+
+        % Compute Lambdasoldot
+        temp = nan(size(egrad));;
+        for kk = 1:k
+            Xk = X(:,:,kk);
+            etak = eta(:,:,kk);
+
+            temp(:,:,kk) = 2*symm(etak*Lambdasol*Xk);
+        end
+        RHSdot = - sum(egradscaleddot,3) - sum(temp,3);
+        [Lambdasoldot] = mylinearsolve(X, RHSdot);
+
+
+        for kk = 1:k
+            egradk = symm(egrad(:,:,kk));
+            ehessk = symm(ehess(:,:,kk));
+            Xk = X(:,:,kk);
+            etak = eta(:,:,kk);
+
+            % Directional derivatives of the Riemannian gradient
+            % Note that Riemannian grdient is Xk*egradk*Xk + Xk*Lambdasol*Xk.
+            rhessk = Xk*(ehessk + Lambdasoldot)*Xk + 2*symm(etak*(egradk + Lambdasol)*Xk);
+            rhessk = rhessk - symm(etak*egradk*Xk);
+            Hess(:,:,kk) = rhessk;
         end
         
         % Project onto the set X1dot + X2dot + ... = 0.
@@ -151,13 +185,36 @@ function M = sympositivedefinitesimplexfactory(n, k)
     % Project onto the set X1dot + X2dot + ... = 0.
     M.proj = @innerprojection;
     function zeta = innerprojection(X, eta)
-        % Solve the linear system.
+        % Project eta onto the set X1dot + X2dot + ... = 0.
+        % Projected eta = eta + Xk*Lambdasol* Xk.
+
+        RHS = - sum(eta,3);
+
+        [Lambdasol] = mylinearsolve(X, RHS); % It solves sum Xi Lambdasol Xi = RHS.
+
+        zeta = zeros(size(eta));
+        for jj = 1 : k
+            zeta(:,:,jj) = eta(:,:,jj) + X(:,:,jj)*Lambdasol*X(:,:,jj);
+        end
+        
+        %   % Debug
+        %   neta = eta - zeta; % Normal vector
+        %   innerproduct(X, zeta, neta) % This should be zero
+    end
+
+    function [Lambdasol] = mylinearsolve(X, RHS)
+        % Solve the linear system
+        % sum Xi Lambdasol Xi = RHS.
         tol_omegax_pcg = 1e-8;
         max_iterations_pcg = 100;
         
-        rhs = - symm2vec(sum(eta,3));
+        % vectorize RHS
+        rhs = symm2vec(RHS);
         
+        % Call PCG
         [lambdasol, ~, ~, ~] = pcg(@compute_matrix_system, rhs, tol_omegax_pcg, max_iterations_pcg);
+
+        % Devectorize lambdasol.
         Lambdasol = vec2symm(lambdasol);
         
         function lhslambda = compute_matrix_system(lambda)
@@ -168,15 +225,7 @@ function M = sympositivedefinitesimplexfactory(n, k)
             end
             lhslambda = symm2vec(lhsLambda);
         end
-        
-        zeta = zeros(size(eta));
-        for jj = 1 : k
-            zeta(:,:,jj) = eta(:,:,jj) + X(:,:,jj)*Lambdasol*X(:,:,jj);
-        end
-        
-        %	% Debug
-        %	neta = eta - zeta;
-        %	innerproduct(X, zeta, neta) % This should be zero
+
     end
     
     M.tangent = M.proj;
@@ -206,8 +255,8 @@ function M = sympositivedefinitesimplexfactory(n, k)
         for kk=1:kk
             Y(:,:,kk) = symm((Ysumsqrt\Y(:,:,kk))/Ysumsqrt);
         end
-        %	% Debug
-        %	norm(sum(Y, 3) - eye(n), 'fro') % This should be zero
+        %   % Debug
+        %   norm(sum(Y, 3) - eye(n), 'fro') % This should be zero
     end
     
     M.exp = @exponential;
