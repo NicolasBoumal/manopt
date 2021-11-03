@@ -177,8 +177,10 @@ function M = sympositivedefinitesimplexcomplexfactory(n, k)
 
             % Directional derivatives of the Riemannian gradient
             % Note that Riemannian grdient is Xk*egradk*Xk + Xk*Lambdasol*Xk.
-            rhessk = Xk*(ehessk + Lambdasoldot)*Xk + 2*symm(etak*(egradk + Lambdasol)*Xk);
-            rhessk = rhessk - symm(etak*egradk*Xk);
+            % rhessk = Xk*(ehessk + Lambdasoldot)*Xk + 2*symm(etak*(egradk + Lambdasol)*Xk);
+            % rhessk = rhessk - symm(etak*(egradk + Lambdasol)*Xk);
+            rhessk = Xk*(ehessk + Lambdasoldot)*Xk + symm(etak*(egradk + Lambdasol)*Xk);
+
             Hess(:,:,kk) = rhessk;
         end
         
