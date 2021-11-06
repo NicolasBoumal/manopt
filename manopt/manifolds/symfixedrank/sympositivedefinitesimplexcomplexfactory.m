@@ -63,23 +63,6 @@ function M = sympositivedefinitesimplexcomplexfactory(n, k)
     trinner = @(A, B) real(vec(A')'*vec(B));  % = trace(A*B)
     trnorm  = @(A) sqrt((trinner(A, A))); % = sqrt(trace(A^2))
     
-    mymat = ones(n,n);
-    myuppermat = triu(mymat);
-    myuppervec = myuppermat(:);
-    myidx = find(myuppervec == 1);
-    myzerosvec = zeros(n^2, 1);
-    
-    symm2vec = @(A)  A(myidx);
-    
-    vec2symm = @convertvec2symm;
-    function amat = convertvec2symm(a)
-        avec = myzerosvec;
-        avec(myidx) = a;
-        amat = reshape(avec, [n, n]);
-        amat = amat + amat' - diag(diag(amat));
-    end
-    
-    
     
     % Choice of the metric on the orthonormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
@@ -239,32 +222,28 @@ function M = sympositivedefinitesimplexcomplexfactory(n, k)
         sumetareal = real(RHS);
         sumetaimag = imag(RHS);
         
-        rhs = [symm2vec(sumetareal); sumetaimag(:)];
+        rhs = [sumetareal(:); sumetaimag(:)];
         
         [lambdasol, ~, ~, ~] = pcg(@compute_matrix_system, rhs, tol_omegax_pcg, max_iterations_pcg);
         
-        lambdasolreal = lambdasol(1:n*(n+1)/2);
-        lambdasolimag = lambdasol(n*(n+1)/2  + 1 : end);
+        lambdasolreal = lambdasol(1:n^2);
+        lambdasolimag = lambdasol(n^2  + 1 : end);
         
-        Lambdasol = vec2symm(lambdasolreal) + 1i*reshape(lambdasolimag,n,n);
+        Lambdasol = symm(reshape(lambdasolreal, [n n])) + 1i*reshape(lambdasolimag,n,n);
         
         function lhslambda = compute_matrix_system(lambda)
-            lambdareal = lambda(1:n*(n+1)/2);
-            lambdaimag = lambda(n*(n+1)/2  + 1 : end);
-            Lambda = vec2symm(lambdareal) + 1i*reshape(lambdaimag, n, n);
+            lambdareal = lambda(1:n^2);
+            lambdaimag = lambda(n^2 + 1 : end);
+            Lambda = symm(reshape(lambdareal, [n n])) + 1i*reshape(lambdaimag, n, n);
             lhsLambda = zeros(n,n);
             for kk = 1 : k
                 lhsLambda = lhsLambda + ((X(:,:,kk)*Lambda*X(:,:,kk)));
             end
             lhsLambdareal = real(lhsLambda);
             lhsLambdaimag = imag(lhsLambda);
-            lhslambda = [symm2vec(lhsLambdareal); lhsLambdaimag(:)];
+            lhslambda = [lhsLambdareal(:); lhsLambdaimag(:)];
         end
     end
-
-
-
-
 
     
     M.tangent = M.proj;

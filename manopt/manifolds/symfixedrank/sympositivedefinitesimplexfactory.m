@@ -1,5 +1,4 @@
 function M = sympositivedefinitesimplexfactory(n, k)
-% Manifold of k product of n-by-n symmetric positive definite matrices 
 % with the bi-invariant geometry such that the sum is the identity matrix.
 %
 % function M = sympositivedefinitesimplexfactory(n, k)
@@ -60,22 +59,7 @@ function M = sympositivedefinitesimplexfactory(n, k)
     vec     = @(A) A(:);
     trinner = @(A, B) vec(A')'*vec(B);  % = trace(A*B)
     trnorm  = @(A) sqrt(trinner(A, A)); % = sqrt(trace(A^2))
-    
-    mymat = ones(n,n);
-    myuppermat = triu(mymat);
-    myuppervec = myuppermat(:);
-    myidx = find(myuppervec == 1);
-    myzerosvec = zeros(n^2, 1);
-    
-    symm2vec = @(A)  A(myidx);
-    
-    vec2symm = @convertvec2symm;
-    function amat = convertvec2symm(a)
-        avec = myzerosvec;
-        avec(myidx) = a;
-        amat = reshape(avec, [n, n]);
-        amat = amat + amat' - diag(diag(amat));
-    end
+        
    
     % Choice of the metric on the orthonormal space is motivated by the
     % symmetry present in the space. The metric on the positive definite
@@ -211,23 +195,30 @@ function M = sympositivedefinitesimplexfactory(n, k)
         max_iterations_pcg = 100;
         
         % vectorize RHS
-        rhs = symm2vec(RHS);
+        rhs = RHS(:);
         
         % Call PCG
         [lambdasol, ~, ~, ~] = pcg(@compute_matrix_system, rhs, tol_omegax_pcg, max_iterations_pcg);
 
         % Devectorize lambdasol.
-        Lambdasol = vec2symm(lambdasol);
+        Lambdasol = reshape(lambdasol, [n n]);
         
         function lhslambda = compute_matrix_system(lambda)
-            Lambda = vec2symm(lambda);
+            Lambda = reshape(lambda, [n n]);
             lhsLambda = zeros(n,n);
             for kk = 1:k
-                lhsLambda = lhsLambda + X(:,:,kk)*Lambda*X(:,:,kk);
+                lhsLambda = lhsLambda + symm(X(:,:,kk)*Lambda*X(:,:,kk));
             end
-            lhslambda = symm2vec(lhsLambda);
+            lhslambda = lhsLambda(:);
         end
 
+        % % Debug
+        % lhsLambda = zeros(n,n);
+        % for kk = 1:k
+        %     lhsLambda = lhsLambda + symm(X(:,:,kk)*Lambdasol*X(:,:,kk));
+        % end
+        % norm(lhsLambda - RHS, 'fro')/norm(RHS,'fro')
+        % keyboard;
     end
     
     M.tangent = M.proj;
