@@ -201,13 +201,13 @@ function M = sympositivedefinitesimplexfactory(n, k)
         [lambdasol, ~, ~, ~] = pcg(@compute_matrix_system, rhs, tol_omegax_pcg, max_iterations_pcg);
 
         % Devectorize lambdasol.
-        Lambdasol = reshape(lambdasol, [n n]);
+        Lambdasol = symm(reshape(lambdasol, [n n]));
         
         function lhslambda = compute_matrix_system(lambda)
-            Lambda = reshape(lambda, [n n]);
+            Lambda = symm(reshape(lambda, [n n]));
             lhsLambda = zeros(n,n);
             for kk = 1:k
-                lhsLambda = lhsLambda + symm(X(:,:,kk)*Lambda*X(:,:,kk));
+                lhsLambda = lhsLambda + X(:,:,kk)*Lambda*X(:,:,kk);
             end
             lhslambda = lhsLambda(:);
         end
@@ -215,7 +215,7 @@ function M = sympositivedefinitesimplexfactory(n, k)
         % % Debug
         % lhsLambda = zeros(n,n);
         % for kk = 1:k
-        %     lhsLambda = lhsLambda + symm(X(:,:,kk)*Lambdasol*X(:,:,kk));
+        %     lhsLambda = lhsLambda + (X(:,:,kk)*Lambdasol*X(:,:,kk));
         % end
         % norm(lhsLambda - RHS, 'fro')/norm(RHS,'fro')
         % keyboard;
