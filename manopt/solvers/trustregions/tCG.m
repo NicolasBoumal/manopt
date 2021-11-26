@@ -185,6 +185,9 @@ for j = 1 : options.maxinner
         %  ee = <eta,eta>_prec,x
         %  ed = <eta,delta>_prec,x
         %  dd = <delta,delta>_prec,x
+        % Note (Nov. 26, 2021, NB): numerically, it might be better to call
+        %   tau = max(roots([d_Pd, 2*e_Pd, e_Pe-Delta^2]));
+        % This should be checked.
         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
         if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
@@ -216,7 +219,7 @@ for j = 1 : options.maxinner
     
     % If only a nonlinear Hessian approximation is available, this is
     % only approximately correct, but saves an additional Hessian call.
-    % TODO: this computation is redundant with that of r, L234. Clean up.
+    % TODO: this computation is redundant with that of r, L241. Clean up.
     new_Heta = lincomb(1, Heta, -alpha, Hmdelta);
     
     % Verify that the model cost decreased in going from eta to new_eta. If
