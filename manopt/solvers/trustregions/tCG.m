@@ -186,7 +186,7 @@ for j = 1 : options.maxinner
         %  ed = <eta,delta>_prec,x
         %  dd = <delta,delta>_prec,x
         % Note (Nov. 26, 2021, NB): numerically, it might be better to call
-        %   tau = max(roots([d_Pd, 2*e_Pd, e_Pe-Delta^2]));
+        %   tau = max(real(roots([d_Pd, 2*e_Pd, e_Pe-Delta^2])));
         % This should be checked.
         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
         if options.debug > 2
