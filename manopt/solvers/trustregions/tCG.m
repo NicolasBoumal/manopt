@@ -188,6 +188,7 @@ for j = 1 : options.maxinner
         % Note (Nov. 26, 2021, NB): numerically, it might be better to call
         %   tau = max(real(roots([d_Pd, 2*e_Pd, e_Pe-Delta^2])));
         % This should be checked.
+        % Also, we should safe-guard against 0/0: could happen if grad = 0.
         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
         if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
