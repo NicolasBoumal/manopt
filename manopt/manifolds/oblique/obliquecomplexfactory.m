@@ -100,12 +100,8 @@ function M = obliquecomplexfactory(n, m, transposed)
         nrm_td = sqrt(sum(real(td).^2 + imag(td).^2, 1));
 
         y = bsxfun(@times, x, cos(nrm_td)) + ...
-            bsxfun(@times, td, sin(nrm_td) ./ nrm_td);
-        
-        % For those columns where the step is 0, replace y by x
-        exclude = (nrm_td == 0);
-        y(:, exclude) = x(:, exclude);
-
+            bsxfun(@times, td, sinc(nrm_td / pi));
+            
         y = trnsp(y);
     end
 
