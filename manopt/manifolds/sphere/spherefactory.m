@@ -155,7 +155,7 @@ function M = spherefactory(n, m, gpuflag)
     M.transp = @(x1, x2, d) M.proj(x2, d);
     
     % Isometric vector transport of d from the tangent space at x1 to x2.
-    % This is actually a parallel vector transport, see ง5 in
+    % This is actually a parallel vector transport, see ยง5 in
     % http://epubs.siam.org/doi/pdf/10.1137/16M1069298
     % "A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization
     %  on Manifolds", by Hosseini and Uschmajew, SIOPT 2017
@@ -204,16 +204,7 @@ function y = exponential(x, d, t)
     end
     
     nrm_td = norm(td, 'fro');
-    
-    % Former versions of Manopt avoided the computation of sin(a)/a for
-    % small a, but further investigations suggest this computation is
-    % well-behaved numerically.
-    if nrm_td > 0
-        y = x*cos(nrm_td) + td*(sin(nrm_td)/nrm_td);
-    else
-        y = x;
-    end
-
+    y = x*cos(nrm_td) + td*sinc(nrm_td / pi);
 end
 
 % Retraction on the sphere
