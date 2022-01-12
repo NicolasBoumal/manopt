@@ -65,6 +65,10 @@ function M = sympositivedefinitefactory(n)
 %       many values of t, that is, it is cheap to retract many points along
 %       the same tangent direction. This could in principle be exploited to
 %       speed up line-searches.
+%
+%   Jan. 12, 2022 (NB):
+%       Simplified code for ehess2rhess by commenting out the reasoning and
+%       computing only the end result.
     
     symm = @(X) .5*(X+X');
     
@@ -109,10 +113,11 @@ function M = sympositivedefinitefactory(n)
     M.ehess2rhess = @ehess2rhess;
     function Hess = ehess2rhess(X, egrad, ehess, eta)
         % Directional derivatives of the Riemannian gradient
-        Hess = X*symm(ehess)*X + 2*symm(eta*symm(egrad)*X);
-        
+        %  Hess = X*symm(ehess)*X + 2*symm(eta*symm(egrad)*X);
         % Correction factor for the non-constant metric
-        Hess = Hess - symm(eta*symm(egrad)*X);
+        %  Hess = Hess - symm(eta*symm(egrad)*X);
+        % Combined:
+        Hess = X*symm(ehess)*X + symm(eta*symm(egrad)*X);
     end
     
     
