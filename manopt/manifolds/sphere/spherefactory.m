@@ -13,13 +13,13 @@ function M = spherefactory(n, m, gpuflag)
 %
 % Set gpuflag = true to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations can be done on the GPU directly.
-% 
+%
 % See also: obliquefactory spherecomplexfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
-% Contributors: 
-% Change log: 
+% Contributors:
+% Change log:
 %
 %   Oct. 8, 2016 (NB)
 %       Code for exponential was simplified to only treat the zero vector
@@ -55,15 +55,15 @@ function M = spherefactory(n, m, gpuflag)
 %
 %   Jan. 8, 2021 (NB)
 %       Added tangent2ambient/tangent2ambient_is_identity pair.
-    
-    
+
+
     if ~exist('m', 'var') || isempty(m)
         m = 1;
     end
     if ~exist('gpuflag', 'var') || isempty(gpuflag)
         gpuflag = false;
     end
-    
+
     % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
     % are created directly on the GPU; otherwise, they are created in the
     % usual way (in double precision).
@@ -72,30 +72,30 @@ function M = spherefactory(n, m, gpuflag)
     else
         array_type = 'double';
     end
-        
+
 
     if m == 1
         M.name = @() sprintf('Sphere S^%d', n-1);
     else
         M.name = @() sprintf('Unit F-norm %dx%d matrices', n, m);
     end
-    
+
     M.dim = @() n*m-1;
-    
+
     M.inner = @(x, d1, d2) d1(:)'*d2(:);
-    
+
     M.norm = @(x, d) norm(d, 'fro');
-    
+
     M.dist = @dist;
     function d = dist(x, y)
-        
+
         % The following code is mathematically equivalent to the
         % computation d = acos(x(:)'*y(:)) but is much more accurate when
         % x and y are close.
-        
+
         chordal_distance = norm(x - y, 'fro');
         d = real(2*asin(.5*chordal_distance));
-        
+
         % Note: for x and y almost antipodal, the accuracy is good but not
         % as good as possible. One way to improve it is by using the
         % following branching:
@@ -105,29 +105,29 @@ function M = spherefactory(n, m, gpuflag)
         % It is rarely necessary to compute the distance between
         % almost-antipodal points with full accuracy in Manopt, hence we
         % favor a simpler code.
-        
+
     end
-    
+
     M.typicaldist = @() pi;
-    
+
     M.proj = @(x, d) d - x*(x(:)'*d(:));
-    
+
     M.tangent = M.proj;
-    
+
     M.tangent2ambient_is_identity = true;
     M.tangent2ambient = @(X, U) U;
-    
+
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
     M.egrad2rgrad = M.proj;
-    
+
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(x, egrad, ehess, u)
         rhess = M.proj(x, ehess - (x(:)'*egrad(:))*u);
     end
-    
+
     M.exp = @exponential;
-    
+
     M.retr = @retraction;
     M.invretr = @inverse_retraction;
 
@@ -141,19 +141,19 @@ function M = spherefactory(n, m, gpuflag)
             v = v * (di / nv);
         end
     end
-    
+
     M.hash = @(x) ['z' hashmd5(x(:))];
-    
+
     M.rand = @() random(n, m, array_type);
-    
+
     M.randvec = @(x) randomvec(n, m, x, array_type);
-    
+
     M.zerovec = @(x) zeros(n, m, array_type);
-    
+
     M.lincomb = @matrixlincomb;
-    
+
     M.transp = @(x1, x2, d) M.proj(x2, d);
-    
+
     % Isometric vector transport of d from the tangent space at x1 to x2.
     % This is actually a parallel vector transport, see §5 in
     % http://epubs.siam.org/doi/pdf/10.1137/16M1069298
@@ -173,7 +173,7 @@ function M = spherefactory(n, m, gpuflag)
             Td = d;
         end
     end
-    
+
     M.pairmean = @pairmean;
     function y = pairmean(x1, x2)
         y = x1+x2;
@@ -183,13 +183,13 @@ function M = spherefactory(n, m, gpuflag)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, m]);
     M.vecmatareisometries = @() true;
-    
-    
+
+
     % Automatically convert a number of tools to support GPU.
     if gpuflag
         M = factorygpuhelper(M);
     end
-    
+
 
 end
 
@@ -202,9 +202,9 @@ function y = exponential(x, d, t)
     else
         td = t*d;
     end
-    
+
     nrm_td = norm(td, 'fro');
-    y = x*cos(nrm_td) + td*sinc(nrm_td / pi);
+    y = x*cos(nrm_td) + td*sinxoverx(nrm_td);
 end
 
 % Retraction on the sphere
@@ -216,7 +216,7 @@ function y = retraction(x, d, t)
     else
         td = t*d;
     end
-    
+
     y = x + td;
     y = y / norm(y, 'fro');
 
@@ -231,7 +231,7 @@ function d = inverse_retraction(x, y)
     % and x'd = 0, multiply the above by x' on the left:
     %   1 + 0 = x'y * ||x + d||
     % Then solve for d:
-    
+
     d = y/(x(:)'*y(:)) - x;
 
 end
