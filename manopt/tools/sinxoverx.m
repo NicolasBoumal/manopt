@@ -13,7 +13,7 @@ function y = sinxoverx(x)
 % Contributors:
 % Change log:
 
-    y = sin(x) ./ x ;  % By default, divisions by zero trigger no warnings.
+    y = sin(x) ./ x;  % By default, divisions by zero trigger no warnings.
     y(x == 0) = 1;
 
 end
