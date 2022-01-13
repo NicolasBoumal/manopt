@@ -19,8 +19,8 @@ function M = obliquefactory(n, m, transposed)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
-% Contributors: 
-% Change log: 
+% Contributors:
+% Change log:
 %
 %   July 16, 2013 (NB)
 %       Added 'transposed' option, mainly for ease of comparison with the
@@ -55,11 +55,11 @@ function M = obliquefactory(n, m, transposed)
 %       inside the spherefactory file for details. Also improves distance
 %       computations as part of the log function.
 
-    
+
     if ~exist('transposed', 'var') || isempty(transposed)
         transposed = false;
     end
-    
+
     if transposed
         trnsp = @(X) X';
     else
@@ -67,45 +67,45 @@ function M = obliquefactory(n, m, transposed)
     end
 
     M.name = @() sprintf('Oblique manifold OB(%d, %d)', n, m);
-    
+
     M.dim = @() (n-1)*m;
-    
+
     M.inner = @(x, d1, d2) d1(:)'*d2(:);
-    
+
     M.norm = @(x, d) norm(d(:));
-    
+
     M.dist = @(x, y) norm(real(2*asin(.5*sqrt(sum(trnsp(x - y).^2, 1)))));
-    
+
     M.typicaldist = @() pi*sqrt(m);
-    
+
     M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
-    
+
     M.tangent = M.proj;
-    
+
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
     M.egrad2rgrad = M.proj;
-    
+
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, U)
         X = trnsp(X);
         egrad = trnsp(egrad);
         ehess = trnsp(ehess);
         U = trnsp(U);
-        
+
         PXehess = projection(X, ehess);
         inners = sum(X.*egrad, 1);
         rhess = PXehess - bsxfun(@times, U, inners);
-        
+
         rhess = trnsp(rhess);
     end
-    
+
     M.exp = @exponential;
     % Exponential on the oblique manifold
     function y = exponential(x, d, t)
         x = trnsp(x);
         d = trnsp(d);
-        
+
         if nargin < 3
             % t = 1;
             td = d;
@@ -116,11 +116,7 @@ function M = obliquefactory(n, m, transposed)
         nrm_td = sqrt(sum(td.^2, 1));
 
         y = bsxfun(@times, x, cos(nrm_td)) + ...
-            bsxfun(@times, td, sin(nrm_td) ./ nrm_td);
-        
-        % For those columns where the step is 0, replace y by x
-        exclude = (nrm_td == 0);
-        y(:, exclude) = x(:, exclude);
+            bsxfun(@times, td, sinxoverx(nrm_td));
 
         y = trnsp(y);
     end
@@ -129,7 +125,7 @@ function M = obliquefactory(n, m, transposed)
     function v = logarithm(x1, x2)
         x1 = trnsp(x1);
         x2 = trnsp(x2);
-        
+
         v = projection(x1, x2 - x1);
         dists = real(2*asin(.5*sqrt(sum((x1 - x2).^2, 1))));
         norms = real(sqrt(sum(v.^2, 1)));
@@ -139,7 +135,7 @@ function M = obliquefactory(n, m, transposed)
         % NaN's. To avoid that, we force those ratios to 1.
         factors(dists <= 1e-10) = 1;
         v = bsxfun(@times, v, factors);
-        
+
         v = trnsp(v);
     end
 
@@ -148,45 +144,45 @@ function M = obliquefactory(n, m, transposed)
     function y = retraction(x, d, t)
         x = trnsp(x);
         d = trnsp(d);
-        
+
         if nargin < 3
             % t = 1;
             td = d;
         else
             td = t*d;
         end
-        
+
         y = normalize_columns(x + td);
-        
+
         y = trnsp(y);
     end
 
     % Inverse retraction: see spherefactory.m for background
     M.invretr = @inverse_retraction;
     function d = inverse_retraction(x, y)
-        
+
         x = trnsp(x);
         y = trnsp(y);
-        
+
         d = bsxfun(@times, y, 1./sum(x.*y, 1)) - x;
-        
+
         d = trnsp(d);
-        
+
     end
-    
+
 
     M.hash = @(x) ['z' hashmd5(x(:))];
-    
+
     M.rand = @() trnsp(random(n, m));
-    
+
     M.randvec = @(x) trnsp(randomvec(n, m, trnsp(x)));
-    
+
     M.lincomb = @matrixlincomb;
-    
+
     M.zerovec = @(x) trnsp(zeros(n, m));
-    
+
     M.transp = @(x1, x2, d) M.proj(x2, d);
-    
+
     M.pairmean = @pairmean;
     function y = pairmean(x1, x2)
         y = trnsp(x1+x2);
@@ -221,7 +217,7 @@ function PXH = projection(X, H)
     % Compute the inner product between each vector H(:, i) with its root
     % point X(:, i), that is, X(:, i)' * H(:, i). Returns a row vector.
     inners = sum(X.*H, 1);
-    
+
     % Subtract from H the components of the H(:, i)'s that are parallel to
     % the root points X(:, i).
     PXH = H - bsxfun(@times, X, inners);
