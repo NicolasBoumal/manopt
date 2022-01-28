@@ -156,6 +156,15 @@ function M = rotationsfactory(n, k)
         for kk = 1 : k
             [Uk, ~, Vk] = svd(Y(:, :, kk));
             Y(:, :, kk) = Uk*Vk';
+            % One can check that det(Uk*Vk') = det(X) for all skew-sym U.
+            % That's because X + XU = X(I+U), and U is normal (UU' = U'U)
+            % hence it can be unitarily diagonalized as U = WDW' with W
+            % unitary and D diagonal; the eigenvalues of U are purely
+            % imaginary because U+U' = 0, and they come in conjugate pairs
+            % because U is real (there's a zero eigenvalue if n is odd).
+            % This way, it follows that
+            %   det(X+XU) = det(X)det(I+U) = det(X)det(I+D)
+            % and det(I+D) is real, strictly positive provided n >= 2.
         end
     end
 
