@@ -347,10 +347,11 @@ while true
                     desc_dir_norm = M.norm(newx, desc_dir);
                     eta_HZ = -1 / ( desc_dir_norm * min(0.01, gradnorm) );
                     beta = max(beta, eta_HZ);
+                
                 case 'L-S' % Liu-Storey+ from Sato
                     diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
                     ip_diff = M.inner(newx, Pnewgrad, diff);
-                    denom = M.inner(x, grad, desc_dir);
+                    denom = -1*M.inner(x, grad, desc_dir);
                     betaLS = ip_diff / denom;
                     betaCD = newgradPnewgrad / denom;
                     beta = max(0, min(betaLS, betaCD));
