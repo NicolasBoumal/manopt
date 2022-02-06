@@ -49,13 +49,16 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %           'P-R' for Polak-Ribiere's modified rule
 %           'H-S' for Hestenes-Stiefel's modified rule
 %           'H-Z' for Hager-Zhang's modified rule
+%           'L-S' for Sato's Liu-Storey rule
 %       See Hager and Zhang 2006, "A survey of nonlinear conjugate gradient
 %       methods" for a description of these rules in the Euclidean case and
 %       for an explanation of how to adapt them to the preconditioned case.
 %       The adaption to the Riemannian case is straightforward: see in code
 %       for details. Modified rules take the max between 0 and the computed
-%       beta value, which provides automatic restart, except for H-Z which
-%       uses a different modification.
+%       beta value, which provides automatic restart, except for H-Z and L-S 
+%       which use a different modification. Sato's Liu-Storey rule is 
+%       described in Sato 2021, "Riemannian conjugate gradient methods: 
+%       General framework and specific algorithms with convergence analyses"
 %   orth_value (Inf)
 %       Following Powell's restart strategy (Math. prog. 1977), restart CG
 %       (that is, make a -preconditioned- gradient step) if two successive
@@ -344,10 +347,17 @@ while true
                     desc_dir_norm = M.norm(newx, desc_dir);
                     eta_HZ = -1 / ( desc_dir_norm * min(0.01, gradnorm) );
                     beta = max(beta, eta_HZ);
+                case 'L-S' % Liu-Storey+ from Sato
+                    diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
+                    ip_diff = M.inner(newx, Pnewgrad, diff);
+                    denom = M.inner(x, grad, desc_dir);
+                    betaLS = ip_diff / denom;
+                    betaCD = newgradPnewgrad / denom;
+                    beta = max(0, min(betaLS, betaCD));
 
                 otherwise
                     error(['Unknown options.beta_type. ' ...
-                           'Should be steep, S-D, F-R, P-R, H-S or H-Z.']);
+                           'Should be steep, S-D, F-R, P-R, H-S, H-Z, or L-S.']);
             end
             
             desc_dir = M.lincomb(newx, -1, Pnewgrad, beta, desc_dir);
