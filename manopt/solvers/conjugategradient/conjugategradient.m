@@ -113,7 +113,7 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
-% Contributors: Nicolas Boumal
+% Contributors: Nicolas Boumal, Nick Vannieuwenhoven
 % Change log: 
 %
 %   March 14, 2013, NB:
@@ -143,6 +143,9 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %
 %   Aug. 2, 2018 (NB):
 %       Now using storedb.remove() to keep the cache lean.
+%
+%   Feb. 7, 2022 (NV):
+%       Added support for Liu-Storey rule (L-S).
 
 M = problem.M;
 
