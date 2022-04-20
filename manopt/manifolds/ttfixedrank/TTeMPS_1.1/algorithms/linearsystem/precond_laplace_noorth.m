@@ -19,14 +19,14 @@ function [eta] = precond_laplace_noorth( L, xi, xL, xR, G )
     right = innerprod( xR, xi, 'RL', 2, true );             
 
     % contract to first core
-    Y{1} = tensorprod( xi.U{1}, right{2}, 3 );      
+    Y{1} = tensorprod_ttemps( xi.U{1}, right{2}, 3 );      
     % contract to first core
     for idx = 2:d-1
-        res = tensorprod( xi.U{idx}, left{idx-1}, 1 );
-        Y{idx} = tensorprod( res, right{idx+1}, 3 );
+        res = tensorprod_ttemps( xi.U{idx}, left{idx-1}, 1 );
+        Y{idx} = tensorprod_ttemps( res, right{idx+1}, 3 );
     end 
     % contract to last core
-    Y{d} = tensorprod( xi.U{d}, left{d-1}, 1 );
+    Y{d} = tensorprod_ttemps( xi.U{d}, left{d-1}, 1 );
 
     % 2. STEP: Solve ALS systems:
     % Instead of doing  
@@ -36,7 +36,7 @@ function [eta] = precond_laplace_noorth( L, xi, xL, xR, G )
     eta.dU{1} = solve_inner( L{1}, X_mid, Y{1}, 1 );
     for idx = 2:d
         X_mid.U{idx-1} = xL.U{idx-1};
-        X_mid.U{idx} = tensorprod(X_mid.U{idx},G{idx-1},1);
+        X_mid.U{idx} = tensorprod_ttemps(X_mid.U{idx},G{idx-1},1);
         eta.dU{idx} = solve_inner( L{idx}, X_mid, Y{idx}, idx );  
     end
 
@@ -48,7 +48,7 @@ function X = get_mid(xL, xR, G, idx)
 X = xR;
 X.U{1:idx-1} = xL.U{1:idx-1};
 if idx>1
-    X.U{idx} = tensorprod(X.U{idx},G{idx-1},1);
+    X.U{idx} = tensorprod_ttemps(X.U{idx},G{idx-1},1);
 end
 end
 
@@ -63,7 +63,7 @@ function [res,BB1,BB3] = solve_inner( L0, X, Fi, idx )
     for i = 1:idx-1
         % apply L to the i'th core
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         %BB1{i} = tmp.U{i};
         B1 = B1 + innerprod( X, tmp, 'LR', idx-1);
     end
@@ -76,7 +76,7 @@ function [res,BB1,BB3] = solve_inner( L0, X, Fi, idx )
     % calculate B3 part:
     for i = idx+1:X.order
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         %BB3{i} = innerprod( X, tmp, 'RL', idx+1);
         B3 = B3 + innerprod( X, tmp, 'RL', idx+1);
     end

@@ -22,7 +22,7 @@ function x = round( x, tol )
         V = V(:,1:r);
         S = S(1:r,1:r);
         x.U{i} = reshape( V', [r, sz(i), right_rank] );
-        x.U{i-1} = tensorprod( x.U{i-1}, (U*S).', 3 );
+        x.U{i-1} = tensorprod_ttemps( x.U{i-1}, (U*S).', 3 );
         right_rank = r;
     end
 

@@ -1,9 +1,12 @@
-function res = tensorprod( U, A, mode, apply_inv )
-    %TENSORPROD Tensor-times-Matrix product. 
-    %   A = TENSORPROD(U, A, MODE) performs the mode-MODE product between the
+function res = tensorprod_ttemps( U, A, mode, apply_inv )
+    %TENSORPROD_TTEMPS Tensor-times-Matrix product. 
+    %   A = TENSORPROD_TTEMPS(U, A, MODE) performs the mode-MODE product between the
     %   tensor U and matrix A. Higher dimensions than 3 are not supported.
     %
-    %   A = TENSORPROD(U, A, MODE, TRUE) multiplies with A^{-1} instead of A.
+    %   A = TENSORPROD_TTEMPS(U, A, MODE, TRUE) multiplies with A^{-1} instead of A.
+	%
+	%   Renamed from tensorprod to tensorprod on April 20, 2022 to accomodate the new
+	%   Matlab built-in function tensorprod in R2022a.
     %
     %   See also MATRICIZE, TENSORIZE, UNFOLD.
     

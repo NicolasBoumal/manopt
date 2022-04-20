@@ -110,15 +110,15 @@ classdef TTeMPS_tangent_orth
                     left = innerprod(xL, Z, 'LR', d - 1, true);
 
                     % contract to first core
-                    Y.dU{1} = tensorprod(Z.U{1}, right{2}, 3);
+                    Y.dU{1} = tensorprod_ttemps(Z.U{1}, right{2}, 3);
                     % contract to inner cores
                     for i = 2:d - 1
-                        res = tensorprod(Z.U{i}, left{i - 1}, 1);
-                        Y.dU{i} = tensorprod(res, right{i + 1}, 3);
+                        res = tensorprod_ttemps(Z.U{i}, left{i - 1}, 1);
+                        Y.dU{i} = tensorprod_ttemps(res, right{i + 1}, 3);
                     end
 
                     % contract to last core
-                    Y.dU{d} = tensorprod(Z.U{d}, left{d - 1}, 1);
+                    Y.dU{d} = tensorprod_ttemps(Z.U{d}, left{d - 1}, 1);
 
                     for i = 1:d - 1
                         Y.dU{i} = unfold(Y.dU{i}, 'left');
@@ -373,7 +373,7 @@ classdef TTeMPS_tangent_orth
             xi = TTeMPS_tangent(xL);
 
             for ii = 1:d - 1
-                xi.dU{ii} = tensorprod(Z.dU{ii}, inv(G{ii}'), 3);
+                xi.dU{ii} = tensorprod_ttemps(Z.dU{ii}, inv(G{ii}'), 3);
             end
 
             % the lc;last one does not need to be changed

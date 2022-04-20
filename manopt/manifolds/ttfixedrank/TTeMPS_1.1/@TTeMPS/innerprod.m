@@ -40,10 +40,10 @@ function res = innerprod( x, y, dir, upto, storeParts )
 
         for i = 2:upto
             if storeParts
-                tmp = tensorprod( x.U{i}, res{i-1}', 1);
+                tmp = tensorprod_ttemps( x.U{i}, res{i-1}', 1);
                 res{i} = unfold( tmp, 'left')' * unfold( y.U{i}, 'left');
             else
-                tmp = tensorprod( x.U{i}, res', 1);
+                tmp = tensorprod_ttemps( x.U{i}, res', 1);
                 res = unfold( tmp, 'left')' * unfold( y.U{i}, 'left');
             end
         end
@@ -59,10 +59,10 @@ function res = innerprod( x, y, dir, upto, storeParts )
         
         for i = d-1:-1:upto
             if storeParts
-                tmp = tensorprod( x.U{i}, res{i+1}', 3);
+                tmp = tensorprod_ttemps( x.U{i}, res{i+1}', 3);
                 res{i} = conj(unfold( tmp, 'right')) * unfold( y.U{i}, 'right').';
             else
-                tmp = tensorprod( x.U{i}, res', 3);
+                tmp = tensorprod_ttemps( x.U{i}, res', 3);
                 res = conj(unfold( tmp, 'right')) * unfold( y.U{i}, 'right').';
             end
         end

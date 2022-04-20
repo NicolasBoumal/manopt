@@ -59,7 +59,7 @@ for sweep = 1:opts.nSweeps
         t = find( diag(S) > opts.tol*norm(diag(S)), 1, 'last' );
         t = min( t, opts.maxrank );
         X.U{mu} = reshape( U(:,1:t), [X.rank(mu), n(mu), t] );
-        %X.U{mu+1} = tensorprod( right, S(1:t,1:t)*V(:,1:t)', 1);
+        %X.U{mu+1} = tensorprod_ttemps( right, S(1:t,1:t)*V(:,1:t)', 1);
         X.U{mu+1} = rand( t, n(mu+1), X.rank(mu+2));
 
     end
@@ -97,7 +97,7 @@ for sweep = 1:opts.nSweeps
         t = find( diag(S) > opts.tol*norm(diag(S)), 1, 'last' );
         t = min( t, opts.maxrank );
         X.U{mu} = reshape( V(:,1:t)', [t, n(mu), X.rank(mu+1)] );
-        %X.U{mu+1} = tensorprod( right, S(1:t,1:t)*V(:,1:t)', 1);
+        %X.U{mu+1} = tensorprod_ttemps( right, S(1:t,1:t)*V(:,1:t)', 1);
         X.U{mu-1} = rand( X.rank(mu-1), n(mu-1), t);
 
         %residuum = [residuum; norm( apply(L, X) - F ) / normF];

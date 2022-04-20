@@ -22,16 +22,16 @@ function res = contract( x, y, idx )
             % Scalar IDX case: only one node not to contract
             if idx == 1
                 right = innerprod( x, y, 'RL', idx+1 );
-                res = tensorprod( y.U{idx}, right, 3 );
+                res = tensorprod_ttemps( y.U{idx}, right, 3 );
             elseif idx == x.order
                 left = innerprod( x, y, 'LR', idx-1 );
-                res = tensorprod( y.U{idx}, left, 1 );
+                res = tensorprod_ttemps( y.U{idx}, left, 1 );
             else
                 left = innerprod( x, y, 'LR', idx-1 );
                 right = innerprod( x, y, 'RL', idx+1 ); 
 
-                res = tensorprod( y.U{idx}, left, 1 );
-                res = tensorprod( res, right, 3 );
+                res = tensorprod_ttemps( y.U{idx}, left, 1 );
+                res = tensorprod_ttemps( res, right, 3 );
             end 
 
         elseif max(sz) == 2
@@ -52,7 +52,7 @@ function res = contract( x, y, idx )
                     res{2} = reshape( res{2}, [size(right, 1), s(1), s(2), q]);
                     res{2} = ipermute( res{2}, [3 1 2 4] );
                 else
-                    res{2} = tensorprod( y.U{idx(2)}, right, 3 );
+                    res{2} = tensorprod_ttemps( y.U{idx(2)}, right, 3 );
                 end
 
             elseif idx(2) == x.order
@@ -65,7 +65,7 @@ function res = contract( x, y, idx )
                     res{1} = left * res{1};
                     res{1} = reshape( res{1}, [size(left,1), s(2), s(3), p]);
                 else
-                    res{1} = tensorprod( y.U{idx(1)}, left, 1 );
+                    res{1} = tensorprod_ttemps( y.U{idx(1)}, left, 1 );
                 end
                 res{2} = y.U{x.order};
 
@@ -80,17 +80,17 @@ function res = contract( x, y, idx )
                     res{1} = reshape( y.U{idx(1)}, [s(1), s(2)*s(3)*p]);
                     res{1} = left * res{1};
                     res{1} = reshape( res{1}, [size(left,1), s(2), s(3), p]);
-                    res{2} = tensorprod( y.U{idx(2)}, right, 3 );
+                    res{2} = tensorprod_ttemps( y.U{idx(2)}, right, 3 );
                 elseif q ~= 1
-                    res{1} = tensorprod( y.U{idx(1)}, left, 1 );
+                    res{1} = tensorprod_ttemps( y.U{idx(1)}, left, 1 );
                     s = size(y.U{idx(2)});
                     res{2} = reshape( permute( y.U{idx(2)}, [3 1 2 4] ), [s(3), s(1)*s(2)*q]);
                     res{2} = right*res{2};
                     res{2} = reshape( res{2}, [size(right, 1), s(1), s(2), q]);
                     res{2} = ipermute( res{2}, [3 1 2 4] );
                 else
-                    res{1} = tensorprod( y.U{idx(1)}, left, 1 );
-                    res{2} = tensorprod( y.U{idx(2)}, right, 3 );
+                    res{1} = tensorprod_ttemps( y.U{idx(1)}, left, 1 );
+                    res{2} = tensorprod_ttemps( y.U{idx(2)}, right, 3 );
                 end
                     
             end 

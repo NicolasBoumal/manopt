@@ -63,7 +63,7 @@ function Y = TT_weingarten(V, Z, ind)
         [Q, R{k - 1}] = qr_unique(unfold(Xr{k}, 'right')');
         Xr{k} = reshape(Q', [size(Q, 2), sz(2), sz(3)]);
 
-        Xr{k - 1} = tensorprod(Xr{k - 1}, R{k - 1}, 3);
+        Xr{k - 1} = tensorprod_ttemps(Xr{k - 1}, R{k - 1}, 3);
     end
 
     % Calculate V.dU under the original parametrization of tangent space
@@ -84,10 +84,10 @@ function Y = TT_weingarten(V, Z, ind)
     XtVgTmp = conj(unfold(V.V{d}, 'right')) * unfold(V.U{d}, 'right').';
 
     for k = (d - 1):-1:2
-        tmp = tensorprod(V.V{k}, XtVg{k + 1}', 3);
+        tmp = tensorprod_ttemps(V.V{k}, XtVg{k + 1}', 3);
         XtVg{k} = conj(unfold(tmp, 'right')) * unfold(V.U{k}, 'right').';
 
-        tmp2 = tensorprod(V.V{k}, XtVgTmp', 3);
+        tmp2 = tensorprod_ttemps(V.V{k}, XtVgTmp', 3);
         XtVg{k} = XtVg{k} + conj(unfold(tmp2, 'right')) * unfold(dUR{k}, 'right').';
         XtVgTmp = conj(unfold(tmp2, 'right')) * unfold(V.U{k}, 'right').';
     end
@@ -114,10 +114,10 @@ function Y = TT_weingarten(V, Z, ind)
         XtVgTmp = conj(unfold(Z.U{d}, 'right')) * unfold(V.U{d},  'right').';
 
         for k = (d - 1):-1:2
-            tmp = tensorprod(Z.U{k}, ZVr{k + 1}', 3);
+            tmp = tensorprod_ttemps(Z.U{k}, ZVr{k + 1}', 3);
             ZVr{k} = conj(unfold(tmp, 'right')) * unfold(V.U{k}, 'right').';
 
-            tmp2 = tensorprod(Z.U{k}, XtVgTmp', 3);
+            tmp2 = tensorprod_ttemps(Z.U{k}, XtVgTmp', 3);
             ZVr{k} = ZVr{k} + conj(unfold(tmp2, 'right')) * unfold(dUR{k}, 'right').';
             XtVgTmp = conj(unfold(tmp2, 'right')) * unfold(V.U{k}, 'right').';
         end
@@ -130,7 +130,7 @@ function Y = TT_weingarten(V, Z, ind)
         Zr{d} = conj(unfold(V.V{d}, 'right')) * unfold(Z.U{d}, 'right').';
 
         for k = (d - 1):-1:2
-            tmp = tensorprod(V.V{k}, Zr{k + 1}', 3);
+            tmp = tensorprod_ttemps(V.V{k}, Zr{k + 1}', 3);
             Zr{k} = conj(unfold(tmp, 'right')) * unfold(Z.U{k}, 'right').';
         end
 
@@ -141,13 +141,13 @@ function Y = TT_weingarten(V, Z, ind)
 
         for k = 2:(d - 1)
             % (V_k-1)(U_k)
-            tmp = tensorprod(V.U{k}, ZVl{k - 1}', 1);
+            tmp = tensorprod_ttemps(V.U{k}, ZVl{k - 1}', 1);
             ZVl{k} = unfold(tmp, 'left')' * unfold(Z.U{k}, 'left');
             % + (X_k-1)(dU_k)
-            tmp = tensorprod(dUR{k}, Zl{k - 1}', 1);
+            tmp = tensorprod_ttemps(dUR{k}, Zl{k - 1}', 1);
             ZVl{k} = ZVl{k} + unfold(tmp, 'left')' * unfold(Z.U{k}, 'left');
             % update Zr to keep up w/ recursive definition
-            tmp = tensorprod(V.U{k}, Zl{k - 1}', 1);
+            tmp = tensorprod_ttemps(V.U{k}, Zl{k - 1}', 1);
             Zl{k} = unfold(tmp, 'left')' * unfold(Z.U{k}, 'left');
         end
 
@@ -157,34 +157,34 @@ function Y = TT_weingarten(V, Z, ind)
 
 
         % contract to first core
-        ZZ{1} = tensorprod(Z.U{1}, Zr{2}, 3);
+        ZZ{1} = tensorprod_ttemps(Z.U{1}, Zr{2}, 3);
         % contract to inner cores
         for k = 2:(d - 1)
-            res = tensorprod(Z.U{k}, Zl{k - 1}, 1);
-            ZZ{k} = tensorprod(res, Zr{k + 1}, 3);
+            res = tensorprod_ttemps(Z.U{k}, Zl{k - 1}, 1);
+            ZZ{k} = tensorprod_ttemps(res, Zr{k + 1}, 3);
         end
 
         % contract to last core
-        ZZ{d} = tensorprod(Z.U{d}, Zl{d - 1}, 1);
+        ZZ{d} = tensorprod_ttemps(Z.U{d}, Zl{d - 1}, 1);
 
-        Zv{1} = tensorprod(Z.U{1}, ZVr{2}, 3);
-
-        for k = 2:(d - 1)
-            res = tensorprod(Z.U{k}, Zl{k - 1}, 1);
-            Zv{k} = tensorprod(res, ZVr{k + 1}, 3);
-        end
-
-        Zv{d} = tensorprod(Z.U{d}, Zl{d - 1}, 1);
-
-
-        vZ{1} = tensorprod(Z.U{1}, Zr{2}, 3);
+        Zv{1} = tensorprod_ttemps(Z.U{1}, ZVr{2}, 3);
 
         for k = 2:(d - 1)
-            res = tensorprod(Z.U{k}, ZVl{k - 1}, 1);
-            vZ{k} = tensorprod(res, Zr{k + 1}, 3);
+            res = tensorprod_ttemps(Z.U{k}, Zl{k - 1}, 1);
+            Zv{k} = tensorprod_ttemps(res, ZVr{k + 1}, 3);
         end
 
-        vZ{d} = tensorprod(Z.U{d}, ZVl{d - 1}, 1);
+        Zv{d} = tensorprod_ttemps(Z.U{d}, Zl{d - 1}, 1);
+
+
+        vZ{1} = tensorprod_ttemps(Z.U{1}, Zr{2}, 3);
+
+        for k = 2:(d - 1)
+            res = tensorprod_ttemps(Z.U{k}, ZVl{k - 1}, 1);
+            vZ{k} = tensorprod_ttemps(res, Zr{k + 1}, 3);
+        end
+
+        vZ{d} = tensorprod_ttemps(Z.U{d}, ZVl{d - 1}, 1);
 
         % Left unfold everything to apply additional operations
         for k = 1:d
@@ -576,7 +576,7 @@ function ZtX = crossTermMatrixRight(k, m, Zp, V)
     ZtX = conj(unfold(Zp{m}, 'right')) * unfold(V.V{m}, 'right').';
 
     for p = (m - 1):-1:k
-        tmp = tensorprod(V.U{p}, (ZtX)', 3);
+        tmp = tensorprod_ttemps(V.U{p}, (ZtX)', 3);
         ZtX = conj(unfold(tmp, 'right')) * unfold(V.V{p}, 'right').';
     end
 
@@ -590,7 +590,7 @@ function XtZ = crossTermMatrixLeft(k, m, Zp, V) %#ok<DEFNU>
     XtZ = unfold(V.U{m}, 'left')' * unfold(Zp{m}, 'left');
 
     for p = (m + 1):k
-        XtZ = tensorprod(V.U{p}, (XtZ)', 1);
+        XtZ = tensorprod_ttemps(V.U{p}, (XtZ)', 1);
         XtZ = unfold(XtZ, 'left')' * unfold(V.V{p}, 'left');
     end
 
@@ -604,11 +604,11 @@ function VtZ = crossTermVariational(k, m, Zp, dURm, V)
     VtZ = unfold(dURm, 'left')' * unfold(Zp{m}, 'left');
 
     for p = (m + 1):(k - 1)
-        VtZ = tensorprod(V.U{p}, (VtZ)', 1);
+        VtZ = tensorprod_ttemps(V.U{p}, (VtZ)', 1);
         VtZ = unfold(VtZ, 'left')' * unfold(V.V{p}, 'left');
     end
 
-    VtZ = tensorprod(V.V{k}, VtZ, 1);
+    VtZ = tensorprod_ttemps(V.V{k}, VtZ, 1);
     VtZ = unfold(VtZ, 'left');
 
 end

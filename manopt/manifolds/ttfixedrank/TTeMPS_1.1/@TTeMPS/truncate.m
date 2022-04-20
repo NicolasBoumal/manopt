@@ -19,7 +19,7 @@ function x = truncate( x, r )
         V = V(:,1:s);
         S = S(1:s,1:s);
         x.U{i} = reshape( V', [s, x.size(i), x.rank(i+1)] );
-        x.U{i-1} = tensorprod( x.U{i-1}, (U*S)', 3 );
+        x.U{i-1} = tensorprod_ttemps( x.U{i-1}, (U*S)', 3 );
     end
 
 end

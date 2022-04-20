@@ -212,7 +212,7 @@ for i = 1:opts.maxiter
         W = reshape( W, [size(tmp,1), p, s]);
         W = permute( W, [1, 3, 2]);
         for k = 1:p
-            C{k} = tensorprod( left, W(:,:,k)', 3);
+            C{k} = tensorprod_ttemps( left, W(:,:,k)', 3);
         end
         X.U{mu-1} = C{1};
 
@@ -332,7 +332,7 @@ for i = 1:opts.maxiter
         W = reshape( W, [s, p, size(tmp,4)]);
         W = permute( W, [1, 3, 2]);
         for k = 1:p
-            C{k} = tensorprod( right, W(:,:,k), 1);
+            C{k} = tensorprod_ttemps( right, W(:,:,k), 1);
         end
         X.U{mu+1} = C{1};
 

@@ -40,7 +40,7 @@ function x = shift( x, nu, tol, maxrank )
         
         C = zeros( [s, n(nu), r(nu+1), p] ); 
         for k = 1:p
-            C(:,:,:,k) = tensorprod( x.U{nu}, W(:,:,k), 1);
+            C(:,:,:,k) = tensorprod_ttemps( x.U{nu}, W(:,:,k), 1);
         end
         
         x.U{nu} = C;
@@ -70,7 +70,7 @@ function x = shift( x, nu, tol, maxrank )
 
         C = zeros( [r(nu), n(nu), s, p] ); 
         for k = 1:p
-            C(:,:,:,k) = tensorprod( x.U{nu}, W(:,:,k)', 3);
+            C(:,:,:,k) = tensorprod_ttemps( x.U{nu}, W(:,:,k)', 3);
         end
         
         x.U{nu} = C;

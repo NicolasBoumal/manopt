@@ -5,7 +5,7 @@ function res = tensorize( U, mode, d )
     %   dimensions than 3 are not supported. Tensorize is inverse matricization,
     %   that is, X == tensorize( matricize(X, i), i, size(X)) for all modes i.
     %
-    %   See also MATRICIZE, TENSORPROD, UNFOLD.
+    %   See also MATRICIZE, TENSORPROD_TTEMPS, UNFOLD.
     
     %   TTeMPS Toolbox. 
     %   Michael Steinlechner, 2013-2016

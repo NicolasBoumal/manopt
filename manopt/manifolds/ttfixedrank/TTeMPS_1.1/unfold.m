@@ -3,7 +3,7 @@ function W = unfold( U, dir )
     %   W = UNFOLD(U, DIR) unfolds the 3-dim. tensor U in direction DIR, where 
     %   DIR is either 'LEFT' or 'RIGHT' (case insensitive).
     %
-    %   See also MATRICIZE, TENSORIZE, TENSORPROD.
+    %   See also MATRICIZE, TENSORIZE, TENSORPROD_TTEMPS.
 
     %   TTeMPS Toolbox. 
     %   Michael Steinlechner, 2013-2016

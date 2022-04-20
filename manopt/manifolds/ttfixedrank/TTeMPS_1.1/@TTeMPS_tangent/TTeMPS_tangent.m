@@ -51,7 +51,7 @@ methods( Access = public )
 		tmp = conj(unfold( X.U{d}, 'right')) * unfold( X.U{d}, 'right').';
 		invXtX{d} = pinv(tmp,1e-8);
 		for i = d-1:-1:2     
-		    tmp = tensorprod( X.U{i}, tmp', 3);
+		    tmp = tensorprod_ttemps( X.U{i}, tmp', 3);
 		    tmp = conj(unfold( tmp, 'right')) * unfold( X.U{i}, 'right').';
 			invXtX{i} = pinv(tmp,1e-8);
 		end

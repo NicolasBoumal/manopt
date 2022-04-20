@@ -11,7 +11,7 @@ function [xL, xR, G] = gauge_matrices( x )
 %   (where fore i=1 and i=d, G{i} = 1).
 %
 %   Or, equivalently
-%        tensorprod( tensorprod( xL.U{i}, G{i}', 3), inv(G{i-1}), 1)
+%        tensorprod_ttemps( tensorprod_ttemps( xL.U{i}, G{i}', 3), inv(G{i-1}), 1)
 %   equals
 %        xR.U{i}.
 %

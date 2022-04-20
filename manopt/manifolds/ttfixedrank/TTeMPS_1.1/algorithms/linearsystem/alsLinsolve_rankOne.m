@@ -148,12 +148,12 @@ function res = Afun( A, U, idx, sz, left, right )
     V = A.apply( V, idx );
     
     if idx == 1
-        tmp = tensorprod( V, right, 3 );
+        tmp = tensorprod_ttemps( V, right, 3 );
     elseif idx == A.order
-        tmp = tensorprod( V, left, 1 );
+        tmp = tensorprod_ttemps( V, left, 1 );
     else
-        tmp = tensorprod( V, right, 3);
-        tmp = tensorprod( tmp, left, 1);
+        tmp = tensorprod_ttemps( V, right, 3);
+        tmp = tensorprod_ttemps( tmp, left, 1);
     end
 
     res = tmp(:);

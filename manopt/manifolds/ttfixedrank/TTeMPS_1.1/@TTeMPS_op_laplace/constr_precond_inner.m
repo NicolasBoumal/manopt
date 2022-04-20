@@ -13,7 +13,7 @@ function expB = constr_precond_inner( A, X, mu )
     for i = 1:mu-1
         % apply L to the i'th core
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, A.L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, A.L0, 2 );
         B1 = B1 + innerprod( X, tmp, 'LR', mu-1);
     end
 
@@ -24,7 +24,7 @@ function expB = constr_precond_inner( A, X, mu )
     % calculate B3 part:
     for i = mu+1:A.order
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, A.L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, A.L0, 2 );
         B3 = B3 + innerprod( X, tmp, 'RL', mu+1);
     end
     

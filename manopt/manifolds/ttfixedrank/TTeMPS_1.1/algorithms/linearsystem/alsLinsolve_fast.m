@@ -148,12 +148,12 @@ function res = Afun( A, U, idx, sz, left, right )
     V = A.apply( V, idx );
     
     if idx == 1
-        tmp = tensorprod( V, right, 3 );
+        tmp = tensorprod_ttemps( V, right, 3 );
     elseif idx == A.order
-        tmp = tensorprod( V, left, 1 );
+        tmp = tensorprod_ttemps( V, left, 1 );
     else
-        tmp = tensorprod( V, right, 3);
-        tmp = tensorprod( tmp, left, 1);
+        tmp = tensorprod_ttemps( V, right, 3);
+        tmp = tensorprod_ttemps( tmp, left, 1);
     end
 
     res = tmp(:);
@@ -192,7 +192,7 @@ function res = solve_inner( L0, X, Fi, idx )
     for i = 1:idx-1
         % apply L to the i'th core
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         B1 = B1 + innerprod( X, tmp, 'LR', idx-1);
     end
 
@@ -203,7 +203,7 @@ function res = solve_inner( L0, X, Fi, idx )
     % calculate B3 part:
     for i = idx+1:X.order
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         B3 = B3 + innerprod( X, tmp, 'RL', idx+1);
     end
 
@@ -228,7 +228,7 @@ function [B2, V, E] = prepare_precond( L0, X, idx )
     for i = 1:idx-1
         % apply L to the i'th core
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         B1 = B1 + innerprod( X, tmp, 'LR', idx-1);
     end
 
@@ -239,7 +239,7 @@ function [B2, V, E] = prepare_precond( L0, X, idx )
     % calculate B3 part:
     for i = idx+1:X.order
         tmp = X;
-        tmp.U{i} = tensorprod( tmp.U{i}, L0, 2 );
+        tmp.U{i} = tensorprod_ttemps( tmp.U{i}, L0, 2 );
         B3 = B3 + innerprod( X, tmp, 'RL', idx+1);
     end
 

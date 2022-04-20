@@ -3,7 +3,7 @@ function res = matricize( U, mode )
     %   A = MATRICIZE(U, MODE) matricizes the 3D Matlab array U along the 
     %   specified mode MODE. Higher dimensions than 3 are not supported.
     %
-    %   See also TENSORIZE, TENSORPROD, UNFOLD.
+    %   See also TENSORIZE, TENSORPROD_TTEMPS, UNFOLD.
     
     %   TTeMPS Toolbox. 
     %   Michael Steinlechner, 2013-2016

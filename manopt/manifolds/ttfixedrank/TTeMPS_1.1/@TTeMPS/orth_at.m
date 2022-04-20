@@ -30,7 +30,7 @@ function [x, R] = orth_at(x, pos, dir, apply)
         x.U{pos} = reshape(Q, [sz(1), sz(2), size(Q, 2)]);
 
         if apply
-            x.U{pos + 1} = tensorprod(x.U{pos + 1}, R, 1);
+            x.U{pos + 1} = tensorprod_ttemps(x.U{pos + 1}, R, 1);
         end
 
     elseif strcmpi(dir, 'right')
@@ -39,7 +39,7 @@ function [x, R] = orth_at(x, pos, dir, apply)
         x.U{pos} = reshape(Q', [size(Q, 2), sz(2), sz(3)]);
 
         if apply
-            x.U{pos - 1} = tensorprod(x.U{pos - 1}, R, 3);
+            x.U{pos - 1} = tensorprod_ttemps(x.U{pos - 1}, R, 3);
         end
 
     else

@@ -28,14 +28,14 @@ left = innerprod( xL, xi, 'LR', d-1, true );
 right = innerprod( xR, xi, 'RL', 2, true );
 
 % contract to first core
-Y{1} = tensorprod( xi.U{1}, right{2}, 3 );
+Y{1} = tensorprod_ttemps( xi.U{1}, right{2}, 3 );
 % contract to first core
 for idx = 2:d-1
-    res = tensorprod( xi.U{idx}, left{idx-1}, 1 );
-    Y{idx} = tensorprod( res, right{idx+1}, 3 );
+    res = tensorprod_ttemps( xi.U{idx}, left{idx-1}, 1 );
+    Y{idx} = tensorprod_ttemps( res, right{idx+1}, 3 );
 end
 % contract to last core
-Y{d} = tensorprod( xi.U{d}, left{d-1}, 1 );
+Y{d} = tensorprod_ttemps( xi.U{d}, left{d-1}, 1 );
 
 
 tmp = (19.4*A.A{1}) \ unfold( Y{1}, 'left' );

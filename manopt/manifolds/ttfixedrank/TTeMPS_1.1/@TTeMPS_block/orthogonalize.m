@@ -26,7 +26,7 @@ function res = orthogonalize( x )
     %    [Q,R] = qr( unfold( x.U{i}, 'left' ), 0);
     %    x.U{pos} = reshape( Q, [x.rank(pos), x.size(pos), size(Q,2)] );
     %    if apply
-    %        x.U{pos+1} = tensorprod( x.U{pos+1}, R, 1); 
+    %        x.U{pos+1} = tensorprod_ttemps( x.U{pos+1}, R, 1); 
     %    end
     %end
 

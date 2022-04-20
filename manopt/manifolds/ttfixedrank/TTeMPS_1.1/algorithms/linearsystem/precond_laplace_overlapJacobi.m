@@ -17,21 +17,21 @@ if nargin < 7
 %     % You need to first store LUl
 %     LUl = cell(d,1);
 %     for idx = 1:d
-%         LUl{idx} = tensorprod( xL.U{idx}, L{idx}, 2 );
+%         LUl{idx} = tensorprod_ttemps( xL.U{idx}, L{idx}, 2 );
 %     end
 %     % and then change to LUr in the loop for B3 below
 %     %         if idx+1==d
-%     %              LUr = tensorprod( LUl{idx+1}, G{idx}, 1, true);
+%     %              LUr = tensorprod_ttemps( LUl{idx+1}, G{idx}, 1, true);
 %     %         else
-%     %             LUr = tensorprod( tensorprod( LUl{idx+1}, G{idx+1}', 3), G{idx}, 1, true);
+%     %             LUr = tensorprod_ttemps( tensorprod_ttemps( LUl{idx+1}, G{idx+1}', 3), G{idx}, 1, true);
 %     %         end
     
     B1 = cell(d,1);
     B1{1} = 0;
     for idx = 2:d
-        LUl = tensorprod( xL.U{idx-1}, L{idx-1}, 2 );
+        LUl = tensorprod_ttemps( xL.U{idx-1}, L{idx-1}, 2 );
         if idx>2
-            TT = tensorprod( xL.U{idx-1}, B1{idx-1}, 1 );
+            TT = tensorprod_ttemps( xL.U{idx-1}, B1{idx-1}, 1 );
         else
             TT = 0;
         end
@@ -40,9 +40,9 @@ if nargin < 7
 
     B3 = cell(d,1);
     for idx = d-1:-1:1
-        LUr = tensorprod( xR.U{idx+1}, L{idx+1}, 2 );
+        LUr = tensorprod_ttemps( xR.U{idx+1}, L{idx+1}, 2 );
         if idx<d-1
-            TT = tensorprod( xR.U{idx+1}, B3{idx+1}, 3 );
+            TT = tensorprod_ttemps( xR.U{idx+1}, B3{idx+1}, 3 );
         else
             TT = 0;
         end          
@@ -71,14 +71,14 @@ left = innerprod( xL, xi, 'LR', d-1, true );
 right = innerprod( xR, xi, 'RL', 2, true );
 
 % contract to first core
-Y{1} = tensorprod( xi.U{1}, right{2}, 3 );
+Y{1} = tensorprod_ttemps( xi.U{1}, right{2}, 3 );
 % contract to first core
 for idx = 2:d-1
-    res = tensorprod( xi.U{idx}, left{idx-1}, 1 );
-    Y{idx} = tensorprod( res, right{idx+1}, 3 );
+    res = tensorprod_ttemps( xi.U{idx}, left{idx-1}, 1 );
+    Y{idx} = tensorprod_ttemps( res, right{idx+1}, 3 );
 end
 % contract to last core
-Y{d} = tensorprod( xi.U{d}, left{d-1}, 1 );
+Y{d} = tensorprod_ttemps( xi.U{d}, left{d-1}, 1 );
 
 
 % 2. STEP: Solve ALS systems:

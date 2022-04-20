@@ -29,7 +29,7 @@ function res = innerprod( x, y, dir, upto )
         res = unfold( x.U{1}, 'left')' * unfold( y.U{1}, 'left');
 
         for i = 2:upto
-            tmp = tensorprod( x.U{i}, res', 1);
+            tmp = tensorprod_ttemps( x.U{i}, res', 1);
             res = unfold( tmp, 'left')' * unfold( y.U{i}, 'left');
         end
 
@@ -39,7 +39,7 @@ function res = innerprod( x, y, dir, upto )
         res = conj(unfold( x.U{d}, 'right')) * unfold( y.U{d}, 'right').';
         
         for i = d-1:-1:upto
-            tmp = tensorprod( x.U{i}, res', 3);
+            tmp = tensorprod_ttemps( x.U{i}, res', 3);
             res = conj(unfold( tmp, 'right')) * unfold( y.U{i}, 'right').';
         end
 
