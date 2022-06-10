@@ -1,3 +1,4 @@
+% https://groups.google.com/g/manopttoolbox/c/KwdpyLiPUBw/m/aS-Yjq-pAwAJ?utm_medium=email&utm_source=footer
 
 M = rotationsfactory(3);
 X = M.rand();
