@@ -26,13 +26,15 @@ min(e) % should be zero or close
 
 %% Test logarithm
 e = NaN(size(t));
+f = NaN(size(t));
 for k = 1 : numel(t)
 
-    e(k) = norm((t(k)*V) - logm_SO3(X.'*(X*expm_SO3(t(k)*V))), 'fro') ./ norm(t(k)*V, 'fro');
+    e(k) = norm((t(k)*V) - logm_SO3(X.'*(X*expm_SO3(t(k)*V))), 'fro') ;%./ norm(t(k)*V, 'fro');
+    f(k) = norm((t(k)*V) - M.log(X, (M.exp(X, V, t(k)))), 'fro') ;%./ norm(t(k)*V, 'fro');
 
 end
 
-loglog(t, e, '.');
+loglog(t, e, '.', t, f, '.');
 
 any(isnan(e)) % should be false
 min(e) % should be zero or close
@@ -43,7 +45,9 @@ min(e) % should be zero or close
 
 function phi = logm_SO3(R)
     norm_t = acos((trace(R) - 1)/2);
-    phi = norm_t/(2*sin(norm_t))*[R(3,2) - R(2,3); R(1,3) - R(3,1); R(2,1) - R(1,2)];
+    q = norm_t/(2*sin(norm_t));
+    % q = .5 + (3-trace(R))/12 + (3-trace(R)).^2/60 + (3-trace(R)).^3/280;
+    phi = q*[R(3,2) - R(2,3); R(1,3) - R(3,1); R(2,1) - R(1,2)];
     phi = [0 -phi(3) phi(2); phi(3) 0 -phi(1); -phi(2) phi(1) 0];
 %    phi = logm(R);
 end
