@@ -1,4 +1,4 @@
-% https://groups.google.com/g/manopttoolbox/c/KwdpyLiPUBw/m/aS-Yjq-pAwAJ?utm_medium=email&utm_source=footer
+% https://groups.google.com/g/manopttoolbox/c/KwdpyLiPUBw/m/aS-Yjq-pAwAJ
 
 M = rotationsfactory(3);
 X = M.rand();
@@ -39,23 +39,40 @@ loglog(t, e, '.', t, f, '.');
 any(isnan(e)) % should be false
 min(e) % should be zero or close
 
+%% Speed test expm
+
+t = randn(1);
+timeit(@() M.exp(X, V, t))
+timeit(@() X*expm_SO3(t*V))  % 10x faster, it seems
+
+%% Speed test logm
+
+Y = M.rand();
+timeit(@() M.log(X, Y))
+timeit(@() logm_SO3(X.'*Y))  % 1000x faster ??
+
 
 %%
 
 
 function phi = logm_SO3(R)
-    norm_t = acos((trace(R) - 1)/2);
-    q = norm_t/(2*sin(norm_t));
-    % q = .5 + (3-trace(R))/12 + (3-trace(R)).^2/60 + (3-trace(R)).^3/280;
-    phi = q*[R(3,2) - R(2,3); R(1,3) - R(3,1); R(2,1) - R(1,2)];
+    t = trace(R);
+    norm_t = real(acos((t - 1)/2));
+    if norm_t > 0 % could fail even when trace(R) < 3, because sensitive
+        q = .5*norm_t/sin(norm_t);
+    else % if norm_t = 0 numerically, we get better accuracy with Taylor
+        q = polyval([1/280, 1/60, 1/12, 1/2], 3-t); %.5 + (3-t)/12 + (3-t).^2/60 + (3-t).^3/280; %
+    end
+    phi = q * [R(3, 2) - R(2, 3); R(1, 3) - R(3, 1); R(2, 1) - R(1, 2)];
     phi = [0 -phi(3) phi(2); phi(3) 0 -phi(1); -phi(2) phi(1) 0];
 %    phi = logm(R);
 end
 
 function R = expm_SO3(phi)
-    I = eye(3);
-    phi_vee = [-phi(2,3); phi(1,3); -phi(1,2)];
+    phi_vee = [-phi(2, 3); phi(1, 3); -phi(1, 2)];
     norm_phi_vee = norm(phi_vee);
-    R = I + sin(norm_phi_vee)/norm_phi_vee*phi + ((1 - cos(norm_phi_vee))/norm_phi_vee^2)*phi^2;
+    q1 = sinxoverx(norm_phi_vee);
+    q2 = sinxoverx(norm_phi_vee/2).^2 / 2;
+    R = eye(3) + q1*phi + q2*phi^2;
 %    R = expm(phi);
 end
