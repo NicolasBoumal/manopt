@@ -29,14 +29,3 @@ function [eta, Heta, numit, stop_inner]= TRSgep(problem, x, grad, ~, Delta, ~, ~
     
     Heta_vec = H*eta_vec;
     Heta = lincomb(M, x, B, Heta_vec);
-
-%   Test optimality
-%
-  assert(all(abs(Heta_vec - tangent2vec(M, x, B, Heta)) <= 1e-10));
-  assert(norm(eta_vec)<= Delta + 1e-10, 'cond1');
-  lambda_star = (-grad_vec(1) - Heta_vec(1))/ eta_vec(1);
-  assert(lambda_star >= 0 || abs(lambda_star) <= 1e-10, 'cond2');
-  assert(all(abs(lambda_star * eta_vec + grad_vec + Heta_vec) <= 1e-10), 'cond3');
-  assert(abs(lambda_star * (Delta -norm(eta_vec))) <=1e-10, 'cond4');
-  assert(all(eig(H + lambda_star * eye(n)) > 0), 'not PD');
-
