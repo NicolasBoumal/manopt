@@ -98,6 +98,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Minimum number of inner iterations (for tCG).
 %   maxinner (problem.M.dim() : the manifold's dimension)
 %       Maximum number of inner iterations (for tCG).
+%   getdelta (standarddelta)
+%       Specifies the initial values of Delta0 and Delta_bar (see below for
+%       behaviour of standarddelta). The getdelta function will also
+%       see this options structure, so that parameters can be passed
+%       to it through here as well. Built-in initialization strategies 
+%       included:
+%           standarddelta
 %   Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
 %       Maximum trust-region radius. If you specify this parameter but not
 %       Delta0, then Delta0 will be set to 1/8 times this parameter.
@@ -107,6 +114,14 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       may pay off to try to tune this parameter to shorten the plateau.
 %       You should not set this parameter without setting Delta_bar too (at
 %       a larger value).
+%   subproblemsolver (@tCG)
+%       Function handle to a subproblem solver. The subproblem solver will
+%       also see this options structure, so that parameters can be passed
+%       to it through here as well. Built-in solvers included:
+%           tCG
+%           TRSgep
+%       Note that TRSgep solves the subproblem exactly and is generally
+%       slower than tCG. It is mainly for prototyping or low dimensions.
 %   useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
@@ -334,7 +349,8 @@ tcg_stop_reason = {'negative curvature',...
                    'reached target residual-kappa (linear)',...
                    'reached target residual-theta (superlinear)',...
                    'maximum inner iterations',...
-                   'model increased'};
+                   'model increased',...
+                   'Exact TRSgep used'};
 
 % Set local defaults here
 localdefaults.verbosity = 2;
@@ -349,6 +365,8 @@ localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
 localdefaults.rho_regularization = 1e3;
+localdefaults.subproblemsolver = @tCG;
+localdefaults.getdelta= @standarddelta;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -357,19 +375,14 @@ if ~exist('options', 'var') || isempty(options)
 end
 options = mergeOptions(localdefaults, options);
 
+% If no initial point x is given by the user, generate one at random.
+if ~exist('x', 'var') || isempty(x)
+    x = M.rand();
+end
+
 % Set default Delta_bar and Delta0 separately to deal with additional
-% logic: if Delta_bar is provided but not Delta0, let Delta0 automatically
-% be some fraction of the provided Delta_bar.
-if ~isfield(options, 'Delta_bar')
-    if isfield(M, 'typicaldist')
-        options.Delta_bar = M.typicaldist();
-    else
-        options.Delta_bar = sqrt(M.dim());
-    end 
-end
-if ~isfield(options,'Delta0')
-    options.Delta0 = options.Delta_bar / 8;
-end
+% logic which may require the initial point
+options = options.getdelta(M, x, options);
 
 % Check some option values
 assert(options.rho_prime < 1/4, ...
@@ -386,10 +399,6 @@ end
 
 ticstart = tic();
 
-% If no initial point x is given by the user, generate one at random.
-if ~exist('x', 'var') || isempty(x)
-    x = M.rand();
-end
 
 % Create a store database and get a key for the current x
 storedb = StoreDB(options.storedepth);
@@ -491,9 +500,10 @@ while true
         end
     end
 
-    % Solve TR subproblem approximately
+    % Solve TR subproblem approximately (tCG) or exactly but slowly
+    % (TRSgep)
     [eta, Heta, numit, stop_inner] = ...
-                tCG(problem, x, fgradx, eta, Delta, options, storedb, key);
+                options.subproblemsolver(problem, x, fgradx, eta, Delta, options, storedb, key);
     srstr = tcg_stop_reason{stop_inner};
 
     % If using randomized approach, compare result with the Cauchy point.
