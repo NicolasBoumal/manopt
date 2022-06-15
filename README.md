@@ -1,3 +1,6 @@
+### Note
+This is my fork of the Manopt GIT repository. 
+
 ### Welcome to the Manopt GIT repository ###
 
 Manopt is a Matlab toolbox for optimization on manifolds. For a description of the project, documentation, examples and more, see:
