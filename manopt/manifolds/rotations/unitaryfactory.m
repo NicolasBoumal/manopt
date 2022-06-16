@@ -164,7 +164,7 @@ function M = unitaryfactory(n, k)
     M.mat = @(x, u_vec) reshape(u_vec(1:sz), [n, n, k]) ...
                         + 1i*reshape(u_vec((sz+1):end), [n, n, k]);
     M.vecmatareisometries = @() true;
-    M.lie_identity = @() rotidentity(n, k);
+    M.lie_identity = @() repmat(eye(n), [1, 1, k]);
     
 end
 

@@ -368,7 +368,7 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         M.lie_identity = @lie_identity;
     end
 
-    function I = lie_identity
+    function I = lie_identity()
         I = {};
         for i = 1 : nelems
             Mi = elements.(elems{i});

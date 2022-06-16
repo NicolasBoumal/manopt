@@ -264,7 +264,7 @@ function Mn = powermanifold(M, n)
     if isfield(M, 'lie_identity')
         Mn.lie_identity = @lie_identity;
     end
-    function I = lie_identity
+    function I = lie_identity()
         I_M = M.lie_identity();
         I = {};
         for k = 1 : n

@@ -95,6 +95,6 @@ function M = euclideancomplexfactory(m, n)
     M.mat = @(x, u_vec) reshape(u_vec(1:sz), dimensions_vec) ...
                         + 1i*reshape(u_vec((sz+1):end), dimensions_vec);
     M.vecmatareisometries = @() true;
-    M.lie_identity = @() euclideanidentity(m, n);
+    M.lie_identity = @() zeros(dimensions_vec);
 
 end
