@@ -349,6 +349,7 @@ localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
 localdefaults.rho_regularization = 1e3;
+localdefaults.accept = true;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -490,10 +491,21 @@ while true
             eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
         end
     end
-
+    
     % Solve TR subproblem approximately
-    [eta, Heta, numit, stop_inner] = ...
+    [eta1, Heta1, numit1, stop_inner1] = ...
                 tCG(problem, x, fgradx, eta, Delta, options, storedb, key);
+    [eta2, Heta2, numit2, stop_inner2] = ...
+                tCG_efficient(problem, x, fgradx, eta, Delta, options, storedb, key);
+    
+    %Testing V
+    assert(numit1 == numit2);
+    assert(stop_inner1 == stop_inner2);
+    
+    eta = eta1;
+    Heta = Heta1;
+    numit = numit1;
+    stop_inner = stop_inner1;
     srstr = tcg_stop_reason{stop_inner};
 
     % If using randomized approach, compare result with the Cauchy point.
@@ -708,7 +720,7 @@ while true
                      fx_prop - fx, norm_eta);
         end
         
-        accept = true;
+        options.accept = true; % passed to next tCG call
         accstr = 'acc';
         % We accept the step: no need to keep the old cache.
         storedb.removefirstifdifferent(key, key_prop);
@@ -721,22 +733,34 @@ while true
         % We reject the step: no need to keep cache related to the
         % tentative step.
         storedb.removefirstifdifferent(key_prop, key);
-        accept = false;
+        options.accept = false; % passed to next tCG call
         accstr = 'REJ';
     end
     
     % k is the number of iterations we have accomplished.
     k = k + 1;
     
-    % Make sure we don't use too much memory for the store database
-    storedb.purge();
+    % Make sure we don't use too much memory for the store database.
+    % This should not purge the previous x which may be re-used in tCG
+    % unless storedepth <= 0. We also clear the stored tCG info if we move
+    % on from x.
+    if ~options.accept
+        storedb.purge();
+    else
+        store = storedb.getWithShared(key);
+        if isfield(store, 'store_iters')
+            store = rmfield(store,'store_iters');
+            storedb.setWithShared(store, key);
+        end
+        storedb.purge();
+    end
     
 
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
                       norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                      rhoden, accept, numit, norm_eta, used_cauchy);
+                      rhoden, options.accept, numit, norm_eta, used_cauchy);
     info(k+1) = stats;
 
     
