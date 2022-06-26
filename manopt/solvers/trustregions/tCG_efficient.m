@@ -1,6 +1,10 @@
 function [eta, Heta, inner_it, stop_tCG] ...
                  = tCG_efficient(problem, x, grad, eta, Delta, options, storedb, key)
-% tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
+% tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method where
+% information is stored in case the step is rejected by trustregions.m to
+% compute the next step. This is done through tCG_rejectedstep when
+% previous step is rejected or it proceeds as in the normal tCG algorithm.
+
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
@@ -64,7 +68,11 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %            passed to getHessian, hence this is where accurate tangency
 %            may be most important. (All other operations are linear
 %            combinations of tangent vectors, which should be fairly safe.)
-
+%   VL June 24, 2022:
+%       Now, when not using options.userand we store information at each
+%       iteration in tCG. This may come in handy for the next call to
+%       tCG_efficient and the work is passed to tCG_rejectedstep rather
+%       than the traditional tCG loop.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -96,13 +104,12 @@ inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
 
-% Same x as previous tCG call so we can save some compute here
+% Previous step was rejected so we can save some compute here
 if ~options.accept
         [eta, Heta, inner_it, stop_tCG] = ...
             tCG_rejectedstep(problem, x, eta, Delta, options, storedb, key);
         return;
 end
-
 
 theta = options.theta;
 kappa = options.kappa;
@@ -146,11 +153,12 @@ model_value = 0;
 % Pre-assume termination because j == end.
 stop_tCG = 5;
 
-% Track certain iterations in case step is rejected
-% store_iters tracks candidate etas with monotonically increasing squared
-% norm or when <eta, Heta> <= 0
-store_iters = struct('normsq', [], 'inner_it', [], 'e_Pe', [], 'd_Pd', [],...
-    'e_Pd', [], 'd_Hd', [], 'eta', [], 'mdelta', [], 'Heta', []);
+% Track certain iterations in case step is rejected.
+% store_iters tracks candidate etas with increasing squared
+% norm relevant for stop_tCG = 1 or 2, or when <eta, Heta> <= 0
+store_iters = struct('normsq', [], 'inner_it', [], 'e_Pe', [], ...
+    'd_Pd', [], 'e_Pd', [], 'd_Hd', [], 'eta', [], 'Heta', [], ...
+    'mdelta', [], 'Hmdelta', []);
 
 % If exit is prompted by stop_tCG = 3, 4 or 6 then we store different info
 store_last = struct('inner_it', [], 'stop_tCG', [], 'eta', [], 'Heta', []);
@@ -179,23 +187,19 @@ for j = 1 : options.maxinner
         fprintf('DBG:   (d,Hd) : %e\n', d_Hd);
         fprintf('DBG:   alpha  : %e\n', alpha);
     end
-    % store new struct containing all the required info in store_iter
-    % next_smallest = (1/16)^(n) Delta^2 where n is the smallest integer
-    % such that max_normsq <= next_smallest. This is to store only relevant
-    % data.
-    
+
+    % Selectively store info in store_iter.
+    % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
+    % such that max_normsq <= next_smallest. 
+    % We use this condition to only store relevant iterations in case of
+    % rejection in trustregions.m
     next_smallest = (1/16)^floor(-(1/4) *(log2(max_normsq) - log2(Delta^2))) * Delta^2;
     if d_Hd <= 0 || e_Pe_new >= next_smallest
-        iterdata.normsq = e_Pe_new;
-        iterdata.inner_it = j;
-        iterdata.e_Pe = e_Pe;
-        iterdata.d_Pd = d_Pd;
-        iterdata.e_Pd = e_Pd;
-        iterdata.d_Hd = d_Hd;
-        iterdata.eta = eta;
-        iterdata.mdelta = mdelta;
-        iterdata.Heta = Heta;
-        store_iters(store_index) = iterdata;
+        store_iters(store_index) = struct('normsq', e_Pe_new, 'inner_it', j,...
+                         'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
+                         'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
+                         'mdelta', mdelta, 'Hmdelta', Hmdelta);
+        
         max_normsq = e_Pe_new;
         store_index= store_index + 1;
     end
@@ -255,12 +259,6 @@ for j = 1 : options.maxinner
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
         stop_tCG = 6;
-
-        lastdata.eta = eta;
-        lastdata.Heta = Heta;
-        lastdata.inner_it = j;
-        lastdata.stop_tCG = stop_tCG;
-        store_last = lastdata;
         break;
     end
     
@@ -287,11 +285,6 @@ for j = 1 : options.maxinner
         else
             stop_tCG = 4;  % superlinear convergence
         end
-        lastdata.eta = eta;
-        lastdata.Heta = Heta;
-        lastdata.inner_it = j;
-        lastdata.stop_tCG = stop_tCG;
-        store_last = lastdata;
         break;
     end
     
@@ -322,14 +315,10 @@ for j = 1 : options.maxinner
     d_Pd = z_r + beta*beta*d_Pd;
     
 end  % of tCG loop
-% In case we reached options.maxinner and did not exit from above
-% conditions
-if j == options.maxinner && stop_tCG == 5
-    lastdata.eta = eta;
-    lastdata.Heta = Heta;
-    lastdata.inner_it = j;
-    lastdata.stop_tCG = stop_tCG;
-    store_last = lastdata;
+% In case we did not exit from stop_tCG = 1 or 2 then we store last iterate
+if stop_tCG > 2
+    store_last = struct('inner_it', j, 'stop_tCG', stop_tCG,...
+                            'eta', eta, 'Heta', Heta);
 end
 store = storedb.getWithShared(key);
 store.store_iters = store_iters;

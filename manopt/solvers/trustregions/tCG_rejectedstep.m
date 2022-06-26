@@ -1,14 +1,22 @@
 function [eta, Heta, inner_it, stop_tCG] ...
                  = tCG_rejectedstep(problem, x, eta, Delta, options, storedb, key)
-        % want
-        %  ee = <eta,eta>_prec,x
-        %  ed = <eta,delta>_prec,x
-        %  dd = <delta,delta>_prec,x
-        % Note (Nov. 26, 2021, NB): numerically, it might be better to call
-        %   tau = max(real(roots([d_Pd, 2*e_Pd, e_Pe-Delta^2])));
-        % This should be checked.
-        % Also, we should safe-guard against 0/0: could happen if grad = 0.
-        inner   = @(u, v) problem.M.inner(x, u, v);
+% Helper function to handle when a step is rejected in
+% trustregions.m rather than the tCG loop. The next step can be computed from 
+% information already computed in the previous tCG call which is stored
+% accordingly.
+
+% Note there can only be two situations.
+% 1. We return the same eta, Heta as the previous tCG call and decrease
+% Delta again (either d_Hd <= 0 or we use store_last)
+% 2. We return a new eta when some previous candidate eta (stored in 
+% store_iters) satisfies normsq:=<eta,eta>_x >= Delta^2 at the current 
+% Delta (exceeding trust region).
+%
+% See also: trustregions, tCG_efficient, tCG
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Victor Liao, Jun. 24, 2022.
+
         lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 
         store = storedb.getWithShared(key);
@@ -25,6 +33,7 @@ function [eta, Heta, inner_it, stop_tCG] ...
                 d_Pd = store_iters(i).d_Pd;
                 eta = store_iters(i).eta;
                 mdelta = store_iters(i).mdelta;
+                Hmdelta = store_iters(i).Hmdelta;
                 Heta = store_iters(i).Heta;
                 inner_it = store_iters(i).inner_it;
                 break;
@@ -36,12 +45,7 @@ function [eta, Heta, inner_it, stop_tCG] ...
                 stop_tCG = store_last.stop_tCG;
                 return;
             end
-            
         end
-        
-        Hmdelta = getHessian(problem, x, mdelta, storedb, key);
-        
-        d_Hd = inner(mdelta, Hmdelta);
 
         tau = (-e_Pd + sqrt(e_Pd*e_Pd + d_Pd*(Delta^2-e_Pe))) / d_Pd;
         if options.debug > 2
