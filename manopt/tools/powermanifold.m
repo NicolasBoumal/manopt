@@ -266,7 +266,7 @@ function Mn = powermanifold(M, n)
     end
     function I = lie_identity()
         I_M = M.lie_identity();
-        I = {};
+        I = cell(n, 1);
         for k = 1 : n
             I{k} = I_M;
         end
