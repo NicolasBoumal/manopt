@@ -492,7 +492,6 @@ while true
         end
     end
     % Solve TR subproblem approximately
-
     [eta, Heta, numit, stop_inner] = ...
                 tCG(problem, x, fgradx, eta, Delta, options, storedb, key);
     srstr = tcg_stop_reason{stop_inner};

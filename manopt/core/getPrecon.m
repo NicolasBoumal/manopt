@@ -30,6 +30,8 @@ function Pd = getPrecon(problem, x, d, storedb, key)
         end
         key = storedb.getNewKey();
     end
+
+    
     if isfield(problem, 'precon')
     %% Precondition using precon.
     
