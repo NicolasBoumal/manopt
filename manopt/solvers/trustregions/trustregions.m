@@ -491,6 +491,7 @@ while true
             eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
         end
     end
+    
     % Solve TR subproblem approximately
     [eta, Heta, numit, stop_inner] = ...
                 tCG(problem, x, fgradx, eta, Delta, options, storedb, key);
