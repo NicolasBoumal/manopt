@@ -193,7 +193,13 @@ for j = 1 : options.maxinner
     % such that max_normsq <= next_smallest. 
     % We use this condition to only store relevant iterations in case of
     % rejection in trustregions.m
-    next_smallest = (1/16)^floor(-(1/4) *(log2(max_normsq) - log2(Delta^2))) * Delta^2;
+    if max_normsq > 0
+        next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
+                                            log2(Delta^2))) * Delta^2;
+    else
+        next_smallest = 0;
+    end
+
     if d_Hd <= 0 || e_Pe_new >= next_smallest
         store_iters(store_index) = struct('normsq', e_Pe_new, 'inner_it', j,...
                          'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
