@@ -369,11 +369,11 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
     end
 
     function I = lie_identity()
-        I = {};
+        I = struct();
         for i = 1 : nelems
             Mi = elements.(elems{i});
             Ii = Mi.lie_identity();
-            I{i} = Ii;
+            I.(elems{i}) = Ii;
         end
     end
 end
