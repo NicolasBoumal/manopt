@@ -25,17 +25,29 @@ function M = rotationsfactory(n, k)
 %
 % By default, the retraction is only a first-order approximation of the
 % exponential. To force the use of a second-order approximation, call
-% M.retr = M.retr_polar after creating M. This switches from a QR-based
-% computation to an SVD-based computation. If used, you may want to modify
-% M.invretr accordingly.
+%
+%     M.retr = M.retr_polar;
+%     M.invretr = M.invretr_polar;
+%
+% after creating M. This switches from a QR-based computation to an
+% SVD-based computation.
+%
+% For n = 3, the code uses Rodrigues formulas for exp and log. Since most
+% optimization algorithms use retractions by default, you can force those
+% algorithms to use the Rodrigues formulas as follows:
+%  
+%     M.retr = M.exp;
+%     M.invretr = M.log;
+%
 %
 % By default, k = 1.
+%
 %
 % See also: stiefelfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
-% Contributors: 
+% Contributors: Spencer Kraisler
 % Change log:
 %   Jan. 31, 2013 (NB)
 %       Added egrad2rgrad and ehess2rhess
@@ -56,6 +68,9 @@ function M = rotationsfactory(n, k)
 %   Nov. 19, 2019 (NB)
 %       Clarified that the isometric transport is not parallel transport
 %       along geodesics.
+%   June 10, 2022 (NB)
+%       Following input from Spencer Kraisler on Manopt forum, added code
+%       for Rodrigues formulas, now used instead of expm / logm for n = 3.
 
     
     if ~exist('k', 'var') || isempty(k)
@@ -201,6 +216,15 @@ function M = rotationsfactory(n, k)
     % For backward compatibility:
     M.retr2 = M.retr_polar;
     
+    % Special case: for n = 3, we use Rodrigues formulas for expm / logm.
+    if n == 3
+        myexpm = @expm_SO3;
+        mylogm = @logm_SO3;
+    else
+        myexpm = @expm;
+        mylogm = @logm;
+    end
+
     M.exp = @exponential;
     function Y = exponential(X, U, t)
         if nargin == 3
@@ -209,7 +233,7 @@ function M = rotationsfactory(n, k)
             exptU = U;
         end
         for kk = 1 : k
-            exptU(:, :, kk) = expm(exptU(:, :, kk));
+            exptU(:, :, kk) = myexpm(exptU(:, :, kk));
         end
         Y = multiprod(X, exptU);
     end
@@ -220,7 +244,7 @@ function M = rotationsfactory(n, k)
         for kk = 1 : k
             % The result of logm should be real in theory, but it is
             % numerically useful to force it.
-            U(:, :, kk) = real(logm(U(:, :, kk)));
+            U(:, :, kk) = real(mylogm(U(:, :, kk)));
         end
         % Ensure the tangent vector is in the Lie algebra.
         U = multiskew(U);
@@ -259,4 +283,33 @@ function M = rotationsfactory(n, k)
     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
     M.vecmatareisometries = @() true;
 
+end
+
+% The following code is based on a proposal by Spencer Kraisler, June 2022.
+% https://groups.google.com/g/manopttoolbox/c/KwdpyLiPUBw/m/aS-Yjq-pAwAJ
+%
+% Rodrigues formula for matrix exponential on SO(3): R = expm(phi)
+function R = expm_SO3(phi)
+    phi_vee = [-phi(2, 3); phi(1, 3); -phi(1, 2)];
+    norm_phi_vee = norm(phi_vee);
+    if norm_phi_vee > 0
+        q1 = sin(norm_phi_vee)/norm_phi_vee;
+        r = norm_phi_vee / 2;
+        q2 = (sin(r)/r).^2 / 2;
+        R = eye(3) + q1*phi + q2*phi^2;
+    else
+        R = eye(3);
+    end
+end
+% Rodrigues formula for inverting matrix exp on SO(3): phi = logm(R)
+function phi = logm_SO3(R)
+    t = trace(R);
+    norm_t = real(acos((t - 1)/2));
+    if norm_t > 0 % could fail even when trace(R) < 3, because sensitive
+        q = .5*norm_t/sin(norm_t);
+    else
+        q = .5;   % even with this, phi (below) could be nonzero
+    end
+    phi = q * [R(3, 2) - R(2, 3); R(1, 3) - R(3, 1); R(2, 1) - R(1, 2)];
+    phi = [0 -phi(3) phi(2); phi(3) 0 -phi(1); -phi(2) phi(1) 0];
 end
