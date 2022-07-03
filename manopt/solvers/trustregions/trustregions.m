@@ -6,13 +6,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % function [x, cost, info, options] = trustregions(problem, x0, options)
 % function [x, cost, info, options] = trustregions(problem, [], options)
 %
-% This is the Riemannian Trust-Region solver (with tCG inner solve), named
-% RTR. This solver will attempt to minimize the cost function described in
-% the problem structure. It requires the availability of the cost function
-% and of its gradient. It will issue calls for the Hessian. If no Hessian
-% nor approximate Hessian is provided, a standard approximation of the
-% Hessian based on the gradient will be computed. If a preconditioner for
-% the Hessian is provided, it will be used.
+% This is the Riemannian Trust-Region solver (with default trs_tCG inner 
+% solve), named RTR. This solver will attempt to minimize the cost function 
+% described in the problem structure. It requires the availability of the 
+% cost function and of its gradient. It will issue calls for the Hessian. 
+% If no Hessian nor approximate Hessian is provided, a standard 
+% approximation of the Hessian based on the gradient will be computed. If a 
+% preconditioner for the Hessian is provided, it will be used.
 %
 % If no gradient is provided, an approximation of the gradient is computed,
 % but this can be slow for manifolds of high dimension.
@@ -59,7 +59,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Whether the proposed iterate was accepted or not.
 %   stepsize (double)
 %       The (Riemannian) norm of the vector returned by the inner solver
-%       tCG and which is retracted to obtain the proposed next iterate. If
+%       and which is retracted to obtain the proposed next iterate. If
 %       accepted = true for the corresponding iterate, this is the size of
 %       the step from the previous to the new iterate. If accepted is
 %       false, the step was not executed and this is the size of the
@@ -95,16 +95,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   miniter (3)
 %       Minimum number of outer iterations (used only if useRand is true).
 %   mininner (1)
-%       Minimum number of inner iterations (for tCG).
+%       Minimum number of inner iterations (for subproblemsolver).
 %   maxinner (problem.M.dim() : the manifold's dimension)
-%       Maximum number of inner iterations (for tCG).
-%   getdelta (standarddelta)
-%       Specifies the initial values of Delta0 and Delta_bar (see below for
-%       behaviour of standarddelta). The getdelta function will also
-%       see this options structure, so that parameters can be passed
-%       to it through here as well. Built-in initialization strategies 
-%       included:
-%           standarddelta
+%       Maximum number of inner iterations (for subproblemsolver).
 %   Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
 %       Maximum trust-region radius. If you specify this parameter but not
 %       Delta0, then Delta0 will be set to 1/8 times this parameter.
@@ -114,28 +107,28 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       may pay off to try to tune this parameter to shorten the plateau.
 %       You should not set this parameter without setting Delta_bar too (at
 %       a larger value).
-%   subproblemsolver (@tCG)
+%   subproblemsolver (@trs_tCG)
 %       Function handle to a subproblem solver. The subproblem solver will
 %       also see this options structure, so that parameters can be passed
 %       to it through here as well. Built-in solvers included:
-%           tCG
-%           TRSgep
-%       Note that TRSgep solves the subproblem exactly and is generally
-%       slower than tCG. It is mainly for prototyping or low dimensions.
+%           trs_tCG
+%           trs_gep
+%       Note that trs_gep solves the subproblem exactly and is generally
+%       slower than trs_tCG. It is mainly for prototyping or low dimensions.
 %   useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated.
 %   kappa (0.1)
-%       tCG inner kappa convergence tolerance.
-%       kappa > 0 is the linear convergence target rate: tCG will terminate
-%       early if the residual was reduced by a factor of kappa.
+%       trs_tCG inner kappa convergence tolerance.
+%       kappa > 0 is the linear convergence target rate: trs_tCG will 
+%       terminate early if the residual was reduced by a factor of kappa.
 %   theta (1.0)
-%       tCG inner theta convergence tolerance.
+%       trs_tCG inner theta convergence tolerance.
 %       1+theta (theta between 0 and 1) is the superlinear convergence
-%       target rate. tCG will terminate early if the residual was reduced
-%       by a power of 1+theta.
+%       target rate. trs_tCG will terminate early if the residual was 
+%       reduced by a power of 1+theta.
 %   rho_prime (0.1)
 %       Accept/reject threshold : if rho is at least rho_prime, the outer
 %       iteration is accepted. Otherwise, it is rejected. In case it is
@@ -251,7 +244,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % Change log: 
 %
 %   NB April 3, 2013:
-%       tCG now returns the Hessian along the returned direction eta, so
+%       trs_tCG now returns the Hessian along the returned direction eta, so
 %       that we do not compute that Hessian redundantly: some savings at
 %       each iteration. Similarly, if the useRand flag is on, we spare an
 %       extra Hessian computation at each outer iteration too, owing to
@@ -276,13 +269,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       forced rho = 1 has been replaced by a smoother heuristic which
 %       consists in regularizing rhonum and rhoden before computing their
 %       ratio. It is tunable via options.rho_regularization. Furthermore,
-%       the solver now detects if tCG did not obtain a model decrease
+%       the solver now detects if trs_tCG did not obtain a model decrease
 %       (which is theoretically impossible but may happen because of
 %       numerical errors and/or because of a nonlinear/nonsymmetric Hessian
 %       operator, which is the case for finite difference approximations).
 %       When such an anomaly is detected, the step is rejected and the
 %       trust region radius is decreased.
-%       Feb. 18, 2015 note: this is less useful now, as tCG now guarantees
+%       Feb. 18, 2015 note: this is less useful now, as trs_tCG now guarantees
 %       model decrease even for the finite difference approximation of the
 %       Hessian. It is still useful in case of numerical errors, but this
 %       is less stringent.
@@ -343,15 +336,6 @@ if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
     problem.approxhess = approxhessianFD(problem);
 end
 
-% Define some strings for display
-tcg_stop_reason = {'negative curvature',...
-                   'exceeded trust region',...
-                   'reached target residual-kappa (linear)',...
-                   'reached target residual-theta (superlinear)',...
-                   'maximum inner iterations',...
-                   'model increased',...
-                   'Exact TRSgep used'};
-
 % Set local defaults here
 localdefaults.verbosity = 2;
 localdefaults.maxtime = inf;
@@ -365,8 +349,7 @@ localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
 localdefaults.rho_regularization = 1e3;
-localdefaults.subproblemsolver = @tCG;
-localdefaults.getdelta= @standarddelta;
+localdefaults.subproblemsolver = @trs_tCG;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -381,8 +364,18 @@ if ~exist('x', 'var') || isempty(x)
 end
 
 % Set default Delta_bar and Delta0 separately to deal with additional
-% logic which may require the initial point
-options = options.getdelta(M, x, options);
+% logic: if Delta_bar is provided but not Delta0, let Delta0 automatically
+% be some fraction of the provided Delta_bar.
+if ~isfield(options, 'Delta_bar')
+    if isfield(M, 'typicaldist')
+        options.Delta_bar = M.typicaldist();
+    else
+        options.Delta_bar = sqrt(M.dim());
+    end 
+end
+if ~isfield(options,'Delta0')
+    options.Delta0 = options.Delta_bar / 8;
+end
 
 % Check some option values
 assert(options.rho_prime < 1/4, ...
@@ -500,11 +493,17 @@ while true
         end
     end
 
-    % Solve TR subproblem approximately (tCG) or exactly but slowly
-    % (TRSgep)
-    [eta, Heta, numit, stop_inner] = ...
-                options.subproblemsolver(problem, x, fgradx, eta, Delta, options, storedb, key);
-    srstr = tcg_stop_reason{stop_inner};
+    % Solve TR subproblem with solver specified by options.subproblemsolver
+    subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, 'Delta', Delta);
+
+    subproblemoutput = ...
+                options.subproblemsolver(problem, subprobleminput, options, storedb, key);
+    
+    eta = subproblemoutput.eta;
+    Heta = subproblemoutput.Heta; % required to compute rho.
+    stopreason_str = subproblemoutput.stopreason_str; % user display string.
+    numit = subproblemoutput.numit;
+    limitedbyTR = subproblemoutput.limitedbyTR; % boundary solution.
 
     % If using randomized approach, compare result with the Cauchy point.
     % Convergence proofs assume that we achieve at least (a fraction of)
@@ -559,8 +558,8 @@ while true
     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
     rhoden = -M.inner(x, eta, vecrho);
     % rhonum could be anything.
-    % rhoden should be nonnegative, as guaranteed by tCG, baring numerical
-    % errors.
+    % rhoden should be nonnegative, as guaranteed by trs_tCG, baring 
+    % numerical errors.
     
     % Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.
     % This heuristic is documented in the book by Conn Gould and Toint on
@@ -606,7 +605,7 @@ while true
     % rhoden is computed: if rhoden were negative before regularization but
     % not after, that should not be (and is not) detected as a failure.
     % 
-    % Note (Feb. 17, 2015, NB): the most recent version of tCG already
+    % Note (Feb. 17, 2015, NB): the most recent version of trs_tCG already
     % includes a mechanism to ensure model decrease if the Cauchy step
     % attained a decrease (which is theoretically the case under very lax
     % assumptions). This being said, it is always possible that numerical
@@ -616,16 +615,15 @@ while true
     % the step and reduce the trust region radius. This also ensures that
     % the actual cost values are monotonically decreasing.
     %
-    % [This bit of code seems not to trigger because tCG already ensures
+    % [This bit of code seems not to trigger because trs_tCG already ensures
     %  the model decreases even in the presence of non-linearities; but as
     %  a result the radius is not necessarily decreased. Perhaps we should
     %  change this with the proposed commented line below; needs testing.]
     %
     model_decreased = (rhoden >= 0);
-    % model_decreased = (rhoden >= 0) && (stop_inner ~= 6);
     
     if ~model_decreased
-        srstr = [srstr ', model did not decrease']; %#ok<AGROW>
+        stopreason_str = [stopreason_str ', model did not decrease']; %#ok<AGROW>
     end
     
     rho = rhonum / rhoden;
@@ -672,11 +670,11 @@ while true
             fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
         end
     % If the actual decrease is at least 3/4 of the predicted decrease and
-    % the tCG (inner solve) hit the TR boundary, increase the TR radius.
+    % the trs_tCG (inner solve) hit the TR boundary, increase the TR radius.
     % We also keep track of the number of consecutive trust-region radius
     % increases. If there are many, this may indicate the need to adapt the
     % initial and maximum radii.
-    elseif rho > 3/4 && (stop_inner == 1 || stop_inner == 2)
+    elseif rho > 3/4 && limitedbyTR
         trstr = 'TR+';
         Delta = min(2*Delta, options.Delta_bar);
         consecutive_TRminus = 0;
@@ -754,13 +752,13 @@ while true
     if options.verbosity == 2
         fprintf(['%3s %3s   k: %5d     num_inner: %5d     ', ...
         'f: %+e   |grad|: %e   %s\n'], ...
-        accstr,trstr,k,numit,fx,norm_grad,srstr);
+        accstr,trstr,k,numit,fx,norm_grad,stopreason_str);
     elseif options.verbosity > 2
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
         fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
-                accstr, trstr, k, numit, srstr);
+                accstr, trstr, k, numit, stopreason_str);
         fprintf('       f(x) : %+e     |grad| : %e\n',fx,norm_grad);
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
