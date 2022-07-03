@@ -66,7 +66,8 @@ function output = trs_tCG(problem, subprobleminput, options, storedb, key)
 %
 %   VL June 29, 2022:
 %       Renamed tCG to trs_tCG to keep consistent naming with new
-%       subproblem solvers.
+%       subproblem solvers. Also abstracted outputs and problem-specific
+%       to structs for flexibility with other subproblemsolvers.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
