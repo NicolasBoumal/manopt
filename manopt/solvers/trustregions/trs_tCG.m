@@ -1,10 +1,9 @@
-function [eta, Heta, inner_it, stop_tCG] ...
-                 = tCG(problem, x, grad, eta, Delta, options, storedb, key)
-% tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
+function output = trs_tCG(problem, subprobleminput, options, storedb, key)
+% trs_tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% See also: trustregions
+% See also: trustregions, trs_gep
 
 % This file is part of Manopt: www.manopt.org.
 % This code is an adaptation to Manopt of the original GenRTR code:
@@ -64,7 +63,11 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %            passed to getHessian, hence this is where accurate tangency
 %            may be most important. (All other operations are linear
 %            combinations of tangent vectors, which should be fairly safe.)
-
+%
+%   VL June 29, 2022:
+%       Renamed tCG to trs_tCG to keep consistent naming with new
+%       subproblem solvers. Also abstracted outputs and problem-specific
+%       to structs for flexibility with other subproblemsolvers.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -92,12 +95,27 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
+x = subprobleminput.x;
+eta = subprobleminput.eta;
+Delta = subprobleminput.Delta;
+grad = subprobleminput.fgradx;
+
 inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
 
+% Define some strings for display
+tcg_stop_reason = {'negative curvature',...
+                   'exceeded trust region',...
+                   'reached target residual-kappa (linear)',...
+                   'reached target residual-theta (superlinear)',...
+                   'maximum inner iterations',...
+                   'model increased'};
+
 theta = options.theta;
 kappa = options.kappa;
+
+limitedbyTR = false;
 
 if ~options.useRand % and therefore, eta == 0
     Heta = problem.M.zerovec(x);
@@ -205,12 +223,15 @@ for j = 1 : options.maxinner
         % whether it is the case or not for nonlinear approximations.)
         % At any rate, the impact should be limited, so in the interest of
         % code conciseness (if we can still hope for that), we omit this.
-        
+
         if d_Hd <= 0
             stop_tCG = 1;     % negative curvature
         else
             stop_tCG = 2;     % exceeded trust region
         end
+
+        limitedbyTR = true;
+
         break;
     end
     
@@ -291,6 +312,9 @@ for j = 1 : options.maxinner
     d_Pd = z_r + beta*beta*d_Pd;
     
 end  % of tCG loop
-inner_it = j;
-
+output.eta = eta;
+output.Heta = Heta;
+output.numit = j;
+output.stopreason_str = tcg_stop_reason{stop_tCG};
+output.limitedbyTR = limitedbyTR;
 end

@@ -1,3 +1,4 @@
 *.asv
 *.bak
 ~$*.docx
+.DS_Store
