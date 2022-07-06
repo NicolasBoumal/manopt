@@ -36,16 +36,14 @@ function [stepsize, newx, newkey, lsstats] = ...
 % Contributors: 
 % Change log: 
 
-    % Allow omission of the key, and even of storedb.
-    if ~exist('key', 'var')
-        if ~exist('storedb', 'var')
-            storedb = StoreDB();
-        end
+    % Allow omission of storedb.
+    if ~exist('storedb', 'var')
+        storedb = StoreDB();
     end
 
-    % Obtain user-specified alpha.
-    % User should specify their intended "stepsize" by:
-    % problem.linesearch = @(x,d) "stepsize";
+    % Obtain user-specified alpha if it exists.
+    % User should specify their intended alpha by:
+    % problem.linesearch = @(x,d) alpha;
     if canGetLinesearch(problem)
         alpha = getLinesearch(problem, x, d);
     else
