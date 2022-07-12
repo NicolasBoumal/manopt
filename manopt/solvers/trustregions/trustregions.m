@@ -502,7 +502,18 @@ while true
 
     subproblemoutput = options.subproblemsolver(problem, subprobleminput, ...
                                 options, storedb, key);
-    
+
+    store = storedb.get(key);
+    memory = 0;
+    if isfield(store, 'store_iters') && isfield(store, 'store_last')
+        for i=1:length(store.store_iters)
+            memory = memory + getSize(store.store_iters(i));
+        end
+        memory = memory + getSize(store.store_last);
+        memory = memory / 1024^2; % megabytes
+    end
+%     fprintf('%.4f MB\n', memory);
+
     eta = subproblemoutput.eta;
     Heta = subproblemoutput.Heta; % required to compute rho.
     stopreason_str = subproblemoutput.stopreason_str; % user display string.
@@ -747,7 +758,7 @@ while true
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
                       norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                      rhoden, accept, numit, norm_eta, used_cauchy);
+                      rhoden, accept, numit, norm_eta, used_cauchy, memory);
     info(k+1) = stats;
 
     % ** Display:
@@ -799,7 +810,7 @@ end
 % Routine in charge of collecting the current iteration stats
 function stats = savestats(problem, x, storedb, key, options, k, fx, ...
                            norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                           rhoden, accept, numit, norm_eta, used_cauchy)
+                           rhoden, accept, numit, norm_eta, used_cauchy, memory)
     stats.iter = k;
     stats.cost = fx;
     stats.gradnorm = norm_grad;
@@ -812,6 +823,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.accepted = true;
         stats.numinner = 0;
         stats.stepsize = NaN;
+        stats.memory = 0;
         if options.useRand
             stats.cauchy = false;
         end
@@ -823,6 +835,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.accepted = accept;
         stats.numinner = numit;
         stats.stepsize = norm_eta;
+        stats.memory = memory;
         if options.useRand
           stats.cauchy = used_cauchy;
         end

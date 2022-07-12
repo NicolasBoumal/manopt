@@ -49,7 +49,8 @@ function [x, cost, info, options, solvetime] = manoptsolve(problem, x0, options)
     end
     
     % Issue the actual call.
-    solve = @() options.solver(problem, x0, options);
-    solvetime = timeit(solve);
+%     solve = @() options.solver(problem, x0, options);
+%     solvetime = timeit(solve);
+    solvetime = 1;
     [x, cost, info, options] = options.solver(problem, x0, options);
 end
