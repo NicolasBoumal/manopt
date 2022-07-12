@@ -104,17 +104,11 @@ inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
 
-% Define some strings for display
-tcg_stop_reason = {'negative curvature',...
-                   'exceeded trust region',...
-                   'reached target residual-kappa (linear)',...
-                   'reached target residual-theta (superlinear)',...
-                   'maximum inner iterations',...
-                   'model increased'};
-
 theta = options.theta;
 kappa = options.kappa;
 
+% returned boolean to trustregions.m. true if we are limited by the TR
+% boundary (returns boundary solution). Otherwise false.
 limitedbyTR = false;
 
 if ~options.useRand % and therefore, eta == 0
@@ -172,7 +166,7 @@ else
 end
 
 % Pre-assume termination because j == end.
-stop_tCG = 5;
+stopreason_str = 'maximum inner iterations';
 
 % Begin inner/tCG loop.
 for j = 1 : options.maxinner
@@ -224,13 +218,13 @@ for j = 1 : options.maxinner
         % At any rate, the impact should be limited, so in the interest of
         % code conciseness (if we can still hope for that), we omit this.
 
-        if d_Hd <= 0
-            stop_tCG = 1;     % negative curvature
-        else
-            stop_tCG = 2;     % exceeded trust region
-        end
-
         limitedbyTR = true;
+
+        if d_Hd <= 0
+            stopreason_str = 'negative curvature';
+        else
+            stopreason_str = 'exceeded trust region';
+        end
 
         break;
     end
@@ -251,7 +245,7 @@ for j = 1 : options.maxinner
     % to the model cost). Otherwise, we accept the new eta and go on.
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
-        stop_tCG = 6;
+        stopreason_str = 'model increased';
         break;
     end
     
@@ -274,9 +268,9 @@ for j = 1 : options.maxinner
     if j >= options.mininner && norm_r <= norm_r0*min(norm_r0^theta, kappa)
         % Residual is small enough to quit
         if kappa < norm_r0^theta
-            stop_tCG = 3;  % linear convergence
+            stopreason_str = 'reached target residual-kappa (linear)';
         else
-            stop_tCG = 4;  % superlinear convergence
+            stopreason_str = 'reached target residual-theta (superlinear)';
         end
         break;
     end
@@ -315,6 +309,6 @@ end  % of tCG loop
 output.eta = eta;
 output.Heta = Heta;
 output.numit = j;
-output.stopreason_str = tcg_stop_reason{stop_tCG};
+output.stopreason_str = stopreason_str;
 output.limitedbyTR = limitedbyTR;
 end

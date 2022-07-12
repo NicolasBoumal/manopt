@@ -6,7 +6,7 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta> <= Delta^2
 %
-% See also: geneigenvalueprob, trs_tCG, trustregions
+% See also: TRSgep, trs_tCG, trustregions
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Victor Liao, June 13, 2022.
@@ -30,7 +30,7 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
 
     grad_vec = tangent2vec(M, x, B, grad);
 
-    [eta_vec, limitedbyTR] = geneigenvalueprob(H, grad_vec, Delta);
+    [eta_vec, limitedbyTR] = TRSgep(H, grad_vec, Delta);
 
     eta = lincomb(M, x, B, eta_vec);
     

@@ -1,9 +1,8 @@
-function [eta, Heta, inner_it, stop_tCG] ...
-                 = tCG_efficient(problem, x, grad, eta, Delta, options, storedb, key)
-% tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method where
+function output = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
+% trs_tCG_cached - Truncated (Steihaug-Toint) Conjugate-Gradient method where
 % information is stored in case the step is rejected by trustregions.m to
-% compute the next step. This is done through tCG_rejectedstep when
-% previous step is rejected or it proceeds as in the normal tCG algorithm.
+% compute the next step. If the previous step is rejected 
+% work is passed to tCG_rejectedstep.m to process the stored information.
 
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
@@ -28,7 +27,7 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %       coincide with this notion anymore.
 %
 %   NB April 3, 2013:
-%       tCG now also returns Heta, the Hessian at x along eta. Additional
+%       trs_tCG now also returns Heta, the Hessian at x along eta. Additional
 %       esthetic modifications.
 %
 %   NB Dec. 2, 2013:
@@ -69,10 +68,10 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %            may be most important. (All other operations are linear
 %            combinations of tangent vectors, which should be fairly safe.)
 %   VL June 24, 2022:
-%       Now, when not using options.userand we store information at each
-%       iteration in tCG. This may come in handy for the next call to
-%       tCG_efficient and the work is passed to tCG_rejectedstep rather
-%       than the traditional tCG loop.
+%       Now, we store information at each
+%       iteration in trs_tCG_cached compared to trs_tCG. This may be useful 
+%       for the next call to trs_tCG_cached and the work is passed to 
+%       tCG_rejectedstep rather than the normal trs_tCG loop.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -100,16 +99,31 @@ function [eta, Heta, inner_it, stop_tCG] ...
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
+if options.useRand
+    fprintf('options.useRand = true but trs_tCG_cached.m does not use this option! trs_tCG will be used instead. \n');
+    output = trs_tCG(problem, subprobleminput, options, storedb, key);
+    return;
+end
+
+% Previous step was rejected so we can save some compute here by passing to
+% helper function.
+if ~subprobleminput.accept
+        output = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
+        return;
+end
+
+x = subprobleminput.x;
+eta = subprobleminput.eta;
+Delta = subprobleminput.Delta;
+grad = subprobleminput.fgradx;
+
 inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
 
-% Previous step was rejected so we can save some compute here
-if ~options.accept
-        [eta, Heta, inner_it, stop_tCG] = ...
-            tCG_rejectedstep(problem, x, eta, Delta, options, storedb, key);
-        return;
-end
+% returned boolean to trustregions.m. true if we are limited by the TR
+% boundary (returns boundary solution). Otherwise false.
+limitedbyTR = false;
 
 theta = options.theta;
 kappa = options.kappa;
@@ -136,37 +150,37 @@ e_Pd = 0;
 
 % If the Hessian or a linear Hessian approximation is in use, it is
 % theoretically guaranteed that the model value decreases strictly
-% with each iteration of tCG. Hence, there is no need to monitor the model
+% with each iteration of trs_tCG. Hence, there is no need to monitor the model
 % value. But, when a nonlinear Hessian approximation is used (such as the
 % built-in finite-difference approximation for example), the model may
-% increase. It is then important to terminate the tCG iterations and return
+% increase. It is then important to terminate the trs_tCG iterations and return
 % the previous (the best-so-far) iterate. The variable below will hold the
 % model value.
 %
 % This computation could be further improved based on Section 17.4.1 in
 % Conn, Gould, Toint, Trust Region Methods, 2000.
 % If we make this change, then also modify trustregions to gather this
-% value from tCG rather than recomputing it itself.
+% value from trs_tCG rather than recomputing it itself.
 model_fun = @(eta, Heta) inner(eta, grad) + .5*inner(eta, Heta);
 model_value = 0;
 
 % Pre-assume termination because j == end.
-stop_tCG = 5;
+stopreason_str = 'maximum inner iterations';
 
 % Track certain iterations in case step is rejected.
 % store_iters tracks candidate etas with increasing squared
-% norm relevant for stop_tCG = 1 or 2, or when <eta, Heta> <= 0
-store_iters = struct('normsq', [], 'inner_it', [], 'e_Pe', [], ...
+% norm relevant when limitedbyTR = true, or when <eta, Heta> <= 0
+store_iters = struct('normsq', [], 'numit', [], 'e_Pe', [], ...
     'd_Pd', [], 'e_Pd', [], 'd_Hd', [], 'eta', [], 'Heta', [], ...
     'mdelta', [], 'Hmdelta', []);
 
-% If exit is prompted by stop_tCG = 3, 4 or 6 then we store different info
-store_last = struct('inner_it', [], 'stop_tCG', [], 'eta', [], 'Heta', []);
+% If exit is prompted when limitedbyTR = false then we store different info
+store_last = struct('numit', [], 'stopreason_str', [], 'eta', [], 'Heta', []);
 
 store_index = 1;
 max_normsq = 0;
 
-% Begin inner/tCG loop.
+% Begin inner/trs_tCG loop.
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
@@ -201,13 +215,13 @@ for j = 1 : options.maxinner
     end
 
     if d_Hd <= 0 || e_Pe_new >= next_smallest
-        store_iters(store_index) = struct('normsq', e_Pe_new, 'inner_it', j,...
+        store_iters(store_index) = struct('normsq', e_Pe_new, 'numit', j,...
                          'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
                          'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
                          'mdelta', mdelta, 'Hmdelta', Hmdelta);
         
         max_normsq = e_Pe_new;
-        store_index= store_index + 1;
+        store_index = store_index + 1;
     end
 
     % Check against negative curvature and trust-region radius violation.
@@ -240,10 +254,12 @@ for j = 1 : options.maxinner
         % At any rate, the impact should be limited, so in the interest of
         % code conciseness (if we can still hope for that), we omit this.
         
+        limitedbyTR = true;
+        
         if d_Hd <= 0
-            stop_tCG = 1;     % negative curvature
+            stopreason_str = 'negative curvature';
         else
-            stop_tCG = 2;     % exceeded trust region
+            stopreason_str = 'exceeded trust region';
         end
         break;
     end
@@ -264,7 +280,7 @@ for j = 1 : options.maxinner
     % to the model cost). Otherwise, we accept the new eta and go on.
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
-        stop_tCG = 6;
+        stopreason_str = 'model increased';
         break;
     end
     
@@ -287,9 +303,9 @@ for j = 1 : options.maxinner
     if j >= options.mininner && norm_r <= norm_r0*min(norm_r0^theta, kappa)
         % Residual is small enough to quit
         if kappa < norm_r0^theta
-            stop_tCG = 3;  % linear convergence
+            stopreason_str = 'reached target residual-kappa (linear)';
         else
-            stop_tCG = 4;  % superlinear convergence
+            stopreason_str = 'reached target residual-theta (superlinear)';
         end
         break;
     end
@@ -320,16 +336,22 @@ for j = 1 : options.maxinner
     e_Pd = beta*(e_Pd + alpha*d_Pd);
     d_Pd = z_r + beta*beta*d_Pd;
     
-end  % of tCG loop
-% In case we did not exit from stop_tCG = 1 or 2 then we store last iterate
-if stop_tCG > 2
-    store_last = struct('inner_it', j, 'stop_tCG', stop_tCG,...
-                            'eta', eta, 'Heta', Heta);
+end  % of trs_tCG loop
+
+% Store in case we did not exit because we were limited by TR (model value 
+% increased or kappa/theta stopping criterion satisfied)
+if ~limitedbyTR
+    store_last = struct('numit', j, 'stopreason_str', ...
+        stopreason_str, 'eta', eta, 'Heta', Heta);
 end
-store = storedb.getWithShared(key);
+store = storedb.get(key);
 store.store_iters = store_iters;
 store.store_last = store_last;
-storedb.setWithShared(store, key);
-inner_it = j;
+storedb.set(store, key);
 
+output.eta = eta;
+output.Heta = Heta;
+output.numit = j;
+output.stopreason_str = stopreason_str;
+output.limitedbyTR = limitedbyTR;
 end

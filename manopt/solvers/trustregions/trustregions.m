@@ -349,7 +349,6 @@ localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
 localdefaults.rho_regularization = 1e3;
-localdefaults.accept = true;
 localdefaults.subproblemsolver = @trs_tCG;
 
 % Merge global and local defaults, then merge w/ user options, if any.
@@ -403,6 +402,9 @@ key = storedb.getNewKey();
 % k counts the outer (TR) iterations. The semantic is that k counts the
 % number of iterations fully executed so far.
 k = 0;
+
+% accept tracks if the proposed step is accepted (true) or declined (false)
+accept = true;
 
 % Initialize solution and companion measures: f(x), fgrad(x)
 [fx, fgradx] = getCostGrad(problem, x, storedb, key);
@@ -495,16 +497,17 @@ while true
     end
 
     % Solve TR subproblem with solver specified by options.subproblemsolver
-    subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, 'Delta', Delta);
+    subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, ...
+                            'Delta', Delta, 'accept', accept);
 
-    subproblemoutput = ...
-                options.subproblemsolver(problem, subprobleminput, options, storedb, key);
+    subproblemoutput = options.subproblemsolver(problem, subprobleminput, ...
+                                options, storedb, key);
     
     eta = subproblemoutput.eta;
     Heta = subproblemoutput.Heta; % required to compute rho.
     stopreason_str = subproblemoutput.stopreason_str; % user display string.
-    numit = subproblemoutput.numit;
-    limitedbyTR = subproblemoutput.limitedbyTR; % boundary solution.
+    numit = subproblemoutput.numit; %Counts hessian vector products
+    limitedbyTR = subproblemoutput.limitedbyTR; % boundary solution boolean.
 
     % If using randomized approach, compare result with the Cauchy point.
     % Convergence proofs assume that we achieve at least (a fraction of)
@@ -717,7 +720,7 @@ while true
                      fx_prop - fx, norm_eta);
         end
         
-        options.accept = true; % passed to next tCG call
+        accept = true;
         accstr = 'acc';
         % We accept the step: no need to keep the old cache.
         storedb.removefirstifdifferent(key, key_prop);
@@ -730,7 +733,7 @@ while true
         % We reject the step: no need to keep cache related to the
         % tentative step.
         storedb.removefirstifdifferent(key_prop, key);
-        options.accept = false; % passed to next tCG call
+        accept = false;
         accstr = 'REJ';
     end
     
@@ -744,10 +747,9 @@ while true
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
                       norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                      rhoden, options.accept, numit, norm_eta, used_cauchy);
+                      rhoden, accept, numit, norm_eta, used_cauchy);
     info(k+1) = stats;
 
-    
     % ** Display:
     if options.verbosity == 2
         fprintf(['%3s %3s   k: %5d     num_inner: %5d     ', ...

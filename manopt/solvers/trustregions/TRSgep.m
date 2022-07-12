@@ -1,4 +1,4 @@
-function [x, limitedbyTR] = geneigenvalueprob(A,a,Del)
+function [x, limitedbyTR] = TRSgep(A,a,Del)
 % Solves the trust-region subproblem by a generalized eigenvalue problem 
 % without iterations. Code is adapted from Yuji Nakatsukasa's code from the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
