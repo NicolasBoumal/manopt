@@ -252,9 +252,6 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     % Scaling of direction given by getDirection for acceptable step
     alpha = 1; 
     
-    % Scaling of initial matrix, Barzilai-Borwein.
-    scaleFactor = 1;
-    
     % Norm of the step
     stepsize = 1;
     
@@ -265,6 +262,9 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     [xCurCost, xCurGradient] = getCostGrad(problem, xCur, storedb, key);
     
     xCurGradNorm = M.norm(xCur, xCurGradient);
+    
+    % Scaling of initial matrix, Barzilai-Borwein.
+    scaleFactor = 1/xCurGradNorm;
     
     % Line-search statistics for recording in info.
     lsstats = [];
