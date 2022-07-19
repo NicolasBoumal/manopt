@@ -350,6 +350,7 @@ localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
 localdefaults.rho_regularization = 1e3;
 localdefaults.subproblemsolver = @trs_tCG;
+localdefaults.memorytCG_warningnum = 1000;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -405,6 +406,9 @@ k = 0;
 
 % accept tracks if the proposed step is accepted (true) or declined (false)
 accept = true;
+
+% tracks memory stored if subproblemsolver is trs_tCG_cached
+memory = 0;
 
 % Initialize solution and companion measures: f(x), fgrad(x)
 [fx, fgradx] = getCostGrad(problem, x, storedb, key);
@@ -503,22 +507,15 @@ while true
     subproblemoutput = options.subproblemsolver(problem, subprobleminput, ...
                                 options, storedb, key);
 
-    store = storedb.get(key);
-    memory = 0;
-    if isfield(store, 'store_iters') && isfield(store, 'store_last')
-        for i=1:length(store.store_iters)
-            memory = memory + getSize(store.store_iters(i));
-        end
-        memory = memory + getSize(store.store_last);
-        memory = memory / 1024^2; % megabytes
-    end
-%     fprintf('%.4f MB\n', memory);
-
     eta = subproblemoutput.eta;
     Heta = subproblemoutput.Heta; % required to compute rho.
     stopreason_str = subproblemoutput.stopreason_str; % user display string.
     numit = subproblemoutput.numit; %Counts hessian vector products
     limitedbyTR = subproblemoutput.limitedbyTR; % boundary solution boolean.
+    
+    if isfield(subproblemoutput, 'memorytCG_MB') % cached memory in MB
+        memory = subproblemoutput.memorytCG_MB;
+    end
 
     % If using randomized approach, compare result with the Cauchy point.
     % Convergence proofs assume that we achieve at least (a fraction of)
@@ -543,6 +540,7 @@ while true
         % returned eta, we might as well keep the best of them.
         mdle  = fx + M.inner(x, fgradx, eta) + .5*M.inner(x, Heta,   eta);
         mdlec = fx + M.inner(x, fgradx, eta_c) + .5*M.inner(x, Heta_c, eta_c);
+
         if mdlec < mdle
             eta = eta_c;
             Heta = Heta_c; % added April 11, 2012
@@ -823,7 +821,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.accepted = true;
         stats.numinner = 0;
         stats.stepsize = NaN;
-        stats.memory = 0;
+        stats.memorytCG = 0;
         if options.useRand
             stats.cauchy = false;
         end
@@ -835,7 +833,7 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.accepted = accept;
         stats.numinner = numit;
         stats.stepsize = norm_eta;
-        stats.memory = memory;
+        stats.memorytCG = memory;
         if options.useRand
           stats.cauchy = used_cauchy;
         end

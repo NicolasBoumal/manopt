@@ -180,6 +180,12 @@ store_last = struct('numit', [], 'stopreason_str', [], 'eta', [], 'Heta', []);
 store_index = 1;
 max_normsq = 0;
 
+% only need to compute memory for one item in store_iters in Megabytes(MB)
+perIterMemory_MB = 0;
+
+% total cached memory stored in MB
+memorytCG_MB = 0;
+
 % Begin inner/trs_tCG loop.
 for j = 1 : options.maxinner
     
@@ -219,8 +225,23 @@ for j = 1 : options.maxinner
                          'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
                          'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
                          'mdelta', mdelta, 'Hmdelta', Hmdelta);
-        
         max_normsq = e_Pe_new;
+
+        % getSize for one entry in store_iters which will be the same for
+        % all others.
+        if perIterMemory_MB == 0
+            perIterMemory_MB = getSize(store_iters(store_index))/1024^2;
+        end
+
+        memorytCG_MB = memorytCG_MB + perIterMemory_MB;
+        
+        if memorytCG_MB > options.memorytCG_warningnum
+            warning('manopt:trs_tCG_cached:memory', ...
+            [sprintf('trs_tCG_cached will cache %.2f [MB]. If memory ', memorytCG_MB) ...
+            'is limited turn off caching.\n' ...
+            'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+        end
+        
         store_index = store_index + 1;
     end
 
@@ -343,7 +364,16 @@ end  % of trs_tCG loop
 if ~limitedbyTR
     store_last = struct('numit', j, 'stopreason_str', ...
         stopreason_str, 'eta', eta, 'Heta', Heta);
+    memorytCG_MB = memorytCG_MB + getSize(store_last)/1024^2;
+    
+    if memorytCG_MB > options.memorytCG_warningnum
+            warning('manopt:trs_tCG_cached:memory', ...
+            [sprintf('trs_tCG_cached will cache %.2f [MB]. If memory ', memorytCG_MB) ...
+            'is limited turn off caching.\n' ...
+            'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+    end
 end
+
 store = storedb.get(key);
 store.store_iters = store_iters;
 store.store_last = store_last;
@@ -354,4 +384,5 @@ output.Heta = Heta;
 output.numit = j;
 output.stopreason_str = stopreason_str;
 output.limitedbyTR = limitedbyTR;
+output.memorytCG_MB = memorytCG_MB;
 end

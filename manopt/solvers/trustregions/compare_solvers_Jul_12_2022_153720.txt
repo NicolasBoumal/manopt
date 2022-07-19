@@ -1,5 +1,0 @@
-	with RTR_cached.
-timeit = 3.467149 [s].
-	with RTR.
-timeit = 4.913255 [s].
-rejections/total = 0 / 7
