@@ -1,4 +1,4 @@
-function [x, cost, info, options, solvetime] = manoptsolve(problem, x0, options)
+function [x, cost, info, options] = manoptsolve(problem, x0, options)
 % Gateway helper function to call a Manopt solver, chosen in the options.
 %
 % function [x, cost, info, options] = manoptsolve(problem)
@@ -49,8 +49,5 @@ function [x, cost, info, options, solvetime] = manoptsolve(problem, x0, options)
     end
     
     % Issue the actual call.
-%     solve = @() options.solver(problem, x0, options);
-%     solvetime = timeit(solve);
-    solvetime = 1;
     [x, cost, info, options] = options.solver(problem, x0, options);
 end

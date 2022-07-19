@@ -17,6 +17,10 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
     Delta = subprobleminput.Delta;
     grad = subprobleminput.fgradx;
     
+    if options.useRand	
+        fprintf('options.userand is set to true but trs_gep does not use this option! It will be ignored!\n');	
+    end
+    
     M = problem.M;
 
     % Set local defaults here    
