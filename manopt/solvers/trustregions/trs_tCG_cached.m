@@ -67,11 +67,12 @@ function output = trs_tCG_cached(problem, subprobleminput, options, storedb, key
 %            passed to getHessian, hence this is where accurate tangency
 %            may be most important. (All other operations are linear
 %            combinations of tangent vectors, which should be fairly safe.)
+%
 %   VL June 24, 2022:
-%       Now, we store information at each
-%       iteration in trs_tCG_cached compared to trs_tCG. This may be useful 
-%       for the next call to trs_tCG_cached and the work is passed to 
-%       tCG_rejectedstep rather than the normal trs_tCG loop.
+%       Now, we by default store information at each
+%       iteration in trs_tCG_cached compared to the previous version trs_tCG.
+%       This may be useful for the next call to trs_tCG_cached and the work 
+%       is passed to tCG_rejectedstep rather than the normal tCG loop.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -99,15 +100,16 @@ function output = trs_tCG_cached(problem, subprobleminput, options, storedb, key
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-if options.useRand
-    fprintf('options.useRand = true but trs_tCG_cached.m does not use this option! trs_tCG will be used instead. \n');
-    output = trs_tCG(problem, subprobleminput, options, storedb, key);
-    return;
+if options.useRand && options.useCache
+    fprintf('(options.useRand && options.useCache) == true but we cannot cache and use randomization at the same time! Therefore, caching will not be used. \n');
 end
+
+% If true we use caching.
+keepCache = ~options.useRand && options.useCache;
 
 % Previous step was rejected so we can save some compute here by passing to
 % helper function.
-if ~subprobleminput.accept
+if ~subprobleminput.accept && keepCache
         output = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
         return;
 end
@@ -208,41 +210,43 @@ for j = 1 : options.maxinner
         fprintf('DBG:   alpha  : %e\n', alpha);
     end
 
-    % Selectively store info in store_iter.
-    % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
-    % such that max_normsq <= next_smallest. 
-    % We use this condition to only store relevant iterations in case of
-    % rejection in trustregions.m
-    if max_normsq > 0
-        next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
-                                            log2(Delta^2))) * Delta^2;
-    else
-        next_smallest = 0;
-    end
-
-    if d_Hd <= 0 || e_Pe_new >= next_smallest
-        store_iters(store_index) = struct('normsq', e_Pe_new, 'numit', j,...
-                         'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
-                         'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
-                         'mdelta', mdelta, 'Hmdelta', Hmdelta);
-        max_normsq = e_Pe_new;
-
-        % getSize for one entry in store_iters which will be the same for
-        % all others.
-        if perIterMemory_MB == 0
-            perIterMemory_MB = getSize(store_iters(store_index))/1024^2;
+    if keepCache
+        % Selectively store info in store_iter.
+        % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
+        % such that max_normsq <= next_smallest. 
+        % We use this condition to only store relevant iterations in case of
+        % rejection in trustregions.m
+        if max_normsq > 0 && keepCache
+            next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
+                                                log2(Delta^2))) * Delta^2;
+        else
+            next_smallest = 0;
         end
-
-        memorytCG_MB = memorytCG_MB + perIterMemory_MB;
-        
-        if memorytCG_MB > options.memorytCG_warningnum
-            warning('manopt:trs_tCG_cached:memory', ...
-            [sprintf('trs_tCG_cached will temporarily cache %.2f [MB]. If memory ', memorytCG_MB) ...
-            'is limited turn off caching.\n' ...
-            'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+    
+        if (d_Hd <= 0 || e_Pe_new >= next_smallest) && keepCache
+            store_iters(store_index) = struct('normsq', e_Pe_new, 'numit', j,...
+                             'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
+                             'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
+                             'mdelta', mdelta, 'Hmdelta', Hmdelta);
+            max_normsq = e_Pe_new;
+    
+            % getSize for one entry in store_iters which will be the same for
+            % all others.
+            if perIterMemory_MB == 0
+                perIterMemory_MB = getSize(store_iters(store_index))/1024^2;
+            end
+    
+            memorytCG_MB = memorytCG_MB + perIterMemory_MB;
+            
+            if memorytCG_MB > options.memorytCG_warningval
+                warning('manopt:trs_tCG_cached:memory', ...
+                [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
+                'If memory is limited turn off caching by options.useCache = false.\n' ...
+                'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+            end
+            
+            store_index = store_index + 1;
         end
-        
-        store_index = store_index + 1;
     end
 
     % Check against negative curvature and trust-region radius violation.
@@ -359,25 +363,27 @@ for j = 1 : options.maxinner
     
 end  % of trs_tCG loop
 
-% Store in case we did not exit because we were limited by TR (model value 
-% increased or kappa/theta stopping criterion satisfied)
-if ~limitedbyTR
-    store_last = struct('numit', j, 'stopreason_str', ...
-        stopreason_str, 'eta', eta, 'Heta', Heta);
-    memorytCG_MB = memorytCG_MB + getSize(store_last)/1024^2;
-    
-    if memorytCG_MB > options.memorytCG_warningnum
+if keepCache
+    % Store in case we did not exit because we were limited by TR (model value 
+    % increased or kappa/theta stopping criterion satisfied)
+    if ~limitedbyTR
+        store_last = struct('numit', j, 'stopreason_str', ...
+            stopreason_str, 'eta', eta, 'Heta', Heta);
+        memorytCG_MB = memorytCG_MB + getSize(store_last)/1024^2;
+        
+        if memorytCG_MB > options.memorytCG_warningval
             warning('manopt:trs_tCG_cached:memory', ...
-            [sprintf('trs_tCG_cached will temporarily cache %.2f [MB]. If memory ', memorytCG_MB) ...
-            'is limited turn off caching.\n' ...
+            [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
+            'If memory is limited turn off caching by options.useCache = false.\n' ...
             'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+        end
     end
+    
+    store = storedb.get(key);
+    store.store_iters = store_iters;
+    store.store_last = store_last;
+    storedb.set(store, key);
 end
-
-store = storedb.get(key);
-store.store_iters = store_iters;
-store.store_last = store_last;
-storedb.set(store, key);
 
 output.eta = eta;
 output.Heta = Heta;

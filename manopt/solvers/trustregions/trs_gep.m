@@ -3,9 +3,27 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
 % Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda's paper which solves the 
 % trust region subproblem exactly without iterations.
 
+% If gepdim (see below) is specified to be smaller than problem.M.dim(),
+% expect a large speedup in computation and improvement is still guaranteed
+% to be at least as good as the cauchy point.
+
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta> <= Delta^2
 %
+% The options structure is used to overwrite the default values. All
+% options have a default value and are hence optional. To force an option
+% value, pass an options structure with a field options.optionname, where
+% optionname is one of the following and the default value is indicated
+% between parentheses:
+%
+%   gepdim (problem.M.dim())
+%       The number of orthonormal vectors in the basis returned by
+%       tangentorthobasis. If we take gepdim < problem.M.dim() then we add 
+%       grad to ensure grad is in the span of the basis. Thus, TRSgep is
+%       guaranteed to do at least as well as the cauchy point. If grad is
+%       zero then we simply orthonormalize a random set of gepdim number of
+%       tangent vectors.
+
 % See also: TRSgep, trs_tCG, trustregions
 
 % This file is part of Manopt: www.manopt.org.
@@ -18,7 +36,7 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
     grad = subprobleminput.fgradx;
     
     if options.useRand	
-        fprintf('options.userand is set to true but trs_gep does not use this option! It will be ignored!\n');	
+        fprintf('options.useRand is set to true but trs_gep does not use this option! It will be ignored!\n');	
     end
     
     M = problem.M;
@@ -35,7 +53,7 @@ function output = trs_gep(problem, subprobleminput, options, storedb, key)
     
     % If we use lower dimensional subspace ensure it contains the gradient
     % vector to ensure we do at least as well as the cauchy point.
-    if options.gepdim < M.dim()
+    if options.gepdim < M.dim() && ~isequal(grad, M.zerovec())
         basis_vecs = cell(1, 1);
         basis_vecs{1} = grad;
         B = tangentorthobasis(M, x, options.gepdim, basis_vecs);

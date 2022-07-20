@@ -1,17 +1,17 @@
 function output = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
 % Helper function to handle when a step is rejected in
-% trustregions.m rather than the trs_tCG loop. The next step can be computed from 
+% trustregions.m rather than the tCG loop. The next step can be computed from 
 % information already computed in the previous trs_tCG call which is stored
 % accordingly.
 
 % Note there can only be two situations.
-% 1. We return the same eta, Heta as the previous trs_tCG call and decrease
+% 1. We return the same eta, Heta as the previous tCG call and decrease
 % Delta again (either d_Hd <= 0 or we use store_last)
 % 2. We return a new eta when some previous candidate eta (stored in 
 % store_iters) satisfies normsq:=<eta,eta>_x >= Delta^2 at the current 
 % Delta (exceeding trust region).
 %
-% See also: trustregions, trs_tCG_cached, trs_tCG
+% See also: trustregions, trs_tCG_cached, trs_tCG_legacy
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Victor Liao, Jun. 24, 2022.
@@ -25,6 +25,19 @@ function output = tCG_rejectedstep(problem, subprobleminput, options, storedb, k
     store = storedb.get(key);
     store_iters = store.store_iters;
     store_last = store.store_last;
+
+    % getSize for one entry in store_iters which will be the same for
+    % all others.
+    perIterMemory_MB = getSize(store_iters(1))/1024^2;
+
+    memorytCG_MB = perIterMemory_MB * length(store_iters) + getSize(store_last)/1024^2;
+    
+    if memorytCG_MB > options.memorytCG_warningval
+        warning('manopt:trs_tCG_cached:memory', ...
+        [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
+        'If memory is limited turn off caching by options.useCache = false.\n' ...
+        'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+    end
 
     for i=1:length(store_iters)
         normsq = store_iters(i).normsq;
@@ -43,6 +56,7 @@ function output = tCG_rejectedstep(problem, subprobleminput, options, storedb, k
         elseif i == length(store_iters)
             % We exit with last eta, Heta
             output = store_last;
+            output.memorytCG_MB = memorytCG_MB;
             output.limitedbyTR = false;
             return;
         end
@@ -74,3 +88,4 @@ function output = tCG_rejectedstep(problem, subprobleminput, options, storedb, k
     output.Heta = Heta;
     output.numit = numit;
     output.limitedbyTR = true;
+    output.memorytCG_MB = memorytCG_MB;

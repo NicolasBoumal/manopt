@@ -33,7 +33,7 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
 %
 %   VL Jul. 17, 2022:
 %       Added the option to input basis_vecs to specify a linearly
-%       independent set of tangent vectors to pass to orthogonalize. 
+%       independent set of tangent vectors to pass to orthogonalize.
 
 
     dim = M.dim();
@@ -46,7 +46,7 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
     basis = cell(n, 1);
     
     % With high probability, vectors taken at random in the tangent space
-    % are linearly independent with basis_vecs
+    % are linearly independent of basis_vecs
     for k = 1 : n
         if exist('basis_vecs', 'var') && k <= length(basis_vecs)
             basis(k, 1) = basis_vecs(k, 1);

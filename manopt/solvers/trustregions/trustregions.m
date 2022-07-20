@@ -68,6 +68,9 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       The trust-region radius at the outer iteration.
 %   cauchy (boolean)
 %       Whether the Cauchy point was used or not (if useRand is true).
+%   memory (double)
+%       Tracks the memory in MB of the cached step in trs_tCG_cached. If
+%       trs_tCG_cached is not used then this is always 0.
 %   And possibly additional information logged by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each (outer) iteration.
@@ -111,15 +114,27 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Function handle to a subproblem solver. The subproblem solver will
 %       also see this options structure, so that parameters can be passed
 %       to it through here as well. Built-in solvers included:
-%           trs_tCG
+%           trs_tCG_cached
 %           trs_gep
+%           trs_tCG_legacy
 %       Note that trs_gep solves the subproblem exactly and is generally
-%       slower than trs_tCG. It is mainly for prototyping or low dimensions.
+%       slower than trs_tCG. It is mainly for prototyping or for solving the 
+%       subproblem exactly in low dimensions.
+%       Note that trs_tCG_legacy is equivalent to trs_tCG_cached with
+%       useCache = false.
 %   useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
-%       points, but is otherwise seldom activated.
+%       points, but is otherwise seldom activated. 
+%       Note that if (useRand && useCache) == true then useCache is disabled.
+%   useCache (true)
+%       Set to false if no caching for the trs_tCG_cached is desired. It is
+%       default true to potentially improve computation time. Caching may
+%       save time if there is many step rejections in trustregions, but if
+%       memory is more of an issue than computation time then useCache =
+%       false may work better.
+%       Note that if (useRand && useCache) == true then useCache is disabled.
 %   kappa (0.1)
 %       trs_tCG inner kappa convergence tolerance.
 %       kappa > 0 is the linear convergence target rate: trs_tCG will 
@@ -148,6 +163,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       not monotonically improving the cost when very close to
 %       convergence. This is because the corrected cost improvement could
 %       change sign if it is negative but very small.
+%   memorytCG_warningval (1000)
+%       Threshold memory value for warning when using caching in trs_tCG_cached.
+%       The default is 1GB but if memory is less of an issue this value can
+%       be increased, or to disable the warning completely use: 
+%       warning(''off'', ''manopt:trs_tCG_cached:memory'')
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -348,9 +368,10 @@ localdefaults.kappa = 0.1;
 localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
+localdefaults.useCache = true;
 localdefaults.rho_regularization = 1e3;
-localdefaults.subproblemsolver = @trs_tCG;
-localdefaults.memorytCG_warningnum = 1000;
+localdefaults.subproblemsolver = @trs_tCG_cached;
+localdefaults.memorytCG_warningval = 1000;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
