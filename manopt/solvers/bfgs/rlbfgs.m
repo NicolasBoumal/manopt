@@ -264,7 +264,13 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     xCurGradNorm = M.norm(xCur, xCurGradient);
     
     % Scaling of initial matrix, Barzilai-Borwein.
-    scaleFactor = 1/xCurGradNorm;
+    if( isfield(options, 'initial_scaleFactor') )
+        % e.g.: options.initial_scaleFactor = @(gradNorm) 1;
+        % e.g.: options.initial_scaleFactor = @(gradNorm) 1/gradNorm;
+        scaleFactor = options.initial_scaleFactor(xCurGradNorm);
+    else
+        scaleFactor = 1/xCurGradNorm;
+    end
     
     % Line-search statistics for recording in info.
     lsstats = [];
