@@ -112,6 +112,10 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %       If memory usage is an issue, you may try to lower this number.
 %       Profiling may then help to investigate if a performance hit was
 %       incurred as a result.
+%   ls_initial_scale (@(gradnorm) 1/gradnorm)
+%       A function handle that takes as input a real number (a gradient norm)
+%       and outputs a real number for how to scale the initialization of
+%       line-search.
 %
 %
 % Please cite the Manopt paper as well as the research paper:
@@ -131,7 +135,6 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 % slower than the implementation in ROPTLIB by Wen Huang et al. referenced
 % above. For the purpose of comparing to their work, please use their
 % implementation.
-%
 
 
 % This file is part of Manopt: www.manopt.org.
@@ -149,6 +152,10 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
 %   Aug. 2, 2018 (NB):
 %       Using the new storedb.remove features to keep storedb lean, and
 %       reduced the default value of storedepth from 30 to 2 as a result.
+%
+%   Aug. 2, 2022 (sfrcorne):
+%       Added option ls_initial_scale, with default setting to ensure
+%       the method is invariant to positive scaling of the cost function.
 
 
     % Verify that the problem description is sufficient for the solver.
@@ -182,6 +189,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     localdefaults.memory = 30;
     localdefaults.strict_inc_func = @(t) 1e-4*t;
     localdefaults.ls_max_steps = 25;
+    localdefaults.ls_initial_scale = @(gradnorm) 1/gradnorm;
     localdefaults.storedepth = 2;
     
     % Merge global and local defaults, then merge w/ user options, if any.
@@ -264,13 +272,7 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     xCurGradNorm = M.norm(xCur, xCurGradient);
     
     % Scaling of initial matrix, Barzilai-Borwein.
-    if( isfield(options, 'initial_scaleFactor') )
-        % e.g.: options.initial_scaleFactor = @(gradNorm) 1;
-        % e.g.: options.initial_scaleFactor = @(gradNorm) 1/gradNorm;
-        scaleFactor = options.initial_scaleFactor(xCurGradNorm);
-    else
-        scaleFactor = 1/xCurGradNorm;
-    end
+    scaleFactor = options.ls_initial_scale(xCurGradNorm);
     
     % Line-search statistics for recording in info.
     lsstats = [];
