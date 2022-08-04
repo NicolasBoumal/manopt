@@ -116,11 +116,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       to it through here as well. Built-in solvers included:
 %           trs_tCG_cached
 %           trs_gep
-%           trs_tCG_legacy
+%           trs_tCG
 %       Note that trs_gep solves the subproblem exactly and is generally
 %       slower than trs_tCG. It is mainly for prototyping or for solving the 
 %       subproblem exactly in low dimensions.
-%       Note that trs_tCG_legacy is equivalent to trs_tCG_cached with
+%       Note that trs_tCG is equivalent to trs_tCG_cached with the flag
 %       useCache = false.
 %   useRand (false)
 %       Set to true if the trust-region solve is to be initiated with a
@@ -163,8 +163,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       not monotonically improving the cost when very close to
 %       convergence. This is because the corrected cost improvement could
 %       change sign if it is negative but very small.
-%   memorytCG_warningval (1000)
-%       Threshold memory value for warning when using caching in trs_tCG_cached.
+%   memorytCG_warningtol (1000)
+%       Tolerance memory value for warning when caching in trs_tCG_cached.
 %       The default is 1GB but if memory is less of an issue this value can
 %       be increased, or to disable the warning completely use: 
 %       warning(''off'', ''manopt:trs_tCG_cached:memory'')
@@ -371,7 +371,7 @@ localdefaults.useRand = false;
 localdefaults.useCache = true;
 localdefaults.rho_regularization = 1e3;
 localdefaults.subproblemsolver = @trs_tCG_cached;
-localdefaults.memorytCG_warningval = 1000;
+localdefaults.memorytCG_warningtol = 1000;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -428,9 +428,6 @@ k = 0;
 % accept tracks if the proposed step is accepted (true) or declined (false)
 accept = true;
 
-% tracks memory stored if subproblemsolver is trs_tCG_cached
-memory = 0;
-
 % Initialize solution and companion measures: f(x), fgrad(x)
 [fx, fgradx] = getCostGrad(problem, x, storedb, key);
 norm_grad = M.norm(x, fgradx);
@@ -442,15 +439,21 @@ Delta = options.Delta0;
 if ~exist('used_cauchy', 'var')
     used_cauchy = [];
 end
-stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart);
+
+% get default output structure for logging purposes
+[~, ~, ~, subproblemstats] = options.subproblemsolver(problem);
+
+
+stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart, subproblemstats);
+
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
 
 % ** Display:
 if options.verbosity == 2
-   fprintf(['%3s %3s      %5s                %5s     ',...
+   fprintf(['%3s %3s      %5s     ',...
             'f: %+e   |grad|: %e\n'],...
-           '   ','   ','     ','     ', fx, norm_grad);
+           '   ','   ','     ', fx, norm_grad);
 elseif options.verbosity > 2
    fprintf('************************************************************************\n');
    fprintf('%3s %3s    k: %5s     num_inner: %5s     %s\n',...
@@ -478,6 +481,12 @@ while true
     % value for the boolean 'hooked'), we update our knowledge about x.
     [x, key, info, hooked] = applyHook(problem, x, storedb, key, options, info, k+1);
     if hooked
+        % x changed so caching is not useful anymore thus disable caching.
+        if options.useCache
+            fprintf('hooked == true, so setting options.useCache = false')
+            options.useCache = false;
+        end
+
         [fx, fgradx] = getCostGrad(problem, x, storedb, key);
         norm_grad = M.norm(x, fgradx);
     end
@@ -520,23 +529,15 @@ while true
             eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
         end
     end
-
+    
     % Solve TR subproblem with solver specified by options.subproblemsolver
     subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, ...
-                            'Delta', Delta, 'accept', accept);
+                            'Delta', Delta, 'gradnorm', norm_grad, 'accept', accept);
 
-    subproblemoutput = options.subproblemsolver(problem, subprobleminput, ...
+    [eta, Heta, subproblem_str, subproblemstats] = options.subproblemsolver(problem, subprobleminput, ...
                                 options, storedb, key);
-
-    eta = subproblemoutput.eta;
-    Heta = subproblemoutput.Heta; % required to compute rho.
-    stopreason_str = subproblemoutput.stopreason_str; % user display string.
-    numit = subproblemoutput.numit; %Counts hessian vector products
-    limitedbyTR = subproblemoutput.limitedbyTR; % boundary solution boolean.
     
-    if isfield(subproblemoutput, 'memorytCG_MB') % cached memory in MB
-        memory = subproblemoutput.memorytCG_MB;
-    end
+    limitedbyTR = subproblemstats.limitedbyTR;
 
     % If using randomized approach, compare result with the Cauchy point.
     % Convergence proofs assume that we achieve at least (a fraction of)
@@ -657,7 +658,7 @@ while true
     model_decreased = (rhoden >= 0);
     
     if ~model_decreased
-        stopreason_str = [stopreason_str ', model did not decrease']; %#ok<AGROW>
+        subproblem_str = [subproblem_str ', model did not decrease']; %#ok<AGROW>
     end
     
     rho = rhonum / rhoden;
@@ -776,26 +777,26 @@ while true
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                      norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                      rhoden, accept, numit, norm_eta, used_cauchy, memory);
+                      norm_grad, Delta, ticstart, subproblemstats, info, rho, rhonum, ...
+                      rhoden, accept, norm_eta, used_cauchy);
     info(k+1) = stats;
 
     % ** Display:
     if options.verbosity == 2
-        fprintf(['%3s %3s   k: %5d     num_inner: %5d     ', ...
+        fprintf(['%3s %3s   k: %5d     ', ...
         'f: %+e   |grad|: %e   %s\n'], ...
-        accstr,trstr,k,numit,fx,norm_grad,stopreason_str);
+        accstr,trstr,k,fx,norm_grad,subproblem_str);
     elseif options.verbosity > 2
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
-        fprintf('%3s %3s    k: %5d     num_inner: %5d     %s\n', ...
-                accstr, trstr, k, numit, stopreason_str);
-        fprintf('       f(x) : %+e     |grad| : %e\n',fx,norm_grad);
+        fprintf(['%3s %3s   k: %5d     ', ...
+        'f: %+e   |grad|: %e   rho: %e\n%s\n'], ...
+        accstr,trstr,k,fx,norm_grad,subproblem_str);
+
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
         end
-        fprintf('        rho : %e\n',rho);
     end
     if options.debug > 0
         fprintf('DBG: cos ang(eta,gradf): %d\n',testangle);
@@ -828,8 +829,8 @@ end
 
 % Routine in charge of collecting the current iteration stats
 function stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                           norm_grad, Delta, ticstart, info, rho, rhonum, ...
-                           rhoden, accept, numit, norm_eta, used_cauchy, memory)
+                           norm_grad, Delta, ticstart, subproblemstats, info, rho, rhonum, ...
+                           rhoden, accept, norm_eta, used_cauchy)
     stats.iter = k;
     stats.cost = fx;
     stats.gradnorm = norm_grad;
@@ -840,11 +841,13 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.rhonum = NaN;
         stats.rhoden = NaN;
         stats.accepted = true;
-        stats.numinner = 0;
         stats.stepsize = NaN;
-        stats.memorytCG = 0;
         if options.useRand
             stats.cauchy = false;
+        end
+        fields = fieldnames(subproblemstats);
+        for i = 1 : length(fields)
+            stats.(fields{i}) = subproblemstats.(fields{i});
         end
     else
         stats.time = info(k).time + toc(ticstart);
@@ -852,11 +855,13 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.rhonum = rhonum;
         stats.rhoden = rhoden;
         stats.accepted = accept;
-        stats.numinner = numit;
         stats.stepsize = norm_eta;
-        stats.memorytCG = memory;
         if options.useRand
           stats.cauchy = used_cauchy;
+        end
+        fields = fieldnames(subproblemstats);
+        for i = 1 : length(fields)
+            stats.(fields{i}) = subproblemstats.(fields{i});
         end
     end
     

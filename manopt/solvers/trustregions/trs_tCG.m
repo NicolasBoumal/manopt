@@ -1,9 +1,9 @@
-function output = trs_tCG(problem, subprobleminput, options, storedb, key)
+function [eta, Heta, print_str, stats]= trs_tCG(problem, subprobleminput, options, storedb, key)
 % trs_tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% See also: trustregions, trs_gep
+% See also: trustregions trs_tCG_cached trs_gep
 
 % This file is part of Manopt: www.manopt.org.
 % This code is an adaptation to Manopt of the original GenRTR code:
@@ -66,8 +66,8 @@ function output = trs_tCG(problem, subprobleminput, options, storedb, key)
 %
 %   VL June 29, 2022:
 %       Renamed tCG to trs_tCG to keep consistent naming with new
-%       subproblem solvers. Also abstracted outputs and problem-specific
-%       to structs for flexibility with other subproblemsolvers.
+%       subproblem solvers. Also modified inputs and outputs for 
+%       compatability with other subproblemsolvers.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -306,9 +306,12 @@ for j = 1 : options.maxinner
     d_Pd = z_r + beta*beta*d_Pd;
     
 end  % of tCG loop
-output.eta = eta;
-output.Heta = Heta;
-output.numit = j;
-output.stopreason_str = stopreason_str;
-output.limitedbyTR = limitedbyTR;
+
+if options.verbosity == 2
+    print_str = sprintf('numinner: %5d     %s', j, stopreason_str);
+elseif options.verbosity > 2
+    print_str = sprintf('\nnuminner: %5d     %s', j, stopreason_str);
+end
+
+stats = struct('limitedbyTR', limitedbyTR, 'numinner', j);
 end

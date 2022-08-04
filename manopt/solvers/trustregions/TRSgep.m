@@ -1,23 +1,27 @@
-function [x, limitedbyTR] = TRSgep(A,a,Del)
-% Solves the trust-region subproblem by a generalized eigenvalue problem 
-% without iterations. Code is adapted from Yuji Nakatsukasa's code from the
-% paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
-
-% The authors kindly allowed us to include their code in Manopt under the 
-% same license as Manopt.
-
-% Code adapted from: https://people.maths.ox.ac.uk/nakatsukasa/codes/TRSgep.m
-% Paper code is based on: https://epubs.siam.org/doi/abs/10.1137/16M1058200
-
+function [x, limitedbyTR] = TRSgep(A, a, Del)
+% Solves trust-region subproblem by a generalized eigenvalue problem.
 % 
 % minimize (x^TAx)/2+ ax
 % subject to x^Tx <= Del^2
 %
 % A: nxn symmetric, a: nx1 vector
 % B: nxn symmetric positive definite
-% 
-% Yuji Nakatsukasa, 2015
-% Revised by Nikitas Rontsis, December 2018
+%
+% Code adapted from Yuji Nakatsukasa's code from the
+% paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
+%
+% Code adapted from: https://people.maths.ox.ac.uk/nakatsukasa/codes/TRSgep.m
+% Paper code is based on: https://epubs.siam.org/doi/abs/10.1137/16M1058200
+%
+% The authors kindly allowed us to include their code in Manopt under the 
+% same license as Manopt.
+%
+% See also: trs_gep trs_tCG_cached trs_tCG trustregions
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Yuji Nakatsukasa, 2015.
+% Contributors: Revised by Nikitas Rontsis, December 2018
+% Change log:
 
 n = size(A,1);
 

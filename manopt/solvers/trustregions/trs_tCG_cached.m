@@ -1,13 +1,23 @@
-function output = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
-% trs_tCG_cached - Truncated (Steihaug-Toint) Conjugate-Gradient method where
-% information is stored in case the step is rejected by trustregions.m to
+function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
+% trs_tCG_cached - Cached Truncated (Steihaug-Toint) Conjugate-Gradient method
+% where information is stored in case the step is rejected by trustregions.m to
 % compute the next step. If the previous step is rejected 
 % work is passed to tCG_rejectedstep.m to process the stored information.
-
+%
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% See also: trustregions
+% store_iters is an array of structs that stores the relevant information
+% when the algorithm exits with negative curvature or trust-region radius 
+% violation. store_iters differs from store_last because upon rejection, a
+% new tau may need to be calculated in this case which requires more
+% information.
+%
+% store_last is a struct that stores the relevant information when the
+% algorithm exits without negative curvature nor trust-region radius 
+% violation.
+%
+% See also: trustregions trs_tCG tCG_rejectedstep
 
 % This file is part of Manopt: www.manopt.org.
 % This code is an adaptation to Manopt of the original GenRTR code:
@@ -21,96 +31,40 @@ function output = trs_tCG_cached(problem, subprobleminput, options, storedb, key
 %
 % Change log:
 %
-%   NB Feb. 12, 2013:
-%       We do not project r back to the tangent space anymore: it was not
-%       necessary, and as of Manopt 1.0.1, the proj operator does not
-%       coincide with this notion anymore.
-%
-%   NB April 3, 2013:
-%       trs_tCG now also returns Heta, the Hessian at x along eta. Additional
-%       esthetic modifications.
-%
-%   NB Dec. 2, 2013:
-%       If options.useRand is activated, we now make sure the preconditio-
-%       ner is not used, as was originally intended in GenRTR. In time, we
-%       may want to investigate whether useRand can be modified to work well
-%       with preconditioning too.
-%
-%   NB Jan. 9, 2014:
-%       Now checking explicitly for model decrease at each iteration. The
-%       first iteration is a Cauchy point, which necessarily realizes a
-%       decrease of the model cost. If a model increase is witnessed
-%       (which is theoretically impossible if a linear operator is used for
-%       the Hessian approximation), then we return the previous eta. This
-%       ensures we always achieve at least the Cauchy decrease, which
-%       should be sufficient for convergence.
-%
-%   NB Feb. 17, 2015:
-%       The previous update was in effect verifying that the current eta
-%       performed at least as well as the first eta (the Cauchy step) with
-%       respect to the model cost. While this is an acceptable strategy,
-%       the documentation (and the original intent) was to ensure a
-%       monotonic decrease of the model cost at each new eta. This is now
-%       the case, with the added line: "model_value = new_model_value;".
-%
-%   NB April 3, 2015:
-%       Works with the new StoreDB class system.
-%
-%   NB April 17, 2018:
-%       Two changes:
-%        (a) Instead of updating delta and Hdelta, we now update -delta and
-%            -Hdelta, named mdelta and Hmdelta. This allows to spare one
-%            call to lincomb(x, -1, z).
-%        (b) We re-project mdelta to the tangent space at every iteration,
-%            to avoid drifting away from it. The choice to project mdelta
-%            specifically is motivated by the fact that this is the vector
-%            passed to getHessian, hence this is where accurate tangency
-%            may be most important. (All other operations are linear
-%            combinations of tangent vectors, which should be fairly safe.)
-%
 %   VL June 24, 2022:
-%       Now, we by default store information at each
-%       iteration in trs_tCG_cached compared to the previous version trs_tCG.
-%       This may be useful for the next call to trs_tCG_cached and the work 
+%       trs_tCG_cached by default stores information at each iteration
+%       compared to trs_tCG.
+%       This can be useful for the next call to trs_tCG_cached and the work 
 %       is passed to tCG_rejectedstep rather than the normal tCG loop.
 
-% All terms involving the trust-region radius use an inner product
-% w.r.t. the preconditioner; this is because the iterates grow in
-% length w.r.t. the preconditioner, guaranteeing that we do not
-% re-enter the trust-region.
-%
-% The following recurrences for Prec-based norms and inner
-% products come from [CGT2000], pg. 205, first edition.
-% Below, P is the preconditioner.
-%
-% <eta_k,P*delta_k> = 
-%          beta_k-1 * ( <eta_k-1,P*delta_k-1> + alpha_k-1 |delta_k-1|^2_P )
-% |delta_k|^2_P = <r_k,z_k> + beta_k-1^2 |delta_k-1|^2_P
-%
-% Therefore, we need to keep track of:
-% 1)   |delta_k|^2_P
-% 2)   <eta_k,P*delta_k> = <eta_k,delta_k>_P
-% 3)   |eta_k  |^2_P
-%
-% Initial values are given by
-%    |delta_0|_P = <r,z>
-%    |eta_0|_P   = 0
-%    <eta_0,delta_0>_P = 0
-% because we take eta_0 = 0 (if useRand = false).
-%
+% See trs_tCG for references to relevant equations in
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-if options.useRand && options.useCache
-    fprintf('(options.useRand && options.useCache) == true but we cannot cache and use randomization at the same time! Therefore, caching will not be used. \n');
+if nargin == 1
+    % Only problem passed in signals that trustregions.m wants default
+    % values for stats.
+    eta = problem.M.zerovec();
+    Heta = problem.M.zerovec();
+    print_str = '';
+    stats = struct('numinner', 0, 'limitedbyTR', false, 'memorytCG_MB', 0);
+    return;
 end
 
-% If true we use caching.
-keepCache = ~options.useRand && options.useCache;
+if options.useRand && options.useCache
+    warning('manopt:trs_tCG_cached:memory', ...
+    [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
+    'If memory is limited turn off caching by options.useCache = false.\n' ...
+    'If more memory can be used without problem increase options.memorytCG_warningtol accordingly.\n' ...
+    'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
+
+    % assume that user desires randomization.
+    options.useCache = false;
+end
 
 % Previous step was rejected so we can save some compute here by passing to
 % helper function.
-if ~subprobleminput.accept && keepCache
-        output = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
+if ~subprobleminput.accept && options.useCache
+        [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
         return;
 end
 
@@ -172,21 +126,25 @@ stopreason_str = 'maximum inner iterations';
 % Track certain iterations in case step is rejected.
 % store_iters tracks candidate etas with increasing squared
 % norm relevant when limitedbyTR = true, or when <eta, Heta> <= 0
-store_iters = struct('normsq', [], 'numit', [], 'e_Pe', [], ...
+store_iters = struct('normsq', [], 'numinner', [], 'e_Pe', [], ...
     'd_Pd', [], 'e_Pd', [], 'd_Hd', [], 'eta', [], 'Heta', [], ...
     'mdelta', [], 'Hmdelta', []);
 
 % If exit is prompted when limitedbyTR = false then we store different info
-store_last = struct('numit', [], 'stopreason_str', [], 'eta', [], 'Heta', []);
+store_last = struct('numinner', [], 'stopreason_str', [], 'eta', [], 'Heta', []);
 
 store_index = 1;
 max_normsq = 0;
 
 % only need to compute memory for one item in store_iters in Megabytes(MB)
-perIterMemory_MB = 0;
+peritermemory_MB = 0;
 
 % total cached memory stored in MB
 memorytCG_MB = 0;
+
+% string that is printed by trustregions.m. For printing
+% per-iteration information
+print_str = '';
 
 % Begin inner/trs_tCG loop.
 for j = 1 : options.maxinner
@@ -210,40 +168,40 @@ for j = 1 : options.maxinner
         fprintf('DBG:   alpha  : %e\n', alpha);
     end
 
-    if keepCache
+    if options.useCache
         % Selectively store info in store_iter.
         % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
         % such that max_normsq <= next_smallest. 
         % We use this condition to only store relevant iterations in case of
         % rejection in trustregions.m
-        if max_normsq > 0 && keepCache
+        if max_normsq > 0
             next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
                                                 log2(Delta^2))) * Delta^2;
         else
             next_smallest = 0;
         end
     
-        if (d_Hd <= 0 || e_Pe_new >= next_smallest) && keepCache
-            store_iters(store_index) = struct('normsq', e_Pe_new, 'numit', j,...
-                             'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
+        if d_Hd <= 0 || e_Pe_new >= next_smallest
+            store_iters(store_index) = struct('normsq', e_Pe_new, 'numinner', ...
+                             j, 'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
                              'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
                              'mdelta', mdelta, 'Hmdelta', Hmdelta);
             max_normsq = e_Pe_new;
     
             % getSize for one entry in store_iters which will be the same for
             % all others.
-            if perIterMemory_MB == 0
-                perIterMemory_MB = getSize(store_iters(store_index))/1024^2;
+            if peritermemory_MB == 0
+                peritermemory_MB = getsize(store_iters(store_index))/1024^2;
             end
     
-            memorytCG_MB = memorytCG_MB + perIterMemory_MB;
+            memorytCG_MB = memorytCG_MB + peritermemory_MB;
             
-            if memorytCG_MB > options.memorytCG_warningval
+            if memorytCG_MB > options.memorytCG_warningtol
                 warning('manopt:trs_tCG_cached:memory', ...
                 [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
                 'If memory is limited turn off caching by options.useCache = false.\n' ...
                 'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
-            end
+             end
             
             store_index = store_index + 1;
         end
@@ -363,32 +321,42 @@ for j = 1 : options.maxinner
     
 end  % of trs_tCG loop
 
-if keepCache
+if options.useCache
     % Store in case we did not exit because we were limited by TR (model value 
     % increased or kappa/theta stopping criterion satisfied)
     if ~limitedbyTR
-        store_last = struct('numit', j, 'stopreason_str', ...
+        store_last = struct('numinner', j, 'stopreason_str', ...
             stopreason_str, 'eta', eta, 'Heta', Heta);
-        memorytCG_MB = memorytCG_MB + getSize(store_last)/1024^2;
+        memorytCG_MB = memorytCG_MB + getsize(store_last)/1024^2;
         
-        if memorytCG_MB > options.memorytCG_warningval
+        if memorytCG_MB > options.memorytCG_warningtol
             warning('manopt:trs_tCG_cached:memory', ...
             [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
             'If memory is limited turn off caching by options.useCache = false.\n' ...
+            'If more memory can be used without problem increase options.memorytCG_warningtol accordingly.\n' ...
             'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
         end
     end
-    
+
+    if options.verbosity == 2
+        if options.useCache
+            print_str = sprintf('numinner: %5d     numstored: %d     %s', j, length(store_iters), stopreason_str);
+        else
+            print_str = sprintf('numinner: %5d     %s', j, stopreason_str);
+        end
+    elseif options.verbosity > 2
+        if options.useCache
+            print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', j, length(store_iters), memorytCG_MB, stopreason_str);
+        else
+            print_str = sprintf('\nnuminner: %5d     %s', j, stopreason_str);
+        end
+    end
+
     store = storedb.get(key);
     store.store_iters = store_iters;
     store.store_last = store_last;
     storedb.set(store, key);
 end
-
-output.eta = eta;
-output.Heta = Heta;
-output.numit = j;
-output.stopreason_str = stopreason_str;
-output.limitedbyTR = limitedbyTR;
-output.memorytCG_MB = memorytCG_MB;
+stats = struct('numinner', j, 'limitedbyTR', limitedbyTR, ...
+                    'memorytCG_MB', memorytCG_MB);
 end
