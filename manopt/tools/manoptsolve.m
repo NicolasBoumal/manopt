@@ -50,5 +50,5 @@ function [x, cost, info, options] = manoptsolve(problem, x0, options)
     
     % Issue the actual call.
     [x, cost, info, options] = options.solver(problem, x0, options);
-
+    
 end

@@ -22,6 +22,9 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 % Original author: Yuji Nakatsukasa, 2015.
 % Contributors: Revised by Nikitas Rontsis, December 2018
 % Change log:
+%   VL June 29, 2022:
+%       Modified original code to return limitedbyTR boolean and change
+%       ellipsoid norm constraint to unweighted norm.
 
 n = size(A,1);
 

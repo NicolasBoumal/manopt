@@ -1,11 +1,28 @@
 function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
 % trs_tCG_cached - Cached Truncated (Steihaug-Toint) Conjugate-Gradient method
-% where information is stored in case the step is rejected by trustregions.m to
-% compute the next step. If the previous step is rejected 
-% work is passed to tCG_rejectedstep.m to process the stored information.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
+%
+% function [eta, Heta, print_str, stats] = trs_tCG_cached(problem)
+% function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
+%
+% Note if the only input is problem, then the behaviour of trs_tCG_cached 
+% is as follows: trs_tCG_cached returns dummy values for eta, Heta, and 
+% print_str. However, the stats struct will contain the relevant fields 
+% along with their corresponding initial values which will be used in the 
+% first call to savestats in trustregions.m. This allows for the info 
+% struct to be initialized with the proper fields and initial values in 
+% info(1).
+%
+% The difference between trs_tCG_cached and trs_tCG is that here 
+% information is stored in case the proposed next step is rejected by 
+% trustregions.m. Upon the next trs_tCG_cached call instead of executing
+% the original trs_tCG algorithm the helper function tCG_rejectedstep.m is
+% used to process the stored information to return the trs_tCG solution but
+% (presumably) faster.
+%
+% trs_tCG_cached also cannot use randomization (options.useRand = false).
 %
 % store_iters is an array of structs that stores the relevant information
 % when the algorithm exits with negative curvature or trust-region radius 

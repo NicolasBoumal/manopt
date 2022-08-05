@@ -17,18 +17,19 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
 %   G = grammatrix(M, x, orthobasis)
 % and verifying that norm(G - eye(size(G))) is close to zero.
 %
-% If basis_vecs is not specified then n vectors will be taken at random in
-% the tangent space and orthonormalized using Gram-Schmidt.
+% When basis_vecs is not specified then n vectors will be taken at random 
+% in the tangent space and orthonormalized using Gram-Schmidt.
 %
-% If basis_vecs is specified then if length(basis_vecs) >= n, the first n 
-% vectors in basis_vecs will be passed to orthogonalize. If 
-% length(basis_vecs) < n then all the vectors from basis_vecs including
+% When basis_vecs is specified then if length(basis_vecs) >= n, the first n 
+% vectors in basis_vecs will be passed to orthogonalize which are assumed
+% to be linearly independent.
+% If length(basis_vecs) < n then all the vectors from basis_vecs including
 % n - length(basis_vecs) random vectors from the tangent space will be 
 % passed to orthogonalize.
 %
 % Therefore if basis_vecs is provided, the span of the first 
 % min(n, length(basis_vecs)) vectors in basis_vecs will always be a 
-% subspace of the span of the returned orthobasis.
+% subspace of the space spaned by the returned orthobasis.
 %
 % Note: if extra accuracy is required, it may help to re-orthogonalize the
 % basis returned by this function once, as follows:

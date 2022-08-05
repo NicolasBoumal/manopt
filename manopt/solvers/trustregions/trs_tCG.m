@@ -1,7 +1,18 @@
-function [eta, Heta, print_str, stats]= trs_tCG(problem, subprobleminput, options, storedb, key)
+function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
 % trs_tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
+%
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
+%
+% function [eta, Heta, print_str, stats] = trs_tCG(problem)
+% function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
+%
+% Note if the only input is problem, then the behaviour of trs_tCG is as 
+% follows: trs_tCG returns dummy values for eta, Heta, and print_str.
+% However, the stats struct will contain the relevant fields along with
+% their corresponding initial values which will be used in the first call
+% to savestats in trustregions.m. This allows for the info struct to be
+% initialized with the proper fields and initial values in info(1).
 %
 % See also: trustregions trs_tCG_cached trs_gep
 
@@ -94,6 +105,16 @@ function [eta, Heta, print_str, stats]= trs_tCG(problem, subprobleminput, option
 % because we take eta_0 = 0 (if useRand = false).
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
+
+if nargin == 1
+    % Only problem passed in signals that trustregions.m wants default
+    % values for stats.
+    eta = problem.M.zerovec();
+    Heta = problem.M.zerovec();
+    print_str = '';
+    stats = struct('limitedbyTR', false, 'numinner', 0);
+    return;
+end
 
 x = subprobleminput.x;
 eta = subprobleminput.eta;

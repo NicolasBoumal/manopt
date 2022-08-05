@@ -1,16 +1,18 @@
 function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
-% Helper function that uses cache when step rejected in trustregions.m.
+% Function that mimics trs_tCG_cached's behaviour with existing cache.
 % 
-% The next step can be computed from information already computed in the 
-% previous trs_tCG_cached loop which is stored accordingly. This function
-% is only called when caching is used by trs_tCG_cached.
+% Upon step rejection in trustregions.m, instead of running the entire tCG
+% loop again, the stored information from a previous call to trs_tCG_cached
+% is sufficient.
 %
 % Note there can only be two situations.
-% 1. We return the same eta, Heta as the previous tCG loop and decrease
-% Delta again (either d_Hd <= 0 or we use store_last)
+% 1. We return the same eta, Heta as the previous tCG loop and 
+% trustregions.m decreases Delta again (either d_Hd <= 0 or store_last is 
+% used).
 % 2. We return a new eta when some previous candidate eta (stored in 
 % store_iters) satisfies normsq := <eta,eta>_x >= Delta^2 at the current 
-% Delta (exceeding trust region).
+% Delta (exceeding trust region). The returned point is the Steihaug–Toint 
+% point.
 %
 % See also: trustregions trs_tCG_cached trs_tCG
 
@@ -69,40 +71,24 @@ function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprob
             savedoutput.numinner = store_iters(i).numinner;
             
             if options.verbosity == 2
-                if options.useCache
-                    print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), stopreason_str);
-                else
-                    print_str = sprintf('numinner: %5d                       %s', savedoutput.numinner, stopreason_str);
-                end
+                print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), stopreason_str);
             elseif options.verbosity > 2
-                if options.useCache
-                    print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, stopreason_str);
-                else
-                    print_str = sprintf('\nnuminner: %5d                                             %s', savedoutput.numinner, stopreason_str);
-                end
+                print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, stopreason_str);
             end
 
             return;
         end
     end
 
-    % If no struct in store_iters satisfies negative curvature or 
-    % trust-region radius violation we must exit with last eta, Heta and
-    % limitedbyTR = false.
+    % If no stored struct in store_iters satisfies negative curvature or 
+    % violates the trust-region radius we exit with last eta, Heta and
+    % limitedbyTR = false from store_last.
     eta = store_last.eta;
     Heta = store_last.Heta;
     savedoutput.limitedbyTR = false;
     savedoutput.numinner = store_last.numinner;
     if options.verbosity == 2
-        if options.useCache
-            print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), store_last.stopreason_str);
-        else
-            print_str = sprintf('numinner: %5d     %s', savedoutput.numinner, store_last.stopreason_str);
-        end
+        print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), store_last.stopreason_str);
     elseif options.verbosity > 2
-        if options.useCache
-            print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, store_last.stopreason_str);
-        else
-            print_str = sprintf('\nnuminner: %5d     %s', savedoutput.numinner, store_last.stopreason_str);
-        end
+        print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, store_last.stopreason_str);
     end

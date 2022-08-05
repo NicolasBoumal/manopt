@@ -4,6 +4,18 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta> <= Delta^2
 %
+% function [eta, Heta, print_str, stats] = trs_gep(problem)
+% function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, storedb, key)
+%
+% Note if the only input is problem, then the behaviour of trs_gep is as 
+% follows: trs_gep returns dummy values for eta, Heta, and print_str.
+% However, the stats struct will contain the relevant fields along with
+% their corresponding initial values which will be used in the first call
+% to savestats in trustregions.m. This allows for info(1) in trustregions.m
+% to be initialized with the proper fields and initial values.
+%
+% Note: trs_gep does not use preconditioning.
+%
 % If options.gepsubspacedim = M.dim() then trs_gep solves the trust-region 
 % subproblem exactly in the entire tangent space by creating an orthonormal 
 % basis for the entire subspace using tangentorthobasis, then passing the 
@@ -40,8 +52,7 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
         eta = problem.M.zerovec();
         Heta = problem.M.zerovec();
         print_str = '';
-        stats = struct('hessvecevals', 0, 'limitedbyTR', false, ...
-                    'memorytCG_MB', 0);
+        stats = struct('hessvecevals', 0, 'limitedbyTR', false);
         return;
     end
 
@@ -114,7 +125,6 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
     elseif options.verbosity > 2
         print_str = sprintf('\nhessvecevals: %5d     %s', n, stopreason_str);
     end
-    stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR, ...
-                    'memorytCG_MB', memorytCG_MB);
+    stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR);
 
 

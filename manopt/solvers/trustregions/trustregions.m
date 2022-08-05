@@ -6,8 +6,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % function [x, cost, info, options] = trustregions(problem, x0, options)
 % function [x, cost, info, options] = trustregions(problem, [], options)
 %
-% This is the Riemannian Trust-Region solver (with default trs_tCG inner 
-% solve), named RTR. This solver will attempt to minimize the cost function 
+% This is the Riemannian Trust-Region solver (with default trs_tCG_cached 
+% inner solve), named RTR. This solver tries to minimize the cost function 
 % described in the problem structure. It requires the availability of the 
 % cost function and of its gradient. It will issue calls for the Hessian. 
 % If no Hessian nor approximate Hessian is provided, a standard 
@@ -66,12 +66,14 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       rejected step.
 %   Delta (double)
 %       The trust-region radius at the outer iteration.
+%   limitedbyTR (boolean)
+%       true if the subproblemsolver was limited by the trust-region
+%       radius (a boundary solution was returned). limitedbyTR is found in
+%       the subproblemstats struct.
 %   cauchy (boolean)
 %       Whether the Cauchy point was used or not (if useRand is true).
-%   memory (double)
-%       Tracks the memory in MB of the cached step in trs_tCG_cached. If
-%       trs_tCG_cached is not used then this is always 0.
-%   And possibly additional information logged by options.statsfun.
+%   And possibly additional information in suboutputstats or logged by 
+%   options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each (outer) iteration.
 %
@@ -593,7 +595,7 @@ while true
     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
     rhoden = -M.inner(x, eta, vecrho);
     % rhonum could be anything.
-    % rhoden should be nonnegative, as guaranteed by trs_tCG, baring 
+    % rhoden should be nonnegative, as guaranteed by tCG, barring 
     % numerical errors.
     
     % Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.
@@ -660,7 +662,6 @@ while true
     if ~model_decreased
         subproblem_str = [subproblem_str ', model did not decrease']; %#ok<AGROW>
     end
-    
     rho = rhonum / rhoden;
     
     % Added June 30, 2015 following observation by BM.
@@ -792,7 +793,7 @@ while true
         end
         fprintf(['%3s %3s   k: %5d     ', ...
         'f: %+e   |grad|: %e   rho: %e\n%s\n'], ...
-        accstr,trstr,k,fx,norm_grad,subproblem_str);
+        accstr,trstr,k,fx,norm_grad,rho, subproblem_str);
 
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
