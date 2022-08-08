@@ -363,5 +363,17 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
     end
 
     M.vecmatareisometries = @() vecmatareisometries;    
+    
+    if all_elements_provide('lie_identity')
+        M.lie_identity = @lie_identity;
+    end
 
+    function I = lie_identity()
+        I = struct();
+        for i = 1 : nelems
+            Mi = elements.(elems{i});
+            Ii = Mi.lie_identity();
+            I.(elems{i}) = Ii;
+        end
+    end
 end

@@ -176,4 +176,6 @@ function M = complexcirclefactory(n, m, gpuflag)
         M = factorygpuhelper(M);
     end
     
+    M.lie_identity = @() ones(n, m, array_type); % Generates identity element of unit complex numbers
+    
 end
