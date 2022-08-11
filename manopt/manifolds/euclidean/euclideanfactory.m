@@ -99,5 +99,6 @@ function M = euclideanfactory(m, n)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, dimensions_vec);
     M.vecmatareisometries = @() true;
+    M.lie_identity = @() zeros(dimensions_vec);
 
 end

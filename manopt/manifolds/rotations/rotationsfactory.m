@@ -282,6 +282,7 @@ function M = rotationsfactory(n, k)
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, n, k]);
     M.vecmatareisometries = @() true;
+    M.lie_identity = @() repmat(eye(n), [1, 1, k]);
 
 end
 
