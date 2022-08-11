@@ -49,9 +49,9 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %       /manopt/linesearch/linesearch_adaptive.m
 %       If the problem structure includes a line search hint, then the
 %       default line search used is @linesearch_hint.
-%       If @linesearch_constant is used the default constant "stepsize" is 
-%       1 but this can be specified by:
-%           problem.linesearch = @(x,d) "stepsize";
+%       If @linesearch_constant is used the default constant is 
+%       1 but a specific constant alpha > 0 can be specified by:
+%           problem.linesearch = @(x,d) alpha;
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.

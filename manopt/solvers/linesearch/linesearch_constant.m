@@ -1,9 +1,9 @@
 function [stepsize, newx, newkey, lsstats] = ...
                   linesearch_constant(problem, x, d, ~, ~, ~, storedb, ~)
-% Constant stepsize algorithm for descent methods
+% Constant stepsize (no line-search) algorithm for descent methods.
 % 
-% Note: user should define their intended alpha and specify 
-% linesearch_constant as follows:
+% Note: to use linesearch_constant the user should define their intended 
+% constant alpha > 0 and use the following lines of code:
 %  problem.linesearch = @(x, d) alpha;
 %  options.linesearch = @linesearch_constant;
 %
@@ -27,7 +27,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 %         the retraction at x of the vector alpha*d reaches newx.
 %  newkey : key associated to newx in storedb
 %  lsstats : statistics about the line-search procedure
-%            (stepsize, number of trials etc).
+%            (stepsize).
 %
 % See also: steepestdescent conjugategradients linesearch
 
@@ -61,5 +61,4 @@ function [stepsize, newx, newkey, lsstats] = ...
     
     % Return some statistics also, for possible analysis.
     lsstats.stepsize = stepsize;
-    lsstats.alpha = alpha;
 end
