@@ -1,18 +1,55 @@
 function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
-% trs_tCG - Truncated (Steihaug-Toint) Conjugate-Gradient method
+% Truncated (Steihaug-Toint) Conjugate-Gradient method.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% function [eta, Heta, print_str, stats] = trs_tCG(problem)
+% function [~, ~, ~, stats] = trs_tCG()
 % function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
 %
-% Note if the only input is problem, then the behaviour of trs_tCG is as 
-% follows: trs_tCG returns dummy values for eta, Heta, and print_str.
-% However, the stats struct will contain the relevant fields along with
-% their corresponding initial values which will be used in the first call
-% to savestats in trustregions.m. This allows for the info struct to be
-% initialized with the proper fields and initial values in info(1).
+% Inputs:
+%   problem: Manopt optimization problem structure
+%   subprobleminput: struct storing information for this subproblemsolver
+%       x: point on the manifold problem.M
+%       grad: gradient of the cost function of the problem at x
+%       eta: starting point problem.M.zerovec(x) or small random tangent
+%       vector if options.useRand == true.
+%       Delta = trust-region radius
+%   options: structure containing options for the subproblem solver
+%   storedb, key: caching data for problem at x
+%
+% Options specific to this subproblem solver:
+%   kappa (0.1)
+%       kappa convergence tolerance.
+%       kappa > 0 is the linear convergence target rate: trs_tCG will
+%       terminate early if the residual was reduced by a factor of kappa.
+%   theta (1.0)
+%       theta convergence tolerance.
+%       1+theta (theta between 0 and 1) is the superlinear convergence
+%       target rate. trs_tCG will terminate early if the residual was 
+%       reduced by a power of 1+theta.
+%   mininner (1)
+%       Minimum number of inner iterations for trs_tCG.
+%   maxinner (problem.M.dim() : the manifold's dimension)
+%       Maximum number of inner iterations for trs_tCG.
+%       
+% Outputs:
+%   eta: approximate solution to the trust-region subproblem at x
+%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%       is often naturally available to the subproblem solver at the
+%       end of execution, so that it may be cheaper to return it here.
+%   print_str: subproblem specific string to be printed by trustregions.m
+%   stats: structure with values to be stored in trustregions.m
+%       numinner: number of inner loops before returning
+%       hessvecevals: number of Hessian calls during execution
+%       limitedbyTR: true if a boundary solution is returned
+%
+% Note: If nargin == 0, then the returned stats struct will contain the 
+% relevant fields along with their corresponding initial values. print_str 
+% will also contain the header to be printed before the first pass of 
+% trustregions.m (if options.verbosity == 2). The other outputs will be 
+% empty. This stats struct is used in the first call to savestats in 
+% trustregions.m to initialize the info struct properly.
 %
 % See also: trustregions trs_tCG_cached trs_gep
 
@@ -106,13 +143,12 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-if nargin == 1
-    % Only problem passed in signals that trustregions.m wants default
-    % values for stats.
-    eta = problem.M.zerovec();
-    Heta = problem.M.zerovec();
-    print_str = '';
-    stats = struct('limitedbyTR', false, 'numinner', 0);
+if nargin == 0
+    % trustregions.m only wants default values for stats.
+    eta = [];
+    Heta = [];
+    print_str = sprintf('%-13s%-13s%-13s%s\n', 'numinner', 'hessvecevals', 'stopreason');
+    stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false);
     return;
 end
 
@@ -124,6 +160,18 @@ grad = subprobleminput.fgradx;
 inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
+
+% Set local defaults here
+localdefaults.kappa = 0.1;
+localdefaults.theta = 1.0;
+localdefaults.mininner = 1;
+localdefaults.maxinner = problem.M.dim();
+
+% Merge local defaults with user options, if any
+if ~exist('options', 'var') || isempty(options)
+    options = struct();
+end
+options = mergeOptions(localdefaults, options);
 
 theta = options.theta;
 kappa = options.kappa;
@@ -329,10 +377,10 @@ for j = 1 : options.maxinner
 end  % of tCG loop
 
 if options.verbosity == 2
-    print_str = sprintf('numinner: %5d     %s', j, stopreason_str);
+    print_str = sprintf('    %-5d        %-5d        %s', j, j, stopreason_str);
 elseif options.verbosity > 2
-    print_str = sprintf('\nnuminner: %5d     %s', j, stopreason_str);
+    print_str = sprintf('\nnuminner: %5d     hessvecevals: %5d     %s', j, j, stopreason_str);
 end
 
-stats = struct('limitedbyTR', limitedbyTR, 'numinner', j);
+stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR);
 end

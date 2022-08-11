@@ -99,10 +99,6 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       The algorithm terminates if maxtime seconds elapsed.
 %   miniter (3)
 %       Minimum number of outer iterations (used only if useRand is true).
-%   mininner (1)
-%       Minimum number of inner iterations (for subproblemsolver).
-%   maxinner (problem.M.dim() : the manifold's dimension)
-%       Maximum number of inner iterations (for subproblemsolver).
 %   Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
 %       Maximum trust-region radius. If you specify this parameter but not
 %       Delta0, then Delta0 will be set to 1/8 times this parameter.
@@ -115,37 +111,20 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   subproblemsolver (@trs_tCG)
 %       Function handle to a subproblem solver. The subproblem solver will
 %       also see this options structure, so that parameters can be passed
-%       to it through here as well. Built-in solvers included:
+%       to it through here as well. Built-in solvers include:
 %           trs_tCG_cached
 %           trs_gep
 %           trs_tCG
 %       Note that trs_gep solves the subproblem exactly and is generally
-%       slower than trs_tCG. It is mainly for prototyping or for solving the 
+%       slow. It is mainly for prototyping or for solving the 
 %       subproblem exactly in low dimensions.
-%       Note that trs_tCG is equivalent to trs_tCG_cached with the flag
-%       useCache = false.
 %   useRand (false)
+%       Only used for trs_tCG subproblem solver. A warning will be made if
+%       used with any other subproblem solver.
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated. 
-%       Note that if (useRand && useCache) == true then useCache is disabled.
-%   useCache (true)
-%       Set to false if no caching for the trs_tCG_cached is desired. It is
-%       default true to potentially improve computation time. Caching may
-%       save time if there is many step rejections in trustregions, but if
-%       memory is more of an issue than computation time then useCache =
-%       false may work better.
-%       Note that if (useRand && useCache) == true then useCache is disabled.
-%   kappa (0.1)
-%       trs_tCG inner kappa convergence tolerance.
-%       kappa > 0 is the linear convergence target rate: trs_tCG will 
-%       terminate early if the residual was reduced by a factor of kappa.
-%   theta (1.0)
-%       trs_tCG inner theta convergence tolerance.
-%       1+theta (theta between 0 and 1) is the superlinear convergence
-%       target rate. trs_tCG will terminate early if the residual was 
-%       reduced by a power of 1+theta.
 %   rho_prime (0.1)
 %       Accept/reject threshold : if rho is at least rho_prime, the outer
 %       iteration is accepted. Otherwise, it is rejected. In case it is
@@ -165,11 +144,6 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       not monotonically improving the cost when very close to
 %       convergence. This is because the corrected cost improvement could
 %       change sign if it is negative but very small.
-%   memorytCG_warningtol (1000)
-%       Tolerance memory value for warning when caching in trs_tCG_cached.
-%       The default is 1GB but if memory is less of an issue this value can
-%       be increased, or to disable the warning completely use: 
-%       warning(''off'', ''manopt:trs_tCG_cached:memory'')
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
@@ -363,17 +337,11 @@ localdefaults.verbosity = 2;
 localdefaults.maxtime = inf;
 localdefaults.miniter = 3;
 localdefaults.maxiter = 1000;
-localdefaults.mininner = 1;
-localdefaults.maxinner = M.dim();
-localdefaults.tolgradnorm = 1e-6;
-localdefaults.kappa = 0.1;
-localdefaults.theta = 1.0;
 localdefaults.rho_prime = 0.1;
 localdefaults.useRand = false;
-localdefaults.useCache = true;
 localdefaults.rho_regularization = 1e3;
 localdefaults.subproblemsolver = @trs_tCG_cached;
-localdefaults.memorytCG_warningtol = 1000;
+localdefaults.tolgradnorm = 1e-6;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -443,8 +411,7 @@ if ~exist('used_cauchy', 'var')
 end
 
 % get default output structure for logging purposes
-[~, ~, ~, subproblemstats] = options.subproblemsolver(problem);
-
+[~,~,print_header,subproblemstats] = options.subproblemsolver();
 
 stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart, subproblemstats);
 
@@ -453,11 +420,14 @@ info(min(10000, options.maxiter+1)).iter = [];
 
 % ** Display:
 if options.verbosity == 2
-   fprintf(['%3s %3s      %5s     ',...
-            'f: %+e   |grad|: %e\n'],...
+   fprintf(['%3s %3s    k %5s   ', ...
+        'f  %13s |grad|  %11s%s\n'], ...
+        '   ','   ','     ','             ','           ', print_header);
+   fprintf(['%3s %3s      %5s   ',...
+            '%+e    %e\n'],...
            '   ','   ','     ', fx, norm_grad);
 elseif options.verbosity > 2
-   fprintf('************************************************************************\n');
+   fprintf('**************************************************************************************\n');
    fprintf('%3s %3s    k: %5s     num_inner: %5s     %s\n',...
            '','','______','______','');
    fprintf('       f(x) : %+e       |grad| : %e\n', fx, norm_grad);
@@ -512,7 +482,7 @@ while true
     end
 
     if options.verbosity > 2 || options.debug > 0
-        fprintf('************************************************************************\n');
+        fprintf('**************************************************************************************\n');
     end
 
     % *************************
@@ -531,7 +501,7 @@ while true
             eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
         end
     end
-    
+
     % Solve TR subproblem with solver specified by options.subproblemsolver
     subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, ...
                             'Delta', Delta, 'gradnorm', norm_grad, 'accept', accept);
@@ -784,9 +754,12 @@ while true
 
     % ** Display:
     if options.verbosity == 2
-        fprintf(['%3s %3s   k: %5d     ', ...
-        'f: %+e   |grad|: %e   %s\n'], ...
+        fprintf(['%3s %3s    %-5d     ', ...
+        '%-+13e    %-12e   %s\n'], ...
         accstr,trstr,k,fx,norm_grad,subproblem_str);
+%         fprintf(['%3s %3s   k: %5d     ', ...
+%         'f: %+e   |grad|: %e   %s\n'], ...
+%         accstr,trstr,k,fx,norm_grad,subproblem_str);
     elseif options.verbosity > 2
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
@@ -813,7 +786,7 @@ info = info(1:k+1);
 
 
 if (options.verbosity > 2) || (options.debug > 0)
-   fprintf('************************************************************************\n');
+   fprintf('**************************************************************************************\n');
 end
 if (options.verbosity > 0) || (options.debug > 0)
     fprintf('Total time is %f [s] (excludes statsfun)\n', info(end).time);

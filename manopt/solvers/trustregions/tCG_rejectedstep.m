@@ -1,9 +1,9 @@
-function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
+function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
 % Function that mimics trs_tCG_cached's behaviour with existing cache.
 % 
 % Upon step rejection in trustregions.m, instead of running the entire tCG
 % loop again, the stored information from a previous call to trs_tCG_cached
-% is sufficient.
+% is sufficient to compute the next proposed step.
 %
 % Note there can only be two situations.
 % 1. We return the same eta, Heta as the previous tCG loop and 
@@ -13,6 +13,8 @@ function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprob
 % store_iters) satisfies normsq := <eta,eta>_x >= Delta^2 at the current 
 % Delta (exceeding trust region). The returned point is the Steihaug–Toint 
 % point.
+%
+% Refer to trs_tCG_cached for a description of the inputs and outputs.
 %
 % See also: trustregions trs_tCG_cached trs_tCG
 
@@ -26,10 +28,14 @@ function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprob
 
     store = storedb.get(key);
     store_iters = store.store_iters;
-    store_last = store.store_last;
-
+    stats.memorytCG_MB = getsize(store_iters(1))/1024^2 * length(store_iters);
+    numstored = length(store_iters);
+    if isfield(store, 'store_last')
+        store_last = store.store_last;
+        stats.memorytCG_MB = stats.memorytCG_MB + getsize(store_last)/1024^2;
+        numstored = numstored + 1;
+    end
     % get amount of memory that is currently cached.
-    savedoutput.memorytCG_MB = getsize(store_iters(1))/1024^2 * length(store_iters) + getsize(store_last)/1024^2;
 
     for i = 1:length(store_iters)
         normsq = store_iters(i).normsq;
@@ -67,13 +73,15 @@ function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprob
                 stopreason_str = 'exceeded trust region';
             end
             
-            savedoutput.limitedbyTR = true;
-            savedoutput.numinner = store_iters(i).numinner;
-            
+            stats.limitedbyTR = true;
+            stats.numinner = store_iters(i).numinner;
+            stats.hessvecevals = 0;
+
             if options.verbosity == 2
-                print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), stopreason_str);
+                print_str = sprintf('    %-5d        %-5d        %-5d        %s', stats.numinner, 0, numstored, stopreason_str);
+%                 print_str = sprintf('numinner: %5d     hessvecevals: %5d     numstored: %5d     %s', stats.numinner, 0, length(store_iters), stopreason_str);
             elseif options.verbosity > 2
-                print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, stopreason_str);
+                print_str = sprintf('\nnuminner: %5d     hessvecevals: %5d     numstored: %5d     memorytCG: %.2f[MB]     %s', stats.numinner, 0, numstored, stats.memorytCG_MB, stopreason_str);
             end
 
             return;
@@ -82,13 +90,16 @@ function [eta, Heta, print_str, savedoutput] = tCG_rejectedstep(problem, subprob
 
     % If no stored struct in store_iters satisfies negative curvature or 
     % violates the trust-region radius we exit with last eta, Heta and
-    % limitedbyTR = false from store_last.
+    % limitedbyTR = false from store_last. If we do not return in the loop
+    % and there is no store_last then something went wrong.
     eta = store_last.eta;
     Heta = store_last.Heta;
-    savedoutput.limitedbyTR = false;
-    savedoutput.numinner = store_last.numinner;
+    stats.limitedbyTR = false;
+    stats.numinner = store_last.numinner;
+    stats.hessvecevals = 0;
     if options.verbosity == 2
-        print_str = sprintf('numinner: %5d     numstored: %d     %s', savedoutput.numinner, length(store_iters), store_last.stopreason_str);
+        print_str = sprintf('    %-5d        %-5d        %-5d        %s', stats.numinner, 0, length(store_iters), store_last.stopreason_str);
+%         print_str = sprintf('numinner: %5d     hessvecevals: %d     numstored: %d     %s', stats.numinner, 0, length(store_iters), store_last.stopreason_str);
     elseif options.verbosity > 2
-        print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', savedoutput.numinner, length(store_iters), savedoutput.memorytCG_MB, store_last.stopreason_str);
+        print_str = sprintf('\nnuminner: %5d     hessvecevals: %d     numstored: %d     memorytCG: %.2f[MB]     %s', stats.numinner, 0, length(store_iters), stats.memorytCG_MB, store_last.stopreason_str);
     end

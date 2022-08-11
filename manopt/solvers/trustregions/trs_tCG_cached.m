@@ -1,38 +1,86 @@
 function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
-% trs_tCG_cached - Cached Truncated (Steihaug-Toint) Conjugate-Gradient method
+% Truncated (Steihaug-Toint) Conjugate-Gradient method with caching.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% function [eta, Heta, print_str, stats] = trs_tCG_cached(problem)
+% function [~, ~, ~, stats] = trs_tCG_cached()
 % function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
 %
-% Note if the only input is problem, then the behaviour of trs_tCG_cached 
-% is as follows: trs_tCG_cached returns dummy values for eta, Heta, and 
-% print_str. However, the stats struct will contain the relevant fields 
-% along with their corresponding initial values which will be used in the 
-% first call to savestats in trustregions.m. This allows for the info 
-% struct to be initialized with the proper fields and initial values in 
-% info(1).
+% trs_tCG_cached by default stores information (when options.useCache=true) 
+% which can help avoid redundant computations (using tCG_rejectedstep) 
+% upon step rejection by trustregions.m.
 %
-% The difference between trs_tCG_cached and trs_tCG is that here 
-% information is stored in case the proposed next step is rejected by 
-% trustregions.m. Upon the next trs_tCG_cached call instead of executing
-% the original trs_tCG algorithm the helper function tCG_rejectedstep.m is
-% used to process the stored information to return the trs_tCG solution but
-% (presumably) faster.
+% In contrast, trs_tCG does not cache so the redundant steps will
+% still be computed but no extra memory is needed compared to
+% trs_tCG_cached.
 %
-% trs_tCG_cached also cannot use randomization (options.useRand = false).
+% trs_tCG_cached also cannot use randomization (so options.useRand should 
+% be false).
 %
-% store_iters is an array of structs that stores the relevant information
-% when the algorithm exits with negative curvature or trust-region radius 
-% violation. store_iters differs from store_last because upon rejection, a
-% new tau may need to be calculated in this case which requires more
-% information.
+% Inputs:
+%   problem: Manopt optimization problem structure
+%   subprobleminput: struct storing information for this subproblemsolver
+%       x: point on the manifold problem.M
+%       grad: gradient of the cost function of the problem at x
+%       eta: starting point (normally problem.M.zerovec(x))
+%       Delta = trust-region radius
+%   options: structure containing options for the subproblem solver
+%   storedb, key: caching data for problem at x
 %
-% store_last is a struct that stores the relevant information when the
-% algorithm exits without negative curvature nor trust-region radius 
-% violation.
+% Options specific to this subproblem solver:
+%   kappa (0.1)
+%       kappa convergence tolerance.
+%       kappa > 0 is the linear convergence target rate: trs_tCG_cached will
+%       terminate early if the residual was reduced by a factor of kappa.
+%   theta (1.0)
+%       theta convergence tolerance.
+%       1+theta (theta between 0 and 1) is the superlinear convergence
+%       target rate. trs_tCG_cached will terminate early if the residual 
+%       was reduced by a power of 1+theta.
+%   mininner (1)
+%       Minimum number of inner iterations for trs_tCG_cached.
+%   maxinner (problem.M.dim() : the manifold's dimension)
+%       Maximum number of inner iterations for trs_tCG_cached.
+%   useCache (true)
+%       Set to false if no caching for the trs_tCG_cached is desired. It is
+%       default true to improve computation time if there are many step
+%       rejections in trustregions.m. Setting useCache to false can reduce
+%       memory usage.
+%   memorytCG_warningtol (1000)
+%       Tolerance memory value in MB before issuing warning when 
+%       useCache = true.
+%       The default is 1GB but this value can be increased depending on the
+%       user's machine, or to disable the warning completely use: 
+%       warning(''off'', ''manopt:trs_tCG_cached:memory'')
+%
+% Outputs:
+%   eta: approximate solution to the trust-region subproblem at x
+%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%       is often naturally available to the subproblem solver at the
+%       end of execution, so that it may be cheaper to return it here.
+%   print_str: subproblem specific string to be printed by trustregions.m
+%   stats: structure with values to be stored in trustregions.m
+%       numinner: number of inner loops before returning
+%       hessvecevals: number of Hessian calls during execution (can
+%       differ from numinner when caching is used)
+%       limitedbyTR: true if a boundary solution is returned
+%       memorytCG_MB: memory of store_iters and store_last in MB
+%
+% Stored Information:
+%   store_iters: a struct array with enough information to compute the next
+%       step upon step rejection when the algorithm exits due to negative 
+%       curvature or trust-region radius violation.
+%   store_last: an additional struct to store_iters to compute the next
+%       step upon step rejection when the algorithm exits but not due to 
+%       negative curvature or trust-region radius violation
+%
+% Note: If nargin == 0, then the returned stats struct will contain the 
+% relevant fields along with their corresponding initial values. print_str 
+% will also contain the header to be printed before the first pass of 
+% trustregions.m (if options.verbosity == 2). The other outputs will be 
+% empty. This stats struct is used in the first call to savestats in 
+% trustregions.m to initialize the info struct properly.
 %
 % See also: trustregions trs_tCG tCG_rejectedstep
 
@@ -57,30 +105,20 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % See trs_tCG for references to relevant equations in
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-if nargin == 1
-    % Only problem passed in signals that trustregions.m wants default
-    % values for stats.
-    eta = problem.M.zerovec();
-    Heta = problem.M.zerovec();
-    print_str = '';
-    stats = struct('numinner', 0, 'limitedbyTR', false, 'memorytCG_MB', 0);
+if nargin == 0
+    % trustregions.m only wants default values for stats.
+    eta = [];
+    Heta = [];
+    print_str = sprintf('%-13s%-13s%-13s%s\n', 'numinner', 'hessvecevals', 'numstored', 'stopreason');
+    stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false, 'memorytCG_MB', 0);
     return;
 end
 
-if options.useRand && options.useCache
-    warning('manopt:trs_tCG_cached:randcache', ...
+if options.useRand
+    warning('manopt:trs_tCG_cached:rand', ...
     [sprintf(['trs_tCG_cached does not use randomization. Did you mean to use trs_tCG?\n', ...
-                'Randomization will not be used.\n',...
+                'The initial eta will be a random small vector in T_x M but this may not be desired.\n',...
                 'To silence this warning use randomization with trs_tCG or set options.useRand = false.']);]);
-
-    options.useRand = false;
-end
-
-% Previous step was rejected so we can save some compute here by passing to
-% helper function.
-if ~subprobleminput.accept && options.useCache
-        [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
-        return;
 end
 
 x = subprobleminput.x;
@@ -91,6 +129,27 @@ grad = subprobleminput.fgradx;
 inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 tangent = @(u) problem.M.tangent(x, u);
+
+% Set local defaults here
+localdefaults.kappa = 0.1;
+localdefaults.theta = 1.0;
+localdefaults.mininner = 1;
+localdefaults.maxinner = problem.M.dim();
+localdefaults.useCache = true;
+localdefaults.memorytCG_warningtol = 1000;
+
+% Merge local defaults with user options, if any
+if ~exist('options', 'var') || isempty(options)
+    options = struct();
+end
+options = mergeOptions(localdefaults, options);
+
+% Previous step was rejected so we can save some compute here by passing to
+% helper function.
+if ~subprobleminput.accept && options.useCache
+        [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
+        return;
+end
 
 % returned boolean to trustregions.m. true if we are limited by the TR
 % boundary (returns boundary solution). Otherwise false.
@@ -145,10 +204,6 @@ store_iters = struct('normsq', [], 'numinner', [], 'e_Pe', [], ...
     'd_Pd', [], 'e_Pd', [], 'd_Hd', [], 'eta', [], 'Heta', [], ...
     'mdelta', [], 'Hmdelta', []);
 
-% If exit is prompted when limitedbyTR = false then we store different info
-store_last = struct('numinner', [], 'stopreason_str', [], 'eta', [], 'Heta', []);
-
-store_index = 1;
 max_normsq = 0;
 
 % only need to compute memory for one item in store_iters in Megabytes(MB)
@@ -156,6 +211,10 @@ peritermemory_MB = 0;
 
 % total cached memory stored in MB
 memorytCG_MB = 0;
+
+% number of iterations where trs_tCG_cached stores information. This value
+% will be length(store_iters) plus 1 if store_last is used.
+numstored = 0;
 
 % string that is printed by trustregions.m. For printing
 % per-iteration information
@@ -197,7 +256,9 @@ for j = 1 : options.maxinner
         end
     
         if d_Hd <= 0 || e_Pe_new >= next_smallest
-            store_iters(store_index) = struct('normsq', e_Pe_new, 'numinner', ...
+            numstored = numstored + 1;
+
+            store_iters(numstored) = struct('normsq', e_Pe_new, 'numinner', ...
                              j, 'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
                              'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
                              'mdelta', mdelta, 'Hmdelta', Hmdelta);
@@ -206,7 +267,7 @@ for j = 1 : options.maxinner
             % getSize for one entry in store_iters which will be the same for
             % all others.
             if peritermemory_MB == 0
-                peritermemory_MB = getsize(store_iters(store_index))/1024^2;
+                peritermemory_MB = getsize(store_iters(numstored))/1024^2;
             end
     
             memorytCG_MB = memorytCG_MB + peritermemory_MB;
@@ -218,7 +279,6 @@ for j = 1 : options.maxinner
                 'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
              end
             
-            store_index = store_index + 1;
         end
     end
 
@@ -337,9 +397,12 @@ for j = 1 : options.maxinner
 end  % of trs_tCG loop
 
 if options.useCache
-    % Store in case we did not exit because we were limited by TR (model value 
-    % increased or kappa/theta stopping criterion satisfied)
+    store = storedb.get(key);
+    store.store_iters = store_iters;
     if ~limitedbyTR
+        % Store extra information since we did not exit because we were 
+        % limited by TR (model value increased or kappa/theta stopping 
+        % criterion satisfied)
         store_last = struct('numinner', j, 'stopreason_str', ...
             stopreason_str, 'eta', eta, 'Heta', Heta);
         memorytCG_MB = memorytCG_MB + getsize(store_last)/1024^2;
@@ -351,27 +414,20 @@ if options.useCache
             'If more memory can be used without problem increase options.memorytCG_warningtol accordingly.\n' ...
             'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
         end
+        store.store_last = store_last;
+        
+        numstored = numstored + 1;
     end
 
-    if options.verbosity == 2
-        if options.useCache
-            print_str = sprintf('numinner: %5d     numstored: %d     %s', j, length(store_iters), stopreason_str);
-        else
-            print_str = sprintf('numinner: %5d     %s', j, stopreason_str);
-        end
-    elseif options.verbosity > 2
-        if options.useCache
-            print_str = sprintf('\nnuminner: %5d     numstored: %d     memorytCG: %e[MB]     %s', j, length(store_iters), memorytCG_MB, stopreason_str);
-        else
-            print_str = sprintf('\nnuminner: %5d     %s', j, stopreason_str);
-        end
-    end
-
-    store = storedb.get(key);
-    store.store_iters = store_iters;
-    store.store_last = store_last;
     storedb.set(store, key);
 end
-stats = struct('numinner', j, 'limitedbyTR', limitedbyTR, ...
+
+if options.verbosity == 2
+    print_str = sprintf('    %-5d        %-5d        %-5d        %s', j, j, numstored, stopreason_str);
+elseif options.verbosity > 2
+    print_str = sprintf('\nnuminner: %5d     hessvecevals: %5d     numstored: %5d     memorytCG: %.2f[MB]     %s', j, j, numstored, memorytCG_MB, stopreason_str);
+end
+
+stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR, ...
                     'memorytCG_MB', memorytCG_MB);
 end
