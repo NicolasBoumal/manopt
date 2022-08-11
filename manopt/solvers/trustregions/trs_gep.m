@@ -152,8 +152,10 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 
     if options.verbosity == 2
         print_str = sprintf('    %-5d        %s', n, stopreason_str);
-    elseif options.verbosity > 2
-        print_str = sprintf('\nhessvecevals: %5d     %s', n, stopreason_str);
+    elseif options.verbosity == 3
+        print_str = sprintf('hessvecevals: %5d  %s', n, stopreason_str);
+    elseif options.verbosity > 3
+        print_str = sprintf('\nhessvecevals: %5d   %s', n, stopreason_str);
     end
     stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR);
 

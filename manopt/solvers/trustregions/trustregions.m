@@ -305,8 +305,6 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   NB July 19, 2020:
 %       Added support for options.hook.
 
-M = problem.M;
-
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
     warning('manopt:getCost', ...
@@ -349,6 +347,8 @@ if ~exist('options', 'var') || isempty(options)
     options = struct();
 end
 options = mergeOptions(localdefaults, options);
+
+M = problem.M;
 
 % If no initial point x is given by the user, generate one at random.
 if ~exist('x', 'var') || isempty(x)
@@ -423,15 +423,18 @@ if options.verbosity == 2
    fprintf(['%3s %3s    k %5s   ', ...
         'f  %13s |grad|  %11s%s\n'], ...
         '   ','   ','     ','             ','           ', print_header);
-   fprintf(['%3s %3s      %5s   ',...
-            '%+e    %e\n'],...
-           '   ','   ','     ', fx, norm_grad);
-elseif options.verbosity > 2
-   fprintf('**************************************************************************************\n');
-   fprintf('%3s %3s    k: %5s     num_inner: %5s     %s\n',...
-           '','','______','______','');
-   fprintf('       f(x) : %+e       |grad| : %e\n', fx, norm_grad);
-   fprintf('      Delta : %f\n', Delta);
+   fprintf(['%3s %3s    %-5d     ',...
+            '%-+13e    %-12e\n'],...
+           '   ','   ',k, fx, norm_grad);
+elseif options.verbosity == 3
+   fprintf(['%3s %3s   k: %5d   ',...
+            'f: %+e   |grad|: %e\n'],...
+           '   ','   ',k, fx, norm_grad);
+elseif options.verbosity > 3
+   fprintf('**************************************************************************************************\n');
+    fprintf(['%3s %3s   k: %5d   ', ...
+    'f: %+e   |grad|: %e   rho: %s   Delta: %f\n%s\n'], ...
+    '','',k,fx,norm_grad,'____________', Delta);
 end
 
 % To keep track of consecutive radius changes, so that we can warn the
@@ -481,8 +484,8 @@ while true
         break;
     end
 
-    if options.verbosity > 2 || options.debug > 0
-        fprintf('**************************************************************************************\n');
+    if options.verbosity > 3 || options.debug > 0
+        fprintf('**************************************************************************************************\n');
     end
 
     % *************************
@@ -757,16 +760,17 @@ while true
         fprintf(['%3s %3s    %-5d     ', ...
         '%-+13e    %-12e   %s\n'], ...
         accstr,trstr,k,fx,norm_grad,subproblem_str);
-%         fprintf(['%3s %3s   k: %5d     ', ...
-%         'f: %+e   |grad|: %e   %s\n'], ...
-%         accstr,trstr,k,fx,norm_grad,subproblem_str);
-    elseif options.verbosity > 2
+    elseif options.verbosity == 3
+        fprintf(['%3s %3s   k: %5d   ', ...
+        'f: %+e   |grad|: %e   %s\n'], ...
+        accstr,trstr,k,fx,norm_grad,subproblem_str);
+    elseif options.verbosity > 3
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
-        fprintf(['%3s %3s   k: %5d     ', ...
-        'f: %+e   |grad|: %e   rho: %e\n%s\n'], ...
-        accstr,trstr,k,fx,norm_grad,rho, subproblem_str);
+        fprintf(['%3s %3s   k: %5d   ', ...
+        'f: %+e   |grad|: %e   rho: %e   Delta: %f   \n%s\n'], ...
+        accstr,trstr,k,fx,norm_grad,rho, Delta, subproblem_str);
 
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
@@ -785,8 +789,8 @@ end  % of TR loop (counter: k)
 info = info(1:k+1);
 
 
-if (options.verbosity > 2) || (options.debug > 0)
-   fprintf('**************************************************************************************\n');
+if (options.verbosity > 3) || (options.debug > 0)
+   fprintf('**************************************************************************************************\n');
 end
 if (options.verbosity > 0) || (options.debug > 0)
     fprintf('Total time is %f [s] (excludes statsfun)\n', info(end).time);

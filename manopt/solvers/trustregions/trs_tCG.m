@@ -378,8 +378,10 @@ end  % of tCG loop
 
 if options.verbosity == 2
     print_str = sprintf('    %-5d        %-5d        %s', j, j, stopreason_str);
-elseif options.verbosity > 2
-    print_str = sprintf('\nnuminner: %5d     hessvecevals: %5d     %s', j, j, stopreason_str);
+elseif options.verbosity == 3
+    print_str = sprintf('numinner: %5d   hessvecevals: %5d   %s', j, j, stopreason_str);
+elseif options.verbosity > 3
+    print_str = sprintf('\nnuminner: %5d   hessvecevals: %5d   %s', j, j, stopreason_str);
 end
 
 stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR);
