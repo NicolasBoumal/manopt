@@ -435,7 +435,6 @@ if options.verbosity == 2
     print_str = sprintf('%9d   %9d   %9d   %s', j, j, numstored, stopreason_str);
 elseif options.verbosity > 2
     print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', j, j, numstored, memorytCG_MB, stopreason_str);
-%     print_str = sprintf('\nnuminner: %5d   hessvecevals: %5d   numstored: %5d   memorytCG: %8.2f[MB]   %s', j, j, numstored, memorytCG_MB, stopreason_str);
 end
 
 stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR, ...
