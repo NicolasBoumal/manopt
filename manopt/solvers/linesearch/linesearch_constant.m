@@ -1,9 +1,9 @@
 function [stepsize, newx, newkey, lsstats] = ...
                   linesearch_constant(problem, x, d, ~, ~, ~, storedb, ~)
-% Forces a constant multiplir on the descent direction chosen by the algorithm.
+% Forces a constant multiplier on the descent direction chosen by the algorithm.
 % 
 % This is meant to be used by the steepestdescent or conjugategradients solvers.
-% To use this merthod, specify linesearch_constant as an option, and your chosen
+% To use this method, specify linesearch_constant as an option, and your chosen
 % constant alpha > 0 in the problem structure, as follows:
 %
 %  problem.linesearch = @(x, d) 1.0;     % choose any positive real number
