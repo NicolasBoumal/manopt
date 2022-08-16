@@ -13,6 +13,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 % The effective step (that is, the vector the optimization algorithm retracts)
 % is constructed as alpha*d, and the step size is the norm of that vector.
 % Thus: stepsize = alpha*norm_d.
+% For steepestdescent, we have d = -grad f(x).
 % The step is executed by retracting the vector alpha*d from the current
 % point x, which gives newx (the returned point).
 % This line-search method does not require any cost function evaluations,
