@@ -4,7 +4,6 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% function [~, ~, ~, stats] = trs_tCG()
 % function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
 %
 % Inputs:
@@ -44,10 +43,15 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %       hessvecevals: number of Hessian calls during execution
 %       limitedbyTR: true if a boundary solution is returned
 %
-% Note: If nargin == 0, then the returned stats struct will contain the 
-% relevant fields along with their corresponding initial values. print_str 
-% will also contain the header to be printed before the first pass of 
-% trustregions.m (if options.verbosity == 2). The other outputs will be 
+% trs_tCG can also be called in the following way (for printing
+% purposes):
+%
+% function [~, ~, print_header, stats] = trs_tCG([], [], options)
+%
+% In this case when nargin == 3, the returned stats struct contains the 
+% relevant fields along with their corresponding initial values. 
+% print_header is the header to be printed before the first pass of 
+% trustregions.m. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
 % trustregions.m to initialize the info struct properly.
 %
@@ -143,11 +147,11 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-if nargin == 0
+if nargin == 3
     % trustregions.m only wants default values for stats.
     eta = [];
     Heta = [];
-    print_str = sprintf('%-13s%-13s%-13s%s\n', 'numinner', 'hessvecevals', 'stopreason');
+    print_str = sprintf('%9s   %9s   %s', 'numinner', 'hessvec','stopreason');
     stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false);
     return;
 end
@@ -376,13 +380,7 @@ for j = 1 : options.maxinner
     
 end  % of tCG loop
 
-if options.verbosity == 2
-    print_str = sprintf('    %-5d        %-5d        %s', j, j, stopreason_str);
-elseif options.verbosity == 3
-    print_str = sprintf('numinner: %5d   hessvecevals: %5d   %s', j, j, stopreason_str);
-elseif options.verbosity > 3
-    print_str = sprintf('\nnuminner: %5d   hessvecevals: %5d   %s', j, j, stopreason_str);
-end
+print_str = sprintf('%9d   %9d   %s', j, j, stopreason_str);
 
 stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR);
 end

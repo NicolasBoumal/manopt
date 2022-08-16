@@ -78,11 +78,10 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
             stats.hessvecevals = 0;
 
             if options.verbosity == 2
-                print_str = sprintf('    %-5d        %-5d        %-5d        %s', stats.numinner, 0, numstored, stopreason_str);
-            elseif options.verbosity == 3
-                print_str = sprintf('numinner: %5d   hessvecevals: %5d   numstored: %5d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, stopreason_str);
-            elseif options.verbosity > 3
-                print_str = sprintf('\nnuminner: %5d   hessvecevals: %5d   numstored: %5d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, stopreason_str);
+                print_str = sprintf('%9d   %9d   %9d   %s', stats.numinner, 0, numstored, stopreason_str);
+            elseif options.verbosity > 2
+                print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, stopreason_str);
+%                 print_str = sprintf('\nnuminner: %5d   hessvecevals: %5d   numstored: %5d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, stopreason_str);
             end
 
             return;
@@ -99,9 +98,8 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
     stats.numinner = store_last.numinner;
     stats.hessvecevals = 0;
     if options.verbosity == 2
-        print_str = sprintf('    %-5d        %-5d        %-5d        %s', stats.numinner, 0, numstored, store_last.stopreason_str);
-    elseif options.verbosity == 3
-        print_str = sprintf('numinner: %5d   hessvecevals: %5d   numstored: %5d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, store_last.stopreason_str);
-    elseif options.verbosity > 3
-        print_str = sprintf('\nnuminner: %5d   hessvecevals: %d   numstored: %d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, store_last.stopreason_str);
+        print_str = sprintf('%9d   %9d   %9d   %s', stats.numinner, 0, numstored, store_last.stopreason_str);
+    elseif options.verbosity > 2
+        print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, store_last.stopreason_str);
+%         print_str = sprintf('\nnuminner: %5d   hessvecevals: %d   numstored: %d   memorytCG: %8.2f[MB]   %s', stats.numinner, 0, numstored, stats.memorytCG_MB, store_last.stopreason_str);
     end

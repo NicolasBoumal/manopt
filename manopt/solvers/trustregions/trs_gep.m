@@ -4,8 +4,13 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta> <= Delta^2
 %
-% function [~, ~, ~, stats] = trs_gep()
 % function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, storedb, key)
+%
+% Example to solve trust-region subproblem restricted to two dimensional
+% subspace:
+%
+% options.subproblemsolver = @trs_gep;
+% options.gepsubspacedim = 2;
 %
 % If options.gepsubspacedim = M.dim() then trs_gep solves the trust-region 
 % subproblem exactly in the entire tangent space by creating an orthonormal 
@@ -54,22 +59,19 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 %       explicitly in gepsubspacedim dimensions.
 %       limitedbyTR: true if a boundary solution is returned
 %
-% Note: If nargin == 0, then the returned stats struct will contain the 
-% relevant fields along with their corresponding initial values. print_str 
-% will also contain the header to be printed before the first pass of 
-% trustregions.m (if options.verbosity == 2). The other outputs will be 
-% empty. This stats struct is used in the first call to savestats in 
-% trustregions.m to initialize the info struct properly.
-%
 % Note: trs_gep does not use preconditioning.
 %
-% Example to solve trust-region subproblem restricted to two dimensional
-% subspace (assuming M.dim() >= 2) where if grad != 0, the subspace spans 
-% grad and one random linearly independent tangent vector, otherwise the
-% subspace spans a completely randomized two dimensional subspace:
+% trs_gep can also be called in the following way (for printing
+% purposes):
 %
-% options.subproblemsolver = @trs_gep;
-% options.gepsubspacedim = 2;
+% function [~, ~, print_header, stats] = trs_gep([], [], options)
+%
+% In this case when nargin == 3, the returned stats struct contains the 
+% relevant fields along with their corresponding initial values. 
+% print_header is the header to be printed before the first pass of 
+% trustregions.m. The other outputs will be 
+% empty. This stats struct is used in the first call to savestats in 
+% trustregions.m to initialize the info struct properly.
 %
 % See also: TRSgep trs_tCG trustregions
 
@@ -78,11 +80,11 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 % Contributors: 
 % Change log: 
 
-    if nargin == 0
+    if nargin == 3
         % trustregions.m only wants default values for stats.
         eta = [];
         Heta = [];
-        print_str = sprintf('%-13s%s\n','hessvecevals', 'stopreason');
+        print_str = sprintf('%9s   %s', 'hessvec','stopreason');
         stats = struct('hessvecevals', 0, 'limitedbyTR', false);
         return;
     end
@@ -149,14 +151,7 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
     else
         stopreason_str = 'Exact trs_gep interior sol';
     end
-
-    if options.verbosity == 2
-        print_str = sprintf('    %-5d        %s', n, stopreason_str);
-    elseif options.verbosity == 3
-        print_str = sprintf('hessvecevals: %5d  %s', n, stopreason_str);
-    elseif options.verbosity > 3
-        print_str = sprintf('\nhessvecevals: %5d   %s', n, stopreason_str);
-    end
+    print_str = sprintf('%9d   %s', n, stopreason_str);
     stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR);
 
 

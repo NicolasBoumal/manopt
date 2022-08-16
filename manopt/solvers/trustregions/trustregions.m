@@ -411,7 +411,7 @@ if ~exist('used_cauchy', 'var')
 end
 
 % get default output structure for logging purposes
-[~,~,print_header,subproblemstats] = options.subproblemsolver();
+[~,~,print_header,subproblemstats] = options.subproblemsolver([], [], options);
 
 stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart, subproblemstats);
 
@@ -420,21 +420,23 @@ info(min(10000, options.maxiter+1)).iter = [];
 
 % ** Display:
 if options.verbosity == 2
-   fprintf(['%3s %3s    k %5s   ', ...
-        'f  %13s |grad|  %11s%s\n'], ...
-        '   ','   ','     ','             ','           ', print_header);
-   fprintf(['%3s %3s    %-5d     ',...
-            '%-+13e    %-12e\n'],...
+   fprintf(['%3s %3s    iter   ', ...
+        '%15scost val   %2sgrad. norm   %s\n'], ...
+        '   ','   ','        ','  ', print_header);
+   fprintf(['%3s %3s   %5d   ',...
+            '%+.16e   %12e\n'],...
            '   ','   ',k, fx, norm_grad);
-elseif options.verbosity == 3
-   fprintf(['%3s %3s   k: %5d   ',...
-            'f: %+e   |grad|: %e\n'],...
+elseif options.verbosity > 2
+   fprintf(['%3s %3s    iter   ', ...
+        '%15scost val   %2sgrad. norm   %10srho   %4srho_noreg   %7sDelta   %s\n'], ...
+        '   ','   ','        ','  ', '         ', '   ', '       ', print_header);
+   fprintf(['%3s %3s   %5d   ',...
+            '%+.16e   %12e\n'],...
            '   ','   ',k, fx, norm_grad);
-elseif options.verbosity > 3
-   fprintf('**************************************************************************************************\n');
-    fprintf(['%3s %3s   k: %5d   ', ...
-    'f: %+e   |grad|: %e   rho: %s   Delta: %f\n%s\n'], ...
-    '','',k,fx,norm_grad,'____________', Delta);
+%    fprintf('**************************************************************************************************\n');
+%     fprintf(['%3s %3s   k: %5d   ', ...
+%     'f: %+e   |grad|: %e   rho: %s   Delta: %f\n%s\n'], ...
+%     '','',k,fx,norm_grad,'____________', Delta);
 end
 
 % To keep track of consecutive radius changes, so that we can warn the
@@ -484,7 +486,7 @@ while true
         break;
     end
 
-    if options.verbosity > 3 || options.debug > 0
+    if options.debug > 0
         fprintf('**************************************************************************************************\n');
     end
 
@@ -511,7 +513,7 @@ while true
 
     [eta, Heta, subproblem_str, subproblemstats] = options.subproblemsolver(problem, subprobleminput, ...
                                 options, storedb, key);
-    
+
     limitedbyTR = subproblemstats.limitedbyTR;
 
     % If using randomized approach, compare result with the Cauchy point.
@@ -567,6 +569,7 @@ while true
     rhonum = fx - fx_prop;
     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
     rhoden = -M.inner(x, eta, vecrho);
+    rho_noreg = rhonum/rhoden;
     % rhonum could be anything.
     % rhoden should be nonnegative, as guaranteed by tCG, barring 
     % numerical errors.
@@ -757,20 +760,20 @@ while true
 
     % ** Display:
     if options.verbosity == 2
-        fprintf(['%3s %3s    %-5d     ', ...
-        '%-+13e    %-12e   %s\n'], ...
+        fprintf(['%3s %3s   %5d   ', ...
+        '%+.16e   %12e   %s\n'], ...
         accstr,trstr,k,fx,norm_grad,subproblem_str);
-    elseif options.verbosity == 3
-        fprintf(['%3s %3s   k: %5d   ', ...
-        'f: %+e   |grad|: %e   %s\n'], ...
-        accstr,trstr,k,fx,norm_grad,subproblem_str);
-    elseif options.verbosity > 3
+    elseif options.verbosity > 2
         if options.useRand && used_cauchy
             fprintf('USED CAUCHY POINT\n');
         end
-        fprintf(['%3s %3s   k: %5d   ', ...
-        'f: %+e   |grad|: %e   rho: %e   Delta: %f   \n%s\n'], ...
-        accstr,trstr,k,fx,norm_grad,rho, Delta, subproblem_str);
+        fprintf(['%3s %3s   %5d   ', ...
+        '%+.16e   %.6e   %+.6e   %+.6e   %.6e   %s\n'], ...
+        accstr,trstr,k,fx,norm_grad,rho, rho_noreg, Delta, subproblem_str);
+
+%         fprintf(['%3s %3s   k: %5d   ', ...
+%         'f: %+e   |grad|: %e   rho: %e   Delta: %f   \n%s\n'], ...
+%         accstr,trstr,k,fx,norm_grad,rho, Delta, subproblem_str);
 
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
@@ -789,7 +792,7 @@ end  % of TR loop (counter: k)
 info = info(1:k+1);
 
 
-if (options.verbosity > 3) || (options.debug > 0)
+if options.debug > 0
    fprintf('**************************************************************************************************\n');
 end
 if (options.verbosity > 0) || (options.debug > 0)
