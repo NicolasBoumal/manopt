@@ -131,6 +131,7 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
         options = struct();
     end
     options = mergeOptions(localdefaults, options);
+    
     timetic = tic();
     
     % If no initial point x is given by the user, generate one at random.
