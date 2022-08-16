@@ -60,5 +60,8 @@ function [stepsize, newx, newkey, lsstats] = ...
     stepsize = alpha * norm_d;
     
     % Return some statistics also, for possible analysis.
+    % Return some statistics also, for possible analysis.
+    lsstats.costevals = 0;
     lsstats.stepsize = stepsize;
+    lsstats.alpha = alpha;
 end
