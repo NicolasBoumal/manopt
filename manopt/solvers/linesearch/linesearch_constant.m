@@ -1,15 +1,22 @@
 function [stepsize, newx, newkey, lsstats] = ...
                   linesearch_constant(problem, x, d, ~, ~, ~, storedb, ~)
-% Constant stepsize (no line-search) algorithm for descent methods.
+% Forces a constant multiplir on the descent direction chosen by the algorithm.
 % 
-% Note: to use linesearch_constant the user should define their intended 
-% constant alpha > 0 and use the following lines of code:
-%  problem.linesearch = @(x, d) alpha;
-%  options.linesearch = @linesearch_constant;
+% This is meant to be used by the steepestdescent or conjugategradients solvers.
+% To use this merthod, specify linesearch_constant as an option, and your chosen
+% constant alpha > 0 in the problem structure, as follows:
 %
-% Below, the step is constructed as alpha*d, and the step size is the norm
-% of that vector, thus: stepsize = alpha*norm_d. The step is executed by
-% retracting the vector alpha*d from the current point x, giving newx.
+%  problem.linesearch = @(x, d) 1.0;     % choose any positive real number
+%  options.linesearch = @linesearch_constant;
+%  x = steepestdescent(problem, [], options);
+%
+% The effective step (that is, the vector the optimization algorithm retracts)
+% is constructed as alpha*d, and the step size is the norm of that vector.
+% Thus: stepsize = alpha*norm_d.
+% The step is executed by retracting the vector alpha*d from the current
+% point x, which gives newx (the returned point).
+% This line-search method does not require any cost function evaluations,
+% as there is effectively no search involved.
 %
 % Inputs
 %
@@ -27,7 +34,7 @@ function [stepsize, newx, newkey, lsstats] = ...
 %         the retraction at x of the vector alpha*d reaches newx.
 %  newkey : key associated to newx in storedb
 %  lsstats : statistics about the line-search procedure
-%            (stepsize).
+%            (costevals, stepsize, alpha).
 %
 % See also: steepestdescent conjugategradients linesearch
 
