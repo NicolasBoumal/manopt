@@ -44,11 +44,15 @@ function [x, cost, info, options] = steepestdescent(problem, x, options)
 %   linesearch (@linesearch or @linesearch_hint)
 %       Function handle to a line search function. The options structure is
 %       passed to the line search too, so you can pass it parameters. See
-%       each line search's documentation for info. Another available line
-%       search in manopt is @linesearch_adaptive, in
-%       /manopt/linesearch/linesearch_adaptive.m
+%       each line search's documentation for info.
 %       If the problem structure includes a line search hint, then the
-%       default line search used is @linesearch_hint.
+%       default line search used is @linesearch_hint; otherwise
+%       the default is @linesearch.
+%       There are other line search algorithms available in
+%       /manopt/solvers/linesearch/. For example:
+%       - @linesearch_adaptive
+%       - @linesearch_constant
+%       See their documentation with the help command.
 %   statsfun (none)
 %       Function handle to a function that will be called after each
 %       iteration to provide the opportunity to log additional statistics.
