@@ -68,11 +68,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       The trust-region radius at the outer iteration.
 %   limitedbyTR (boolean)
 %       true if the subproblemsolver was limited by the trust-region
-%       radius (a boundary solution was returned). limitedbyTR is found in
-%       the subproblemstats struct.
+%       radius (a boundary solution was returned).
 %   cauchy (boolean)
 %       Whether the Cauchy point was used or not (if useRand is true).
-%   And possibly additional information in suboutputstats or logged by 
+%   And possibly additional information in subproblemstats or logged by 
 %   options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each (outer) iteration.
@@ -113,14 +112,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       also see this options structure, so that parameters can be passed
 %       to it through here as well. Built-in solvers include:
 %           trs_tCG_cached
-%           trs_gep
 %           trs_tCG
-%       Note that trs_gep solves the subproblem exactly and is generally
-%       slow. It is mainly for prototyping or for solving the 
-%       subproblem exactly in low dimensions.
+%           trs_gep
+%       Note that trs_gep solves the subproblem exactly which may be slow.
+%       It is included mainly for prototyping or for solving the subproblem
+%       exactly in low dimensional subspaces.
 %   useRand (false)
-%       Only used in trs_tCG. A warning will be issued if
-%       used with any other subproblem solver.
+%       Only used in trs_tCG.
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
@@ -310,6 +308,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       modify printing structure.
 
 % Verify that the problem description is sufficient for the solver.
+
 if ~canGetCost(problem)
     warning('manopt:getCost', ...
             'No cost provided. The algorithm will likely abort.');  
