@@ -1,42 +1,40 @@
-function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, storedb, key)
+function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, ~, ~)
 % Solves trust-region subproblem with TRSgep in a subspace of tangent space.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta> <= Delta^2
 %
-% function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, storedb, key)
+% function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, ~, ~)
 %
-% Example to solve trust-region subproblem restricted to two dimensional
-% subspace:
+% This is meant to be used by the trustregion solver.
+% To use this method, specify trs_gep as an option, and your chosen
+% subspace dimension in the problem structure, as follows:
 %
+% n = problem.M.dim()
 % options.subproblemsolver = @trs_gep;
-% options.gepsubspacedim = 2;
+% options.gepsubspacedim = n; % any integer between 1 and n inclusive.
+% x = trustregions(problem, [], options)
 %
-% If options.gepsubspacedim = M.dim() then trs_gep solves the trust-region 
-% subproblem exactly in the entire tangent space by creating an orthonormal 
-% basis for the entire subspace using tangentorthobasis, then passing the 
-% Hessian and gradient in that basis to TRSgep.
+% Note: trs_gep does not use preconditioning.
+%
+% trs_gep solves the trust-region subproblem exactly in a 
+% options.gepsubspacedim dimensional subspace of the tangent space by 
+% creating an orthonormal basis for the subspace using tangentorthobasis, 
+% and passing the hessian and gradient in that basis to TRSgep.
 % 
-% If options.gepsubspacedim < M.dim() then we solve the trust-region
-% subproblem restricted to a subspace of dimension options.gepsubspacedim.
-% To do this, we obtain an orthonormal basis of a options.gepsubspacedim 
-% dimensional subspace and pass the Hessian and gradient in that basis to
-% TRSgep.
-% 
-% When grad is nonzero, to guarantee that we do at least as well as the 
+% The basis is constructed by tangentorthobasis with randomly sampled 
+% linearly independent tangent vectors then orthonormalized with 
+% Gram-Schmidt.
+%
+% If options.gepsubspacedim < problem.M.dim() then when grad is nonzero, 
+% to guarantee that we do at least as well as the 
 % Cauchy point, we ensure grad is in the span of the basis.
-%
-% When grad is zero, then our basis is constructed using a randomly sampled
-% set of linearly independent vectors and orthonormalized with
-% Gram-Schmidt. This can, in principle, help in escaping saddle points.
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
 %   subprobleminput: struct storing information for this subproblemsolver
 %       x: point on the manifold problem.M
 %       grad: gradient of the cost function of the problem at x
-%       eta: starting point problem.M.zerovec(x) or small random tangent
-%       vector if options.useRand == true.
 %       Delta = trust-region radius
 %   options: structure containing options for the subproblem solver
 %   storedb, key: caching data for problem at x
@@ -59,16 +57,14 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 %       explicitly in gepsubspacedim dimensions.
 %       limitedbyTR: true if a boundary solution is returned
 %
-% Note: trs_gep does not use preconditioning.
-%
 % trs_gep can also be called in the following way (for printing
 % purposes):
 %
-% function [~, ~, print_header, stats] = trs_gep([], [], options)
+% function [~, ~, print_str, stats] = trs_gep([], [], options)
 %
 % In this case when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. 
-% print_header is the header to be printed before the first pass of 
+% relevant fields along with their corresponding initial values. In this
+% case print_str is the header to be printed before the first pass of 
 % trustregions.m. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
 % trustregions.m to initialize the info struct properly.

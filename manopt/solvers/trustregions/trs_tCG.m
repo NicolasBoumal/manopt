@@ -46,11 +46,11 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 % trs_tCG can also be called in the following way (for printing
 % purposes):
 %
-% function [~, ~, print_header, stats] = trs_tCG([], [], options)
+% function [~, ~, print_str, stats] = trs_tCG([], [], options)
 %
 % In this case when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. 
-% print_header is the header to be printed before the first pass of 
+% relevant fields along with their corresponding initial values. In this
+% case print_str is the header to be printed before the first pass of 
 % trustregions.m. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
 % trustregions.m to initialize the info struct properly.
@@ -118,8 +118,8 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %
 %   VL June 29, 2022:
 %       Renamed tCG to trs_tCG to keep consistent naming with new
-%       subproblem solvers. Also modified inputs and outputs for 
-%       compatability with other subproblemsolvers.
+%       subproblem solvers for trustregion. Also modified inputs and 
+%       outputs to be compatible with other subproblemsolvers.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in

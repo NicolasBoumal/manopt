@@ -6,13 +6,10 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %
 % function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
 %
-% trs_tCG_cached by default stores information (when options.useCache=true) 
+% trs_tCG_cached stores information (when options.useCache=true) 
 % which can help avoid redundant computations (using tCG_rejectedstep) 
-% upon step rejection by trustregions.m.
-%
-% In contrast, trs_tCG does not cache so the redundant steps will
-% still be computed but no extra memory is needed compared to
-% trs_tCG_cached.
+% upon step rejection by trustregions.m compared to trs_tCG at the cost of
+% using extra memory.
 %
 % trs_tCG_cached also cannot use randomization (so options.useRand should 
 % be false).
@@ -77,11 +74,11 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % trs_tCG_cached can also be called in the following way (for printing
 % purposes):
 %
-% function [~, ~, print_header, stats] = trs_tCG_cached([], [], options)
+% function [~, ~, print_str, stats] = trs_tCG_cached([], [], options)
 %
 % In this case when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. 
-% print_header is the header to be printed before the first pass of 
+% relevant fields along with their corresponding initial values. In this
+% case print_str is the header to be printed before the first pass of 
 % trustregions.m. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
 % trustregions.m to initialize the info struct properly.

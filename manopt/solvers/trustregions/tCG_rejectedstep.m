@@ -1,18 +1,24 @@
 function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
 % Function that mimics trs_tCG_cached's behaviour with existing cache.
 % 
+% function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
+%
 % Upon step rejection in trustregions.m, instead of running the entire tCG
 % loop again, the stored information from a previous call to trs_tCG_cached
-% is sufficient to compute the next proposed step.
+% is sufficient to compute the next proposed step. tCG_rejectedstep
+% processes this stored information and computes the next step.
 %
-% Note there can only be two situations.
-% 1. We return the same eta, Heta as the previous tCG loop and 
-% trustregions.m decreases Delta again (either d_Hd <= 0 or store_last is 
-% used).
-% 2. We return a new eta when some previous candidate eta (stored in 
-% store_iters) satisfies normsq := <eta,eta>_x >= Delta^2 at the current 
-% Delta (exceeding trust region). The returned point is the Steihaug–Toint 
-% point.
+% There can be two situations:
+% 
+% 1. The same eta and Heta as the previous tCG loop is returned and 
+% trustregions.m decreases Delta. (either d_Hd <= 0 or store_last is 
+% used)
+% 
+% 2. A new eta and Heta is returned when some previously calculated eta_new 
+% from store_iters satisfies normsq := <eta_new,eta_new>_x >= Delta^2 
+% at the current Delta (exceeding trust region). Then the returned point is
+% the Steihaug–Toint point calculated using the eta computed before
+% eta_new.
 %
 % Refer to trs_tCG_cached for a description of the inputs and outputs.
 %
@@ -89,8 +95,7 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
 
     % If no stored struct in store_iters satisfies negative curvature or 
     % violates the trust-region radius we exit with last eta, Heta and
-    % limitedbyTR = false from store_last. If we do not return in the loop
-    % and there is no store_last then something went wrong.
+    % limitedbyTR = false from store_last.
     eta = store_last.eta;
     Heta = store_last.Heta;
     stats.limitedbyTR = false;

@@ -108,7 +108,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       may pay off to try to tune this parameter to shorten the plateau.
 %       You should not set this parameter without setting Delta_bar too (at
 %       a larger value).
-%   subproblemsolver (@trs_tCG)
+%   subproblemsolver (@trs_tCG_cached)
 %       Function handle to a subproblem solver. The subproblem solver will
 %       also see this options structure, so that parameters can be passed
 %       to it through here as well. Built-in solvers include:
@@ -119,7 +119,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       slow. It is mainly for prototyping or for solving the 
 %       subproblem exactly in low dimensions.
 %   useRand (false)
-%       Only used for trs_tCG subproblem solver. A warning will be made if
+%       Only used in trs_tCG. A warning will be issued if
 %       used with any other subproblem solver.
 %       Set to true if the trust-region solve is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
@@ -304,6 +304,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %
 %   NB July 19, 2020:
 %       Added support for options.hook.
+%
+%   VL August 17, 2022:
+%       Refactored code to use various subproblem solvers, and
+%       modify printing structure.
 
 % Verify that the problem description is sufficient for the solver.
 if ~canGetCost(problem)
@@ -505,7 +509,7 @@ while true
 
     % Solve TR subproblem with solver specified by options.subproblemsolver
     subprobleminput = struct('x', x, 'fgradx', fgradx, 'eta', eta, ...
-                            'Delta', Delta, 'gradnorm', norm_grad, 'accept', accept);
+                            'Delta', Delta, 'accept', accept);
 
     [eta, Heta, subproblem_str, subproblemstats] = options.subproblemsolver(problem, subprobleminput, ...
                                 options, storedb, key);

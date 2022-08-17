@@ -1,34 +1,32 @@
-function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
+function orthobasis = tangentorthobasis(M, x, n, basisvecs)
 % Returns an orthonormal basis of tangent vectors in the Manopt framework.
 %
 % function orthobasis = tangentorthobasis(M, x)
 % function orthobasis = tangentorthobasis(M, x, n)
-% function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
+% function orthobasis = tangentorthobasis(M, x, n, basisvecs)
 %
 % M is a Manopt manifold structure obtained from a factory.
 % x is a point on the manifold M.
 % n (optional) is the dimension of the random subspace to span; by default,
 %   n = M.dim() so that the returned basis spans the whole tangent space.
-% basis_vecs (optional) is a cell of tangent vectors that are assumed to be
+% basisvecs (optional) is a cell of tangent vectors that are assumed to be
 %   linearly independent. 
+%
 % orthobasis is a cell of n tangent vectors at x.
 % With high probability, they form an orthonormal basis of the tangent
 % space at x. If necessary, this can be checked by calling
 %   G = grammatrix(M, x, orthobasis)
 % and verifying that norm(G - eye(size(G))) is close to zero.
 %
-% When basis_vecs is not specified then n vectors will be taken at random 
+% When basisvecs is not specified then n vectors will be taken at random 
 % in the tangent space and orthonormalized using Gram-Schmidt.
 %
-% When basis_vecs is specified then if length(basis_vecs) >= n, the first n 
-% vectors in basis_vecs will be passed to orthogonalize which are assumed
-% to be linearly independent.
-% If length(basis_vecs) < n then all the vectors from basis_vecs including
-% n - length(basis_vecs) random vectors from the tangent space will be 
-% passed to orthogonalize.
+% When basisvecs is specified then the first min(n, length(basisvecs))
+% vectors in basisvecs is passed to orthogonalize, with n - length(basisvecs)
+% additional randomly sampled tangent vectors if length(basisvecs) < n.
 %
-% Therefore if basis_vecs is provided, the span of the first 
-% min(n, length(basis_vecs)) vectors in basis_vecs will always be a 
+% Therefore if basisvecs is provided, the span of the first 
+% min(n, length(basisvecs)) vectors in basisvecs will always be a 
 % subspace of the space spaned by the returned orthobasis.
 %
 % Note: if extra accuracy is required, it may help to re-orthogonalize the
@@ -44,7 +42,7 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
 % Change log: 
 %
 %   VL July 17, 2022:
-%       Added the option to input basis_vecs to specify a linearly
+%       Added the option to input basisvecs to specify a linearly
 %       independent set of tangent vectors to pass to orthogonalize.
 
 
@@ -58,10 +56,10 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
     basis = cell(n, 1);
     
     % With high probability, vectors taken at random in the tangent space
-    % are linearly independent of basis_vecs
+    % are linearly independent of basisvecs
     for k = 1 : n
-        if exist('basis_vecs', 'var') && k <= length(basis_vecs)
-            basis(k, 1) = basis_vecs(k, 1);
+        if exist('basisvecs', 'var') && k <= length(basisvecs)
+            basis(k, 1) = basisvecs(k, 1);
         else
             basis{k} = M.randvec(x);
         end

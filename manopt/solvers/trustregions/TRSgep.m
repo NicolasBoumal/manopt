@@ -7,6 +7,8 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 % A: nxn symmetric, a: nx1 vector
 % B: nxn symmetric positive definite
 %
+% function [x, limitedbyTR] = TRSgep(A, a, Del)
+%
 % Code adapted from Yuji Nakatsukasa's code from the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
 %

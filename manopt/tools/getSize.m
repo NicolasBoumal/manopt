@@ -1,6 +1,8 @@
 function bytes = getsize(variable)
 % Method to get the bytes of an object.
 %
+% function bytes = getsize(variable)
+%
 % Source:
 % https://ch.mathworks.com/matlabcentral/answers/14837-how-to-get-size-of-an-object
 % Posted by Dmitry Borovoy on Matlab Answers on Aug. 31, 2011.
