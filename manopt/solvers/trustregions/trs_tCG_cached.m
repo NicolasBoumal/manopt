@@ -116,7 +116,7 @@ if nargin == 3
     return;
 end
 
-if options.useRand
+if isfield(options, 'useRand') && options.useRand
     warning('manopt:trs_tCG_cached:rand', ...
     [sprintf(['trs_tCG_cached does not use randomization. Did you mean to use trs_tCG?\n', ...
                 'To silence this warning use randomization with trs_tCG or set options.useRand = false.']);]);

@@ -156,12 +156,12 @@ if nargin == 3
     % trustregions.m only wants default values for stats.
     eta = [];
     Heta = [];
-    if ~options.useRand
+    if isfield(options, 'useRand') && options.useRand
+        print_str = sprintf('%9s   %9s   %11s   %s', 'numinner', 'hessvec', 'used_cauchy', 'stopreason');
+        stats = struct('numinner', 0, 'hessvecevals', 0,'limitedbyTR', false, 'cauchy', false);
+    else
         print_str = sprintf('%9s   %9s   %s', 'numinner', 'hessvec','stopreason');
         stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false);
-    else
-        print_str = sprintf('%9s   %9s   %11s   %s', 'numinner', 'hessvec', 'used_cauchy', 'stopreason');
-        stats = struct('numinner', 0, 'hessvecevals', 0, 'cauchy', false, 'limitedbyTR', false);
     end
     return;
 end
