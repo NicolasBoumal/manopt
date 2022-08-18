@@ -296,11 +296,12 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   NB July 19, 2020:
 %       Added support for options.hook.
 %
-%   VL August 17, 2022:
+%   VL Aug. 17, 2022:
 %       Refactored code to use various subproblem solvers with a new input 
 %       output pattern. Modified how information about iterations is 
 %       printed to accomodate new subproblem solvers. Moved all useRand and
-%       cauchy logic to trs_tCG.
+%       cauchy logic to trs_tCG. Options pertaining to tCG are still
+%       available but have moved to that file.
 
 
 % Verify that the problem description is sufficient for the solver.
