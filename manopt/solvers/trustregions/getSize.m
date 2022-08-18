@@ -1,7 +1,6 @@
 function [ bytes ] = getSize( variable )
 
-% Trick class to hide methods inherited from the handle class
-% when calling methods(myclass).
+% Method to get the bytes of a struct.
 %
 % Source:
 % https://ch.mathworks.com/matlabcentral/answers/14837-how-to-get-size-of-an-object
