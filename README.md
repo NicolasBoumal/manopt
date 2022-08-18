@@ -2,7 +2,7 @@
 
 Manopt is a Matlab toolbox for optimization on manifolds. For a description of the project, documentation, examples and more, see:
 
-[http://www.manopt.org](https://www.manopt.org).
+[https://www.manopt.org](https://www.manopt.org).
 
 There, you can also find links to the Python and Julia versions of Manopt.
 
@@ -10,7 +10,7 @@ There, you can also find links to the Python and Julia versions of Manopt.
 
 Manopt is released in numbered versions from time to time. For most users, it is easiest to download the latest numbered version from
 
-[https://www.manopt.org/downloads.html](http://www.manopt.org/downloads.html).
+[https://www.manopt.org/downloads.html](https://www.manopt.org/downloads.html).
 
 Alternatively, you can get the latest version of the code from GitHub directly of course.
 
@@ -20,7 +20,7 @@ Contributions are welcome!
 
 Check out these two books, freely available online:
 
- * Boumal, [An introduction to optimization on smooth manifolds](http://www.nicolasboumal.net/book), 2020
+ * Boumal, [An introduction to optimization on smooth manifolds](https://www.nicolasboumal.net/book), 2022
  * Absil, Mahony and Sepulchre, [Optimization Algorithms on Matrix Manifolds](https://press.princeton.edu/absil), 2008
  
 

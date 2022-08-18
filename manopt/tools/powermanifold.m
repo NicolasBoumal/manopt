@@ -261,4 +261,15 @@ function Mn = powermanifold(M, n)
         Mn.vecmatareisometries = @() false;
     end
 
+    if isfield(M, 'lie_identity')
+        Mn.lie_identity = @lie_identity;
+    end
+    function I = lie_identity()
+        I_M = M.lie_identity();
+        I = cell(n, 1);
+        for k = 1 : n
+            I{k} = I_M;
+        end
+    end
+
 end
