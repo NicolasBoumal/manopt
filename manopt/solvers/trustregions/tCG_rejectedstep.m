@@ -50,7 +50,8 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
         stats.memorytCG_MB = stats.memorytCG_MB + getsize(store_last)/1024^2;
         numstored = numstored + 1;
     end
-    % get amount of memory that is currently cached.
+    
+    print_str = '';
 
     for ii = 1:length(store_iters)
         normsq = store_iters(ii).normsq;
