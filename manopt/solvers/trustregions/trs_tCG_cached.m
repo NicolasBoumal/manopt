@@ -158,7 +158,8 @@ if ~subprobleminput.accept && options.trscache
     store = storedb.get(key);
     if isfield(store, 'store_iters')
         % If so, use that cache to produce the same output as would have
-        % been produced by running the code below (after the 'return').
+        % been produced by running the code below (after the 'return'), but
+        % without issuing Hessian-vector calls that were already issued.
         [eta, Heta, print_str, stats] = ...
                 tCG_rejectedstep(problem, subprobleminput, options, store);
         return;
