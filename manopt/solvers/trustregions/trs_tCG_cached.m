@@ -8,7 +8,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %
 % trs_tCG_cached stores information (when options.useCache=true) 
 % which can help avoid redundant computations (using tCG_rejectedstep) 
-% upon step rejection by trustregions.m compared to trs_tCG at the cost of
+% upon step rejection by trustregions compared to trs_tCG at the cost of
 % using extra memory.
 %
 % Inputs:
@@ -75,7 +75,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % In this case when nargin == 3, the returned stats struct contains the 
 % relevant fields along with their corresponding initial values. In this
 % case print_str is the header to be printed before the first pass of 
-% trustregions.m. The other outputs will be 
+% trustregions. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
 % trustregions.m to initialize the info struct properly.
 %
