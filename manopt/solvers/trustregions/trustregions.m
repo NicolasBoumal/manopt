@@ -230,7 +230,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % Change log: 
 %
 %   NB April 3, 2013:
-%       trs_tCG now returns the Hessian along the returned direction eta, so
+%       tCG now returns the Hessian along the returned direction eta, so
 %       that we do not compute that Hessian redundantly: some savings at
 %       each iteration. Similarly, if the useRand flag is on, we spare an
 %       extra Hessian computation at each outer iteration too, owing to
@@ -255,13 +255,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       forced rho = 1 has been replaced by a smoother heuristic which
 %       consists in regularizing rhonum and rhoden before computing their
 %       ratio. It is tunable via options.rho_regularization. Furthermore,
-%       the solver now detects if trs_tCG did not obtain a model decrease
+%       the solver now detects if tCG did not obtain a model decrease
 %       (which is theoretically impossible but may happen because of
 %       numerical errors and/or because of a nonlinear/nonsymmetric Hessian
 %       operator, which is the case for finite difference approximations).
 %       When such an anomaly is detected, the step is rejected and the
 %       trust region radius is decreased.
-%       Feb. 18, 2015 note: this is less useful now, as trs_tCG now guarantees
+%       Feb. 18, 2015 note: this is less useful now, as tCG now guarantees
 %       model decrease even for the finite difference approximation of the
 %       Hessian. It is still useful in case of numerical errors, but this
 %       is less stringent.
@@ -314,9 +314,10 @@ if ~canGetGradient(problem) && ~canGetApproxGradient(problem)
     % explicitly given in the problem description, as in that case the user
     % seems to be aware of the issue.
     warning('manopt:getGradient:approx', ...
-           ['No gradient provided. Using an FD approximation instead (slow).\n' ...
+           ['No gradient provided. Using FD approximation (slow).\n' ...
             'It may be necessary to increase options.tolgradnorm.\n' ...
-            'To disable this warning: warning(''off'', ''manopt:getGradient:approx'')']);
+            'To disable this warning: ' ...
+            'warning(''off'', ''manopt:getGradient:approx'')']);
     problem.approxgrad = approxgradientFD(problem);
 end
 if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
@@ -324,8 +325,9 @@ if ~canGetHessian(problem) && ~canGetApproxHessian(problem)
     % explicitly given in the problem description, as in that case the user
     % seems to be aware of the issue.
     warning('manopt:getHessian:approx', ...
-           ['No Hessian provided. Using an FD approximation instead.\n' ...
-            'To disable this warning: warning(''off'', ''manopt:getHessian:approx'')']);
+           ['No Hessian provided. Using FD approximation.\n' ...
+            'To disable this warning: ' ...
+            'warning(''off'', ''manopt:getHessian:approx'')']);
     problem.approxhess = approxhessianFD(problem);
 end
 
@@ -363,7 +365,7 @@ if ~isfield(options, 'Delta_bar')
         options.Delta_bar = sqrt(M.dim());
     end 
 end
-if ~isfield(options,'Delta0')
+if ~isfield(options, 'Delta0')
     options.Delta0 = options.Delta_bar / 8;
 end
 
@@ -380,12 +382,11 @@ if options.verbosity >= 3
     disp(options);
 end
 
-ticstart = tic();
-
-
 % Create a store database and get a key for the current x
 storedb = StoreDB(options.storedepth);
 key = storedb.getNewKey();
+
+ticstart = tic();
 
 %% Initializations
 
@@ -403,29 +404,36 @@ norm_grad = M.norm(x, fgradx);
 % Initialize trust-region radius
 Delta = options.Delta0;
 
-% get default output structure for logging purposes
-[~,~,print_header,subproblemstats] = options.subproblemsolver([], [], options);
+% Depending on the subproblem solver, different kinds of statistics are
+% logged and displayed. This initial call to the solver tells us ahead of
+% time what to write in the column headers for displayed information, and
+% how to initialize the info struct-array.
+[~, ~, print_header, subproblemstats] = ...
+                                 options.subproblemsolver([], [], options);
 
-stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, Delta, ticstart, subproblemstats);
+stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, ...
+                                         Delta, ticstart, subproblemstats);
 
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
 
-% ** Display:
+% Display headers, depending on verbosity level, then also the initial row.
 if options.verbosity == 2
-   fprintf(['%3s %3s    iter   ', ...
-        '%15scost val   %2sgrad. norm   %s\n'], ...
-        '   ','   ','        ','  ', print_header);
-   fprintf(['%3s %3s   %5d   ',...
-            '%+.16e   %12e\n'],...
-           '   ','   ',k, fx, norm_grad);
+    fprintf(['%3s %3s    iter   ', ...
+             '%15scost val   %2sgrad. norm   %s\n'], ...
+             '   ', '   ', '        ', '  ', print_header);
+    fprintf(['%3s %3s   %5d   ', ...
+             '%+.16e   %12e\n'], ...
+             '   ', '   ', k, fx, norm_grad);
 elseif options.verbosity > 2
-   fprintf(['%3s %3s    iter   ', ...
-        '%15scost val   %2sgrad. norm   %10srho   %4srho_noreg   %7sDelta   %s\n'], ...
-        '   ','   ','        ','  ', '         ', '   ', '       ', print_header);
-   fprintf(['%3s %3s   %5d   ',...
-            '%+.16e   %12e\n'],...
-           '   ','   ',k, fx, norm_grad);
+    fprintf(['%3s %3s    iter   ', ...
+             '%15scost val   %2sgrad. norm   %10srho   %4srho_noreg   ' ...
+             '%7sDelta   %s\n'], ...
+             '   ', '   ', '        ', '  ', '         ', '   ', ...
+             '       ', print_header);
+    fprintf(['%3s %3s   %5d   ', ...
+             '%+.16e   %12e\n'], ...
+             '   ','   ',k, fx, norm_grad);
 end
 
 % To keep track of consecutive radius changes, so that we can warn the
@@ -445,16 +453,17 @@ while true
     % Apply the hook function if there is one: this allows external code to
     % move x to another point. If the point is changed (indicated by a true
     % value for the boolean 'hooked'), we update our knowledge about x.
-    [x, key, info, hooked] = applyHook(problem, x, storedb, key, options, info, k+1);
+    [x, key, info, hooked] = applyHook(problem, x, storedb, key, ...
+                                                       options, info, k+1);
     if hooked
-        % x changed so caching is not useful anymore thus disable caching.
-        if options.useCache
-            fprintf('hooked == true, so setting options.useCache = false')
-            options.useCache = false;
-        end
-
         [fx, fgradx] = getCostGrad(problem, x, storedb, key);
         norm_grad = M.norm(x, fgradx);
+
+        % x changed so caching is not useful anymore: disable caching.
+        if options.useCache
+            fprintf('hooked == true, so setting options.useCache = false.\n');
+            options.useCache = false;
+        end
     end
     
     % Run standard stopping criterion checks
@@ -713,7 +722,7 @@ while true
         end
     end
     if options.debug > 0
-        fprintf('DBG: cos ang(eta,gradf): %d\n',testangle);
+        fprintf('DBG: cos ang(eta,gradf): %d\n', testangle);
         if rho == 0
             fprintf('DBG: rho = 0, this will likely hinder further convergence.\n');
         end

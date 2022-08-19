@@ -23,21 +23,21 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % Options specific to this subproblem solver:
 %   kappa (0.1)
 %       kappa convergence tolerance.
-%       kappa > 0 is the linear convergence target rate: trs_tCG_cached will
-%       terminate early if the residual was reduced by a factor of kappa.
+%       kappa > 0 is the linear convergence target rate: trs_tCG_cached
+%       terminates early if the residual was reduced by a factor of kappa.
 %   theta (1.0)
 %       theta convergence tolerance.
 %       1+theta (theta between 0 and 1) is the superlinear convergence
-%       target rate. trs_tCG_cached will terminate early if the residual 
+%       target rate. trs_tCG_cached terminates early if the residual 
 %       was reduced by a power of 1+theta.
 %   mininner (1)
-%       Minimum number of inner iterations for trs_tCG_cached.
-%   maxinner (problem.M.dim() : the manifold's dimension)
-%       Maximum number of inner iterations for trs_tCG_cached.
+%       Minimum number of inner iterations.
+%   maxinner (problem.M.dim())
+%       Maximum number of inner iterations.
 %   useCache (true)
 %       Set to false if no caching for the trs_tCG_cached is desired. It is
 %       default true to improve computation time if there are many step
-%       rejections in trustregions.m. Setting useCache to false can reduce
+%       rejections in trustregions. Setting useCache to false can reduce
 %       memory usage.
 %   memorytCG_warningtol (1000)
 %       Tolerance memory value in MB before issuing warning when 
@@ -66,6 +66,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %   store_last: an additional struct to store_iters to compute the next
 %       step upon step rejection when the algorithm exits but not due to 
 %       negative curvature or trust-region radius violation
+%
 %
 % trs_tCG_cached can also be called in the following way (for printing
 % purposes):
@@ -431,4 +432,5 @@ end
 
 stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR, ...
                     'memorytCG_MB', memorytCG_MB);
+
 end
