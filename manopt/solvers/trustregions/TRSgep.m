@@ -36,17 +36,31 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 %       ellipsoid norm constraint to unweighted norm.
 %   NB Aug. 19, 2022:
 %       Comments + cosmetic changes.
+%       Corrected determination of limitedbyTR.
+%       Added support for input a = 0.
 
     n = size(A, 1);
 
     % We set this flag to true iff the solution x computed below is
 	% limited by the trust-region boundary.
-    limitedbyTR = false;
+    limitedbyTR = true;
 
     MM1 = [sparse(n, n) speye(n) ; speye(n) sparse(n, n)];
-    tolhardcase = 1e-4; % tolerance for hard-case
 
-    [p1, ~] = pcg(A, -a, 1e-12, 500); % possible interior solution
+    % Tolerance for hard-case.
+    % If this triggers, then the solver works harder to check itself.
+    tolhardcase = 1e-4;
+
+    % If a is exactly zero, pcg (called below) abandons on the first
+    % iteration. Instead, we give it a small input and re-check at the end.
+    a_is_zero = (norm(a) == 0);
+    if a_is_zero
+        a = eps*randn(n, 1);
+    end
+
+    [p1, ~] = pcg(A, -a, 1e-12, 500);
+
+    % Check for possible interior solution.
     if norm(A*p1 + a) < 1e-5*norm(a)
         if p1'*p1 >= Del^2
             p1 = NaN;
@@ -55,22 +69,24 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         p1 = NaN;
     end
 
-    % This is the core of the code
+    % This is the core of the code.
     [V, lam1] = eigs(@(x) MM0timesx(A, a, Del, x), 2*n, -MM1, 1, 'lr');
 
-    if norm(real(V)) < 1e-3 % sometimes complex
+    % Sometimes the output is complex.
+    if norm(real(V)) < 1e-3
         V = imag(V);
     else
         V = real(V);
     end
-    
     lam1 = real(lam1);
+
     % This is parallel to the solution:
     x = V(1:n);
-    normx = sqrt(x'*x);
-    % In the easy case, this naive normalization improves accuracy
+    normx = norm(x);
+
+    % In the easy case, this naive normalization improves accuracy.
     x = x/normx*Del;
-    % Take the correct sign
+    % Take the correct sign.
     if x'*a > 0
         x = -x;
     end
@@ -99,18 +115,29 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         aa = x1'*x1;
         bb = 2*(x2'*x1);
         cc = x2'*x2 - Del^2;
-        alp = (-bb + sqrt(bb^2 - 4*aa*cc))/(2*aa); %norm(x2+alp*x) - Delta
+        alp = (-bb + sqrt(bb^2 - 4*aa*cc))/(2*aa); % norm(x2+alp*x) - Delta
         x = x2 + alp*x1;
     end
 
-    % Choose between interior and boundary
+    % Check whether the solution is in the interior of the TR.
     if sum(isnan(p1)) == 0
         if (p1'*A*p1)/2 + a'*p1 < (x'*A*x)/2 + a'*x
             x = p1;
             % lam1 = 0;
-            % Specify we have a boundary solution
-            limitedbyTR = true;
+            limitedbyTR = false;
         end
+    end
+
+    % If the input a was zero, then earlier in the code we replaced it with
+    % a tiny random vector. Two things may have happened afterwards:
+    % If A is positive definite, then the solution x is also a tiny vector.
+    % In all likelihood, it did not hit the TR: then we know to replace x
+    % with zero.
+    % Otherwise, at least one eigenvalue of A is <= 0, and there exists a
+    % solution on the boundary of the trust-region: that is what should
+    % have been computed already, hence we do nothing.
+    if a_is_zero && ~limitedbyTR
+        x = zeros(n, 1);
     end
     
 end
