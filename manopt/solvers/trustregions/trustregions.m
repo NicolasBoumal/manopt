@@ -490,11 +490,12 @@ while true
     % *************************
   
     % Solve TR subproblem with solver specified by options.subproblemsolver
-    subprobleminput = struct('x', x, 'fgradx', fgradx, ...
-                            'Delta', Delta, 'accept', accept);
+    subprobleminput = ...
+        struct('x', x, 'fgradx', fgradx, 'Delta', Delta, 'accept', accept);
 
-    [eta, Heta, subproblem_str, subproblemstats] = options.subproblemsolver(problem, subprobleminput, ...
-                                options, storedb, key);
+    [eta, Heta, subproblem_str, subproblemstats] = ...
+        options.subproblemsolver(problem, subprobleminput, ...
+                                 options, storedb, key);
 
     limitedbyTR = subproblemstats.limitedbyTR;
         
@@ -508,7 +509,7 @@ while true
     
 
     % Compute the tentative next iterate (the proposal)
-    x_prop  = M.retr(x, eta);
+    x_prop = M.retr(x, eta);
     key_prop = storedb.getNewKey();
 
     % Compute the function value of the proposal
@@ -548,9 +549,9 @@ while true
     % not under scaling of f. For abs(fx) > 1, the opposite holds. This
     % should not alarm us, as this heuristic only triggers at the very last
     % iterations if very fine convergence is demanded.
-    rho_reg = max(1, abs(fx)) * eps * options.rho_regularization;
-    rhonum = rhonum + rho_reg;
-    rhoden = rhoden + rho_reg;
+    rho_reg_offset = max(1, abs(fx)) * eps * options.rho_regularization;
+    rhonum = rhonum + rho_reg_offset;
+    rhoden = rhoden + rho_reg_offset;
    
     if options.debug > 0
         fprintf('DBG:     rhonum : %e\n', rhonum);
@@ -578,7 +579,7 @@ while true
     % the step and reduce the trust region radius. This also ensures that
     % the actual cost values are monotonically decreasing.
     %
-    % [This bit of code seems not to trigger because trs_tCG already ensures
+    % [This bit of code seems not to trigger since trs_tCG already ensures
     %  the model decreases even in the presence of non-linearities; but as
     %  a result the radius is not necessarily decreased. Perhaps we should
     %  change this with the proposed commented line below; needs testing.]
@@ -596,9 +597,11 @@ while true
     % this "corner case" (NaN's really aren't supposed to occur, but it's
     % nice if we can handle them nonetheless).
     if isnan(rho)
-        fprintf('rho is NaN! Forcing a radius decrease. This should not happen.\n');
+        fprintf(['rho is NaN! Forcing a radius decrease. ' ...
+                 'This should not happen.\n']);
         if isnan(fx_prop)
-            fprintf('The cost function returned NaN (perhaps the retraction returned a bad point?)\n');
+            fprintf(['The cost function returned NaN (perhaps the ' ...
+                     'retraction returned a bad point?)\n']);
         else
             fprintf('The cost function did not return a NaN value.\n');
         end
@@ -627,12 +630,15 @@ while true
         consecutive_TRminus = consecutive_TRminus + 1;
         if consecutive_TRminus >= 5 && options.verbosity >= 2
             consecutive_TRminus = -inf;
-            fprintf(' +++ Detected many consecutive TR- (radius decreases).\n');
-            fprintf(' +++ Consider decreasing options.Delta_bar by an order of magnitude.\n');
-            fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
+            fprintf([' +++ Detected many consecutive TR- (radius ' ...
+                     'decreases).\n' ...
+                     ' +++ Consider dividing options.Delta_bar by 10.\n' ...
+                     ' +++ Current values: options.Delta_bar = %g and ' ...
+                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
+                                                options.Delta0);
         end
     % If the actual decrease is at least 3/4 of the predicted decrease and
-    % the trs_tCG (inner solve) hit the TR boundary, increase the TR radius.
+    % the trs_tCG (inner solve) hit the TR boundary, increase TR radius.
     % We also keep track of the number of consecutive trust-region radius
     % increases. If there are many, this may indicate the need to adapt the
     % initial and maximum radii.
@@ -643,9 +649,12 @@ while true
         consecutive_TRplus = consecutive_TRplus + 1;
         if consecutive_TRplus >= 5 && options.verbosity >= 1
             consecutive_TRplus = -inf;
-            fprintf(' +++ Detected many consecutive TR+ (radius increases).\n');
-            fprintf(' +++ Consider increasing options.Delta_bar by an order of magnitude.\n');
-            fprintf(' +++ Current values: options.Delta_bar = %g and options.Delta0 = %g.\n', options.Delta_bar, options.Delta0);
+            fprintf([' +++ Detected many consecutive TR+ (radius ' ...
+                     'increases).\n' ...
+                     ' +++ Consider multiplying options.Delta_bar by 10.\n' ...
+                     ' +++ Current values: options.Delta_bar = %g and ' ...
+                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
+                                                options.Delta0);
         end
     else
         % Otherwise, keep the TR radius constant.
@@ -704,27 +713,28 @@ while true
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                      norm_grad, Delta, ticstart, subproblemstats, info, rho, rhonum, ...
-                      rhoden, accept, norm_eta);
+                      norm_grad, Delta, ticstart, subproblemstats, ...
+                      info, rho, rhonum, rhoden, accept, norm_eta);
     info(k+1) = stats;
 
-    % ** Display:
+    % Display
     if options.verbosity == 2
-        fprintf(['%3s %3s   %5d   ', ...
-        '%+.16e   %12e   %s\n'], ...
-        accstr,trstr,k,fx,norm_grad,subproblem_str);
+        fprintf('%3s %3s   %5d   %+.16e   %12e   %s\n', ...
+                accstr, trstr, k, fx, norm_grad, subproblem_str);
     elseif options.verbosity > 2
-        fprintf(['%3s %3s   %5d   ', ...
-        '%+.16e   %.6e   %+.6e   %+.6e   %.6e   %s\n'], ...
-        accstr,trstr,k,fx,norm_grad,rho, rho_noreg, Delta, subproblem_str);
+        fprintf(['%3s %3s   %5d   %+.16e   %.6e   %+.6e   ' ...
+                 '%+.6e   %.6e   %s\n'], ...
+                accstr, trstr, k, fx, norm_grad, rho, ...
+                rho_noreg, Delta, subproblem_str);
         if options.debug > 0
-            fprintf('      Delta : %f          |eta| : %e\n',Delta,norm_eta);
+            fprintf('      Delta : %f          |eta| : %e\n', ...
+                    Delta, norm_eta);
         end
     end
     if options.debug > 0
-        fprintf('DBG: cos ang(eta,gradf): %d\n', testangle);
+        fprintf('DBG: cos ang(eta, gradf): %d\n', testangle);
         if rho == 0
-            fprintf('DBG: rho = 0, this will likely hinder further convergence.\n');
+            fprintf('DBG: rho = 0: likely to hinder convergence.\n');
         end
     end
 
@@ -737,7 +747,7 @@ info = info(1:k+1);
 if options.debug > 0
    fprintf('**************************************************************************************************\n');
 end
-if (options.verbosity > 0) || (options.debug > 0)
+if options.verbosity > 0
     fprintf('Total time is %f [s] (excludes statsfun)\n', info(end).time);
 end
 

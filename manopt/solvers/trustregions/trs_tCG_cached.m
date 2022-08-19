@@ -51,8 +51,8 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
 %       is often naturally available to the subproblem solver at the
 %       end of execution, so that it may be cheaper to return it here.
-%   print_str: subproblem specific string to be printed by trustregions.m
-%   stats: structure with values to be stored in trustregions.m
+%   print_str: subproblem specific string to be printed by trustregions.
+%   stats: structure with values to be stored in trustregions.
 %       numinner: number of inner loops before returning
 %       hessvecevals: number of Hessian calls during execution (can
 %       differ from numinner when caching is used)
@@ -78,7 +78,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % case print_str is the header to be printed before the first pass of 
 % trustregions. The other outputs will be 
 % empty. This stats struct is used in the first call to savestats in 
-% trustregions.m to initialize the info struct properly.
+% trustregions to initialize the info struct properly.
 %
 % See also: trustregions trs_tCG tCG_rejectedstep
 
@@ -104,7 +104,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
 if nargin == 3
-    % trustregions.m only wants default values for stats.
+    % trustregions only wants default values for stats.
     eta = [];
     Heta = [];
     print_str = '';
@@ -152,7 +152,7 @@ if ~subprobleminput.accept && options.trscache
         return;
 end
 
-% returned boolean to trustregions.m. true if we are limited by the TR
+% returned boolean to trustregions. true if we are limited by the TR
 % boundary (returns boundary solution). Otherwise false.
 limitedbyTR = false;
 
@@ -218,7 +218,7 @@ memorytCG_MB = 0;
 % will be length(store_iters) plus 1 if store_last is used.
 numstored = 0;
 
-% string that is printed by trustregions.m. For printing
+% string that is printed by trustregions. For printing
 % per-iteration information
 print_str = '';
 
@@ -249,7 +249,7 @@ for j = 1 : options.maxinner
         % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
         % such that max_normsq <= next_smallest. 
         % We use this condition to only store relevant iterations in case of
-        % rejection in trustregions.m
+        % rejection in trustregions.
         if max_normsq > 0
             next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
                                                 log2(Delta^2))) * Delta^2;
@@ -301,7 +301,7 @@ for j = 1 : options.maxinner
         if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
         end
-        eta  = lincomb(1,  eta, -tau,  mdelta);
+        eta = lincomb(1,  eta, -tau,  mdelta);
         
         % If only a nonlinear Hessian approximation is available, this is
         % only approximately correct, but saves an additional Hessian call.

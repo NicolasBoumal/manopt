@@ -299,7 +299,7 @@ for j = 1 : options.maxinner
         if options.debug > 2
             fprintf('DBG:     tau  : %e\n', tau);
         end
-        eta  = lincomb(1,  eta, -tau,  mdelta);
+        eta = lincomb(1,  eta, -tau,  mdelta);
         
         % If only a nonlinear Hessian approximation is available, this is
         % only approximately correct, but saves an additional Hessian call.
