@@ -476,7 +476,7 @@ while true
     end
 
     if options.debug > 0
-        fprintf('**************************************************************************************************\n');
+        fprintf([repmat('*', 1, 98) '\n']);
     end
 
     % *************************
@@ -739,7 +739,7 @@ info = info(1:k+1);
 
 
 if options.debug > 0
-   fprintf('**************************************************************************************************\n');
+   fprintf([repmat('*', 1, 98) '\n']);
 end
 if options.verbosity > 0
     fprintf('Total time is %f [s] (excludes statsfun)\n', info(end).time);
@@ -756,8 +756,8 @@ end
 
 % Routine in charge of collecting the current iteration stats
 function stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                           norm_grad, Delta, ticstart, subproblemstats, info, rho, rhonum, ...
-                           rhoden, accept, norm_eta)
+                           norm_grad, Delta, ticstart, subproblemstats, ...
+                           info, rho, rhonum, rhoden, accept, norm_eta)
     stats.iter = k;
     stats.cost = fx;
     stats.gradnorm = norm_grad;
