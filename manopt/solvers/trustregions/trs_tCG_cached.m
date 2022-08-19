@@ -6,7 +6,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %
 % function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
 %
-% trs_tCG_cached stores information (when options.useCache=true) 
+% trs_tCG_cached stores information (when options.trscache == true) 
 % which can help avoid redundant computations (using tCG_rejectedstep) 
 % upon step rejection by trustregions compared to trs_tCG at the cost of
 % using extra memory.
@@ -34,17 +34,17 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %       Minimum number of inner iterations.
 %   maxinner (problem.M.dim())
 %       Maximum number of inner iterations.
-%   useCache (true)
+%   trscache (true)
 %       Set to false if no caching for the trs_tCG_cached is desired. It is
 %       default true to improve computation time if there are many step
-%       rejections in trustregions. Setting useCache to false can reduce
+%       rejections in trustregions. Setting trscache to false can reduce
 %       memory usage.
 %   memorytCG_warningtol (1000)
 %       Tolerance memory value in MB before issuing warning when 
-%       useCache = true.
+%       trscache = true.
 %       The default is 1GB but this value can be increased depending on the
-%       user's machine, or to disable the warning completely use: 
-%       warning(''off'', ''manopt:trs_tCG_cached:memory'')
+%       user's machine. To disable the warning completely use: 
+%       warning('off', 'manopt:trs_tCG_cached:memory')
 %
 % Outputs:
 %   eta: approximate solution to the trust-region subproblem at x
@@ -136,7 +136,7 @@ localdefaults.kappa = 0.1;
 localdefaults.theta = 1.0;
 localdefaults.mininner = 1;
 localdefaults.maxinner = problem.M.dim();
-localdefaults.useCache = true;
+localdefaults.trscache = true;
 localdefaults.memorytCG_warningtol = 1000;
 
 % Merge local defaults with user options, if any
@@ -147,7 +147,7 @@ options = mergeOptions(localdefaults, options);
 
 % Previous step was rejected so we can save some compute here by passing to
 % helper function.
-if ~subprobleminput.accept && options.useCache
+if ~subprobleminput.accept && options.trscache
         [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
         return;
 end
@@ -244,7 +244,7 @@ for j = 1 : options.maxinner
         fprintf('DBG:   alpha  : %e\n', alpha);
     end
 
-    if options.useCache
+    if options.trscache
         % Selectively store info in store_iter.
         % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
         % such that max_normsq <= next_smallest. 
@@ -277,7 +277,7 @@ for j = 1 : options.maxinner
             if memorytCG_MB > options.memorytCG_warningtol
                 warning('manopt:trs_tCG_cached:memory', ...
                 [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
-                'If memory is limited turn off caching by options.useCache = false.\n' ...
+                'If memory is limited turn off caching by options.trscache = false.\n' ...
                 'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
              end
             
@@ -398,7 +398,7 @@ for j = 1 : options.maxinner
     
 end  % of trs_tCG loop
 
-if options.useCache
+if options.trscache
     store = storedb.get(key);
     store.store_iters = store_iters;
     if ~limitedbyTR
@@ -412,7 +412,7 @@ if options.useCache
         if memorytCG_MB > options.memorytCG_warningtol
             warning('manopt:trs_tCG_cached:memory', ...
             [sprintf('trs_tCG_cached will cache %.2f [MB] for at least one iteration of trustregions until a step is accepted.', memorytCG_MB) ...
-            'If memory is limited turn off caching by options.useCache = false.\n' ...
+            'If memory is limited turn off caching by options.trscache = false.\n' ...
             'If more memory can be used without problem increase options.memorytCG_warningtol accordingly.\n' ...
             'To disable this warning: warning(''off'', ''manopt:trs_tCG_cached:memory'')']);
         end

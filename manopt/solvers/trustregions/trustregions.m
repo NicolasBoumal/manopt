@@ -460,9 +460,9 @@ while true
         norm_grad = M.norm(x, fgradx);
 
         % x changed so caching is not useful anymore: disable caching.
-        if options.useCache
-            fprintf('hooked == true, so setting options.useCache = false.\n');
-            options.useCache = false;
+        if options.trscache
+            fprintf('hooked == true, so setting options.trscache = false.\n');
+            options.trscache = false;
         end
     end
     
