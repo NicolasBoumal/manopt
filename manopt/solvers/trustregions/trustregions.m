@@ -6,21 +6,24 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % function [x, cost, info, options] = trustregions(problem, x0, options)
 % function [x, cost, info, options] = trustregions(problem, [], options)
 %
-% This is the Riemannian Trust-Region solver (with default trs_tCG_cached 
-% inner solve), named RTR. This solver tries to minimize the cost function 
-% described in the problem structure. It requires the availability of the 
-% cost function and of its gradient. It will issue calls for the Hessian. 
-% If no Hessian nor approximate Hessian is provided, a standard 
-% approximation of the Hessian based on the gradient will be computed. If a 
-% preconditioner for the Hessian is provided, it will be used.
+% This is the Riemannian Trust-Region solver for Manopt, named RTR.
+% This solver tries to minimize the cost function described in the problem
+% structure. It requires the availability of the cost function and of its
+% gradient. It issues calls for the Hessian.
+%
+% If no Hessian nor approximation for it is provided, an approximation of
+% Hessian-vector products is computed with finite differences of gradients.
 %
 % If no gradient is provided, an approximation of the gradient is computed,
 % but this can be slow for manifolds of high dimension.
 %
+% At each iteration a subproblem is solved using a trust-region subproblem
+% (TRS) solver. The default is @trs_tCG_cached. This one (and some others)
+% use the preconditioner if one is supplied.
+%
 % For a description of the algorithm and theorems offering convergence
 % guarantees, see the references below. Documentation for this solver is
-% available online at:
-%
+% available online, but may be outdated.
 % http://www.manopt.org/solver_documentation_trustregions.html
 %
 %
@@ -33,7 +36,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 % because this solver is not forced to be a descent method. In particular,
 % very close to convergence, it is sometimes preferable to accept very
 % slight increases in the cost value (on the order of the machine epsilon)
-% in the process of reaching fine convergence.
+% in the process of reaching fine convergence. Other than that, the cost
+% function value does decrease monotonically with iterations.
 % 
 % The output 'info' is a struct-array which contains information about the
 % iterations:
@@ -44,10 +48,6 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       The corresponding cost value.
 %   gradnorm (double)
 %       The (Riemannian) norm of the gradient.
-%   numinner (integer)
-%       The number of inner iterations executed to compute this iterate.
-%       Inner iterations are truncated-CG steps. Each one requires a
-%       Hessian (or approximate Hessian) evaluation.
 %   time (double)
 %       The total elapsed time in seconds to reach the corresponding cost.
 %   rho (double)
@@ -69,8 +69,8 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   limitedbyTR (boolean)
 %       true if the subproblemsolver was limited by the trust-region
 %       radius (a boundary solution was returned).
-%   And possibly additional information in subproblemstats or logged by 
-%   options.statsfun.
+%   And possibly additional information logged by the subproblemsolver or
+%   by options.statsfun.
 % For example, type [info.gradnorm] to obtain a vector of the successive
 % gradient norms reached at each (outer) iteration.
 %
@@ -86,30 +86,29 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       expect to reduce the gradient norm by 8 orders of magnitude
 %       (sqrt(eps)) compared to the gradient norm at a "typical" point (a
 %       rough initial iterate for example). Further decrease is sometimes
-%       possible, but inexact floating point arithmetic will eventually
-%       limit the final accuracy. If tolgradnorm is set too low, the
-%       algorithm may end up iterating forever (or at least until another
-%       stopping criterion triggers).
+%       possible, but inexact floating point arithmetic limits the final
+%       accuracy. If tolgradnorm is set too low, the algorithm may end up
+%       iterating forever (or until another stopping criterion triggers).
 %   maxiter (1000)
-%       The algorithm terminates if maxiter (outer) iterations were executed.
+%       The algorithm terminates after at most maxiter (outer) iterations.
 %   maxtime (Inf)
 %       The algorithm terminates if maxtime seconds elapsed.
 %   miniter (0)
 %       Minimum number of outer iterations: this overrides all other
-%       stopping criteria.
+%       stopping criteria. Can be helpful to escape saddle points.
 %   Delta_bar (problem.M.typicaldist() or sqrt(problem.M.dim()))
 %       Maximum trust-region radius. If you specify this parameter but not
-%       Delta0, then Delta0 will be set to 1/8 times this parameter.
+%       Delta0, then Delta0 is set to 1/8 times this parameter.
 %   Delta0 (Delta_bar/8)
 %       Initial trust-region radius. If you observe a long plateau at the
-%       beginning of the convergence plot (gradient norm VS iteration), it
+%       beginning of the convergence plot (gradient norm vs iteration), it
 %       may pay off to try to tune this parameter to shorten the plateau.
 %       You should not set this parameter without setting Delta_bar too (at
 %       a larger value).
 %   subproblemsolver (@trs_tCG_cached)
-%       Function handle to a subproblem solver. The subproblem solver will
-%       also see this options structure, so that parameters can be passed
-%       to it through here as well. Built-in solvers include:
+%       Function handle to a subproblem solver. The subproblem solver also
+%       sees this options structure, so that parameters can be passed to it
+%       through here as well. Built-in solvers include:
 %           trs_tCG_cached
 %           trs_tCG
 %           trs_gep
@@ -136,20 +135,20 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       convergence. This is because the corrected cost improvement could
 %       change sign if it is negative but very small.
 %   statsfun (none)
-%       Function handle to a function that will be called after each
-%       iteration to provide the opportunity to log additional statistics.
-%       They will be returned in the info struct. See the generic Manopt
+%       Function handle to a function that is called after each iteration
+%       to provide the opportunity to log additional statistics.
+%       They are returned in the info struct. See the generic Manopt
 %       documentation about solvers for further information. statsfun is
 %       called with the point x that was reached last, after the
 %       accept/reject decision. See comment below.
 %   stopfun (none)
-%       Function handle to a function that will be called at each iteration
-%       to provide the opportunity to specify additional stopping criteria.
+%       Function handle to a function that is called at each iteration to
+%       provide the opportunity to specify additional stopping criteria.
 %       See the generic Manopt documentation about solvers for further
 %       information.
 %   verbosity (2)
-%       Integer number used to tune the amount of output the algorithm
-%       generates during execution (mostly as text in the command window).
+%       Integer number used to tune the amount of output the algorithm logs
+%       during execution (mostly as text in the command window).
 %       The higher, the more output. 0 means silent. 3 and above includes a
 %       display of the options structure at the beginning of the execution.
 %   debug (false)
@@ -158,10 +157,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       will be informed of it, usually via the command window. Be aware
 %       that these additional computations appear in the algorithm timings
 %       too, and may interfere with operations such as counting the number
-%       of cost evaluations, etc. (the debug calls get storedb too).
+%       of cost evaluations, etc. The debug calls get storedb too.
 %   storedepth (2)
 %       Maximum number of different points x of the manifold for which a
-%       store structure will be kept in memory in the storedb for caching.
+%       store structure may be kept in memory in the storedb for caching.
 %       If memory usage is an issue, you may try to lower this number.
 %       Profiling or manopt counters may then help to investigate if a
 %       performance hit was incurred as a result.
@@ -301,7 +300,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       output pattern. Modified how information about iterations is 
 %       printed to accomodate new subproblem solvers. Moved all useRand and
 %       cauchy logic to trs_tCG. Options pertaining to tCG are still
-%       available but have moved to that file.
+%       available but have moved to that file. Made trs_tCG_cached default.
 
 
 % Verify that the problem description is sufficient for the solver.
