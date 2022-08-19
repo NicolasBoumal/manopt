@@ -38,10 +38,11 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 %       Comments + cosmetic changes.
 %       Corrected determination of limitedbyTR.
 %       Added support for input a = 0.
+%       Clarified the logic around picking the Newton step or not.
 
     n = size(A, 1);
 
-    % We set this flag to true iff the solution x computed below is
+    % We set this flag to true iff the solution x we eventually return is
 	% limited by the trust-region boundary.
     limitedbyTR = true;
 
@@ -58,16 +59,13 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         a = eps*randn(n, 1);
     end
 
-    [p1, ~] = pcg(A, -a, 1e-12, 500);
+    % Compute the Newton step p1 up to some accuracy.
+    [p1, ~, relres] = pcg(A, -a, 1e-12, 500);
 
-    % Check for possible interior solution.
-    if norm(A*p1 + a) < 1e-5*norm(a)
-        if p1'*p1 >= Del^2
-            p1 = NaN;
-        end
-    else
-        p1 = NaN;
-    end
+    % If the Newton step is computed accurately and it is in the trust
+    % region, then it may very well be the solution to the TRS.
+    % We make a note of it, and will re-check at the end.
+    newton_step_may_be_solution = (relres < 1e-5 && (p1'*p1 <= Del^2));
 
     % This is the core of the code.
     [V, lam1] = eigs(@(x) MM0timesx(A, a, Del, x), 2*n, -MM1, 1, 'lr');
@@ -115,15 +113,18 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         aa = x1'*x1;
         bb = 2*(x2'*x1);
         cc = x2'*x2 - Del^2;
-        alp = (-bb + sqrt(bb^2 - 4*aa*cc))/(2*aa); % norm(x2+alp*x) - Delta
+        % Move to the boundary: set alp such that norm(x2+alp*x1) = Delta.
+        % alp = (-bb + sqrt(bb^2 - 4*aa*cc))/(2*aa);
+        alp = max(real(roots([aa, bb, cc])));
         x = x2 + alp*x1;
     end
 
-    % Check whether the solution is in the interior of the TR.
-    if sum(isnan(p1)) == 0
+    % If we suspected that the Newton step might be the solution to the
+    % TRS, we compare it to the boundary solution we just computed and pick
+    % the best one.
+    if newton_step_may_be_solution
         if (p1'*A*p1)/2 + a'*p1 < (x'*A*x)/2 + a'*x
             x = p1;
-            % lam1 = 0;
             limitedbyTR = false;
         end
     end
