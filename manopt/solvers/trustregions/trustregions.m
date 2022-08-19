@@ -458,12 +458,6 @@ while true
     if hooked
         [fx, fgradx] = getCostGrad(problem, x, storedb, key);
         norm_grad = M.norm(x, fgradx);
-
-        % x changed so caching is not useful anymore: disable caching.
-        if options.trscache
-            fprintf('hooked == true, so setting options.trscache = false.\n');
-            options.trscache = false;
-        end
     end
     
     % Run standard stopping criterion checks

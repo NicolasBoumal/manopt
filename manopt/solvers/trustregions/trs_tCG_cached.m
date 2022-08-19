@@ -145,11 +145,17 @@ if ~exist('options', 'var') || isempty(options)
 end
 options = mergeOptions(localdefaults, options);
 
-% Previous step was rejected so we can save some compute here by passing to
-% helper function.
+% If the previous step was rejected and we want to use caching,
 if ~subprobleminput.accept && options.trscache
-        [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key);
+    % Then check if there is cached information for the current point.
+    store = storedb.get(key);
+    if isfield(store, 'store_iters')
+        % If so, use that cache to produce the same output as would have
+        % been produced by running the code below (after the 'return').
+        [eta, Heta, print_str, stats] = ...
+                tCG_rejectedstep(problem, subprobleminput, options, store);
         return;
+    end
 end
 
 % returned boolean to trustregions. true if we are limited by the TR

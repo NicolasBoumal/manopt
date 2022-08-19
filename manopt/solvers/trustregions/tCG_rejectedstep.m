@@ -1,7 +1,7 @@
-function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
+function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, store)
 % Helper for trs_tCG_cached: mimics the latter's behavior, exploiting cache
 % 
-% function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, storedb, key)
+% function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, store)
 %
 % This function is a companion to trs_tCG_cached: it is not meant to be
 % called directly by Manopt users.
@@ -41,7 +41,6 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
 
     lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 
-    store = storedb.get(key);
     store_iters = store.store_iters;
     stats.memorytCG_MB = getsize(store_iters(1))/1024^2 * length(store_iters);
     numstored = length(store_iters);
@@ -104,7 +103,7 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
                                     stats.memorytCG_MB, stopreason_str);
             end
 
-            return
+            return;
         end
     end
 
