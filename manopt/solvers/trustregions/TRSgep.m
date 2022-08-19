@@ -65,23 +65,31 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     end
     
     lam1 = real(lam1);
-    x = V(1:n); % this is parallel to soln
-    normx = sqrt(x'*x);         
-    x = x/normx*Del; % in the easy case, this naive normalization improves accuracy
+    % This is parallel to the solution:
+    x = V(1:n);
+    normx = sqrt(x'*x);
+    % In the easy case, this naive normalization improves accuracy
+    x = x/normx*Del;
+    % Take the correct sign
     if x'*a > 0
         x = -x;
-    end % take correct sign
-        
-    if normx < tolhardcase % hard case
+    end
+    
+    % Hard case
+    if normx < tolhardcase
         %disp(['hard case!', num2str(normx)])
         x1 = V(length(A)+1:end);
         alpha1 = lam1;
-        Pvect = x1;  %first try only k=1, almost always enough
-        [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), -a, 1e-12, 500);
-        if norm((A+lam1)*x2 + a) > tolhardcase*norm(a) % large residual, repeat
+        Pvect = x1;
+        % First try only k = 1, that is almost always enough
+        [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), -a, ...
+                                                               1e-12, 500);
+        % If large residual, repeat
+        if norm((A+lam1)*x2 + a) > tolhardcase*norm(a)
             for ii = 3*(1:3)
                 [Pvect, ~] = eigs(A, speye(n), ii, 'sa');
-                [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), -a, 1e-8, 500);    
+                [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), ...
+                                                            -a, 1e-8, 500);    
                 if norm((A+lam1)*x2+a) < tolhardcase*norm(a)
                     break
                 end
