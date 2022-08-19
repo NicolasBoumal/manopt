@@ -100,27 +100,34 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %       This can be useful for the next call to trs_tCG_cached and the work 
 %       is passed to tCG_rejectedstep rather than the normal tCG loop.
 
+
 % See trs_tCG for references to relevant equations in
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
+% trustregions only wants default values for stats.
 if nargin == 3
-    % trustregions only wants default values for stats.
     eta = [];
     Heta = [];
     print_str = '';
     if options.verbosity == 2
-        print_str = sprintf('%9s   %9s   %9s   %s', 'numinner', 'hessvec', 'numstored', 'stopreason');
+        print_str = sprintf('%9s   %9s   %9s   %s', ...
+                            'numinner', 'hessvec', 'numstored', ...
+                            'stopreason');
     elseif options.verbosity > 2
-        print_str = sprintf('%9s   %9s   %9s   %9s   %s', 'numinner', 'hessvec', 'numstored', 'memtCG_MB', 'stopreason');
+        print_str = sprintf('%9s   %9s   %9s   %9s   %s', ...
+                            'numinner', 'hessvec', 'numstored', ...
+                            'memtCG_MB', 'stopreason');
     end
-    stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false, 'memorytCG_MB', 0);
+    stats = struct('numinner', 0, 'hessvecevals', 0, ...
+                   'limitedbyTR', false, 'memorytCG_MB', 0);
     return;
 end
 
 if isfield(options, 'useRand') && options.useRand
     warning('manopt:trs_tCG_cached:rand', ...
-    [sprintf(['trs_tCG_cached does not use randomization. Did you mean to use trs_tCG?\n', ...
-                'To silence this warning use randomization with trs_tCG or set options.useRand = false.']);]);
+            ['options.useRand = true but @trs_tCG_cached ignores it.\n' ...
+             'You may set options.subproblemsolver = @trs_tCG;\n', ...
+             'Alternatively, set options.useRand = false;']);
 end
 
 x = subprobleminput.x;
@@ -252,13 +259,13 @@ for j = 1 : options.maxinner
 
     if options.trscache
         % Selectively store info in store_iter.
-        % next_smallest = ((1/4)^(n) Delta)^2 where n is the smallest integer
-        % such that max_normsq <= next_smallest. 
-        % We use this condition to only store relevant iterations in case of
-        % rejection in trustregions.
+        % next_smallest = (1/4^n Delta)^2 with n the smallest integer such
+        % that max_normsq <= next_smallest. 
+        % We use this condition to only store relevant iterations in case
+        % of rejection in trustregions.
         if max_normsq > 0
             next_smallest = (1/16)^floor(-(1/4)*(log2(max_normsq) - ...
-                                                log2(Delta^2))) * Delta^2;
+                                                 log2(Delta^2))) * Delta^2;
         else
             next_smallest = 0;
         end
@@ -272,8 +279,8 @@ for j = 1 : options.maxinner
                              'mdelta', mdelta, 'Hmdelta', Hmdelta);
             max_normsq = e_Pe_new;
     
-            % getSize for one entry in store_iters which will be the same for
-            % all others.
+            % getSize for one entry in store_iters which will be the same
+            % for all others.
             if peritermemory_MB == 0
                 peritermemory_MB = getsize(store_iters(numstored))/1024^2;
             end

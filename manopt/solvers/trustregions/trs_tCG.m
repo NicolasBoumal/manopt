@@ -152,8 +152,8 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
+% trustregions.m only wants default values for stats.
 if nargin == 3
-    % trustregions.m only wants default values for stats.
     eta = [];
     Heta = [];
     if isfield(options, 'useRand') && options.useRand
