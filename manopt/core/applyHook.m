@@ -22,6 +22,9 @@ function [newx, newkey, info, hooked] = applyHook(problem, x, storedb, key, opti
 % struct-array. (This requires the field 'hooked' to exist in the first
 % place: applyStatsfun ensures this.)
 %
+% Stored data about the input point in storeDB may be deleted if the point
+% is actually hooked.
+%
 % The options.hook function handle can have these prototypes:
 %
 %   [newx, hooked]                = hook(problem, x)
