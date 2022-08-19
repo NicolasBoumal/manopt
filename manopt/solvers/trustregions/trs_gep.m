@@ -36,6 +36,11 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 % orthonormalized. This ensures that the point returned by this solver is
 % always as good as the Cauchy point.
 %
+% Constructing the basis itself can be time consuming in high dimensions,
+% and aiming for an exact solve of the TRS as well. This subproblem solver
+% is meant mostly for research, not for efficiency.
+%
+%
 % Inputs:
 %   problem: Manopt optimization problem structure
 %   subprobleminput: struct storing information for this subproblemsolver

@@ -77,8 +77,8 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     
     % Hard case
     if normx < tolhardcase
-        %disp(['hard case!', num2str(normx)])
-        x1 = V(length(A)+1:end);
+        % disp(['hard case!', num2str(normx)])
+        x1 = V(n+1:end);
         alpha1 = lam1;
         Pvect = x1;
         % First try only k = 1, that is almost always enough
@@ -86,19 +86,19 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
                                                                1e-12, 500);
         % If large residual, repeat
         if norm((A+lam1)*x2 + a) > tolhardcase*norm(a)
-            for ii = 3*(1:3)
+            for ii = [3, 6, 9]
                 [Pvect, ~] = eigs(A, speye(n), ii, 'sa');
                 [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), ...
                                                             -a, 1e-8, 500);    
-                if norm((A+lam1)*x2+a) < tolhardcase*norm(a)
+                if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
                     break
                 end
             end
         end
 
-        aa = x1'*(x1);
-        bb = 2*x2'*x1;
-        cc = (x2'*x2 - Del^2); 
+        aa = x1'*x1;
+        bb = 2*(x2'*x1);
+        cc = x2'*x2 - Del^2;
         alp = (-bb + sqrt(bb^2 - 4*aa*cc))/(2*aa); %norm(x2+alp*x) - Delta
         x = x2 + alp*x1;
     end
