@@ -46,8 +46,6 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 	% limited by the trust-region boundary.
     limitedbyTR = true;
 
-    MM1 = [sparse(n, n) speye(n) ; speye(n) sparse(n, n)];
-
     % Tolerance for hard-case.
     % If this triggers, then the solver works harder to check itself.
     tolhardcase = 1e-4;
@@ -68,6 +66,7 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     newton_step_may_be_solution = (relres < 1e-5 && (p1'*p1 <= Del^2));
 
     % This is the core of the code.
+    MM1 = [sparse(n, n) speye(n) ; speye(n) sparse(n, n)];
     [V, lam1] = eigs(@(x) MM0timesx(A, a, Del, x), 2*n, -MM1, 1, 'lr');
 
     % Sometimes the output is complex.
@@ -89,9 +88,8 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         x = -x;
     end
     
-    % Hard case
+    % If we suspect a (numerically) hard case, work harder.
     if normx < tolhardcase
-        % disp(['hard case!', num2str(normx)])
         x1 = V(n+1:end);
         alpha1 = lam1;
         Pvect = x1;
@@ -105,7 +103,7 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
                 [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), ...
                                                             -a, 1e-8, 500);    
                 if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
-                    break
+                    break;
                 end
             end
         end
