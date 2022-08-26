@@ -13,12 +13,12 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
-%   trsinput: struct storing information for this subproblem solver
+%   trsinput: structure with the following fields:
 %       x: point on the manifold problem.M
-%       grad: gradient of the cost function of the problem at x
+%       fgradx: gradient of the cost function of the problem at x
 %       Delta = trust-region radius
 %   options: structure containing options for the subproblem solver
-%   storedb, key: caching data for problem at x
+%   storedb, key: manopt's caching system for the point x
 %
 % Options specific to this subproblem solver:
 %   kappa (0.1)
@@ -46,19 +46,16 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %       user's machine. To disable the warning completely use: 
 %       warning('off', 'manopt:trs_tCG_cached:memory')
 %
-% Outputs:
-%   trsoutput: struct storing information for this subproblem solver
-%   containing the following fields:
-%       eta: approximate solution to the trust-region subproblem at x
-%       Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
-%           is often naturally available to the subproblem solver at the
-%           end of execution, so that it may be cheaper to return it here.
-%       printstr: subproblem specific string to be printed by trustregions.
-%       stats: structure with the following values to be stored in
-%       trustregions:
+% Output: the structure trsoutput contains the following fields:
+%   eta: approximate solution to the trust-region subproblem at x
+%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%       is often naturally available to the subproblem solver at the
+%       end of execution, so that it may be cheaper to return it here.
+%   limitedbyTR: true if a boundary solution is returned
+%   printstr: logged information to be printed by trustregions.
+%   stats: structure with the following statistics:
 %           numinner: number of inner loops before returning
-%           hessvecevals: number of Hessian calls during execution (can
-%               differ from numinner when caching is used)
+%           hessvecevals: number of Hessian calls issued
 %           limitedbyTR: true if a boundary solution is returned
 %           memorytCG_MB: memory of store_iters and store_last in MB
 %
@@ -71,12 +68,12 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %       negative curvature or trust-region radius violation
 %
 %
-% trs_tCG_cached can also be called in the following way (for printing
-% purposes):
+% trs_tCG_cached can also be called in the following way (by trustregions) 
+% to obtain part of the header to print and an initial stats structure:
 %
 % function trsoutput = trs_tCG_cached([], [], options)
 %
-% In this case when nargin == 3, trsoutput contains the following fields:
+% In this case trsoutput contains the following fields:
 %   printheader: subproblem header to be printed before the first pass of 
 %       trustregions
 %   initstats: struct with initial values for stored stats in subsequent
@@ -108,7 +105,7 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
 % trustregions only wants header and default values for stats.
-if nargin == 3
+if nargin == 3 && isempty(problem) && isempty(trsinput)
     trsoutput.printheader = '';
     if options.verbosity == 2
         trsoutput.printheader = sprintf('%9s   %9s   %9s   %s', ...

@@ -57,14 +57,14 @@ function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 %       trust-region subproblem.
 %       
 % Output: the structure trsoutput contains the following fields:
-%       eta: approximate solution to the trust-region subproblem at x
-%       Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
-%           is often naturally available to the subproblem solver at the
-%           end of execution, so that it may be cheaper to return it here.
-%       limitedbyTR: true if a boundary solution is returned
-%       printstr: logged information to be printed by trustregions.
-%       stats: structure with the following statistics:
-%           hessvecevals: number of Hessian-vector calls issued
+%   eta: approximate solution to the trust-region subproblem at x
+%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%       is often naturally available to the subproblem solver at the
+%       end of execution, so that it may be cheaper to return it here.
+%   limitedbyTR: true if a boundary solution is returned
+%   printstr: logged information to be printed by trustregions.
+%   stats: structure with the following statistics:
+%       hessvecevals: number of Hessian-vector calls issued
 %
 %
 % trs_gep can also be called in the following way (by trustregions) to
