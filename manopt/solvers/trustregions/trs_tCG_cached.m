@@ -56,7 +56,6 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %   stats: structure with the following statistics:
 %           numinner: number of inner loops before returning
 %           hessvecevals: number of Hessian calls issued
-%           limitedbyTR: true if a boundary solution is returned
 %           memorytCG_MB: memory of store_iters and store_last in MB
 %
 % Stored Information:
