@@ -22,6 +22,11 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 % globally optimal (as expected) within some demanding numerical
 % tolerances, then 'accurate' is true; otherwise it is false.
 %
+% The iterative solver pcg sometimes issues a warning.
+% It can be disabled with:
+%   warning('off', 'MATLAB:pcg:tooSmallTolerance')
+% It is adviseable to re-unable it (with 'on' instead of 'off') when done.
+%
 % Code adapted from Yuji Nakatsukasa's code for the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
 %
@@ -66,7 +71,8 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
     end
 
     % Compute the Newton step p1 up to some accuracy.
-    [p1, ~, relres] = pcg(A, -a, 1e-12, 500);
+    % pcg sometimes issues a warning: see help above.
+    [p1, ~, relres, ~] = pcg(A, -a, 1e-12, 500);
 
     % If the Newton step is computed accurately and it is in the trust
     % region, then it may very well be the solution to the TRS.
@@ -101,13 +107,15 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
         x1 = V(n+1:end);
         alpha1 = lam1;
         Pvect = x1;
-        % First try only k = 1, that is almost always enough
+        % First try only k = 1, that is almost always enough.
+        % pcg sometimes issues a warning: see help above.
         Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
         [x2, ~] = pcg(Afun, -a, 1e-12, 500);
         % If large residual, repeat
         if norm((A+lam1)*x2 + a) > tolhardcase*norm(a)
             for ii = [3, 6, 9]
                 [Pvect, ~] = eigs(A, speye(n), ii, 'sa');
+                % pcg sometimes issues a warning: see help above.
                 Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
                 [x2, ~] = pcg(Afun, -a, 1e-8, 500);    
                 if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
