@@ -1,7 +1,8 @@
-function [x, limitedbyTR] = TRSgep(A, a, Del)
+function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 % Solves trust-region subproblem by a generalized eigenvalue problem.
 % 
 % function [x, limitedbyTR] = TRSgep(A, a, Del)
+% function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 % 
 % This function returns a solution x to the following optimization problem:
 % 
@@ -15,6 +16,11 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 %   A: nxn symmetric
 %   a: nx1 vector, both real
 %   Del: trust-region radius (positive real)
+%
+% If called with three outputs, then computationally expensive checks are
+% run to verify the accuracy of the output. If the output appears to be
+% globally optimal (as expected) within some demanding numerical
+% tolerances, then 'accurate' is true; otherwise it is false.
 %
 % Code adapted from Yuji Nakatsukasa's code for the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
@@ -39,14 +45,14 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 %       Corrected determination of limitedbyTR.
 %       Added support for input a = 0.
 %       Clarified the logic around picking the Newton step or not.
+%   NB Aug. 26, 2022:
+%       Added optional accuracy checks.
 
     n = size(A, 1);
 
     % We set this flag to true iff the solution x we eventually return is
 	% limited by the trust-region boundary.
     limitedbyTR = true;
-
-    MM1 = [sparse(n, n) speye(n) ; speye(n) sparse(n, n)];
 
     % Tolerance for hard-case.
     % If this triggers, then the solver works harder to check itself.
@@ -68,6 +74,7 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     newton_step_may_be_solution = (relres < 1e-5 && (p1'*p1 <= Del^2));
 
     % This is the core of the code.
+    MM1 = [sparse(n, n) speye(n) ; speye(n) sparse(n, n)];
     [V, lam1] = eigs(@(x) MM0timesx(A, a, Del, x), 2*n, -MM1, 1, 'lr');
 
     % Sometimes the output is complex.
@@ -89,9 +96,8 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
         x = -x;
     end
     
-    % Hard case
+    % If we suspect a (numerically) hard case, work harder.
     if normx < tolhardcase
-        % disp(['hard case!', num2str(normx)])
         x1 = V(n+1:end);
         alpha1 = lam1;
         Pvect = x1;
@@ -105,7 +111,7 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
                 [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), ...
                                                             -a, 1e-8, 500);    
                 if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
-                    break
+                    break;
                 end
             end
         end
@@ -139,6 +145,35 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     % have been computed already, hence we do nothing.
     if a_is_zero && ~limitedbyTR
         x = zeros(n, 1);
+    end
+
+
+    % This is for debugging purposes only: it is expensive to run.
+    % The code checks via a dual certificate that x is a global optimum,
+    % up to some numerical tolerances. It also checks limitedbyTR.
+    if nargout >= 3
+        tol = 1e-13;
+        mineig = min(eig(A));
+        if norm(x) ~= 0
+            % Estimate the dual variable for the norm constraint.
+            mu = -(x'*(A*x + a))/(x'*x);
+            % The vector x is optimal iff:
+            %   norm(x) <= Del,
+            %   M = A + mu*I is psd and mu >= 0,
+            %   M*x + b = 0, and
+            %   mu = 0 whenever we are not limited by TR.
+            % We also need that limitedbyTR => norm(x) == Del.
+            reltol = @(c) c + tol*max(1, c); % to check a <~ c with c >= 0.
+            accurate = (norm(x) <= reltol(Del) && ...
+                        max(0, -mineig) <= reltol(mu) && ...
+                        all(abs(A*x+a + mu*x) <= reltol(abs(mu*x))) && ...
+                        ( limitedbyTR || mu <= reltol(0)) && ...
+                        (~limitedbyTR || Del <= reltol(norm(x))));
+        else
+            % The zero vector x is optimal iff a = 0 and A is psd.
+            % Moreover, a solution x = 0 is clearly not limited by the TR.
+            accurate = (norm(a) <= tol && mineig >= -tol && ~limitedbyTR);
+        end
     end
     
 end
