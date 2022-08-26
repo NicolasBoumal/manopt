@@ -1,7 +1,7 @@
 function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 % Solves trust-region subproblem with TRSgep in a subspace of tangent space.
 % 
-% function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
+% function trsoutput = trs_gep(problem, trsinput, options, storedb, key)
 % 
 % minimize <eta, grad> + .5*<eta, Hess(eta)>
 % subject to <eta, eta> <= Delta^2
@@ -43,12 +43,12 @@ function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
-%   trsinput: struct storing information for this subproblemsolver
+%   trsinput: structure with the following fields:
 %       x: point on the manifold problem.M
-%       grad: gradient of the cost function of the problem at x
+%       fgradx: gradient of the cost function of the problem at x
 %       Delta: trust-region radius
 %   options: structure containing options for the subproblem solver
-%   storedb, key: caching data for problem at x
+%   storedb, key: manopt's caching system for the point x
 %
 % Options specific to this subproblem solver (default value):
 %   gepsubspacedim (problem.M.dim())
@@ -56,29 +56,23 @@ function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 %       dimension of the subpsace over which we wish to solve the
 %       trust-region subproblem.
 %       
-% Outputs:
-%   trsoutput: struct storing information for this subproblem solver
-%   containing the following fields:
+% Output: the structure trsoutput contains the following fields:
 %       eta: approximate solution to the trust-region subproblem at x
 %       Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
 %           is often naturally available to the subproblem solver at the
 %           end of execution, so that it may be cheaper to return it here.
-%       printstr: subproblem specific string to be printed by trustregions.
-%       stats: structure with the following values to be stored in
-%       trustregions:
-%           numinner: number of inner loops before returning
-%           hessvecevals: number of Hessian calls during execution (can
-%               differ from numinner when caching is used)
-%           limitedbyTR: true if a boundary solution is returned
-%           memorytCG_MB: memory of store_iters and store_last in MB
+%       limitedbyTR: true if a boundary solution is returned
+%       printstr: logged information to be printed by trustregions.
+%       stats: structure with the following statistics:
+%           hessvecevals: number of Hessian-vector calls issued
 %
 %
-% trs_gep can also be called in the following way for printing and
-% initializing the info struct in trustregions.m:
+% trs_gep can also be called in the following way (by trustregions) to
+% obtain part of the header to print and an initial stats structure:
 %
 % function trsoutput = trs_gep([], [], options)
 %
-% In this case when nargin == 3, trsoutput contains the following fields:
+% In this case, trsoutput contains the following fields:
 %   printheader: subproblem header to be printed before the first loop of 
 %       trustregions
 %   initstats: struct with initial values for stored stats in subsequent
@@ -92,10 +86,10 @@ function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    if nargin == 3
-        % trustregions only wants header and default values for stats.
+    % trustregions only wants header and default values for stats.
+    if nargin == 3 && isempty(problem) && isempty(trsinput)
         trsoutput.printheader = sprintf('%9s   %s', 'hessvec', 'stopreason');
-        trsoutput.initstats = struct('hessvecevals', 0, 'limitedbyTR', false);
+        trsoutput.initstats = struct('hessvecevals', 0);
         return;
     end
 
@@ -167,7 +161,7 @@ function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
     end
     
     printstr = sprintf('%9d   %s', n, stopreason_str);
-    stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR);
+    stats = struct('hessvecevals', n);
     
     trsoutput.eta = eta;
     trsoutput.Heta = Heta;
