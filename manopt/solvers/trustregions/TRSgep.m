@@ -1,8 +1,8 @@
-function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
+function [x, limitedbyTR, eigstrouble, accurate] = TRSgep(A, a, Del)
 % Solves trust-region subproblem by a generalized eigenvalue problem.
 % 
-% function [x, limitedbyTR, flag] = TRSgep(A, a, Del)
-% function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
+% function [x, limitedbyTR, eigstrouble] = TRSgep(A, a, Del)
+% function [x, limitedbyTR, eigstrouble, accurate] = TRSgep(A, a, Del)
 % 
 % This function returns a solution x to the following optimization problem:
 % 
@@ -12,12 +12,9 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
 % The boolean 'limitedbyTR' is true if the solution would have been
 % different absent the norm constraint. In that case, the norm of x is Del.
 %
-% The integer 'flag' is zero if no special (bad) conditions triggered in
-% calls to pcg and eigs. It is positive otherwise. Even when positive, the
-% output x may still be good, but it is not certain. For this feature to
-% work properly, call the following once:
-%   warning('error', 'MATLAB:pcg:tooSmallTolerance');
-% See below for more information.
+% The boolean 'eigstrouble' is false if the call to eigs went as planned
+% (no NaN values returned). If is true otherwise. Even when true, the
+% output x may still be good, but it is not certain.
 %
 % Inputs:
 %   A: nxn symmetric
@@ -33,11 +30,6 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
 % It can be disabled with:
 %   warning('off', 'MATLAB:pcg:tooSmallTolerance');
 % It is adviseable to re-enable it (with 'on' instead of 'off') when done.
-% Alternatively, one can call:
-%   warning('error', 'MATLAB:pcg:tooSmallTolerance');
-% This turns the warning into an error. Here, those errors are absorbed
-% into a 'try' block. An advantage is that the warning does not disappear
-% in other places where pcg is used.
 %
 % Code adapted from Yuji Nakatsukasa's code for the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
@@ -67,7 +59,7 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
 
     n = size(A, 1);
 
-    flag = 0;
+    eigstrouble = false;
 
     % We set this flag to true iff the solution x we eventually return is
 	% limited by the trust-region boundary.
@@ -86,16 +78,7 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
 
     % Compute the Newton step p1 up to some accuracy.
     % pcg sometimes issues a warning: see help above.
-    try
-        [p1, ~, relres, ~] = pcg(A, -a, 1e-12, 500);
-    catch me
-        switch me.identifier
-            case 'MATLAB:pcg:tooSmallTolerance'
-                flag = flag + 1;
-            otherwise
-                throw(me);
-        end
-    end
+    [p1, ~, relres, ~] = pcg(A, -a, 1e-12, 500);
 
     % If the Newton step is computed accurately and it is in the trust
     % region, then it may very well be the solution to the TRS.
@@ -134,7 +117,7 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
         % that checks accuracy) and use to proceed.
         if isnan(lam1)
             lam1 = -(x'*(A*x + a))/(x'*x);
-            flag = flag + 1000000;
+            eigstrouble = true;
         end
 
         x1 = V(n+1:end);
@@ -143,33 +126,14 @@ function [x, limitedbyTR, flag, accurate] = TRSgep(A, a, Del)
         % First try only k = 1, that is almost always enough.
         % pcg sometimes issues a warning: see help above.
         Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
-%         try
-            [x2, ~] = pcg(Afun, -a, 1e-12, 500);
-%         catch me
-%             disp(me);
-%             switch me.identifier
-%                 case 'MATLAB:pcg:tooSmallTolerance'
-%                     flag = flag + 100;
-%                 otherwise
-%                     throw(me);
-%             end
-%         end
+        [x2, ~] = pcg(Afun, -a, 1e-12, 500);
         % If large residual, repeat
         if norm((A+lam1)*x2 + a) > tolhardcase*norm(a)
             for ii = [3, 6, 9]
                 [Pvect, ~] = eigs(A, speye(n), ii, 'sa');
                 % pcg sometimes issues a warning: see help above.
                 Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
-                try
-                    [x2, ~] = pcg(Afun, -a, 1e-8, 500);
-                catch me
-                    switch me.identifier
-                        case 'MATLAB:pcg:tooSmallTolerance'
-                            flag = flag + 10000;
-                        otherwise
-                            throw(me);
-                    end
-                end
+                [x2, ~] = pcg(Afun, -a, 1e-8, 500);
                 if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
                     break;
                 end
