@@ -45,6 +45,8 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 %       Corrected determination of limitedbyTR.
 %       Added support for input a = 0.
 %       Clarified the logic around picking the Newton step or not.
+%   NB Aug. 26, 2022:
+%       Added optional accuracy checks.
 
     n = size(A, 1);
 
