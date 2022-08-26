@@ -102,14 +102,14 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
         alpha1 = lam1;
         Pvect = x1;
         % First try only k = 1, that is almost always enough
-        [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), -a, ...
-                                                               1e-12, 500);
+        Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
+        [x2, ~] = pcg(Afun, -a, 1e-12, 500);
         % If large residual, repeat
         if norm((A+lam1)*x2 + a) > tolhardcase*norm(a)
             for ii = [3, 6, 9]
                 [Pvect, ~] = eigs(A, speye(n), ii, 'sa');
-                [x2, ~] = pcg(@(x) pcgforAtilde(A, lam1, Pvect, alpha1, x), ...
-                                                            -a, 1e-8, 500);    
+                Afun = @(x) pcgforAtilde(A, lam1, Pvect, alpha1, x);
+                [x2, ~] = pcg(Afun, -a, 1e-8, 500);    
                 if norm((A+lam1)*x2 + a) < tolhardcase*norm(a)
                     break;
                 end
