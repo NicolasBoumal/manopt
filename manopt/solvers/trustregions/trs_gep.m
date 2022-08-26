@@ -1,7 +1,7 @@
-function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, ~, ~)
+function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 % Solves trust-region subproblem with TRSgep in a subspace of tangent space.
 % 
-% function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, options, ~, ~)
+% function trsoutput = trs_gep(problem, trsinput, options, ~, ~)
 % 
 % minimize <eta, grad> + .5*<eta, Hess(eta)>
 % subject to <eta, eta> <= Delta^2
@@ -43,7 +43,7 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
-%   subprobleminput: struct storing information for this subproblemsolver
+%   trsinput: struct storing information for this subproblemsolver
 %       x: point on the manifold problem.M
 %       grad: gradient of the cost function of the problem at x
 %       Delta: trust-region radius
@@ -57,29 +57,35 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 %       trust-region subproblem.
 %       
 % Outputs:
-%   eta: approximate solution to the trust-region subproblem at x
-%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
-%       is often naturally available to the subproblem solver at the
-%       end of execution, so that it may be cheaper to return it here.
-%   print_str: subproblem specific string to be printed by trustregions.m
-%   stats: structure with values to be stored in trustregions.m
-%       hessvecevals: number of Hessian calls during execution (here we set
-%       it to gepsubspacedim since we construct the Hessian explicitly in
-%       gepsubspacedim dimensions)
-%       limitedbyTR: true iff a boundary solution is returned
+%   trsoutput: struct storing information for this subproblem solver
+%   containing the following fields:
+%       eta: approximate solution to the trust-region subproblem at x
+%       Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%           is often naturally available to the subproblem solver at the
+%           end of execution, so that it may be cheaper to return it here.
+%       printstr: subproblem specific string to be printed by trustregions.
+%       stats: structure with the following values to be stored in
+%       trustregions:
+%           numinner: number of inner loops before returning
+%           hessvecevals: number of Hessian calls during execution (can
+%               differ from numinner when caching is used)
+%           limitedbyTR: true if a boundary solution is returned
+%           memorytCG_MB: memory of store_iters and store_last in MB
+%
+%
+% trs_gep can also be called in the following way for printing and
+% initializing the info struct in trustregions.m:
+%
+% function trsoutput = trs_gep([], [], options)
+%
+% In this case when nargin == 3, trsoutput contains the following fields:
+%   printheader: subproblem header to be printed before the first loop of 
+%       trustregions
+%   initstats: struct with initial values for stored stats in subsequent
+%       calls to trs_gep. Used in the first call to savestats 
+%       in trustregions to initialize the info struct properly.
 %
 % See also: TRSgep trs_tCG trustregions
-
-% trs_gep can also be called as follows (for printing purposes):
-%
-% function [~, ~, print_str, stats] = trs_gep([], [], options)
-%
-% In this case, when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. In this
-% case print_str is the header to be printed before the first pass of 
-% trustregions. The other outputs is empty. This stats struct is used in
-% the first call to savestats in trustregions.m to initialize the info
-% struct properly.
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Victor Liao, June 13, 2022.
@@ -87,17 +93,15 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
 % Change log: 
 
     if nargin == 3
-        % trustregions only wants default values for stats.
-        eta = [];
-        Heta = [];
-        print_str = sprintf('%9s   %s', 'hessvec', 'stopreason');
-        stats = struct('hessvecevals', 0, 'limitedbyTR', false);
+        % trustregions only wants header and default values for stats.
+        trsoutput.printheader = sprintf('%9s   %s', 'hessvec', 'stopreason');
+        trsoutput.initstats = struct('hessvecevals', 0, 'limitedbyTR', false);
         return;
     end
 
-    x = subprobleminput.x;
-    grad = subprobleminput.fgradx;
-    Delta = subprobleminput.Delta;
+    x = trsinput.x;
+    grad = trsinput.fgradx;
+    Delta = trsinput.Delta;
     
     M = problem.M;
 
@@ -161,7 +165,13 @@ function [eta, Heta, print_str, stats] = trs_gep(problem, subprobleminput, optio
     else
         stopreason_str = 'Exact trs_gep interior sol';
     end
-    print_str = sprintf('%9d   %s', n, stopreason_str);
+    
+    printstr = sprintf('%9d   %s', n, stopreason_str);
     stats = struct('hessvecevals', n, 'limitedbyTR', limitedbyTR);
-
+    
+    trsoutput.eta = eta;
+    trsoutput.Heta = Heta;
+    trsoutput.limitedbyTR = limitedbyTR;
+    trsoutput.printstr = printstr;
+    trsoutput.stats = stats;
 end

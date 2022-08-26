@@ -408,11 +408,18 @@ Delta = options.Delta0;
 % logged and displayed. This initial call to the solver tells us ahead of
 % time what to write in the column headers for displayed information, and
 % how to initialize the info struct-array.
-[~, ~, print_header, subproblemstats] = ...
-                                 options.subproblemsolver([], [], options);
+trsinfo = options.subproblemsolver([], [], options);
+
+% printheader is a string that contains the header for the subproblem 
+% solver's printed output.
+printheader = trsinfo.printheader;
+
+% initstats is a struct of initial values for the stats that the subproblem
+% solver wishes to store.
+initstats = trsinfo.initstats;
 
 stats = savestats(problem, x, storedb, key, options, k, fx, norm_grad, ...
-                                         Delta, ticstart, subproblemstats);
+                                         Delta, ticstart, initstats);
 
 info(1) = stats;
 info(min(10000, options.maxiter+1)).iter = [];
@@ -421,7 +428,7 @@ info(min(10000, options.maxiter+1)).iter = [];
 if options.verbosity == 2
     fprintf(['%3s %3s    iter   ', ...
              '%15scost val   %2sgrad. norm   %s\n'], ...
-             '   ', '   ', '        ', '  ', print_header);
+             '   ', '   ', '        ', '  ', printheader);
     fprintf(['%3s %3s   %5d   ', ...
              '%+.16e   %12e\n'], ...
              '   ', '   ', k, fx, norm_grad);
@@ -430,7 +437,7 @@ elseif options.verbosity > 2
              '%15scost val   %2sgrad. norm   %10srho   %4srho_noreg   ' ...
              '%7sDelta   %s\n'], ...
              '   ', '   ', '        ', '  ', '         ', '   ', ...
-             '       ', print_header);
+             '       ', printheader);
     fprintf(['%3s %3s   %5d   ', ...
              '%+.16e   %12e\n'], ...
              '   ','   ',k, fx, norm_grad);
@@ -484,14 +491,18 @@ while true
     % *************************
   
     % Solve TR subproblem with solver specified by options.subproblemsolver
-    subprobleminput = ...
-        struct('x', x, 'fgradx', fgradx, 'Delta', Delta, 'accept', accept);
+    trsinput = struct('x', x, 'fgradx', fgradx, 'Delta', Delta, ...
+                        'accept', accept);
 
-    [eta, Heta, subproblem_str, subproblemstats] = ...
-        options.subproblemsolver(problem, subprobleminput, ...
-                                 options, storedb, key);
+    trsoutput = options.subproblemsolver(problem, trsinput, options, ...
+                                            storedb, key);
+    
+    eta = trsoutput.eta;
+    Heta = trsoutput.Heta;
+    limitedbyTR = trsoutput.limitedbyTR;
+    trsprintstr = trsoutput.printstr;
+    trsstats = trsoutput.stats;
 
-    limitedbyTR = subproblemstats.limitedbyTR;
         
     % This is computed for logging purposes and may be useful for some
     % user-defined stopping criteria.
@@ -581,7 +592,7 @@ while true
     model_decreased = (rhoden >= 0);
     
     if ~model_decreased
-        subproblem_str = [subproblem_str ', model did not decrease']; %#ok<AGROW>
+        trsprintstr = [trsprintstr ', model did not decrease']; %#ok<AGROW>
     end
     rho = rhonum / rhoden;
     
@@ -707,19 +718,20 @@ while true
     % Log statistics for freshly executed iteration.
     % Everything after this in the loop is not accounted for in the timing.
     stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                      norm_grad, Delta, ticstart, subproblemstats, ...
-                      info, rho, rhonum, rhoden, accept, norm_eta);
+                      norm_grad, Delta, ticstart, trsstats, ...
+                      info, rho, rhonum, rhoden, accept, norm_eta, ...
+                      limitedbyTR);
     info(k+1) = stats;
 
     % Display
     if options.verbosity == 2
         fprintf('%3s %3s   %5d   %+.16e   %12e   %s\n', ...
-                accstr, trstr, k, fx, norm_grad, subproblem_str);
+                accstr, trstr, k, fx, norm_grad, trsprintstr);
     elseif options.verbosity > 2
         fprintf(['%3s %3s   %5d   %+.16e   %.6e   %+.6e   ' ...
                  '%+.6e   %.6e   %s\n'], ...
                 accstr, trstr, k, fx, norm_grad, rho, ...
-                rho_noreg, Delta, subproblem_str);
+                rho_noreg, Delta, trsprintstr);
         if options.debug > 0
             fprintf('      Delta : %f          |eta| : %e\n', ...
                     Delta, norm_eta);
@@ -756,8 +768,8 @@ end
 
 % Routine in charge of collecting the current iteration stats
 function stats = savestats(problem, x, storedb, key, options, k, fx, ...
-                           norm_grad, Delta, ticstart, subproblemstats, ...
-                           info, rho, rhonum, rhoden, accept, norm_eta)
+                           norm_grad, Delta, ticstart, trsstats, info, rho, ...
+                           rhonum, rhoden, accept, norm_eta, limitedbyTR)
     stats.iter = k;
     stats.cost = fx;
     stats.gradnorm = norm_grad;
@@ -769,9 +781,10 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.rhoden = NaN;
         stats.accepted = true;
         stats.stepsize = NaN;
-        fields = fieldnames(subproblemstats);
+        stats.limitedbyTR = false;
+        fields = fieldnames(trsstats);
         for i = 1 : length(fields)
-            stats.(fields{i}) = subproblemstats.(fields{i});
+            stats.(fields{i}) = trsstats.(fields{i});
         end
     else
         stats.time = info(k).time + toc(ticstart);
@@ -780,9 +793,10 @@ function stats = savestats(problem, x, storedb, key, options, k, fx, ...
         stats.rhoden = rhoden;
         stats.accepted = accept;
         stats.stepsize = norm_eta;
-        fields = fieldnames(subproblemstats);
+        stats.limitedbyTR = limitedbyTR;
+        fields = fieldnames(trsstats);
         for i = 1 : length(fields)
-            stats.(fields{i}) = subproblemstats.(fields{i});
+            stats.(fields{i}) = trsstats.(fields{i});
         end
     end
     

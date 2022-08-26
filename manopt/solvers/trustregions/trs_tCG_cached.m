@@ -1,10 +1,10 @@
-function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
+function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 % Truncated (Steihaug-Toint) Conjugate-Gradient method with caching.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput, options, storedb, key)
+% function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %
 % trs_tCG_cached stores information (when options.trscache == true) 
 % which can help avoid redundant computations (using tCG_rejectedstep) 
@@ -13,7 +13,7 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
-%   subprobleminput: struct storing information for this subproblemsolver
+%   trsinput: struct storing information for this subproblem solver
 %       x: point on the manifold problem.M
 %       grad: gradient of the cost function of the problem at x
 %       Delta = trust-region radius
@@ -47,17 +47,20 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 %       warning('off', 'manopt:trs_tCG_cached:memory')
 %
 % Outputs:
-%   eta: approximate solution to the trust-region subproblem at x
-%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
-%       is often naturally available to the subproblem solver at the
-%       end of execution, so that it may be cheaper to return it here.
-%   print_str: subproblem specific string to be printed by trustregions.
-%   stats: structure with values to be stored in trustregions.
-%       numinner: number of inner loops before returning
-%       hessvecevals: number of Hessian calls during execution (can
-%       differ from numinner when caching is used)
-%       limitedbyTR: true if a boundary solution is returned
-%       memorytCG_MB: memory of store_iters and store_last in MB
+%   trsoutput: struct storing information for this subproblem solver
+%   containing the following fields:
+%       eta: approximate solution to the trust-region subproblem at x
+%       Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%           is often naturally available to the subproblem solver at the
+%           end of execution, so that it may be cheaper to return it here.
+%       printstr: subproblem specific string to be printed by trustregions.
+%       stats: structure with the following values to be stored in
+%       trustregions:
+%           numinner: number of inner loops before returning
+%           hessvecevals: number of Hessian calls during execution (can
+%               differ from numinner when caching is used)
+%           limitedbyTR: true if a boundary solution is returned
+%           memorytCG_MB: memory of store_iters and store_last in MB
 %
 % Stored Information:
 %   store_iters: a struct array with enough information to compute the next
@@ -71,14 +74,14 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % trs_tCG_cached can also be called in the following way (for printing
 % purposes):
 %
-% function [~, ~, print_str, stats] = trs_tCG_cached([], [], options)
+% function trsoutput = trs_tCG_cached([], [], options)
 %
-% In this case when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. In this
-% case print_str is the header to be printed before the first pass of 
-% trustregions. The other outputs will be 
-% empty. This stats struct is used in the first call to savestats in 
-% trustregions to initialize the info struct properly.
+% In this case when nargin == 3, trsoutput contains the following fields:
+%   printheader: subproblem header to be printed before the first pass of 
+%       trustregions
+%   initstats: struct with initial values for stored stats in subsequent
+%       calls to trs_tCG_cached. Used in the first call to savestats 
+%       in trustregions to initialize the info struct properly.
 %
 % See also: trustregions trs_tCG tCG_rejectedstep
 
@@ -104,22 +107,20 @@ function [eta, Heta, print_str, stats] = trs_tCG_cached(problem, subprobleminput
 % See trs_tCG for references to relevant equations in
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-% trustregions only wants default values for stats.
+% trustregions only wants header and default values for stats.
 if nargin == 3
-    eta = [];
-    Heta = [];
-    print_str = '';
+    trsoutput.printheader = '';
     if options.verbosity == 2
-        print_str = sprintf('%9s   %9s   %9s   %s', ...
+        trsoutput.printheader = sprintf('%9s   %9s   %9s   %s', ...
                             'numinner', 'hessvec', 'numstored', ...
                             'stopreason');
     elseif options.verbosity > 2
-        print_str = sprintf('%9s   %9s   %9s   %9s   %s', ...
+        trsoutput.printheader = sprintf('%9s   %9s   %9s   %9s   %s', ...
                             'numinner', 'hessvec', 'numstored', ...
                             'memtCG_MB', 'stopreason');
     end
-    stats = struct('numinner', 0, 'hessvecevals', 0, ...
-                   'limitedbyTR', false, 'memorytCG_MB', 0);
+    trsoutput.initstats = struct('numinner', 0, 'hessvecevals', 0, ...
+                   'memorytCG_MB', 0);
     return;
 end
 
@@ -130,9 +131,9 @@ if isfield(options, 'useRand') && options.useRand
              'Alternatively, set options.useRand = false;']);
 end
 
-x = subprobleminput.x;
-Delta = subprobleminput.Delta;
-grad = subprobleminput.fgradx;
+x = trsinput.x;
+Delta = trsinput.Delta;
+grad = trsinput.fgradx;
 
 inner   = @(u, v) problem.M.inner(x, u, v);
 lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
@@ -153,15 +154,14 @@ end
 options = mergeOptions(localdefaults, options);
 
 % If the previous step was rejected and we want to use caching,
-if ~subprobleminput.accept && options.trscache
+if ~trsinput.accept && options.trscache
     % Then check if there is cached information for the current point.
     store = storedb.get(key);
     if isfield(store, 'store_iters')
         % If so, use that cache to produce the same output as would have
         % been produced by running the code below (after the 'return'), but
         % without issuing Hessian-vector calls that were already issued.
-        [eta, Heta, print_str, stats] = ...
-                tCG_rejectedstep(problem, subprobleminput, options, store);
+        trsoutput = tCG_rejectedstep(problem, trsinput, options, store);
         return;
     end
 end
@@ -234,7 +234,7 @@ numstored = 0;
 
 % string that is printed by trustregions. For printing
 % per-iteration information
-print_str = '';
+printstr = '';
 
 % Begin inner/trs_tCG loop.
 for j = 1 : options.maxinner
@@ -437,14 +437,20 @@ if options.trscache
 
     storedb.set(store, key);
 end
-
-if options.verbosity == 2
-    print_str = sprintf('%9d   %9d   %9d   %s', j, j, numstored, stopreason_str);
-elseif options.verbosity > 2
-    print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', j, j, numstored, memorytCG_MB, stopreason_str);
-end
-
-stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR, ...
+stats = struct('numinner', j, 'hessvecevals', j, ...
                     'memorytCG_MB', memorytCG_MB);
 
+if options.verbosity == 2
+    printstr = sprintf('%9d   %9d   %9d   %s', j, j, numstored, ...
+                stopreason_str);
+elseif options.verbosity > 2
+    printstr = sprintf('%9d   %9d   %9d   %9.2f   %s', j, j, numstored, ...
+                memorytCG_MB, stopreason_str);
+end
+
+trsoutput.eta = eta;
+trsoutput.Heta = Heta;
+trsoutput.limitedbyTR = limitedbyTR;
+trsoutput.printstr = printstr;
+trsoutput.stats = stats;
 end
