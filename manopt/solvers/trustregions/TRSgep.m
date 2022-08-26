@@ -167,9 +167,6 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
                         all(abs(A*x+a + mu*x) <= reltol(abs(mu*x))) && ...
                         ( limitedbyTR || mu <= reltol(0)) && ...
                         (~limitedbyTR || Del <= reltol(norm(x))));
-            if ~accurate
-                keyboard;
-            end
         else
             % The zero vector x is optimal iff a = 0 and A is psd.
             % Moreover, a solution x = 0 is clearly not limited by the TR.
