@@ -1,7 +1,8 @@
-function [x, limitedbyTR] = TRSgep(A, a, Del)
+function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 % Solves trust-region subproblem by a generalized eigenvalue problem.
 % 
 % function [x, limitedbyTR] = TRSgep(A, a, Del)
+% function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
 % 
 % This function returns a solution x to the following optimization problem:
 % 
@@ -15,6 +16,11 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
 %   A: nxn symmetric
 %   a: nx1 vector, both real
 %   Del: trust-region radius (positive real)
+%
+% If called with three outputs, then computationally expensive checks are
+% run to verify the accuracy of the output. If the output appears to be
+% globally optimal (as expected) within some demanding numerical
+% tolerances, then 'accurate' is true; otherwise it is false.
 %
 % Code adapted from Yuji Nakatsukasa's code for the
 % paper by Satoru Adachi, Satoru Iwata, Yuji Nakatsukasa, and Akiko Takeda
@@ -137,6 +143,35 @@ function [x, limitedbyTR] = TRSgep(A, a, Del)
     % have been computed already, hence we do nothing.
     if a_is_zero && ~limitedbyTR
         x = zeros(n, 1);
+    end
+
+
+    % This is for debugging purposes only: it is expensive to run.
+    % The code checks via a dual certificate that x is a global optimum,
+    % up to some numerical tolerances. It also checks limitedbyTR.
+    if nargout >= 3
+        tol = 1e-13;
+        mineig = min(eig(A));
+        if norm(x) ~= 0
+            % Estimate the dual variable for the norm constraint.
+            lambdastar = -(x'*(A*x + a))/(x'*x);
+            % The vector x is optimal iff:
+            %   norm(x) <= Del,
+            %   M = A + lambdastar*I is psd and lambdastar >= 0,
+            %   M*x + b = 0, and
+            %   lambdastar = 0 whenever we are not limited by TR.
+            % We also need that limitedbyTR => norm(x) == Del.
+            reltol = @(c) c + tol*max(1, c); % to check a <~ c with c >= 0.
+            accurate = (norm(x) <= reltol(Del) && ...
+                        max(0, -mineig) <= reltol(lambdastar) && ...
+                        norm(A*x + lambdastar*x + a) <= reltol(0) && ...
+                        ( limitedbyTR || lambdastar <= reltol(0)) && ...
+                        (~limitedbyTR || Del <= reltol(norm(x))));
+        else
+            % The zero vector x is optimal iff a = 0 and A is psd.
+            % Moreover, a solution x = 0 is clearly not limited by the TR.
+            accurate = (norm(a) <= tol && mineig >= -tol && ~limitedbyTR);
+        end
     end
     
 end
