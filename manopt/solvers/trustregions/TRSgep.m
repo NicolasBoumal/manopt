@@ -154,19 +154,22 @@ function [x, limitedbyTR, accurate] = TRSgep(A, a, Del)
         mineig = min(eig(A));
         if norm(x) ~= 0
             % Estimate the dual variable for the norm constraint.
-            lambdastar = -(x'*(A*x + a))/(x'*x);
+            mu = -(x'*(A*x + a))/(x'*x);
             % The vector x is optimal iff:
             %   norm(x) <= Del,
-            %   M = A + lambdastar*I is psd and lambdastar >= 0,
+            %   M = A + mu*I is psd and mu >= 0,
             %   M*x + b = 0, and
-            %   lambdastar = 0 whenever we are not limited by TR.
+            %   mu = 0 whenever we are not limited by TR.
             % We also need that limitedbyTR => norm(x) == Del.
             reltol = @(c) c + tol*max(1, c); % to check a <~ c with c >= 0.
             accurate = (norm(x) <= reltol(Del) && ...
-                        max(0, -mineig) <= reltol(lambdastar) && ...
-                        norm(A*x + lambdastar*x + a) <= reltol(0) && ...
-                        ( limitedbyTR || lambdastar <= reltol(0)) && ...
+                        max(0, -mineig) <= reltol(mu) && ...
+                        all(abs(A*x+a + mu*x) <= reltol(abs(mu*x))) && ...
+                        ( limitedbyTR || mu <= reltol(0)) && ...
                         (~limitedbyTR || Del <= reltol(norm(x))));
+            if ~accurate
+                keyboard;
+            end
         else
             % The zero vector x is optimal iff a = 0 and A is psd.
             % Moreover, a solution x = 0 is clearly not limited by the TR.
