@@ -1,20 +1,20 @@
-function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
+function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 % Truncated (Steihaug-Toint) Conjugate-Gradient method.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
-% function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, options, storedb, key)
+% function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
-%   subprobleminput: struct storing information for this subproblemsolver
+%   trsinput: structure with the following fields:
 %       x: point on the manifold problem.M
-%       grad: gradient of the cost function of the problem at x
+%       fgradx: gradient of the cost function of the problem at x
 %       vector if options.useRand == true.
 %       Delta = trust-region radius
 %   options: structure containing options for the subproblem solver
-%   storedb, key: caching data for problem at x
+%   storedb, key: manopt's caching system for the point x
 %
 % Options specific to this subproblem solver:
 %   kappa (0.1)
@@ -36,29 +36,30 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated. 
 %       
-% Outputs:
+% Output: the structure trsoutput contains the following fields:
 %   eta: approximate solution to the trust-region subproblem at x
 %   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
 %       is often naturally available to the subproblem solver at the
 %       end of execution, so that it may be cheaper to return it here.
-%   print_str: subproblem specific string to be printed by trustregions.m
-%   stats: structure with values to be stored in trustregions.m
+%   limitedbyTR: true if a boundary solution is returned
+%   printstr: logged information to be printed by trustregions.
+%   stats: structure with the following statistics:
 %       numinner: number of inner loops before returning
-%       hessvecevals: number of Hessian calls during execution
-%       cauchy: true if Cauchy point was used (only if useRand == true)
-%       limitedbyTR: true if a boundary solution is returned
+%       hessvecevals: number of Hessian calls issued
+%       cauchy: true if cauchy step was used. false by default. Will
+%       be present in stats only if options.useRand = true
 %
-% trs_tCG can also be called in the following way (for printing
-% purposes):
+% trs_tCG can also be called in the following way (by trustregions) to
+% obtain part of the header to print and an initial stats structure:
 %
-% function [~, ~, print_str, stats] = trs_tCG([], [], options)
+% function trsoutput = trs_tCG([], [], options)
 %
-% In this case when nargin == 3, the returned stats struct contains the 
-% relevant fields along with their corresponding initial values. In this
-% case print_str is the header to be printed before the first pass of 
-% trustregions.m. The other outputs will be 
-% empty. This stats struct is used in the first call to savestats in 
-% trustregions.m to initialize the info struct properly.
+% In this case trsoutput contains the following fields:
+%   printheader: subproblem header to be printed before the first loop of 
+%       trustregions
+%   initstats: struct with initial values for stored stats in subsequent
+%       calls to trs_tCG. Used in the first call to savestats 
+%       in trustregions to initialize the info struct properly.
 %
 % See also: trustregions trs_tCG_cached trs_gep
 
@@ -124,7 +125,7 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %   VL June 29, 2022:
 %       Renamed tCG to trs_tCG to keep consistent naming with new
 %       subproblem solvers for trustregion. Also modified inputs and 
-%       outputs to be compatible with other subproblemsolvers.
+%       outputs to be compatible with other subproblem solvers.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -152,23 +153,25 @@ function [eta, Heta, print_str, stats] = trs_tCG(problem, subprobleminput, optio
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
-% trustregions.m only wants default values for stats.
-if nargin == 3
-    eta = [];
-    Heta = [];
+% trustregions only wants header and default values for stats.
+if nargin == 3 && isempty(problem) && isempty(trsinput)
     if isfield(options, 'useRand') && options.useRand
-        print_str = sprintf('%9s   %9s   %11s   %s', 'numinner', 'hessvec', 'used_cauchy', 'stopreason');
-        stats = struct('numinner', 0, 'hessvecevals', 0,'limitedbyTR', false, 'cauchy', false);
+        trsoutput.printheader = sprintf('%9s   %9s   %11s   %s', ...
+                                'numinner', 'hessvec', 'used_cauchy', ...
+                                'stopreason');
+        trsoutput.initstats = struct('numinner', 0, 'hessvecevals', 0, ...
+                                'cauchy', false);
     else
-        print_str = sprintf('%9s   %9s   %s', 'numinner', 'hessvec','stopreason');
-        stats = struct('numinner', 0, 'hessvecevals', 0, 'limitedbyTR', false);
+        trsoutput.printheader = sprintf('%9s   %9s   %s', 'numinner', ...
+                                'hessvec', 'stopreason');
+        trsoutput.initstats = struct('numinner', 0, 'hessvecevals', 0);
     end
     return;
 end
 
-x = subprobleminput.x;
-Delta = subprobleminput.Delta;
-grad = subprobleminput.fgradx;
+x = trsinput.x;
+Delta = trsinput.Delta;
+grad = trsinput.fgradx;
 
 M = problem.M;
 
@@ -435,12 +438,18 @@ if options.useRand
     end
 end
 
-print_str = sprintf('%9d   %9d   %s', j, j, stopreason_str);
-stats = struct('numinner', j, 'hessvecevals', j, 'limitedbyTR', limitedbyTR);
+printstr = sprintf('%9d   %9d   %s', j, j, stopreason_str);
+stats = struct('numinner', j, 'hessvecevals', j);
 
 if options.useRand
     stats.cauchy = used_cauchy;
-    print_str = sprintf('%9d   %9d   %11s   %s', j, j, string(used_cauchy), stopreason_str);
+    printstr = sprintf('%9d   %9d   %11s   %s', j, j, ...
+                string(used_cauchy), stopreason_str);
 end
 
+trsoutput.eta = eta;
+trsoutput.Heta = Heta;
+trsoutput.limitedbyTR = limitedbyTR;
+trsoutput.printstr = printstr;
+trsoutput.stats = stats;
 end

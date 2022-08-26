@@ -1,7 +1,7 @@
-function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, store)
+function trsoutput = tCG_rejectedstep(problem, trsinput, options, store)
 % Helper for trs_tCG_cached: mimics the latter's behavior, exploiting cache
 % 
-% function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminput, options, store)
+% function trsoutput = tCG_rejectedstep(problem, trsinput, options, store)
 %
 % This function is a companion to trs_tCG_cached: it is not meant to be
 % called directly by Manopt users.
@@ -36,8 +36,8 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
 % Contributors: Nicolas Boumal
 % Change log: 
 
-    x = subprobleminput.x;
-    Delta = subprobleminput.Delta;
+    x = trsinput.x;
+    Delta = trsinput.Delta;
 
     lincomb = @(a, u, b, v) problem.M.lincomb(x, a, u, b, v);
 
@@ -50,8 +50,9 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
         numstored = numstored + 1;
     end
     
-    print_str = '';
-
+    limitedbyTR = false;
+    printstr = '';
+    
     for ii = 1:length(store_iters)
         normsq = store_iters(ii).normsq;
         d_Hd = store_iters(ii).d_Hd;
@@ -89,20 +90,26 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
                 stopreason_str = 'exceeded trust region';
             end
             
-            stats.limitedbyTR = true;
+            limitedbyTR = true;
+            
             stats.numinner = store_iters(ii).numinner;
             stats.hessvecevals = 0;
 
             if options.verbosity == 2
-                print_str = sprintf('%9d   %9d   %9d   %s', ...
+                printstr = sprintf('%9d   %9d   %9d   %s', ...
                                     stats.numinner, 0, numstored, ...
                                     stopreason_str);
             elseif options.verbosity > 2
-                print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', ...
+                printstr = sprintf('%9d   %9d   %9d   %9.2f   %s', ...
                                     stats.numinner, 0, numstored, ...
                                     stats.memorytCG_MB, stopreason_str);
             end
 
+            trsoutput.eta = eta;
+            trsoutput.Heta = Heta;
+            trsoutput.limitedbyTR = limitedbyTR;
+            trsoutput.printstr = printstr;
+            trsoutput.stats = stats;
             return;
         end
     end
@@ -111,18 +118,23 @@ function [eta, Heta, print_str, stats] = tCG_rejectedstep(problem, subprobleminp
     % violates the trust-region radius we exit with last eta, Heta and
     % limitedbyTR = false from store_last.
     eta = store_last.eta;
-    Heta = store_last.Heta;
-    stats.limitedbyTR = false;
+    Heta = store_last.Heta;    
     stats.numinner = store_last.numinner;
     stats.hessvecevals = 0;
     if options.verbosity == 2
-        print_str = sprintf('%9d   %9d   %9d   %s', ...
+        printstr = sprintf('%9d   %9d   %9d   %s', ...
                             stats.numinner, 0, numstored, ...
                             store_last.stopreason_str);
     elseif options.verbosity > 2
-        print_str = sprintf('%9d   %9d   %9d   %9.2f   %s', ...
+        printstr = sprintf('%9d   %9d   %9d   %9.2f   %s', ...
                             stats.numinner, 0, numstored, ...
                             stats.memorytCG_MB, store_last.stopreason_str);
     end
+    
+    trsoutput.eta = eta;
+    trsoutput.Heta = Heta;
+    trsoutput.limitedbyTR = limitedbyTR;
+    trsoutput.printstr = printstr;
+    trsoutput.stats = stats;
 
 end
