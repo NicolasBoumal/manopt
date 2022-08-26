@@ -163,7 +163,7 @@ if nargin == 3 && isempty(problem) && isempty(trsinput)
                                 'cauchy', false);
     else
         trsoutput.printheader = sprintf('%9s   %9s   %s', 'numinner', ...
-                                'hessvec','stopreason');
+                                'hessvec', 'stopreason');
         trsoutput.initstats = struct('numinner', 0, 'hessvecevals', 0);
     end
     return;
