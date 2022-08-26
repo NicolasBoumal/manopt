@@ -492,10 +492,10 @@ while true
   
     % Solve TR subproblem with solver specified by options.subproblemsolver
     trsinput = struct('x', x, 'fgradx', fgradx, 'Delta', Delta, ...
-                        'accept', accept);
+                      'accept', accept);
 
     trsoutput = options.subproblemsolver(problem, trsinput, options, ...
-                                            storedb, key);
+                                         storedb, key);
     
     eta = trsoutput.eta;
     Heta = trsoutput.Heta;
