@@ -1,3 +1,4 @@
+function importmanopt()
 % Add Manopt to the path to make all manopt components available.
 
 % This file is part of Manopt: www.manopt.org.
@@ -9,13 +10,14 @@
 %   Aug.  8, 2013 (NB): Changed to use addpath_recursive, home brewed.
 %   Aug. 22, 2013 (NB): Using genpath instead of home cooked
 %                       addpath_recursive.
+%   Sep.  5, 2022 (NB): Added some safe-guards against pre-defined vars.
 
-addpath(pwd);
+addpath(pwd());
 
 % Recursively add Manopt directories to the Matlab path.
-cd manopt;
-addpath(genpath(pwd));
-cd ..;
+cd('manopt');
+addpath(genpath(pwd()));
+cd('..');
 
 % Ask user if the path should be saved or not
 fprintf('Manopt was added to Matlab''s path.\n');
