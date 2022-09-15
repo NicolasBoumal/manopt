@@ -1,23 +1,25 @@
-function X = positive_definite_karcher_mean(A)
-% Computes a Karcher mean of a collection of positive definite matrices.
+function X = positive_definite_intrinsic_mean(A)
+% Computes an intrinsic mean of a collection of positive definite matrices.
 %
-% function X = positive_definite_karcher_mean(A)
+% function X = positive_definite_intrinsic_mean(A)
 %
-% Input:  A 3D matrix A of size nxnxm such that each slice A(:,:,k) is a
+% Input:  A 3D matrix A of size nxnxm such that each slice A(:, :, k) is a
 %         positive definite matrix of size nxn.
 % 
-% Output: A positive definite matrix X of size nxn which is a Karcher mean
+% Output: A positive definite matrix X of size nxn which is an intrinsic mean
 %         of the m matrices in A, that is, X minimizes the sum of squared
 %         Riemannian distances to the matrices in A:
 %            f(X) = sum_k=1^m .5*dist^2(X, A(:, :, k))
 %         The distance is defined by the natural metric on the set of
-%         positive definite matrices: dist(X,Y) = norm(logm(X\Y), 'fro').
+%         positive definite matrices: see sympositivedefinitefactory.
 % 
-% This simple example is not the best way to compute Karcher means. Its
+% This simple example is not the best way to compute intrinsic means. Its
 % purpose it to serve as base code to explore other algorithms. In
-% particular, in the presence of large noise, this algorithm seems to not
+% particular, in the presence of large noise, this algorithm seems not to
 % be able to reach points with a very small gradient norm. This may be
 % caused by insufficient accuracy in the gradient computation.
+%
+% See also: sympositivedefinitefactory
 
 % This file is part of Manopt and is copyrighted. See the license file.
 % 
@@ -25,7 +27,9 @@ function X = positive_definite_karcher_mean(A)
 % Contributors:
 % 
 % Change log:
-% 
+%     Sep. 15, 2022 (NB):
+%         Changed name from positive_definite_karcher_mean, clarified
+%         some comments.
     
     % Generate some random data to test the function if none is given.
     if ~exist('A', 'var') || isempty(A)
@@ -66,7 +70,8 @@ function X = positive_definite_karcher_mean(A)
     % Explicitly pick an approximate Hessian for the trust-region method.
     % (This is only to show an example of how it can be done; the solver
     % below, rlbfgs, does not use the approximate Hessian; trustregions
-    % would.)
+    % would, but it would figure it out automatically with default
+    % stepsize if the line below is omitted.)
     problem.approxhess = approxhessianFD(problem, struct('stepsize', 1e-4));
     
     % The functions below make many redundant computations. This
