@@ -9,12 +9,15 @@ issues = {};
 for k = 1 : numel(list)
     s = list(k).name;
     s = s(1:end-2); % remove '.m'
-    if ~strcmp(s, mfilename()) % don't run yourself
-        try
-            eval([s, ';']);
-        catch
-            issues{end+1} = s; %#ok<SAGROW>
-        end
+    switch s
+        case mfilename() % don't run yourself
+        case 'positive_definite_karcher_mean' % this is the old name of another example
+        otherwise
+            try
+                eval([s, ';']);
+            catch
+                issues{end+1} = s; %#ok<SAGROW>
+            end
     end
 end
 
