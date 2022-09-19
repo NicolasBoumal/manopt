@@ -11,7 +11,7 @@ for k = 1 : numel(list)
     s = s(1:end-2); % remove '.m'
     switch s
         case mfilename() % don't run yourself
-        case 'positive_definite_karcher_mean' % this is the old name of another example
+        case 'positive_definite_karcher_mean' % old name of another example
         otherwise
             try
                 eval([s, ';']);
