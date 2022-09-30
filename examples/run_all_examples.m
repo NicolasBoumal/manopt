@@ -24,4 +24,6 @@ end
 if ~isempty(issues)
     warning('There were issues running the following scripts:');
     disp(issues);
+else
+    fprintf('\n\nNo particular issues detected.\n');
 end
