@@ -50,7 +50,7 @@ http://jmlr.org/papers/v15/boumal14a.html
 For more info or help: https://www.manopt.org -- we are active on the forum!
 
 This version:
-Manopt 7.0, released Sep. 5, 2021.
+Manopt 7.1, released Sep. 30, 2022.
 
 
 GitHub: https://github.com/NicolasBoumal/manopt
