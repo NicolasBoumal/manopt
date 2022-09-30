@@ -1,7 +1,7 @@
 Manopt is a Matlab toolbox for optimization on manifolds.
 
 Installation instructions, documentation and updates are available online:
-http://www.manopt.org
+https://www.manopt.org
 
 This is open source software.
 Manopt is copyright by Nicolas Boumal (nicolasboumal@gmail.com) and is
@@ -19,7 +19,7 @@ Quick installation guide
 
 * Go to /my/directory/manopt/ at the command prompt and execute importmanopt.
   You may save this path for your next Matlab sessions: follow the menu
-  File » Set Path... and save, or execute savepath.
+  File -> Set Path... and save, or execute savepath.
 
 * Go to /my/directory/manopt/checkinstall/ and run the script basicexample.m.
   If there are no errors, you are done! Otherwise, feel free to contact us.
@@ -47,7 +47,7 @@ http://jmlr.org/papers/v15/boumal14a.html
 
 
 
-For more info or help: http://www.manopt.org -- we are active on the forum!
+For more info or help: https://www.manopt.org -- we are active on the forum!
 
 This version:
 Manopt 7.0, released Sep. 5, 2021.

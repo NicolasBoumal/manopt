@@ -49,4 +49,4 @@ Furthermore, code written by the following people can be found in Manopt:
 * Michael Kleder
 
 Each person's contribution is marked by their name in the relevant files.
-See http://www.manopt.org/about.html for a more precise breakdown.
+See https://www.manopt.org/about.html for a more precise breakdown.
