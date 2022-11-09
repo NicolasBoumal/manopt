@@ -1,4 +1,4 @@
-function cost = plotprofile(problem, x, d, t)
+function [cost, x, d, t] = plotprofile(problem, x, d, t)
 % Plot the cost function along a geodesic or a retraction path.
 %
 % function plotprofile(problem)
@@ -8,7 +8,7 @@ function cost = plotprofile(problem, x, d, t)
 % function plotprofile(problem, x, [], t)
 % function plotprofile(problem, [], [], t)
 %
-% function costs = plotprofile(problem, x, d, t)
+% function [costs, x, d, t] = plotprofile(...)
 %
 % Plot profile evaluates the cost function along a geodesic gamma(t) such
 % that gamma(0) = x and the derivative of gamma at 0 is the direction d.
@@ -19,8 +19,10 @@ function cost = plotprofile(problem, x, d, t)
 % values of the cost are returned for the instants t.
 %
 % If x is omitted, a random point is picked. If d is omitted, a random
-% tangent vector at x is picked. If t is omitted, it is generated as a
-% linspace over [-1, 1].
+% unit-norm tangent vector at x is picked. If t is omitted, it is generated
+% as a linspace over [-1, 1].
+%
+% See also surfprofile
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Jan. 9, 2013.
@@ -32,10 +34,13 @@ function cost = plotprofile(problem, x, d, t)
 %
 %   Nov. 12, 2016 (NB):
 %       Making more inputs optional.
+%
+%   Nov.  9, 2022 (NB):
+%       When d is generated at random, we force it to have norm 1.
 
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
-        error('It seems no cost was provided.');  
+        error('It seems no cost function was provided.');  
     end
     
     if ~exist('x', 'var') || isempty(x)
@@ -46,6 +51,7 @@ function cost = plotprofile(problem, x, d, t)
     end
     if ~exist('d', 'var') || isempty(d)
         d = problem.M.randvec(x);
+        d = problem.M.lincomb(x, 1/problem.M.norm(x, d), d);
     end
     if ~exist('t', 'var') || isempty(t)
         t = linspace(-1, 1, 101);

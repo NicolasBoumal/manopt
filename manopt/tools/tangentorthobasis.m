@@ -25,7 +25,7 @@ function orthobasis = tangentorthobasis(M, x, n, basis_vecs)
 %
 % If basis_vecs is specified, then:
 %   If length(basis_vecs) >= n, the first n vectors in basis_vecs are
-%                               passed are orthogonalized and returned.
+%                               orthogonalized and returned.
 %   If length(basis_vecs) < n, we append n - length(basis_vecs) random
 %                              vectors to basis_vecs, and we orthogonalize
 %                              then return the resulting cell.
