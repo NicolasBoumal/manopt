@@ -177,6 +177,44 @@ function checkmanifold(M)
         fprintf('M.dim() not tested because it is > %d.\n', dim_threshold);
     end
     
+    %% Checking isotransp
+    try
+        x1 = M.rand();
+        x2 = M.rand();
+        u1 = M.randvec(x1);
+        u2 = M.randvec(x1);
+        PT_u1_x2 = M.isotransp(x1, x2, u1);
+        PT_u2_x2 = M.isotransp(x1, x2, u2);
+
+        isometry_res = M.inner(x1, u1, u2) - M.inner(x2, PT_u1_x2, PT_u2_x2);
+        reverse_res = sum(sum(M.isotransp(x2, x1, PT_u1_x2) - u1));
+
+        fprintf(['Testing isotransp(X1,X2,U) belongs to the tangent ' ...
+            'space of X2: %g (should be zero).\n'], ...
+            M.inner(x2, x2, PT_u1_x2));
+        fprintf(['Testing isotransp is an isometry: ' ...
+            '<u, v> - <isotransp(X1,X2,U), isotransp(X1,X2,V)> = %g' ...
+            ' (should be zero).\n'], isometry_res);
+        fprintf(['Testing isotransp reverse: ' ...
+            'isotransp(X2,X1,isotransp(X1,X2,U)) - U = %g ' ...
+            '(should be zero).\n'], reverse_res);
+
+        % Parallel transport u1 to a point that is halfway along a
+        % geodesic, then parallel transport to the end point. The result
+        % should be the same if parallel transporting directly to the end
+        % point.
+        x_mid = M.exp(x1, u2, 0.5);
+        x_end = M.exp(x1, u2, 1);
+        PT_u1_x_mid = M.isotransp(x1, x_mid, u1);
+        PT_PT_u1_x_mid_x_end = M.isotransp(x_mid, x_end, PT_u1_x_mid);
+        PT_u1_x_end = M.isotransp(x1, x_end, u1);
+
+        diff = sum(sum(PT_PT_u1_x_mid_x_end - PT_u1_x_end));
+        fprintf('Testing isotransp composition: diff = %g (should be zero).\n', diff)
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check isotransp.\n');
+    end
+
     %% Recommend calling checkretraction
     fprintf('It is recommended also to call checkretraction.\n');
 
