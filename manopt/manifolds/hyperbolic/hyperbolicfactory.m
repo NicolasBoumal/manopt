@@ -233,6 +233,14 @@ function M = hyperbolicfactory(n, m, transposed)
     M.zerovec = @(X) zeros(size(X));
     
     M.transp = @(X1, X2, U) M.proj(X2, U);
+
+    M.isotransp = @(X1, X2, U) ...
+        trnsp(parallel_transport(trnsp(X1), trnsp(X2), trnsp(U)));
+    function V = parallel_transport(X1, X2, U)
+        V = inner_minkowski_columns(X2, U);
+        V = V ./ (1 - inner_minkowski_columns(X1, X2)) .* (X1 + X2);
+        V = U + V;
+    end
     
     M.pairmean = @(x1, x2) M.exp(x1, M.log(x1, x2), .5);
    

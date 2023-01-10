@@ -14,7 +14,7 @@ function checkmanifold(M)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Aug. 31, 2018.
-% Contributors: 
+% Contributors: Andreea-Alexandra Musat
 % Change log: 
 %   April 12, 2020 (NB):
 %       Now checking M.dist(x, M.exp(x, v, t)) for several values of t
@@ -23,6 +23,8 @@ function checkmanifold(M)
 %       Now checking M.dim().
 %   Jan  8, 2021 (NB):
 %       Added partial checks of M.inner, M.tangent2ambient, M.proj, ...
+%   Dec 29, 2022 (AAM):
+%       Added checks for M.isotransp.
 
     assert(isstruct(M), 'M must be a structure.');
     
@@ -177,6 +179,56 @@ function checkmanifold(M)
         fprintf('M.dim() not tested because it is > %d.\n', dim_threshold);
     end
     
+    %% Checking isotransp
+    try
+        x1 = M.rand();
+        x2 = M.rand();
+        u = M.randvec(x1);
+        v = M.randvec(x1);
+        PT_u_x2 = M.isotransp(x1, x2, u);
+        PT_v_x2 = M.isotransp(x1, x2, v);
+
+        isometry_res = M.inner(x1, u, v) - M.inner(x2, PT_u_x2, PT_v_x2);
+
+        reverse_res = M.norm(x1, M.lincomb(x1, ...
+                                  1, M.isotransp(x2, x1, PT_u_x2), -1, u));
+
+% TODO: Implement generic way of checking if a vector is tangent.
+%       Should make this part of the manifold description directly.
+%       Above, there is proxy code that relies on tangent2ambient + proj.
+% fprintf(['Testing isotransp(x1, x2, u) belongs to the tangent ' ...
+%          'space of x2: %g (should be zero).\n'], ...
+%          sum(sum(M.proj(x2, PT_u_x2) - PT_u_x2)));
+        fprintf(['Currently, no check that isotransp(x1, x2, u) ' ...
+                 'belongs to the tangent space at x2: please check.\n']);
+
+        fprintf(['Testing isotransp is an isometry: ' ...
+                 '<u, v> - <isotransp(x1, x2, u), isotransp(x1, x2, v)> = %g' ...
+                 ' (should be zero).\n'], isometry_res);
+
+        fprintf(['Testing isotransp inverse: norm of ' ...
+            'isotransp(x2, x1, isotransp(x1, x2, u)) - u = %g ' ...
+            '(should be zero for parallel transport).\n'], reverse_res);
+
+        % Parallel transport u to a point that is halfway along a geodesic,
+        % then parallel transport to the end point. The result should be
+        % the same if parallel transporting directly to the end point,
+        % at least if the geodesic segment is short enough (inj. radius).
+        dst = 1e-5;
+        v = M.lincomb(x1, dst, v); % try to keep test local
+        x_mid = M.exp(x1, v, 0.5);
+        x_end = M.exp(x1, v, 1);
+        PT_u_x_mid = M.isotransp(x1, x_mid, u);
+        PT_PT_u_x_mid_x_end = M.isotransp(x_mid, x_end, PT_u_x_mid);
+        PT_u_x_end = M.isotransp(x1, x_end, u);
+        diff = M.lincomb(x_end, 1, PT_PT_u_x_mid_x_end, -1, PT_u_x_end);
+        diffnrm = M.norm(x_end, diff);
+        fprintf(['Testing isotransp composition to mid point: %g ' ...
+                 '(should be zero if inj(M, x1) > %.1e).\n'], diffnrm, dst);
+    catch up %#ok<NASGU>
+        fprintf('Couldn''t check isotransp.\n');
+    end
+
     %% Recommend calling checkretraction
     fprintf('It is recommended also to call checkretraction.\n');
 
