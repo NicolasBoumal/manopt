@@ -1,7 +1,7 @@
 function [y, iter, lambda, status] = minimize_quadratic_newton(H, g, Delta, options)
 % Minimize a quadratic via Newton root finding.
 %
-% [y, iter, lambda, status] = minimize_quadratic_newton(H, g, sigma, options)
+% [y, iter, lambda, status] = minimize_quadratic_newton(H, g, Delta, options)
 %
 % Inputs: a symmetric matrix H of size n, a nonzero vector g of length n,
 % and an options structure. The code expects H to be tridiagonal, stored 
@@ -47,7 +47,7 @@ function [y, iter, lambda, status] = minimize_quadratic_newton(H, g, Delta, opti
 % for lambda rather than for y.
 %
 % This code can be replaced with algorihm 5.2 as described in the GLTR 
-% paper (see trs_lanczos.m for a link).
+% paper to speed up GLTR (see trs_lanczos.m for a link).
 %
 % See also: trustregions trs_lanczos
 

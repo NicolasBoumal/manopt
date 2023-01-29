@@ -75,7 +75,8 @@ function trsoutput = trs_lanczos(problem, trsinput, options, storedb, key)
 % See trs_tCG for references to some relevant equations in
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 %
-% Original paper (algorithm is also found in CGT2000):
+% Original paper describing the algorithm and equations on converting from 
+% tCG to lanczos:
 % [GLRT1999] Gould, Lucidi, Roma, Toint: SOLVING THE TRUST-REGION 
 % SUBPROBLEM USING THE LANCZOS METHOD, 1999.
 
@@ -112,10 +113,6 @@ options = mergeOptions(localdefaults, options);
 
 theta = options.theta;
 kappa = options.kappa;
-
-% returned boolean to trustregions.m. true if we are limited by the TR
-% boundary (returns boundary solution). Otherwise false.
-limitedbyTR = false;
 
 eta = M.zerovec(x);
 Heta = M.zerovec(x);
@@ -187,7 +184,7 @@ for j = 1 : min(options.maxinner, n)
 
     % obtain T_k from T_{k-1}
     if j == 1
-        T(j, j) = 1/alpha; %alpha_j
+        T(j, j) = 1/alpha;
         Q{j} = M.lincomb(x, 1/sqrt(z_r), z);
         sigma_k = -sign(alpha);
     else
@@ -217,7 +214,6 @@ for j = 1 : min(options.maxinner, n)
         % If either condition triggers, we switch to lanczos.
         if (alpha <= 0 || e_Pe_new >= Delta^2)
             interior = false;
-            limitedbyTR = true;
         else
             % No negative curvature and eta_prop inside TR: accept it.
             e_Pe = e_Pe_new;
@@ -343,7 +339,7 @@ stats = struct('numinner', j, 'hessvecevals', j);
 
 trsoutput.eta = eta;
 trsoutput.Heta = Heta;
-trsoutput.limitedbyTR = limitedbyTR;
+trsoutput.limitedbyTR = ~interior;
 trsoutput.printstr = printstr;
 trsoutput.stats = stats;
 end
