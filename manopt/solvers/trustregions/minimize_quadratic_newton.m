@@ -1,4 +1,62 @@
 function [y, iter, lambda, status] = minimize_quadratic_newton(H, g, Delta, options)
+% Minimize a quadratic via Newton root finding.
+%
+% [y, iter, lambda, status] = minimize_quadratic_newton(H, g, sigma, options)
+%
+% Inputs: a symmetric matrix H of size n, a nonzero vector g of length n,
+% and an options structure. The code expects H to be tridiagonal, stored 
+% as a sparse matrix.
+%
+% The main output is a vector y of length n, which should minimize
+%
+%   f(y) = g'*y + (1/2)*y'*H*y.
+%   subject to y'*y <= Delta^2
+%
+% This is achieved by reducing the problem to a univariate root finding
+% problem, where the unknown is a scalar lambda. This root is computed
+% using a Newton method similar to the More-Sorensen algorithm.
+%
+% Other outputs are iter (the number of Newton iterations completed),
+% lambda (a real scalar, see below) and status. The latter is 0 if the
+% target tolerance was reached, 1 if subsequent iterations induce no
+% significant change, and -1 if the algorithm return because it reached
+% the maximum number of iterations (see the options structure.)
+% Non-negative status values are considered successes.
+%
+% The options structure must contain the following fields (between
+% parentheses are some recommended values):
+%   options.verbosity (3): to control how much information this function
+%   prints to the command window. Anything below 6 silences the function.
+%   options.maxiter_newton (100): maximum number of Newton iterations.
+%   options.tol_newton (1e-16): tolerance on the root finding accuracy. See
+%   in code for details.
+%
+% The code is based on Algorithm 7.3.6 in
+% More and Sorensen, "Computing a Trust Region Step", SIAM, 1983.
+% https://epubs.siam.org/doi/10.1137/0904038
+% 
+% Lemma 2.1 and 2.3 in the referenced paper states y is optimal if and only
+% if it there exists a real lambda such that
+% 
+% (H + lambda*I)y = -g,  lambda(Delta-||y||) = 0  and  H + lambda*I is psd,
+% 
+% where psd means positive semidefinite. The other way around, if we
+% find the corresponding scalar lambda, than we can recover y by
+% solving a linear system (though this system might not have a unique
+% solution in full generality.) Thus, the general strategy is to search
+% for lambda rather than for y.
+%
+% This code can be replaced with algorihm 5.2 as described in the GLTR 
+% paper (see trs_lanczos.m for a link).
+%
+% See also: trustregions trs_lanczos
+
+% This file is part of Manopt: www.manopt.org.
+% Original authors: Victor Liao. January 20, 2023, with code adapted from
+%    Naman Agarwal, Brian Bullins, Nicolas Boumal and Coralia Cartis.
+% Contributors:
+% Change log:
+    
     n = size(H, 1);
     
     % Pick an initial lambda that is cheap to compute and that surely makes

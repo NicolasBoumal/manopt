@@ -1,4 +1,84 @@
 function trsoutput = trs_lanczos(problem, trsinput, options, storedb, key)
+% Generalized Lanczos trust-region (GLTR) method.
+%
+% minimize <eta,grad> + .5*<eta,Hess(eta)>
+% subject to <eta,eta>_[inverse precon] <= Delta^2
+%
+% function trsoutput = trs_lanczos(problem, trsinput, options, storedb, key)
+%
+% Inputs:
+%   problem: Manopt optimization problem structure
+%   trsinput: structure with the following fields:
+%       x: point on the manifold problem.M
+%       fgradx: gradient of the cost function of the problem at x
+%       Delta = trust-region radius
+%   options: structure containing options for the subproblem solver
+%   storedb, key: manopt's caching system for the point x
+%
+% Options specific to this subproblem solver:
+%   kappa (0.1)
+%       kappa convergence tolerance.
+%       kappa > 0 is the linear convergence target rate: lanczos
+%       terminates early if the residual was reduced by a factor of kappa.
+%   theta (1.0)
+%       theta convergence tolerance.
+%       1+theta (theta between 0 and 1) is the superlinear convergence
+%       target rate. lanczos terminates early if the residual 
+%       was reduced by a power of 1+theta.
+%   mininner (1)
+%       Minimum number of inner iterations.
+%   maxinner (problem.M.dim())
+%       Maximum number of inner iterations.
+%   maxiter_newton (100)
+%     Maximum number of iterations of the Newton root finder to solve each
+%     tridiagonal quadratic problem.
+%   tol_newton (1e-16)
+%     Tolerance for the Newton root finder.
+%
+% Output: the structure trsoutput contains the following fields:
+%   eta: approximate solution to the trust-region subproblem at x
+%   Heta: Hess f(x)[eta] -- this is necessary in the outer loop, and it
+%       is often naturally available to the subproblem solver at the
+%       end of execution, so that it may be cheaper to return it here.
+%   limitedbyTR: true if a boundary solution is returned
+%   printstr: logged information to be printed by trustregions.
+%   stats: structure with the following statistics:
+%           numinner: number of inner loops before returning
+%           hessvecevals: number of Hessian calls issued
+%
+%
+% trs_lanczos can also be called in the following way (by trustregions) 
+% to obtain part of the header to print and an initial stats structure:
+%
+% function trsoutput = trs_lanczos([], [], options)
+%
+% In this case trsoutput contains the following fields:
+%   printheader: subproblem header to be printed before the first pass of 
+%       trustregions
+%   initstats: struct with initial values for stored stats in subsequent
+%       calls to trs_lanczos. Used in the first call to savestats 
+%       in trustregions to initialize the info struct properly.
+%
+% See also: trustregions minimize_quadratic_newton trs_tCG
+
+% This file is part of Manopt: www.manopt.org.
+% This code is an adaptation to Manopt of the original GenRTR code:
+% RTR - Riemannian Trust-Region
+% (c) 2004-2007, P.-A. Absil, C. G. Baker, K. A. Gallivan
+% Florida State University
+% School of Computational Science
+% (http://www.math.fsu.edu/~cbaker/GenRTR/?page=download)
+% See accompanying license file.
+% The adaptation was executed by Nicolas Boumal.
+%
+
+% See trs_tCG for references to some relevant equations in
+% [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
+%
+% Original paper (algorithm is also found in CGT2000):
+% [GLRT1999] Gould, Lucidi, Roma, Toint: SOLVING THE TRUST-REGION 
+% SUBPROBLEM USING THE LANCZOS METHOD, 1999.
+
 if nargin == 3 && isempty(problem) && isempty(trsinput)
     trsoutput.printheader = sprintf('%9s   %9s   %s', 'numinner', ...
                             'hessvec', 'stopreason');
@@ -37,15 +117,14 @@ kappa = options.kappa;
 % boundary (returns boundary solution). Otherwise false.
 limitedbyTR = false;
 
-% Pick the zero vector
-eta = M.zerovec(x); %s_0
+eta = M.zerovec(x);
 Heta = M.zerovec(x);
-r = grad; % g_0
+r = grad;
 e_Pe = 0; 
 
 r_r = inner(r, r);
-norm_r0 = sqrt(r_r);
-norm_r = norm_r0;
+norm_r = sqrt(r_r);
+norm_r0 = norm_r;
 
 % Precondition the residual.
 z = getPrecon(problem, x, r, storedb, key);
@@ -54,22 +133,25 @@ z = getPrecon(problem, x, r, storedb, key);
 z_r = inner(z, r);
 d_Pd = z_r;
 
-% gamma_0 used in lanczos tridiagonal problem
+% gamma_0 in lanczos tridiagonal problem
 gamma_0 = sqrt(z_r);
 
 % Initial search direction (we maintain -delta in memory, called mdelta, to
 % avoid a change of sign of the tangent vector.)
-mdelta = z; % p_0
+mdelta = z;
 e_Pd = 0;
 
-% interior is false means we solve tridiagonal trust-region subproblem
-% (5.3)
+% interior being false means we solve tridiagonal trust-region subproblem
+% and generate h
 interior = true;
 
 % Lanczos iteratively produces an orthonormal basis of tangent vectors
 % which tridiagonalize the Hessian. The corresponding tridiagonal
 % matrix is preallocated here as a sparse matrix.
 T = spdiags(zeros(n, 3), -1:1, n, n);
+
+% store Lanczos vectors
+Q = cell(n, 1);
 
 % If the Hessian or a linear Hessian approximation is in use, it is
 % theoretically guaranteed that the model value decreases strictly
@@ -84,8 +166,9 @@ T = spdiags(zeros(n, 3), -1:1, n, n);
 % Conn, Gould, Toint, Trust Region Methods, 2000.
 % If we make this change, then also modify trustregions to gather this
 % value from tCG rather than recomputing it itself.
+
 model_fun = @(eta, Heta) inner(eta, grad) + .5*inner(eta, Heta);
-model_fun_lower = @(eta, gg, H) dot(eta, gg) + .5* dot(eta, H * eta);
+model_fun_h = @(eta, g, H) dot(eta, g) + .5* dot(eta, H * eta);
 model_value = 0;
 
 % Pre-assume termination because j == end.
@@ -95,18 +178,11 @@ stopreason_str = 'maximum inner iterations';
 Hmdelta = getHessian(problem, x, mdelta, storedb, key);
 
 % Compute curvature (often called kappa).
-d_Hd = inner(mdelta, Hmdelta); % p_k Hp_k
+d_Hd = inner(mdelta, Hmdelta);
 
-
-% Note that if d_Hd == 0, we will exit at the next "if" anyway.
 alpha = z_r/d_Hd;
 
-Q = cell(n, 1);
-
-% gep_out = trs_gep(problem, trsinput, options);
-% eta_gep = gep_out.eta;
-% Heta_gep = gep_out.Heta;
-% Begin inner/tCG loop.
+% Begin inner loop.
 for j = 1 : min(options.maxinner, n)
 
     % obtain T_k from T_{k-1}
@@ -118,20 +194,11 @@ for j = 1 : min(options.maxinner, n)
         T(j-1, j) = sqrt(beta)/abs(prevalpha); %sqrt(beta_{j-1})/abs(alpha_{j-1})
         T(j, j-1) = sqrt(beta)/abs(prevalpha); %sqrt(beta_{j-1})/abs(alpha_{j-1})
         T(j, j) = 1/alpha + beta/prevalpha;
-%         if sqrt(z_r) > 1e-12
+        
         q = M.lincomb(x, sigma_k/sqrt(z_r), z);
-%         else
-%             v = M.randvec(x);
-%             % Orthogonalize in the style of a modified Gram-Schmidt.
-%             for k = 1 : j-1
-%                 v = M.lincomb(x, 1, v, -inner(v, Q{k}), Q{k});
-%             end
-%             v_prec = getPrecon(problem, x, v, storedb, key);
-%             v_pnorm = sqrt(inner(v, v_prec));
-%             q = M.lincomb(x, sigma_k/v_pnorm, v);
-%         end
         sigma_k = - sign(alpha) * sigma_k;
         q = tangent(q);
+        
         Q{j} = q;
     end
     
@@ -151,9 +218,6 @@ for j = 1 : min(options.maxinner, n)
         if (alpha <= 0 || e_Pe_new >= Delta^2)
             interior = false;
             limitedbyTR = true;
-            tcg_out = trs_tCG(problem, trsinput, options, storedb, key);
-            disp(j - tcg_out.stats.numinner);
-            disp(tcg_out.printstr);
         else
             % No negative curvature and eta_prop inside TR: accept it.
             e_Pe = e_Pe_new;
@@ -182,13 +246,18 @@ for j = 1 : min(options.maxinner, n)
     
     % solve tridiagonal trust-region subproblem to obtain h
     if ~interior
-        [h, limitedbyTR, trouble, accurate] = TRSgep(T(1:j, 1:j), gamma_0*eye(j, 1), Delta);
-%         [h, newton_iter] = minimize_quadratic_gltr(T(1:j, 1:j), ...
-%                                gamma_0*eye(j, 1), Delta, options);
-%         if trouble || ~accurate
-%             disp(j);
-%         end
+        [new_h, ~] = minimize_quadratic_newton(T(1:j, 1:j), ...
+                               gamma_0*eye(j, 1), Delta, options);
+        
+        new_model_value = model_fun_h(new_h, gamma_0*eye(j, 1), T(1:j, 1:j));
+        if new_model_value >= model_value
+            stopreason_str = 'model increased';
+            break;
+        end
+        h = new_h;
+        model_value = new_model_value;
     end
+
     % Update the residual.
     r = M.lincomb(x, 1, r, -alpha, Hmdelta);
     
@@ -215,33 +284,16 @@ for j = 1 : min(options.maxinner, n)
         % acceptable criteria.
         conv_test = norm_r;
     else
-        % gamma_{k+1} |< e_{k+1}, h_k>|
+        % gamma_{j} |< e_{j}, h_{j-1}|
         conv_test = sqrt(beta)/abs(alpha) * abs(dot(double(1:j == j), h));
-%         disp(j);
-%         disp(model_fun_lower(h, gamma_0*eye(j, 1), T(1:j, 1:j)) - model_fun(eta_gep, Heta_gep));
-%         eta_t = lincomb(M, x, Q(1:numel(h)), h);
-%         eta_t = tangent(eta_t);
-%         Heta_t= getHessian(problem, x, eta_t, storedb, key);
-
-%         g_kp1 = M.lincomb(x, 1, grad, 1, Heta_t);
-%         g_kp1_prec = getPrecon(problem, x, g_kp1, storedb, key);
-%         disp(sqrt(inner(g_kp1, g_kp1_prec)));
-%         disp(conv_test);
     end
+
     if j >= options.mininner && conv_test <= norm_r0*min(norm_r0^theta, kappa)
         % Residual is small enough to quit
         if kappa < norm_r0^theta
             stopreason_str = 'reached target residual-kappa (linear)';
         else
             stopreason_str = 'reached target residual-theta (superlinear)';
-        end
-        if interior
-            stopreason_str = append(stopreason_str,' tCG');
-%             tcg_out = trs_tCG(problem, trsinput, options, storedb, key);
-%             disp(tcg_out.printstr);
-%             disp(j - tcg_out.stats.numinner);
-        else
-            stopreason_str = append(stopreason_str,' lanczos');
         end
         break;
     end
@@ -267,9 +319,8 @@ for j = 1 : min(options.maxinner, n)
     Hmdelta = getHessian(problem, x, mdelta, storedb, key);
 
     % Compute curvature (often called kappa).
-    d_Hd = inner(mdelta, Hmdelta); % p_k Hp_k
+    d_Hd = inner(mdelta, Hmdelta);
 
-    % Note that if d_Hd == 0, we will exit at the next "if" anyway.
     prevalpha = alpha;
     alpha = z_r/d_Hd;
 
@@ -277,62 +328,16 @@ for j = 1 : min(options.maxinner, n)
     stopreason_str = 'maximum inner iterations';
 end  % of loop
 
-% regenerate lanczos vectors to get Q_k matrix and recover the solution y = Q_k h_k
+% recover the solution eta = Q_k h_k
 if ~interior
-%     t_j = grad;
-%     w_jm1 = M.zerovec(x);
-%     Q_test = cell(numel(h), 1);
-%     for j = 1:numel(h)
-%         y_j = getPrecon(problem, x, t_j, storedb, key);
-%         gamma_j = sqrt(inner(t_j, y_j));
-%         w_j = M.lincomb(x, 1/gamma_j, t_j);
-%         q_j = M.lincomb(x, 1/gamma_j, y_j);
-%         Q_test{j} = q_j;
-% 
-%         % This call is the computationally expensive step.
-%         Hq_j = getHessian(problem, x, q_j, storedb, key);
-%         delta_j = inner(q_j, Hq_j);
-%         t_j = M.lincomb(x, 1, Hq_j, -delta_j, w_j);
-%         t_j = M.lincomb(x, 1, t_j, -gamma_j, w_jm1);
-%         w_jm1 = w_j;
-%     end
-%     eta_regen = lincomb(M, x, Q_test(1:numel(h)), h);
-%     eta_regen = tangent(eta_regen);
-%     Heta_regen = getHessian(problem, x, eta_regen, storedb, key);
-
     eta = lincomb(M, x, Q(1:numel(h)), h);
     eta = tangent(eta);
     Heta = getHessian(problem, x, eta, storedb, key);
-%     trs_tCG_out = trs_tCG(problem, trsinput, options, storedb, key);
-%     eta_tCG = trs_tCG_out.eta;
-%     Heta_tCG = trs_tCG_out.Heta;
-%     if  abs(model_fun(eta, Heta) - model_fun(eta_regen, Heta_regen)) > 1e-10
-%         disp('model_fun_soln, regen');
-%         disp([model_fun(eta, Heta), model_fun(eta_regen, Heta_regen)]);
-%         disp('model_fun_regen');
-%         disp(model_fun(eta_regen, Heta_regen));
-%     end
-%     if model_fun(eta, Heta) > model_fun(eta_tCG, Heta_tCG)
-%         disp('GREATER');
-%         disp('model_fun_soln');
-%         disp(model_fun(eta, Heta));
-%         disp('model_fun_tCG');
-%         disp(model_fun(eta_tCG, Heta_tCG));
-%     end
+    stopreason_str = append(stopreason_str,' (lanczos)');
+else
+    stopreason_str = append(stopreason_str,' (tCG)');
 end
-if j <= min(options.maxinner, n)
-%     gep_out = trs_gep(problem, trsinput, options);
-%     eta_gep = gep_out.eta;
-%     Heta_gep = gep_out.Heta;
-%     disp('model_fun, gep');
-%     if inner(eta, eta) >= Delta^2
-%         disp('eta norm');
-%         disp(inner(eta, eta) - Delta^2);
-% %         disp(inner(eta, getPrecon(problem, x, eta, storedb, key)) - Delta^2);
-%     end
-%     disp([model_fun(eta, Heta), model_fun(eta_gep, Heta_gep)]);
-%     disp(abs(model_fun(eta, Heta)- model_fun(eta_gep, Heta_gep)));
-end
+
 printstr = sprintf('%9d   %9d   %s', j, j, stopreason_str);
 stats = struct('numinner', j, 'hessvecevals', j);
 
