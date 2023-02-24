@@ -111,7 +111,7 @@ function M = obliquecomplexfactory(n, m, transposed)
         x2 = trnsp(x2);
 
         v = projection(x1, x2 - x1);
-        dists = real(2*asin(.5*sqrt(sum(trnsp(abs(x - y).^2), 1))));
+        dists = real(2*asin(.5*sqrt(sum(trnsp(abs(x2 - x1).^2), 1))));
         norms = sqrt(sum(real(v).^2 + imag(v).^2, 1));
         factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
