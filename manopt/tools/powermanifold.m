@@ -33,8 +33,11 @@ function Mn = powermanifold(M, n)
 %       Added warnings about calling egrad2rgrad and ehess2rhess without
 %       storedb and key, even if the base manifold allows them.
 %
-%   Jan. 4, 2021 (NB):
+%   Jan.  4, 2021 (NB):
 %       Changes for compatibility with Octave 6.1.0: see len_vec.
+%
+%   Mar.  7, 2023 (CC):
+%       Include exp, dist, typicaldist only if defined in base manifold.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
@@ -53,7 +56,9 @@ function Mn = powermanifold(M, n)
 
     Mn.norm = @(x, d) sqrt(Mn.inner(x, d, d));
 
-    Mn.dist = @dist;
+    if isfield(M, 'dist')
+        Mn.dist = @dist;
+    end
     function d = dist(x, y)
         sqd = 0;
         for i = 1 : n
@@ -62,7 +67,9 @@ function Mn = powermanifold(M, n)
         d = sqrt(sqd);
     end
 
-    Mn.typicaldist = @typicaldist;
+    if isfield(M, 'typicaldist')
+        Mn.typicaldist = @typicaldist;
+    end
     function d = typicaldist()
         sqd = 0;
         for i = 1 : n
@@ -126,7 +133,9 @@ function Mn = powermanifold(M, n)
         end
     end
     
-    Mn.exp = @expo;
+    if isfield(M, 'exp')
+        Mn.exp = @expo;
+    end
     function x = expo(x, u, t)
         if nargin < 3
             t = 1.0;
