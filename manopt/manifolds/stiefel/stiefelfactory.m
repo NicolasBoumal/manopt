@@ -143,7 +143,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
             % defined for the given inputs, we have:
             %   X + U = YR
             % Left multiply with X' to get
-            %   I + X'U = X'Y M
+            %   I + X'U = X'Y R
             % Since X'U is skew symmetric for a tangent vector U at X, add
             % up this equation with its transpose to get:
             %   2I = (X'Y) R + R' (X'Y)'
