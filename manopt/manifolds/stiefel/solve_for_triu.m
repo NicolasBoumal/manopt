@@ -6,7 +6,7 @@ function X = solve_for_triu(A, H)
 % Given A of size p-by-p and H (symmetric) of size p-by-p, solves the
 % linear matrix equation AX + X'A' = H for X upper triangular.
 % 
-% The total computational cost is O(p^4).
+% The computational cost is O(p^4). It likely can be reduced to O(p^3).
 %
 % If the same equation is to be solved for X symmetric instead, call
 % Matlab's built-in sylvester function.
