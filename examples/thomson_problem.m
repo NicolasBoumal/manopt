@@ -34,14 +34,14 @@ end
 problem.M = obliquefactory(d, n);
 problem.cost = @(X) sum(sum(triu(1./(1-X'*X), 1))) / n^2;
 
-% From Matlab 2021a, computating the egrad and the ehess via automatic
+% From Matlab 2021a, computing egrad and ehess via automatic
 % differentiation is available. Notice that the function triu is not 
-% supported for AD so far.Replace it with ctriu described in the file 
+% supported for AD so far. Replace it with ctriu described in the file 
 % manoptADhelp.m. Also, in this particular case, 1./(1-X'*X) may contain 
-% NaN on the diagonal which can cause numerical issues when computing the
+% NaN on the diagonal which can cause numerical issues when computing
 % egrad via AD although the cost is not a function of the diagonal
 % elements. To avoid this problem, first take the upper triangular part by
-% calling ctriu before dot division.
+% calling ctriu before dot-division.
 % problem.cost = @(X) sum(sum(ctriu(1./ctriu((1-X'*X), 1),1))) / n^2;
 % problem = manoptAD(problem);
 
