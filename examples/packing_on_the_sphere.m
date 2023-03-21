@@ -191,7 +191,7 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     
     % Show how the inner products X(:, i)'*X(:, j) are distributed.
     figure;
-    hist(real(acos(dots)), 20);
+    histogram(real(acos(dots)), 20);
     title('Histogram of the geodesic distances');
     
     % This is the quantity we actually want to minimize.
@@ -216,6 +216,7 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     end
     if d == 3
         figure;
+        set(gcf, 'Color', 'w');
         % Plot the sphere
         [sphere_x, sphere_y, sphere_z] = sphere(50);
         handle = surf(sphere_x, sphere_y, sphere_z);
