@@ -78,7 +78,7 @@ function M = elliptopefactory(n, k)
     end
     
     
-    M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1', n, k);
+    M.name = @() sprintf('YY'' quotient manifold of %dx%d psd matrices of rank %d with diagonal elements being 1', n, n, k);
     
     M.dim = @() n*(k-1) - k*(k-1)/2; % Extra -1 is because of the diagonal constraint that
     
