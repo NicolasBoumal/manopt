@@ -329,7 +329,8 @@ for j = 1 : options.maxinner
     % No negative curvature and eta_prop inside TR: accept it.
     e_Pe = e_Pe_new;
     new_eta  = lincomb(1,  eta, -alpha,  mdelta);
-    
+    disp([e_Pe,inner(new_eta,new_eta)])
+    disp(abs(e_Pe-inner(new_eta,new_eta)))
     % If only a nonlinear Hessian approximation is available, this is
     % only approximately correct, but saves an additional Hessian call.
     % TODO: this computation is redundant with that of r, L241. Clean up.
@@ -397,9 +398,17 @@ for j = 1 : options.maxinner
     % being that loss of tangency can lead to more inner iterations being
     % run, which leads to an overall higher computational cost.
     mdelta = tangent(mdelta);
-    
+    %disp(M.norm(x,lincomb(1,lincomb(1,Heta,1,grad),-1,r)))
     % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7].
-    e_Pd = beta*(e_Pd + alpha*d_Pd);
+    if ~options.useRand
+        e_Pd = beta*(e_Pd + alpha*d_Pd);
+    else
+        % When eta0 is not zero, then the update rule above is not valid
+        % mathematically. But since we take eta0 small, it is still 
+        % approximately true numerically. Using the exact values might
+        % increase numerical stability.
+        e_Pd = -inner(eta,mdelta);
+    end
     d_Pd = z_r + beta*beta*d_Pd;
     
 end  % of tCG loop
