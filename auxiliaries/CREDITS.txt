@@ -38,6 +38,7 @@ We are grateful for the excellent contributions of
 * Nick Vannieuwenhoven
 * Spencer Kraisler
 * sfrcorne (github handle)
+* Bonan Sun
 
 Furthermore, code written by the following people can be found in Manopt:
 
