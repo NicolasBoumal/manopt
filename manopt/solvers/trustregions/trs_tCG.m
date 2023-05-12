@@ -126,6 +126,9 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %       Renamed tCG to trs_tCG to keep consistent naming with new
 %       subproblem solvers for trustregion. Also modified inputs and 
 %       outputs to be compatible with other subproblem solvers.
+%
+%   BS May 12, 2023:
+%       Corrected update rule for e_Pd when useRand = true.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -400,13 +403,15 @@ for j = 1 : options.maxinner
     
     % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7].
     if ~options.useRand
+        % This update rule is cheap, since it avoids the need for
+        % a preconditioner call or an inner product: it is all scalars.
         e_Pd = beta*(e_Pd + alpha*d_Pd);
     else
-        % When eta0 is not zero, then the update rule above is not valid
-        % mathematically. But since we take eta0 small, it is still 
-        % approximately true numerically. Using the exact values might
-        % increase numerical stability.
-        e_Pd = -inner(eta,mdelta);
+        % When eta0 is not zero, then the update rule above is not exact.
+        % (It is still approximately correct since we take eta0 small.)
+        % To avoid problems, we simply compute the inner product directly.
+        % This is less of an issue here, since there is no preconditioner.
+        e_Pd = -inner(eta, mdelta);
     end
     d_Pd = z_r + beta*beta*d_Pd;
     
