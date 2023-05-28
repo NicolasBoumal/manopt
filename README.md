@@ -20,7 +20,7 @@ Contributions are welcome!
 
 Check out these two books, freely available online:
 
- * Boumal, [An introduction to optimization on smooth manifolds](https://www.nicolasboumal.net/book), 2022
+ * Boumal, [An introduction to optimization on smooth manifolds](https://www.nicolasboumal.net/book), 2023
  * Absil, Mahony and Sepulchre, [Optimization Algorithms on Matrix Manifolds](https://press.princeton.edu/absil), 2008
  
 
