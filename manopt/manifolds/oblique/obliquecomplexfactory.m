@@ -38,6 +38,10 @@ function M = obliquecomplexfactory(n, m, transposed)
 %       Distance function is now accurate for close-by points. See notes
 %       inside the spherefactory file for details. Also improves distances
 %       computation as part of the log function.
+%
+%   May 28, 2023 (NB)
+%       Fixed bug in M.log in case 'transposed' is true (bug reported by
+%       Lingping Kong).
 
 
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -111,7 +115,7 @@ function M = obliquecomplexfactory(n, m, transposed)
         x2 = trnsp(x2);
 
         v = projection(x1, x2 - x1);
-        dists = real(2*asin(.5*sqrt(sum(trnsp(abs(x2 - x1).^2), 1))));
+        dists = real(2*asin(.5*sqrt(sum(abs(x2 - x1).^2, 1))));
         norms = sqrt(sum(real(v).^2 + imag(v).^2, 1));
         factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
