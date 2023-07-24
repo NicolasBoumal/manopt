@@ -51,13 +51,15 @@ function M = symfixedrankYYfactory(n, k)
 %       Doi     = {10.1137/080731359}
 %     }
 %
-%     @TechReport{massart2018quotient,
-%       author        = {Massart, Estelle and Absil, P.-A.},
-%       title         = {Quotient geometry with simple geodesics for the manifold of fixed-rank positive-semidefinite matrices},
-%       institution   = {UCLouvain},
-%       year          = {2018},
-%       number        = {UCL-INMA-2018.06-v2},
-%       note          = {Preprint: \url{http://sites.uclouvain.be/absil/2018.06}},
+%     @article{MasAbs2020,
+%         author = {Massart, Estelle and Absil, P.-A.},
+%         title = {Quotient Geometry with Simple Geodesics for the Manifold of Fixed-Rank Positive-Semidefinite Matrices},
+%         journal = {SIAM Journal on Matrix Analysis and Applications},
+%         volume = {41},
+%         number = {1},
+%         pages = {171--198},
+%         year = {2020},
+%         doi = {10.1137/18M1231389}
 %     }
 % 
 
