@@ -1,8 +1,9 @@
-function M = obliquefactory(n, m, transposed)
+function M = obliquefactory(n, m, transposed, gpuflag)
 % Returns a manifold struct to optimize over matrices w/ unit-norm columns.
 %
 % function M = obliquefactory(n, m)
 % function M = obliquefactory(n, m, transposed)
+% function M = obliquefactory(n, m, transposed, gpuflag)
 %
 % Oblique manifold: deals with matrices of size n x m such that each column
 % has unit 2-norm, i.e., is a point on the unit sphere in R^n. The metric
@@ -14,6 +15,9 @@ function M = obliquefactory(n, m, transposed)
 % are transposed: a point Y on the manifold is a matrix of size m x n and
 % each row has unit 2-norm. It is the same geometry, just a different
 % representation.
+%
+% Set gpuflag = true to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations can be done on the GPU directly.
 %
 % See also: spherefactory obliquecomplexfactory
 
@@ -64,8 +68,10 @@ function M = obliquefactory(n, m, transposed)
 %       built-in function has a chance to become better in future releases.
 %
 %   Sep. 24, 2023 (NB)
+%       Added GPU support: just set gpuflag = true.
+%
+%   Sep. 24, 2023 (NB)
 %       Added tangent2ambient/tangent2ambient_is_identity pair.
-
 
     if ~exist('transposed', 'var') || isempty(transposed)
         transposed = false;
@@ -75,6 +81,19 @@ function M = obliquefactory(n, m, transposed)
         trnsp = @(X) X';
     else
         trnsp = @(X) X;
+    end
+
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = false;
+    end
+
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if gpuflag
+        array_type = 'gpuArray';
+    else
+        array_type = 'double';
     end
 
     M.name = @() sprintf('Oblique manifold OB(%d, %d)', n, m);
@@ -173,39 +192,32 @@ function M = obliquefactory(n, m, transposed)
     % Inverse retraction: see spherefactory.m for background
     M.invretr = @inverse_retraction;
     function d = inverse_retraction(x, y)
-
         x = trnsp(x);
         y = trnsp(y);
 
         d = (y .* (1./sum(x.*y, 1))) - x;
 
         d = trnsp(d);
-
     end
 
 
     M.hash = @(x) ['z' hashmd5(x(:))];
 
-    M.rand = @() trnsp(normalize_columns(randn(n, m)));
+    M.rand = @() trnsp(normalize_columns(randn(n, m, array_type)));
 
     M.randvec = @randvec;
     function d = randvec(x)
-        d = trnsp(projection(trnsp(x), randn(n, m)));
+        d = trnsp(projection(trnsp(x), randn(n, m, array_type)));
         d = d / norm(d(:));
     end
 
     M.lincomb = @matrixlincomb;
 
-    M.zerovec = @(x) trnsp(zeros(n, m));
+    M.zerovec = @(x) trnsp(zeros(n, m, array_type));
 
     M.transp = @(x1, x2, d) M.proj(x2, d);
 
-    M.pairmean = @pairmean;
-    function y = pairmean(x1, x2)
-        y = trnsp(x1+x2);
-        y = normalize_columns(y);
-        y = trnsp(y);
-    end
+    M.pairmean = @(x1, x2) trnsp(normalize_columns(trnsp(x1+x2)));
 
     % vec returns a vector representation of an input tangent vector which
     % is represented as a matrix. mat returns the original matrix
@@ -217,6 +229,11 @@ function M = obliquefactory(n, m, transposed)
     M.vec = @(x, u_mat) vect(trnsp(u_mat));
     M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n, m]));
     M.vecmatareisometries = @() true;
+
+    % Automatically convert a number of tools to support GPU.
+    if gpuflag
+        M = factorygpuhelper(M);
+    end
 
 end
 
