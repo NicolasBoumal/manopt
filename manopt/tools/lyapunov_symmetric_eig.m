@@ -14,13 +14,15 @@ function X = lyapunov_symmetric_eig(V, lambda, C, tol)
 % Original author: Nicolas Boumal, Aug. 31, 2018.
 % Contributors: 
 % Change log: 
+%   Sep. 24, 2023 (NB):
+%       Edited out bsxfun().
 
     % AX + XA = C  is equivalent to DY + YD = M with
     % Y = V'XV, M = V'CV and D = diag(lambda).
     M = V'*C*V;
     
     % W(i, j) = lambda(i) + lambda(j)
-    W = bsxfun(@plus, lambda, lambda');
+    W = lambda + lambda';
     
     % Normally, the solution Y is simply this:
     Y = M ./ W;
