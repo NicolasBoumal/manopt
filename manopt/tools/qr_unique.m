@@ -25,6 +25,8 @@ function [Q, R] = qr_unique(A)
 % Original author: Nicolas Boumal, June 18, 2019.
 % Contributors: 
 % Change log: 
+%   Sep. 24, 2023 (NB):
+%       Edited out bsxfun() for improved speed.
 
     [m, n, N] = size(A);
     if m >= n % A (or its slices) has more rows than columns
@@ -58,8 +60,8 @@ function [Q, R] = qr_unique(A)
         % sign dictated by the numerical noise: this is also fine.
         s(s == 0) = 1;
         
-        Q(:, :, k) = bsxfun(@times, q, s.');
-        R(:, :, k) = bsxfun(@times, r, conj(s));
+        Q(:, :, k) = q .* (s.');
+        R(:, :, k) = r .* conj(s);
         
     end
 
