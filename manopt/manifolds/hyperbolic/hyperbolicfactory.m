@@ -84,6 +84,8 @@ function M = hyperbolicfactory(n, m, transposed)
 %       Clarified comments about distance computation.
 %   July 13, 2020 (NB):
 %       Added pairmean function.
+%   Sep. 24, 2023 (NB):
+%       Edited out bsxfun() for improved speed.
 
     % Design note: all functions that are defined here but not exposed
     % outside work for non-transposed representations. Only the wrappers
@@ -152,7 +154,7 @@ function M = hyperbolicfactory(n, m, transposed)
     M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
     function PU = projection(X, U)
         inners = inner_minkowski_columns(X, U);
-        PU = U + bsxfun(@times, X, inners);
+        PU = U + X .* inners;
     end
     
     M.tangent = M.proj;
@@ -174,7 +176,7 @@ function M = hyperbolicfactory(n, m, transposed)
         egrad(1, :) = -egrad(1, :);
         ehess(1, :) = -ehess(1, :);
         inners = inner_minkowski_columns(X, egrad);
-        rhess = projection(X, bsxfun(@times, U, inners) + ehess);
+        rhess = projection(X, ehess + U .* inners);
     end
     
     % For the exponential, we cannot separate trnsp() nicely from the main
@@ -201,7 +203,7 @@ function M = hyperbolicfactory(n, m, transposed)
         b = sinh(mink_norms)./mink_norms;
         b(isnan(b)) = 1;
         
-        Y = bsxfun(@times, X, a) + bsxfun(@times, tU, b);
+        Y = X .* a + tU .* b;
 
         Y = trnsp(Y);
     end
@@ -213,7 +215,7 @@ function M = hyperbolicfactory(n, m, transposed)
         d = dists(X, Y);
         a = d./sinh(d);
         a(isnan(a)) = 1;
-        U = projection(X, bsxfun(@times, Y, a));
+        U = projection(X, Y .* a);
     end
 
     M.hash = @(X) ['z' hashmd5(X(:))];
