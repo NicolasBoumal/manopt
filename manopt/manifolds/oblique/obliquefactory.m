@@ -62,6 +62,9 @@ function M = obliquefactory(n, m, transposed)
 %       the built-in call vecnorm(X). That isn't necessarily always faster,
 %       but it seems to be reliably close in terms of performance, and a
 %       built-in function has a chance to become better in future releases.
+%
+%   Sep. 24, 2023 (NB)
+%       Added tangent2ambient/tangent2ambient_is_identity pair.
 
 
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -93,6 +96,9 @@ function M = obliquefactory(n, m, transposed)
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
     M.egrad2rgrad = M.proj;
+
+    M.tangent2ambient_is_identity = true;
+    M.tangent2ambient = @(X, U) U;
 
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, U)
