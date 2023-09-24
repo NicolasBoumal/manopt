@@ -54,6 +54,14 @@ function M = obliquefactory(n, m, transposed)
 %       Distance function is now accurate for close-by points. See notes
 %       inside the spherefactory file for details. Also improves distance
 %       computations as part of the log function.
+%
+%   Sep. 24, 2023 (NB)
+%       Edited bsxfun out, in favor of more modern .* and ./ syntax
+%       operating on a matrix and a row/col vector. This is much faster.
+%       Also replaced manual computations of the type sqrt(sum(X.^2, 1)) by
+%       the built-in call vecnorm(X). That isn't necessarily always faster,
+%       but it seems to be reliably close in terms of performance, and a
+%       built-in function has a chance to become better in future releases.
 
 
     if ~exist('transposed', 'var') || isempty(transposed)
@@ -74,7 +82,7 @@ function M = obliquefactory(n, m, transposed)
 
     M.norm = @(x, d) norm(d(:));
 
-    M.dist = @(x, y) norm(real(2*asin(.5*sqrt(sum(trnsp(x - y).^2, 1)))));
+    M.dist = @(x, y) norm(real(2*asin(.5*vecnorm(trnsp(x - y)))));
 
     M.typicaldist = @() pi*sqrt(m);
 
@@ -95,7 +103,7 @@ function M = obliquefactory(n, m, transposed)
 
         PXehess = projection(X, ehess);
         inners = sum(X.*egrad, 1);
-        rhess = PXehess - bsxfun(@times, U, inners);
+        rhess = PXehess - U .* inners;
 
         rhess = trnsp(rhess);
     end
@@ -113,10 +121,9 @@ function M = obliquefactory(n, m, transposed)
             td = t*d;
         end
 
-        nrm_td = sqrt(sum(td.^2, 1));
+        nrm_td = vecnorm(td);
 
-        y = bsxfun(@times, x, cos(nrm_td)) + ...
-            bsxfun(@times, td, sinxoverx(nrm_td));
+        y = x .* cos(nrm_td) + td .* sinxoverx(nrm_td);
 
         y = trnsp(y);
     end
@@ -127,14 +134,14 @@ function M = obliquefactory(n, m, transposed)
         x2 = trnsp(x2);
 
         v = projection(x1, x2 - x1);
-        dists = real(2*asin(.5*sqrt(sum((x1 - x2).^2, 1))));
-        norms = real(sqrt(sum(v.^2, 1)));
+        dists = real(2*asin(.5*vecnorm(x1 - x2)));
+        norms = vecnorm(v);
         factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
         % because they are both almost zero, the division above can return
         % NaN's. To avoid that, we force those ratios to 1.
         factors(dists <= 1e-10) = 1;
-        v = bsxfun(@times, v, factors);
+        v = v .* factors;
 
         v = trnsp(v);
     end
@@ -164,7 +171,7 @@ function M = obliquefactory(n, m, transposed)
         x = trnsp(x);
         y = trnsp(y);
 
-        d = bsxfun(@times, y, 1./sum(x.*y, 1)) - x;
+        d = (y .* (1./sum(x.*y, 1))) - x;
 
         d = trnsp(d);
 
@@ -173,9 +180,13 @@ function M = obliquefactory(n, m, transposed)
 
     M.hash = @(x) ['z' hashmd5(x(:))];
 
-    M.rand = @() trnsp(random(n, m));
+    M.rand = @() trnsp(normalize_columns(randn(n, m)));
 
-    M.randvec = @(x) trnsp(randomvec(n, m, trnsp(x)));
+    M.randvec = @randvec;
+    function d = randvec(x)
+        d = trnsp(projection(x, randn(n, m)));
+        d = d / norm(d(:));
+    end
 
     M.lincomb = @matrixlincomb;
 
@@ -205,13 +216,19 @@ end
 
 % Given a matrix X, returns the same matrix but with each column scaled so
 % that they have unit 2-norm.
+% This is equivalent to a built-in call to:  normalize(X, 'norm', 2) 
+% but on a quick profiler test in 2023 the code below was faster.
 function X = normalize_columns(X)
-    % This is faster than norms(X, 2, 1) for small X, and as fast for large X.
-    nrms = sqrt(sum(X.^2, 1));
-    X = bsxfun(@times, X, 1./nrms);
+    % The following is faster than "norms(X, 2, 1)".
+    % It's sometimes faster and sometimes slower than "sqrt(sum(X.^2, 1))".
+    nrms = vecnorm(X);
+    % The following is faster than "X ./ nrms", though a tad less accurate.
+    % It's also much faster than "bsxfun(@times, X, 1./nrms)".
+    X = X .* (1 ./ nrms);
 end
 
-% Orthogonal projection of the ambient vector H onto the tangent space at X
+% Orthogonal projection of the ambient vector H to the tangent space at X.
+% This operates on colums.
 function PXH = projection(X, H)
 
     % Compute the inner product between each vector H(:, i) with its root
@@ -220,7 +237,7 @@ function PXH = projection(X, H)
 
     % Subtract from H the components of the H(:, i)'s that are parallel to
     % the root points X(:, i).
-    PXH = H - bsxfun(@times, X, inners);
+    PXH = H - X .* inners;
 
     % % Equivalent but slow code:
     % m = size(X, 2);
@@ -231,18 +248,3 @@ function PXH = projection(X, H)
 
 end
 
-% Uniform random sampling on the sphere.
-function x = random(n, m)
-
-    x = normalize_columns(randn(n, m));
-
-end
-
-% Random normalized tangent vector at x.
-function d = randomvec(n, m, x)
-
-    d = randn(n, m);
-    d = projection(x, d);
-    d = d / norm(d(:));
-
-end
