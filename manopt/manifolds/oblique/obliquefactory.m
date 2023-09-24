@@ -190,7 +190,7 @@ function M = obliquefactory(n, m, transposed)
 
     M.randvec = @randvec;
     function d = randvec(x)
-        d = trnsp(projection(x, randn(n, m)));
+        d = trnsp(projection(trnsp(x), randn(n, m)));
         d = d / norm(d(:));
     end
 
