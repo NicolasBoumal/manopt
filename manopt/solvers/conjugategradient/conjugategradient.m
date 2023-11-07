@@ -50,6 +50,8 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %           'H-S' for Hestenes-Stiefel's modified rule
 %           'H-Z' for Hager-Zhang's modified rule
 %           'L-S' for Sato's Liu-Storey rule
+%           'P-R-SATO' for Sato's variation of modified PR rule
+%           'H-S-SATO' for Sato's variation of modified HS rule
 %       See Hager and Zhang 2006, "A survey of nonlinear conjugate gradient
 %       methods" for a description of these rules in the Euclidean case and
 %       for an explanation of how to adapt them to the preconditioned case.
@@ -113,7 +115,7 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
-% Contributors: Nicolas Boumal, Nick Vannieuwenhoven
+% Contributors: Nicolas Boumal, Nick Vannieuwenhoven, Ivan Bioli
 % Change log: 
 %
 %   March 14, 2013, NB:
@@ -146,6 +148,9 @@ function [x, cost, info, options] = conjugategradient(problem, x, options)
 %
 %   Feb. 7, 2022 (NV):
 %       Added support for Liu-Storey rule (L-S).
+%
+%   Nov. 7, 2023 (IB):
+%       Fixed Liu-Storey rule (L-S) + added H-S-SATO and P-R-SATO.
 
 M = problem.M;
 
@@ -367,14 +372,6 @@ while true
                     beta = max(beta, eta_HZ);
                 
                 case 'L-S' % Liu-Storey+ from Sato
-                    diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
-                    ip_diff = M.inner(newx, Pnewgrad, diff);
-                    denom = -1*M.inner(x, grad, desc_dir); %NOTE: desc_dir is in the tangent space of newx
-                    betaLS = ip_diff / denom;
-                    betaCD = newgradPnewgrad / denom;
-                    beta = max(0, min(betaLS, betaCD));
-
-                case 'L-S-SATO' % Liu-Storey+ from Sato's paper
                     Poldgrad = M.transp(x, newx, Pgrad);
                     numo = newgradPnewgrad - M.inner(newx, newgrad, Poldgrad);
                     deno = -1*M.inner(x, grad, old_desc_dir);
@@ -384,7 +381,8 @@ while true
 
                 otherwise
                     error(['Unknown options.beta_type. ' ...
-                           'Should be steep, S-D, F-R, P-R, H-S, H-Z, or L-S.']);
+                           'Should be steep, S-D, F-R, P-R, H-S, H-Z, ' ...
+                           'L-S, P-R-SATO or H-S-SATO.']);
             end
             
             desc_dir = M.lincomb(newx, -1, Pnewgrad, beta, desc_dir);
