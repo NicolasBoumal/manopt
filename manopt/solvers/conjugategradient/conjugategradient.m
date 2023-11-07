@@ -315,7 +315,7 @@ while true
             desc_dir = M.lincomb(x, -1, Pnewgrad);
             
         else % Compute the CG modification
-            
+            old_desc_dir = desc_dir;
             desc_dir = M.transp(x, newx, desc_dir);
             
             switch upper(options.beta_type)
@@ -329,12 +329,27 @@ while true
                     ip_diff = M.inner(newx, Pnewgrad, diff);
                     beta = ip_diff / gradPgrad;
                     beta = max(0, beta);
+
+                case 'P-R-SATO'  % Polak-Ribiere+ from Sato's paper
+                    Poldgrad = M.transp(x, newx, Pgrad);
+                    numo = newgradPnewgrad - M.inner(newx, newgrad, Poldgrad);
+                    betaPRP = numo / gradPgrad;
+                    betaFR = newgradPnewgrad / gradPgrad;
+                    beta = max(0, min(betaPRP, betaFR));
                 
                 case 'H-S'  % Hestenes-Stiefel+
                     diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
                     ip_diff = M.inner(newx, Pnewgrad, diff);
                     beta = ip_diff / M.inner(newx, diff, desc_dir);
                     beta = max(0, beta);
+                
+                case 'H-S-SATO'  % Hestenes-Stiefel+ from Sato's paper
+                    Poldgrad = M.transp(x, newx, Pgrad);
+                    numo = newgradPnewgrad - M.inner(newx, newgrad, Poldgrad);
+                    deno = M.inner(newx, newgrad, desc_dir) - M.inner(x, grad, old_desc_dir);
+                    betaHS = numo / deno;
+                    betaDY = newgradPnewgrad / deno;
+                    beta = max(min(betaHS, betaDY), 0);
 
                 case 'H-Z' % Hager-Zhang+
                     diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
@@ -354,9 +369,17 @@ while true
                 case 'L-S' % Liu-Storey+ from Sato
                     diff = M.lincomb(newx, 1, newgrad, -1, oldgrad);
                     ip_diff = M.inner(newx, Pnewgrad, diff);
-                    denom = -1*M.inner(x, grad, desc_dir);
+                    denom = -1*M.inner(x, grad, desc_dir); %NOTE: desc_dir is in the tangent space of newx
                     betaLS = ip_diff / denom;
                     betaCD = newgradPnewgrad / denom;
+                    beta = max(0, min(betaLS, betaCD));
+
+                case 'L-S-SATO' % Liu-Storey+ from Sato's paper
+                    Poldgrad = M.transp(x, newx, Pgrad);
+                    numo = newgradPnewgrad - M.inner(newx, newgrad, Poldgrad);
+                    deno = -1*M.inner(x, grad, old_desc_dir);
+                    betaLS = numo / deno;
+                    betaCD = newgradPnewgrad / deno;
                     beta = max(0, min(betaLS, betaCD));
 
                 otherwise
