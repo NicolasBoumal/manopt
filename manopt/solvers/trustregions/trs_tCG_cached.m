@@ -127,6 +127,13 @@ if isfield(options, 'useRand') && options.useRand
              'Alternatively, set options.useRand = false;']);
 end
 
+if isfield(trsinput, 'eta0') && ~isempty(trsinput.eta0)
+    warning('manopt:trs_tCG_cached:eta0', ...
+            ['@trs_tCG_cached ignores trsinput.eta0.\n' ...
+             'You may set options.subproblemsolver = @trs_tCG;\n', ...
+             'Alternatively, set trsinput.eta0 = [];']);
+end
+
 x = trsinput.x;
 Delta = trsinput.Delta;
 grad = trsinput.fgradx;
