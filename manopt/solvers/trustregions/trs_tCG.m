@@ -1,18 +1,25 @@
 function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 % Truncated (Steihaug-Toint) Conjugate-Gradient method.
 %
-% minimize <eta,grad> + .5*<eta,Hess(eta)>
+% minimize <eta, fgradx> + .5*<eta, Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
 %
 % function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
+%
+% The preconditioner (if one is available in the problem structure) is used
+% exactly if the initial step eta0 (see below) is the zero vector.
 %
 % Inputs:
 %   problem: Manopt optimization problem structure
 %   trsinput: structure with the following fields:
 %       x: point on the manifold problem.M
-%       fgradx: gradient of the cost function of the problem at x
-%       vector if options.useRand == true.
-%       Delta = trust-region radius
+%       fgradx: tangent vector at x (typically, the gradient of the cost)
+%       Delta: trust-region radius
+%       eta0: initial tangent vector from where to run tCG (optional).
+%             If it is unspecified, or [], or larger than Delta, or if
+%             options.useRand is set to true, then eta0 is ignored. If
+%             useRand is true, then a small random tangent vector is used
+%             for eta0. Otherwise, eta0 defaults to the zero vector.
 %   options: structure containing options for the subproblem solver
 %   storedb, key: manopt's caching system for the point x
 %
@@ -31,7 +38,7 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %   maxinner (problem.M.dim() : the manifold's dimension)
 %       Maximum number of inner iterations for trs_tCG.
 %   useRand (false)
-%       Set to true if the trust-region solve is to be initiated with a
+%       Set to true if the subproblem solver is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
 %       points, but is otherwise seldom activated. 
@@ -87,8 +94,8 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %   NB Dec. 2, 2013:
 %       If options.useRand is activated, we now make sure the preconditio-
 %       ner is not used, as was originally intended in GenRTR. In time, we
-%       may want to investigate whether useRand can be modified to work well
-%       with preconditioning too.
+%       may want to investigate whether useRand can be modified to work
+%       well with preconditioning too.
 %
 %   NB Jan. 9, 2014:
 %       Now checking explicitly for model decrease at each iteration. The
@@ -124,11 +131,26 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %
 %   VL June 29, 2022:
 %       Renamed tCG to trs_tCG to keep consistent naming with new
-%       subproblem solvers for trustregion. Also modified inputs and 
+%       subproblem solvers for trustregions. Also modified inputs and 
 %       outputs to be compatible with other subproblem solvers.
 %
 %   BS May 12, 2023:
 %       Corrected update rule for e_Pd when useRand = true.
+%
+%  NB Nov. 17, 2023:
+%       Added option trsinput.eta0 to allow specific nonzero initial vector
+%       and modified the logic surrounding the choice of initial eta
+%       accordingly. In particular, introduced the flag eta0_is_zero that
+%       is now used explicitly instead of checking ~options.useRand as
+%       being the determinant factor to know whether we apply
+%       preconditioning or not. Moreover, in the early stopping criterion
+%       based on small residual, we are now comparing against the norm of
+%       trsinput.fgradx rather than the norm of the initial residual. This
+%       is equivalent when eta0 = 0 (which was the default behavior), but
+%       it is different when eta0 is not zero. The difference is only very
+%       small for eta0 produced by useRand though, so it's almost
+%       inconsequential as a change in behavior, and it's arguably the
+%       right thing to do for general eta0.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -152,7 +174,7 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %    |delta_0|_P = <r,z>
 %    |eta_0|_P   = 0
 %    <eta_0,delta_0>_P = 0
-% because we take eta_0 = 0 (if useRand = false).
+% if eta_0 = 0.
 %
 % [CGT2000] Conn, Gould and Toint: Trust-region methods, 2000.
 
@@ -175,6 +197,11 @@ end
 x = trsinput.x;
 Delta = trsinput.Delta;
 grad = trsinput.fgradx;
+if isfield(trsinput, 'eta0')
+    eta0 = trsinput.eta0;
+else
+    eta0 = [];
+end
 
 M = problem.M;
 
@@ -198,23 +225,47 @@ options = mergeOptions(localdefaults, options);
 theta = options.theta;
 kappa = options.kappa;
 
-% returned boolean to trustregions.m. true if we are limited by the TR
-% boundary (returns boundary solution). Otherwise false.
+% This boolean is part of the outputs. It is set to true if the solution
+% eta we return was limited in norm by the trust-region radius Delta.
 limitedbyTR = false;
 
-% Determine eta0 and other useRand dependent initializations
-if ~options.useRand
-    % Pick the zero vector
+% If eta0 is provided, check whether we can use it, or if we ignore it.
+if options.useRand && ~isempty(eta0)
+    warning('manopt:tCG:eta0', ...
+            ['Since options.useRand = true, trsinput.eta0 is ignored. ' ...
+             'Set trsinput.eta0 = []; or options.useRand = false.']);
+    eta0 = [];  % we will use a random eta0
+end
+if ~options.useRand && ~isempty(eta0) && M.norm(x, eta0) > Delta
+    warning('manopt:tCG:eta0', ...
+            ['trsinput.eta0 is ignored because it is larger than the ' ...
+             'trust-region radius Delta. Set trsinput.eta0 = [];']);
+    eta0 = [];  % we will use eta0 = 0
+end
+
+% This flag is used for initialization. Also, the preconditioner (if any)
+% is only used if eta0 is zero: we use this flag to determine that.
+% Note: we do not check whether (M.norm(x, eta0) == 0), because (a) that
+% would cost a bit in some cases, and (b) it would create a hard-to-debug
+% behavior where the preconditioner might be used on the off-chance that
+% the eta0 supplied happens to be a zero vector. Thus, if the user wants a
+% zero vector "on purpose", they should set eta0 to [], which is the
+% default.
+eta0_is_zero = ~options.useRand && isempty(eta0);
+
+if eta0_is_zero
     eta = M.zerovec(x);
     Heta = M.zerovec(x);
     r = grad;
     e_Pe = 0;
 else
-    % Random vector in T_x M (this has to be very small)
-    eta = M.lincomb(x, 1e-6, M.randvec(x));
-    % Must be inside trust-region
-    while M.norm(x, eta) > Delta
-        eta = M.lincomb(x, sqrt(sqrt(eps)), eta);
+    if options.useRand
+        % Random vector in T_x M (this has to be very small, inside TR)
+        eta = M.randvec(x);
+        eta_norm = M.norm(x, eta);
+        eta = M.lincomb(x, min(2^(-20), 2^(-13)*Delta/eta_norm), eta);
+    else
+        eta = eta0;
     end
     Heta = getHessian(problem, x, eta, storedb, key);
     r = lincomb(1, grad, 1, Heta);
@@ -223,10 +274,14 @@ end
 
 r_r = inner(r, r);
 norm_r = sqrt(r_r);
-norm_r0 = norm_r;
+if eta0_is_zero
+    norm_g = norm_r;
+else
+    norm_g = M.norm(x, grad);
+end
 
-% Precondition the residual.
-if ~options.useRand
+% Precondition the residual if eta0 = 0.
+if eta0_is_zero
     z = getPrecon(problem, x, r, storedb, key);
 else
     z = r;
@@ -239,7 +294,7 @@ d_Pd = z_r;
 % Initial search direction (we maintain -delta in memory, called mdelta, to
 % avoid a change of sign of the tangent vector.)
 mdelta = z;
-if ~options.useRand % and therefore, eta == 0
+if eta0_is_zero
     e_Pd = 0;
 else % and therefore, no preconditioner
     e_Pd = -inner(eta, mdelta);
@@ -259,7 +314,7 @@ end
 % If we make this change, then also modify trustregions to gather this
 % value from tCG rather than recomputing it itself.
 model_fun = @(eta, Heta) inner(eta, grad) + .5*inner(eta, Heta);
-if ~options.useRand
+if eta0_is_zero
     model_value = 0;
 else
     model_value = model_fun(eta, Heta);
@@ -274,7 +329,7 @@ for j = 1 : options.maxinner
     % This call is the computationally expensive step.
     Hmdelta = getHessian(problem, x, mdelta, storedb, key);
     
-    % Compute curvature (often called kappa).
+    % Compute curvature.
     d_Hd = inner(mdelta, Hmdelta);
     
     
@@ -351,7 +406,7 @@ for j = 1 : options.maxinner
     
     eta = new_eta;
     Heta = new_Heta;
-    model_value = new_model_value; %% added Feb. 17, 2015
+    model_value = new_model_value;
     
     % Update the residual.
     r = lincomb(1, r, -alpha, Hmdelta);
@@ -365,9 +420,9 @@ for j = 1 : options.maxinner
     % criterion on the r's (the gradients) or on the z's (the
     % preconditioned gradients). [CGT2000], page 206, mentions both as
     % acceptable criteria.
-    if j >= options.mininner && norm_r <= norm_r0*min(norm_r0^theta, kappa)
+    if j >= options.mininner && norm_r <= norm_g*min(norm_g^theta, kappa)
         % Residual is small enough to quit
-        if kappa < norm_r0^theta
+        if kappa < norm_g^theta
             stopreason_str = 'reached target residual-kappa (linear)';
         else
             stopreason_str = 'reached target residual-theta (superlinear)';
@@ -376,7 +431,7 @@ for j = 1 : options.maxinner
     end
     
     % Precondition the residual.
-    if ~options.useRand
+    if eta0_is_zero
         z = getPrecon(problem, x, r, storedb, key);
     else
         z = r;
@@ -402,13 +457,13 @@ for j = 1 : options.maxinner
     mdelta = tangent(mdelta);
     
     % Update new P-norms and P-dots [CGT2000, eq. 7.5.6 & 7.5.7].
-    if ~options.useRand
+    if eta0_is_zero
         % This update rule is cheap, since it avoids the need for
         % a preconditioner call or an inner product: it is all scalars.
         e_Pd = beta*(e_Pd + alpha*d_Pd);
     else
         % When eta0 is not zero, then the update rule above is not exact.
-        % (It is still approximately correct since we take eta0 small.)
+        % (It is still approximately if eta0 is small.)
         % To avoid problems, we simply compute the inner product directly.
         % This is less of an issue here, since there is no preconditioner.
         e_Pd = -inner(eta, mdelta);
@@ -425,28 +480,26 @@ end  % of tCG loop
 if options.useRand
     used_cauchy = false;
     
-    norm_grad = M.norm(x, grad);
-    
     % Check the curvature,
     Hg = getHessian(problem, x, grad, storedb, key);
     g_Hg = M.inner(x, grad, Hg);
     if g_Hg <= 0
         tau_c = 1;
     else
-        tau_c = min( norm_grad^3/(Delta*g_Hg) , 1);
+        tau_c = min( norm_g^3/(Delta*g_Hg) , 1);
     end
     % and generate the Cauchy point.
-    eta_c  = M.lincomb(x, -tau_c * Delta / norm_grad, grad);
-    Heta_c = M.lincomb(x, -tau_c * Delta / norm_grad, Hg);
+    eta_c  = M.lincomb(x, -tau_c * Delta / norm_g, grad);
+    Heta_c = M.lincomb(x, -tau_c * Delta / norm_g, Hg);
 
     % Now that we have computed the Cauchy point in addition to the
-    % returned eta, we might as well keep the best of them.
-    mdle  = M.inner(x, grad, eta) + .5*M.inner(x, Heta,   eta);
+    % would-be returned eta, we might as well keep the best of them.
+    mdle  = M.inner(x, grad, eta) + .5*M.inner(x, Heta, eta);
     mdlec = M.inner(x, grad, eta_c) + .5*M.inner(x, Heta_c, eta_c);
 
     if mdlec < mdle
         eta = eta_c;
-        Heta = Heta_c; % added April 11, 2012
+        Heta = Heta_c;
         used_cauchy = true;
     end
 end
