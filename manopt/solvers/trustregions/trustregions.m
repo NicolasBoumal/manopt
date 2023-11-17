@@ -440,7 +440,7 @@ elseif options.verbosity > 2
              '       ', printheader);
     fprintf(['%3s %3s   %5d   ', ...
              '%+.16e   %12e\n'], ...
-             '   ','   ',k, fx, norm_grad);
+             '   ','   ', k, fx, norm_grad);
 end
 
 % To keep track of consecutive radius changes, so that we can warn the
