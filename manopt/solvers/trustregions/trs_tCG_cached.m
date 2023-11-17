@@ -16,7 +16,7 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %   trsinput: structure with the following fields:
 %       x: point on the manifold problem.M
 %       fgradx: gradient of the cost function of the problem at x
-%       Delta = trust-region radius
+%       Delta: trust-region radius
 %   options: structure containing options for the subproblem solver
 %   storedb, key: manopt's caching system for the point x
 %
