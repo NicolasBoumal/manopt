@@ -49,7 +49,24 @@ function M = euclideansubspacefactory(E, proj, dim)
 %   M is a factory for optimization over the subspace S.
 %
 %
-% Example:
+% Example 1:
+%
+% The set of upper-triangular matrices of size n x n can be handled as so:
+%
+%   n = 5;
+%   E = euclideanfactory(n, n);
+%   M = euclideansubspacefactory(E, @triu, n*(n+1)/2);
+%
+% Indeed, Matlab's built-in triu function is the orthogonal projector from
+% ths space of n x n matrices to the subspace of upper-triangular matrices
+% of that same size, and the dimension of that subspace is n*(n+1)/2.
+%
+% For strictly upper-triangular matrices, create M as follows instead:
+%
+%   M = euclideansubspacefactory(E, @(X) triu(X, 1), n*(n-1)/2);
+%
+%
+% Example 2:
 %
 % Among complex vector of length n, consider the subspace S of such vectors
 % that can be the discrete Fourier transform of a real vector of length n
@@ -66,7 +83,7 @@ function M = euclideansubspacefactory(E, proj, dim)
 % Note 1: this factory is designed to work with linear subspaces only: it
 % does not work for affine subspaces. Explicitly: S must contain the origin
 % of E. If you need support for affine subspaces, let us know on the Manopt
-% forum and we can help (or share your improved code :)).
+% forum and we can help (or you can share your improved code :)).
 %
 % Note 2: the linear space E can itself be a linear subspace of another.
 % For example, we can have:
@@ -77,7 +94,7 @@ function M = euclideansubspacefactory(E, proj, dim)
 % hence, the Euclidean gradient and Hessian are expected to be given in E,
 % not in the 'bigger' linear space E possibly lives in.
 %
-% See also: euclideanfactory euclideancomplexfactory
+% See also: euclideanfactory euclideancomplexfactory symmetricfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, April 25, 2019.

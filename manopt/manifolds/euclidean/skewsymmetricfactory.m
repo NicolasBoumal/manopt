@@ -11,6 +11,8 @@ function M = skewsymmetricfactory(n, k)
 % By default, k = 1. If k > 1, points and vectors are stored in 3D matrices
 % X of size nxnxk such that each slice X(:, :, i), for i = 1:k, is
 % skew-symmetric.
+%
+% See also: symmetricfactory euclideansubspacefactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 28, 2016.
