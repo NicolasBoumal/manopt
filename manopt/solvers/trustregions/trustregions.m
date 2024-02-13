@@ -111,6 +111,7 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       through here as well. Built-in solvers include:
 %           trs_tCG_cached
 %           trs_tCG
+%           trs_lanczos
 %           trs_gep
 %       Note that trs_gep solves the subproblem exactly which may be slow.
 %       It is included mainly for prototyping or for solving the subproblem
