@@ -86,6 +86,13 @@ function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)
 %       effect, even if it is available. A new input option allows to
 %       switch this behavior without the need to change the problem
 %       structure.
+%
+%   March 21, 2024 (NB):
+%       The lambdas should be real, so we only return the real part.
+%       Somehow, even when passing a symmetric operator to eigs and even
+%       when telling eigs that it is symmetric, it can still return
+%       machine-precision small imaginary parts, which is why it has to be
+%       forced.
 
     % Allow omission of the key, and even of storedb.
     if ~exist('key', 'var')
@@ -195,6 +202,6 @@ function lambdas = hessianspectrum(problem, x, usepreconstr, storedb, key)
         
     end
     
-    lambdas = sort(lambdas);
+    lambdas = sort(real(lambdas));
 
 end
