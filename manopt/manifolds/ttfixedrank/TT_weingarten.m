@@ -2,8 +2,10 @@ function Y = TT_weingarten(V, Z, ind)
 % Weingarten map computation for the fixed TT-rank manifold.
 %
 % NOTE: this manifold requires the use of a modified version of TTeMPS_1.1,
-% which is packaced with Manopt and can be found in 
+% which is packaged with Manopt and can be found in 
 % manopt/manopt/manifolds/ttfixedrank/TTeMPS_1.1
+% It also uses some MEX files that you may need to compile by
+% running install_mex.m in manopt/manopt/manifolds/ttfixedrank.
 % 
 % Y = TT_weingarten(V, Z, ind)
 % 
