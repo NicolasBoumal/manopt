@@ -4,6 +4,14 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % function x = maxcut(L)
 % function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
+%   This is an example file meant to illustrate some advanced
+%   functionalities of Manopt. It is not meant to be an efficient
+%   implementation of a Max-Cut solver.
+%
+%   Please see the following repository for more efficient Manopt code:
+%   https://github.com/NicolasBoumal/maxcut
+%
+%
 % L is the Laplacian matrix describing the graph to cut. The Laplacian of a
 % graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the
 % sum of the weights of the edges adjacent to node i) and A is the
