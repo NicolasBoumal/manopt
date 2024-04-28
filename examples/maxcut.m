@@ -4,6 +4,14 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % function x = maxcut(L)
 % function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
+%   This is an example file meant to illustrate some advanced
+%   functionalities of Manopt. It is not meant to be an efficient
+%   implementation of a Max-Cut solver.
+%
+%   Please see the following repository for more efficient Manopt code:
+%   https://github.com/NicolasBoumal/maxcut
+%
+%
 % L is the Laplacian matrix describing the graph to cut. The Laplacian of a
 % graph is L = D - A, where D is the diagonal degree matrix (D(i, i) is the
 % sum of the weights of the edges adjacent to node i) and A is the
@@ -40,6 +48,9 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % we do not use random projection here; sign(Y*randn(size(Y, 2), 1)) will
 % give a cut that respects this statement -- it's usually worse though).
 %
+% Note: This is not meant to be efficient. The main purpose of this file is
+% to illustrate some more advanced uses of Manopt.
+%
 % The algorithm is essentially that of:
 % Journee, Bach, Absil and Sepulchre, SIAM 2010
 % Low-rank optimization on the cone of positive semidefinite matrices.
@@ -60,7 +71,10 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %       L products now counted with the new shared memory system. This is
 %       more reliable and more flexible than using a global variable.
 %   Aug  20, 2021 (XJ):
-%       Added AD to compute the egrad and the ehess  
+%       Added AD to compute the egrad and the ehess
+%   March 25, 2024 (NB):
+%       Using obliquefactory rather than elliptopefactory by default as
+%       this takes better care of rank deficient matrices.
 
     % If no inputs are provided, generate a random graph Laplacian.
     % This is for illustration purposes only.
@@ -95,7 +109,10 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     
     for rr = 2 : r
         
-        manifold = elliptopefactory(n, rr);
+        % See comments about elliptopefactory vs obliquefactory in the
+        % code of function maxcut_fixedrank below (same file).
+        % manifold = elliptopefactory(n, rr);
+        manifold = obliquefactory(rr, n, true);
         
         if rr == 2
             
@@ -201,13 +218,14 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     
     % The fixed rank elliptope geometry describes symmetric, positive
     % semidefinite matrices of size n with rank r and all diagonal entries
-    % are 1.
-    manifold = elliptopefactory(n, r);
+    % are 1. A matrix X is represented by a matrix Y so that X = Y*Y'.
+    % manifold = elliptopefactory(n, r);
     
-    % % If you want to compare the performance of the elliptope geometry
-    % % against the (conceptually simpler) oblique manifold geometry,
-    % % uncomment this line.
-    % manifold = obliquefactory(r, n, true);
+    % As an alternative to the elliptope geometry, we can use the
+    % conceptually simpler oblique manifold geometry: this simply
+    % constrains the rows of Y to have unit norm. The added advantage is
+    % that this handles matrices of rank less then r as well.
+    manifold = obliquefactory(r, n, true);
     
     problem.M = manifold;
     

@@ -2,8 +2,10 @@ function M = fixedTTrankfactory(n, r, ind)
 % Manifold of tensors of fixed Tensor Train (TT) rank, embedded geometry
 % 
 % NOTE: this manifold requires the use of a modified version of TTeMPS_1.1,
-% which is packaced with Manopt and can be found in 
-% /manopt/manifolds/ttfixedrank/TTeMPS_1.1/
+% which is packaged with Manopt and can be found in 
+% manopt/manopt/manifolds/ttfixedrank/TTeMPS_1.1
+% It also uses some MEX files that you may need to compile by
+% running install_mex.m in manopt/manopt/manifolds/ttfixedrank.
 % 
 % function M = fixedTTrankfactory(n, r)
 % function M = fixedTTrankfactory(n, r, ind)
