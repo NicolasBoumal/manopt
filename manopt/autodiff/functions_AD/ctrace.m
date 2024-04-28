@@ -4,7 +4,7 @@ function traceA = ctrace(A)
 % function traceA = ctrace(A)
 %
 % Returns the sum of diagonal elements of A. The input A does not have
-% to be a square matrix. The function supports both numeric  arrays and
+% to be a square matrix. The function supports both numeric arrays and
 % structs with fields real and imag. This file was created because trace
 % is not currently supported by dlarrays which we use for automatic
 % differentiation: ctrace is a backup function.
