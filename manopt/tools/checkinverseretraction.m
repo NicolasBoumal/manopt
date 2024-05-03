@@ -1,30 +1,34 @@
-function checkretraction(M, x, v)
+function checkinverseretraction(M, x, v)
 % Check the order of agreement of a retraction with an exponential.
 % 
-% function checkretraction(M)
-% function checkretraction(M, x)
-% function checkretraction(M, x, v)
+% function checkinverseretraction(M)
+% function checkinverseretraction(M, x)
+% function checkinverseretraction(M, x, v)
 %
-% checkretraction performs a numerical test to check the order of agreement
-% between the retraction and the exponential map in a given Manopt
+% checkinverseretraction performs a numerical test to check the order of agreement
+% between the inverse retraction and the logarithmic map in a given Manopt
 % manifold structure M. The test is performed at the point x if it is
 % provided (otherwise, the point is picked at random) and along the tangent
 % vector v at x if one is provided (otherwise, a tangent vector at x is
 % picked at random.)
 %
-% See also: checkinverseretraction checkmanifold checkdiff checkgradient checkhessian
+% See also: checkretraction checkmanifold checkdiff checkgradient checkhessian
 
 % This file is part of Manopt: www.manopt.org.
-% Original author: Nicolas Boumal, Oct. 21, 2016.
+% Original author: Ronny Bergmann, May 3rd, 2024.
 % Contributors: 
 % Change log: 
 
     if ~isfield(M, 'exp')
-        error(['This manifold has no exponential (M.exp): ' ...
-               'no reference to compare the retraction.']);
+        error(['This manifold has no exponential (M.exp) ' ...
+               'which is required to generate points of certain distance to x.']);
     end
-    if ~isfield(M, 'dist')
-        error(['This manifold has no distance (M.dist): ' ...
+    if ~isfield(M, 'log')
+        error(['This manifold has no logarithmic (M.exp): ' ...
+               'no reference to compare the inverse retraction.']);
+    end
+    if ~isfield(M, 'norm')
+        error(['This manifold has no norm (M.nrom): ' ...
                'this is required to run this check.']);
     end
 
@@ -43,7 +47,8 @@ function checkretraction(M, x, v)
     ee = zeros(size(tt));
     for k = 1 : numel(tt)
         t = tt(k);
-        ee(k) = M.dist(M.exp(x, v, t), M.retr(x, v, t));
+        y = M.exp(M, v, t);
+        ee(k) = M.norm(M.log(x, y), M.invretr(x, y));
     end
     
     % Plot the difference between the exponential and the retration over
@@ -72,15 +77,14 @@ function checkretraction(M, x, v)
     hold off;
     
     xlabel('Step size multiplier t');
-    ylabel('Distance between Exp(x, v, t) and Retr(x, v, t)');
-    title(sprintf('Retraction check.\nA slope of 2 is required, 3 is desired.'));
+    ylabel('Distance between Log(x, y) and InvRetr(x, y) for y = Exp(x, v, t)');
+    title(sprintf('Inverse Retraction check.\nA slope of 2 is required, 3 is desired.'));
     
-    fprintf('Check agreement between M.exp and M.retr. Please check the\n');
-    fprintf('factory file of M to ensure M.exp is a proper exponential.\n');
-    fprintf('The slope must be at least 2 to have a proper retraction.\n');
-    fprintf('For the retraction to be second order, the slope should be 3.\n');
+    fprintf('Check agreement between M.log and M.invretr. Please check the\n');
+    fprintf('factory file of M to ensure M.log is a proper logarithm.\n');
+    fprintf('The slope must be at least 2 to have a proper invese retraction.\n');
+    fprintf('For the inverse retraction to be second order, the slope should be 3.\n');
     fprintf('It appears the slope is: %g.\n', poly(1));
     fprintf('Note: if exp and retr are identical, this is about zero: %g.\n', norm(ee));
     fprintf('In the latter case, the slope test is irrelevant.\n');
-
 end
