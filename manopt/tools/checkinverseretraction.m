@@ -83,7 +83,7 @@ function checkinverseretraction(M, x, v)
     
     fprintf('Check agreement between M.log and M.invretr. Please check the\n');
     fprintf('factory file of M to ensure M.log is a proper logarithm.\n');
-    fprintf('The slope must be at least 2 to have a proper invese retraction.\n');
+    fprintf('The slope must be at least 2 to have a proper inverse retraction.\n');
     fprintf('For the inverse retraction to be second order, the slope should be 3.\n');
     fprintf('It appears the slope is: %g.\n', poly(1));
     fprintf(['Note: If M.log and M.invretr are identical, ' ...
