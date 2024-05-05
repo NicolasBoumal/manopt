@@ -72,7 +72,7 @@ function checkretraction(M, x, v)
     hold off;
     
     xlabel('Step size multiplier t');
-    ylabel('Distance between Exp(x, v, t) and Retr(x, v, t)');
+    ylabel('Distance between M.exp(x, v, t) and M.retr(x, v, t)');
     title(sprintf(['Retraction check.\n' ...
                    'A slope of 2 is required, 3 is desired.\n' ...
                    'Also read text output in command prompt.']));
