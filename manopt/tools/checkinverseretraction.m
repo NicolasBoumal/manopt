@@ -6,8 +6,8 @@ function checkinverseretraction(M, x, v)
 % function checkinverseretraction(M, x, v)
 %
 % checkinverseretraction performs a numerical test to check the order of agreement
-% between the inverse retraction and the logarithmic map in a given Manopt
-% manifold structure M. The test is performed at the point x if it is
+% between the inverse retraction M.invretr and the logarithmic map M.log in a
+% given Manopt manifold structure M. The test is performed at the point x if it is
 % provided (otherwise, the point is picked at random) and along the tangent
 % vector v at x if one is provided (otherwise, a tangent vector at x is
 % picked at random.)
@@ -20,15 +20,15 @@ function checkinverseretraction(M, x, v)
 % Change log: 
 
     if ~isfield(M, 'exp')
-        error(['This manifold has no exponential (M.exp) ' ...
-               'which is required to generate points of certain distance to x.']);
+        error(['This manifold has no exponential (M.exp) which is ' ...
+               'required to generate points at a certain distance from x.']);
     end
     if ~isfield(M, 'log')
-        error(['This manifold has no logarithmic (M.exp): ' ...
+        error(['This manifold has no logarithm (M.log): ' ...
                'no reference to compare the inverse retraction.']);
     end
     if ~isfield(M, 'norm')
-        error(['This manifold has no norm (M.nrom): ' ...
+        error(['This manifold has no norm (M.norm): ' ...
                'this is required to run this check.']);
     end
 
@@ -48,16 +48,15 @@ function checkinverseretraction(M, x, v)
     for k = 1 : numel(tt)
         t = tt(k);
         y = M.exp(M, v, t);
-        ee(k) = M.norm(M.log(x, y), M.invretr(x, y));
+        diff = M.lincomb(x, 1, M.log(x, y), -1, M.invretr(x, y));
+        ee(k) = M.norm(x, diff);
     end
     
     % Plot the difference between the exponential and the retration over
     % that span of steps, in log-log scale.
     loglog(tt, ee);
     
-    % We hope to see a slope of 3, to confirm a second-order retraction. If
-    % the slope is only 2, we have a first-order retration. If the slope is
-    % less than 2, this is not a retraction.
+    % Include visual references of slope 2 and 3.
     % Slope 3
     line('xdata', [1e-12 1e0], 'ydata', [1e-30 1e6], ...
          'color', 'k', 'LineStyle', '--', ...
@@ -77,14 +76,18 @@ function checkinverseretraction(M, x, v)
     hold off;
     
     xlabel('Step size multiplier t');
-    ylabel('Distance between Log(x, y) and InvRetr(x, y) for y = Exp(x, v, t)');
-    title(sprintf('Inverse Retraction check.\nA slope of 2 is required, 3 is desired.'));
+    ylabel('Distance between M.log(x, y) and M.invretr(x, y) for y = M.exp(x, v, t)');
+    title(sprintf(['Inverse retraction check.\n' ...
+                   'A slope of 2 is required, 3 is desired.\n' ...
+                   'Also read text output in command prompt.']));
     
     fprintf('Check agreement between M.log and M.invretr. Please check the\n');
     fprintf('factory file of M to ensure M.log is a proper logarithm.\n');
     fprintf('The slope must be at least 2 to have a proper invese retraction.\n');
     fprintf('For the inverse retraction to be second order, the slope should be 3.\n');
     fprintf('It appears the slope is: %g.\n', poly(1));
-    fprintf('Note: if exp and retr are identical, this is about zero: %g.\n', norm(ee));
-    fprintf('In the latter case, the slope test is irrelevant.\n');
+    fprintf(['Note: If M.log and M.invretr are identical, ' ...
+             'the following is about zero: %g.\n'], norm(ee));
+    fprintf(['      If so, the inverse retraction is fine and ' ...
+             'the slope test is irrelevant.\n']);
 end
