@@ -47,7 +47,7 @@ function checkinverseretraction(M, x, v)
     ee = zeros(size(tt));
     for k = 1 : numel(tt)
         t = tt(k);
-        y = M.exp(M, v, t);
+        y = M.exp(x, v, t);
         diff = M.lincomb(x, 1, M.log(x, y), -1, M.invretr(x, y));
         ee(k) = M.norm(x, diff);
     end
