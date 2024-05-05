@@ -85,6 +85,6 @@ function checkretraction(M, x, v)
     fprintf(['Note: If exp and retr are identical, ' ...
              'the following is about zero: %g.\n'], norm(ee));
     fprintf(['      If so, the retraction is fine and ' ...
-             ' the slope test is irrelevant.\n']);
+             'the slope test is irrelevant.\n']);
 
 end
