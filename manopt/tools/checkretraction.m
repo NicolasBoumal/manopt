@@ -73,14 +73,18 @@ function checkretraction(M, x, v)
     
     xlabel('Step size multiplier t');
     ylabel('Distance between Exp(x, v, t) and Retr(x, v, t)');
-    title(sprintf('Retraction check.\nA slope of 2 is required, 3 is desired.'));
+    title(sprintf(['Retraction check.\n' ...
+                   'A slope of 2 is required, 3 is desired.\n' ...
+                   'Also read text output in command prompt.']));
     
     fprintf('Check agreement between M.exp and M.retr. Please check the\n');
     fprintf('factory file of M to ensure M.exp is a proper exponential.\n');
     fprintf('The slope must be at least 2 to have a proper retraction.\n');
     fprintf('For the retraction to be second order, the slope should be 3.\n');
     fprintf('It appears the slope is: %g.\n', poly(1));
-    fprintf('Note: if exp and retr are identical, this is about zero: %g.\n', norm(ee));
-    fprintf('In the latter case, the slope test is irrelevant.\n');
+    fprintf(['Note: If exp and retr are identical, ' ...
+             'the following is about zero: %g.\n'], norm(ee));
+    fprintf(['      If so, the retraction is fine and ' ...
+             ' the slope test is irrelevant.\n']);
 
 end
