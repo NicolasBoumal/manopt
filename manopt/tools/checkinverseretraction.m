@@ -1,16 +1,16 @@
 function checkinverseretraction(M, x, v)
-% Check the order of agreement of a retraction with an exponential.
+% Check the order of agreement of an inverse retraction with the log.
 % 
 % function checkinverseretraction(M)
 % function checkinverseretraction(M, x)
 % function checkinverseretraction(M, x, v)
 %
-% checkinverseretraction performs a numerical test to check the order of agreement
-% between the inverse retraction M.invretr and the logarithmic map M.log in a
-% given Manopt manifold structure M. The test is performed at the point x if it is
-% provided (otherwise, the point is picked at random) and along the tangent
-% vector v at x if one is provided (otherwise, a tangent vector at x is
-% picked at random.)
+% checkinverseretraction performs a numerical test to check the order of
+% agreement between the inverse retraction and the logarithmic map in a
+% given Manopt manifold structure M. The test is performed at the point x
+% if it is provided (otherwise, the point is picked at random) and along
+% the tangent vector v at x if one is provided (otherwise, a tangent vector
+% at x is picked at random.)
 %
 % See also: checkretraction checkmanifold checkdiff checkgradient checkhessian
 
