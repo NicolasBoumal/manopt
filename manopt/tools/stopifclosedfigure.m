@@ -15,7 +15,7 @@ function [stop, reason] = stopifclosedfigure(problem, x, info, last) %#ok<INUSL>
 % stopping criteria.
 %
 % Note: certain solvers (including trustregions) check stopping criteria
-% only at outer iterations, not during inner iterations; hence, their may
+% only at outer iterations, not during inner iterations; hence, there may
 % be a delay before actual termination.
 %
 % See also: statsfunhelper stopifdeletedfile
