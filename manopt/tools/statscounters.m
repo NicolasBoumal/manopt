@@ -17,7 +17,7 @@ function S = statscounters(names)
 % and with statsfunhelper. In the examples folder of the toolbox, the
 % example named using_counters demonstrates how to use this feature.
 %
-% See also: statscounters statsfunhelper using_counters
+% See also: incrementcounter statsfunhelper using_counters
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 27, 2018.
