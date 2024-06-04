@@ -94,9 +94,10 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Z.Z is an nxn matrix.
     M.proj = @projection;
     function Zproj = projection(X, Z)
-        ZZV  = Z.Z * X.V;
-        ZZtV = Z.Z'* X.V;
-        B = (Z.Y'*X.U*X.S - alpha*(ZZV + ZZtV)) / sfactor(X);
+        % TBD: which is more efficient in practice?
+        % symZV = Z.Z*X.V + Z.Z'*X.V;
+        symZV = (Z.Z + Z.Z')*X.V;
+        B = (Z.Y'*X.U*X.S - alpha*symZV) / sfactor(X);
         
         Zproj.K = Z.Y*X.V;
         Zproj.Vp = B - X.V*(X.V'*B);
