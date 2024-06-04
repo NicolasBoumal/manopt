@@ -190,7 +190,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     end
 
     % Same hash as fixedrankembeddedfactory.
-    M.hash = @(X) fixedrankembeddedfactory(m, n, r).hash(X);
+    M.hash = fixedrankembeddedfactory(m, n, r).hash;
     
     % Generate a random point on M.
     % The factors U and V are sampled uniformly at random on Stiefel.
