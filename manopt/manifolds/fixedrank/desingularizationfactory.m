@@ -74,13 +74,9 @@ function M = desingularizationfactory(m, n, r, alpha)
     
     M.norm = @(X, Xd) sqrt(max(0, M.inner(X, Xd, Xd)));
     
-    M.dist = @(X, Y) error('desingularizationfactory.dist not implemented yet.');
+    M.dist = @(X, Y) error('desingularization dist not implemented yet.');
     
     M.typicaldist = @() M.dim();
-
-    % Factors U, V live on Stiefel manifolds: reuse these manifolds.
-    stiefelm = stiefelfactory(m, r);
-    stiefeln = stiefelfactory(n, r);
     
     % Given Xd in tangent vector format, projects the component Vp such
     % that it satisfies the tangent space constraints up to numerical
@@ -200,6 +196,9 @@ function M = desingularizationfactory(m, n, r, alpha)
     % The factors U and V are sampled uniformly at random on Stiefel.
     % The singular values are uniform in [0, 1].
     M.rand = @random;
+    % Factors U, V live on Stiefel manifolds: reuse these manifolds.
+    stiefelm = stiefelfactory(m, r);
+    stiefeln = stiefelfactory(n, r);
     function X = random()
         X.U = stiefelm.rand();
         X.V = stiefeln.rand();
