@@ -196,12 +196,9 @@ function M = desingularizationfactory(m, n, r, alpha)
     % The factors U and V are sampled uniformly at random on Stiefel.
     % The singular values are uniform in [0, 1].
     M.rand = @random;
-    % Factors U, V live on Stiefel manifolds: reuse these manifolds.
-    stiefelm = stiefelfactory(m, r);
-    stiefeln = stiefelfactory(n, r);
     function X = random()
-        X.U = stiefelm.rand();
-        X.V = stiefeln.rand();
+        X.U = qr_unique(randn(m, r));
+        X.V = qr_unique(randn(n, r));
         X.S = diag(sort(rand(r, 1), 'descend'));
     end
     
