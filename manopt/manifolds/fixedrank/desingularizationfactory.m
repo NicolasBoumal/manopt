@@ -39,6 +39,8 @@ function M = desingularizationfactory(m, n, r, alpha)
 %
 % for some parameter alpha (the default is 1/2).
 %
+%   TODO: explain how objects in the embedding space are represented.
+%
 % The tangent spaces of M inherit this metric, so that M is a Riemannian
 % submanifold of E.
 % 
@@ -88,10 +90,11 @@ function M = desingularizationfactory(m, n, r, alpha)
         Xd.Vp = Xd.Vp - X.V*(X.V'*Xd.Vp);
     end
     
-    % Orthogonal projection of an ambient vector to the tangent space at X.
-    % The output is in the tangent vector structure format.
-    % Z.Y is an mxn matrix
-    % Z.Z is an nxn matrix.
+    % Z is in the embedding space, that is, it is a struct with fields:
+    %   Z.Y  --  an mxn matrix
+    %   Z.Z  --  an nxn matrix
+    % This function projects Z to the tangent space at X.
+    % The output is in the tangent vector format.
     M.proj = @projection;
     function Zproj = projection(X, Z)
         % TBD: which is more efficient in practice?
@@ -103,11 +106,18 @@ function M = desingularizationfactory(m, n, r, alpha)
         Zproj.Vp = B - X.V*(X.V'*B);
     end
 
+    % egrad is .....
+    % rgrad is a tangent vector, in the tangent vector format.
+    % TODO: clarify here and in the help section whether egrad is
+    %       expected to be the gradient on E wrt its inner product (with
+    %       alpha) -- which would be the default assumption -- or (as is
+    %       more likely the case) that egrad is the gradient "downstairs"
+    %       (which would require some explanations).
     M.egrad2rgrad = @egrad2rgrad;
-    function rgrad = egrad2rgrad(X, G)
-        B = (G'*X.U*X.S) / sfactor(X);
+    function rgrad = egrad2rgrad(X, egrad)
+        B = (egrad'*X.U*X.S) / sfactor(X);
         
-        rgrad.K = G*X.V;
+        rgrad.K = egrad*X.V;
         rgrad.Vp = B - X.V*(X.V'*B);
     end
 
@@ -308,6 +318,8 @@ function M = desingularizationfactory(m, n, r, alpha)
     M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
     function Zambient = tangent2ambient(X, Z)
+        % TODO: Call these fields Xdot and Pdot rather than Y and Z?
+        %       Friction with M.proj?
         Zambient.Y = Z.K*X.V' + X.U*X.S*Z.Vp';
         Zambient.Z = -Z.Vp*X.V' - X.V*Z.Vp';
     end
