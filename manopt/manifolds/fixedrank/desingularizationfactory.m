@@ -55,6 +55,8 @@ function M = desingularizationfactory(m, n, r, alpha)
         alpha = .5;
     end
     
+    assert(r <= min(m, n), 'The rank r should be <= min(m, n).');
+    assert(alpha > 0, 'alpha should be positive (default is 1/2).');
 
     M.alpha = alpha;
 
@@ -236,7 +238,7 @@ function M = desingularizationfactory(m, n, r, alpha)
             d.K  = a1*Xd1.K + a2*Xd2.K;
             d.Vp = a1*Xd1.Vp + a2*Xd2.Vp;
         else
-            error('desingularizationfactory.lincomb takes either 3 or 5 inputs.');
+            error('desingularizationfactory.lincomb takes 3 or 5 inputs.');
         end
     end
     
@@ -292,6 +294,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     end
 
     % Embed the point to the ambient space.
+    % TODO: needs better documentation after details are fixed
     M.embed = @embed;
     function [Xe, Pe] = embed(X)
         Xe = X.U*X.S*X.V';
@@ -299,6 +302,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     end
 
     % Embed a tangent vector to the ambient space.
+    % TODO: is the purpose of this different from tangent2ambient?
     M.embedtangent = @embedtangent;
     function [Xde, Pde] = embedtangent(X, Xd)
         Xde = Xd.K*X.V' + X.U*X.S*Xd.Vp';
