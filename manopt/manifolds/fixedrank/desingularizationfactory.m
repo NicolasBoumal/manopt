@@ -247,7 +247,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     M.vec = @vec;
     function Zvec = vec(X, Xd)
         VpS = Xd.Vp*sqrt(sfactor(X));
-        Zvec = [Xd(:); VpS(:)];
+        Zvec = [Xd.K(:); VpS(:)];  % TODO: changed Xd to Xd.K : ok?
     end
 
     % The function 'mat' is the left-inverse of 'vec'. It is sometimes
