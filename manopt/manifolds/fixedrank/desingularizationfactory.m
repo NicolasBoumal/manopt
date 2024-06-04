@@ -53,19 +53,26 @@ function M = desingularizationfactory(m, n, r, alpha)
         alpha = .5;
     end
     
+
     M.alpha = alpha;
 
-    M.name = @() sprintf('Desingularization manifold of %dx%d matrices with rank bounded by %d', m, n, r);
+    M.name = @() sprintf(['Desingularization manifold of '
+                          '%dx%d matrices with rank bounded '
+                          'by %d with alpha = %g'], m, n, r, alpha);
     
     M.dim = @() (m + n - r)*r;
 
-    M.sfactor = @(X) 2*alpha*eye(r) + X.S^2;
+    sfactor = @(X) 2*alpha*eye(r) + X.S^2;
+    M.sfactor = sfactor;
+    M.sfactorinv = @(X) diag(1./diag(sfactor(X)));
+    
+    % Usual trace inner product of two matrices.
+    matinner = @(A, B) A(:)'*B(:);
 
-    M.sfactorinv = @(X) diag(1./diag(M.sfactor(X)));
+    M.inner = @(X, Xd1, Xd2) matinner(Xd1.K, Xd2.K) + ...
+                             matinner(Xd1.Vp, Xd2.Vp*sfactor(X));
     
-    M.inner = @(X, Xd1, Xd2) matinner(Xd1.K, Xd2.K) + matinner(Xd1.Vp, Xd2.Vp*M.sfactor(X));
-    
-    M.norm = @(X, Xd) sqrt(M.inner(X, Xd, Xd));
+    M.norm = @(X, Xd) sqrt(max(0, M.inner(X, Xd, Xd)));
     
     M.dist = @(X, Y) error('desingularizationfactory.dist not implemented yet.');
     
@@ -87,12 +94,13 @@ function M = desingularizationfactory(m, n, r, alpha)
     
     % Orthogonal projection of an ambient vector to the tangent space at X.
     % The output is in the tangent vector structure format.
-    % Z.Y is a mxn matrix
-    % Z.Z is a nxn matrix.
+    % Z.Y is an mxn matrix
+    % Z.Z is an nxn matrix.
     M.proj = @projection;
     function Zproj = projection(X, Z)
-        Zsym = Z.Z + Z.Z';
-        B = (Z.Y'*X.U*X.S - alpha*Zsym*X.V)/M.sfactor(X);
+        ZZV  = Z.Z * X.V;
+        ZZtV = Z.Z'* X.V;
+        B = (Z.Y'*X.U*X.S - alpha*(ZZV + ZZtV)) / sfactor(X);
         
         Zproj.K = Z.Y*X.V;
         Zproj.Vp = B - X.V*(X.V'*B);
@@ -100,7 +108,7 @@ function M = desingularizationfactory(m, n, r, alpha)
 
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, G)
-        B = G'*X.U*X.S/M.sfactor(X);
+        B = (G'*X.U*X.S) / sfactor(X);
         
         rgrad.K = G*X.V;
         rgrad.Vp = B - X.V*(X.V'*B);
@@ -108,10 +116,10 @@ function M = desingularizationfactory(m, n, r, alpha)
 
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
-        S = M.sfactor(X);
+        S = sfactor(X);
 
         Q = eye(m) - X.U*(X.S^2/S)*X.U';
-        B = (ehess'*X.U*X.S + egrad'*Q*H.K)/S;
+        B = (ehess'*X.U*X.S + egrad'*Q*H.K) / S;
 
         rhess.K = ehess*X.V + Q*egrad*H.Vp;
         rhess.Vp = B - X.V*(X.V'*B);
@@ -174,7 +182,7 @@ function M = desingularizationfactory(m, n, r, alpha)
         if nargin < 3
             t = 1;
         end
-        Z = X.V + t*Xd.Vp*(eye(r) - t*Xd.K'*X.U*X.S/M.sfactor(X));
+        Z = X.V + t*Xd.Vp*(eye(r) - (t*Xd.K'*X.U*X.S) / sfactor(X));
         Vtilde = Z/sqrtm(Z'*Z);
         
         AVtilde = (X.U*X.S + t*Xd.K)*(X.V'*Vtilde) + t*X.U*X.S*(Xd.Vp'*Vtilde);
@@ -231,7 +239,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     % vectors of length (m+n+r)r.
     M.vec = @vec;
     function Zvec = vec(X, Xd)
-        VpS = Xd.Vp*sqrt(M.sfactor(X));
+        VpS = Xd.Vp*sqrt(sfactor(X));
         Zvec = [Xd(:); VpS(:)];
     end
 
@@ -241,7 +249,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     function Xd = mat(X, v)
         K = reshape(v(1:(m*r)),  [m, r]);
         VpS = reshape(v((m*r)+(1:(n*r))), [n, r]);
-        Xd = struct('K', K, 'Vp', VpS/sqrt(M.sfactor(X)));
+        Xd = struct('K', K, 'Vp', VpS/sqrt(sfactor(X)));
     end
     
     M.vecmatareisometries = @() true;
@@ -335,9 +343,4 @@ function M = desingularizationfactory(m, n, r, alpha)
         Y.V = Vtilde * Vh;
     end
 
-end
-
-% Standard inner product for two matrices A and B.
-function s = matinner(A, B)
-    s = A(:)'*B(:);
 end
