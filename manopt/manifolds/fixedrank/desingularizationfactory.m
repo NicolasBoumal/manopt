@@ -305,20 +305,12 @@ function M = desingularizationfactory(m, n, r, alpha)
         X_matrix = U*S*V';
     end
 
-    % Embed the point to the ambient space.
+    % Map the point X in M to the ambient space E.
     % TODO: needs better documentation after details are fixed
-    M.embed = @embed;
-    function [Xe, Pe] = embed(X)
-        Xe = X.U*X.S*X.V';
-        Pe = eye(n) - X.V*X.V';
-    end
-
-    % Embed a tangent vector to the ambient space.
-    % TODO: is the purpose of this different from tangent2ambient?
-    M.embedtangent = @embedtangent;
-    function [Xde, Pde] = embedtangent(X, Xd)
-        Xde = Xd.K*X.V' + X.U*X.S*Xd.Vp';
-        Pde = -Xd.Vp*X.V' - X.V*Xd.Vp';
+    M.embed = @point2ambient;
+    function Xe = point2ambient(X)
+        Xe.Y = X.U*X.S*X.V';
+        Xe.Z = eye(n) - X.V*X.V';
     end
 
     % Transforms a tangent vector Z represented as a structure (K, Vp)
