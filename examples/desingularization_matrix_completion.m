@@ -67,7 +67,7 @@ function desingularization_matrix_completion()
         % efficiently. The following:
         Xdot = H.K*X.V' + X.U*X.S*H.Vp';
         % is equivalent to:
-        % Xdot = M.tangent2ambient(X, H).Y; % TODO: replace .Y with .Xdot?
+        % Xdot = problem.M.tangent2ambient(X, H).Y; % TODO: replace .Y with .Xdot?
         ehess = P.*Xdot;
     end
     
