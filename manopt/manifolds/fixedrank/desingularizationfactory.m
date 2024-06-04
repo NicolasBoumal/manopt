@@ -56,7 +56,13 @@ function M = desingularizationfactory(m, n, r, alpha)
     end
     
     assert(r <= min(m, n), 'The rank r should be <= min(m, n).');
-    assert(alpha > 0, 'alpha should be positive (default is 1/2).');
+    assert(alpha >= 0, 'alpha should be positive (default is 1/2).');
+    if alpha == 0
+        warning('desingularization:alphazero', ...
+                ['alpha was set to 0. It should be positive.\n' ...
+                'Disable this warning with ' ...
+                'warning(''off'', ''desingularization:alphazero'').']);
+    end
 
     M.alpha = alpha;
 
@@ -99,7 +105,13 @@ function M = desingularizationfactory(m, n, r, alpha)
     % The output is in the tangent vector format.
     M.proj = @projection;
     function Zproj = projection(X, Z)
-        % TBD: which is more efficient in practice?
+        % Note the following about computing symZV:
+        %  1) In principle, Z should already be symmetric.
+        %     We take (twice) the symmetric part to be safe.
+        %  2) If Z.Z is full or sparse, the code below should work fine.
+        %     If Z.Z is large and dense but it is possible to compute
+        %     products of Z.Z with narrow matrices such as X.V efficiently,
+        %     then this code should be modified to take advantage of this.
         % symZV = Z.Z*X.V + Z.Z'*X.V;
         symZV = (Z.Z + Z.Z')*X.V;
         B = (Z.Y'*X.U*X.S - alpha*symZV) / sfactor(X);
