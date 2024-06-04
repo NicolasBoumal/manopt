@@ -43,6 +43,9 @@ function M = desingularizationfactory(m, n, r, alpha)
 %
 % The tangent spaces of M inherit this metric, so that M is a Riemannian
 % submanifold of E.
+%
+% TODO: document the available retractions and state which ones are
+% second-order.
 % 
 % See also: fixedrankembeddedfactory
 
@@ -149,6 +152,9 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Multiple retractions are available for the desingularization.
     % Default: retraction based on Q-factor.
     M.retr = @qfactor_retr;
+
+    % TODO: rename all restractions to retr_xyz (including retr_qfactor)
+    % Then let M.retr = M.retr_qfactor; to clarify that it's the default.
 
     M.qfactor_retr = @qfactor_retr;
     function Y = qfactor_retr(X, Xd, t)
