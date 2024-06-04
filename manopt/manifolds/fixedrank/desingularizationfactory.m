@@ -1,36 +1,53 @@
 function M = desingularizationfactory(m, n, r, alpha)
-% Manifold struct to optimize over bounded-rank matrices with an embedded
-% geometry.
+% Manifold to optimize over bounded-rank matrices with an embedded geometry
 %
 % function M = desingularizationfactory(m, n, r)
 %
-% Implements the desingularization geometry proposed in "Desingularization
-% of bounded-rank matrix sets" by Valentin Khrulkov and Ivan Oseledets.
-% Link: https://arxiv.org/abs/1612.03973
+% Implements the (smooth) desingularization geometry for the (nonsmooth)
+% set of matrices of size mxn with rank <= r.
+% This was first proposed in
+%     Desingularization of bounded-rank matrix sets,
+%     by Valentin Khrulkov and Ivan Oseledets
+%     https://arxiv.org/abs/1612.03973
+% then refined in an upcoming paper by the authors of this file.
+% The geometry implemented here matches that second paper.
 %
-% The embedding space is E = Rmn x Sym(n) where Sym denotes the set of
+% The embedding space is E = R^(mxn) x Sym(n) where Sym denotes the set of
 % symmetric matrices. Let Gr(n, s) be the Grassmannian: orthogonal
 % projectors of size n and of rank s.
 % The desingularization manifold is formally defined as
-% M = {(X, P) in E such that P is in Gr(n, n - r) and XP = 0}.
-% The condition XP = 0 implies that X is of rank at most r.
 %
-% A point (X, P) in M is represented as a structure with three fields U, S
-% and V, such that X = U*S*V' and P = I - V*V'.
-% The matrices U (mxr) and V (nxr) are orthonormal, and S (rxr) is
-% diagonal.
+%     M = {(X, P) in E such that P is in Gr(n, n - r) and XP = 0}.
 %
-% Tangent vectors are represented as a structure with two fields: K and Vp.
-% The matrix K (mxr) is arbitrary and Vp (nxr) satisfies Vp' * V = 0.
+% The condition XP = 0 implies that X has rank at most r.
+%
+% A point (X, P) in M is represented as a structure with three fields:
+%
+%     U, S, V  such that  X = U*S*V'  and  P = I - V*V'.
+%
+% Matrices U (mxr) and V (nxr) are orthonormal, while S (rxr) is diagonal.
+%
+% A tangent vector at (X, P) is represented as a structure with two fields:
+%
+%     K, Vp  such that  Xdot = K*V' + U*S*Vp'  and  Pdot = -Vp*V' - V*Vp'.
+% 
+% The matrix K (mxr) is arbitrary while Vp (nxr) satisfies Vp' * V = 0.
 %
 % We equip the embedding space E with the metric
-% inner((Xd1, Pd1), (Xd2, Pd2)) = Tr(Xd1'*Xd2) + alpha * Tr(Pd1'*Pd2)
-% for some parameter alpha (1/2 by default).
-% The tangent spaces of M inherit this metric.
 %
+%     inner((Xd1, Pd1), (Xd2, Pd2)) = Tr(Xd1'*Xd2) + alpha * Tr(Pd1'*Pd2)
+%
+% for some parameter alpha (the default is 1/2).
+%
+% The tangent spaces of M inherit this metric, so that M is a Riemannian
+% submanifold of E.
+% 
+% See also: fixedrankembeddedfactory
+
 % This file is part of Manopt: www.manopt.org.
 % Original authors: Quentin Rebjock and Nicolas Boumal, May 2024.
-%
+% Contributors:
+% Change log:
 
     if ~exist('alpha', 'var') || isempty(alpha)
         alpha = .5;
