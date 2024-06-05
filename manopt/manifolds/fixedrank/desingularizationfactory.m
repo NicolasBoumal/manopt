@@ -138,15 +138,15 @@ function M = desingularizationfactory(m, n, r, alpha)
         rgrad.Vp = B - X.V*(X.V'*B);
     end
 
-    % TODO
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
         S = sfactor(X);
+        US = X.U*(X.S^2/S);
 
-        Q = eye(m) - X.U*(X.S^2/S)*X.U';
-        B = (ehess'*X.U*X.S + egrad'*Q*H.K) / S;
+        B = (ehess'*X.U*X.S + egrad'*(H.K - US*(X.U'*H.K))) / S;
 
-        rhess.K = ehess*X.V + Q*egrad*H.Vp;
+        GVp = egrad*H.Vp;
+        rhess.K = ehess*X.V + GVp - US*(X.U'*GVp);
         rhess.Vp = B - X.V*(X.V'*B);
     end
     
