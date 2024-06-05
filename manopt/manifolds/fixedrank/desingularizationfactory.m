@@ -44,8 +44,10 @@ function M = desingularizationfactory(m, n, r, alpha)
 % The tangent spaces of M inherit this metric, so that M is a Riemannian
 % submanifold of E.
 %
-% TODO: document the available retractions and state which ones are
-% second-order.
+% Multiple retractions are available for the desingularization.
+% - retr_qfactor (first-order).
+% - retr_metric_proj (second-order).
+% - retr_polar (second-order).
 % 
 % See also: fixedrankembeddedfactory
 
@@ -123,13 +125,11 @@ function M = desingularizationfactory(m, n, r, alpha)
         Zproj.Vp = B - X.V*(X.V'*B);
     end
 
-    % egrad is .....
+    % egrad is the Euclidean gradient of the function R^{mxn} -> R to
+    % optimize over the bounded-rank matrices.
     % rgrad is a tangent vector, in the tangent vector format.
-    % TODO: clarify here and in the help section whether egrad is
-    %       expected to be the gradient on E wrt its inner product (with
-    %       alpha) -- which would be the default assumption -- or (as is
-    %       more likely the case) that egrad is the gradient "downstairs"
-    %       (which would require some explanations).
+    % It is the projection of (egrad, 0) onto the tangent space at (X, P).
+    % TODO: elaborate more?
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X, egrad)
         B = (egrad'*X.U*X.S) / sfactor(X);
