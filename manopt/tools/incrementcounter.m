@@ -19,7 +19,7 @@ function store = incrementcounter(store, countername, increment)
 %
 % This manopt tool is meant to be used in conjunction with statscounter.
 %
-% See also: statscounter statsfunhelper
+% See also: statscounters statsfunhelper
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 27, 2018.

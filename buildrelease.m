@@ -36,7 +36,7 @@ targetrep = [repreleases, repthisversion, '/manopt/'];
 copyfile('importmanopt.m', targetrep, 'f');
 copyfile('examples', [targetrep, 'examples/'], 'f');
 copyfile('manopt', [targetrep, 'manopt/'], 'f');
-copyfile('auxiliaries', targetrep, 'f');
+copyfile('auxiliaries', targetrep, 'f'); warning('update this: all contents moved');
 
 % Let's go and erase all *.asv files
 cd(targetrep);
