@@ -338,8 +338,11 @@ function M = desingularizationfactory(m, n, r, alpha)
         Zambient.Z = -Z.Vp*X.V' - X.V*Z.Vp';
     end
 
-    M.pmetricproj_retr = @pmetricproj_retr;
-    function Y = pmetricproj_retr(X, Z, t)
+    % TODO: decide if we want to keep this retraction (probably not).
+    % TBD: should we interface the desingularization with grassmann to
+    % automatically get retractions from it?
+    M.retr_grassmann_metric_proj = @retr_grassmann_metric_proj;
+    function Y = retr_grassmann_metric_proj(X, Z, t)
         if nargin < 3
             t = 1;
         end
