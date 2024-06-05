@@ -311,8 +311,11 @@ function M = desingularizationfactory(m, n, r, alpha)
         X_matrix = U*S*V';
     end
 
-    % Map the point X in M to the ambient space E.
-    % TODO: needs better documentation after details are fixed
+    % Maps the representation (U, S, V) of a point X in M to the
+    % corresponding element of the ambient space E.
+    % Returns a struct Xe with two fields:
+    % Xe.Y = U*S*V'    of size mxn
+    % Xe.Z = I - V*V'  of size nxn
     M.embed = @point2ambient;
     function Xe = point2ambient(X)
         Xe.Y = X.U*X.S*X.V';
