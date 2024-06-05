@@ -22,7 +22,7 @@ problem = desingularization_matrix_completion();
 checkgradient(problem);
 pause;
 % Use a second-order retraction to check the Hessian.
-problem.M.retr = problem.M.metric_proj;
+problem.M.retr = problem.M.retr_metric_proj;
 checkhessian(problem);
 pause;
 

@@ -138,6 +138,7 @@ function M = desingularizationfactory(m, n, r, alpha)
         rgrad.Vp = B - X.V*(X.V'*B);
     end
 
+    % TODO
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
         S = sfactor(X);
@@ -151,13 +152,11 @@ function M = desingularizationfactory(m, n, r, alpha)
     
     % Multiple retractions are available for the desingularization.
     % Default: retraction based on Q-factor.
-    M.retr = @qfactor_retr;
+    M.retr = @retr_qfactor;
 
-    % TODO: rename all restractions to retr_xyz (including retr_qfactor)
-    % Then let M.retr = M.retr_qfactor; to clarify that it's the default.
-
-    M.qfactor_retr = @qfactor_retr;
-    function Y = qfactor_retr(X, Xd, t)
+    % First-order retraction based on Q-factor for Grassmann.
+    M.retr_qfactor = @retr_qfactor;
+    function Y = retr_qfactor(X, Xd, t)
         if nargin < 3
             t = 1;
         end
@@ -172,8 +171,9 @@ function M = desingularizationfactory(m, n, r, alpha)
 
     % Metric projection retraction: take a step in the ambient space and
     % project back to the desingularization.
-    M.metric_proj = @metric_proj;
-    function Y = metric_proj(X, Xd, t)
+    % This is a second-order retraction.
+    M.retr_metric_proj = @retr_metric_proj;
+    function Y = retr_metric_proj(X, Xd, t)
         if nargin < 3
             t = 1;
         end
@@ -204,8 +204,8 @@ function M = desingularizationfactory(m, n, r, alpha)
     end
 
     % Second-order retraction based on the polar retraction.
-    M.polar = @polar;
-    function Y = polar(X, Xd, t)
+    M.retr_polar = @retr_polar;
+    function Y = retr_polar(X, Xd, t)
         if nargin < 3
             t = 1;
         end
