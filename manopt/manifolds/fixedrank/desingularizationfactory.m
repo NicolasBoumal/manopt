@@ -341,35 +341,4 @@ function M = desingularizationfactory(m, n, r, alpha)
         Zambient.Z = -Z.Vp*X.V' - X.V*Z.Vp';
     end
 
-    % TODO: decide if we want to keep this retraction (probably not).
-    % TBD: should we interface the desingularization with grassmann to
-    % automatically get retractions from it?
-    M.retr_grassmann_metric_proj = @retr_grassmann_metric_proj;
-    function Y = retr_grassmann_metric_proj(X, Z, t)
-        if nargin < 3
-            t = 1;
-        end
-        [Qv, Rv] = qr([X.V, t * Z.Vp], 0);
-        A = [eye(r), eye(r); eye(r), zeros(r)];
-        H = Rv * A * Rv';
-        H = (H' + H)/2;
-        % [Ur, ~, ~] = svd(H);
-        [Ur2, D] = eig(H);
-        [~, ind] = sort(diag(D), 'descend');
-        Ur2 = Ur2(:, ind);
-        Ur = Ur2;
-        
-        prod = Qv * Ur;
-        Vtilde = prod(:, 1:r);
-        
-        P1 = X.V' * Vtilde;
-        P2 = t * Z.Vp' * Vtilde;
-        H = (X.U * X.S + t * Z.K) * P1 + X.U * X.S * P2;
-        
-        [Uh, Sh, Vh] = svd(H, 'econ');
-        Y.U = Uh;
-        Y.S = Sh;
-        Y.V = Vtilde * Vh;
-    end
-
 end
