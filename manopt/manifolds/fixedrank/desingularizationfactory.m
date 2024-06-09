@@ -77,91 +77,91 @@ function M = desingularizationfactory(m, n, r, alpha)
     
     M.dim = @() (m + n - r)*r;
 
-    sfactor = @(X) 2*alpha*eye(r) + X.S^2;
+    sfactor = @(XP) 2*alpha*eye(r) + XP.S^2;
     M.sfactor = sfactor;
-    M.sfactorinv = @(X) diag(1./diag(sfactor(X)));
+    M.sfactorinv = @(XP) diag(1./diag(sfactor(XP)));
     
     % Usual trace inner product of two matrices.
     matinner = @(A, B) A(:)'*B(:);
 
-    M.inner = @(X, Xd1, Xd2) matinner(Xd1.K, Xd2.K) + ...
-                             matinner(Xd1.Vp, Xd2.Vp*sfactor(X));
+    M.inner = @(XP, Xd1, Xd2) matinner(Xd1.K, Xd2.K) + ...
+                             matinner(Xd1.Vp, Xd2.Vp*sfactor(XP));
     
-    M.norm = @(X, Xd) sqrt(max(0, M.inner(X, Xd, Xd)));
+    M.norm = @(XP, Xd) sqrt(max(0, M.inner(XP, Xd, Xd)));
     
-    M.dist = @(X, Y) error('desingularization dist not implemented yet.');
+    M.dist = @(XP1, XP2) error('desingularization dist not implemented yet.');
     
     M.typicaldist = @() M.dim();
     
     % Given Xd in tangent vector format, projects the component Vp such
     % that it satisfies the tangent space constraints up to numerical
     % errors.
-    % If Xd was indeed a tangent vector at X, this should barely affect Xd
+    % If Xd was indeed a tangent vector at XP, this should barely affect Xd
     % (it would not at all if we had infinite numerical accuracy).
     M.tangent = @tangent;
-    function Xd = tangent(X, Xd)
-        Xd.Vp = Xd.Vp - X.V*(X.V'*Xd.Vp);
+    function Xd = tangent(XP, Xd)
+        Xd.Vp = Xd.Vp - XP.V*(XP.V'*Xd.Vp);
     end
     
     % Z is in the embedding space, that is, it is a struct with fields:
     %   Z.Y  --  an mxn matrix
     %   Z.Z  --  an nxn matrix
-    % This function projects Z to the tangent space at X.
+    % This function projects Z to the tangent space at XP.
     % The output is in the tangent vector format.
     M.proj = @projection;
-    function Zproj = projection(X, Z)
+    function Zproj = projection(XP, Z)
         % Note the following about computing symZV:
         %  1) In principle, Z should already be symmetric.
         %     We take (twice) the symmetric part to be safe.
         %  2) If Z.Z is full or sparse, the code below should work fine.
         %     If Z.Z is large and dense but it is possible to compute
-        %     products of Z.Z with narrow matrices such as X.V efficiently,
+        %     products of Z.Z with narrow matrices such as XP.V efficiently,
         %     then this code should be modified to take advantage of this.
-        % symZV = Z.Z*X.V + Z.Z'*X.V;
-        symZV = (Z.Z + Z.Z')*X.V;
-        B = (Z.Y'*X.U*X.S - alpha*symZV) / sfactor(X);
+        % symZV = Z.Z*XP.V + Z.Z'*XP.V;
+        symZV = (Z.Z + Z.Z')*XP.V;
+        B = (Z.Y'*XP.U*XP.S - alpha*symZV) / sfactor(XP);
         
-        Zproj.K = Z.Y*X.V;
-        Zproj.Vp = B - X.V*(X.V'*B);
+        Zproj.K = Z.Y*XP.V;
+        Zproj.Vp = B - XP.V*(XP.V'*B);
     end
 
     % egrad is the Euclidean gradient of the function R^{mxn} -> R to
     % optimize over the bounded-rank matrices.
     % rgrad is a tangent vector, in the tangent vector format.
     % It is the projection of (egrad, 0) onto the tangent space at (X, P).
-    % TODO: elaborate more?
     M.egrad2rgrad = @egrad2rgrad;
-    function rgrad = egrad2rgrad(X, egrad)
-        B = (egrad'*X.U*X.S) / sfactor(X);
+    function rgrad = egrad2rgrad(XP, egrad)
+        B = (egrad'*XP.U*XP.S) / sfactor(XP);
         
-        rgrad.K = egrad*X.V;
-        rgrad.Vp = B - X.V*(X.V'*B);
+        rgrad.K = egrad*XP.V;
+        rgrad.Vp = B - XP.V*(XP.V'*B);
     end
 
     M.ehess2rhess = @ehess2rhess;
-    function rhess = ehess2rhess(X, egrad, ehess, H)
-        S = sfactor(X);
-        US = X.U*(X.S^2/S);
+    function rhess = ehess2rhess(XP, egrad, ehess, H)
+        S = sfactor(XP);
+        US = XP.U*(XP.S^2/S);
 
-        B = (ehess'*X.U*X.S + egrad'*(H.K - US*(X.U'*H.K))) / S;
+        B = (ehess'*XP.U*XP.S + egrad'*(H.K - US*(XP.U'*H.K))) / S;
 
         GVp = egrad*H.Vp;
-        rhess.K = ehess*X.V + GVp - US*(X.U'*GVp);
-        rhess.Vp = B - X.V*(X.V'*B);
+        rhess.K = ehess*XP.V + GVp - US*(XP.U'*GVp);
+        rhess.Vp = B - XP.V*(XP.V'*B);
     end
     
     % Multiple retractions are available for the desingularization.
     % Default: retraction based on Q-factor.
     M.retr = @retr_qfactor;
 
+    % TODO Factorize the last 5 lines here.
     % First-order retraction based on Q-factor for Grassmann.
     M.retr_qfactor = @retr_qfactor;
-    function Y = retr_qfactor(X, Xd, t)
+    function Y = retr_qfactor(XP, Xd, t)
         if nargin < 3
             t = 1;
         end
-        [Q, ~] = qr(X.V + t*Xd.Vp, 0);
-        W = (X.U*X.S + t*Xd.K)*(X.V'*Q) + t*X.U*X.S*(Xd.Vp'*Q);
+        [Q, ~] = qr(XP.V + t*Xd.Vp, 0);
+        W = (XP.U*XP.S + t*Xd.K)*(XP.V'*Q) + t*XP.U*XP.S*(Xd.Vp'*Q);
         
         [YU, YS, H] = svd(W, 'econ');
         Y.U = YU;
