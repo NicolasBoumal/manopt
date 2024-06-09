@@ -84,23 +84,23 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Usual trace inner product of two matrices.
     matinner = @(A, B) A(:)'*B(:);
 
-    M.inner = @(XP, Xd1, Xd2) matinner(Xd1.K, Xd2.K) + ...
-                             matinner(Xd1.Vp, Xd2.Vp*sfactor(XP));
+    M.inner = @(XP, XPdot1, XPdot2) matinner(XPdot1.K, XPdot2.K) + ...
+                             matinner(XPdot1.Vp, XPdot2.Vp*sfactor(XP));
     
-    M.norm = @(XP, Xd) sqrt(max(0, M.inner(XP, Xd, Xd)));
+    M.norm = @(XP, XPdot) sqrt(max(0, M.inner(XP, XPdot, XPdot)));
     
     M.dist = @(XP1, XP2) error('desingularization dist not implemented yet.');
     
     M.typicaldist = @() M.dim();
     
-    % Given Xd in tangent vector format, projects the component Vp such
+    % Given XPdot in tangent vector format, projects the component Vp such
     % that it satisfies the tangent space constraints up to numerical
     % errors.
-    % If Xd was indeed a tangent vector at XP, this should barely affect Xd
+    % If XPdot was indeed a tangent vector at XP, this should barely affect XPdot
     % (it would not at all if we had infinite numerical accuracy).
     M.tangent = @tangent;
-    function Xd = tangent(XP, Xd)
-        Xd.Vp = Xd.Vp - XP.V*(XP.V'*Xd.Vp);
+    function XPdot = tangent(XP, XPdot)
+        XPdot.Vp = XPdot.Vp - XP.V*(XP.V'*XPdot.Vp);
     end
     
     % Z is in the embedding space, that is, it is a struct with fields:
@@ -156,12 +156,12 @@ function M = desingularizationfactory(m, n, r, alpha)
     % TODO Factorize the last 5 lines here.
     % First-order retraction based on Q-factor for Grassmann.
     M.retr_qfactor = @retr_qfactor;
-    function Y = retr_qfactor(XP, Xd, t)
+    function Y = retr_qfactor(XP, XPdot, t)
         if nargin < 3
             t = 1;
         end
-        [Q, ~] = qr(XP.V + t*Xd.Vp, 0);
-        W = (XP.U*XP.S + t*Xd.K)*(XP.V'*Q) + t*XP.U*XP.S*(Xd.Vp'*Q);
+        [Q, ~] = qr(XP.V + t*XPdot.Vp, 0);
+        W = (XP.U*XP.S + t*XPdot.K)*(XP.V'*Q) + t*XP.U*XP.S*(XPdot.Vp'*Q);
         
         [YU, YS, H] = svd(W, 'econ');
         Y.U = YU;
@@ -173,20 +173,20 @@ function M = desingularizationfactory(m, n, r, alpha)
     % project back to the desingularization.
     % This is a second-order retraction.
     M.retr_metric_proj = @retr_metric_proj;
-    function Y = retr_metric_proj(XP, Xd, t)
+    function Y = retr_metric_proj(XP, XPdot, t)
         if nargin < 3
             t = 1;
         end
         
         S2 = XP.S.^2;
-        KtUS = t*Xd.K'*XP.U*XP.S;
+        KtUS = t*XPdot.K'*XP.U*XP.S;
         D12 = S2 + KtUS + 2*alpha*eye(r);
         D = [
-            S2 + KtUS + KtUS' + t^2*Xd.K'*Xd.K + 2*alpha*eye(r), D12;
+            S2 + KtUS + KtUS' + t^2*XPdot.K'*XPdot.K + 2*alpha*eye(r), D12;
             D12', S2
             ];
 
-        [Qv, Rv] = qr([XP.V, t*Xd.Vp], 0);
+        [Qv, Rv] = qr([XP.V, t*XPdot.Vp], 0);
         W = Rv*D*Rv';
         W = (W' + W)/2;
         
@@ -195,7 +195,7 @@ function M = desingularizationfactory(m, n, r, alpha)
         Uw = Uw(:, ind);
         Vtilde = Qv*Uw(:, 1:r);
         
-        AVtilde = (XP.U*XP.S + t*Xd.K) * (XP.V'*Vtilde) + t*XP.U*XP.S*(Xd.Vp'*Vtilde);
+        AVtilde = (XP.U*XP.S + t*XPdot.K) * (XP.V'*Vtilde) + t*XP.U*XP.S*(XPdot.Vp'*Vtilde);
         
         [YU, YS, H] = svd(AVtilde, 'econ');
         Y.U = YU;
@@ -205,14 +205,14 @@ function M = desingularizationfactory(m, n, r, alpha)
 
     % Second-order retraction based on the polar retraction.
     M.retr_polar = @retr_polar;
-    function Y = retr_polar(XP, Xd, t)
+    function Y = retr_polar(XP, XPdot, t)
         if nargin < 3
             t = 1;
         end
-        Z = XP.V + t*Xd.Vp*(eye(r) - (t*Xd.K'*XP.U*XP.S) / sfactor(XP));
+        Z = XP.V + t*XPdot.Vp*(eye(r) - (t*XPdot.K'*XP.U*XP.S) / sfactor(XP));
         Vtilde = Z/sqrtm(Z'*Z);
         
-        AVtilde = (XP.U*XP.S + t*Xd.K)*(XP.V'*Vtilde) + t*XP.U*XP.S*(Xd.Vp'*Vtilde);
+        AVtilde = (XP.U*XP.S + t*XPdot.K)*(XP.V'*Vtilde) + t*XP.U*XP.S*(XPdot.Vp'*Vtilde);
         
         [YU, YS, H] = svd(AVtilde, 'econ');
         Y.U = YU;
@@ -236,25 +236,25 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Generate a unit-norm random tangent vector at XP.
     % Note: this may not be the uniform distribution.
     M.randvec = @randomvec;
-    function Xd = randomvec(XP)
-        Xd.K  = randn(m, r);
-        Xd.Vp = randn(n, r);
-        Xd = tangent(XP, Xd);
-        normXd = M.norm(XP, Xd);
-        Xd.K = Xd.K/normXd;
-        Xd.Vp = Xd.Vp/normXd;
+    function XPdot = randomvec(XP)
+        XPdot.K  = randn(m, r);
+        XPdot.Vp = randn(n, r);
+        XPdot = tangent(XP, XPdot);
+        normXPdot = M.norm(XP, XPdot);
+        XPdot.K = XPdot.K/normXPdot;
+        XPdot.Vp = XPdot.Vp/normXPdot;
     end
     
     % Linear combination of tangent vectors.
-    % Returns the tangent vector a1*Xd1 + a2*Xd2.
+    % Returns the tangent vector a1*XPdot1 + a2*XPdot2.
     M.lincomb = @lincomb;
-    function d = lincomb(~, a1, Xd1, a2, Xd2)
+    function d = lincomb(~, a1, XPdot1, a2, XPdot2)
         if nargin == 3
-            d.K = a1*Xd1.K;
-            d.Vp = a1*Xd1.Vp;
+            d.K = a1*XPdot1.K;
+            d.Vp = a1*XPdot1.Vp;
         elseif nargin == 5
-            d.K  = a1*Xd1.K + a2*Xd2.K;
-            d.Vp = a1*Xd1.Vp + a2*Xd2.Vp;
+            d.K  = a1*XPdot1.K + a2*XPdot2.K;
+            d.Vp = a1*XPdot1.Vp + a2*XPdot2.Vp;
         else
             error('desingularizationfactory.lincomb takes 3 or 5 inputs.');
         end
@@ -265,18 +265,18 @@ function M = desingularizationfactory(m, n, r, alpha)
     % The function 'vec' is isometric from the tangent space at XP to real
     % vectors of length (m+n+r)r.
     M.vec = @vec;
-    function Zvec = vec(XP, Xd)
-        VpS = Xd.Vp*sqrt(sfactor(XP));
-        Zvec = [Xd.K(:); VpS(:)];
+    function Zvec = vec(XP, XPdot)
+        VpS = XPdot.Vp*sqrt(sfactor(XP));
+        Zvec = [XPdot.K(:); VpS(:)];
     end
 
     % The function 'mat' is the left-inverse of 'vec'. It is sometimes
     % useful to apply 'tangent' to the output of 'mat'.
     M.mat = @mat;
-    function Xd = mat(XP, v)
+    function XPdot = mat(XP, v)
         K = reshape(v(1:(m*r)),  [m, r]);
         VpS = reshape(v((m*r)+(1:(n*r))), [n, r]);
-        Xd = struct('K', K, 'Vp', VpS/sqrt(sfactor(XP)));
+        XPdot = struct('K', K, 'Vp', VpS/sqrt(sfactor(XP)));
     end
     
     M.vecmatareisometries = @() true;
@@ -322,10 +322,11 @@ function M = desingularizationfactory(m, n, r, alpha)
         Xe.Z = eye(n) - XP.V*XP.V';
     end
 
-    % Transforms a tangent vector Z represented as a structure (K, Vp)
+    % TODO: documentation
+    % Transforms a tangent vector XPdot represented as a structure (K, Vp)
     % into a structure with fields (U, S, V) that represents that same
     % tangent vector in the ambient space of mxn matrices, as U*S*V'.
-    % This matrix is equal to XP.U*Z.M*XP.V' + Z.Up*XP.V' + XP.U*Z.Vp'. The
+    % This matrix is equal to XP.U*XPdot.M*XP.V' + XPdot.Up*XP.V' + XP.U*XPdot.Vp'. The
     % latter is an mxn matrix, which could be too large to build
     % explicitly, and this is why we return a low-rank representation
     % instead. Note that there are no guarantees on U, S and V other than
@@ -334,11 +335,11 @@ function M = desingularizationfactory(m, n, r, alpha)
     % (In this implementation, S is identity, but this might change.)
     M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
-    function Zambient = tangent2ambient(XP, Z)
+    function Zambient = tangent2ambient(XP, XPdot)
         % TODO: Call these fields Xdot and Pdot rather than Y and Z?
         %       Friction with M.proj?
-        Zambient.Y = Z.K*XP.V' + XP.U*XP.S*Z.Vp';
-        Zambient.Z = -Z.Vp*XP.V' - XP.V*Z.Vp';
+        Zambient.Y = XPdot.K*XP.V' + XP.U*XP.S*XPdot.Vp';
+        Zambient.Z = -XPdot.Vp*XP.V' - XP.V*XPdot.Vp';
     end
 
 end
