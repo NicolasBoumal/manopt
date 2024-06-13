@@ -125,7 +125,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     M.dist = @(x, y) error('fixedrankembeddedfactory.dist not implemented yet.');
     
-    M.typicaldist = @() M.dim();
+    M.typicaldist = @() sqrt(M.dim());
     
     % Given Z in tangent vector format, projects the components Up and Vp
     % such that they satisfy the tangent space constraints up to numerical
