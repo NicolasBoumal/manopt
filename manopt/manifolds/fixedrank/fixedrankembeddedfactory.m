@@ -89,7 +89,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       It is now clearly stated that for a point X represented as a
 %       triplet (U, S, V), the matrix S needs to be diagonal.
 %
-%    Sep.  6, 2018 (NB):
+%    Sep. 6, 2018 (NB):
 %       Removed M.exp() as it was not implemented.
 %
 %    March 20, 2019 (NB):
@@ -112,6 +112,9 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       mat does not attempt to project to the tangent space (which it did
 %       before but shouldn't): compose mat with tangent if that is the
 %       desired effect.
+% 
+%    June 7, 2024 (NB):
+%       Edited out dependency on stiefelfactory in M.rand().
 %
 %    June 18, 2024 (NB):
 %       Adapted to use euclideanlargefactory for matrices in the embedding
@@ -290,6 +293,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     M.rand = @random;
     function X = random()
+        % Factors U and V live on Stiefel manifolds:
+        % the two lines below pick uniformly random elements.
         X.U = qr_unique(randn(m, k));
         X.V = qr_unique(randn(n, k));
         X.S = diag(sort(rand(k, 1), 1, 'descend'));

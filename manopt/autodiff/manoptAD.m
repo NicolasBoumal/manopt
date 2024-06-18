@@ -1,9 +1,11 @@
-function problem = manoptAD(problem, flag) 
+function problem = manoptAD(problem, flag, x)
 % Preprocess automatic differentiation for a manopt problem structure
 %
 % function problem = manoptAD(problem)
 % function problem = manoptAD(problem, 'nohess')
 % function problem = manoptAD(problem, 'hess')
+% function problem = manoptAD(problem, 'nohess', x)
+% function problem = manoptAD(problem, 'hess', x)
 %
 % Given a manopt problem structure with problem.cost and problem.M defined,
 % this tool adds the following fields to the problem structure:
@@ -70,6 +72,10 @@ function problem = manoptAD(problem, flag)
 % Some manifold factories in Manopt support GPUs: automatic differentiation
 % should work with them too, as usual. See using_gpu_AD for more details.
 %
+% The third input (x) is optional. This tool evaluates the cost function at
+% some point x in order to trace its computations. By default, x is chosen
+% at random on the manifold problem.M. The third input can be used to
+% specify x instead of using a random one. Sometimes, this is useful.
 %
 % See also: manoptADhelp autograd egradcompute ehesscompute complex_example_AD using_gpu_AD
 
@@ -77,6 +83,8 @@ function problem = manoptAD(problem, flag)
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
+%   June 5, 2024 (NB):
+%       Added x as optional third input, as a replacement to random pick.
 
 % To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
 % and the product manifold which contains fixedrankembeddedfactory
@@ -112,7 +120,7 @@ function problem = manoptAD(problem, flag)
               'The problem structure must contain the fields M and cost.');
     
     % Check the flag value if provided, or set its default value.
-    if exist('flag', 'var')
+    if exist('flag', 'var') && ~isempty(flag)
         assert(strcmp(flag, 'nohess') || strcmp(flag, 'hess'), ...
            'The second argument should be either ''nohess'' or ''hess''.');
     else
@@ -130,7 +138,9 @@ function problem = manoptAD(problem, flag)
     
     % Below, it is convenient for several purposes to have a point on the
     % manifold. This makes it possible to investigate its representation.
-    x = problem.M.rand();
+    if ~exist('x', 'var') || isempty(x)
+        x = problem.M.rand();
+    end
     
     % AD does not support certain manifolds.
     manifold_name = problem.M.name();
