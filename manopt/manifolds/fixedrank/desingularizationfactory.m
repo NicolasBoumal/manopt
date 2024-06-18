@@ -307,28 +307,8 @@ function M = desingularizationfactory(m, n, r, alpha)
     % second input (or set to inf) to get a full SVD triplet (in economy
     % format). If so, the resulting triplet does not represent a point on
     % the manifold.
-    M.matrix2triplet = @matrix2triplet;
-    function X_triplet = matrix2triplet(X_matrix, k)
-        if ~exist('k', 'var') || isempty(k) || k <= 0
-            k = r;
-        end
-        if k < min(m, n)
-            [U, S, V] = svds(X_matrix, k);
-        else
-            [U, S, V] = svd(X_matrix, 'econ');
-        end
-        X_triplet.U = U;
-        X_triplet.S = S;
-        X_triplet.V = V;
-    end
-
-    M.triplet2matrix = @triplet2matrix;
-    function X_matrix = triplet2matrix(X_triplet)
-        U = X_triplet.U;
-        S = X_triplet.S;
-        V = X_triplet.V;
-        X_matrix = U*S*V';
-    end
+    M.matrix2triplet = fixedrankembeddedfactory(m, n, r).matrix2triplet;
+    M.triplet2matrix = fixedrankembeddedfactory(m, n, r).triplet2matrix;
 
     % Map the representation (U, S, V) of a point XP in M to the
     % corresponding element of the ambient space E.
