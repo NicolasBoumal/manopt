@@ -106,7 +106,7 @@ function M = desingularizationfactory(m, n, r, alpha)
                           '%dx%d matrices with rank bounded '
                           'by %d with alpha = %g'], m, n, r, alpha);
 
-    M.dim = @() sqrt((m + n - r)*r);
+    M.dim = @() (m + n - r)*r;
 
     sfactor = @(XP) 2*alpha*eye(r) + XP.S^2;
     sfactorinv = @(XP) diag(1./diag(sfactor(XP)));

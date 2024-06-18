@@ -57,7 +57,8 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Doi     = {10.1137/110845768}
 %     }
 %
-% See also: fixedrankfactory_2factors fixedrankfactory_3factors fixedranktensorembeddedfactory
+% See also: fixedrankfactory_2factors fixedrankfactory_3factors
+%           fixedranktensorembeddedfactory euclideanlargefactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -125,7 +126,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     M.dist = @(x, y) error('fixedrankembeddedfactory.dist not implemented yet.');
     
-    M.typicaldist = @() sqrt(M.dim());
+    M.typicaldist = @() M.dim();
     
     % Given Z in tangent vector format, projects the components Up and Vp
     % such that they satisfy the tangent space constraints up to numerical
