@@ -32,22 +32,63 @@ function M = euclideanlargefactory(m, n)
     name = 'Euclidean space of large matrices of size %d x %d';
     M.name = @() sprintf(name, m, n);
 
-    % Helpers to determine the representation format of a point/vector X.
+    %% Helpers to determine the representation format of an input X.
     M.is_matrix = @is_matrix;
-    M.is_LR = @is_LR;
-    M.is_USV = @is_USV;
-    M.is_funs = @is_funs;
+    M.is_LR     = @is_LR;
+    M.is_USV    = @is_USV;
+    M.is_funs   = @is_funs;
+
+    %% Helpers to convert from any format to any other format.
+    M.to_matrix = @to_matrix;
+    M.to_USV    = @to_USV;
+    M.to_LR     = @to_LR;
+    M.to_funs   = @to_funs;
+
+    %% Functions related to the linear space structure.
+    M.zero      = @() struct('L', zeros(m, 1), 'R', zeros(n, 1)); % 0
+    M.add       = @add;         % add(X, Y) = X+Y
+    M.scale     = @scale;       % scale(a, X) = a*X
+    M.diff      = @diff;        % diff(X, Y) = X-Y
+    M.lincomb   = @lincomb;     % lincomb(X, a, U, b, V) = a*U + b*V
+                                % X, b and V can be omitted.
+
+    %% Functions to multiply X with another matrix, possibly a sparse one.
+    M.times           = @times;             % times(X, A) = X*A
+    M.transpose_times = @transpose_times;   % transpose_times(X, B) = X.'*B
+    M.sparseentries   = @thissparseentries; % sample X from a sparse mask
+    M.entrywisetimes  = @entrywisetimes;    % entries of X times a mask
+
+    %% Functions related to the Euclidean manifold structure.
+    M.dim             = @() m*n;
+    M.proj            = @(X, U) U;
+    M.tangent         = M.proj;
+    M.retr            = @retraction;
+    M.exp             = M.retr;
+    M.transp          = @(X, Y, U) U;
+    M.isotransp       = M.transp;
+    M.tangent2ambient = @(X, U) U;
+    M.zerovec         = @(X) struct('L', zeros(m, 1), 'R', zeros(n, 1));
+    M.rand            = @random;
+    M.randvec         = @(X) random();
+    M.egrad2rgrad     = M.proj;
+    M.ehess2rhess     = @(X, egrad, ehess, U) ehess;
+    M.inner           = @inner;   % inner(X, U, V) = <U, V> = trace(U'*V)
+    M.norm            = @nrm;     % norm(X, U) = norm(U, 'fro')
+
+
+    %% Helpers to determine the representation format of a point/vector X.
+
     % Matlab's builtin ismatrix(struct()) returns true somehow?
     is_matrix = @(X) isnumeric(X) && all(size(X) == [m, n]);
     is_LR = @(X) isstruct(X) && isfield(X, 'L') && isfield(X, 'R');
-    is_USV = @(X) isstruct(X) && isfield(X, 'U') && ...
-                  isfield(X, 'S') && isfield(X, 'V');
+    is_USV = @(X) isstruct(X) && isfield(X, 'U') ...
+                              &&  isfield(X, 'S') && isfield(X, 'V');
     is_funs = @(X) isstruct(X) && isfield(X, 'times') ...
                                && isfield(X, 'transpose_times');
 
-    % Helpers to convert from any format to a chosen format.
-    M.to_matrix = @to_matrix;
-    function Y = to_matrix(X)
+    %% Helpers to convert from any format to a chosen format.
+
+    function Y = to_matrix(X)  % This is expensive if m*n is large
         if is_matrix(X)
             Y = X;
         elseif is_LR(X)
@@ -60,7 +101,6 @@ function M = euclideanlargefactory(m, n)
             error('Wrong format for X');
         end
     end
-    M.to_USV = @to_USV;
     function Y = to_USV(X)
         if is_matrix(X)
             [U, S, V] = svd(X);
@@ -82,7 +122,6 @@ function M = euclideanlargefactory(m, n)
             error('Wrong format for X');
         end
     end
-    M.to_LR = @to_LR;
     function Y = to_LR(X)
         if is_matrix(X)
             Y = to_LR(to_USV(X));
@@ -98,7 +137,6 @@ function M = euclideanlargefactory(m, n)
             error('Wrong format for X');
         end
     end
-    M.to_funs = @to_funs;
     function Y = to_funs(X)
         if is_funs(X)
             Y = X;
@@ -110,88 +148,9 @@ function M = euclideanlargefactory(m, n)
         end
     end
 
-    % Compute the product C = X*A
-    M.times = @times;
-    function C = times(X, A)
-        if is_matrix(X)
-            C = X*A;
-        elseif is_LR(X)
-            C = X.L*(X.R.'*A);
-        elseif is_funs(X)
-            C = X.times(A);
-        elseif is_USV(X)
-            C = X.U*(X.S*(X.V.'*A));
-        else
-            error('Wrong format for X');
-        end
-    end
-
-    % Compute the product C = X.'*B
-    M.transpose_times = @transpose_times;
-    function C = transpose_times(X, B)
-        if is_matrix(X)
-            C = X.'*B;
-        elseif is_LR(X)
-            C = X.R*(X.L.'*B);
-        elseif is_funs(X)
-            C = X.transpose_times(B);
-        elseif is_USV(X)
-            C = X.V*(X.S.'*(X.U.'*B));
-        else
-            error('Wrong format for X');
-        end
-    end
-
-    % Given a sparse matrix mask and a point X,
-    % computes the entries of X corresponding to the sparsity pattern of
-    % the mask, as a vector in the order corresponding to find(mask).
-    M.sparseentries = @thissparseentries;
-    function x = thissparseentries(mask, X)
-        if is_matrix(X)
-            assert(all(size(mask) == size(X)), ...
-                   'X and the mask must have same size.');
-            ij = find(mask);
-            x = X(ij);
-        elseif is_LR(X)
-            x = sparseentries(mask, X.L, X.R);
-        elseif is_USV(X)
-            x = sparseentries(mask, X.U*X.S, X.V);
-        elseif is_funs(X)
-            % In principle, this could be improved.
-            % One option would be to add a function field X.sample()
-            % or X.entries() as part of the functions description of X.
-            x = thissparseentries(mask, as_matrix(X));
-        else
-            error('Wrong format for X');
-        end
-    end
-
-    % Same as M.sparseentries but the computed entries of X are entry-wise
-    % multiplied with their matching entry in sparse_matrix.
-    M.entrywisetimes = @entrywise_times;
-    function x = entrywise_times(sparse_matrix, X)
-        if is_matrix(X)
-            assert(all(size(sparse_matrix) == size(X)), ...
-                   'X and the sparse matrix must have same size.');
-            [I, J, Mvals] = find(sparse_matrix);
-            x = Mvals .* X(sub2ind(size(sparse_matrix), I, J));
-        elseif is_LR(X)
-            x = sparseentrywisemult(sparse_matrix, X.L, X.R);
-        elseif is_USV(X)
-            x = sparseentrywisemult(sparse_matrix, X.L*X.S, X.R);
-        elseif is_funs(X)
-            % In principle, this could be improved.
-            % One option would be to add a function field X.sample()
-            % or X.entries() as part of the functions description of X.
-            x = entrywise_times(mask, as_matrix(X));
-        else
-            error('Wrong format for X');
-        end
-    end
-
+    %% Functions related to the linear space structure.
 
     % Produce a representation Z for X+Y
-    M.add = @add;
     function Z = add(X, Y)
         if is_matrix(X)
             if is_matrix(Y)
@@ -244,7 +203,6 @@ function M = euclideanlargefactory(m, n)
     end
 
     % Produce a representation Y for a*X
-    M.scale = @scale;
     function Y = scale(a, X)
         if is_matrix(X)
             Y = a*X;
@@ -264,12 +222,11 @@ function M = euclideanlargefactory(m, n)
     end
 
     % Produce a representation Z for X-Y
-    M.diff = @diff;
     function Z = diff(X, Y)
         Z = add(X, scale(-1, Y));
     end
 
-    M.lincomb = @lincomb;
+    % Produce a representation W for a*U + b*V (X, b, V optional)
     function W = lincomb(X, a, U, b, V)
         switch nargin
             case 2 % (a, U) -> W = a*U  (X omitted)
@@ -287,9 +244,88 @@ function M = euclideanlargefactory(m, n)
         end
     end
 
+    %% Functions to multiply X with another matrix, possibly a sparse one.
+
+    % Compute the product C = X*A
+    function C = times(X, A)
+        if is_matrix(X)
+            C = X*A;
+        elseif is_LR(X)
+            C = X.L*(X.R.'*A);
+        elseif is_funs(X)
+            C = X.times(A);
+        elseif is_USV(X)
+            C = X.U*(X.S*(X.V.'*A));
+        else
+            error('Wrong format for X');
+        end
+    end
+
+    % Compute the product C = X.'*B
+    function C = transpose_times(X, B)
+        if is_matrix(X)
+            C = X.'*B;
+        elseif is_LR(X)
+            C = X.R*(X.L.'*B);
+        elseif is_funs(X)
+            C = X.transpose_times(B);
+        elseif is_USV(X)
+            C = X.V*(X.S.'*(X.U.'*B));
+        else
+            error('Wrong format for X');
+        end
+    end
+
+    % Given a sparse matrix mask and a point X,
+    % computes the entries of X corresponding to the sparsity pattern of
+    % the mask, as a vector in the order corresponding to find(mask).
+    function x = thissparseentries(mask, X)
+        if is_matrix(X)
+            assert(all(size(mask) == size(X)), ...
+                   'X and the mask must have same size.');
+            ij = find(mask);
+            x = X(ij);
+        elseif is_LR(X)
+            x = sparseentries(mask, X.L, X.R);
+        elseif is_USV(X)
+            x = sparseentries(mask, X.U*X.S, X.V);
+        elseif is_funs(X)
+            % In principle, this could be improved.
+            % One option would be to add a function field X.sample()
+            % or X.entries() as part of the functions description of X.
+            x = thissparseentries(mask, as_matrix(X));
+        else
+            error('Wrong format for X');
+        end
+    end
+
+    % Same as M.sparseentries but the computed entries of X are entry-wise
+    % multiplied with their matching entry in sparse_matrix.
+    function x = entrywisetimes(sparse_matrix, X)
+        if is_matrix(X)
+            assert(all(size(sparse_matrix) == size(X)), ...
+                   'X and the sparse matrix must have same size.');
+            [I, J, Mvals] = find(sparse_matrix);
+            x = Mvals .* X(sub2ind(size(sparse_matrix), I, J));
+        elseif is_LR(X)
+            x = sparseentrywisemult(sparse_matrix, X.L, X.R);
+        elseif is_USV(X)
+            x = sparseentrywisemult(sparse_matrix, X.L*X.S, X.R);
+        elseif is_funs(X)
+            % In principle, this could be improved.
+            % One option would be to add a function field X.sample()
+            % or X.entries() as part of the functions description of X.
+            x = entrywisetimes(mask, as_matrix(X));
+        else
+            error('Wrong format for X');
+        end
+    end
+
+
+    %% Euclidean structure: trace inner product and Frobenius norm
+
     inr = @(A, B) A(:).'*B(:);
 
-    M.inner = @inner;
     function val = inner(X, U, V)
         % Convert any USV' format to LR' format.
         if is_USV(U)
@@ -311,9 +347,9 @@ function M = euclideanlargefactory(m, n)
         end
         if ~isinf(nnzU) || ~isinf(nnzV)
             if nnzU < nnzV
-                val = sum(entrywise_times(U, V));
+                val = sum(entrywisetimes(U, V));
             else
-                val = sum(entrywise_times(V, U));
+                val = sum(entrywisetimes(V, U));
             end
             return;
         end
@@ -354,7 +390,6 @@ function M = euclideanlargefactory(m, n)
         val = inr(U, V);
     end
 
-    M.norm = @nrm;
     function val = nrm(X, U)
         switch nargin
             case 1
@@ -363,15 +398,12 @@ function M = euclideanlargefactory(m, n)
                 if is_matrix(U)
                     val = norm(U, 'fro');
                 elseif is_LR(U)
-                    % Could also compute a QR for L and R and then then
-                    % norm of the product of the triangular factors. That
-                    % would be more accurate if U is close to zero.
                     val = sqrt(inr(U.R.'*U.R, U.L.'*U.L));
                 elseif is_USV(U)
                     % Could be faster if we assume U, V are orthonormal.
                     val = nrm(X, struct('L', U.U*U.S, 'R', U.V));
                 elseif is_funs(U)
-                    val = norm(to_matrix(U), 'fro'); % !!
+                    val = norm(to_matrix(U), 'fro');
                 else
                     error('Wrong format for U');
                 end
@@ -380,14 +412,8 @@ function M = euclideanlargefactory(m, n)
         end
     end
 
-    % The manifold is a linear space: not much to do here.
-    M.dim = @() m*n;
-    M.proj = @(X, U) U;
-    M.egrad2rgrad = M.proj;
-    M.ehess2rhess = @(X, egrad, ehess, U) ehess;
-    M.tangent = M.proj;
-    M.retr = @retraction;
-    M.exp = M.retr;
+    %% Functions related to the linear manifold structure.
+
     function Y = retraction(X, U, t)
         if nargin == 2
             Y = add(X, U); % t = 1 by default
@@ -395,21 +421,10 @@ function M = euclideanlargefactory(m, n)
             Y = add(X, scale(t, U));
         end
     end
-    M.transp = @(X, Y, U) U;
-    M.isotransp = M.transp;
-    M.tangent2ambient = @(X, U) U;
-
-    M.zero = @zero;
-    M.zerovec = @(X) zero();
-    function Z = zero()
-        Z = struct('L', zeros(m, 1), 'R', zeros(n, 1));
-    end
 
     % There is no good default choice of a random large matrix.
-    % The code below arbitrarily generates a random matrix with random rank
-    % between 1 and 20.
-    M.rand = @random;
-    M.randvec = @(X) random();
+    % The code below arbitrarily generates a random matrix with random
+    % rank between 1 and 20.
     function X = random()
         r = randi(20);
         X.L = randn(m, r);
