@@ -361,4 +361,12 @@ function M = desingularizationfactory(m, n, r, alpha)
                        'R',  [XP.V, XPdot.Vp]);
     end
 
+    % Simple proj transporter for a tangent vector XP1dot from XP1 to XP2.
+    % If this becomes important, the code could be unpacked to improve
+    % efficiency (marginally).
+    M.transp = @transporter;
+    function XP2dot = transporter(XP1, XP2, XP1dot)
+        XP2dot = projection(XP2, tangent2ambient(XP1, XP1dot));
+    end
+
 end
