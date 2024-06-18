@@ -19,6 +19,8 @@ function low_rank_matrix_completion()
 % Input:  None. This example file generates random data.
 % 
 % Output: None.
+%
+% See also: desingularization_matrix_completion
 
 % This file is part of Manopt and is copyrighted. See the license file.
 % 

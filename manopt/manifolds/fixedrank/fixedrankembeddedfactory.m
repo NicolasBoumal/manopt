@@ -23,11 +23,10 @@ function M = fixedrankembeddedfactory(m, n, k)
 % where (U, S, V) is the current point and (Up, M, Vp) is the tangent
 % vector at that point.
 %
-% Vectors in the ambient space are best represented as mxn matrices. If
-% these are low-rank, they may also be represented as structures with
-% U, S, V fields, such that Z = U*S*V'. There are no restrictions on what
-% U, S and V are, as long as their product as indicated yields a real, mxn
-% matrix.
+% Matrices in the ambient space are represented in the format for mxn
+% matrices encoded in euclideanlargefactory: see the associated help.
+% If these are sparse or low-rank or have some other structure, this can be
+% exploited to speed up computations.
 %
 % The chosen geometry yields a Riemannian submanifold of the embedding
 % space R^(mxn) equipped with the usual trace (Frobenius) inner product.
@@ -57,7 +56,8 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       Doi     = {10.1137/110845768}
 %     }
 %
-% See also: fixedrankfactory_2factors fixedrankfactory_3factors fixedranktensorembeddedfactory
+% See also: fixedrankfactory_2factors fixedrankfactory_3factors
+%           fixedranktensorembeddedfactory euclideanlargefactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.
@@ -112,9 +112,13 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       mat does not attempt to project to the tangent space (which it did
 %       before but shouldn't): compose mat with tangent if that is the
 %       desired effect.
-%
+% 
 %    June 7, 2024 (NB):
 %       Edited out dependency on stiefelfactory in M.rand().
+%
+%    June 18, 2024 (NB):
+%       Adapted to use euclideanlargefactory for matrices in the embedding
+%       space. This is backwards compatible and adds flexibility.
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -139,37 +143,20 @@ function M = fixedrankembeddedfactory(m, n, k)
         Z.Up = Z.Up - X.U*(X.U'*Z.Up);
         Z.Vp = Z.Vp - X.V*(X.V'*Z.Vp);
     end
-
-    % For a given ambient vector Z, applies it to a matrix W. If Z is given
-    % as a matrix, this is straightforward. If Z is given as a structure
-    % with fields U, S, V such that Z = U*S*V', the product is executed
-    % efficiently.
-    function ZW = apply_ambient(Z, W)
-        if ~isstruct(Z)
-            ZW = Z*W;
-        else
-            ZW = Z.U*(Z.S*(Z.V'*W));
-        end
-    end
-
-    % Same as apply_ambient, but applies Z' to W.
-    function ZtW = apply_ambient_transpose(Z, W)
-        if ~isstruct(Z)
-            ZtW = Z'*W;
-        else
-            ZtW = Z.V*(Z.S'*(Z.U'*W));
-        end
-    end
     
-    % Orthogonal projection of an ambient vector Z represented as an mxn
-    % matrix or as a structure with fields U, S, V to the tangent space at
-    % X, in a tangent vector structure format.
+    % The embedding space consists of potentially large matrices.
+    % We use euclideanlargefactory to allow efficient representations.
+    Rmn = euclideanlargefactory(m, n);
+
+    % Orthogonal projection of an ambient vector Z in euclideanlargefactory
+    % format. The projection is to the tangent space at X. The result is a
+    % tangent vector in the tangent vector format.
     M.proj = @projection;
     function Zproj = projection(X, Z)
             
-        ZV = apply_ambient(Z, X.V);
+        ZV = Rmn.times(Z, X.V);
         UtZV = X.U'*ZV;
-        ZtU = apply_ambient_transpose(Z, X.U);
+        ZtU = Rmn.transpose_times(Z, X.U);
 
         Zproj.M = UtZV;
         Zproj.Up = ZV  - X.U*UtZV;
@@ -181,8 +168,8 @@ function M = fixedrankembeddedfactory(m, n, k)
     
     % Code supplied by Bart.
     % Given the Euclidean gradient at X and the Euclidean Hessian at X
-    % along H, where egrad and ehess are vectors in the ambient space and H
-    % is a tangent vector at X, returns the Riemannian Hessian at X along
+    % along H, where egrad and ehess are matrices in the ambient space and
+    % H is a tangent vector at X, returns the Riemannian Hessian at X along
     % H, which is a tangent vector.
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, H)
@@ -191,9 +178,9 @@ function M = fixedrankembeddedfactory(m, n, k)
         rhess = projection(X, ehess);
         
         % Curvature part
-        T = apply_ambient(egrad, H.Vp)/X.S;
+        T = Rmn.times(egrad, H.Vp)/X.S;
         rhess.Up = rhess.Up + (T - X.U*(X.U'*T));
-        T = apply_ambient_transpose(egrad, H.Up)/X.S;
+        T = Rmn.transpose_times(egrad, H.Up)/X.S;
         rhess.Vp = rhess.Vp + (T - X.V*(X.V'*T));
         
     end
