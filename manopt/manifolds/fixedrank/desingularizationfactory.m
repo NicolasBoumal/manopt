@@ -52,7 +52,7 @@ function M = desingularizationfactory(m, n, r, alpha)
 % - retr_metric_proj (second-order).
 % - retr_polar (second-order).
 %
-% See also: fixedrankembeddedfactory
+% See also: fixedrankembeddedfactory euclideanlargefactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original authors: Quentin Rebjock and Nicolas Boumal, May 2024.
@@ -72,6 +72,12 @@ function M = desingularizationfactory(m, n, r, alpha)
                 'warning(''off'', ''desingularization:alphazero'').']);
     end
 
+    % The embedding space consists of potentially large matrices.
+    % We use euclideanlargefactory to allow efficient representations.
+    Emn = euclideanlargefactory(m, n);
+    Enn = euclideanlargefactory(n, n);
+
+
     M.alpha = alpha;
 
     M.name = @() sprintf(['Desingularization manifold of '
@@ -81,14 +87,15 @@ function M = desingularizationfactory(m, n, r, alpha)
     M.dim = @() sqrt((m + n - r)*r);
 
     sfactor = @(XP) 2*alpha*eye(r) + XP.S^2;
+    sfactorinv = @(XP) diag(1./diag(sfactor(XP)));
     M.sfactor = sfactor;
-    M.sfactorinv = @(XP) diag(1./diag(sfactor(XP)));
+    M.sfactorinv = sfactorinv;
 
     % Usual trace inner product of two matrices.
     matinner = @(A, B) A(:)'*B(:);
 
     M.inner = @(XP, XPdot1, XPdot2) matinner(XPdot1.K, XPdot2.K) + ...
-                             matinner(XPdot1.Vp, XPdot2.Vp*sfactor(XP));
+                                matinner(XPdot1.Vp, XPdot2.Vp*sfactor(XP));
 
     M.norm = @(XP, XPdot) sqrt(max(0, M.inner(XP, XPdot, XPdot)));
 
@@ -99,60 +106,63 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Given XPdot in tangent vector format, projects the component Vp such
     % that it satisfies the tangent space constraints up to numerical
     % errors.
-    % If XPdot was indeed a tangent vector at XP, this should barely affect XPdot
-    % (it would not at all if we had infinite numerical accuracy).
+    % If XPdot was indeed a tangent vector at XP, this should barely affect
+    % XPdot (it would not at all if we had infinite numerical accuracy).
     M.tangent = @tangent;
     function XPdot = tangent(XP, XPdot)
         XPdot.Vp = XPdot.Vp - XP.V*(XP.V'*XPdot.Vp);
     end
 
     % XPa is in the embedding space E, that is, it is a struct with fields:
-    %   XPa.X  --  an mxn matrix
-    %   XPa.P  --  an nxn matrix
+    %   XPa.X  --  an mxn matrix in euclideanlargefactory format, Emn
+    %   XPa.P  --  an nxn matrix in euclideanlargefactory format, Enn
     % This function projects XPa to the tangent space at XP.
     % The output is in the tangent vector format.
     M.proj = @projection;
     function XPdot = projection(XP, XPa)
-        % Note the following about computing symPV:
-        %  1) In principle, XPa.P should already be symmetric.
-        %     We take (twice) the symmetric part to be safe.
-        %  2) If XPa.P is full or sparse, the code below should work fine.
-        %     If XPa.P is large and dense but it is possible to compute
-        %     products of XPa.P with narrow matrices such as XP.V efficiently,
-        %     then this code should be modified to take advantage of this.
-        % symPV = XPa.P*XP.V + XPa.P'*XP.V;
-        symPV = (XPa.P + XPa.P')*XP.V;
-        B = (XPa.X'*XP.U*XP.S - alpha*symPV) / sfactor(XP);
+        % In principle, XPa.P should already be symmetric.
+        % We take the symmetric part (times 2) to be permissive, but if
+        % this becomes a performance issue there is something to gain here.
+        % In matrix format, symPV equals (XPa.P + XPa.P.')*XP.V;
+        symPV = Enn.times(XPa.P, XP.V) + Enn.transpose_times(XPa.P, XP.V);
 
-        XPdot.K = XPa.X*XP.V;
-        XPdot.Vp = B - XP.V*(XP.V'*B);
+        % In matrix format, the first term is XPa.X.'*XP.U*XP.S;
+        B = Emn.transpose_times(XPa.X, XP.U*XP.S) - alpha*symPV;
+        B = B / sfactor(XP);
+
+        XPdot.K = Emn.times(XPa.X, XP.V); % = XPa.X*XP.V in matrix format
+        XPdot.Vp = B - XP.V*(XP.V.'*B);
     end
 
     % Let f be the function R^{mxn} -> R to optimize over the
-    % bounded-rank matrices. Below, egrad is the gradient of f and ehess
-    % is the Hessian of f in direction H.
+    % bounded-rank matrices.
+    % Below, egrad is the gradient of f and
+    % ehess is the Hessian of f in direction H.
+    % Both egrad and ehess are in the ambient space format Emn.
 
     % rgrad is a tangent vector, in the tangent vector format.
     % It is the projection of (egrad, 0) onto the tangent space at (X, P).
+    % 
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(XP, egrad)
-        B = (egrad'*XP.U*XP.S) / sfactor(XP);
-
-        rgrad.K = egrad*XP.V;
-        rgrad.Vp = B - XP.V*(XP.V'*B);
+        B = Emn.transpose_times(egrad, XP.U*XP.S) / sfactor(XP);
+        rgrad.K = Emn.times(egrad, XP.V);
+        rgrad.Vp = B - XP.V*(XP.V.'*B);
     end
 
-    % rhess is a tangent vector, in the tangent vector format.
+    % rhess and H are tangent vectors, in the tangent vector format.
+    % As above, egrad and ehess are in the ambient format.
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(XP, egrad, ehess, H)
-        S = sfactor(XP);
-        US = XP.U*(XP.S^2/S);
+        Sf = sfactor(XP);
+        US = XP.U*(XP.S^2/Sf);
 
-        B = (ehess'*XP.U*XP.S + egrad'*(H.K - US*(XP.U'*H.K))) / S;
+        B = (Emn.transpose_times(ehess, XP.U*XP.S) + ...
+             Emn.transpose_times(egrad, (H.K - US*(XP.U.'*H.K)))) / Sf;
 
-        GVp = egrad*H.Vp;
-        rhess.K = ehess*XP.V + GVp - US*(XP.U'*GVp);
-        rhess.Vp = B - XP.V*(XP.V'*B);
+        GVp = Emn.times(egrad, H.Vp);
+        rhess.K = Emn.times(ehess, XP.V) + GVp - US*(XP.U.'*GVp);
+        rhess.Vp = B - XP.V*(XP.V.'*B);
     end
 
     % Multiple retractions are available for the desingularization.
@@ -164,30 +174,31 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Compute a representation of ((X + Xdot)(I - Pnew), Pnew).
     % The optional parameter t multiplies the tangent vector XPdot.
     function XPnew = ambientstep2M(XP, XPdot, Vnew, t)
-      if nargin < 4
-        t = 1;
-      end
-      W = (XP.U*XP.S + t*XPdot.K)*(XP.V'*Vnew) + t*XP.U*XP.S*(XPdot.Vp'*Vnew);
-
-      [WU, WS, WV] = svd(W, 'econ');
-      XPnew.U = WU;
-      XPnew.S = WS;
-      XPnew.V = Vnew * WV;
+        if nargin < 4
+            t = 1;
+        end
+        W = (XP.U*XP.S + t*XPdot.K)*(XP.V.'*Vnew) + ...
+                                             t*XP.U*XP.S*(XPdot.Vp.'*Vnew);
+        % W has size m-by-r
+        [WU, WS, WV] = svd(W, 'econ');
+        XPnew.U = WU;
+        XPnew.S = WS;
+        XPnew.V = Vnew * WV;
     end
 
     % First-order retraction based on Q-factor for Grassmann.
     M.retr_qfactor = @retr_qfactor;
     function XPnew = retr_qfactor(XP, XPdot, t)
-      if nargin < 3
-        t = 1;
-      end
-      [Vnew, ~] = qr(XP.V + t*XPdot.Vp, 0);
-
-      XPnew = ambientstep2M(XP, XPdot, Vnew, t);
+        if nargin < 3
+            t = 1;
+        end
+        [Vnew, ~] = qr(XP.V + t*XPdot.Vp, 0);
+        
+        XPnew = ambientstep2M(XP, XPdot, Vnew, t);
     end
 
     % Metric projection retraction: take a step in the ambient space and
-    % project back to the desingularization.
+    % project back to the desingularization manifold.
     % This is a second-order retraction.
     M.retr_metric_proj = @retr_metric_proj;
     function XPnew = retr_metric_proj(XP, XPdot, t)
@@ -221,7 +232,8 @@ function M = desingularizationfactory(m, n, r, alpha)
         if nargin < 3
             t = 1;
         end
-        Z = XP.V + t*XPdot.Vp*(eye(r) - (t*XPdot.K'*XP.U*XP.S) / sfactor(XP));
+        KtUS = (XPdot.K'*XP.U*XP.S) / sfactor(XP);
+        Z = XP.V + t*XPdot.Vp*(eye(r) - t*KtUS);
         Vnew = Z/sqrtm(Z'*Z);
 
         XPnew = ambientstep2M(XP, XPdot, Vnew, t);
@@ -333,13 +345,16 @@ function M = desingularizationfactory(m, n, r, alpha)
     % into a structure that represents that same tangent vector in the
     % ambient space E.
     % Returns a struct XPa with two fields:
-    %     XPa.X = XPdot.K*XP.V' + XP.U*XP.S*XPdot.Vp'  of size mxn
-    %     XPa.P = -XPdot.Vp*XP.V' - XP.V*XPdot.Vp'     of size nxn
+    %     XPa.X represents XPdot.K*XP.V' + XP.U*XP.S*XPdot.Vp'  of size mxn
+    %     XPa.P represents -XPdot.Vp*XP.V' - XP.V*XPdot.Vp'     of size nxn
+    % The representations follow the format for euclideanlargefactory.
     M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
     function XPa = tangent2ambient(XP, XPdot)
-        XPa.X = XPdot.K*XP.V' + XP.U*XP.S*XPdot.Vp';
-        XPa.P = -XPdot.Vp*XP.V' - XP.V*XPdot.Vp';
+        XPa.X = struct('L', [XPdot.K, XP.U*XP.S], ...
+                       'R', [XP.V, XPdot.Vp]);
+        XPa.P = struct('L', -[XPdot.Vp, XP.V], ...
+                       'R',  [XP.V, XPdot.Vp]);
     end
 
 end
