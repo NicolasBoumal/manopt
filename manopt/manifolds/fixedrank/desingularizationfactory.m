@@ -1,10 +1,11 @@
 function M = desingularizationfactory(m, n, r, alpha)
-% Manifold to optimize over bounded-rank matrices with an embedded geometry
+% Manifold to optimize over bounded-rank matrices through desingularization
 %
 % function M = desingularizationfactory(m, n, r)
 %
 % Implements the (smooth) desingularization geometry for the (nonsmooth)
-% set of matrices of size mxn with rank <= r.
+% set of real matrices of size mxn with rank <= r.
+% 
 % This was first proposed in
 %     Desingularization of bounded-rank matrix sets,
 %     by Valentin Khrulkov and Ivan Oseledets
@@ -13,13 +14,13 @@ function M = desingularizationfactory(m, n, r, alpha)
 % The geometry implemented here matches that second paper.
 %
 % The embedding space is E = R^(mxn) x Sym(n) where Sym denotes the set of
-% symmetric matrices. Let Gr(n, s) be the Grassmannian: orthogonal
-% projectors of size n and of rank s.
-% The desingularization manifold is formally defined as
+% symmetric matrices.
+% Let Gr(n, s) be the Grassmannian: orthogonal projectors of size n and of
+% rank s. The desingularization manifold is formally defined as
 %
-%     M = {(X, P) in E such that P is in Gr(n, n - r) and XP = 0}.
+%     M = {(X, P) in E such that P is in Gr(n, n - r) and X*P = 0}.
 %
-% The condition XP = 0 implies that X has rank at most r.
+% The condition X*P = 0 implies that X has rank at most r.
 %
 % A point (X, P) in M is represented as a structure with three fields:
 %
@@ -31,31 +32,52 @@ function M = desingularizationfactory(m, n, r, alpha)
 %
 %     K, Vp  such that  Xdot = K*V' + U*S*Vp'  and  Pdot = -Vp*V' - V*Vp'.
 %
-% The matrix K (mxr) is arbitrary while Vp (nxr) satisfies Vp' * V = 0.
+% The matrix K (mxr) is arbitrary while Vp (nxr) satisfies V'*Vp = 0.
 %
 % We equip the embedding space E with the metric
 %
 %     inner((Xd1, Pd1), (Xd2, Pd2)) = Tr(Xd1'*Xd2) + alpha * Tr(Pd1'*Pd2)
 %
-% for some parameter alpha (the default is 1/2).
+% for some parameter alpha > 0 (the default is 1/2).
 %
 % The tangent spaces of M inherit this metric, so that M is a Riemannian
 % submanifold of E.
 %
+% The embedding space is potentially high dimensional, as it is composed of
+% pairs of matrices: one of size mxn, the other of size nxn.
+% To allow for efficient representation of matrices in the embedding space
+% (e.g., for defining problem.egrad and problem.ehess), all objects in the
+% embedding space are represented using the formats encoded in:
+%
+%   Emn = euclideanlargefactory(m, n);
+%   Enn = euclideanlargefactory(n, n);
+%
+% For example, one can use sparse matrices of structures (U, S, V).
+% See 'help euclideanlargefactory' for more.
+%
 % The desingularization M is a lift. Consider the problem of minimizing the
 % function f over the variety of bounded-rank matrices. Define the map
-% phi(X, P) = X over M and the composition g = f o phi.
-%   TODO: explain how objects in the embedding space are represented.
+% phi(X, P) = X over M and the composition g = f o phi. If a problem
+% structure defines egrad and ehess, then those should provide the
+% Euclidean gradient and Hessian of f seen as a function in all of R^(mxn)
+% with the usual trace inner product. The tools egrad2rgrad and ehess2rhess
+% built in this factory convert such information to Riemannian gradient and
+% Hessian of g. Notice that this means g(X, P) = f(X) depends only on X,
+% not on P. This is indeed the standard use case. If however you need to
+% optimize a function of both X and P, then egrad2rgrad and ehess2rhess
+% cannot be used. It is then necessary to provide the Riemannian
+% derivatives in the problem structure (grad/hess, not egrad/ehess).
 %
-% Multiple retractions are available for the desingularization.
+% Multiple retractions are available:
 % - retr_qfactor (first-order).
 % - retr_metric_proj (second-order).
 % - retr_polar (second-order).
+% The default is set as M.retr = @retr_qfactor;
 %
 % See also: fixedrankembeddedfactory euclideanlargefactory
 
 % This file is part of Manopt: www.manopt.org.
-% Original authors: Quentin Rebjock and Nicolas Boumal, May 2024.
+% Original authors: Quentin Rebjock and Nicolas Boumal, June 2024.
 % Contributors:
 % Change log:
 
@@ -311,14 +333,16 @@ function M = desingularizationfactory(m, n, r, alpha)
     M.triplet2matrix = fixedrankembeddedfactory(m, n, r).triplet2matrix;
 
     % Map the representation (U, S, V) of a point XP in M to the
-    % corresponding element of the ambient space E.
+    % corresponding element of the ambient space Emn x Enn.
     % Returns a struct XPa with two fields:
-    %     XPa.X = U*S*V'    of size mxn
-    %     XPa.P = I - V*V'  of size nxn
-    M.embed = @point2ambient;
+    %     XPa.X represents U*S*V'    of size mxn in Emn format
+    %     XPa.P represents I - V*V'  of size nxn in Enn format
+    M.point2ambient_is_identity = false;
+    M.point2ambient = @point2ambient;
     function XPa = point2ambient(XP)
-        XPa.X = XP.U*XP.S*XP.V';
-        XPa.P = eye(n) - XP.V*XP.V';
+        XPa.X = XP;
+        XPa.P.times = @(A) A - XP.V*(XP.V.'*A);
+        XPa.P.transpose_times = XPa.P.times;
     end
 
     % Transform a tangent vector XPdot represented as a structure (K, Vp)
@@ -327,7 +351,7 @@ function M = desingularizationfactory(m, n, r, alpha)
     % Returns a struct XPa with two fields:
     %     XPa.X represents XPdot.K*XP.V' + XP.U*XP.S*XPdot.Vp'  of size mxn
     %     XPa.P represents -XPdot.Vp*XP.V' - XP.V*XPdot.Vp'     of size nxn
-    % The representations follow the format for euclideanlargefactory.
+    % The representations follow euclideanlargefactory formats Emn and Enn.
     M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
     function XPa = tangent2ambient(XP, XPdot)
