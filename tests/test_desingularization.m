@@ -1,6 +1,6 @@
 clear all; close all; clc;
 
-addpath('examples')
+addpath('../examples')
 
 m = 201;
 n = 199;

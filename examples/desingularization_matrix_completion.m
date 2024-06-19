@@ -1,4 +1,4 @@
-function desingularization_matrix_completion()
+function problem = desingularization_matrix_completion()
 % Example file to test the manifold desingularizationfactory.
 %
 % See also: low_rank_matrix_completion
