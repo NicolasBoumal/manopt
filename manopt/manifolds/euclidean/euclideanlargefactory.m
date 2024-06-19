@@ -45,7 +45,7 @@ function M = euclideanlargefactory(m, n)
     M.to_funs   = @to_funs;
 
     %% Functions related to the linear space structure.
-    M.zero      = @() struct('L', zeros(m, 1), 'R', zeros(n, 1)); % 0
+    M.zero      = @() spalloc(m, n, 1); % 0 as a sparse matrix of size mxn
     M.add       = @add;         % add(X, Y) = X+Y
     M.scale     = @scale;       % scale(a, X) = a*X
     M.diff      = @diff;        % diff(X, Y) = X-Y
@@ -67,13 +67,13 @@ function M = euclideanlargefactory(m, n)
     M.transp          = @(X, Y, U) U;
     M.isotransp       = M.transp;
     M.tangent2ambient = @(X, U) U;
-    M.zerovec         = @(X) struct('L', zeros(m, 1), 'R', zeros(n, 1));
+    M.zerovec         = @(X) spalloc(m, n, 1);
     M.rand            = @random;
     M.randvec         = @(X) random();
     M.egrad2rgrad     = M.proj;
     M.ehess2rhess     = @(X, egrad, ehess, U) ehess;
-    M.inner           = @inner;   % inner(X, U, V) = <U, V> = trace(U'*V)
-    M.norm            = @nrm;     % norm(X, U) = norm(U, 'fro')
+    M.inner           = @inner;   % inner(U, V) = <U, V> = trace(U'*V)
+    M.norm            = @nrm;     % norm(U) = norm(U, 'fro')
 
 
     %% Helpers to determine the representation format of a point/vector X.
@@ -327,6 +327,12 @@ function M = euclideanlargefactory(m, n)
     inr = @(A, B) A(:).'*B(:);
 
     function val = inner(X, U, V)
+        % X is not necessary for a Euclidean manifold, so we allow calling
+        % this function as inner(U, V), omitting X.
+        if nargin == 2
+            val = inner([], X, U);
+            return;
+        end
         % Convert any USV' format to LR' format.
         if is_USV(U)
             val = inner(X, to_LR(U), V);
