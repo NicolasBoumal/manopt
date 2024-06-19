@@ -333,7 +333,7 @@ function M = euclideanlargefactory(m, n)
             val = inner([], X, U);
             return;
         end
-        % Convert any USV' format to LR' format.
+        % Convert any USV format to LR format.
         if is_USV(U)
             val = inner(X, to_LR(U), V);
             return;
@@ -342,58 +342,37 @@ function M = euclideanlargefactory(m, n)
             val = inner(X, U, to_LR(V));
             return;
         end
-        % If either U or V is a sparse matrix, use that as a priority.
-        nnzU = inf;
-        nnzV = inf;
-        if is_matrix(U) && issparse(U)
-            nnzU = nnz(U);
-        end
-        if is_matrix(V) && issparse(V)
-            nnzV = nnz(V);
-        end
-        if ~isinf(nnzU) || ~isinf(nnzV)
-            if nnzU < nnzV
-                val = sum(entrywisetimes(U, V));
-            else
-                val = sum(entrywisetimes(V, U));
-            end
+        % If either U or V is in LR format, use that first.
+        if is_LR(U)
+            val = inr(U.L, times(V, U.R));
             return;
         end
-        % If we get here, then neither U nor V are in USV' format, and
-        % neither of them are sparse matrices (but they could be dense
-        % matrices). Let's handle functions first.
+        if is_LR(V)
+            val = inr(times(U, V.R), V.L);
+            return;
+        end
+        % We now know that neither U nor V are in LR or USV format.
+        % If both are in matrix format (sparse or not), a direct
+        % computation is likely the most efficient.
+        if is_matrix(U) && is_matrix(V)
+            val = sum(U.*V, 'all');
+            return;
+        end
+        % We now know that U or V is in functions format, and that the
+        % other is either also in functions format, or it is a matrix.
         if is_funs(U)
-            if is_LR(V)
-                val = inr(U.times(V.R), V.L);
-            elseif is_matrix(V)
-                val = sum(U.times(V), 'all');
+            if is_matrix(V)
+                val = trace(U.transpose_times(V));             % slow
             elseif is_funs(V)
-                val = inner(U, to_matrix(V));
+                val = trace(U.transpose_times(to_matrix(V)));  % very slow
             else
                 error('Wrong format');
             end
             return;
         elseif is_funs(V)
-            val = inner(V, U);
+            val = inner(X, V, U);
             return;
         end
-        % Now we also know neither U nor V are in functions format, so they
-        % are each either in LR' format or stored as a dense matrix.
-        if is_LR(U)
-            if is_LR(V)
-                val = inr(U.R.'*V.R, U.L.'*V.L);
-            elseif is_matrix(V)
-                val = inr(U.L, V*U.R);
-            else
-                error('Wrong format');
-            end
-            return;
-        elseif is_LR(V)
-            val = inner(V, U);
-            return;
-        end
-        % Both U and V are stored as matrices
-        val = inr(U, V);
     end
 
     function val = nrm(X, U)
