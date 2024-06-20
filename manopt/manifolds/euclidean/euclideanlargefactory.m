@@ -74,6 +74,7 @@ function M = euclideanlargefactory(m, n)
     M.ehess2rhess     = @(X, egrad, ehess, U) ehess;
     M.inner           = @inner;   % inner(U, V) = <U, V> = trace(U'*V)
     M.norm            = @nrm;     % norm(U) = norm(U, 'fro')
+    M.dist            = @(X, Y) nrm(diff(X, Y));
 
 
     %% Helpers to determine the representation format of a point/vector X.
