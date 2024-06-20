@@ -1,5 +1,5 @@
 function x = sparseentries(M, L, R)
-% Computes the entries of L*R' matching the sparsity of M, w/o forming LR'.
+% Computes the entries of L*R.' matching the sparsity of M, w/o forming L*R.'
 %
 % function x = sparseentries(M, L, R)
 %
@@ -35,7 +35,10 @@ function x = sparseentries(M, L, R)
            size(R, 1) == size(M, 2) && ...
            size(L, 2) == size(R, 2), ...
            'L*R.'' should have the same size as M.');
-
+    
+    assert(isa(L, 'double') && isa(R, 'double'), ...
+           'L and R must contain double floating points.');
+    
     % This is a C-Mex function, the code is in spmaskmult.c
     x = spmaskmult(L, R.', uint32(I), uint32(J));
 
