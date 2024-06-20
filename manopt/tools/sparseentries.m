@@ -17,8 +17,8 @@ function x = sparseentries(M, L, R)
 %   proportional to k x nnz(M). The product L*R.' is not computed.
 %   Consequently, outputs may differ in proportion to machine precision.
 %   
-%   Pre-compiled files are included with Manopt. To (re)compile for your
-%   own system, run
+%   Pre-compiled files are included with Manopt.
+%   To (re)compile for your own system, run
 %       mex spmaskmult.c -largeArrayDims
 %   in the folder that contains spmaskmult.c (that is, manopt/tools/)
 %
@@ -38,6 +38,9 @@ function x = sparseentries(M, L, R)
     
     assert(isa(L, 'double') && isa(R, 'double'), ...
            'L and R must contain double floating points.');
+    
+    assert(isreal(L) && isreal(R), ...
+           'L and R must contain real numbers.');
     
     % This is a C-Mex function, the code is in spmaskmult.c
     x = spmaskmult(L, R.', uint32(I), uint32(J));
