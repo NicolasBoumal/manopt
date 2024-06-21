@@ -28,6 +28,11 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 %   lift.hesshw, if N is linear, is the Hessian of a lifted linear map,
 %                as follows: given w downstairs, let h(y) = <phi(y), w>;
 %                then, hesshw(y, v, w) = Hess h(y)[v].
+%                More generally, it is the Hessian of h = q o phi, where
+%                q:N->R satisfies grad q(x) = w (for the fixed x = phi(y)).
+%   lift.hessqw is assumed to be a zero map if omitted. If it is not
+%               omitted, then hessqw(x, u, w) is the Hessian of q at x
+%               along u, where q is the map chosen in defining hesshw.
 %   lift.embedded is a boolean:
 %       false (default) means Dphi, Dphit, hesshw are defined for phi:M->N.
 %       true means they are defined for phi:E->N where E is the embedding
@@ -281,6 +286,12 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
         grad_downstairs = get_gradient_downstairs(x, storedb, key);
 
         hess_downstairs = getHessian(downstairs, x, u, storedb, key);
+
+        if isfield(lift, 'hessqw')
+            hess_downstairs = ...
+                  lift.N.lincomb(x, 1, hess_downstairs, ...
+                                   -1, lift.hessqw(x, u, grad_downstairs));
+        end
 
         hess = lift.M.lincomb(y, ...
                1, lift.Dphit(y, hess_downstairs), ...
