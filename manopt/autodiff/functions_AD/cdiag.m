@@ -3,7 +3,7 @@ function diagX = cdiag(X)
 %
 % function diagX = cdiag(X)
 %
-% Returns the diagonal elements of A. The input A does not necessarily
+% Returns the diagonal elements of A. The input A does not need
 % to be a square matrix. The function supports both numeric arrays and 
 % structs with fields real and imag. Note that diag currently does
 % not support dlarrays and cdiag can be seen as a backup function.
@@ -14,6 +14,7 @@ function diagX = cdiag(X)
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log:
+%   June 21, 2024 (NB): Modified so the output is a column, not a row.
 
     if iscstruct(X)
         assert(length(size(X.real)) == 2, 'Input should be a 2-D array')
@@ -22,11 +23,11 @@ function diagX = cdiag(X)
         realX = X.real;
         imagX = X.imag;
         if n >= m
-            diagX.real = realX(1:m+1:m^2);
-            diagX.imag = imagx(1:m+1:m^2);
+            diagX.real = realX(1:m+1:m^2).';
+            diagX.imag = imagx(1:m+1:m^2).';
         else
-            diagX.real = realX(1:m+1:m*n-m+n);
-            diagX.imag = imagX(1:m+1:m*n-m+n);
+            diagX.real = realX(1:m+1:m*n-m+n).';
+            diagX.imag = imagX(1:m+1:m*n-m+n).';
         end
 
     elseif isnumeric(X)
@@ -34,9 +35,9 @@ function diagX = cdiag(X)
         m = size(X,1);
         n = size(X,2);
         if n >= m
-            diagX = X(1:m+1:m^2);
+            diagX = X(1:m+1:m^2).';
         else
-            diagX = X(1:m+1:m*n-m+n);
+            diagX = X(1:m+1:m*n-m+n).';
         end
 
     else
