@@ -14,9 +14,9 @@ fprintf('You must now manually edit these files for version names and date:\n');
 fprintf('README.txt and manopt_version.m.\n');
 fprintf('Today is: %s\n', date());
 fprintf('Press any key AFTER you are done.\n');
-edit auxiliaries/manopt_version.m;
-edit auxiliaries/README.txt;
-edit auxiliaries/CREDITS.txt;
+edit manopt_version.m;
+edit README.txt;
+edit CREDITS.txt;
 pause();
 
 cd(repreleases);
@@ -33,10 +33,16 @@ cd(reproot);
 
 targetrep = [repreleases, repthisversion, '/manopt/'];
 
+copyfile('manopt_version.m', targetrep, 'f');
 copyfile('importmanopt.m', targetrep, 'f');
+copyfile('checkinstall.m', targetrep, 'f');
+copyfile('CLA.txt', targetrep, 'f');
+copyfile('COPYING.txt', targetrep, 'f');
+copyfile('CREDITS.txt', targetrep, 'f');
+copyfile('LICENSE.txt', targetrep, 'f');
+copyfile('README.txt', targetrep, 'f');
 copyfile('examples', [targetrep, 'examples/'], 'f');
 copyfile('manopt', [targetrep, 'manopt/'], 'f');
-copyfile('auxiliaries', targetrep, 'f'); warning('update this: all contents moved');
 
 % Let's go and erase all *.asv files
 cd(targetrep);
@@ -53,22 +59,14 @@ cd(repthisversion);
 % Compress all contents into a zip file in the web folder
 zip([reproot, '/', repweb, 'downloads/', repthisversion, '.zip'], '*');
 
-% Back to the root
-cd(reproot);
 
-% A heads up for reference generation
-fprintf('About to generate the reference for the website. Press any key.\n');
-pause();
-cd reference;
-generate_manopt_reference([repweb 'reference/']);
-
-fprintf('Now: update the website !\n');
-fprintf('Files concerned: download.html, downloads.html and tutorial.html\n');
+fprintf('Now: update the website!\n');
+fprintf('Files concerned: download.qmd, downloads.qmd and gettingstarted.qmd\n');
 cd(reproot);
 cd(repweb);
-edit download.html;
-edit downloads.html;
-edit tutorial.html;
+edit download.qmd;
+edit downloads.qmd;
+edit gettingstarted.qmd;
 
 % And finish home
 cd(reproot);
