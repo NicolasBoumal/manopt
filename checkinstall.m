@@ -1,4 +1,4 @@
-function basicexample()
+function checkinstall()
     
     % Verify that Manopt was indeed added to the Matlab path.
     if isempty(which('spherefactory'))
@@ -21,16 +21,16 @@ function basicexample()
     problem.ehess = @(x, xdot) -2*A*xdot;
     
     % Numerically check gradient and Hessian consistency.
-    figure;
+    figure(1);
     checkgradient(problem);
-    figure;
+    figure(2);
     checkhessian(problem);
  
     % Solve.
     [x, xcost, info] = trustregions(problem);          %#ok<ASGLU>
     
     % Display some statistics.
-    figure;
+    figure(3);
     semilogy([info.iter], [info.gradnorm], '.-');
     xlabel('Iteration #');
     ylabel('Gradient norm');
