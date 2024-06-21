@@ -60,7 +60,8 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 %   https://arxiv.org/abs/2207.03512
 %
 %
-% See also: hadamardlift burermonteirolift burermonteiroLRlift boxlift
+% See also: hadamardlift burermonteirolift burermonteiroLRlift
+%           boxlift ballslift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 18, 2024.
