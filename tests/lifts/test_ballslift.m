@@ -6,13 +6,13 @@ m = 50;
 
 lift = ballslift(n, m);
 
-gram2edm = @(G) diag(G)*ones(1, m) + ones(m, 1)*diag(G)' - 2*G;
-downstairs.cost = @(X) -min(gram2edm(X.'*X) + 4*eye(m), [], 'all');
-% Would be good to smooth the cost function and provide grad (or use AD).
+gram2edm = @(G) cdiag(G)*ones(1, m) + ones(m, 1)*cdiag(G).' - 2*G;
+sigma = .01;
+downstairs.cost = @(X) log(sum(exp(-gram2edm(X.'*X)/(2*sigma)), 'all'));
 
-upstairs = manoptlift(downstairs, lift);
+upstairs = manoptlift(downstairs, lift, 'AD');
 
-Y = rlbfgs(upstairs);
+Y = trustregions(upstairs);
 
 X = lift.phi(Y);
 
