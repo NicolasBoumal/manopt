@@ -1,23 +1,26 @@
-clear; clc;
+clear; clc; clf;
 
-n = 5;
+% Try to pack m points in a ball in R^n
+n = 2;
+m = 64;
 
-lift = cubeslift(n);
+lift = cubeslift(n, m);
 
-downstairs.M = lift.N;
+gram2edm = @(G) cdiag(G)*ones(1, m) + ones(m, 1)*cdiag(G).' - 2*G;
+sigma = .1;
+downstairs.cost = @(X) log(sum(exp(-gram2edm(X.'*X)/(2*sigma^2)), 'all'));
 
-A = randsym(n);
-b = randn(n, 1);
-downstairs.cost = @(x) .5*(x'*A*x) + b'*x;
-downstairs.grad = @(x) A*x + b;
-downstairs.hess = @(x, xdot) A*xdot;
-[upstairs, downstairs] = manoptlift(downstairs, lift); % , 'AD'
+upstairs = manoptlift(downstairs, lift, 'AD');
 
-% checkgradient(downstairs);
-% checkhessian(downstairs);
-% checkgradient(upstairs);
-% checkhessian(upstairs);
+Y = trustregions(upstairs);
 
-[y, ~, info] = trustregions(upstairs);
+X = lift.phi(Y);
 
-x = lift.phi(y)
+if n == 2
+    plot(X(1, :), X(2, :), '.', 'MarkerSize', 20);
+    hold all;
+    plot([-1 1 1 -1 -1], [-1 -1 1 1 -1], 'k-', 'LineWidth', 2);
+    plot(0, 0, 'k.', 'MarkerSize', 10);
+    axis equal off;
+    set(gcf, 'Color', 'w');
+end
