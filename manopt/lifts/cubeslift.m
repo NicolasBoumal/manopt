@@ -1,8 +1,8 @@
-function lift = boxlift(n, m)
+function lift = cubeslift(n, m)
 % Sine lift y -> sin(y) for optimization in a box [-1, 1]^n with Manopt.
 %
-% function lift = boxlift(n)
-% function lift = boxlift(n, m)
+% function lift = cubeslift(n)
+% function lift = cubeslift(n, m)
 %
 % This function produces a lift structure to be used with manoptlift.
 %
@@ -24,10 +24,6 @@ function lift = boxlift(n, m)
 % Contributors: 
 % Change log: 
 
-    % TODO: this is called "boxlift" and not "cubelift" because it would
-    % make sense to allow users to specify lower-bounds and upper-bounds
-    % for each entry, and to lift the corresponding right parallelepiped.
-
     if ~exist('m', 'var') || isempty(m)
         m = 1;
     end
@@ -35,7 +31,7 @@ function lift = boxlift(n, m)
     lift.M = euclideanfactory(n, m);
     lift.N = euclideanfactory(n, m);
 
-    lift.embedded = true;
+    lift.embedded = false;
     lift.phi = @(y) sin(y);
     lift.Dphi = @(y, v) cos(y).*v;
     lift.Dphit = @(y, u) cos(y).*u;

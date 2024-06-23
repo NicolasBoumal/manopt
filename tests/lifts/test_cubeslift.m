@@ -2,7 +2,7 @@ clear; clc;
 
 n = 5;
 
-lift = boxlift(n);
+lift = cubeslift(n);
 
 downstairs.M = lift.N;
 

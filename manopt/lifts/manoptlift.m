@@ -2,7 +2,9 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 % Manopt tool to lift an optimization problem through a parameterization.
 %
 % function [upstairs, downstairs] = manoptlift(downstairs, lift)
-% function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
+% function [upstairs, downstairs] = manoptlift(downstairs, lift, 'AD')
+% function [upstairs, downstairs] = manoptlift(downstairs, lift, 'noAD')
+% function [upstairs, downstairs] = manoptlift(downstairs, lift, 'ADnohess')
 %
 % Given an optimization problem (downstairs) on a manifold (lift.N),
 % produces a new optimization problem (upstairs) on a manifold (lift.M) by
@@ -66,7 +68,7 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 %
 %
 % See also: hadamardlift burermonteirolift burermonteiroLRlift
-%           boxlift ballslift
+%           cubeslift ballslift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 18, 2024.

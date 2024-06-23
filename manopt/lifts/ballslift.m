@@ -31,7 +31,7 @@ function lift = ballslift(n, m)
 % points for the problem downstairs, and also that local minima upstairs
 % map to local minima downstairs.
 %
-% See also: manoptlift boxlift
+% See also: manoptlift cubeslift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 21, 2024.
