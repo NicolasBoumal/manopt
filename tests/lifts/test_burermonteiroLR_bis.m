@@ -4,8 +4,9 @@ m = 10;
 n = 15;
 r = 3;
 
+Rmn = euclideanlargefactory(m, n);
+
 lift = burermonteiroLRlift(m, n, r);
-Rmn = lift.N;
 downstairs.M = Rmn;
 
 A = randn(m, n);
