@@ -1,4 +1,4 @@
-clear; clf; clc;
+clear; clc;
 
 m = 1000;
 n = 1500;
@@ -8,16 +8,18 @@ A = sprand(m, n, .01); % random sparse matrix
 
 Rmn = euclideanlargefactory(m, n); % mind the 'large'
 
-downstairs.M = Rmn;
-downstairs.cost = @(X) .5*Rmn.dist(X, A)^2;
-downstairs.grad = @(X) Rmn.diff(X, A);
-downstairs.hess = @(X, Xdot) Xdot;
+
+dwnstrs.M = Rmn;
+dwnstrs.cost = @(X) .5*Rmn.dist(X, A)^2;
+dwnstrs.grad = @(X) Rmn.diff(X, A);
+dwnstrs.hess = @(X, Xdot) Xdot;
 
 lift = burermonteiroLRlift(m, n, r);
-upstairs = manoptlift(downstairs, lift);
+upstairs = manoptlift(dwnstrs, lift);
 
-LR0.L = randn(m, r)/sqrt(m*r)/1000; % initialization
-LR0.R = randn(n, r)/sqrt(n*r)/1000; % close to zero
+% initialization close to zero
+LR0.L = randn(m, r)/sqrt(m*r)/1000;
+LR0.R = randn(n, r)/sqrt(n*r)/1000;
 
 LR = trustregions(upstairs, LR0);
 
