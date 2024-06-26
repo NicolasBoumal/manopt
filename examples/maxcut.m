@@ -4,9 +4,8 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % function x = maxcut(L)
 % function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
-%   This is an example file meant to illustrate some advanced
-%   functionalities of Manopt. It is not meant to be an efficient
-%   implementation of a Max-Cut solver.
+%   This is an example file meant to illustrate functionalities of Manopt.
+%   It is not meant to be an efficient implementation of a Max-Cut solver.
 %
 %   Please see the following repository for more efficient Manopt code:
 %   https://github.com/NicolasBoumal/maxcut
@@ -31,11 +30,11 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % value is returned in cutvalue_upperbound if it is found. Otherwise, that
 % output is set to NaN.
 %
-% If r is specified (by default, r = n), the algorithm will stop at rank r.
+% If r is specified (by default, r = n), the algorithm stops at rank r.
 % This may prevent the algorithm from reaching a globally optimal solution
-% for the underlying SDP problem (but can greatly help in keeping the
-% execution time under control). If a global optimum of the SDP is reached
-% before rank r, the algorithm will stop of course.
+% for the underlying SDP problem, but can greatly help in keeping the
+% execution time under control. If a global optimum of the SDP is reached
+% before rank r, the algorithm stops then of course.
 %
 % Y is a matrix of size nxp, with p <= r, such that X = Y*Y' is the best
 % solution found for the underlying SDP problem. If cutvalue_upperbound is
@@ -45,22 +44,25 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % By Goemans and Williamson 1995, it is known that if the optimal value of
 % the SDP is reached, then the returned cut, in expectation, is at most at
 % a fraction 0.878 of the optimal cut. (This is not exactly valid because
-% we do not use random projection here; sign(Y*randn(size(Y, 2), 1)) will
-% give a cut that respects this statement -- it's usually worse though).
-%
-% Note: This is not meant to be efficient. The main purpose of this file is
-% to illustrate some more advanced uses of Manopt.
+% we do not use random projection here; sign(Y*randn(size(Y, 2), 1)) gives
+% a cut that respects this statement -- it's usually worse though).
 %
 % The algorithm is essentially that of:
+% 
 % Journee, Bach, Absil and Sepulchre, SIAM 2010
 % Low-rank optimization on the cone of positive semidefinite matrices.
+%
+% but on the simpler oblique geometry (product of spheres), to avoid theory
+% breakdown at rank deficient Y.
 %
 % It is itself based on the famous SDP relaxation of MAX CUT:
 % Goemans and Williamson, 1995
 % Improved approximation algorithms for maximum cut and satisfiability
-% problems using semidefinite programming.
+% problems using semidefinite programming
+%
+% and the related work of Burer and Monteiro 2003, 2005.
 % 
-% See also: elliptope_SDP
+% See also: elliptope_SDP burermonteirolift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 18, 2013
@@ -75,13 +77,15 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %   March 25, 2024 (NB):
 %       Using obliquefactory rather than elliptopefactory by default as
 %       this takes better care of rank deficient matrices.
+%   June 26, 2024 (NB):
+%       Revamped the example to be more in line with how Manopt evolved.
+
 
     % If no inputs are provided, generate a random graph Laplacian.
     % This is for illustration purposes only.
     if ~exist('L', 'var') || isempty(L)
-        n = 20;
-        A = triu(rand(n) <= .4, 1);
-        A = A+A';
+        n = 100;
+        A = abs(sprandsym(n, .1)); % random sparse adjacency matrix
         D = diag(sum(A, 2));
         L = D-A;
     end
@@ -94,10 +98,10 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
         r = n;
     end
     
-    % We will let the rank increase. Each rank value will generate a cut.
+    % We let the rank increase bit by bit. Each rank value generates a cut.
     % We have to go up in the rank to eventually find a certificate of SDP
-    % optimality. This in turn will provide an upperbound on the MAX CUT
-    % value and ensure that we're doing well, according to Goemans and
+    % optimality. This in turn provides an upperbound on the MAX CUT value
+    % and ensure that we're doing well, according to Goemans and
     % Williamson's argument. In practice though, the good cuts often come
     % up for low rank values, so we better keep track of the best one.
     best_x = ones(n, 1);
@@ -108,10 +112,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     cost = [];
     
     for rr = 2 : r
-        
-        % See comments about elliptopefactory vs obliquefactory in the
-        % code of function maxcut_fixedrank below (same file).
-        % manifold = elliptopefactory(n, rr);
+
         manifold = obliquefactory(n, rr, 'rows');
         
         if rr == 2
@@ -121,19 +122,20 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
              
         else
             
-            % To increase the rank, we could just add a column of zeros to
+            % To increase the size, we could just add a column of zeros to
             % the Y matrix. Unfortunately, this lands us in a saddle point.
             % To escape from the saddle, we may compute an eigenvector of
-            % Sy associated to a negative eigenvalue: that will yield a
-            % (second order) descent direction Z. See Journee et al ; Sy is
-            % linked to dual certificates for the SDP.
-            Y0 = [Y zeros(n, 1)];
+            % Sy associated to a negative eigenvalue: that yields a
+            % (second order) descent direction Z.
+            % Sy is linked to dual certificates for the SDP (Journée et al)
+            % A more pragmatic approach is to simply add a random column
+            % to Y with small norm, and renormalize.
+            Y0 = [Y, zeros(n, 1)];
             LY0 = L*Y0;
             Dy = spdiags(sum(LY0.*Y0, 2), 0, n, n);
             Sy = (Dy - L)/4;
             % Find the smallest (the "most negative") eigenvalue of Sy.
-            eigsopts.isreal = true;
-            [v, s] = eigs(Sy, 1, 'SA', eigsopts);
+            [v, s] = eigs(Sy, 1, 'smallestreal');
             % If there is no negative eigenvalue for Sy, than we are not at
             % a saddle point: we're actually done!
             if s >= -1e-8
@@ -147,41 +149,32 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
             % This is our escape direction.
             Z = manifold.proj(Y0, [zeros(n, rr-1) v]);
             
-            % % These instructions can be uncommented to see what the cost
-            % % function looks like at a saddle point. But will require the
-            % % problem structure which is not defined here: see the helper
-            % % function.
-            % plotprofile(problem, Y0, Z, linspace(-1, 1, 101));
-            % drawnow; pause;
-            
             % Now make a step in the Z direction to escape from the saddle.
-            % It is not obvious that it is ok to do a unit step ... perhaps
-            % need to be cautious here with the stepsize. It's not too
-            % critical though: the important point is to leave the saddle
-            % point. But it's nice to guarantee monotone decrease of the
-            % cost, and we can't do that with a constant step (at least,
-            % not without a proper argument to back it up).
+            % This is merely a heuristic: it may be better to us a
+            % line-search on the stepsize to guarantee cost decrease.
             stepsize = 1;
             Y0 = manifold.retr(Y0, Z, stepsize);
             
         end
         
-        % Use the Riemannian optimization based algorithm lower in this
-        % file to reach a critical point (typically a local optimizer) of
-        % the max cut cost with fixed rank, starting from Y0.
-        [Y, info] = maxcut_fixedrank(L, Y0);
+        % Use the Riemannian optimization algorithm lower in this file to
+        % reach a critical point (typically a local optimizer) of the
+        % max-cut cost with rank at most rr, starting from Y0.
+        [Y, info] = maxcut_boundedrank(L, Y0);
         
         % Some info logging.
         thistime = [info.time];
         if ~isempty(time)
             thistime = time(end) + thistime;
         end
-        time = [time thistime]; %#ok<AGROW>
-        cost = [cost [info.cost]]; %#ok<AGROW>
+        time = [time, thistime]; %#ok<AGROW>
+        cost = [cost, [info.cost]]; %#ok<AGROW>
 
         % Time to turn the matrix Y into a cut.
         % We can either do the random rounding as follows:
+        %
         % x = sign(Y*randn(rr, 1));
+        %
         % or extract the "PCA direction" of the points in Y and cut
         % orthogonally to that direction, as follows (seems faster than
         % calling svds):
@@ -200,69 +193,56 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     x = best_x;
     cutvalue = best_cutvalue;
     
-    figure;
+    clf;
     plot(time, -cost, '.-');
     xlabel('Time [s]');
     ylabel('Relaxed cut value');
-    title('The relaxed cut value is an upper bound on the optimal cut value.');
+    title(sprintf('Max-Cut value upper bound: %g. Best cut found: %g.', ...
+            cutvalue_upperbound, cutvalue));
 
 end
 
 
-function [Y, info] = maxcut_fixedrank(L, Y)
-% Try to solve the (fixed) rank r relaxed max cut program, based on the
+function [Y, info] = maxcut_boundedrank(L, Y)
+% Try to solve the rank-r relaxed max-cut program, based on the
 % Laplacian of the graph L and an initial guess Y. L is nxn and Y is nxr.
 
     [n, r] = size(Y);
     assert(all(size(L) == n));
-    
-    % The fixed rank elliptope geometry describes symmetric, positive
-    % semidefinite matrices of size n with rank r and all diagonal entries
-    % are 1. A matrix X is represented by a matrix Y so that X = Y*Y'.
-    % manifold = elliptopefactory(n, r);
-    
-    % As an alternative to the elliptope geometry, we can use the
-    % conceptually simpler oblique manifold geometry: this simply
-    % constrains the rows of Y to have unit norm. The added advantage is
-    % that this handles matrices of rank less then r as well.
+   
+    % Constrain the rows of Y (of size nxr) to have unit norm.
     manifold = obliquefactory(n, r, 'rows');
     
     problem.M = manifold;
     
-    % % For rapid prototyping, these lines suffice to describe the cost
-    % % function and its gradient and Hessian (here expressed using the
-    % % Euclidean gradient and Hessian).
-    % problem.cost  = @(Y)  -trace(Y'*L*Y)/4;
+    % For rapid prototyping, the next three lines suffice to describe the
+    % cost function and its gradient and Hessian (here expressed using the
+    % Euclidean gradient and Hessian).
+    %
+    % problem.cost  = @(Y) -sum(Y.*(L*Y), 'all')/4;   % = -trace(Y.'*LY)/4;
     % problem.egrad = @(Y) -(L*Y)/2;
     % problem.ehess = @(Y, U) -(L*U)/2;
 
-    % It's also possible to compute the egrad and the ehess via AD but is 
-    % much slower. Notice that the function trace is not supported for AD 
-    % so far. Replace it with ctrace described in the file manoptADhelp.m.
-    % problem.cost  = @(Y)  -ctrace(Y'*L*Y)/4;
+    % It's also possible to use automatic differentiation (AD) instead of
+    % implementing the gradient and Hessian by hand, though that is slower.
+    % 
+    % problem.cost  = @(Y) -sum(Y.*(L*Y), 'all')/4;
     % problem = manoptAD(problem);
     
     % Instead of the prototyping version, the functions below describe the
     % cost, gradient and Hessian using the caching system (the store
-    % structure). This alows to execute exactly the required number of
-    % multiplications with the matrix L. These multiplications are counted
-    % using the shared memory in the store structure: that memory is
-    % shared , so we get access to the same data, regardless of the
-    % point Y currently visited.
+    % structure). This makes it possible to avoid redundant computations of
+    % products with the matrix L, which are likely to be the expensive bit.
+    % For analysis, these multiplications are counted with Manopt counters.
 
-    % For every visited point Y, we will need L*Y. This function makes sure
+    % For every visited point Y, we need L*Y. This function makes sure
     % the quantity L*Y is available, but only computes it if it wasn't
     % already computed.
     function store = prepare(Y, store)
         if ~isfield(store, 'LY')
             % Compute and store the product for the current point Y.
             store.LY = L*Y;
-            % Create / increment the shared counter (independent of Y).
-            if isfield(store.shared, 'counter')
-                store.shared.counter = store.shared.counter + 1;
-            else
-                store.shared.counter = 1;
-            end
+            store = incrementcounter(store, 'Lproducts', size(Y, 2));
         end
     end
 
@@ -270,7 +250,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     function [f, store] = cost(Y, store)
         store = prepare(Y, store);
         LY = store.LY;
-        f = -(Y(:)'*LY(:))/4; % = -trace(Y'*LY)/4; but faster
+        f = -(Y(:)'*LY(:))/4;   % = -trace(Y'*LY)/4; but faster
     end
 
     problem.egrad = @egrad;
@@ -282,53 +262,21 @@ function [Y, info] = maxcut_fixedrank(L, Y)
 
     problem.ehess = @ehess;
     function [h, store] = ehess(Y, U, store)
-        store = prepare(Y, store); % this line is not strictly necessary
+        store = prepare(Y, store);   % this line is not strictly necessary
         LU = L*U;
-        store.shared.counter = store.shared.counter + 1;
+        store = incrementcounter(store, 'Lproducts', size(U, 2));
         h = -LU/2;
     end
 
-    % statsfun is called exactly once after each iteration (including after
-    % the evaluation of the cost at the initial guess). We then register
-    % the value of the L-products counter (which counts how many products
-    % were needed so far).
-    % options.statsfun = @statsfun;
-    % function stats = statsfun(problem, Y, stats, store) %#ok
-    %     stats.Lproducts = store.shared.counter;
-    % end
-    % Equivalent, but simpler syntax:
-    options.statsfun = statsfunhelper('Lproducts', ...
-                     @(problem, Y, stats, store) store.shared.counter );
+    % Register a counter to keep track of products with the L matrix.
+    stats = statscounters('Lproducts');
+    options.statsfun = statsfunhelper(stats);
     
+    options.verbosity = 1;
 
-    % % Diagnostics tools: to make sure the gradient and Hessian are
-    % % correct during the prototyping stage.
-    % checkgradient(problem); pause;
-    % checkhessian(problem); pause;
-    
-    % % To investigate the effect of the rotational invariance when using
-    % % the oblique or the elliptope geometry, or to study the saddle point
-    % % issue mentioned above, it is sometimes interesting to look at the
-    % % spectrum of the Hessian. For large dimensions, this is slow!
-    % stairs(sort(hessianspectrum(problem, Y)));
-    % drawnow; pause;
-    
-    
-    % % When facing a saddle point issue as described in the master
-    % % function, and when no sure mechanism exists to find an escape
-    % % direction, it may be helpful to set useRand to true and raise
-    % % miniter to more than 1, when using trustregions. This will tell the
-    % % solver to not stop before at least miniter iterations were
-    % % accomplished (thus disregarding the zero gradient at the saddle
-    % % point) and to use random search directions to kick start the inner
-    % % solve (tCG) step. It is not as efficient as finding a sure escape
-    % % direction, but sometimes it's the best we have.
-    % options.useRand = true;
-    % options.miniter = 5;
-    
-    options.verbosity = 2;
     [Y, Ycost, info] = trustregions(problem, Y, options); %#ok<ASGLU>
     
-    fprintf('Products with L: %d\n', max([info.Lproducts]));
+    fprintf('At rank <= %d, matrix-vector products with L: %d\n\n', ...
+             r, max([info.Lproducts]));
 
 end
