@@ -58,6 +58,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %
 % See also: fixedrankfactory_2factors fixedrankfactory_3factors
 %           fixedranktensorembeddedfactory euclideanlargefactory
+%           desingularizationfactory
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 30, 2012.

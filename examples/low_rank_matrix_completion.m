@@ -3,256 +3,216 @@ function low_rank_matrix_completion()
 %
 % function low_rank_matrix_completion()
 %
-% This example demonstrates how to use the geometry factory for the
-% embedded submanifold of fixed-rank matrices, fixedrankembeddedfactory.
-% This geometry is described in the paper
-% "Low-rank matrix completion by Riemannian optimization"
-% Bart Vandereycken - SIAM Journal on Optimization, 2013.
-%
-% This can be a starting point for many optimization problems of the form:
-%
-% minimize f(X) such that rank(X) = k, size(X) = [m, n].
-%
-% Note that the code is long because it showcases quite a few features of
-% Manopt: most of the code is optional.
+% This example uses low-rank matrix completion to illustrate three
+% different ways of optimizing under a rank constraint with Manopt.
+% 
+% Method 1: via (L, R) -> L*R.' parameterization (rank <= k)
+%           with burermonteiroLRlift and manoptlift
+% Method 2: with desingularizationfactory (rank <= k)
+% Method 3: with fixedrankembeddedfactory (rank == k)
 %
 % Input:  None. This example file generates random data.
 % 
 % Output: None.
 %
-% See also: desingularization_matrix_completion
+% See also: fixedrankembeddedfactory desingularizationfactory
+%           manoptlift burermonteiroLRlift euclideanlargefactory
 
-% This file is part of Manopt and is copyrighted. See the license file.
-% 
-% Main author: Nicolas Boumal, July 15, 2014
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, July 15, 2014
 % Contributors: Bart Vandereycken
-% 
 % Change log:
 %   
-%    Xiaowen Jiang Aug. 20, 2021
+%   Xiaowen Jiang, Aug. 20, 2021
 %       Added AD to compute the egrad and the ehess  
+%   NB, June 26, 2024
+%       Rewrote in full to include desingularization, lifts, large matrices
     
-    % Random data generation. First, choose the size of the problem.
-    % We will complete a matrix of size mxn of rank k.
-    m = 200;
-    n = 200;
-    k = 5;
-    % Generate a random mxn matrix A of rank k
-    L = randn(m, k);
-    R = randn(n, k);
-    A = L*R';
-    % Generate a random mask for observed entries: P(i, j) = 1 if the entry
-    % (i, j) of A is observed, and 0 otherwise.
-    fraction = 4 * k*(m+n-k)/(m*n);
-    P = sparse(rand(m, n) <= fraction);
-    % Hence, we know the nonzero entries in PA:
-    PA = P.*A;
-    
-    
-    
-    
-    
-    
-    
-    % Pick the manifold of matrices of size mxn of fixed rank k.
-    problem.M = fixedrankembeddedfactory(m, n, k);
+    %% Create a problem instance
 
-    % Define the problem cost function. The input X is a structure with
-    % fields U, S, V representing a rank k matrix as U*S*V'.
-    % f(X) = 1/2 * || P.*(X-A) ||^2
-    problem.cost = @cost;
-    function f = cost(X)
-        % Note that it is very much inefficient to explicitly construct the
-        % matrix X in this way. Seen as we only need to know the entries
-        % of Xmat corresponding to the mask P, it would be far more
-        % efficient to compute those only.
-        Xmat = X.U*X.S*X.V';
-        f = .5*norm( P.*Xmat - PA , 'fro')^2;
+    % We optimize over matrices of size m-by-n with rank <= r (or = r)
+    m = 1000;
+    n = 1000;
+    r = 10;    % try setting this to 11 for example
+
+    % The structure Rmn provides functions to operate on large matrices.
+    % We use this for all operations on matrices X and Xdot that exist
+    % (mathematically at least) in R^(m x n). Under the hood, we avoid ever
+    % creating these matrices explicitly: they are stored in one of various
+    % efficient formats (sparse; factored; as functions), and this is
+    % exploited for all computations.
+    Rmn = euclideanlargefactory(m, n);
+    
+    % Select some of the m*n entries uniformly at random.
+    % The dimension of the set of matrices of size m-by-n with rank r is
+    % r(m+n-r). We aim to sample a multiple of that. This multiplier is
+    % the oversampling factor (osf). M is sparse with 0s and 1s.
+    desired_osf = 5;
+    [~, ~, M, actual_osf] = random_mask(m, n, r, desired_osf);
+    
+    % Generate a ground-truth matrix of rank rtrue (potentially different
+    % from r) and compute the selected entries of that matrix, in atrue.
+    rtrue = 10;
+    Astar.U = stiefelfactory(m, rtrue).rand();
+    Astar.V = stiefelfactory(n, rtrue).rand();
+    Astar.S = diag(.5 + .5*rand(rtrue, 1)); % singular values of target A;
+    atrue = Rmn.sparseentries(M, Astar);    % efficient sampling of entries
+
+    %% Create a problem structure defining the problem in R^(mxn)
+
+    % The problem structure 'downstairs' defines the problem over all mxn
+    % matrices, without rank constraint and with efficient use of sparsity.
+    downstairs.M = Rmn;
+    downstairs.cost = @cost;
+    downstairs.grad = @grad;
+    downstairs.hess = @hess;
+    function store = prepare(X, store)
+        if ~isfield(store, 'residue')
+            % Compute the possibly nonzero entries of M.*(X - A)
+            store.residue = Rmn.sparseentries(M, X) - atrue;
+            store = incrementcounter(store, 'sparseentries');
+        end
     end
-
-    % Define the Euclidean gradient of the cost function, that is, the
-    % gradient of f(X) seen as a standard function of X.
-    % nabla f(X) = P.*(X-A)
-    problem.egrad = @egrad;
-    function G = egrad(X)
-        % Same comment here about Xmat.
-        Xmat = X.U*X.S*X.V';
-        G = P.*Xmat - PA;
+    function [f, store] = cost(X, store)
+        store = prepare(X, store);
+        % f(X) = .5*norm(M.*(X - A), 'fro')^2
+        f = .5*norm(store.residue)^2;
     end
-
-    % This is optional, but it's nice if you have it.
-    % Define the Euclidean Hessian of the cost at X, along H, where H is
-    % represented as a tangent vector: a structure with fields Up, Vp, M.
-    % This is the directional derivative of nabla f(X) at X along Xdot:
-    % nabla^2 f(X)[Xdot] = P.*Xdot
-    problem.ehess = @euclidean_hessian;
-    function ehess = euclidean_hessian(X, H)
-        % The function tangent2ambient transforms H (a tangent vector) into
-        % its equivalent ambient vector representation. The output is a
-        % structure with fields U, S, V such that U*S*V' is an mxn matrix
-        % corresponding to the tangent vector H. Note that there are no
-        % additional guarantees about U, S and V. In particular, U and V
-        % are not orthonormal.
-        ambient_H = problem.M.tangent2ambient(X, H);
-        Xdot = ambient_H.U*ambient_H.S*ambient_H.V';
-        % Same comment here about explicitly constructing the ambient
-        % vector as an mxn matrix Xdot: we only need its entries
-        % corresponding to the mask P, and this could be computed
-        % efficiently.
-        ehess = P.*Xdot;
+    function [g, store] = grad(X, store)
+        store = prepare(X, store);
+        % nabla f(X) = M.*(X - A)
+        g = replacesparseentries(M, store.residue);
+    end
+    function [h, store] = hess(X, Xdot, store) %#ok<INUSD>
+        % nabla^2 f(X)[Xdot] = M.*Xdot
+        MXdot = Rmn.sparseentries(M, Xdot);
+        h = replacesparseentries(M, MXdot);
+        % Increment by 2 because Xdot can have rank up to 2r
+        store = incrementcounter(store, 'sparseentries', 2);
     end
     
-    % An alternative way to compute the egrad and the ehess is to use 
-    % automatic differentiation provided in the deep learning toolbox (slower)
-    % Notice that the function norm is not supported for AD so far.
-    % Replace norm(...,'fro')^2 with cnormsqfro described in the file 
-    % manoptADhelp.m. Also, operations between sparse matrices and dlarrays 
-    % are not supported for now. convert PA and P into full matrices.
-    % PA_full = full(PA);
-    % P_full = full(P);
-    % problem.cost = @cost_AD;
-    %    function f = cost_AD(X)
-    %        Xmat = X.U*X.S*X.V';
-    %        f = .5*cnormsqfro(P_full.*Xmat - PA_full);
-    %    end
-    
-    % Computating the ehess for the set of fixed-rank matrices with 
-    % an embedded geometry is currently not supported.
-    % Call manoptAD to automatically obtain the grad
-    % problem = manoptAD(problem);
+    % Whenever we change f, it is a good idea to check the derivatives.
+    % checkgradient(downstairs);
+    % checkhessian(downstairs);
 
+    %% Define options for the manopt solvers
+    options = struct();
 
-    % Check consistency of the gradient and the Hessian. Useful if you
-    % adapt this example for a new cost function and you would like to make
-    % sure there is no mistake.
-    % warning('off', 'manopt:fixedrankembeddedfactory:exp');
-    % checkgradient(problem); pause;
-    % checkhessian(problem); pause;
+    stats = statscounters({'sparseentries'});
+    options.statsfun = statsfunhelper(stats);
+
+    options.theta = 0.4;      % this is a parameter in trs_tCG_cached
+    options.maxtime = 30;     % stop if we take more than xyz seconds
+    options.tolgradnorm = 0;
+    options.tolcost = 1e-12;  % stop when f(X) is close to 0
     
+    %% Build an initial guess
+    X0_USV.U = stiefelfactory(m, r).rand();
+    X0_USV.V = stiefelfactory(n, r).rand();
+    X0_USV.S = diag(rand(r, 1))/1000;
+
+    X0_LR = Rmn.to_LR(X0_USV);  % the same X0 in LR format
+
     
+    %% Lift the downtairs problem through the LR' parameterization
+    lift = burermonteiroLRlift(m, n, r);
+    upstairs = manoptlift(downstairs, lift);
+    [X_LR, ~, LR_info] = trustregions(upstairs, X0_LR, options); %#ok<ASGLU>
     
-    
-    
-    % Compute an initial guess. Points on the manifold are represented as
-    % structures with three fields: U, S and V. U and V need to be
-    % orthonormal, S needs to be diagonal.
-    [U, S, V] = svds(PA, k);
-    X0.U = U;
-    X0.S = S;
-    X0.V = V;
-    
-    % Minimize the cost function using Riemannian trust-regions, starting
-    % from the initial guess X0.
-    X = trustregions(problem, X0);
-    
-    % The reconstructed matrix is X, represented as a structure with fields
-    % U, S and V.
-    Xmat = X.U*X.S*X.V';
-    fprintf('||X-A||_F = %g\n', norm(Xmat - A, 'fro'));
-    
-    
-    
-    
-    
-    
-    % Alternatively, we could decide to use a solver such as
-    % steepestdescent or conjugategradient. These solvers need to solve a
-    % line-search problem at each iteration. Standard line searches in
-    % Manopt have generic purpose systems to do this. But for the problem
-    % at hand, it so happens that we can rather accurately guess how far
-    % the line-search should look, and it would be a waste to not use that.
-    % Look up the paper referenced above for the mathematical explanation
-    % of the code below.
-    % 
-    % To tell Manopt about this special information, we specify the
-    % linesearch hint function in the problem structure. Notice that this
-    % is not the same thing as specifying a linesearch function in the
-    % options structure.
-    % 
-    % Both the SD and the CG solvers will detect that we
-    % specify the hint function below, and they will use an appropriate
-    % linesearch algorithm by default, as a result. Typically, they will
-    % try the step t*H first, then if it does not satisfy an Armijo
-    % criterion, they will decrease t geometrically until satisfaction or
-    % failure.
-    % 
-    % Just like the cost, egrad and ehess functions, the linesearch
-    % function could use a store structure if you like. The present code
-    % does not use the store structure, which means quite a bit of the
-    % computations are made redundantly, and as a result a better method
-    % could appear slower. See the Manopt tutorial about caching when you
-    % are ready to switch from a proof-of-concept code to an efficient
-    % code.
-    %
-    % The inputs are X (a point on the manifold) and H, a tangent vector at
-    % X that is assumed to be a descent direction. That is, there exists a
-    % positive t such that f(Retraction_X(tH)) < f(X). The function below
-    % is supposed to output a "t" that it is a good "guess" at such a t.
-    problem.linesearch = @linesearch_helper;
-    function t = linesearch_helper(X, H)
-        % Note that you would not usually need the Hessian for this.
-        residual_omega = nonzeros(problem.egrad(X));
-        dir_omega      = nonzeros(problem.ehess(X, H));
-        t = - dir_omega \ residual_omega ;
+
+    %% Lift the downstairs problem through the desingularization
+    desing.M = desingularizationfactory(m, n, r);
+    desing.cost = @cost;
+    desing.egrad = @grad;
+    desing.ehess = @ehess_xp;
+    function [h, store] = ehess_xp(X, Xdot, store)
+        % Here we compute the Euclidean Hessian.
+        % The inputs are a point X and a tangent vector Xdot.
+        % The latter is in tangent vector format, but we need it in ambient
+        % vector format. We need to do two things here:
+        %  1. Map Xdot (a tangent vector) to the ambient space,
+        %     using M.tangent2ambient.
+        %  2. Extract the X component of the result, because ambient
+        %     vectors in the desingularization have both an X and a P
+        %     component, but only the X part is relevant to us.
+        Xdot_ambient = desing.M.tangent2ambient(X, Xdot).X;
+        [h, store] = hess(X, Xdot_ambient, store);
     end
 
-    % Notice that for this solver, the Hessian is not needed.
-    [Xcg, xcost, info, options] = conjugategradient(problem, X0); %#ok<ASGLU>
-    
-    fprintf('Take a look at the options that CG used:\n');
-    disp(options);
-    fprintf('And see how many trials were made at each line search call:\n');
-    info_ls = [info.linesearch];
-    disp([info_ls.costevals]);
-
+    [X_XP, ~, XP_info] = trustregions(desing, X0_USV, options); %#ok<ASGLU>
     
     
+    %% Restrict the downstairs problem to matrices of rank exactly r
     
-    
-    
-    
-    
-    fprintf('Try it again without the linesearch helper.\n');
-    
-    % Remove the linesearch helper from the problem structure.
-    problem = rmfield(problem, 'linesearch');
-    
-    [Xcg, xcost, info, options] = conjugategradient(problem, X0); %#ok<ASGLU>
-    
-    fprintf('Take a look at the options that CG used:\n');
-    disp(options);
-    fprintf('And see how many trials were made at each line search call:\n');
-    info_ls = [info.linesearch];
-    disp([info_ls.costevals]);
-    
-    
-    
-    
-
-    % If the problem has a small enough dimension, we may (for analysis
-    % purposes) compute the spectrum of the Hessian at a point X. This may
-    % help in studying the conditioning of a problem. If you don't provide
-    % the Hessian, Manopt will approximate the Hessian with finite
-    % differences of the gradient and try to estimate its "spectrum" (it's
-    % not a proper linear operator). This can give some intuition, but
-    % should not be relied upon.
-    if exist('OCTAVE_VERSION', 'builtin') == 0
-        hstgrm = @histogram;
-    else
-        hstgrm = @hist;
-    end
-    if problem.M.dim() < 2000
-        fprintf('Computing the spectrum of the Hessian...\n');
-        s = hessianspectrum(problem, X);
-        subplot(1, 2, 1);
-        hstgrm(s);
-        title('Histogram of eigenvalues of the Hessian at the solution');
-        subplot(1, 2, 2);
-        hstgrm(log10(abs(s)));
-        title('Histogram of log_{10}(|eigenvalues|) of the Hessian at the solution');
+    fixedrk.M = fixedrankembeddedfactory(m, n, r);
+    fixedrk.cost = @cost;
+    fixedrk.egrad = @grad;
+    fixedrk.ehess = @ehess_fr;
+    function [h, store] = ehess_fr(X, Xdot, store)
+        % Same as in ehess_xp, we must first convert Xdot
+        Xdot_ambient = fixedrk.M.tangent2ambient(X, Xdot);
+        [h, store] = hess(X, Xdot_ambient, store);
     end
     
+    [X_FR, ~, FR_info] = trustregions(fixedrk, X0_USV, options); %#ok<ASGLU>
+
+
+
+    %% Plot some statistics to compare the various approaches
+    figure(1);
+    clf;
+    subplot(2, 1, 1);
+    hplt = ...
+        semilogy([LR_info.time], [LR_info.cost], '.-', ...
+                 [XP_info.time], [XP_info.cost], '.-', ...
+                 [FR_info.time], [FR_info.cost], '.-');
+    set(hplt, 'LineWidth', 2);
+    set(hplt, 'MarkerSize', 20);
+    legend('LR', 'desingularisation', 'fixed rank', 'Location', 'northeast');
+    xlabel('Time [s]');
+    ylabel('Cost function value (training loss)');
+    title(sprintf('Oversampling factor: %.4g, Observed fraction: %.4g', ...
+                   actual_osf, nnz(M)/numel(M)));
+    grid on;
+    subplot(2, 1, 2);
+    hplt = ...
+            plot([LR_info.time], [LR_info.sparseentries], '.-', ...
+                 [XP_info.time], [XP_info.sparseentries], '.-', ...
+                 [FR_info.time], [FR_info.sparseentries], '.-');
+    set(hplt, 'LineWidth', 2);
+    set(hplt, 'MarkerSize', 20);
+    legend('LR', 'desingularisation', 'fixed rank', 'Location', 'northeast');
+    xlabel('Time [s]');
+    ylabel('Equivalent-calls to sampling sparse entries of low rank matrix');
+    grid on;
     
-    
-    
+end
+
+
+
+% This function aims to select osf*r*(m+n-r) entries uniformly at random
+% out of a matrix of size m-by-n, where osf is the oversampling factor.
+% The output is a sparse matrix M of size m-by-n with 
+function [I, J, M, osf] = random_mask(m, n, r, osf)
+    % Expected number of collisions in a random sample of b numbers among a
+    % numbers with replacement.
+    expected_redundant = @(a, b) ceil(b + a*(((a-1)/a)^b - 1));
+    % We'll select a few more to make up for collisions.
+    desired_sample_size = round(osf*r*(m+n-r));
+    initial_sample_size = desired_sample_size + ...
+                            4*expected_redundant(m*n, desired_sample_size);
+    sample = unique(randi(m*n, initial_sample_size, 1));
+    % With high probability, we have too many in our sample.
+    % Trim uniformly at random until we have just the right number.
+    while numel(sample) > desired_sample_size
+        to_delete = unique(randi(numel(sample), ...
+                           numel(sample) - desired_sample_size, 1));
+        sample(to_delete) = [];
+    end
+    % Update the actual sample size and oversampling factor.
+    sample_size = length(sample);
+    osf = sample_size/(r*(m+n-r));
+    % Convert the sampled linear indices into (i, j) pairs and a mask M.
+    [I, J] = ind2sub([m, n], sample);
+    M = sparse(I, J, ones(sample_size, 1));
 end

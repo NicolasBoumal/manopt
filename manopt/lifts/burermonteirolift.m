@@ -48,6 +48,11 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
 % 
 % See also: manoptlift burermonteiroLRlift euclideanlargefactory
 
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, June, 2024.
+% Contributors:
+% Change log:
+
     % TODO: add identity block diagonal constraint.
     % TODO: write a complex version.
     % TODO: determine if it would help to have a symmetric version of /
