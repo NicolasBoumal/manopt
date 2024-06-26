@@ -20,10 +20,10 @@ function lift = hadamardlift(set, n, m)
 %
 %   'simplex'       - lift.M = spherefactory(n, m)
 %                     That is a unit sphere in R^(n x m)
-%   'colstochastic' - lift.M = obliquefactory(n, m, false)
+%   'colstochastic' - lift.M = obliquefactory(n, m, 'cols')
 %                     That is a product of m spheres in R^n
-%   'rowstochastic' - lift.M = obliquefactory(m, n, true)
-%                     That too is a product of m spheres in R^n, transposed
+%   'rowstochastic' - lift.M = obliquefactory(n, m, 'rows')
+%                     That too is a product, of n spheres in R^m
 %   'nonnegative'   - lift.M = euclideanfactory(n, m)
 %                     That is all of R^(n x m)
 %
@@ -67,9 +67,9 @@ function lift = hadamardlift(set, n, m)
         case 'simplex'
             lift.M = spherefactory(n, m);
         case 'rowstochastic'
-            lift.M = obliquefactory(m, n, true);
+            lift.M = obliquefactory(n, m, 'rows');
         case 'colstochastic'
-            lift.M = obliquefactory(n, m, false);
+            lift.M = obliquefactory(n, m, 'cols');
         case 'nonnegative'
             lift.M = euclideanfactory(n, m);
         otherwise

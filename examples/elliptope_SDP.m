@@ -84,7 +84,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
     assert(p >= 2 && p == round(p), 'p must be an integer >= 2.');
 
     % Pick the manifold of n-by-p matrices with unit norm rows.
-    manifold = obliquefactory(p, n, true);
+    manifold = obliquefactory(n, p, 'rows');
     
     problem.M = manifold;
     

@@ -16,7 +16,7 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
 %                  No restriction on the factor Y.
 %   'unittrace'  - lift.M = spherefactory(n, p);
 %                  Y has Frobenius norm 1, so that trace(YY') = 1.
-%   'unitdiag'   - lift.M = obliquefactory(p, n, true);
+%   'unitdiag'   - lift.M = obliquefactory(n, p, 'rows');
 %                  Y has rows of unit norm, so that diag(YY') is all 1.
 %
 % The downstairs manifold N is the space of real matrices of size n-by-n,
@@ -75,7 +75,7 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
         case 'unittrace'
             lift.M = spherefactory(n, p);
         case 'unitdiag'
-            lift.M = obliquefactory(p, n, true);
+            lift.M = obliquefactory(n, p, 'rows');
         otherwise
             error('The constraint string is not recognized.');
     end

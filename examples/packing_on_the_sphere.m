@@ -82,7 +82,7 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     % rotation invariance of the problem, which is more natural but
     % conceptually a bit more complicated --- for usage with the toolbox it
     % is the same though: just uncomment the appropriate line).
-    manifold = obliquefactory(d, n, true);
+    manifold = obliquefactory(n, d, 'rows');
     % manifold = elliptopefactory(n, d);
     
     % Generate a random initial guess if none was given.

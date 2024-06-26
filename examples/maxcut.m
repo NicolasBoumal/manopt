@@ -112,7 +112,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
         % See comments about elliptopefactory vs obliquefactory in the
         % code of function maxcut_fixedrank below (same file).
         % manifold = elliptopefactory(n, rr);
-        manifold = obliquefactory(rr, n, true);
+        manifold = obliquefactory(n, rr, 'rows');
         
         if rr == 2
             
@@ -225,7 +225,7 @@ function [Y, info] = maxcut_fixedrank(L, Y)
     % conceptually simpler oblique manifold geometry: this simply
     % constrains the rows of Y to have unit norm. The added advantage is
     % that this handles matrices of rank less then r as well.
-    manifold = obliquefactory(r, n, true);
+    manifold = obliquefactory(n, r, 'rows');
     
     problem.M = manifold;
     
