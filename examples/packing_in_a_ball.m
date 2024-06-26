@@ -31,6 +31,12 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
 % We could take the quotient of the oblique manifold OB(d, n) by O(d) to
 % remove this symmetry: see elliptopefactory.
 %
+% For more on packing disks in a disk (d = 2), see
+% https://en.wikipedia.org/wiki/Circle_packing_in_a_circle
+% https://erich-friedman.github.io/packing/cirincir/
+% Replacing ballslift by cubeslift in the code is interesting too:
+% https://erich-friedman.github.io/packing/cirinsqu/
+%
 % See also: elliptopefactory packing_on_the_sphere
 
 % This file is part of Manopt: www.manopt.org.
@@ -85,18 +91,26 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
     E = gram2edm(X.'*X);
     min_distance = sqrt(min(E(ij)));
 
-    
+
     % Some code to display the results
     if d == 2  % if we are working in a disk
         clf;
-        plot(X(1, :), X(2, :), '.', 'MarkerSize', 20);
         hold all;
         t = linspace(0, 2*pi, 251);
+        r = (min_distance/2);
+        for i = 1 : n
+            fill(X(1, i) + r*cos(t), ...
+                 X(2, i) + r*sin(t), [.3, .4, .5]);
+        end
+        plot((1+r)*cos(t), (1+r)*sin(t), 'k--', 'LineWidth', 2);
+        plot(X(1, :), X(2, :), 'b.', 'MarkerSize', 20);
         plot(cos(t), sin(t), 'k-', 'LineWidth', 2);
         plot(0, 0, 'k.', 'MarkerSize', 10);
         axis equal off;
         set(gcf, 'Color', 'w');
-        text(.3, -1, sprintf('Minimum distance: %.4g', min_distance));
+        text(.45, -1.1, sprintf('Minimum distance: %.4g', min_distance));
+        density = (n*r^2)/(1+r)^2;
+        text(.45, -1.2, sprintf('Density: %.4g', density));
     elseif d == 3
         clf;
         plot3(X(1, :), X(2, :), X(3, :), '.', 'MarkerSize', 20);
