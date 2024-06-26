@@ -1,5 +1,5 @@
 function trsoutput = trs_lanczos(problem, trsinput, options, storedb, key)
-% Generalized Lanczos trust-region (GLTR) method.
+% Generalized Lanczos trust-region method GLTR for trustregions subproblem.
 %
 % minimize <eta,grad> + .5*<eta,Hess(eta)>
 % subject to <eta,eta>_[inverse precon] <= Delta^2
