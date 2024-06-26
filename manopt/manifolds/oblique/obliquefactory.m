@@ -1,23 +1,33 @@
-function M = obliquefactory(n, m, transposed, gpuflag)
-% Returns a manifold struct to optimize over matrices w/ unit-norm columns.
+function M = obliquefactory(n, m, dirflag, gpuflag)
+% Returns a manifold struct to optimize on matrices w/ unit-norm cols/rows.
 %
 % function M = obliquefactory(n, m)
-% function M = obliquefactory(n, m, transposed)
-% function M = obliquefactory(n, m, transposed, gpuflag)
+% function M = obliquefactory(n, m, 'cols')
+% function M = obliquefactory(n, m, 'rows')
+% function M = obliquefactory(n, m, dirflag, 'gpu')
 %
-% Oblique manifold: deals with matrices of size n x m such that each column
-% has unit 2-norm, i.e., is a point on the unit sphere in R^n. The metric
-% is such that the oblique manifold is a Riemannian submanifold of the
-% space of nxm matrices with the usual trace inner product, i.e., the usual
-% metric.
+% The oblique manifold is a product of spheres, embedded in R^(nxm).
 %
-% If transposed is set to true (it is false by default), then the matrices
-% are transposed: a point Y on the manifold is a matrix of size m x n and
-% each row has unit 2-norm. It is the same geometry, just a different
-% representation.
+% By default, columns have unit norm (product of m spheres in R^n).
+% This can also be expressed with the flag 'cols'.
+% 
+% If that flag is set to 'rows', then the rows have unit norm instead
+% (product of n spheres in R^m).
+% 
+% The metric is such that the oblique manifold is a Riemannian submanifold
+% of the space of nxm matrices with the trace inner product (Frobenius).
 %
-% Set gpuflag = true to have points, tangent vectors and ambient vectors
-% stored on the GPU. If so, computations can be done on the GPU directly.
+% Set gpuflag  to 'gpu' to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations in cost, grad etc. can be done on
+% the GPU directly. By default, th GPU is not used. This can also be
+% expressed with the flag 'nogpu'.
+%
+%
+% For backward compatibility, the two input flags can also be boolean:
+%   obliquefactory(n, m, false) == obliquefactory(n, m, 'cols')
+%   obliquefactory(n, m, true) == obliquefactory(m, n, 'rows') (mind m<->n)
+%   gpuflag: true == 'gpu' and false == 'nogpu'.
+%   
 %
 % See also: spherefactory obliquecomplexfactory
 
@@ -72,43 +82,111 @@ function M = obliquefactory(n, m, transposed, gpuflag)
 %
 %   Sep. 24, 2023 (NB)
 %       Added tangent2ambient/tangent2ambient_is_identity pair.
+%
+%   June 26, 2024 (NB)
+%       Modified the way input flags work, for legibility.
+%       Improved performance for transposed case.
+%       Exposed M.normalize(Y), which normalizes the colums or the rows so
+%       as to offer metric projection to the manifold.
 
-    if ~exist('transposed', 'var') || isempty(transposed)
-        transposed = false;
+
+    % Implementation notes:
+    % - vecnorm(X, 2, dim) seems faster than norms(X, 2, dim).
+    %   It is sometimes faster and sometimes slower
+    %   than sqrt(sum(X.^2, dim)).
+    % - normalize() (below) seems faster than the built-in
+    %   normalize(X, 'norm', 2), based on a quick profiler test in 2023.
+
+
+    if ~exist('dirflag', 'var') || isempty(dirflag)
+        dirflag = 'cols';
+    end
+    if islogical(dirflag)   % legacy support for Manopt <= 7.1.
+        if dirflag          % dirflag was a Boolean called 'transposed'.
+            [n, m] = deal(m, n);
+            dirflag = 'rows';
+        else
+            dirflag = 'cols';
+        end
+    end
+    switch lower(dirflag)
+        case 'cols'
+            unitcols = true;
+            dim = 1; % for use with vecnorm and sum, to operate on columns
+        case 'rows'
+            unitcols = false;
+            dim = 2; % for use with vecnorm and sum, to operate on rows
+        otherwise
+            error('The direction flag should be ''cols'' or ''rows''.');
     end
 
-    if transposed
-        trnsp = @(X) X';
-    else
-        trnsp = @(X) X;
-    end
 
     if ~exist('gpuflag', 'var') || isempty(gpuflag)
-        gpuflag = false;
+        gpuflag = 'nogpu';
     end
+    if islogical(gpuflag)   % legacy support for Manopt <= 7.1.
+        if gpuflag          % gpuflag was a Boolean.
+            gpuflag = 'gpu';
+        else
+            gpuflag = 'nogpu';
+        end
+    end
+    switch lower(gpuflag)
+        case 'gpu'
+            usegpu = true;
+        case 'nogpu'
+            usegpu = false;
+        otherwise
+            error('The GPU flag should be ''gpu'' or ''nogpu''.');
+    end
+
+
 
     % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
     % are created directly on the GPU; otherwise, they are created in the
     % usual way (in double precision).
-    if gpuflag
+    if usegpu
         array_type = 'gpuArray';
     else
         array_type = 'double';
     end
 
-    M.name = @() sprintf('Oblique manifold OB(%d, %d)', n, m);
+    if unitcols
+        name = sprintf('Oblique manifold OB(%d, %d), unit columns', n, m);
+    else
+        name = sprintf('Oblique manifold OB(%d, %d), unit rows', n, m);
+    end
+    M.name = @() name;
 
-    M.dim = @() (n-1)*m;
+    if unitcols
+        Mdim = (n-1)*m;
+    else
+        Mdim = (m-1)*n;
+    end
+    M.dim = @() Mdim;
 
-    M.inner = @(x, d1, d2) d1(:)'*d2(:);
+    M.inner = @(X, U, V) U(:).'*V(:);
 
-    M.norm = @(x, d) norm(d(:));
+    M.norm = @(X, U) norm(U(:));
 
-    M.dist = @(x, y) norm(real(2*asin(.5*vecnorm(trnsp(x - y)))));
+    M.dist = @(X, Y) norm(real(2*asin(.5*vecnorm(X - Y, 2, dim))));
 
-    M.typicaldist = @() pi*sqrt(m);
+    if unitcols
+        typicaldist = pi*sqrt(m);
+    else
+        typicaldist = pi*sqrt(n);
+    end
+    M.typicaldist = @() typicaldist;
 
-    M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
+    M.proj = @projection;
+    % Orthogonal projection of H in R^(nxm) to the tangent space at X.
+    function PXH = projection(X, H)
+        % Compute the inner product between each column/row of H
+        % with the corresponding column/row of X.
+        inners = sum(X.*H, dim);
+        % Remove from H the components that are parallel to X, by row/col.
+        PXH = H - X.*inners;
+    end
 
     M.tangent = M.proj;
 
@@ -121,153 +199,93 @@ function M = obliquefactory(n, m, transposed, gpuflag)
 
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, U)
-        X = trnsp(X);
-        egrad = trnsp(egrad);
-        ehess = trnsp(ehess);
-        U = trnsp(U);
-
-        PXehess = projection(X, ehess);
-        inners = sum(X.*egrad, 1);
-        rhess = PXehess - U .* inners;
-
-        rhess = trnsp(rhess);
+        inners = sum(X.*egrad, dim);
+        rhess = projection(X, ehess - U.*inners);
     end
 
     M.exp = @exponential;
     % Exponential on the oblique manifold
-    function y = exponential(x, d, t)
-        x = trnsp(x);
-        d = trnsp(d);
-
-        if nargin < 3
-            % t = 1;
-            td = d;
+    function Y = exponential(X, U, t)
+        if nargin < 3  % t = 1;
+            tU = U;
         else
-            td = t*d;
+            tU = t*U;
         end
-
-        nrm_td = vecnorm(td);
-
-        y = x .* cos(nrm_td) + td .* sinxoverx(nrm_td);
-
-        y = trnsp(y);
+        nrm_tU = vecnorm(tU, 2, dim);
+        Y = X .* cos(nrm_tU) + tU .* sinxoverx(nrm_tU);
     end
 
     M.log = @logarithm;
-    function v = logarithm(x1, x2)
-        x1 = trnsp(x1);
-        x2 = trnsp(x2);
-
-        v = projection(x1, x2 - x1);
-        dists = real(2*asin(.5*vecnorm(x1 - x2)));
-        norms = vecnorm(v);
+    function V = logarithm(X1, X2)
+        difference = X2 - X1;
+        dists = real(2*asin(.5*vecnorm(difference, 2, dim)));
+        V = projection(X1, difference);
+        norms = vecnorm(V, 2, dim);
         factors = dists./norms;
         % For very close points, dists is almost equal to norms, but
         % because they are both almost zero, the division above can return
         % NaN's. To avoid that, we force those ratios to 1.
         factors(dists <= 1e-10) = 1;
-        v = v .* factors;
+        V = V .* factors;
+    end
 
-        v = trnsp(v);
+    M.normalize = @normalize;
+    % Scale each col/row of X by its norm.
+    function Y = normalize(X)
+        nrms = vecnorm(X, 2, dim);
+        % The following is faster than "X ./ nrms", though a tad less accurate.
+        % It's also much faster than "bsxfun(@times, X, 1./nrms)".
+        Y = X .* (1 ./ nrms);
     end
 
     M.retr = @retraction;
-    % Retraction on the oblique manifold
-    function y = retraction(x, d, t)
-        x = trnsp(x);
-        d = trnsp(d);
-
+    % Metric projection retraction
+    function Y = retraction(X, U, t)
         if nargin < 3
-            % t = 1;
-            td = d;
+            tU = U;  % t = 1;
         else
-            td = t*d;
+            tU = t*U;
         end
-
-        y = normalize_columns(x + td);
-
-        y = trnsp(y);
+        Y = normalize(X + tU);
     end
 
     % Inverse retraction: see spherefactory.m for background
     M.invretr = @inverse_retraction;
-    function d = inverse_retraction(x, y)
-        x = trnsp(x);
-        y = trnsp(y);
-
-        d = (y .* (1./sum(x.*y, 1))) - x;
-
-        d = trnsp(d);
+    function U = inverse_retraction(X, Y)
+        U = (Y .* (1./sum(X.*Y, dim))) - X;
     end
-
 
     M.hash = @(x) ['z' hashmd5(x(:))];
 
-    M.rand = @() trnsp(normalize_columns(randn(n, m, array_type)));
+    M.rand = @() normalize(randn(n, m, array_type));
 
     M.randvec = @randvec;
-    function d = randvec(x)
-        d = trnsp(projection(trnsp(x), randn(n, m, array_type)));
-        d = d / norm(d(:));
+    function U = randvec(X)
+        U = projection(X, randn(n, m, array_type));
+        U = U / norm(U(:));
     end
 
     M.lincomb = @matrixlincomb;
 
-    M.zerovec = @(x) trnsp(zeros(n, m, array_type));
+    M.zerovec = @(x) zeros(n, m, array_type);
 
-    M.transp = @(x1, x2, d) M.proj(x2, d);
+    M.transp = @(X1, X2, U) projection(X2, U);
 
-    M.pairmean = @(x1, x2) trnsp(normalize_columns(trnsp(x1+x2)));
+    M.pairmean = @(X1, X2) normalize(X1+X2);
 
     % vec returns a vector representation of an input tangent vector which
-    % is represented as a matrix. mat returns the original matrix
-    % representation of the input vector representation of a tangent
-    % vector. vec and mat are thus inverse of each other. They are
-    % furthermore isometries between a subspace of R^nm and the tangent
-    % space at x.
-    vect = @(X) X(:);
-    M.vec = @(x, u_mat) vect(trnsp(u_mat));
-    M.mat = @(x, u_vec) trnsp(reshape(u_vec, [n, m]));
+    % is represented as a matrix.
+    % mat returns the original matrix representation of the input vector
+    % representation of a tangent vector.
+    % vec and mat are thus inverse of each other. They are furthermore
+    % isometries between a subspace of R^nm and the tangent space at X.
+    M.vec = @(X, U_mat) U_mat(:);
+    M.mat = @(X, U_vec) reshape(U_vec, [n, m]);
     M.vecmatareisometries = @() true;
 
     % Automatically convert a number of tools to support GPU.
-    if gpuflag
+    if usegpu
         M = factorygpuhelper(M);
     end
 
 end
-
-% Given a matrix X, returns the same matrix but with each column scaled so
-% that they have unit 2-norm.
-% This is equivalent to a built-in call to:  normalize(X, 'norm', 2) 
-% but on a quick profiler test in 2023 the code below was faster.
-function X = normalize_columns(X)
-    % The following is faster than "norms(X, 2, 1)".
-    % It's sometimes faster and sometimes slower than "sqrt(sum(X.^2, 1))".
-    nrms = vecnorm(X);
-    % The following is faster than "X ./ nrms", though a tad less accurate.
-    % It's also much faster than "bsxfun(@times, X, 1./nrms)".
-    X = X .* (1 ./ nrms);
-end
-
-% Orthogonal projection of the ambient vector H to the tangent space at X.
-% This operates on colums.
-function PXH = projection(X, H)
-
-    % Compute the inner product between each vector H(:, i) with its root
-    % point X(:, i), that is, X(:, i)' * H(:, i). Returns a row vector.
-    inners = sum(X.*H, 1);
-
-    % Subtract from H the components of the H(:, i)'s that are parallel to
-    % the root points X(:, i).
-    PXH = H - X .* inners;
-
-    % % Equivalent but slow code:
-    % m = size(X, 2);
-    % PXH = zeros(size(H));
-    % for i = 1 : m
-    %     PXH(:, i) = H(:, i) - X(:, i) * (X(:, i)'*H(:, i));
-    % end
-
-end
-
