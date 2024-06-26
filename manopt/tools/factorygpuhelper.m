@@ -1,5 +1,5 @@
 function M = factorygpuhelper(M)
-% Returns a manifold struct to optimize over unit-norm vectors or matrices.
+% Manopt tool to help add GPU support to a manifold factory.
 %
 % function M = factorygpuhelper(M)
 %
@@ -14,8 +14,7 @@ function M = factorygpuhelper(M)
 % It is not enough to call this tool: one also needs to create all arrays
 % on the GPU directly. See spherefactory for an example.
 %
-% This tool is still in beta: please let us know about any issues via the
-% forum on http://www.manopt.org. Thanks!
+% Let us know about issues via the forum on https://www.manopt.org. Thanks!
 %
 % See also: spherefactory
 
@@ -23,6 +22,8 @@ function M = factorygpuhelper(M)
 % Original author: Nicolas Boumal, Aug. 3, 2018.
 % Contributors: 
 % Change log: 
+%   June 26, 2024 (NB):
+%       Added checks that optional fields are indeed present in M.
 
     % Tag the factory name.
     M.name = @() [M.name(), ' (GPU)'];
@@ -30,17 +31,26 @@ function M = factorygpuhelper(M)
     % Gathering scalar outputs: it's unclear whether this is necessary.
     M.inner = @(x, u, v) gather(M.inner(x, u, v));
     M.norm = @(x, u) gather(M.norm(x, u));
-    M.dist = @(x, y) gather(M.dist(x, y));
+
+    if isfield(M, 'dist')
+        M.dist = @(x, y) gather(M.dist(x, y));
+    end
     
     % TODO: check that this works for manifolds whose points are not
     % matrices (but are structs or cells).
-    M.hash = @(x) M.hash(gather(x));
+    if isfield(M, 'hash')
+        M.hash = @(x) M.hash(gather(x));
+    end
     
     % The vec/mat pair is mostly used in the hessianspectrum tool, where
     % the vector representation of tangent vectors is assumed to be in
     % 'normal' memory (as opposed to GPU). But it's unclear whether we
     % actually need this too.
-    M.vec = @(x, u_mat) gather(M.vec(x, u_mat));
-    M.mat = @(x, u_vec) M.mat(x, gpuArray(u_vec));
+    if isfield(M, 'vec')
+        M.vec = @(x, u_mat) gather(M.vec(x, u_mat));
+    end
+    if isfield(M, 'mat')
+        M.mat = @(x, u_vec) M.mat(x, gpuArray(u_vec));
+    end
 
 end
