@@ -38,6 +38,8 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 % Neil Sloane collects the best known packings here:
 % 
 %    http://neilsloane.com/packings/
+%
+% See also: elliptopefactory packing_in_a_ball
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 2, 2013
