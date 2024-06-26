@@ -19,7 +19,7 @@ function M = obliquefactory(n, m, dirflag, gpuflag)
 %
 % Set gpuflag  to 'gpu' to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations in cost, grad etc. can be done on
-% the GPU directly. By default, th GPU is not used. This can also be
+% the GPU directly. By default, the GPU is not used. This can also be
 % expressed with the flag 'nogpu'.
 %
 %
