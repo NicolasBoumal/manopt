@@ -31,7 +31,7 @@ function M = stiefelgeneralizedfactory_HS_KA(n, p, B)
 % Contributors:
 %
 % Change log:
-%   
+%   June 26, 2024 (NB): Removed M.exp() as it was not implemented.
 
     
     if ~exist('B', 'var') || isempty(B)
@@ -121,18 +121,6 @@ function M = stiefelgeneralizedfactory_HS_KA(n, p, B)
         X = Y / R;
     end
 %%%%%%%%%%%%%%%%%
-
-    
-    M.exp = @exponential;
-    function Y = exponential(X, Z, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, Z, t);
-        warning('manopt:stiefelgeneralizedfactory:exp', ...
-               ['Exponential for generalized Stiefel manifold ' ...
-                'manifold not implemented yet. Used retraction instead.']);
-    end
 
 
     M.hash = @(X) ['z' hashmd5(X(:))];

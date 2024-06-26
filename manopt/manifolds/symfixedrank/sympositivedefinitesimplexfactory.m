@@ -43,11 +43,13 @@ function M = sympositivedefinitesimplexfactory(n, k)
 %
 % See also sympositivedefinitesimplexcomplexfactory multinomialfactory sympositivedefinitefactory
 
-    % This file is part of Manopt: www.manopt.org.
-    % Original author: Bamdev Mishra, September 18, 2019.
-    % Contributors: NB
-    % Change log: Comments updated, 16 Dec 2019
-    %             Removed typos in Hessian expression, 01 Nov, 2021
+% This file is part of Manopt: www.manopt.org.
+% Original author: Bamdev Mishra, September 18, 2019.
+% Contributors: NB
+% Change log:
+%   Dec. 16, 2019 (BM): Comments updated
+%   Nov.  1, 2021 (BM): Removed typos in Hessian expression
+%   June 26, 2024 (NB): Removed M.exp() as it was not implemented.
     
     symm = @(X) .5*(X+X');
     
@@ -250,17 +252,6 @@ function M = sympositivedefinitesimplexfactory(n, k)
         end
         %   % Debug
         %   norm(sum(Y, 3) - eye(n), 'fro') % This should be zero
-    end
-    
-    M.exp = @exponential;
-    function Y = exponential(X, eta, t)
-        if nargin < 3
-            t = 1.0;
-        end
-        Y = retraction(X, eta, t);
-        warning('manopt:sympositivedefinitesimplexfactory:exp', ...
-            ['Exponential for the Simplex' ...
-            'manifold not implemented yet. Used retraction instead.']);
     end
     
     M.hash = @(X) ['z' hashmd5(X(:))];
