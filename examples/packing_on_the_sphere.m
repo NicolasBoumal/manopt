@@ -6,14 +6,16 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 % Using optimization on the oblique manifold, that is, the product of
 % spheres, this function returns a set of n points with unit norm in R^d in
 % the form of a matrix X of size nxd, such that the points are spread out
-% on the sphere. Ideally, we would minimize the maximum inner product
-% between any two points X(i, :) and X(j, :), i~=j, but that is a nonsmooth
-% cost function. Instead, we replace the max function by a classical
-% log-sum-exp approximation and (attempt to) solve:
+% on the sphere.
 %
-% min_{X in OB(d, n)} log( .5*sum_{i~=j} exp( xi'*xj/epsilon ) ),
+% Ideally, we would minimize the maximum inner product between any two
+% points X(i, :) and X(j, :), i~=j, but that is a nonsmooth cost function.
+% Instead, we replace the max function by a classical log-sum-exp
+% approximation and (attempt to) solve:
 %
-% with xi = X(:, i) and epsilon is some "diffusion constant". As epsilon
+%    min_{X in OB(d, n)} log( .5*sum_{i~=j} exp( (xi'*xj)/epsilon ) )
+%
+% with xi = X(:, i), where epsilon is some "diffusion constant". As epsilon
 % goes to zero, the cost function is a sharper approximation of the max
 % function (under some assumptions), but the cost function becomes stiffer
 % and hence harder to optimize.
@@ -23,20 +25,22 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 % minimize.
 %
 % Notice that this cost function is invariant under rotation of X:
-% f(X) = f(XQ) for all orthogonal Q in O(d).
-% This calls for optimization over the set of symmetric positive
-% semidefinite matrices of size n and rank d with unit diagonal, which can
-% be thought of as the quotient of the oblique manifold OB(d, n) by O(d):
-% See elliptopefactory.
+% 
+%    f(X) = f(XQ) for all orthogonal Q in O(d).
+% 
+% We could take the quotient of the oblique manifold OB(d, n) by O(d) to
+% remove this symmetry: see elliptopefactory.
 %
 % This is known as the Thomson or, more specifically, the Tammes problem:
-% http://en.wikipedia.org/wiki/Tammes_problem
-% An interesting page by Neil Sloane collecting best known packings is
-% available here http://neilsloane.com/packings/
-
-% This file is part of Manopt and is copyrighted. See the license file.
 %
-% Main author: Nicolas Boumal, July 2, 2013
+%    http://en.wikipedia.org/wiki/Tammes_problem
+% 
+% Neil Sloane collects the best known packings here:
+% 
+%    http://neilsloane.com/packings/
+
+% This file is part of Manopt: www.manopt.org.
+% Original author: Nicolas Boumal, July 2, 2013
 % Contributors:
 %
 % Change log:
@@ -50,6 +54,8 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
 %                        trouble when epsilon is too small.
 %   
 %   Aug. 31, 2021 (XJ) : Added AD to compute the gradient
+%   
+%   June 26, 2024 (NB) : Modernized the code and comments somewhat.
 
     if ~exist('d', 'var') || isempty(d)
         % Dimension of the embedding space: R^d
@@ -57,8 +63,8 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     end
     if ~exist('n', 'var') || isempty(n)
         % Number n of points to place of the sphere in R^d.
-        % For example, n=12 yields an icosahedron:
-        % https://en.wikipedia.org/wiki/Icosahedron
+        % For example, n=12 should yield an icosahedron:
+        %    https://en.wikipedia.org/wiki/Icosahedron
         % Notice though that platonic solids are not always optimal.
         % Try for example n = 8: you don't get a cube.
         n = 24;
@@ -78,10 +84,12 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
         epsilon = 0.0015;
     end
     
-    % Pick your manifold (the elliptope factory quotients out the global
-    % rotation invariance of the problem, which is more natural but
-    % conceptually a bit more complicated --- for usage with the toolbox it
-    % is the same though: just uncomment the appropriate line).
+    % Pick your manifold.
+    % By default we work with the oblique manifold (n rows each of norm 1).
+    % The elliptope factory quotients out the global rotation invariance of
+    % the problem, which is more natural but conceptually more complicated.
+    % For usage with the toolbox it is the same though.
+    %
     manifold = obliquefactory(n, d, 'rows');
     % manifold = elliptopefactory(n, d);
     
@@ -90,13 +98,12 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
         X0 = manifold.rand();
     end
 
-    % Define the cost function with caching system used: the store
+    % Define the cost function and its derivatives, with caching: the store
     % structure we receive as input is tied to the input point X. Everytime
-    % this cost function is called at this point X, we will receive the
-    % same store structure back. We may modify the store structure inside
-    % the function and return it: the changes will be remembered for next
-    % time.
-    function [f, store] = cost(X, store)
+    % this cost function is called at /this/ point X, we receive the /same/
+    % store structure back. We may modify the store structure inside
+    % the function and return it: the changes are remembered for next time.
+    function store = prepare(X, store)
         if ~isfield(store, 'ready')
             XXt = X*X';
             % Shift the exponentials by the maximum value to reduce
@@ -106,60 +113,55 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
             % Zero out the diagonal
             expXXt(1:(n+1):end) = 0;
             u = sum(sum(triu(expXXt, 1)));
-            store.XXt = XXt;
             store.s = s;
             store.expXXt = expXXt;
             store.u = u;
             store.ready = true;
         end
+    end
+    function [f, store] = cost(X, store)
+        store = prepare(X, store);
         u = store.u;
         s = store.s;
         f = s + epsilon*log(u);
     end
 
-    % Define the gradient of the cost. When the gradient is called at a
-    % point X for which the cost was already called, the store structure we
-    % receive remember everything that the cost function stored in it, so
-    % we can reuse previously computed elements.
-    function [g, store] = grad(X, store)
-        if ~isfield(store, 'ready')
-            [~, store] = cost(X, store);
-        end
+    % Define the Euclidean gradient of the cost.
+    function [G, store] = egrad(X, store)
+        store = prepare(X, store);
         % Compute the Euclidean gradient
-        eg = store.expXXt*X / store.u;
-        % Convert to the Riemannian gradient (by projection)
-        g = manifold.egrad2rgrad(X, eg);
+        G = store.expXXt*X / store.u;
     end
 
-    % Setup the problem structure with its manifold M and cost+grad
+    % Setup the problem structure with its manifold M and cost + egrad
     % functions.
     problem.M = manifold;
     problem.cost = @cost;
-    problem.grad = @grad;
+    problem.egrad = @egrad;
 
     % An alternative way to compute the grad is to use automatic
-    % differentiation provided in the deep learning toolbox (slower)
+    % differentiation provided in the deep learning toolbox (slower).
     % Notice that the function triu is not supported for AD so far.
     % Replace it with ctriu described in the file manoptADhelp.m
     % problem.cost = @cost_AD;
-    %    function f = cost_AD(X)
-    %        XXt = X*X';
-    %        s = max(max(ctriu(XXt, 1)));
-    %        expXXt = exp((XXt-s)/epsilon);
-    %        expXXt(1:(n+1):end) = 0;
-    %        u = sum(sum(ctriu(expXXt, 1)));
-    %        f = s + epsilon*log(u);
-    %    end
+    % function f = cost_AD(X)
+    %    XXt = X*X';
+    %    s = max(max(ctriu(XXt, 1)));
+    %    expXXt = exp((XXt-s)/epsilon);
+    %    expXXt(1:(n+1):end) = 0;
+    %    u = sum(sum(ctriu(expXXt, 1)));
+    %    f = s + epsilon*log(u);
+    % end
     % Call manoptAD to prepare AD for the problem structure
-    % problem = manoptAD(problem,'egrad');
+    % problem = manoptAD(problem);
     
     % For debugging, it's always nice to check the gradient a few times.
     % checkgradient(problem);
     % pause;
     
     % Call a solver on our problem with a few options defined. We did not
-    % specify the Hessian but it is still okay to call trustregion: Manopt
-    % will approximate the Hessian with finite differences of the gradient.
+    % specify the Hessian but it is still okay to call trustregions: Manopt
+    % approximates the Hessian with finite differences of the gradient.
     opts.tolgradnorm = 1e-8;
     opts.maxtime = 1200;
     opts.maxiter = 1e5;
@@ -173,15 +175,15 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     
     % Similarly, even though we did not specify the Hessian, we may still
     % estimate its spectrum at the solution. It should reflect the
-    % invariance of the cost function under a global rotatioon of the
+    % invariance of the cost function under a global rotation of the
     % sphere, which is an invariance under the group O(d) of dimension
     % d(d-1)/2 : this translates into d(d-1)/2 zero eigenvalues in the
     % spectrum of the Hessian.
-    % The approximate Hessian is not a linear operator, and is it a
+    % The approximate Hessian is not a linear operator, and it is a
     % fortiori not symmetric. The result of this computation is thus not
-    % reliable. It does display the zero eigenvalues as expected though.
+    % precise. It does display the zero eigenvalues as expected though.
     if manifold.dim() < 300
-        evs = real(hessianspectrum(problem, X));
+        evs = hessianspectrum(problem, X);
         figure;
         stem(1:length(evs), sort(evs), '.');
         title(['Eigenvalues of the approximate Hessian of the cost ' ...
@@ -189,7 +191,7 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     end
     
     
-    % Show how the inner products X(:, i)'*X(:, j) are distributed.
+    % Show how the distances between points are distributed.
     figure;
     histogram(real(acos(dots)), 20);
     title('Histogram of the geodesic distances');
@@ -198,16 +200,18 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
     fprintf('Maximum inner product between two points: %g\n', maxdot);
     
     
-    % Give some visualization if the dimension allows
+    % Give some visualization if the dimension allows it.
     if d == 2
         % For the circle, the optimal solution consists in spreading the
         % points with angles uniformly sampled in (0, 2pi). This
         % corresponds to the following value for the max inner product:
-        fprintf('Optimal value for the max inner product: %g\n', cos(2*pi/n));
+        fprintf('Optimal value for the max inner product: %g\n', ...
+                cos(2*pi/n));
         figure;
         t = linspace(-pi, pi, 201);
-        plot(cos(t), sin(t), '-', 'LineWidth', 3, 'Color', [152,186,220]/255);
-        daspect([1 1 1]);
+        plot(cos(t), sin(t), '-', ...
+             'LineWidth', 3, 'Color', [152, 186, 220]/255);
+        daspect([1, 1, 1]);
         box off;
         axis off;
         hold on;
@@ -220,25 +224,30 @@ function [X, maxdot] = packing_on_the_sphere(d, n, epsilon, X0)
         % Plot the sphere
         [sphere_x, sphere_y, sphere_z] = sphere(50);
         handle = surf(sphere_x, sphere_y, sphere_z);
-        set(handle, 'FaceColor', [152,186,220]/255);
+        set(handle, 'FaceColor', [152, 186, 220]/255);
         set(handle, 'FaceAlpha', .5);
-        set(handle, 'EdgeColor', [152,186,220]/255);
+        set(handle, 'EdgeColor', [152, 186, 220]/255);
         set(handle, 'EdgeAlpha', .5);
-        daspect([1 1 1]);
+        daspect([1, 1, 1]);
+        set(gca, 'Clipping', 'off');
         box off;
         axis off;
         hold on;
         % Add the chosen points
-        Y = 1.02*X';
+        Y = 1.01*X';
         plot3(Y(1, :), Y(2, :), Y(3, :), 'r.', 'MarkerSize', 25);
         % And connect the points which are at minimal distance,
         % within some tolerance.
         min_distance = real(acos(maxdot));
-        connected = real(acos(XXt)) <= 1.20*min_distance;
-        [Ic, Jc] = find(triu(connected, 1));
-        for k = 1 : length(Ic)
-            i = Ic(k); j = Jc(k);
-            plot3(Y(1, [i j]), Y(2, [i j]), Y(3, [i j]), 'k-');
+        for i = 1:n
+            for j = (i+1):n
+                yi = Y(:, i);
+                yj = Y(:, j);
+                if real(acos(yi'*yj)) <= 1.20*min_distance
+                    plot3([yi(1), yj(1)], [yi(2), yj(2)], ...
+                                          [yi(3), yj(3)], 'k-');
+                end
+            end
         end
         hold off;
     end

@@ -1,5 +1,5 @@
 function [Y, problem, S] = elliptope_SDP(A, p, Y0)
-% Solver for semidefinite programs (SDP's) with unit diagonal constraints.
+% Solver for semidefinite programs (SDPs) with unit diagonal constraints.
 % 
 % function [Y, problem, S] = elliptope_SDP(A)
 % function [Y, problem, S] = elliptope_SDP(A, p)
@@ -11,11 +11,10 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 %
 %   min_X  trace(A*X)  s.t.  diag(X) = 1 and X is positive semidefinite.
 %
-% In practice, the symmetric matrix X of size n is parameterized
-% as X = Y*Y', where Y has size n x p. By default, p is taken large enough
+% The symmetric matrix X of size n is parameterized as X = Y*Y',
+% where Y has size n x p. By default, p is taken large enough
 % (about sqrt(2n)) to ensure that there exists an optimal X whose rank is
-% smaller than p. This ensures that the SDP is equivalent to the new
-% problem in Y:
+% smaller than p. Then, the SDP is equivalent to the new problem in Y:
 %
 %   min_Y  trace(Y'*A*Y)  s.t.  diag(Y*Y') = 1.
 %
@@ -23,10 +22,9 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % why Manopt is appropriate software to solve this problem. An optional
 % initial guess can be specified via the input Y0.
 %
-% See the paper below for theory, specifically, for a proof that, for
-% almost all A, second-order critical points of the problem in Y are
-% globally optimal. In other words: there are no local traps in Y, despite
-% non-convexity.
+% See the paper below for theory, including a proof that, for almost all A,
+% second-order critical points of the problem in Y are globally optimal.
+% In other words: there are no local traps in Y, despite non-convexity.
 %
 % Outputs:
 %
@@ -50,7 +48,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 %   year    = {2016}
 % }
 % 
-% See also: maxcut elliptope_SDP_complex
+% See also: maxcut elliptope_SDP_complex manoptlift burermonteirolift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 28, 2016
@@ -58,14 +56,16 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 % Change log:
 %
 %    Xiaowen Jiang Aug. 20, 2021
-%       Added AD to compute the egrad and the ehess 
+%       Added code to showcase how AD would compute egrad and ehess.
+%
+%    NB, June 26, 2024
+%       Revamped the example for a cleaner flow.
 
     % If no inputs are provided, since this is an example file, generate
-    % a random Erdos-Renyi graph. This is for illustration purposes only.
+    % a random sparse cost matrix. This is for illustration purposes only.
     if ~exist('A', 'var') || isempty(A)
         n = 100;
-        A = triu(rand(n) <= .1, 1);
-        A = (A+A.')/(2*n);
+        A = abs(sprandsym(n, .1));
     end
 
     n = size(A, 1);
@@ -83,7 +83,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
     
     assert(p >= 2 && p == round(p), 'p must be an integer >= 2.');
 
-    % Pick the manifold of n-by-p matrices with unit norm rows.
+    % Pick the manifold of n-by-p matrices with unit-norm rows.
     manifold = obliquefactory(n, p, 'rows');
     
     problem.M = manifold;
@@ -94,18 +94,17 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
     % when prototyping. Below, a more advanced use of Manopt is shown,
     % where the redundant computation A*Y is avoided between the gradient
     % and the cost evaluation.
-    % % problem.cost  = @(Y) .5*sum(sum((A*Y).*Y));
+    % % problem.cost  = @(Y) .5*sum((A*Y).*Y, 'all');
     % % problem.egrad = @(Y) A*Y;
     % % problem.ehess = @(Y, Ydot) A*Ydot;
+
     
     % Products with A dominate the cost, hence we store the result.
     % This allows to share the results among cost, grad and hess.
     % This is completely optional.
     function store = prepare(Y, store)
         if ~isfield(store, 'AY')
-            AY = A*Y;
-            store.AY = AY;
-            store.diagAYYt = sum(AY .* Y, 2);
+            store.AY = A*Y;
         end
     end
     
@@ -113,35 +112,32 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
     problem.cost = @cost;
     function [f, store] = cost(Y, store)
         store = prepare(Y, store);
-        f = .5*sum(store.diagAYYt);
+        f = .5*sum(store.AY .* Y, 'all');
     end
 
-    % Define the Riemannian gradient.
-    problem.grad = @grad;
-    function [G, store] = grad(Y, store)
+    % Define the Euclidean gradient.
+    problem.egrad = @egrad;
+    function [G, store] = egrad(Y, store)
         store = prepare(Y, store);
-        G = store.AY - bsxfun(@times, Y, store.diagAYYt);
+        G = store.AY;
     end
 
-    % If you want to, you can specify the Riemannian Hessian as well.
-    problem.hess = @hess;
-    function [H, store] = hess(Y, Ydot, store)
-        store = prepare(Y, store);
-        SYdot = A*Ydot - bsxfun(@times, Ydot, store.diagAYYt);
-        H = manifold.proj(Y, SYdot);
+    % If you want to, you can specify the Euclidean Hessian as well.
+    problem.ehess = @ehess;
+    function [H, store] = ehess(Y, Ydot, store) %#ok<INUSD>
+        H = A*Ydot;
     end
+
 
     % An alternative way to compute the gradient and the hessian is to use 
-    % automatic differentiation provided in the deep learning toolbox (slower)
-    % Define the cost function without the store structure
-    % function f = cost_AD(Y)
-    %    AY = A*Y;
-    %    diagAYYt = sum(AY .* Y, 2);
-    %    f = .5*sum(diagAYYt);
-    % end
-    % problem.cost = @cost_AD;
-    % call manoptAD to prepare AD for the problem structure
+    % automatic differentiation via the tool manoptAD.
+    %
+    % Simply define the cost function without the store structure, then
+    % call the tool -- this requires the Deep Learning toolbox.
+    %
+    % problem.cost = @(Y) .5*sum((A*Y) .* Y, 'all');
     % problem = manoptAD(problem);
+
 
     % If no initial guess is available, tell Manopt to use a random one.
     if ~exist('Y0', 'var') || isempty(Y0)
@@ -150,7 +146,7 @@ function [Y, problem, S] = elliptope_SDP(A, p, Y0)
 
     % Call your favorite solver.
     opts = struct();
-    opts.verbosity = 0;      % Set to 0 for no output, 2 for normal output
+    opts.verbosity = 2;      % Set to 0 for no output, 2 for normal output
     opts.maxinner = 500;     % maximum Hessian calls per iteration
     opts.tolgradnorm = 1e-6; % tolerance on gradient norm
     Y = trustregions(problem, Y0, opts);
