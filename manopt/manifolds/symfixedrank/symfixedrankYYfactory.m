@@ -20,6 +20,9 @@ function M = symfixedrankYYfactory(n, k)
 % rank deficient, the geometry will break down. Hence, this geometry should
 % only be used if it is expected that the points of interest will have rank
 % exactly k. Reduce k if that is not the case.
+%
+% If you wish to optimize with bounded rank rather than fixed rank, see
+% the tool manoptlift with burermonteirolift.
 % 
 % An alternative, complete, geometry for positive semidefinite matrices of
 % rank k is described in Bonnabel and Sepulchre 2009, "Riemannian Metric
@@ -64,6 +67,7 @@ function M = symfixedrankYYfactory(n, k)
 % 
 
 % See also: elliptopefactory spectrahedronfactory symfixedrankYYcomplexfactory
+%           manoptlift burermonteirolift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Bamdev Mishra, Dec. 30, 2012.
