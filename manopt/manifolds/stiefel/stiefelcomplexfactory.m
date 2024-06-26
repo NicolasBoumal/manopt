@@ -66,8 +66,6 @@ function M = stiefelcomplexfactory(n, p, k)
     
     M.norm = @(x, d) norm(d(:));
     
-    M.dist = @(x, y) error('stiefel.dist not implemented yet.');
-    
     M.typicaldist = @() sqrt(p*k);
     
     M.proj = @projection;

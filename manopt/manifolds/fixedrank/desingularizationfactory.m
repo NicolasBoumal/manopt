@@ -121,8 +121,6 @@ function M = desingularizationfactory(m, n, r, alpha)
 
     M.norm = @(XP, XPdot) sqrt(max(0, M.inner(XP, XPdot, XPdot)));
 
-    M.dist = @(XP1, XP2) error('desingularization dist not implemented yet.');
-
     M.typicaldist = @() M.dim();
 
     % Given XPdot in tangent vector format, projects the component Vp such

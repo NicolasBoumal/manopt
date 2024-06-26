@@ -48,8 +48,6 @@ function M = stiefelstackedfactory(m, d, k)
     
     M.norm = @(x, d) norm(d(:));
     
-    M.dist = @(x, y) error('stiefelstackedfactory.dist not implemented yet.');
-    
     M.typicaldist = @() sqrt(M.dim());
 
     % Convert a dxkxm matrix to an nxk matrix

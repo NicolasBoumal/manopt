@@ -89,8 +89,6 @@ function M = fixedrankfactory_2factors(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankfactory_2factors.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     symm = @(M) .5*(M+M');

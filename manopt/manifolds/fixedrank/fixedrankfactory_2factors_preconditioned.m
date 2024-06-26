@@ -63,8 +63,6 @@ function M = fixedrankfactory_2factors_preconditioned(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankfactory_2factors_preconditioned.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     M.egrad2rgrad = @egrad2rgrad;

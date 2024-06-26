@@ -66,8 +66,6 @@ function M = fixedrankfactory_2factors_subspace_projection(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankfactory_2factors_subspace_projection.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     skew = @(X) .5*(X-X');

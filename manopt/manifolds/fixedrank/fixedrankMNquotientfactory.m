@@ -46,8 +46,6 @@ function M = fixedrankMNquotientfactory(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankMNquotientfactory.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     symm = @(X) .5*(X+X');

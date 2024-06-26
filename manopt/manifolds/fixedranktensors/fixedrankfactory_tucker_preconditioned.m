@@ -123,8 +123,6 @@ function M = fixedrankfactory_tucker_preconditioned_helper(...
     end
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankfactory_tucker_preconditioned.dist not implemented yet.');
-    
     M.typicaldist = @() 10*n1*r1; % BM: To do  
     
     M.egrad2rgrad = @egrad2rgrad;

@@ -97,8 +97,6 @@ function M = multinomialdoublystochasticgeneralfactory(n, m, p, q)
 
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta)); % BM okay
 
-    M.dist = @(X, Y) error('multinomialdoublystochasticgeneralfactory.dist not implemented yet.');
-
     % The manifold is not compact as a result of the choice of the metric,
     % thus any choice here is arbitrary. This is notably used to pick
     % default values of initial and maximal trust-region radius in the

@@ -135,7 +135,6 @@ function M = fixedTTrankfactory(n, r, ind)
     % Note that innerprod has an overflow in TTeMPS for TT-tensor arguments
     M.inner = @(x, u, v) innerprod(u, v);
     M.norm = @(x, v) real(sqrt(innerprod(v, v)));
-    M.dist = @(x, y) error('tensor_fixed_TT_rank_factory.dist not implemented yet.');
     M.typicaldist = @() M.dim();
 
 

@@ -46,8 +46,6 @@ function M = stiefelgeneralizedfactory_HS_KA(n, p, B)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(X, Y) error('stiefelgeneralizedfactory.dist not implemented yet.');
-    
     M.typicaldist = @() sqrt(p);
     
     % Orthogonal projection of an ambient vector U to the tangent space

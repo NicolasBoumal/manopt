@@ -131,8 +131,6 @@ function M = fixedrankembeddedfactory(m, n, k)
     M.norm = @(x, d) sqrt(norm(d.M, 'fro')^2 + norm(d.Up, 'fro')^2 ...
                                              + norm(d.Vp, 'fro')^2);
     
-    M.dist = @(x, y) error('fixedrankembeddedfactory.dist not implemented yet.');
-    
     M.typicaldist = @() M.dim();
     
     % Given Z in tangent vector format, projects the components Up and Vp

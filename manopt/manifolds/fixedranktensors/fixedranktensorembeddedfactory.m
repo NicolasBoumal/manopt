@@ -104,8 +104,6 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
 
     M.norm = @(X, eta) sqrt(iproduct(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedranktensorembeddedfactory.dist not implemented yet.');
-    
     % This number is heuristic
     M.typicaldist = @() 10*mean(n)*mean(r);
     

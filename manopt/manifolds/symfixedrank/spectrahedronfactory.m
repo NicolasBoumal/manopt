@@ -71,8 +71,6 @@ function M = spectrahedronfactory(n, k)
     
     M.norm = @(Y, eta) sqrt(M.inner(Y, eta, eta));
     
-    M.dist = @(Y, Z) error('spectrahedronfactory.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     M.proj = @projection;

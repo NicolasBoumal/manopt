@@ -65,8 +65,6 @@ function M = fixedrankfactory_3factors_preconditioned(m, n, k)
     
     M.norm = @(X, eta) sqrt(M.inner(X, eta, eta));
     
-    M.dist = @(x, y) error('fixedrankfactory_3factors_preconditioned.dist not implemented yet.');
-    
     M.typicaldist = @() 10*k;
     
     skew = @(X) .5*(X-X');
