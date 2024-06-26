@@ -233,8 +233,8 @@ function M = obliquefactory(n, m, dirflag, gpuflag)
     % Scale each col/row of X by its norm.
     function Y = normalize(X)
         nrms = vecnorm(X, 2, dim);
-        % The following is faster than "X ./ nrms", though a tad less accurate.
-        % It's also much faster than "bsxfun(@times, X, 1./nrms)".
+        % The following is faster than "X ./ nrms", though a tad less
+        % accurate. It's also much faster than bsxfun(@times, X, 1./nrms).
         Y = X .* (1 ./ nrms);
     end
 

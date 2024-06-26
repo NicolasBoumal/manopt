@@ -1,9 +1,9 @@
-% M = obliquecomplexfactory(5, 10, false);
+M = obliquecomplexfactory(5, 10, 'rows');
 % M = obliquefactory(5, 10, false);
 % M = spherecomplexfactory(5, 10);
 % M = spheresymmetricfactory(5);
 % M = complexcirclefactory(5);
-M = realphasefactory(5);
+% M = realphasefactory(5);
 
 X = M.rand();
 U = M.randvec(X);

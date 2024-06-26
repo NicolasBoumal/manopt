@@ -1,28 +1,43 @@
-function M = obliquecomplexfactory(n, m, transposed)
-% Returns a manifold struct defining complex matrices w/ unit-norm columns.
+function M = obliquecomplexfactory(n, m, dirflag, gpuflag)
+% A manifold struct to optimize on complex matrices w/ unit-norm cols/rows.
 %
 % function M = obliquecomplexfactory(n, m)
-% function M = obliquecomplexfactory(n, m, transposed)
+% function M = obliquecomplexfactory(n, m, 'cols')
+% function M = obliquecomplexfactory(n, m, 'rows')
+% function M = obliquecomplexfactory(n, m, dirflag, 'gpu')
 %
-% Oblique manifold: deals with complex matrices of size n x m such that
-% each column has unit 2-norm, i.e., is a point on the unit sphere in C^n.
-% The geometry is a product geometry of m unit spheres in C^n. For the
-% metric, C^n is treated as R^(2n), so that the real part and imaginary
-% parts are treated separately as 2n real coordinates. As such, the complex
-% oblique manifold is a Riemannian submanifold of (R^2)^(n x m), with the
-% usual metric <u, v> = real(u'*v).
+% The oblique manifold is a product of spheres, embedded in C^(nxm).
 %
-% If transposed is set to true (it is false by default), then the matrices
-% are transposed: a point Y on the manifold is a matrix of size m x n and
-% each row has unit 2-norm. It is the same geometry, just a different
-% representation.
+% By default, columns have unit norm (product of m spheres in C^n).
+% This can also be expressed with the flag 'cols'.
+% 
+% If that flag is set to 'rows', then the rows have unit norm instead
+% (product of n spheres in C^m).
+% 
+% The metric is such that the oblique manifold is a Riemannian submanifold
+% of the space of nxm matrices with the trace inner product (Frobenius):
 %
-% In transposed form, a point Y is such that Y*Y' is a Hermitian, positive
-% semidefinite matrix of size m and of rank at most n, such that all the
-% diagonal entries are equal to 1.
+%   <A, B> = real(trace(A'*B))
 %
-% Note: obliquecomplexfactory(1, n, true) is equivalent to (but potentially
-% slower than) complexcirclefactory(n).
+% Effectively, this treats C^n as R^(2n), with the real and imaginary parts
+% treated separately as 2n real coordinates.
+%
+% Set gpuflag  to 'gpu' to have points, tangent vectors and ambient vectors
+% stored on the GPU. If so, computations in cost, grad etc. can be done on
+% the GPU directly. By default, the GPU is not used. This can also be
+% expressed with the flag 'nogpu'.
+%
+%
+% For backward compatibility, the two input flags can also be boolean:
+%   obliquecomplexfactory(n, m, false)
+%       == obliquecomplexfactory(n, m, 'cols')
+%   obliquecomplexfactory(n, m, true)
+%       == obliquecomplexfactory(m, n, 'rows') (mind m <-> n)
+%   gpuflag: true == 'gpu' and false == 'nogpu'.
+%   
+%
+% Note: obliquecomplexfactory(n, 1, 'rows') is equivalent to (but
+% potentially slower than) complexcirclefactory(n).
 %
 % See also: spherecomplexfactory complexcirclefactory obliquefactory
 
@@ -42,31 +57,102 @@ function M = obliquecomplexfactory(n, m, transposed)
 %   May 28, 2023 (NB)
 %       Fixed bug in M.log in case 'transposed' is true (bug reported by
 %       Lingping Kong).
+%
+%   June 26, 2024 (NB)
+%       Revamped to match the new format of the real version of this
+%       factory. In the process, we get GPU support. Backward compatible.
 
 
-    if ~exist('transposed', 'var') || isempty(transposed)
-        transposed = false;
+    if ~exist('dirflag', 'var') || isempty(dirflag)
+        dirflag = 'cols';
+    end
+    if islogical(dirflag)   % legacy support for Manopt <= 7.1.
+        if dirflag          % dirflag was a Boolean called 'transposed'.
+            [n, m] = deal(m, n);
+            dirflag = 'rows';
+        else
+            dirflag = 'cols';
+        end
+    end
+    switch lower(dirflag)
+        case 'cols'
+            unitcols = true;
+            dim = 1; % for use with vecnorm and sum, to operate on columns
+        case 'rows'
+            unitcols = false;
+            dim = 2; % for use with vecnorm and sum, to operate on rows
+        otherwise
+            error('The direction flag should be ''cols'' or ''rows''.');
     end
 
-    if transposed
-        trnsp = @(X) X.';
+
+    if ~exist('gpuflag', 'var') || isempty(gpuflag)
+        gpuflag = 'nogpu';
+    end
+    if islogical(gpuflag)   % legacy support for Manopt <= 7.1.
+        if gpuflag          % gpuflag was a Boolean.
+            gpuflag = 'gpu';
+        else
+            gpuflag = 'nogpu';
+        end
+    end
+    switch lower(gpuflag)
+        case 'gpu'
+            usegpu = true;
+        case 'nogpu'
+            usegpu = false;
+        otherwise
+            error('The GPU flag should be ''gpu'' or ''nogpu''.');
+    end
+
+
+
+    % If gpuflag is active, new arrays (e.g., via rand, randn, zeros, ones)
+    % are created directly on the GPU; otherwise, they are created in the
+    % usual way (in double precision).
+    if usegpu
+        array_type = 'gpuArray';
     else
-        trnsp = @(X) X;
+        array_type = 'double';
     end
 
-    M.name = @() sprintf('Complex oblique manifold COB(%d, %d)', n, m);
+    basename = 'Complex oblique manifold COB(%d, %d), ';
+    if unitcols
+        name = sprintf([basename, 'unit columns'], n, m);
+    else
+        name = sprintf([basename, 'unit rows'], n, m);
+    end
+    M.name = @() name;
 
-    M.dim = @() (2*n-1)*m;
+    if unitcols
+        Mdim = (2*n-1)*m;
+    else
+        Mdim = (2*m-1)*n;
+    end
+    M.dim = @() Mdim;
 
-    M.inner = @(x, d1, d2) real(d1(:)'*d2(:));
+    M.inner = @(X, U, V) real(U(:)'*V(:));
 
-    M.norm = @(x, d) norm(d(:));
+    M.norm = @(X, U) norm(U(:));
 
-    M.dist = @(x, y) norm(real(2*asin(.5*sqrt(sum(trnsp(abs(x - y).^2), 1)))));
+    M.dist = @(X, Y) norm(real(2*asin(.5*vecnorm(X - Y, 2, dim))));
 
-    M.typicaldist = @() pi*sqrt(m);
+    if unitcols
+        typicaldist = pi*sqrt(m);
+    else
+        typicaldist = pi*sqrt(n);
+    end
+    M.typicaldist = @() typicaldist;
 
-    M.proj = @(X, U) trnsp(projection(trnsp(X), trnsp(U)));
+    M.proj = @projection;
+    % Orthogonal projection of H in C^(nxm) to the tangent space at X.
+    function PXH = projection(X, H)
+        % Compute the inner product between each column/row of H
+        % with the corresponding column/row of X.
+        inners = real(sum(conj(X).*H, dim));
+        % Remove from H the components that are parallel to X, by row/col.
+        PXH = H - X.*inners;
+    end
 
     M.tangent = M.proj;
 
@@ -74,143 +160,95 @@ function M = obliquecomplexfactory(n, m, transposed)
     % Riemannian gradient amounts to an orthogonal projection.
     M.egrad2rgrad = M.proj;
 
+    M.tangent2ambient_is_identity = true;
+    M.tangent2ambient = @(X, U) U;
+
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, U)
-        X = trnsp(X);
-        egrad = trnsp(egrad);
-        ehess = trnsp(ehess);
-        U = trnsp(U);
-
-        PXehess = projection(X, ehess);
-        inners = sum(real(conj(X).*egrad), 1);
-        rhess = PXehess - bsxfun(@times, U, inners);
-
-        rhess = trnsp(rhess);
+        inners = real(sum(conj(X).*egrad, dim));
+        rhess = projection(X, ehess - U.*inners);
     end
 
     M.exp = @exponential;
-    % Exponential on the complex oblique manifold
-    function y = exponential(x, d, t)
-        x = trnsp(x);
-        d = trnsp(d);
-
-        if nargin == 2
-            % t = 1;
-            td = d;
+    function Y = exponential(X, U, t)
+        if nargin < 3  % t = 1;
+            tU = U;
         else
-            td = t*d;
+            tU = t*U;
         end
-
-        nrm_td = sqrt(sum(real(td).^2 + imag(td).^2, 1));
-
-        y = bsxfun(@times, x, cos(nrm_td)) + ...
-            bsxfun(@times, td, sinxoverx(nrm_td));
-
-        y = trnsp(y);
+        nrm_tU = vecnorm(tU, 2, dim);
+        Y = X .* cos(nrm_tU) + tU .* sinxoverx(nrm_tU);
     end
 
     M.log = @logarithm;
-    function v = logarithm(x1, x2)
-        x1 = trnsp(x1);
-        x2 = trnsp(x2);
-
-        v = projection(x1, x2 - x1);
-        dists = real(2*asin(.5*sqrt(sum(abs(x2 - x1).^2, 1))));
-        norms = sqrt(sum(real(v).^2 + imag(v).^2, 1));
+    function V = logarithm(X1, X2)
+        difference = X2 - X1;
+        dists = real(2*asin(.5*vecnorm(difference, 2, dim)));
+        V = projection(X1, difference);
+        norms = vecnorm(V, 2, dim);
         factors = dists./norms;
-        % For very close points, dists is almost equal to norms, but
-        % because they are both almost zero, the division above can return
-        % NaN's. To avoid that, we force those ratios to 1.
         factors(dists <= 1e-10) = 1;
-        v = bsxfun(@times, v, factors);
+        V = V .* factors;
+    end
 
-        v = trnsp(v);
+    M.normalize = @normalize;
+    % Scale each col/row of X by its norm.
+    function Y = normalize(X)
+        nrms = vecnorm(X, 2, dim);
+        Y = X .* (1 ./ nrms);
     end
 
     M.retr = @retraction;
-    % Retraction on the oblique manifold
-    function y = retraction(x, d, t)
-        x = trnsp(x);
-        d = trnsp(d);
-
+    % Metric projection retraction
+    function Y = retraction(X, U, t)
         if nargin < 3
-            td = d;
+            tU = U;  % t = 1;
         else
-            td = t*d;
+            tU = t*U;
         end
+        Y = normalize(X + tU);
+    end
 
-        y = normalize_columns(x + td);
-
-        y = trnsp(y);
+    % Inverse retraction
+    M.invretr = @inverse_retraction;
+    function U = inverse_retraction(X, Y)
+        U = (Y .* (1./real(sum(conj(X).*Y, dim)))) - X;
     end
 
     M.hash = @(x) ['z' hashmd5([real(x(:)) ; imag(x(:))])];
 
-    M.rand = @() trnsp(random(n, m));
+    M.rand = @() normalize(   randn(n, m, array_type) + ...
+                           1i*randn(n, m, array_type));
 
-    M.randvec = @(x) trnsp(randomvec(n, m, trnsp(x)));
+    M.randvec = @randvec;
+    function U = randvec(X)
+        randmat = randn(n, m, array_type) + 1i*randn(n, m, array_type);
+        U = projection(X, randmat);
+        U = U / norm(U(:));
+    end
 
     M.lincomb = @matrixlincomb;
 
-    M.zerovec = @(x) trnsp(zeros(n, m));
+    M.zerovec = @(x) zeros(n, m, array_type);
 
-    M.transp = @(x1, x2, d) M.proj(x2, d);
+    M.transp = @(X1, X2, U) projection(X2, U);
 
-    M.pairmean = @pairmean;
-    function y = pairmean(x1, x2)
-        y = trnsp(x1+x2);
-        y = normalize_columns(y);
-        y = trnsp(y);
-    end
+    M.pairmean = @(X1, X2) normalize(X1+X2);
 
     % vec returns a vector representation of an input tangent vector which
-    % is represented as a matrix. mat returns the original matrix
-    % representation of the input vector representation of a tangent
-    % vector. vec and mat are thus inverse of each other. They are
-    % furthermore isometries between a subspace of R^2nm and the tangent
-    % space at x.
-    vect = @(X) X(:);
-    M.vec = @(x, u_mat) [vect(real(trnsp(u_mat))) ; ...
-                         vect(imag(trnsp(u_mat)))];
-    M.mat = @(x, u_vec)    trnsp(reshape(u_vec(1:(n*m)),     [n, m])) + ...
-                        1i*trnsp(reshape(u_vec((n*m+1):end), [n, m]));
+    % is represented as a matrix.
+    % mat returns the original matrix representation of the input vector
+    % representation of a tangent vector.
+    % vec and mat are thus inverse of each other. They are furthermore
+    % isometries between a subspace of R^nm and the tangent space at X.
+    M.vec = @(X, U_mat) [real(U_mat(:)) ; imag(U_mat(:))];
+    M.mat = @(X, U_vec)    reshape(U_vec(1:n*m), [n, m]) + ...
+                        1i*reshape(U_vec((n*m+1):end), [n, m]);
     M.vecmatareisometries = @() true;
 
-end
-
-% Given a matrix X, returns the same matrix but with each column scaled so
-% that they have unit 2-norm.
-function X = normalize_columns(X)
-    norms = sqrt(sum(real(X).^2 + imag(X).^2, 1));
-    X = bsxfun(@times, X, 1./norms);
-end
-
-% Orthogonal projection of the ambient vector H onto the tangent space at X
-function PXH = projection(X, H)
-
-    % Compute the inner product between each vector H(:, i) with its root
-    % point X(:, i), that is, real(X(:, i)' * H(:, i)).
-    % Returns a row vector.
-    inners = real(sum(conj(X).*H, 1));
-
-    % Subtract from H the components of the H(:, i)'s that are parallel to
-    % the root points X(:, i).
-    PXH = H - bsxfun(@times, X, inners);
-
-end
-
-% Uniform random sampling on the sphere.
-function x = random(n, m)
-
-    x = normalize_columns(randn(n, m) + 1i*randn(n, m));
-
-end
-
-% Random normalized tangent vector at x.
-function d = randomvec(n, m, x)
-
-    d = randn(n, m) + 1i*randn(n, m);
-    d = projection(x, d);
-    d = d / norm(d(:));
+    % Automatically convert a number of tools to support GPU.
+    if usegpu
+        M = factorygpuhelper(M);
+    end
 
 end

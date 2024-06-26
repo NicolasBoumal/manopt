@@ -83,7 +83,7 @@ function [Y, problem, S] = elliptope_SDP_complex(A, p, Y0)
     assert(p >= 1 && p == round(p), 'p must be an integer >= 1.');
 
     % Pick the manifold of complex n-by-p matrices with unit norm rows.
-    manifold = obliquecomplexfactory(p, n, true);
+    manifold = obliquecomplexfactory(n, p, 'rows');
     
     problem.M = manifold;
     
