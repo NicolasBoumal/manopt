@@ -26,6 +26,19 @@ for iter = 1:500
     replacesparseentries(M, x, 'inplace');
 end
 
+% These are by far the worst
+% for iter = 1:500
+    % M(find(M)) = x;
+    % M(M ~= 0) = x;
+% end
+
+% this is basically just as bad
+% for iter = 1 : 500
+    % [i, j] = find(M);
+    % q = sub2ind(size(M), i, j);
+    % M(q) = x;
+% end
+
 profile off;
 profile report;
 
