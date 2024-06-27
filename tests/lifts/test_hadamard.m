@@ -1,16 +1,19 @@
 clear; clc; clf;
 
-n = 4;
-m = 2;
+n = 5;
+m = n;
+lift = hadamardlift('colstochastic', n, m);
 
-lift = hadamardlift('simplex', n, m);
-A = randn(n, m);
+% random stochastic matrix
+A = lift.phi(lift.M.rand());
+
 inner = @(U, V) U(:).'*V(:);
 sqfrobnorm = @(U) inner(U, U);
-downstairs.cost = @(X) sqfrobnorm(X-A);
+downstairs.cost = @(X) sqfrobnorm(X*X-A);
+
 [upstairs, downstairs] = manoptlift(downstairs, lift, 'AD');
 
-X = trustregions(upstairs);
+Y = trustregions(upstairs);
+X = lift.phi(Y);
 
-A
-Y = lift.phi(X)
+% X is a column stochastic matrix such that X*X is (we hope) close to A.
