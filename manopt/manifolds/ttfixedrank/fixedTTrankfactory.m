@@ -249,7 +249,7 @@ function M = fixedTTrankfactory(n, r, ind)
 
     end
 
-    % Vector transport (see Steinlechner's thesis)
+    % Transporter (see Steinlechner's thesis)
     % Computes a tangent vector at X2 that "looks like" the tangent vector
     % Z1 at X1. This is not necessarily a parallel transport.
     M.transp = @project_tangent;

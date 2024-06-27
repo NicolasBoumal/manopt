@@ -34,7 +34,7 @@ function M = spherefactory(n, m, gpuflag)
 %       the distance function is now even more accurate.
 %
 %   Sep. 7, 2017 (NB)
-%       New isometric vector transport available in M.isotransp,
+%       New isometric transporter available in M.isotransp,
 %       contributed by Changshuo Liu.
 %
 %   April 17, 2018 (NB)
@@ -154,7 +154,7 @@ function M = spherefactory(n, m, gpuflag)
 
     M.transp = @(x1, x2, d) M.proj(x2, d);
 
-    % Isometric vector transport of d from the tangent space at x1 to x2.
+    % Isometric transporter of d from the tangent space at x1 to x2.
     % This is actually a parallel vector transport, see Ch. 5 in
     % http://epubs.siam.org/doi/pdf/10.1137/16M1069298
     % "A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization

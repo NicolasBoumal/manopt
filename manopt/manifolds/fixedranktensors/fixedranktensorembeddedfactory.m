@@ -343,7 +343,7 @@ function M = fixedranktensorembeddedfactory(tensor_size, tensor_rank)
         eta.V = V;
     end
 
-    % Efficient vector transport by orthogonal projection,
+    % Efficient transporter by orthogonal projection,
     % see Kressner at al.
     M.transp = @transport;
     function eta = transport(X, Y, xi)

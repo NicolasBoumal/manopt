@@ -265,7 +265,7 @@ function M = rotationsfactory(n, k)
     
     M.zerovec = @(x) zeros(n, n, k);
     
-    % Cheap vector transport
+    % Cheap transporter
     M.transp = @(x1, x2, d) d;
     % This transporter is isometric (but it is /not/ parallel transport
     % along geodesics.)

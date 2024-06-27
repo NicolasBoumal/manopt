@@ -107,7 +107,7 @@ function X = positive_definite_intrinsic_mean(A)
     
     % Execute this if you want to force using a proper parallel vector
     % transport. This is not necessary. If you omit this, the default
-    % vector transport is the identity map, which is (of course) cheaper
+    % transporter is the identity map, which is (of course) cheaper
     % and seems to perform well in practice.
     % M.transp = M.paralleltransp;
     

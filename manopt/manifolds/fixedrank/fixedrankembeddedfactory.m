@@ -73,7 +73,7 @@ function M = fixedrankembeddedfactory(m, n, k)
 %       - The checksum (hash) was replaced for a faster alternative: it's a
 %         bit less "safe" in that collisions could arise with higher
 %         probability, but they're still very unlikely.
-%       - The vector transport was changed.
+%       - The transporter was changed.
 %       The typical distance was also modified, hopefully giving the
 %       trustregions method a better initial guess for the trust-region
 %       radius, but that should be tested for different cost functions too.

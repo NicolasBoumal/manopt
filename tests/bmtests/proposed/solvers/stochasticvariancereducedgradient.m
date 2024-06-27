@@ -178,13 +178,13 @@ function [x, info, options] = stochasticvariancereducedgradient(problem, x, opti
             if strcmp(options.update_type, 'svrg')
                 
                 % Caclculate transported full batch gradient from x0 to x.
-                grad0_transported = problem.M.transp(x0, x, grad0); % Vector transport.
+                grad0_transported = problem.M.transp(x0, x, grad0); % transporter.
                 
                 % Caclculate partialgrad at x0
                 partialgrad0 = getPartialGradient(problem, x0, idx_batchsize, storedb, key);
                 
                 % Caclculate transported partialgrad from x0 to x
-                partialgrad0_transported = problem.M.transp(x0, x, partialgrad0); % Vector transport.
+                partialgrad0_transported = problem.M.transp(x0, x, partialgrad0); % transporter.
                 
                 
                 % Update partialgrad to reduce variance by

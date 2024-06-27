@@ -122,7 +122,7 @@ function M = positivefactory(m, n)
     
     M.transp = @(X1, X2, eta) eta;
     
-    % For reference, a proper vector transport is given here, following
+    % For reference, a proper transporter is given here, following
     % work by Sra and Hosseini: "Conic geometric optimisation on the
     % manifold of positive definite matrices".
     % This is not used by default. To force the use of this transport,

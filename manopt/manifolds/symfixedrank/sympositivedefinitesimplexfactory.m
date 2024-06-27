@@ -291,9 +291,9 @@ function M = sympositivedefinitesimplexfactory(n, k)
     
     M.zerovec = @(X) zeros(n,n,k);
     
-    % Poor man's vector transport: exploit the fact that all tangent spaces
+    % Poor man's transporter: exploit the fact that all tangent spaces
     % are the set of symmetric matrices, so that the identity is a sort of
-    % vector transport. It may perform poorly if the origin and target (X1
+    % transporter. It may perform poorly if the origin and target (X1
     % and X2) are far apart though. This should not be the case for typical
     % optimization algorithms, which perform small steps.
     M.transp = @(X1, X2, eta) M.proj(X2, eta);

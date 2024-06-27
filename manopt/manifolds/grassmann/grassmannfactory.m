@@ -37,8 +37,8 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %       Implemented geodesic distance.
 % 
 %   April 17, 2013 (NB):
-%       Retraction changed to the polar decomposition, so that the vector
-%       transport is now correct, in the sense that it is compatible with
+%       Retraction changed to the polar decomposition, so that the
+%       transporter is now correct, in the sense that it is compatible with
 %       the retraction, i.e., transporting a tangent vector G from U to V
 %       where V = Retr(U, H) will give Z, and transporting GQ from UQ to VQ
 %       will give ZQ: there is no dependence on the representation, which
@@ -74,7 +74,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %       last, same as in stiefelfactory.
 %
 %   May 3, 2019 (NB):
-%       Added explanation about vector transport relation to retraction.
+%       Added explanation about transporter relation to retraction.
 %
 %   Nov. 13, 2019 (NB):
 %       Added pairmean function.
@@ -286,7 +286,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
     % Importantly, these two vectors are the lifts of the same tangent
     % vector, only lifted at Y and YQ.
     %
-    % However, this vector transport is /not/ fully invariant, in the sense
+    % However, this transporter is /not/ fully invariant, in the sense
     % that transporting U from X to some arbitrary Y may well yield the
     % lift of a different vector when compared to transporting U from X
     % to YQ, where Q is an arbitrary orthogonal matrix, even though YQ is
@@ -299,7 +299,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
     %
     % Gr.transp(X, Y*Q, U) - Gr.transp(X, Y, U)     % this *is* zero.
     %
-    % For this to be a proper vector transport from [X] to [Y] in general,
+    % For this to be a proper transporter from [X] to [Y] in general,
     % assuming X'Y is invertible, one should multiply the output of this
     % function on the right with the polar factor of X'*Y, that is,
     % multiply by u*v' where [u, s, v] = svd(X'*Y), for each slice.

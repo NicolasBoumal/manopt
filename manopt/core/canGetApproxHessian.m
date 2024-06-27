@@ -10,7 +10,7 @@ function candoit = canGetApproxHessian(problem)
 %
 % Even if this returns false, calls to getApproxHessian may succeed, as
 % they will be redirected to getHessianFD. The latter simply requires
-% availability of gradients in problem, and vector transports in problem.M.
+% availability of gradients in problem, and a transporter in problem.M.
 %
 % See also: canGetHessian getHessianFD
 

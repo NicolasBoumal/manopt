@@ -239,9 +239,9 @@ function [x, cost, info, options] = rlbfgs(problem, x0, options)
     % That is, it stores up to options.memory of the most recent step
     % vectors. However, the implementation below does not need step vectors 
     % in their respective tangent spaces at x_{t}'s. Rather, it requires
-    % them transported to the current point's tangent space by vector
-    % transport. For details regarding the requirements on the the vector
-    % transport, see the reference paper by Huang et al.
+    % them transported to the current point's tangent space by
+    % transporter. For details regarding the requirements on the the
+    % transporter, see the reference paper by Huang et al.
     % In this implementation, those step vectors are iteratively 
     % transported to the current point's tangent space after every
     % iteration. Thus, at every iteration, vectors in sHistory are in the
@@ -508,7 +508,7 @@ end
 % vector g, and applies an approximate inverse Hessian P to it to get Pg.
 % Then, -Pg is returned.
 %
-% Theory requires the vector transport to be isometric and to satisfy the
+% Theory requires the transporter to be isometric and to satisfy the
 % locking condition (see paper), but these properties do not seem to be
 % crucial in practice. If your manifold provides M.isotransp, it may be
 % good to do M.transp = M.isotransp; after loading M with a factory.
