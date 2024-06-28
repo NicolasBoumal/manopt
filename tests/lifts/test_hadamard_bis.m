@@ -2,6 +2,11 @@ clear; clc; clf;
 
 % Compare quadprog to Hadamard lift for quadratic programs on orthant.
 
+% See also Section 5.1 in the following paper:
+% On Squared-Variable Formulations
+% Lijun Ding, Stephen J. Wright
+% https://arxiv.org/abs/2310.01784
+
 % For large n, say, 5'000, lifts beat quadprog.
 n = 5000;
 lift = hadamardlift('nonnegative', n);
@@ -31,7 +36,7 @@ t_quadprog = tic();
 x_quadprog = quadprog(A, b, [], [], [], [], zeros(n, 1), []);
 t_quadprog = toc(t_quadprog);
 
-fprintf('Manopt:\n  Time: %.3e,  min(x): %.3e,  f(x): %.3e\n', ...
+fprintf('Manopt:\n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
             t_manopt, min(x_manopt), getCost(downstairs, x_manopt));
-fprintf('Quadprog:\n  Time: %.3e,  min(x): %.3e,  f(x): %.3e\n', ...
+fprintf('Quadprog:\n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
             t_quadprog, min(x_quadprog), getCost(downstairs, x_quadprog));
