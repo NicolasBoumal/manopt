@@ -1,7 +1,8 @@
 clear; clc; clf;
 
-% Compare Hadamard lift for quadratic programs to quadprog.
+% Compare quadprog to Hadamard lift for quadratic programs on orthant.
 
+% For large n, say, 5'000, lifts beat quadprog.
 n = 5000;
 lift = hadamardlift('nonnegative', n);
 
@@ -9,8 +10,14 @@ lift = hadamardlift('nonnegative', n);
 A = randsym(n) + n*eye(n);
 b = randn(n, 1);
 
-downstairs.cost = @(x) .5*x'*A*x + b'*x;
-downstairs.grad = @(x) A*x+b;
+downstairs.costgrad = @(x) costgrad(A, b, x);
+function [f, g] = costgrad(A, b, x)
+    Ax = A*x;
+    f = x'*(.5*Ax + b);
+    if nargout == 2
+        g = Ax + b;
+    end
+end
 downstairs.hess = @(x, xdot) A*xdot;
 
 upstairs = manoptlift(downstairs, lift);
