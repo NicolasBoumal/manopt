@@ -11,7 +11,7 @@ clear; clc; clf;
 n = 5000;
 lift = hadamardlift('nonnegative', n);
 
-% random stochastic matrix
+% Random convex quadratic f(x) = .5*x'*A*x + b'*x
 A = randsym(n) + n*eye(n);
 b = randn(n, 1);
 
@@ -36,7 +36,7 @@ t_quadprog = tic();
 x_quadprog = quadprog(A, b, [], [], [], [], zeros(n, 1), []);
 t_quadprog = toc(t_quadprog);
 
-fprintf('Manopt:\n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
+fprintf('Manopt:  \n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
             t_manopt, min(x_manopt), getCost(downstairs, x_manopt));
 fprintf('Quadprog:\n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
             t_quadprog, min(x_quadprog), getCost(downstairs, x_quadprog));
