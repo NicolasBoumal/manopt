@@ -8,7 +8,7 @@ clear; clc; clf;
 % https://arxiv.org/abs/2310.01784
 
 % For large n, lifts beat quadprog.
-n = 2000;
+n = 10000;
 lift = hadamardlift('nonnegative', n);
 
 % Random convex quadratic f(x) = .5*x'*A*x + b'*x.
@@ -39,7 +39,7 @@ x_manopt_cg = lift.phi(y_cg);
 t_manopt_cg = toc(t_manopt_cg);
 
 t_quadprog = tic();
-x_quadprog = quadprog(A, b, [], [], [], [], zeros(n, 1), []);
+x_quadprog = quadprog(full(A), b, [], [], [], [], zeros(n, 1), []);
 t_quadprog = toc(t_quadprog);
 f_quadprog = getCost(downstairs, x_quadprog);
 
