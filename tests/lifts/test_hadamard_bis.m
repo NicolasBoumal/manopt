@@ -7,8 +7,8 @@ clear; clc; clf;
 % Lijun Ding, Stephen J. Wright
 % https://arxiv.org/abs/2310.01784
 
-% For large n, say, 5'000, lifts beat quadprog.
-n = 5000;
+% For large n, lifts beat quadprog.
+n = 2000;
 lift = hadamardlift('nonnegative', n);
 
 % Random convex quadratic f(x) = .5*x'*A*x + b'*x.
@@ -29,15 +29,25 @@ downstairs.hess = @(x, xdot) A*xdot;
 upstairs = manoptlift(downstairs, lift);
 
 t_manopt = tic();
-y = trustregions(upstairs);
+[y, f_manopt, info] = trustregions(upstairs);
 x_manopt = lift.phi(y);
 t_manopt = toc(t_manopt);
 
 t_quadprog = tic();
 x_quadprog = quadprog(A, b, [], [], [], [], zeros(n, 1), []);
 t_quadprog = toc(t_quadprog);
+f_quadprog = getCost(downstairs, x_quadprog);
 
 fprintf('Manopt:  \n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
-            t_manopt, min(x_manopt), getCost(downstairs, x_manopt));
+            t_manopt, min(x_manopt), f_manopt);
 fprintf('Quadprog:\n  Time: %.3e,  min(x): %.3e,  f(x): %.10e\n', ...
-            t_quadprog, min(x_quadprog), getCost(downstairs, x_quadprog));
+            t_quadprog, min(x_quadprog), f_quadprog);
+
+reference = min([f_quadprog, f_manopt]);
+semilogy([info.time], [info.cost] - reference, '.-', ...
+         t_quadprog, f_quadprog - reference, '.', ...
+         'LineWidth', 2, 'MarkerSize', 15);
+grid on;
+xlabel('Computation time [s]');
+title('Difference between cost function value and best cost reached overall.');
+legend('Manopt', 'quadprog');
