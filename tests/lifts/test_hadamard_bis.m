@@ -11,8 +11,9 @@ clear; clc; clf;
 n = 5000;
 lift = hadamardlift('nonnegative', n);
 
-% Random convex quadratic f(x) = .5*x'*A*x + b'*x
-A = randsym(n) + n*eye(n);
+% Random convex quadratic f(x) = .5*x'*A*x + b'*x.
+% Sparsity is easily exploited in the lifts approach.
+A = sprandsym(n, .01) + n*speye(n);
 b = randn(n, 1);
 
 downstairs.costgrad = @(x) costgrad(A, b, x);
