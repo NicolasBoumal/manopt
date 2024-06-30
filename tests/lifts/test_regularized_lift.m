@@ -1,6 +1,6 @@
 clear; clf; clc;
 
-n = 1000;
+n = 10;
 
 A = randsym(n);
 A = A*A';
@@ -13,14 +13,9 @@ downstairs.hess = @(x, xdot) A*xdot;
 
 lift = hadamarddifferencelift(n);
 
-% This should be created by the lift itself, so that it would be consistant
-% with the lift's domain and the embedded flag, without separating them.
 lambda = 1.1354;
-lift.rho = @(y) lambda*norm(y, 'fro')^2;
-lift.gradrho = @(y) 2*lambda*y;
-lift.hessrho = @(y, ydot) 2*lambda*ydot;
 
-upstairs = manoptlift_with_regularizer(downstairs, lift, 'noAD');
+upstairs = manoptlift(downstairs, lift, 'noAD', lambda);
 
 y = trustregions(upstairs);
 

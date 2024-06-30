@@ -1,10 +1,11 @@
-function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
+function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag, lambda)
 % Manopt tool to lift an optimization problem through a parameterization.
 %
 % function [upstairs, downstairs] = manoptlift(downstairs, lift)
 % function [upstairs, downstairs] = manoptlift(downstairs, lift, 'AD')
 % function [upstairs, downstairs] = manoptlift(downstairs, lift, 'noAD')
 % function [upstairs, downstairs] = manoptlift(downstairs, lift, 'ADnohess')
+% function [upstairs, downstairs] = manoptlift(downstairs, lift, [], lambda)
 %
 % Given an optimization problem (downstairs) on a manifold (lift.N),
 % produces a new optimization problem (upstairs) on a manifold (lift.M) by
@@ -13,7 +14,8 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 % Inputs:
 %   downstairs is a Manopt problem structure
 %   lift is a Manopt lift structure
-%   ADflag (optional) is a string
+%   ADflag (optional) is a string ('noAD' by default)
+%   lambda (optional) is a real number (0 by default)
 % 
 % Outputs:
 %   upstairs is a Manopt problem structure
@@ -52,10 +54,20 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 %   'AD' to run manoptAD (automatic differentiation) on downstairs,
 %   'ADnohess' to do the latter for the gradient but not the Hessian,
 %   'noAD' or '' to not run automatic differentiation (default).
+% There is no need to run AD upstairs, as long as the problem downstairs
+% gives appropriate access to derivatives of f.
 %
 %
-% Heads up: at this time, lift composition may not work because of caching.
+% If lambda is nonzero (usually, positive), then the lift should include:
 %
+%   lift.rho, a function from M to the reals.
+%   lift.gradrho, the gradient of rho.
+%   lift.hessrho, the Hessian of rho.
+%     (The gradient and Hessian are the Riemannian ones if lift.embedded is
+%      false, and they are the egrad and ehess versions otherwise.)
+%
+% In that case, the cost function upstairs is f(phi(y)) + lambda*rho(y).
+% 
 %
 % This tools is based on general theory for reparameterization of nonconvex
 % optimization problems developed in:
@@ -65,6 +77,9 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 %   Mathematical Programming, 2024
 %   https://link.springer.com/article/10.1007/s10107-024-02058-3
 %   https://arxiv.org/abs/2207.03512
+%
+%
+% Heads up: at this time, lift composition may not work because of caching.
 %
 %
 % See also: hadamardlift burermonteirolift burermonteiroLRlift
@@ -86,6 +101,7 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
     % Have a generic identity lift buil-in so that we could take a product
     % between a lift and (in some sense) a manifold?
     % Should we include phiinverse for diffeomorphism lifts?
+    % It may be better to point to another lift that is the inverse.
     %
     % Composition: caching is potentially not safe in its current form if
     % we want to compose lifts (that is, apply manoptlift to a problem,
@@ -105,6 +121,24 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
     % By default, a lift is to the manifold, not its embedding.
     if ~isfield(lift, 'embedded')
         lift.embedded = false;
+    end
+
+    % The regularization weight lambda is zero by default.
+    % If it is nonzero, we make sure now that lift contains rho.
+    if ~exist('lambda', 'var') || isempty(lambda)
+        lambda = 0;
+    end
+    assert(isreal(lambda) && isscalar(lambda), ...
+           'lambda should be a real number.');
+    if lambda ~= 0
+        assert(isfield(lift, 'rho'), ...
+               'lambda is nonzero but lift.rho is absent.');
+        assert(isfield(lift, 'gradrho'), ...
+               'lambda is nonzero but lift.gradrho is absent.');
+        if ~isfield(lift, 'hessrho')
+            warning('manoptlift:hessrho', ...
+                    'lambda is nonzero but lift.hessrho is absent.');
+        end
     end
 
     % If the manifold is not specified in the downstairs problem, assume it
@@ -202,19 +236,6 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
     end
 
 
-
-    function val = cost(y, storedb, key)
-
-        % Map the point from upstairs (y) to downstairs (x).
-        x = lift.phi(y);
-
-        % The call to getCost computes and caches the cost function value.
-        % Notice how we simply forward the storedb and key from the
-        % upstairs problem to the downstairs problem: see comments below.
-        val = getCost(downstairs, x, storedb, key);
-
-    end
-
     % ! storedb is associated to the upstairs problem.
     %   key identifies the point y, matching it with a store.
     %   From y, we get x = phi(y) unambiguously.
@@ -227,13 +248,42 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
     %   for which automatic caching may store quantities pertaining to the
     %   downstairs problem at x in the store of y. We must overrule these.
     %   Manopt automatically caches:
-    %   * cost__  -> ok since cost upstairs at y == cost downstairs at x.
-    %   * grad__  -> not ok since upstairs and downstairs gradients differ. 
+    %   * cost__  -> The cost upstairs at y and downstairs at x may differ
+    %                if lambda ~= 0. It is ok because we do not need to
+    %                keep track of both values, only the upstairs value;
+    %                and that is always the latest 'write' to that cache.
+    %   * grad__  -> not ok since upstairs and downstairs gradients differ,
+    %                and we need to keep track of both.
     %   * egrad__ -> idem.
     %   The logic developed below is that if a gradient of any kind is
     %   queried upstairs, then that will necessarily require computing the
     %   gradient downstairs. We make sure to cache the latter in a new
     %   field called grad_downstairs__.
+
+
+    function val = cost(y, storedb, key)
+
+        % Map the point from upstairs (y) to downstairs (x).
+        x = lift.phi(y);
+
+        % Notice how we simply forward the storedb and key from the
+        % upstairs problem to the downstairs problem: see comments above.
+        val = getCost(downstairs, x, storedb, key);
+
+        if lambda ~= 0
+            val = val + lambda*lift.rho(y);
+        end
+        
+        % The call to getCost above computed and cached the cost function
+        % value downstairs, in store.cost__.
+        % The value in 'val' may have been changed if lambda ~= 0: this is
+        % what we return.
+        % When we exit this function here, the caller (getCost or
+        % getCostGrad or other) will overwrite store.cost__ with the value
+        % we return, so that the cache contains the upstairs value. The
+        % downstairs value is lost. That is fine: no further action needed.
+
+    end
 
     function grad_downstairs = get_gradient_downstairs(x, storedb, key)
         store = storedb.get(key);
@@ -274,9 +324,14 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
 
         grad_downstairs = get_gradient_downstairs(x, storedb, key);
 
-        % This will be cached by the caller in store.grad__ or
-        % store.egrad__ as appropriate (determined by lift.embedded).
         grad = lift.Dphit(y, grad_downstairs);
+
+        if lambda ~= 0
+            grad = lift.M.lincomb(y, 1, grad, lambda, lift.gradrho(y));
+        end
+
+        % grad will be cached by the caller in store.grad__ or
+        % store.egrad__ as appropriate (determined by lift.embedded).
 
     end
 
@@ -298,30 +353,49 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
         hess = lift.M.lincomb(y, ...
                1, lift.Dphit(y, hess_downstairs), ...
                1, lift.hesshw(y, v, grad_downstairs));
+
+        if lambda ~= 0 && isfield(lift, 'hessrho')
+            hess = lift.M.lincomb(y, 1, hess, lambda, lift.hessrho(y, v));
+        end
         
     end
 
     function [val, grad] = costgrad(y, storedb, key)
 
-        % A call to getCost, getGradient or getCostGradient finds its way
-        % through to this code only if the cost and/or the (upstairs)
-        % gradient were not already cached.
-
-        x = lift.phi(y);
+        % Calls to getCost and getGradient are routed to cost and grad.
+        % Only calls to getCostGrad may be routed here.
+        % Moreover, this happens only if the cost *and* the (upstairs)
+        % gradient were not already cached. (Indeed, if either is already
+        % cached, then getCostGrad uses the cached parts and calls getCost
+        % or getGradient for the remaining part).
+        % Thus, we can call getCostGrad here on the problem downstairs
+        % without fear that it would erroneously use a cached value from
+        % the upstairs problem.
 
         % Do the actual work.
         switch nargout
             case 1
-                % This call caches the cost function value.
-                val = getCost(downstairs, x, storedb, key);
+
+                % This should not happen, but we might as well redirect.
+                val = cost(y, storedb, key);
+                
             case 2
+
+                x = lift.phi(y);
 
                 % The call to getCostGrad includes logic to avoid
                 % recomputing the cost if it was already known for this y.
+                % Regardless, shouldn't be the case, as per above comment.
                 % It caches the cost function value and the gradient.
                 [val, grad_downstairs] = getCostGrad(downstairs, x, ...
                                                              storedb, key);
                 grad = lift.Dphit(y, grad_downstairs);
+
+                if lambda ~= 0
+                    val = val + lambda*lift.rho(y);
+                    grad = lift.M.lincomb(y, 1, grad, ...
+                                             lambda, lift.gradrho(y));
+                end
 
                 if lift.embedded
                     grad = lift.M.egrad2rgrad(y, grad);
@@ -330,11 +404,11 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag)
                 % ! The call to getCostGrad cached val and grad_downstairs
                 %   in store.cost__ and store.grad__.
                 %   Once the call to the current function terminates,
-                %   the calling function (likely also getCostGrad or
-                %   getGradient) will overwrite grad__ with the output of
-                %   this function, that is, grad: this is good.
-                %   However, we also want to cache grad_downstairs, so we
-                %   do it manually now:
+                %   the calling function (likely also getCostGrad) will
+                %   overwrite cost__ and grad__ with the outputs of this
+                %   function, that is, val and grad: this is good. But, we
+                %   also want to cache grad_downstairs, so we do it
+                %   manually now:
                 store = storedb.get(key);
                 store.grad_downstairs__ = grad_downstairs;
                 storedb.set(store, key);
