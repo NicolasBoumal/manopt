@@ -1,6 +1,6 @@
-clear; clf; clc;
+clear; clc;
 
-n = 10;
+n = 1000;
 
 A = randsym(n);
 A = A*A';
