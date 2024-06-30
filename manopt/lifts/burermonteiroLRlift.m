@@ -80,4 +80,9 @@ function lift = burermonteiroLRlift(m, n, r)
         struct('L', Rmn.times(W, LRdot.R), ...
                'R', Rmn.transpose_times(W, LRdot.L));
 
+    % Regularizer rho(L, R) = .5*(||L||^2 + ||R||^2)
+    lift.rho = @(LR) .5*(norm(LR.L, 'fro')^2 + norm(LR.R, 'fro')^2);
+    lift.gradrho = @(LR) LR;
+    lift.hessrho = @(LR, LRdot) LRdot;
+
 end

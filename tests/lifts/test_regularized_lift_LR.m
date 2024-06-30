@@ -1,9 +1,9 @@
-clear; clf; clc;
+clear; clc;
 
-m = 5;
-n = 7;
+m = 1000;
+n = 2000;
 
-A = randn(m, n);
+A = sprandn(m, n, .01);
 
 Rmn = euclideanlargefactory(m, n);
 downstairs.M = Rmn;
@@ -14,18 +14,14 @@ downstairs.hess = @(X, Xdot) Xdot;
 r = 4; % hard cap on rank
 lift = burermonteiroLRlift(m, n, r);
 
-% This should be created by the lift itself, so that it would be consistant
-% with the lift's domain and the embedded flag, without separating them.
-lambda = 1.1354;
-lift.rho = @(Y) (lambda/2)*(norm(Y.L, 'fro')^2 + norm(Y.R, 'fro')^2);
-lift.gradrho = @(Y) struct('L', lambda*Y.L, 'R', lambda*Y.R);
-lift.hessrho = @(Y, Ydot) struct('L', lambda*Ydot.L, 'R', lambda*Ydot.R);
+lambda = 8.3;
 
-upstairs = manoptlift_with_regularizer(downstairs, lift, 'noAD');
+upstairs = manoptlift(downstairs, lift, 'noAD', lambda);
 
 Y = trustregions(upstairs);
 
 X = Rmn.to_matrix(lift.phi(Y));
 
-svd(X)'
-log10(svd(X)')
+svds(X, 6)'
+% log10(svd(X)')
+(svds(A, 6) - lambda)'
