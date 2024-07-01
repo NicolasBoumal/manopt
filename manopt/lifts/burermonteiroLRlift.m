@@ -2,6 +2,7 @@ function lift = burermonteiroLRlift(m, n, r)
 % Burer-Monteiro lift (L, R) -> L*R.' for m-by-n matrices of rank <= r.
 %
 % function lift = burermonteiroLRlift(m, n, r)
+% function lift = burermonteiroLRlift(m, n, r, lambda)
 %
 % This function produces a lift structure to be used with manoptlift.
 % 
@@ -19,6 +20,19 @@ function lift = burermonteiroLRlift(m, n, r)
 % properties of this lift, e.g., the fact that second-order critical points
 % for the problem upstairs map to first-order stationary points for the
 % problem downstairs.
+%
+% By default, lambda = 0. If a nonzero value is provided, then the cost
+% function upstairs is regularized as follows:
+%
+%    g(L, R) = f(LR') + lambda*rho(L, R)
+%
+% where rho(L, R) = .5*(||L||^2 + ||R||^2) (in Frobenius norms).
+% Minimizing g upstairs amounts to minimizing the following downstairs:
+%
+%    X -> f(X) + lambda*nuclear_norm(X)  s.t.  rank(X) <= r.
+%
+% Thus, there is a hard-cap on rank, and a low-rank regularizer on top.
+% See "Maximum-Margin Matrix Factorization" by Srebro, Rennie and Jaakkola.
 % 
 % See also: manoptlift burermonteirolift desingularizationfactory
 %           fixedrankembeddedfactory euclideanlargefactory
@@ -27,6 +41,8 @@ function lift = burermonteiroLRlift(m, n, r)
 % Original author: Nicolas Boumal, June 18, 2024.
 % Contributors: 
 % Change log: 
+%   July 1, 2024 (NB)
+%       Added the regularizer rho(L, R) = .5*(||L||^2 + ||R||^2).
 
     % TODO: complex version
 
