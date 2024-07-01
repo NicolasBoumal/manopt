@@ -38,15 +38,26 @@ function Mn = powermanifold(M, n)
 %
 %   Mar.  7, 2023 (CC):
 %       Include exp, dist, typicaldist only if defined in base manifold.
+%
+%   July  1, 2024 (NB):
+%       Extended the work of the previous change to all functions.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
     
-    Mn.name = @() sprintf('[%s]^%d', M.name(), n);
+    if isfield(M, 'name')
+        Mn.name = @() sprintf('[%s]^%d', M.name(), n);
+    end
     
-    Mn.dim = @() n*M.dim();
+    if isfield(M, 'dim')
+        dim = n*M.dim();
+        Mn.dim = @() dim;
+    end
     
-    Mn.inner = @inner;
+    if isfield(M, 'inner')
+        Mn.inner = @inner;
+        Mn.norm = @(x, d) sqrt(inner(x, d, d));
+    end
     function val = inner(x, u, v)
         val = 0;
         for i = 1 : n
@@ -54,7 +65,6 @@ function Mn = powermanifold(M, n)
         end
     end
 
-    Mn.norm = @(x, d) sqrt(Mn.inner(x, d, d));
 
     if isfield(M, 'dist')
         Mn.dist = @dist;
@@ -78,14 +88,18 @@ function Mn = powermanifold(M, n)
         d = sqrt(sqd);
     end
     
-    Mn.proj = @proj;
+    if isfield(M, 'proj')
+        Mn.proj = @proj;
+    end
     function u = proj(x, u)
         for i = 1 : n
             u{i} = M.proj(x{i}, u{i});
         end
     end
     
-    Mn.tangent = @tangent;
+    if isfield(M, 'tangent')
+        Mn.tangent = @tangent;
+    end
     function u = tangent(x, u)
         for i = 1 : n
             u{i} = M.tangent(x{i}, u{i});
@@ -109,24 +123,28 @@ function Mn = powermanifold(M, n)
         end
     end
     
-    if nargin(M.egrad2rgrad) > 2
-        warning('manopt:powermanifold:egrad2rgrad', ...
-               ['Power manifolds call M.egrad2rgrad with only two ', ...
-                'inputs:\nstoredb and key won''t be available.']);
+    if isfield(M, 'egrad2rgrad')
+        if nargin(M.egrad2rgrad) > 2
+            warning('manopt:powermanifold:egrad2rgrad', ...
+                   ['Power manifolds call M.egrad2rgrad with only two', ...
+                    ' inputs:\nstoredb and key won''t be available.']);
+        end
+        Mn.egrad2rgrad = @egrad2rgrad;
     end
-    Mn.egrad2rgrad = @egrad2rgrad;
     function g = egrad2rgrad(x, g)
         for i = 1 : n
             g{i} = M.egrad2rgrad(x{i}, g{i});
         end
     end
     
-    if nargin(M.ehess2rhess) > 4
-        warning('manopt:powermanifold:ehess2rhess', ...
-               ['Power manifolds call M.ehess2rhess with only four ', ...
-                'inputs:\nstoredb and key won''t be available.']);
+    if isfield(M, 'ehess2rhess')
+        if nargin(M.ehess2rhess) > 4
+            warning('manopt:powermanifold:ehess2rhess', ...
+                   ['Power manifolds call M.ehess2rhess with only ', ...
+                    'four inputs:\nstoredb and key won''t be available.']);
+        end
+        Mn.ehess2rhess = @ehess2rhess;
     end
-    Mn.ehess2rhess = @ehess2rhess;
     function h = ehess2rhess(x, eg, eh, h)
         for i = 1 : n
             h{i} = M.ehess2rhess(x{i}, eg{i}, eh{i}, h{i});
@@ -145,7 +163,9 @@ function Mn = powermanifold(M, n)
         end
     end
     
-    Mn.retr = @retr;
+    if isfield(M, 'retr')
+        Mn.retr = @retr;
+    end
     function x = retr(x, u, t)
         if nargin < 3
             t = 1.0;
@@ -165,16 +185,20 @@ function Mn = powermanifold(M, n)
         end
     end
     
-    Mn.hash = @hash;
+    if isfield(M, 'hash')
+        Mn.hash = @hash;
+    end
     function str = hash(x)
         str = '';
         for i = 1 : n
-            str = [str M.hash(x{i})]; %#ok<AGROW>
+            str = [str, M.hash(x{i})]; %#ok<AGROW>
         end
         str = ['z' hashmd5(str)];
     end
 
-    Mn.lincomb = @lincomb;
+    if isfield(M, 'lincomb')
+        Mn.lincomb = @lincomb;
+    end
     function x = lincomb(x, a1, u1, a2, u2)
         if nargin == 3
             for i = 1 : n
@@ -189,7 +213,9 @@ function Mn = powermanifold(M, n)
         end
     end
 
-    Mn.rand = @rand;
+    if isfield(M, 'rand')
+        Mn.rand = @rand;
+    end
     function x = rand()
         x = cell(n, 1);
         for i = 1 : n
@@ -197,16 +223,20 @@ function Mn = powermanifold(M, n)
         end
     end
 
-    Mn.randvec = @randvec;
+    if isfield(M, 'randvec')
+        Mn.randvec = @randvec;
+    end
     function u = randvec(x)
         u = cell(n, 1);
         for i = 1 : n
             u{i} = M.randvec(x{i});
         end
-        u = Mn.lincomb(x, 1/sqrt(n), u);
+        u = lincomb(x, 1/sqrt(n), u);
     end
 
-    Mn.zerovec = @zerovec;
+    if isfield(M, 'zerovec')
+        Mn.zerovec = @zerovec;
+    end
     function u = zerovec(x)
         u = cell(n, 1);
         for i = 1 : n
@@ -236,8 +266,8 @@ function Mn = powermanifold(M, n)
     % Compute the length of a vectorized tangent vector of M at x, assuming
     % this length is independent of the point x (that should be fine).
     if isfield(M, 'vec')
-        rand_x = M.rand();
-        zero_u = M.zerovec(rand_x);
+        rand_x = M.rand();            % This assumes rand() and zerovec()
+        zero_u = M.zerovec(rand_x);   % are available; they really should.
         len_vec = length(M.vec(rand_x, zero_u));
         
         Mn.vec = @(x, u_mat) vec(x, u_mat, len_vec, M, n);
