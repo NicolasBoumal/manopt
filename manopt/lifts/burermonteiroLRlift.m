@@ -21,15 +21,15 @@ function lift = burermonteiroLRlift(m, n, r)
 % for the problem upstairs map to first-order stationary points for the
 % problem downstairs.
 %
-% By default, lambda = 0. If a nonzero value is provided, then the cost
-% function upstairs is regularized as follows:
+% The built-in regularizer is
 %
-%    g(L, R) = f(LR') + lambda*rho(L, R)
+%   rho(L, R) = .5*( ||L||^2 + ||R||^2 )    (in Frobenius norms).
 %
-% where rho(L, R) = .5*(||L||^2 + ||R||^2) (in Frobenius norms).
-% Minimizing g upstairs amounts to minimizing the following downstairs:
+% It can be activated with manoptlift, using the lambda parameter.
+% Using this regularizer upstairs amounts to nuclear norm regularization
+% downstairs because
 %
-%    X -> f(X) + lambda*nuclear_norm(X)  s.t.  rank(X) <= r.
+%    r(X) = min_{L, R : LR' = X} rho(L, R) = nuclear_norm(X).
 %
 % Thus, there is a hard-cap on rank, and a low-rank regularizer on top.
 % See "Maximum-Margin Matrix Factorization" by Srebro, Rennie and Jaakkola.
