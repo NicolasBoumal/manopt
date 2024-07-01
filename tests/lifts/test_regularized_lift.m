@@ -1,4 +1,4 @@
-clear; clc;
+clear; clf; clc;
 
 n = 1000;
 
@@ -13,7 +13,7 @@ downstairs.hess = @(x, xdot) A*xdot;
 
 lift = hadamarddifferencelift(n);
 
-lambda = 1.1354;
+lambda = 2.5;
 
 upstairs = manoptlift(downstairs, lift, 'noAD', lambda);
 
@@ -38,3 +38,9 @@ f = @(x) .5*x'*A*x + b'*x + lambda*norm(x, 1);
 
 fprintf('Manopt cost: %.12g\n', f(x_manopt));
 fprintf('   CVX cost: %.12g\n', f(x_cvx));
+
+% Compare the results.
+stem(1:n, x_cvx);
+hold all;
+stem(1:n, x_manopt, '.');
+legend('CVX x', 'Manopt x');
