@@ -45,6 +45,18 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
 % points for the problem upstairs map to first-order stationary points for
 % the problem downstairs, and also that local minima upstairs map to local
 % minima downstairs.
+%
+% The built-in regularizer (for 'free' version) is
+%
+%   rho(Y) = ||Y||^2 = trace(YY')   (Frobenius norm).
+%
+% It can be activated with manoptlift, using the lambda parameter.
+% Using this regularizer upstairs amounts to trace-norm regularization
+% downstairs because
+%
+%    r(X)  =  min_{Y : YY' = X} rho(Y)  =  trace(X) = nuclear_norm(X).
+%
+% Thus, there is a hard-cap on rank, and a low-rank regularizer on top.
 % 
 % See also: manoptlift burermonteiroLRlift euclideanlargefactory
 
@@ -52,6 +64,8 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
 % Original author: Nicolas Boumal, June, 2024.
 % Contributors:
 % Change log:
+%   July 1, 2024 (NB)
+%       Added the regularizer rho(Y) = ||Y||^2.
 
     % TODO: add identity block diagonal constraint.
     % TODO: write a complex version.
@@ -122,5 +136,11 @@ function lift = burermonteirolift(constraint, n, p, safety_flag)
     else
         lift.hesshw = @(Y, V, W) 2*Rnn.times(W, V);
     end
+
+
+    % Regularizer rho(Y) = ||Y||^2
+    lift.rho = @(Y) norm(Y, 'fro')^2;
+    lift.gradrho = @(Y) 2*Y;
+    lift.hessrho = @(Y, Ydot) 2*Ydot;
 
 end
