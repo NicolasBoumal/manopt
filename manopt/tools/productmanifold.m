@@ -51,6 +51,9 @@ function M = productmanifold(elements)
 %       all pre-computed quantities are passed as input to the helper
 %       function. This makes them available to nested subfunctions.
 %       The extra step is not necessary in Matlab.
+%
+%   July  1, 2024 (NB):
+%       Added check all_elements_provide() to most functions.
 
 
     elems = fieldnames(elements);
@@ -69,8 +72,8 @@ function M = productmanifold(elements)
     for ii = 1 : nelems
         Mi = elements.(elems{ii});
         if isfield(Mi, 'vec')
-            rand_x = Mi.rand();
-            zero_u = Mi.zerovec(rand_x);
+            rand_x = Mi.rand();            % Assumes rand() and zerovec()
+            zero_u = Mi.zerovec(rand_x);   % are available; they should be.
             vec_lens(ii) = length(Mi.vec(rand_x, zero_u));
         else
             vec_available = false;
@@ -112,7 +115,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         answer = true;
     end
        
-    M.name = @name;
+    if all_elements_provide('name')
+        M.name = @name;
+    end
     function str = name()
         str = 'Product manifold: ';
         str = [str sprintf('[%s: %s]', ...
@@ -123,7 +128,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
     
-    M.dim = @dim;
+    if all_elements_provide('dim')
+        M.dim = @dim;
+    end
     function d = dim()
         d = 0;
         for i = 1 : nelems
@@ -131,7 +138,10 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
     
-    M.inner = @inner;
+    if all_elements_provide('inner')
+        M.inner = @inner;
+        M.norm = @(x, d) sqrt(M.inner(x, d, d));
+    end
     function val = inner(x, u, v)
         val = 0;
         for i = 1 : nelems
@@ -139,8 +149,6 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
                                                u.(elems{i}), v.(elems{i}));
         end
     end
-
-    M.norm = @(x, d) sqrt(M.inner(x, d, d));
 
     if all_elements_provide('dist')
         M.dist = @dist;
@@ -165,7 +173,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         d = sqrt(sqd);
     end
 
-    M.proj = @proj;
+    if all_elements_provide('proj')
+        M.proj = @proj;
+    end
     function v = proj(x, u)
         for i = 1 : nelems
             v.(elems{i}) = elements.(elems{i}).proj(x.(elems{i}), ...
@@ -173,7 +183,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
 
-    M.tangent = @tangent;
+    if all_elements_provide('tangent')
+        M.tangent = @tangent;
+    end
     function v = tangent(x, u)
         for i = 1 : nelems
             v.(elems{i}) = elements.(elems{i}).tangent(x.(elems{i}), ...
@@ -205,35 +217,41 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
 
-    M.egrad2rgrad = @egrad2rgrad;
+    if all_elements_provide('egrad2rgrad')
+        for ii = 1 : nelems
+            if nargin(elements.(elems{ii}).egrad2rgrad) > 2
+                warning('manopt:productmanifold:egrad2rgrad', ...
+                       ['Product manifolds call M.egrad2rgrad with ', ...
+                        'only two inputs:\nstoredb and key won''t be ', ...
+                        'available.']);
+                break;
+            end
+        end
+        M.egrad2rgrad = @egrad2rgrad;
+    end
     function g = egrad2rgrad(x, g)
         for i = 1 : nelems
             g.(elems{i}) = elements.(elems{i}).egrad2rgrad(...
                                                x.(elems{i}), g.(elems{i}));
         end
     end
-    for ii = 1 : nelems
-        if nargin(elements.(elems{ii}).egrad2rgrad) > 2
-            warning('manopt:productmanifold:egrad2rgrad', ...
-                   ['Product manifolds call M.egrad2rgrad with only two ', ...
-                    'inputs:\nstoredb and key won''t be available.']);
-            break;
-        end
-    end
 
-    M.ehess2rhess = @ehess2rhess;
+    if all_elements_provide('ehess2rhess')
+        for ii = 1 : nelems
+            if nargin(elements.(elems{ii}).ehess2rhess) > 4
+                warning('manopt:productmanifold:ehess2rhess', ...
+                       ['Product manifolds call M.ehess2rhess with ', ...
+                        'only four inputs:\nstoredb and key won''t be', ...
+                        ' available.']);
+                break;
+            end
+        end
+        M.ehess2rhess = @ehess2rhess;
+    end
     function h = ehess2rhess(x, eg, eh, h)
         for i = 1 : nelems
             h.(elems{i}) = elements.(elems{i}).ehess2rhess(...
                  x.(elems{i}), eg.(elems{i}), eh.(elems{i}), h.(elems{i}));
-        end
-    end
-    for ii = 1 : nelems
-        if nargin(elements.(elems{ii}).ehess2rhess) > 4
-            warning('manopt:productmanifold:ehess2rhess', ...
-                   ['Product manifolds call M.ehess2rhess with only two ', ...
-                    'inputs:\nstoredb and key won''t be available.']);
-            break;
         end
     end
     
@@ -250,7 +268,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
     
-    M.retr = @retr;
+    if all_elements_provide('retr')
+        M.retr = @retr;
+    end
     function y = retr(x, u, t)
         if nargin < 3
             t = 1.0;
@@ -271,7 +291,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
 
-    M.hash = @hash;
+    if all_elements_provide('hash')
+        M.hash = @hash;
+    end
     function str = hash(x)
         str = '';
         for i = 1 : nelems
@@ -280,7 +302,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         str = ['z' hashmd5(str)];
     end
 
-    M.lincomb = @lincomb;
+    if all_elements_provide('lincomb')
+        M.lincomb = @lincomb;
+    end
     function v = lincomb(x, a1, u1, a2, u2)
         if nargin == 3
             for i = 1 : nelems
@@ -297,14 +321,18 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         end
     end
 
-    M.rand = @rand;
+    if all_elements_provide('rand')
+        M.rand = @rand;
+    end
     function x = rand()
         for i = 1 : nelems
             x.(elems{i}) = elements.(elems{i}).rand();
         end
     end
 
-    M.randvec = @randvec;
+    if all_elements_provide('randvec')
+        M.randvec = @randvec;
+    end
     function u = randvec(x)
         for i = 1 : nelems
             u.(elems{i}) = elements.(elems{i}).randvec(x.(elems{i}));
@@ -312,7 +340,9 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         u = M.lincomb(x, 1/sqrt(nelems), u);
     end
 
-    M.zerovec = @zerovec;
+    if all_elements_provide('zerovec')
+        M.zerovec = @zerovec;
+    end
     function u = zerovec(x)
         for i = 1 : nelems
             u.(elems{i}) = elements.(elems{i}).zerovec(x.(elems{i}));
