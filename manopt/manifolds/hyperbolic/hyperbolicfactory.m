@@ -87,12 +87,16 @@ function M = hyperbolicfactory(n, m, transposed)
 %   Sep. 24, 2023 (NB):
 %       Edited out bsxfun() for improved speed.
 %   July 2, 2024 (NB):
-%       Made M.paralleltransp = M.isotransp available.
+%       Made M.paralleltransp = M.isotransp and M.retr2 = M.exp available.
+%       Added offtangent to assess whether a given v is tangent at x.
 
     % Design note: all functions that are defined here but not exposed
     % outside work for non-transposed representations. Only the wrappers
     % that eventually expose functionalities handle transposition. This
     % makes it easier to compose functions internally.
+    %
+    % July 2024: This transposition should be edited out as it was in
+    %            obliquefactory.
 
     if ~exist('m', 'var') || isempty(m)
         m = 1;
@@ -160,6 +164,28 @@ function M = hyperbolicfactory(n, m, transposed)
     end
     
     M.tangent = M.proj;
+
+    % Look inside the code of the tool offtangent: you can check that the
+    % fallback code there does not work for this factory.
+    % Indeed, run
+    %   M = hyperbolicfactory(5);
+    %   x = M.rand();
+    %   v = randn(size(x));
+    %   w = M.lincomb(x, 1, M.tangent(x, v), -1, v);
+    %   M.norm(x, w)
+    % The result is zero, even though v was random: there is no chance that
+    % it would happen to be tangent. The reason is that M.inner(x, w, w) is
+    % a negative number, and hence M.norm (due to max(0, ..)) returns 0.
+    % Therefore, we implement a dedicated function here to quantify how
+    % farr off a given vector v is from being tangent.
+    M.offtangent = @(X, V) offtangent(trnsp(X), trnsp(V));
+    function val = offtangent(X, V)
+        if isequal(size(X), size(V)) && isequal(size(V), [n+1, m])
+            val = norm(V - projection(X, V), 'fro');
+        else
+            val = Inf;
+        end
+    end
     
     % For Riemannian submanifolds, converting the Euclidean gradient into
     % the Riemannian gradient amounts to an orthogonal projection. Here
@@ -211,6 +237,7 @@ function M = hyperbolicfactory(n, m, transposed)
     end
     
     M.retr = M.exp;
+    M.retr2 = M.exp;
     
     M.log = @(X, Y) trnsp(logarithm(trnsp(X), trnsp(Y)));
     function U = logarithm(X, Y)
