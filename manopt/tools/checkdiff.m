@@ -41,6 +41,7 @@ function checkdiff(problem, x, d, force_gradient)
 %
 %   July 1, 2024 (NB):
 %       Use force_gradient flag to correctly display what we are checking.
+%       Styled the output with bold.
 
     if ~exist('force_gradient', 'var')
         force_gradient = false;
@@ -161,7 +162,8 @@ function checkdiff(problem, x, d, force_gradient)
     hold off;
     
     if ~isModelExact
-        fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));
+        fprintf(['The slope should be 2. It appears to be: ' ...
+                 '<strong>%g</strong>.\n'], poly(1));
         fprintf(['If it is far from 2, then the ' checking ...
                  ' might be erroneous.\n']);
     else
@@ -171,8 +173,8 @@ function checkdiff(problem, x, d, force_gradient)
     end
     
     if ~(isreal(value) && isreal(f0))
-        fprintf(['# The cost function appears to return complex values' ...
-              '.\n# Please ensure real outputs.\n']);
+        fprintf(['# The cost function appears to return complex values.\n' ...
+                 '# Please ensure real outputs.\n']);
     end
     
 end

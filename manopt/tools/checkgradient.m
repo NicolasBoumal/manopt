@@ -30,10 +30,16 @@ function checkgradient(problem, x, d)
 %       was updated to know how to compute the gradient from directional
 %       derivatives.
 %
-%   July 1, 2024 (NB):
-%       The special message about hyperbolicfactory is now more targeted.
+%   July 2, 2024 (NB):
+%       Now using the new tool offtangent to check that the gradient is
+%       a tangent vector. Together with improvements in hyperbolicfactory,
+%       this notably made it possible to remove a message that was useful
+%       only to a few users, and likely puzzling to all others. Some other
+%       improvements to printed messages. Also styled the output with bold.
 
     
+    fprintf('<strong># Gradient check</strong>\n');
+
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
         % The call to canGetPartialGradient will readily issue a warning if
@@ -68,34 +74,30 @@ function checkgradient(problem, x, d)
 
     %% Check that the gradient yields a first order model of the cost.
     
-    % Call checkdiff with force_gradient set to true, to force that
-    % function to make a gradient call.
-    checkdiff(problem, x, d, true);
-    title(sprintf(['Gradient check.\nThe slope of the continuous line ' ...
-                   'should match that of the dashed\n(reference) line ' ...
-                   'over at least a few orders of magnitude for h.']));
-    xlabel('h');
-    ylabel('Approximation error');
+    % Call checkdiff, forcing it to use the gradient.
+    force_gradient = true;
+    checkdiff(problem, x, d, force_gradient);
     
     %% Try to check that the gradient is a tangent vector.
-    if isfield(problem.M, 'tangent')
-        storedb = StoreDB();
-        key = storedb.getNewKey();
-        grad = getGradient(problem, x, storedb, key);
-        pgrad = problem.M.tangent(x, grad);
-        residual = problem.M.lincomb(x, 1, grad, -1, pgrad);
-        err = problem.M.norm(x, residual);
-        fprintf('The residual should be 0, or very close. Residual: %g.\n', err);
-        fprintf('If it is far from 0, then the gradient is not in the tangent space.\n');
-        if contains(problem.M.name(), 'Hyperbolic')
-            fprintf(['For certain manifolds (e.g., hyperbolicfactory), the ' ...
-                     'residual test is inconclusive. Check manually.\n']);
+    storedb = StoreDB();
+    key = storedb.getNewKey();
+    grad = getGradient(problem, x, storedb, key);
+    err = offtangent(problem.M, x, grad);
+    if ~isnan(err)
+        fprintf('The gradient at x must be a tangent vector at x.\n');
+        fprintf(['If so, the following number is zero up to machine ' ...
+                 'precision: <strong>%g</strong>.\n'], err);
+        if ~isinf(err)
+            fprintf('If it is far from 0, the gradient is not tangent.\n');
+        else
+            fprintf(['The output is Inf, suggesting the gradient is ' ...
+                     'not in the right format.\nCheck array sizes.']);
         end
     else
         fprintf(['Unfortunately, Manopt was unable to verify that the '...
                  'gradient is indeed a tangent vector.\nPlease verify ' ...
-                 'this manually or implement the ''tangent'' function ' ...
-                 'in your manifold structure.']);
+                 'this manually or implement the ''tangent'' or the ' ...
+                 '''offtangent'' function in your manifold structure.']);
     end
 
 end

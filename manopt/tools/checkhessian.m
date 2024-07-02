@@ -5,10 +5,10 @@ function checkhessian(problem, x, d)
 % function checkhessian(problem, x)
 % function checkhessian(problem, x, d)
 %
-% checkhessian performs a numerical test to check that the directional
-% derivatives and Hessian defined in the problem structure agree up to
-% second order with the cost function at some point x, along some direction
-% d. The test is based on a truncated Taylor series (see online Manopt
+% checkhessian performs a numerical test to check that the gradient and
+% Hessian defined in the problem structure agree up to second order with
+% the cost function at some point x, along some direction d.
+% The test is based on a truncated Taylor series (see online Manopt
 % documentation).
 % 
 % It is also tested that the result of applying the Hessian along that
@@ -18,11 +18,11 @@ function checkhessian(problem, x, d)
 % Both x and d are optional and will be sampled at random if omitted.
 %
 % The slope test requires the exponential map of the manifold, or at least
-% a second-order retraction. If M.exp() is not available, the retraction is
-% used and a message is issued to instruct the user to check whether M.retr
-% is second-order or not. If it is not, the slope test is only valid at
-% critical points of the cost function (which can be computed by
-% optimization.)
+% a second-order retraction. If neither M.exp nor M.retr2 are available,
+% the retraction M.retr is used and a message is issued to instruct the
+% user to check whether M.retr actually is second-order or not. If it is
+% not, the slope test is only valid at critical points of the cost function
+% (which can be computed by optimization for example.)
 %
 % See also: checkdiff checkgradient checkretraction
 
@@ -58,8 +58,11 @@ function checkhessian(problem, x, d)
 %
 %   July 2, 2024 (NB):
 %       Use exp, or retr2, or retr (in that order). Only issue a slope
-%       warning if using retr (because retr2 is second order).
+%       warning if using retr (because retr2 is second order). Also using
+%       the new tool offtangent to check that tangent vectors are tangent.
+%       Also styled the output with bold.
 
+    fprintf('<strong># Hessian check</strong>\n');
         
     % Verify that the problem description is sufficient.
     if ~canGetCost(problem)
@@ -89,11 +92,11 @@ function checkhessian(problem, x, d)
         d = problem.M.randvec(x);
     end
     
-    %% Check that the directional derivative and the Hessian at x along d
+    %% Check that the gradient at x and the Hessian at x along d
     %% yield a second order model of the cost function.
     
-    % Compute the value f0 at f, directional derivative df0 at x along d,
-    % and Hessian along [d, d].
+    % Compute the value f0 at f, directional derivative df0 at x along d
+    % based on the gradient at x, and Hessian along [d, d].
     storedb = StoreDB();
     xkey = storedb.getNewKey();
     f0 = getCost(problem, x, storedb, xkey);
@@ -142,7 +145,7 @@ function checkhessian(problem, x, d)
     
     % Compute the quadratic approximation of the cost function using f0,
     % df0 and d2f0 at the same points.
-    model = polyval([.5*d2f0 df0 f0], h);
+    model = polyval([.5*d2f0, df0, f0], h);
     
     % Compute the approximation error
     err = abs(model - value);
@@ -155,7 +158,7 @@ function checkhessian(problem, x, d)
     xlabel('h');
     ylabel('Approximation error');
     
-    line('xdata', [1e-8 1e0], 'ydata', [1e-16 1e8], ...
+    line('xdata', [1e-8, 1e0], 'ydata', [1e-16, 1e8], ...
          'color', 'k', 'LineStyle', '--', ...
          'YLimInclude', 'off', 'XLimInclude', 'off');
     
@@ -186,9 +189,10 @@ function checkhessian(problem, x, d)
     hold off;
     
     if ~isModelExact
-        fprintf('The slope should be 3. It appears to be: %g.\n', poly(1));
-        fprintf(['If it is far from 3, then directional derivatives,\n' ...
-                 'the gradient or the Hessian might be erroneous.\n', ...
+        fprintf(['The slope should be 3. It appears to be: ' ...
+                 '<strong>%g</strong>.\n'], poly(1));
+        fprintf(['If it is far from 3, then the gradient or the ' ...
+                 'Hessian might be erroneous.\n', ...
                  extra_message]);
     else
         fprintf(['The quadratic model appears to be exact ' ...
@@ -198,19 +202,25 @@ function checkhessian(problem, x, d)
 
     
     %% Check that the Hessian at x along direction d is a tangent vector.
-    if isfield(problem.M, 'tangent')
-        hess = getHessian(problem, x, d, storedb, xkey);
-        phess = problem.M.tangent(x, hess);
-        residual = problem.M.lincomb(x, 1, hess, -1, phess);
-        err = problem.M.norm(x, residual);
-        fprintf('Tangency residual should be zero, or very close; ');
-        fprintf('residual: %g.\n', err);
-        fprintf(['If it is far from 0, then the Hessian is not in the ' ...
-                 'tangent space.\n']);
+    hess = getHessian(problem, x, d, storedb, xkey);
+    err = offtangent(problem.M, x, hess);
+    if ~isnan(err)
+        fprintf('Hess f(x)[d] must be a tangent vector at x.\n');
+        fprintf(['If so, the following number is zero up to machine ' ...
+                 'precision: <strong>%g</strong>.\n'], err);
+        if ~isinf(err)
+            fprintf(['If it is far from 0, the Hessian returns ' ...
+                     'non-tangent vectors, which is problematic.\n']);
+        else
+            fprintf(['The output is Inf, suggesting Hess f(x)[d] is ' ...
+                     'not in the right format.\nCheck array sizes.']);
+        end
     else
         fprintf(['Unfortunately, Manopt was unable to verify that the '...
                  'output of the Hessian call is indeed a tangent ' ...
-                 'vector.\nPlease verify this manually.']);
+                 'vector.\nPlease verify this manually or implement ' ...
+                 'the ''tangent'' or the ''offtangent'' function in ' ...
+                 'your manifold structure.']);
     end    
     
     %% Check that the Hessian at x is linear and symmetric.
@@ -228,8 +238,10 @@ function checkhessian(problem, x, d)
     errvec = problem.M.lincomb(x, 1, had1pbd2, -1, ahd1pbhd2);
     errvecnrm = problem.M.norm(x, errvec);
     had1pbd2nrm = problem.M.norm(x, had1pbd2);
-    fprintf(['||a*H[d1] + b*H[d2] - H[a*d1+b*d2]|| should be zero, or ' ...
-             'very close.\n\tValue: %g (norm of H[a*d1+b*d2]: %g)\n'], ...
+    fprintf('The Hessian at x must be linear on the tangent space at x.\n');
+    fprintf(['If so, ||a*H[d1] + b*H[d2] - H[a*d1+b*d2]|| is zero up to ' ...
+             'machine precision.\n\tValue: <strong>%g</strong> ' ...
+             '(norm of H[a*d1+b*d2]: %g)\n'], ...
              errvecnrm, had1pbd2nrm);
     fprintf('If it is far from 0, then the Hessian is not linear.\n');
     
@@ -237,8 +249,9 @@ function checkhessian(problem, x, d)
     v1 = problem.M.inner(x, d1, h2);
     v2 = problem.M.inner(x, h1, d2);
     value = v1-v2;
-    fprintf(['<d1, H[d2]> - <H[d1], d2> should be zero, or very close.' ...
-             '\n\tValue: %g - %g = %g.\n'], v1, v2, value);
+    fprintf('The Hessian at x must be symmetric on the tangent space at x.\n');
+    fprintf(['If so, <d1, H[d2]> - <H[d1], d2> is zero up to machine precision.' ...
+             '\n\tValue: %g - %g = <strong>%g</strong>.\n'], v1, v2, value);
     fprintf('If it is far from 0, then the Hessian is not symmetric.\n');
     
     %% Check if the manifold at hand is one of those for which there should
@@ -268,7 +281,7 @@ function checkhessian(problem, x, d)
         fprintf(['\nWhen using checkhessian with a finite difference ' ...
                  'approximation, the norm of the residual\nshould be ' ...
                  'compared against the norm of the gradient at the ' ...
-                 'point under consideration (%.2g).\nFurthermore, it ' ...
+                 'point under consideration (%.3e).\nFurthermore, it ' ...
                  'is expected that the FD operator is only approximately' ...
                  ' symmetric.\nOf course, the slope can also be off.\n'], ...
                  norm_grad);
