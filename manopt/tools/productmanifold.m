@@ -52,9 +52,9 @@ function M = productmanifold(elements)
 %       function. This makes them available to nested subfunctions.
 %       The extra step is not necessary in Matlab.
 %
-%   July  1, 2024 (NB):
+%   July  2, 2024 (NB):
 %       Added check all_elements_provide() to most functions.
-%       Added retr2.
+%       Added retr2, isotransp and paralleltransp.
 
 
     elems = fieldnames(elements);
@@ -370,6 +370,27 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         for i = 1 : nelems
             v.(elems{i}) = elements.(elems{i}).transp(x1.(elems{i}), ...
                                               x2.(elems{i}), u.(elems{i}));
+        end
+    end
+
+    if all_elements_provide('isotransp')
+        M.isotransp = @isotransp;
+    end
+    function v = isotransp(x1, x2, u)
+        for i = 1 : nelems
+            v.(elems{i}) = elements.(elems{i}).isotransp(x1.(elems{i}), ...
+                                              x2.(elems{i}), u.(elems{i}));
+        end
+    end
+
+    if all_elements_provide('paralleltransp')
+        M.paralleltransp = @paralleltransp;
+    end
+    function v = paralleltransp(x1, x2, u)
+        for i = 1 : nelems
+            v.(elems{i}) = elements.(elems{i}).paralleltransp( ...
+                                        x1.(elems{i}), ...
+                                        x2.(elems{i}), u.(elems{i}));
         end
     end
 

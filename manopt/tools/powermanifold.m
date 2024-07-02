@@ -39,9 +39,9 @@ function Mn = powermanifold(M, n)
 %   Mar.  7, 2023 (CC):
 %       Include exp, dist, typicaldist only if defined in base manifold.
 %
-%   July  1, 2024 (NB):
+%   July  2, 2024 (NB):
 %       Extended the work of the previous change to all functions.
-%       Added retr2.
+%       Added retr2, isotransp and paralleltransp.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
@@ -263,6 +263,24 @@ function Mn = powermanifold(M, n)
     function u = transp(x1, x2, u)
         for i = 1 : n
             u{i} = M.transp(x1{i}, x2{i}, u{i});
+        end
+    end
+
+    if isfield(M, 'isotransp')
+        Mn.isotransp = @isotransp;
+    end
+    function u = isotransp(x1, x2, u)
+        for i = 1 : n
+            u{i} = M.isotransp(x1{i}, x2{i}, u{i});
+        end
+    end
+
+    if isfield(M, 'paralleltransp')
+        Mn.paralleltransp = @paralleltransp;
+    end
+    function u = paralleltransp(x1, x2, u)
+        for i = 1 : n
+            u{i} = M.paralleltransp(x1{i}, x2{i}, u{i});
         end
     end
 
