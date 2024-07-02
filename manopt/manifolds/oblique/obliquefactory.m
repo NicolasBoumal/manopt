@@ -255,6 +255,9 @@ function M = obliquefactory(n, m, dirflag, gpuflag)
         U = (Y .* (1./sum(X.*Y, dim))) - X;
     end
 
+    % The retraction is second order.
+    M.retr2 = M.retr;
+
     M.hash = @(x) ['z' hashmd5(x(:))];
 
     M.rand = @() normalize(randn(n, m, array_type));

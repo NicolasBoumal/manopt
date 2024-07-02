@@ -69,10 +69,14 @@ function M = sympositivedefinitefactory(n)
 %   Jan. 12, 2022 (NB):
 %       Simplified code for ehess2rhess by commenting out the reasoning and
 %       computing only the end result.
+%
+%   July 2, 2024 (NB):
+%       Made M.retr2 = M.retr available to mark it as second order.
     
     symm = @(X) .5*(X+X');
     
-    M.name = @() sprintf('Symmetric positive definite geometry of %dx%d matrices', n, n);
+    name = sprintf('Symmetric positive definite geometry of %dx%d matrices', n, n);
+    M.name = @() name;
     
     M.dim = @() n*(n+1)/2;
     
@@ -127,6 +131,7 @@ function M = sympositivedefinitefactory(n)
     M.tangent2ambient = @(X, eta) eta;
     
     M.retr = @retraction;
+    M.retr2 = M.retr;  % this retraction is second order
     function Y = retraction(X, eta, t)
         if nargin < 3
             teta = eta;

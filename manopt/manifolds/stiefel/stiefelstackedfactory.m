@@ -33,6 +33,7 @@ function M = stiefelstackedfactory(m, d, k)
 % Original author: Nicolas Boumal, May 4, 2015.
 % Contributors: 
 % Change log: 
+%   July 2, 2024 (NB): marked the retraction as second order with M.retr2.
 
     assert(k >= d, 'k must be at least as large as d.');
 
@@ -99,6 +100,7 @@ function M = stiefelstackedfactory(m, d, k)
     end
     
     M.retr = @retraction;
+    M.retr2 = M.retr; % this is a second-order retraction
     function Y = retraction(Y, U, t)
         if nargin < 3
             t = 1.0;

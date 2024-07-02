@@ -45,6 +45,9 @@ function M = complexcirclefactory(n, m, gpuflag)
 %   Aug. 3, 2018 (NB)
 %       Added support for matrices of unit-modulus (as opposed to vectors).
 %       Added GPU support: just set gpuflag = true.
+%
+%   July 2, 2024 (NB)
+%       Made M.retr2 = M.retr available.
     
     if ~exist('n', 'var') || isempty(n)
         n = 1;
@@ -131,6 +134,9 @@ function M = complexcirclefactory(n, m, gpuflag)
     function v = inverse_retraction(x, y)
         v = y ./ real(conj(x) .* y) - x;
     end
+
+    % The retraction is second order.
+    M.retr2 = M.retr;
 
     M.log = @logarithm;
     function v = logarithm(x1, x2)

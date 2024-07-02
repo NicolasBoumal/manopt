@@ -120,6 +120,9 @@ function M = fixedrankembeddedfactory(m, n, k)
 %    June 18, 2024 (NB):
 %       Adapted to use euclideanlargefactory for matrices in the embedding
 %       space. This is backwards compatible and adds flexibility.
+%
+%    July 2, 2024 (NB):
+%       Added M.retr2 = M.retr to mark it as second order.
 
     M.name = @() sprintf('Manifold of %dx%d matrices of rank %d', m, n, k);
     
@@ -219,6 +222,7 @@ function M = fixedrankembeddedfactory(m, n, k)
     % ezplot(g, [-2, 2]);
     %
     M.retr = @retraction;
+    M.retr2 = M.retr;
     function Y = retraction(X, Z, t)
         if nargin < 3
             t = 1.0;

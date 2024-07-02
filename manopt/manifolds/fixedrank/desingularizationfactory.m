@@ -72,7 +72,7 @@ function M = desingularizationfactory(m, n, r, alpha)
 % - retr_qfactor (first-order).
 % - retr_metric_proj (second-order).
 % - retr_polar (second-order).
-% The default is set as M.retr = @retr_qfactor;
+% The defaults are M.retr = @retr_qfactor and M.retr2 = @retr_polar.
 %
 % See also: fixedrankembeddedfactory euclideanlargefactory
 
@@ -80,6 +80,8 @@ function M = desingularizationfactory(m, n, r, alpha)
 % Original authors: Quentin Rebjock and Nicolas Boumal, June 2024.
 % Contributors:
 % Change log:
+%   July 2, 2024 (NB)
+%       Made M.retr2 = M.retr_polar available, to mark it as second order.
 
     if ~exist('alpha', 'var') || isempty(alpha)
         alpha = .5;
@@ -185,10 +187,6 @@ function M = desingularizationfactory(m, n, r, alpha)
         rhess.Vp = B - XP.V*(XP.V.'*B);
     end
 
-    % Multiple retractions are available for the desingularization.
-    % Default: retraction based on Q-factor.
-    M.retr = @retr_qfactor;
-
     % XP represents the current point (X, P). XPdot represents a tangent
     % vector. Let Pnew = P + Pdot. Vnew is such that Pnew = I - Vnew*Vnew'.
     % Compute a representation of ((X + Xdot)(I - Pnew), Pnew).
@@ -258,6 +256,11 @@ function M = desingularizationfactory(m, n, r, alpha)
 
         XPnew = ambientstep2M(XP, XPdot, Vnew, t);
     end
+
+    % Multiple retractions are available for the desingularization.
+    % We choose default first- and second-order retractions here.
+    M.retr = M.retr_qfactor;
+    M.retr2 = M.retr_polar;
 
     % Same hash as fixedrankembeddedfactory.
     M.hash = fixedrankembeddedfactory(m, n, r).hash;

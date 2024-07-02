@@ -17,6 +17,8 @@ function M = constantfactory(A)
 % Original author: Nicolas Boumal, March 15, 2018.
 % Contributors: 
 % Change log:
+%   July 2, 2024 (NB)
+%       Added M.retr2, so productmanifold can use it.
     
     M.name = @() 'Singleton manifold';
     
@@ -41,6 +43,8 @@ function M = constantfactory(A)
     M.exp = @(x, d, t) A;
     
     M.retr = M.exp;
+
+    M.retr2 = M.exp;
     
     M.log = @(x, y) zeros(size(A));
 
