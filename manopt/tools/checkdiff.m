@@ -105,11 +105,11 @@ function checkdiff(problem, x, d, force_gradient)
     
     % Compute the value of f at points on the geodesic (or approximation
     % of it) originating from x, along direction d, for stepsizes in a
-    % large range given by h.
-    h = logspace(-8, 0, 51);
-    value = zeros(size(h));
-    for k = 1 : length(h)
-        y = stepper(x, d, h(k));
+    % large range given by t.
+    t = logspace(-8, 0, 51);
+    value = zeros(size(t));
+    for k = 1 : length(t)
+        y = stepper(x, d, t(k));
         ykey = storedb.getNewKey();
         value(k) = getCost(problem, y, storedb, ykey);
         storedb.remove(ykey); % no need to keep it in memory
@@ -117,21 +117,21 @@ function checkdiff(problem, x, d, force_gradient)
     
     % Compute the linear approximation of the cost function using f0 and
     % df0 at the same points.
-    model = polyval([df0 f0], h);
+    model = polyval([df0, f0], t);
     
     % Compute the approximation error
     err = abs(model - value);
     
     % And plot it.
-    loglog(h, err);
+    loglog(t, err);
     title(sprintf(['Check of ' checking '.\nThe slope of the '...
                    'continuous line should match that of the dashed\n'...
                    '(reference) line over at least a few orders of '...
-                   'magnitude for h.']));
-    xlabel('h');
+                   'magnitude for t.']));
+    xlabel('t');
     ylabel('Approximation error');
     
-    line('xdata', [1e-8 1e0], 'ydata', [1e-8 1e8], ...
+    line('xdata', [1e-8, 1e0], 'ydata', [1e-8, 1e8], ...
          'color', 'k', 'LineStyle', '--', ...
          'YLimInclude', 'off', 'XLimInclude', 'off');
     
@@ -142,23 +142,23 @@ function checkdiff(problem, x, d, force_gradient)
         % the error should have a slope of 2.
         isModelExact = false;
         window_len = 10;
-        [range, poly] = identify_linear_piece(log10(h), log10(err), window_len);
+        [range, poly] = identify_linear_piece(log10(t), log10(err), window_len);
     else
         % The 1st order model is exact: all errors are (numerically) zero
-        % Fit line from all points, use log scale only in h.
+        % Fit line from all points, use log scale only in t.
         isModelExact = true;
-        range = 1:numel(h);
-        poly = polyfit(log10(h), err, 1);
+        range = 1:numel(t);
+        poly = polyfit(log10(t), err, 1);
         % Set mean error in log scale for plot.
         poly(end) = log10(poly(end));
         % Change title to something more descriptive for this special case.
         title(sprintf(...
               ['Check of ' checking '.\n'...
                'It seems the linear model is exact:\n'...
-               'Model error is numerically zero for all h.']));
+               'Model error is numerically zero for all t.']));
     end
     hold all;
-    loglog(h(range), 10.^polyval(poly, log10(h(range))), 'LineWidth', 3);
+    loglog(t(range), 10.^polyval(poly, log10(t(range))), 'LineWidth', 3);
     hold off;
     
     if ~isModelExact
