@@ -55,6 +55,10 @@ function checkhessian(problem, x, d)
 %
 %   Feb. 1, 2020 (NB):
 %       Added an explicit linearity check.
+%
+%   July 2, 2024 (NB):
+%       Use exp, or retr2, or retr (in that order). Only issue a slope
+%       warning if using retr (because retr2 is second order).
 
         
     % Verify that the problem description is sufficient.
@@ -99,18 +103,28 @@ function checkhessian(problem, x, d)
     d2f0 = problem.M.inner(x, d, hessxd);
     
     
-    % Pick a stepping function: exponential or retraction?
+    % Pick a stepping function. Order of preference: exp > retr2 > retr.
+    stepper = problem.M.retr;
+    stepper_is_secondorder = false;  % retr may be second order, but unsure
+    if isfield(problem.M, 'retr2')
+        stepper = problem.M.retr2;
+        stepper_is_secondorder = true;
+    end
     if isfield(problem.M, 'exp')
         stepper = problem.M.exp;
+        stepper_is_secondorder = true;
+    end
+    if stepper_is_secondorder
         extra_message = '';
     else
-        stepper = problem.M.retr;
-        fprintf(['* M.exp() is not available: using M.retr() instead.\n' ...
-                 '* Please check the manifold documentation to see if\n' ...
-                 '* the retraction is second order. If not, the slope\n' ...
-                 '* test is allowed to fail at non-critical x.\n']);
-        extra_message = ['(But do mind the message above: the slope may\n' ...
-                         'be allowed to be 2 at non-critical points x.)\n'];
+        fprintf( ...
+            ['* M.exp and M.retr2 are not available: using M.retr.\n' ...
+             '* Please check the manifold documentation to see if\n' ...
+             '* the retraction is second order. If not, the slope\n' ...
+             '* test is allowed to fail at non-critical x.\n']);
+        extra_message = ...
+            ['(But do mind the message above: the slope may ' ...
+             'be\nallowed to be 2 at non-critical points x.)\n'];
     end
     
     

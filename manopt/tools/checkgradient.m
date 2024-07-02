@@ -29,6 +29,9 @@ function checkgradient(problem, x, d)
 %       rmfield of problem.diff. This became necessary after getGradient
 %       was updated to know how to compute the gradient from directional
 %       derivatives.
+%
+%   July 1, 2024 (NB):
+%       The special message about hyperbolicfactory now appears less often.
 
     
     % Verify that the problem description is sufficient.
@@ -84,7 +87,10 @@ function checkgradient(problem, x, d)
         err = problem.M.norm(x, residual);
         fprintf('The residual should be 0, or very close. Residual: %g.\n', err);
         fprintf('If it is far from 0, then the gradient is not in the tangent space.\n');
-        fprintf('In certain cases (e.g., hyperbolicfactory), the tangency test is inconclusive.\n');
+        if err > 1e-10
+            fprintf(['In certain cases (e.g., hyperbolicfactory), the ' ...
+                     'tangency test is inconclusive. Check manually.\n']);
+        end
     else
         fprintf(['Unfortunately, Manopt was unable to verify that the '...
                  'gradient is indeed a tangent vector.\nPlease verify ' ...

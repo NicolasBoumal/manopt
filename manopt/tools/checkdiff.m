@@ -38,9 +38,19 @@ function checkdiff(problem, x, d, force_gradient)
 %
 %   June 18, 2019 (NB):
 %       Now issues a warning if the cost function returns complex values.
+%
+%   July 1, 2024 (NB):
+%       Use force_gradient flag to correctly display what we are checking.
 
     if ~exist('force_gradient', 'var')
         force_gradient = false;
+    end
+
+    % String to describe what it is that we are checking.
+    if force_gradient
+        checking = 'gradient';
+    else
+        checking = 'directional derivative';
     end
         
     % Verify that the problem description is sufficient.
@@ -113,7 +123,7 @@ function checkdiff(problem, x, d, force_gradient)
     
     % And plot it.
     loglog(h, err);
-    title(sprintf(['Directional derivative check.\nThe slope of the '...
+    title(sprintf(['Check of ' checking '.\nThe slope of the '...
                    'continuous line should match that of the dashed\n'...
                    '(reference) line over at least a few orders of '...
                    'magnitude for h.']));
@@ -142,7 +152,7 @@ function checkdiff(problem, x, d, force_gradient)
         poly(end) = log10(poly(end));
         % Change title to something more descriptive for this special case.
         title(sprintf(...
-              ['Directional derivative check.\n'...
+              ['Check of ' checking '.\n'...
                'It seems the linear model is exact:\n'...
                'Model error is numerically zero for all h.']));
     end
@@ -152,8 +162,8 @@ function checkdiff(problem, x, d, force_gradient)
     
     if ~isModelExact
         fprintf('The slope should be 2. It appears to be: %g.\n', poly(1));
-        fprintf(['If it is far from 2, then directional derivatives ' ...
-                 'might be erroneous.\n']);
+        fprintf(['If it is far from 2, then the ' checking ...
+                 ' might be erroneous.\n']);
     else
         fprintf(['The linear model appears to be exact ' ...
                  '(within numerical precision),\n'...
