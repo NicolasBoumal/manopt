@@ -54,6 +54,7 @@ function M = productmanifold(elements)
 %
 %   July  1, 2024 (NB):
 %       Added check all_elements_provide() to most functions.
+%       Added retr2.
 
 
     elems = fieldnames(elements);
@@ -278,6 +279,19 @@ function M = productmanifoldhelper(elements, elems, nelems, ...
         for i = 1 : nelems
             y.(elems{i}) = elements.(elems{i}).retr(x.(elems{i}), ...
                                                     u.(elems{i}), t);
+        end
+    end
+    
+    if all_elements_provide('retr2')
+        M.retr2 = @retr2;
+    end
+    function y = retr2(x, u, t)
+        if nargin < 3
+            t = 1.0;
+        end
+        for i = 1 : nelems
+            y.(elems{i}) = elements.(elems{i}).retr2(x.(elems{i}), ...
+                                                     u.(elems{i}), t);
         end
     end
     

@@ -41,6 +41,7 @@ function Mn = powermanifold(M, n)
 %
 %   July  1, 2024 (NB):
 %       Extended the work of the previous change to all functions.
+%       Added retr2.
 
     
     assert(n >= 1, 'n must be an integer larger than or equal to 1.');
@@ -172,6 +173,18 @@ function Mn = powermanifold(M, n)
         end
         for i = 1 : n
             x{i} = M.retr(x{i}, u{i}, t);
+        end
+    end
+    
+    if isfield(M, 'retr2')
+        Mn.retr2 = @retr2;
+    end
+    function x = retr2(x, u, t)
+        if nargin < 3
+            t = 1.0;
+        end
+        for i = 1 : n
+            x{i} = M.retr2(x{i}, u{i}, t);
         end
     end
     
