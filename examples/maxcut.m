@@ -1,6 +1,6 @@
 function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % Algorithm to (try to) compute a maximum cut of a graph, via SDP approach.
-% 
+%
 % function x = maxcut(L)
 % function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 %
@@ -40,7 +40,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % solution found for the underlying SDP problem. If cutvalue_upperbound is
 % not NaN, then Y*Y' is optimal for the SDP and cutvalue_upperbound is its
 % cut value.
-% 
+%
 % By Goemans and Williamson 1995, it is known that if the optimal value of
 % the SDP is reached, then the returned cut, in expectation, is at most at
 % a fraction 0.878 of the optimal cut. (This is not exactly valid because
@@ -48,7 +48,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % a cut that respects this statement -- it's usually worse though).
 %
 % The algorithm is essentially that of:
-% 
+%
 % Journee, Bach, Absil and Sepulchre, SIAM 2010
 % Low-rank optimization on the cone of positive semidefinite matrices.
 %
@@ -61,14 +61,14 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
 % problems using semidefinite programming
 %
 % and the related work of Burer and Monteiro 2003, 2005.
-% 
+%
 % See also: elliptope_SDP burermonteirolift
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, July 18, 2013
 % Contributors:
 % Change log:
-%   
+%
 %   April 3, 2015 (NB):
 %       L products now counted with the new shared memory system. This is
 %       more reliable and more flexible than using a global variable.
@@ -97,7 +97,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     if ~exist('r', 'var') || isempty(r) || r > n
         r = n;
     end
-    
+
     % We let the rank increase bit by bit. Each rank value generates a cut.
     % We have to go up in the rank to eventually find a certificate of SDP
     % optimality. This in turn provides an upperbound on the MAX CUT value
@@ -107,21 +107,21 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
     best_x = ones(n, 1);
     best_cutvalue = 0;
     cutvalue_upperbound = NaN;
-    
+
     time = [];
     cost = [];
-    
+
     for rr = 2 : r
 
         manifold = obliquefactory(n, rr, 'rows');
-        
+
         if rr == 2
-            
+
             % At first, for rank 2, generate a random point.
             Y0 = manifold.rand();
-             
+
         else
-            
+
             % To increase the size, we could just add a column of zeros to
             % the Y matrix. Unfortunately, this lands us in a saddle point.
             % To escape from the saddle, we may compute an eigenvector of
@@ -135,7 +135,7 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
             Dy = spdiags(sum(LY0.*Y0, 2), 0, n, n);
             Sy = (Dy - L)/4;
             % Find the smallest (the "most negative") eigenvalue of Sy.
-            [v, s] = eigs(Sy, 1, 'smallestreal');
+            [v, s] = eigs(Sy, 1, 'sa');
             % If there is no negative eigenvalue for Sy, than we are not at
             % a saddle point: we're actually done!
             if s >= -1e-8
@@ -145,23 +145,23 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
                 cutvalue_upperbound = max(-[info.cost]);
                 break;
             end
-            
+
             % This is our escape direction.
             Z = manifold.proj(Y0, [zeros(n, rr-1) v]);
-            
+
             % Now make a step in the Z direction to escape from the saddle.
             % This is merely a heuristic: it may be better to us a
             % line-search on the stepsize to guarantee cost decrease.
             stepsize = 1;
             Y0 = manifold.retr(Y0, Z, stepsize);
-            
+
         end
-        
+
         % Use the Riemannian optimization algorithm lower in this file to
         % reach a critical point (typically a local optimizer) of the
         % max-cut cost with rank at most rr, starting from Y0.
         [Y, info] = maxcut_boundedrank(L, Y0);
-        
+
         % Some info logging.
         thistime = [info.time];
         if ~isempty(time)
@@ -187,12 +187,12 @@ function [x, cutvalue, cutvalue_upperbound, Y] = maxcut(L, r)
             best_x = x;
             best_cutvalue = cutvalue;
         end
-        
+
     end
-    
+
     x = best_x;
     cutvalue = best_cutvalue;
-    
+
     clf;
     plot(time, -cost, '.-');
     xlabel('Time [s]');
@@ -209,12 +209,12 @@ function [Y, info] = maxcut_boundedrank(L, Y)
 
     [n, r] = size(Y);
     assert(all(size(L) == n));
-   
+
     % Constrain the rows of Y (of size nxr) to have unit norm.
     manifold = obliquefactory(n, r, 'rows');
-    
+
     problem.M = manifold;
-    
+
     % For rapid prototyping, the next three lines suffice to describe the
     % cost function and its gradient and Hessian (here expressed using the
     % Euclidean gradient and Hessian).
@@ -225,10 +225,10 @@ function [Y, info] = maxcut_boundedrank(L, Y)
 
     % It's also possible to use automatic differentiation (AD) instead of
     % implementing the gradient and Hessian by hand, though that is slower.
-    % 
+    %
     % problem.cost  = @(Y) -sum(Y.*(L*Y), 'all')/4;
     % problem = manoptAD(problem);
-    
+
     % Instead of the prototyping version, the functions below describe the
     % cost, gradient and Hessian using the caching system (the store
     % structure). This makes it possible to avoid redundant computations of
@@ -271,11 +271,11 @@ function [Y, info] = maxcut_boundedrank(L, Y)
     % Register a counter to keep track of products with the L matrix.
     stats = statscounters('Lproducts');
     options.statsfun = statsfunhelper(stats);
-    
+
     options.verbosity = 1;
 
     [Y, Ycost, info] = trustregions(problem, Y, options); %#ok<ASGLU>
-    
+
     fprintf('At rank <= %d, matrix-vector products with L: %d\n\n', ...
              r, max([info.Lproducts]));
 
