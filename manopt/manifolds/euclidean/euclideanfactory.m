@@ -27,13 +27,14 @@ function M = euclideanfactory(m, n)
 %       Added egred2rgrad, ehess2rhess, mat, vec, tangent.
 %   May 4, 2015 (BM):
 %       Added functionality to handle multidimensional arrays.
+%   July 2, 2024 (NB):
+%       Improved the name string. Made retr2 = exp available.
 
 
     % The size can be defined using both m and n, or simply with m.
     % If m is a scalar, then n is implicitly 1.
-    % This mimics the use of built-in Matlab functions such as zeros(...).
     if ~exist('n', 'var') || isempty(n)
-        if numel(m) == 1
+        if isscalar(m)
             n = 1;
         else
             n = [];
@@ -44,7 +45,9 @@ function M = euclideanfactory(m, n)
     
     M.size = @() dimensions_vec;
     
-    M.name = @() sprintf('Euclidean space R^(%s)', num2str(dimensions_vec));
+    dimensions_string = [sprintf('%d', dimensions_vec(1)), ...
+                         sprintf(' x %d', dimensions_vec(2:end))];
+    M.name = @() sprintf('Euclidean space R^(%s)', dimensions_string);
     
     M.dim = @() prod(dimensions_vec);
     
@@ -74,6 +77,7 @@ function M = euclideanfactory(m, n)
     end
     
     M.retr = M.exp;
+    M.retr2 = M.exp;
     
     M.log = @(x, y) y-x;
 
