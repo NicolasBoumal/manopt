@@ -82,6 +82,9 @@ function M = grassmannfactory(n, p, k, gpuflag)
 %   Jan. 8, 2021 (NB)
 %       Added tangent2ambient/tangent2ambient_is_identity pair.
 %       Here, 'ambient' refers to the total space.
+%
+%   July 2, 2024 (NB)
+%       Made M.retr available as M.retr2 too, to mark it as second order.
 
     assert(n >= p, ...
            ['The dimension n of the ambient space must be larger ' ...
@@ -158,6 +161,7 @@ function M = grassmannfactory(n, p, k, gpuflag)
     end
     
     M.retr = @retraction;
+    M.retr2 = M.retr;
     function Y = retraction(X, U, t)
         if nargin < 3
             Y = X + U;

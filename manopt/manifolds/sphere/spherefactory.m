@@ -55,6 +55,9 @@ function M = spherefactory(n, m, gpuflag)
 %
 %   Jan. 8, 2021 (NB)
 %       Added tangent2ambient/tangent2ambient_is_identity pair.
+%
+%   July 1, 2024 (NB)
+%       Added M.retr2 = M.retr to mark it as a second-order retraction.
 
 
     if ~exist('m', 'var') || isempty(m)
@@ -115,7 +118,7 @@ function M = spherefactory(n, m, gpuflag)
     M.tangent = M.proj;
 
     M.tangent2ambient_is_identity = true;
-    M.tangent2ambient = @(X, U) U;
+    M.tangent2ambient = @(x, u) u;
 
     % For Riemannian submanifolds, converting a Euclidean gradient into a
     % Riemannian gradient amounts to an orthogonal projection.
@@ -129,6 +132,7 @@ function M = spherefactory(n, m, gpuflag)
     M.exp = @exponential;
 
     M.retr = @retraction;
+    M.retr2 = M.retr;
     M.invretr = @inverse_retraction;
 
     M.log = @logarithm;

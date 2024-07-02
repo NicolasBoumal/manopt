@@ -23,6 +23,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 % after creating M with this factory. This can be reverted with
 %    M.retr = M.retr_qr;
 % If used, you may also want to update M.invretr similarly.
+% The polar retraction is also available in M.retr2.
 %
 % Set gpuflag = true to have points, tangent vectors and ambient vectors
 % stored on the GPU. If so, computations can be done on the GPU directly.
@@ -49,6 +50,7 @@ function M = stiefelfactory(n, p, k, gpuflag)
 %  July  9, 2019 (NB) : Added a comment about QR retraction being first
 %                       order only.
 %  Jan.  8, 2021 (NB) : Added tangent2ambient+tangent2ambient_is_identity.
+%  July  2, 2024 (NB) : Made polar retraction available as retr2.
 
     assert(n >= p, 'The dimension n must be larger than the dimension p.');
     
@@ -196,9 +198,12 @@ function M = stiefelfactory(n, p, k, gpuflag)
         U = multiprod(Y, MM) - X;
     end
     
-    % By default, we use the QR retraction
+    % By default, we use the QR retraction, which is first order.
     M.retr = M.retr_qr;
     M.invretr = M.invretr_qr;
+
+    % The polar retraction is second order, and tagged as such in retr2.
+    M.retr2 = M.retr_polar;
 
     M.exp = @exponential;
     function Y = exponential(X, U, t)

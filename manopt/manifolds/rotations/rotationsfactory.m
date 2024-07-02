@@ -213,7 +213,7 @@ function M = rotationsfactory(n, k)
     M.retr = M.retr_qr;
     M.invretr = M.invretr_qr;
     
-    % For backward compatibility:
+    % The Q-factor retraction is first order; polar factor is second-order.
     M.retr2 = M.retr_polar;
     
     % Special case: for n = 3, we use Rodrigues formulas for expm / logm.
