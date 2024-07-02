@@ -58,6 +58,7 @@ function M = spherefactory(n, m, gpuflag)
 %
 %   July 1, 2024 (NB)
 %       Added M.retr2 = M.retr to mark it as a second-order retraction.
+%       Made M.paralleltransp = M.isotransp available.
 
 
     if ~exist('m', 'var') || isempty(m)
@@ -158,13 +159,13 @@ function M = spherefactory(n, m, gpuflag)
 
     M.transp = @(x1, x2, d) M.proj(x2, d);
 
-    % Isometric transporter of d from the tangent space at x1 to x2.
-    % This is actually a parallel vector transport, see Ch. 5 in
-    % http://epubs.siam.org/doi/pdf/10.1137/16M1069298
+    % Parallel transport of d from the tangent space at x1 to x2.
+    % See Sec. 5 in http://epubs.siam.org/doi/pdf/10.1137/16M1069298
     % "A Riemannian Gradient Sampling Algorithm for Nonsmooth Optimization
     %  on Manifolds", by Hosseini and Uschmajew, SIOPT 2017
-    M.isotransp = @(x1, x2, d) isometricTransp(x1, x2, d);
-    function Td = isometricTransp(x1, x2, d)
+    M.paralleltransp = @(x1, x2, d) paralleltransp(x1, x2, d);
+    M.isotransp = M.paralleltransp;
+    function Td = paralleltransp(x1, x2, d)
         v = logarithm(x1, x2);
         dist_x1x2 = norm(v, 'fro');
         if dist_x1x2 > 0

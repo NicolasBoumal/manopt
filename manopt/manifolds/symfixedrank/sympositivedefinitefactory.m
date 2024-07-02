@@ -72,6 +72,7 @@ function M = sympositivedefinitefactory(n)
 %
 %   July 2, 2024 (NB):
 %       Made M.retr2 = M.retr available to mark it as second order.
+%       Made M.isotransp = M.paralleltransp available.
     
     symm = @(X) .5*(X+X');
     
@@ -199,6 +200,7 @@ function M = sympositivedefinitefactory(n)
     % execute "M.transp = M.paralleltransp;" on your M returned by the
     % present factory.
     M.paralleltransp = @parallel_transport;
+    M.isotransp = M.paralleltransp;
     function zeta = parallel_transport(X, Y, eta)
         E = sqrtm(Y/X);
         zeta = E*eta*E';

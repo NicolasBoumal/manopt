@@ -129,6 +129,7 @@ function M = positivefactory(m, n)
     % execute "M.transp = M.paralleltransp;" on your M returned by the
     % present factory.
     M.paralleltransp = @parallel_transport;
+    M.isotransp = M.paralleltransp;
     function zeta = parallel_transport(X, Y, eta)
         zeta = eta.*Y./X;
     end

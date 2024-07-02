@@ -86,6 +86,8 @@ function M = hyperbolicfactory(n, m, transposed)
 %       Added pairmean function.
 %   Sep. 24, 2023 (NB):
 %       Edited out bsxfun() for improved speed.
+%   July 2, 2024 (NB):
+%       Made M.paralleltransp = M.isotransp available.
 
     % Design note: all functions that are defined here but not exposed
     % outside work for non-transposed representations. Only the wrappers
@@ -236,8 +238,9 @@ function M = hyperbolicfactory(n, m, transposed)
     
     M.transp = @(X1, X2, U) M.proj(X2, U);
 
-    M.isotransp = @(X1, X2, U) ...
+    M.paralleltransp = @(X1, X2, U) ...
         trnsp(parallel_transport(trnsp(X1), trnsp(X2), trnsp(U)));
+    M.isotransp = M.paralleltransp;
     function V = parallel_transport(X1, X2, U)
         V = inner_minkowski_columns(X2, U);
         V = V ./ (1 - inner_minkowski_columns(X1, X2)) .* (X1 + X2);
