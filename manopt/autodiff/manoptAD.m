@@ -86,9 +86,8 @@ function problem = manoptAD(problem, flag, x)
 %   June 5, 2024 (NB):
 %       Added x as optional third input, as a replacement to random pick.
 
-% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
-% and the product manifold which contains fixedrankembeddedfactory
-% or anchoredrotationsfactory
+% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory,
+%        desingularizationfactory and product manifolds with them.
 
 %% Check if AD can be applied to the manifold and the cost function
     

@@ -57,10 +57,6 @@ function manoptADhelp()
 %
 % All the other multi*** functions in Manopt support AD.
 %
-% When creating your own function, if you need to create a base object such
-% as a matrix of zeros or ones etc., pass it through dlarray() explicitly.
-% For an example of this, check out the code in cdiagmat.
-%
 % Moreover, bsxfun is not supported. The user may have to translate it
 % into repmat and point-wise expressions.
 % Concatenating arrays along the third or higher dimension such as in
@@ -79,10 +75,15 @@ function manoptADhelp()
 %
 %   /manopt/autodiff/functions_AD
 %
-% when defining the cost function. An alternative way is to define one's
-% own basic functions. These functions should accept both numeric arrays
-% and structures with fields real and imag.
-% See cprod and complex_example_AD as examples.
+% when defining the cost function.
+%
+% An alternative way is to define one's own basic functions.
+% Ideally, these functions should accept both numeric arrays and structures
+% with fields real and imag. See cprod and complex_example_AD as examples.
+%
+% When creating your own function, if you need to create a base object such
+% as a matrix of zeros or ones etc., pass it through dlarray() explicitly.
+% For an example of this, check out the code in cdiagmat.
 %
 % See also: manoptAD complex_example_AD
 
