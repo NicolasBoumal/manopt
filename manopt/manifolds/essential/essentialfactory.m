@@ -54,6 +54,8 @@ function M = essentialfactory(k, strSigned)
 %       Compatibility with Octave 6.1.0: moved quite a few nested functions
 %       to end-of-file functions, and made tangent2ambient accessible as
 %       M.tangent2ambient (which should have been the case already).
+%   July 5, 2024 (NB):
+%       Added missing M.tangent2ambient_is_identity = false. Also retr2.
 
 % RT: General implementation note: to streamline component-wise
 % computations, in tangentProjection and exponential,
@@ -156,6 +158,7 @@ function M = essentialfactory(k, strSigned)
     end
     
     M.retr = @exponential;
+    M.retr2 = @exponential;
     
     M.log = @logarithm; 
     function U = logarithm(X, Y)
@@ -224,6 +227,7 @@ function M = essentialfactory(k, strSigned)
     M.mat = @(x, u_vec) reshape(u_vec, [3, 6, k]);
     M.vecmatareisometries = @() true;
     
+    M.tangent2ambient_is_identity = false;
     M.tangent2ambient = @tangent2ambient;
     
 end
