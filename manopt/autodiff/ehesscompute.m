@@ -28,7 +28,10 @@ function [ehess,store] = ehesscompute(problem, x, xdot, store, complexflag)
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
-% Change log:     
+% Change log:
+%   July 5, 2024 (NB):
+%       Removed special treatment of rotationsfactory, unitaryfactory and
+%       essentialfactory to instead use M.tangent2ambient_is_identity flag.
 
     %% Prepare Euclidean gradient
    
@@ -121,16 +124,11 @@ function [ehess,store] = ehesscompute(problem, x, xdot, store, complexflag)
     dlegrad = store.dlegrad;
     dlx = store.dlx;
     
-    % To compute Euclidean Hessian vector product, rotations manifold, 
-    % unitary manifold and essential manifold requires first converting 
-    % the representation of the tangent vector into the ambient space. 
-    % if the problem is a product manifold, in addition to the above
-    % manifolds, the xdot of the other manifolds remain the same
-    if contains(problem.M.name(),'Rotations manifold SO','IgnoreCase',true)..., 
-            ||  contains(problem.M.name(),'Unitary manifold','IgnoreCase',true)...,
-            || (contains(problem.M.name(),'Product rotations manifold','IgnoreCase',true) &&..., 
-            contains(problem.M.name(),'anchors'))...,
-            || contains(problem.M.name(),'essential','IgnoreCase',true)
+    % For some manifolds, the tangent vectors are represented in a format
+    % which does not exactly match the representation of the same vectors
+    % seen in the embedding space. For those, we do the conversion first.
+    if isfield(problem.M, 'tangent2ambient_is_identity') && ...
+            ~problem.M.tangent2ambient_is_identity
         xdot = problem.M.tangent2ambient(x, xdot);
     end 
     
