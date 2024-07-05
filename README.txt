@@ -14,15 +14,20 @@ Contact: manopttoolbox@gmail.com
 Quick installation guide
 ------------------------
 
-* Unzip and copy the whole manopt directory you just downloaded in a
-  location of your choice on disk, say, in /my/directory/.
+1.  Either git-clone or unzip the whole `manopt` directory you just
+    downloaded in a location of your choice, say, in `/my/directory/`.
 
-* Go to /my/directory/manopt/ at the command prompt and execute importmanopt.
-  You may save this path for your next Matlab sessions: follow the menu
-  File -> Set Path... and save, or execute savepath.
+2.  Go to `/my/directory/manopt/` at the Matlab prompt and
+    execute `importmanopt`.
 
-* Go to /my/directory/manopt/checkinstall/ and run the script basicexample.m.
-  If there are no errors, you are done! Otherwise, feel free to contact us.
+3.  You will be asked whether you want to save this path for your next
+    Matlab sessions. If you reply `Y` (yes) and you have the rights to
+    run `savepath`, then you won't need to go through these steps next
+    time you open Matlab.
+
+4.  Run checkinstall.m.
+    If there are no errors, you are all set.
+    Otherwise, feel free to let us know on the forum.
 
 
 Feedback
