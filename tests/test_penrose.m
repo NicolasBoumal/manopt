@@ -15,10 +15,10 @@ problem.egrad = @(X) A'*(A*X*B - C)*B';          % grad f(X) in R^(nxn)
 problem.ehess = @(X, Xdot) A'*(A*Xdot*B)*B';
 
 % Correct.
-% This code transforms X to X*Xdot, which is the direction that is actually
-% encoded by the tangent vector Xdot.
-% Equivalently, we can call SOn.tangent2ambient(X, Xdot) instead of X*Xdot.
-problem.ehess = @(X, Xdot) A'*(A*X*Xdot*B)*B';
+% This code transforms Omg to X*Omg, which is the direction that is actually
+% encoded by Omg, and which we usually refer to as Xdot.
+% Equivalently, we can call SOn.tangent2ambient(X, Omg) instead of X*Omg.
+problem.ehess = @(X, Omg) A'*(A*X*Omg*B)*B';
 
 figure(1); clf;
 checkgradient(problem);
