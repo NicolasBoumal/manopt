@@ -12,7 +12,7 @@ version_str = input('What version is this? (Between quotes. Example: ''1.0.42'')
 % This has to be done manually for now.
 fprintf('You must now manually edit these files for version names and date:\n');
 fprintf('README.txt and manopt_version.m.\n');
-fprintf('Today is: %s\n', date());
+fprintf('Today is: %s\n', char(datetime('today')));
 fprintf('Press any key AFTER you are done.\n');
 edit manopt_version.m;
 edit README.txt;
