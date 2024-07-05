@@ -8,7 +8,9 @@ function diagX = cdiag(X)
 % structs with fields real and imag. Note that diag currently does
 % not support dlarrays and cdiag can be seen as a backup function.
 %
-% See also: manoptADhelp
+% To map a vector to a diagonal matrix, see cdiagmat.
+%
+% See also: manoptAD manoptADhelp cdiagmat
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Xiaowen Jiang, Aug. 31, 2021.

@@ -48,7 +48,7 @@ function manoptADhelp()
 % lists corresponding replacement functions that can be used:
 %
 %     trace                 ctrace
-%     diag                  cdiag
+%     diag                  cdiag and cdiagmat
 %     triu                  ctriu
 %     tril                  ctril
 %     norm(..., 'fro')      cnormfro
@@ -56,6 +56,10 @@ function manoptADhelp()
 %     multiscale            cmultiscale
 %
 % All the other multi*** functions in Manopt support AD.
+%
+% When creating your own function, if you need to create a base object such
+% as a matrix of zeros or ones etc., pass it through dlarray() explicitly.
+% For an example of this, check out the code in cdiagmat.
 %
 % Moreover, bsxfun is not supported. The user may have to translate it
 % into repmat and point-wise expressions.
