@@ -241,6 +241,8 @@ function M = stiefelfactory(n, p, k, gpuflag)
     M.zerovec = @(x) zeros(n, p, k, array_type);
     
     M.transp = @(x1, x2, d) projection(x2, d);
+
+    % TODO: add parallel transport, see https://arxiv.org/abs/2408.06054.
     
     M.vec = @(x, u_mat) u_mat(:);
     M.mat = @(x, u_vec) reshape(u_vec, [n, p, k]);
