@@ -302,6 +302,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       printed to accomodate new subproblem solvers. Moved all useRand and
 %       cauchy logic to trs_tCG. Options pertaining to tCG are still
 %       available but have moved to that file. Made trs_tCG_cached default.
+%
+%   NB Aug. 16, 2024:
+%       Now allowing trs subproblem solvers to return a regularization term
+%       to add to rhonum and rhoden before computing rho (their ratio).
+%       This is stored in trsoutput.rho_reg;
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -526,10 +531,7 @@ while true
     rhonum = fx - fx_prop;
     vecrho = M.lincomb(x, 1, fgradx, .5, Heta);
     rhoden = -M.inner(x, eta, vecrho);
-    rho_noreg = rhonum/rhoden;
-    % rhonum could be anything.
-    % rhoden should be nonnegative, as guaranteed by tCG, barring 
-    % numerical errors.
+    rho_noreg = rhonum / rhoden;
     
     % Heuristic -- added Dec. 2, 2013 (NB) to replace the former heuristic.
     % This heuristic is documented in the book by Conn Gould and Toint on
@@ -555,9 +557,21 @@ while true
     % not under scaling of f. For abs(fx) > 1, the opposite holds. This
     % should not alarm us, as this heuristic only triggers at the very last
     % iterations if very fine convergence is demanded.
-    rho_reg_offset = max(1, abs(fx)) * eps * options.rho_regularization;
-    rhonum = rhonum + rho_reg_offset;
-    rhoden = rhoden + rho_reg_offset;
+    rho_reg_numeric = max(1, abs(fx)) * eps * options.rho_regularization;
+
+    % Added Aug. 16, 2024 (NB, RD)
+    % Some subproblem solvers (e.g., trs_tCG_randomized) may want to add
+    % specific regularization (not necessarilly positive) to rhonum and
+    % rhoden.
+    rho_reg_trs = 0;
+    if isfield(trsoutput, 'rho_reg')
+        rho_reg_trs = trsoutput.rho_reg;
+    end
+
+    % The rho we actually use is the one that was possibly regularized.
+    rhonum = rhonum + rho_reg_numeric + rho_reg_trs;
+    rhoden = rhoden + rho_reg_numeric + rho_reg_trs;
+    rho = rhonum / rhoden;
    
     if options.debug > 0
         fprintf('DBG:     rhonum : %e\n', rhonum);
@@ -595,7 +609,6 @@ while true
     if ~model_decreased
         trsprintstr = [trsprintstr ', model did not decrease']; %#ok<AGROW>
     end
-    rho = rhonum / rhoden;
     
     % Added June 30, 2015 following observation by BM.
     % With this modification, it is guaranteed that a step rejection is
