@@ -682,30 +682,21 @@ while true
     end
 
     % Choose to accept or reject the proposed step based on the model
-    % performance. Note the strict inequality.
-    if model_decreased && rho > options.rho_prime
-        
-        % April 17, 2018: a side effect of rho_regularization > 0 is that
-        % it can happen that the cost function appears to go up (although
-        % only by a small amount) for some accepted steps. We decide to
-        % accept this because, numerically, computing the difference
-        % between fx_prop and fx is more difficult than computing the
-        % improvement in the model, because fx_prop and fx are on the same
-        % order of magnitude yet are separated by a very small gap near
-        % convergence, whereas the model improvement is computed as a sum
-        % of two small terms. As a result, the step which seems bad may
-        % turn out to be good, in that it may help reduce the gradient norm
-        % for example. This update merely informs the user of this event.
-        % In further updates, we could also introduce this as a stopping
-        % criterion. It is then important to choose wisely which of x or
-        % x_prop should be returned (perhaps the one with smallest
-        % gradient?)
-        if fx_prop > fx && options.verbosity >= 2
-            fprintf(['Between line above and below, cost function ' ...
-                     'increased by %.2g (step size: %.2g)\n'], ...
-                     fx_prop - fx, norm_eta);
-        end
-        
+    % performance. Note the strict inequality on rho.
+    accept = false;
+    accstr = 'REJ';
+    fun_decrease = fx - fx_prop;
+    if (model_decreased && rho > options.rho_prime)
+
+        fgradx_prop = getGradient(problem, x_prop, storedb, key_prop);
+        norm_grad_prop = M.norm(x_prop, fgradx_prop);
+
+        % To consider: we might want to check that the cost function value
+        % actually decreases (see comments below), and if not, we might
+        % want to require that the gradient norm decreases, that is,
+        % checking fun_decrease > 0 || norm_grad_prop < norm_grad.
+        % Maybe make this an optional stopping criterion? Make it soft?
+
         accept = true;
         accstr = 'acc';
         % We accept the step: no need to keep the old cache.
@@ -713,15 +704,35 @@ while true
         x = x_prop;
         key = key_prop;
         fx = fx_prop;
-        fgradx = getGradient(problem, x, storedb, key);
-        norm_grad = M.norm(x, fgradx);
-    else
+        fgradx = fgradx_prop;
+        norm_grad = norm_grad_prop;
+
+    end
+
+    if ~accept
         % We reject the step: no need to keep cache related to the
         % tentative step.
         storedb.removefirstifdifferent(key_prop, key);
-        accept = false;
-        accstr = 'REJ';
     end
+
+    % A side effect of regularizing rho is that it can happen that the cost
+    % function goes up by a small amount for some accepted steps. This may
+    % be good because, numerically, computing the difference between
+    % fx_prop and fx is more difficult than computing the improvement in
+    % the model, because fx_prop and fx are on the same order of magnitude
+    % yet are separated by a very small gap near convergence, whereas the
+    % model improvement is computed as a sum of two small terms. Such steps
+    % may help reduce the gradient norm for example.
+    % Code below merely informs the user of this event.
+    % In further updates, we could also introduce this as a stopping
+    % criterion. It is then important to choose wisely which of x or
+    % x_prop should be returned (perhaps the one with smallest gradient?)
+    if accept && fun_decrease < 0 && options.verbosity >= 2
+        fprintf(['Between line above and below, cost function ' ...
+                 'increased by %.2g (step size: %.2g)\n'], ...
+                 -fun_decrease, norm_eta);
+    end
+
     
     % k is the number of iterations we have accomplished.
     k = k + 1;
