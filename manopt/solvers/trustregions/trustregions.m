@@ -733,6 +733,14 @@ while true
                  -fun_decrease, norm_eta);
     end
 
+
+    if ~accept && trstr(end) ~= '-'
+        warning('Step rejected but Delta not reduced: shouldn''t happen.');
+        % Force it?
+        % trstr = 'TR-';
+        % Delta = Delta/4;
+    end
+    
     
     % k is the number of iterations we have accomplished.
     k = k + 1;
