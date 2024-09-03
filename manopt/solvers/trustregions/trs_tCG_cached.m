@@ -357,7 +357,7 @@ for j = 1 : options.maxinner
     % to the model cost). Otherwise, we accept the new eta and go on.
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
-        stopreason_str = 'model increased';
+        stopreason_str = 'model increased in last inner iteration';
         break;
     end
     
