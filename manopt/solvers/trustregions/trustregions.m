@@ -134,7 +134,14 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       When this is not zero, it may happen that the iterates produced are
 %       not monotonically improving the cost when very close to
 %       convergence. This is because the corrected cost improvement could
-%       change sign if it is negative but very small.
+%       change sign if it is negative but small: see 'allowcostincrease'.
+%   allowcostincrease (true)
+%       When rho is computed with regularization, it may happen that a step
+%       should be accepted as determined by rho, yet for which the true
+%       cost function value goes up (typically, only by a little).
+%       This may be beneficial, so it is allowed by default.
+%       Setting this option to "false" makes it so that if this is about to
+%       happen, the step is rejected and the solver terminates.
 %   statsfun (none)
 %       Function handle to a function that is called after each iteration
 %       to provide the opportunity to log additional statistics.
@@ -307,6 +314,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Now allowing trs subproblem solvers to return a regularization term
 %       to add to rhonum and rhoden before computing rho (their ratio).
 %       This is stored in trsoutput.rho_reg;
+%
+%   NB Sep.  4, 2024:
+%       Added options.allowcostincrease, true by default (so that the
+%       default behavior does not change).
+%       To implement this new option, the logic for step accept/reject and
+%       the logic for radius increase/decrease were permuted, and the pair
+%       of variables stop_next_time and stop_next_time_reason were added.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -346,6 +360,7 @@ localdefaults.rho_prime = 0.1;
 localdefaults.rho_regularization = 1e3;
 localdefaults.subproblemsolver = @trs_tCG_cached;
 localdefaults.tolgradnorm = 1e-6;
+localdefaults.allowcostincrease = true;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -387,6 +402,10 @@ assert(options.Delta0 > 0 && options.Delta0 <= options.Delta_bar, ...
 if options.verbosity >= 3
     disp(options);
 end
+
+% Flip to "true" anytime to tell the solver to terminate in the next loop.
+stop_next_time = false;
+stop_next_time_reason = '';
 
 % Create a store database and get a key for the current x
 storedb = StoreDB(options.storedepth);
@@ -483,7 +502,13 @@ while true
     
     if stop
         if options.verbosity >= 1
-            fprintf([reason '\n']);
+            fprintf([reason, '\n']);
+        end
+        break;
+    end
+    if stop_next_time
+        if options.verbosity >= 1
+            fprintf([stop_next_time_reason, '\n']);
         end
         break;
     end
@@ -517,7 +542,7 @@ while true
     if options.debug > 0
         testangle = M.inner(x, eta, fgradx) / (norm_eta*norm_grad);
     end
-    
+
 
     % Compute the tentative next iterate (the proposal)
     x_prop = M.retr(x, eta);
@@ -578,16 +603,18 @@ while true
         fprintf('DBG:     rhoden : %e\n', rhoden);
     end
     
-    % This is always true if a linear, symmetric operator is used for the
-    % Hessian (approximation) and if we had infinite numerical precision.
+    % If a linear, symmetric operator is used for the Hessian (approx.) and
+    % if we had infinite numerical precision, then the model would always
+    % decrease when using a good subproblem solver. However:
     % In practice, nonlinear approximations of the Hessian such as the
-    % built-in finite difference approximation and finite numerical
-    % accuracy can cause the model to increase. In such scenarios, we
-    % decide to force a rejection of the step and a reduction of the
-    % trust-region radius. We test the sign of the regularized rhoden since
-    % the regularization is supposed to capture the accuracy to which
-    % rhoden is computed: if rhoden were negative before regularization but
-    % not after, that should not be (and is not) detected as a failure.
+    % built-in finite difference approximation on the one hand, and finite
+    % numerical accuracy on the other hand can cause the model to increase.
+    % In such scenarios, we decide to force a rejection of the step and a
+    % reduction of the trust-region radius. We test the sign of the
+    % regularized rhoden since the regularization is supposed to capture
+    % the accuracy to which rhoden is computed:
+    % If rhoden was negative before regularization but not after, that
+    % should not be (and is not) detected as a failure.
     % 
     % Note (Feb. 17, 2015, NB): the most recent version of trs_tCG already
     % includes a mechanism to ensure model decrease if the Cauchy step
@@ -597,13 +624,9 @@ while true
     %
     % The current strategy is that, if this should happen, then we reject
     % the step and reduce the trust region radius. This also ensures that
-    % the actual cost values are monotonically decreasing.
-    %
-    % [This bit of code seems not to trigger since trs_tCG already ensures
-    %  the model decreases even in the presence of non-linearities; but as
-    %  a result the radius is not necessarily decreased. Perhaps we should
-    %  change this with the proposed commented line below; needs testing.]
-    %
+    % the actual cost values are monotonically decreasing (unless rho is
+    % regularized).
+    % 
     model_decreased = (rhoden >= 0);
     
     if ~model_decreased
@@ -638,55 +661,18 @@ while true
         fprintf('DBG:   used rho : %e\n', rho);
     end
 
-    % Choose the new TR radius based on the model performance
-    trstr = '   ';
-    % If the actual decrease is smaller than 1/4 of the predicted decrease,
-    % then reduce the TR radius.
-    if rho < 1/4 || ~model_decreased || isnan(rho)
-        trstr = 'TR-';
-        Delta = Delta/4;
-        consecutive_TRplus = 0;
-        consecutive_TRminus = consecutive_TRminus + 1;
-        if consecutive_TRminus >= 5 && options.verbosity >= 2
-            consecutive_TRminus = -inf;
-            fprintf([' +++ Detected many consecutive TR- (radius ' ...
-                     'decreases).\n' ...
-                     ' +++ Consider dividing options.Delta_bar by 10.\n' ...
-                     ' +++ Current values: options.Delta_bar = %g and ' ...
-                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
-                                                options.Delta0);
-        end
-    % If the actual decrease is at least 3/4 of the predicted decrease and
-    % the trs_tCG (inner solve) hit the TR boundary, increase TR radius.
-    % We also keep track of the number of consecutive trust-region radius
-    % increases. If there are many, this may indicate the need to adapt the
-    % initial and maximum radii.
-    elseif rho > 3/4 && limitedbyTR
-        trstr = 'TR+';
-        Delta = min(2*Delta, options.Delta_bar);
-        consecutive_TRminus = 0;
-        consecutive_TRplus = consecutive_TRplus + 1;
-        if consecutive_TRplus >= 5 && options.verbosity >= 1
-            consecutive_TRplus = -inf;
-            fprintf([' +++ Detected many consecutive TR+ (radius ' ...
-                     'increases).\n' ...
-                     ' +++ Consider multiplying options.Delta_bar by 10.\n' ...
-                     ' +++ Current values: options.Delta_bar = %g and ' ...
-                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
-                                                options.Delta0);
-        end
-    else
-        % Otherwise, keep the TR radius constant.
-        consecutive_TRplus = 0;
-        consecutive_TRminus = 0;
-    end
+
+    % Compute this now (before fx is replaced by fx_prop).
+    fun_decrease = fx - fx_prop;
 
     % Choose to accept or reject the proposed step based on the model
     % performance. Note the strict inequality on rho.
     accept = false;
     accstr = 'REJ';
-    fun_decrease = fx - fx_prop;
-    if (model_decreased && rho > options.rho_prime)
+    should_accept = (model_decreased && rho > options.rho_prime);
+    forbidden_cost_increase = fun_decrease < 0 &&  ...
+                                                ~options.allowcostincrease;
+    if should_accept && ~forbidden_cost_increase
 
         fgradx_prop = getGradient(problem, x_prop, storedb, key_prop);
         norm_grad_prop = M.norm(x_prop, fgradx_prop);
@@ -723,22 +709,78 @@ while true
     % yet are separated by a very small gap near convergence, whereas the
     % model improvement is computed as a sum of two small terms. Such steps
     % may help reduce the gradient norm for example.
-    % Code below merely informs the user of this event.
+    % However, for nonisolated minimizers, allowing cost increases may lead
+    % to drift along the solution set, making it difficult for the solver
+    % to settle down at a good solution.
+    % Code below informs the user of this event.
     % In further updates, we could also introduce this as a stopping
-    % criterion. It is then important to choose wisely which of x or
-    % x_prop should be returned (perhaps the one with smallest gradient?)
-    if accept && fun_decrease < 0 && options.verbosity >= 2
-        fprintf(['Between line above and below, cost function ' ...
-                 'increased by %.2g (step size: %.2g)\n'], ...
-                 -fun_decrease, norm_eta);
+    % criterion.
+    % Note: we could consider returning x_prop rather than x if, for
+    % example, the gradient norm there is smaller.
+    if fun_decrease < 0 && options.verbosity >= 2
+        if accept
+            fprintf(['Between line above and below, cost function ' ...
+                     'increased by %.2g (step size: %.2g)\n'], ...
+                     -fun_decrease, norm_eta);
+        elseif should_accept
+            fprintf(['Between line above and below, cost function ' ...
+                     'would have increased by %.2g (step size: %.2g), ' ...
+                     'but the step was rejected instead.\n'], ...
+                     -fun_decrease, norm_eta);
+        end
+    end
+    if should_accept && forbidden_cost_increase
+        stop_next_time = true;
+        stop_next_time_reason = sprintf(['Cost would have increased; ' ...
+                                 'options.allowcostincrease = false, ' ...
+                                 'options.rho_regularization = %.3g.'], ...
+                                 options.rho_regularization);
     end
 
 
-    if ~accept && trstr(end) ~= '-'
-        warning('Step rejected but Delta not reduced: shouldn''t happen.');
-        % Force it?
-        % trstr = 'TR-';
-        % Delta = Delta/4;
+    % Choose the new TR radius based on the model performance
+    trstr = '   ';
+    % If the actual decrease is smaller than 1/4 of the predicted decrease,
+    % then reduce the TR radius.
+    % To cover all edge cases, if the step is not accepted, definitely
+    % reduce the radius to avoid an infinite loop.
+    if ~accept || rho < 1/4 || isnan(rho)
+        trstr = 'TR-';
+        Delta = Delta/4;
+        consecutive_TRplus = 0;
+        consecutive_TRminus = consecutive_TRminus + 1;
+        if consecutive_TRminus >= 5 && options.verbosity >= 2
+            consecutive_TRminus = -inf;
+            fprintf([' +++ Detected many consecutive TR- (radius ' ...
+                     'decreases).\n' ...
+                     ' +++ Consider dividing options.Delta_bar by 10.\n' ...
+                     ' +++ Current values: options.Delta_bar = %g and ' ...
+                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
+                                                options.Delta0);
+        end
+    % If the actual decrease is at least 3/4 of the predicted decrease and
+    % the subproblem solver hit the TR boundary, increase TR radius.
+    % We also keep track of the number of consecutive trust-region radius
+    % increases. If there are many, this may indicate the need to adapt the
+    % initial and maximum radii.
+    elseif rho > 3/4 && limitedbyTR
+        trstr = 'TR+';
+        Delta = min(2*Delta, options.Delta_bar);
+        consecutive_TRminus = 0;
+        consecutive_TRplus = consecutive_TRplus + 1;
+        if consecutive_TRplus >= 5 && options.verbosity >= 2
+            consecutive_TRplus = -inf;
+            fprintf([' +++ Detected many consecutive TR+ (radius ' ...
+                     'increases).\n' ...
+                     ' +++ Consider multiplying options.Delta_bar by 10.\n' ...
+                     ' +++ Current values: options.Delta_bar = %g and ' ...
+                     'options.Delta0 = %g.\n'], options.Delta_bar, ...
+                                                options.Delta0);
+        end
+    else
+        % Otherwise, keep the TR radius constant.
+        consecutive_TRplus = 0;
+        consecutive_TRminus = 0;
     end
     
     
