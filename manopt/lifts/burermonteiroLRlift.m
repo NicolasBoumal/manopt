@@ -2,7 +2,6 @@ function lift = burermonteiroLRlift(m, n, r)
 % Burer-Monteiro lift (L, R) -> L*R.' for m-by-n matrices of rank <= r.
 %
 % function lift = burermonteiroLRlift(m, n, r)
-% function lift = burermonteiroLRlift(m, n, r, lambda)
 %
 % This function produces a lift structure to be used with manoptlift.
 % 
