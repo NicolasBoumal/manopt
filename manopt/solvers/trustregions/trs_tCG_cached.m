@@ -98,6 +98,10 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %       compared to trs_tCG.
 %       This can be useful for the next call to trs_tCG_cached and the work 
 %       is passed to tCG_rejectedstep rather than the normal tCG loop.
+%
+%   NB Sep.  6, 2024:
+%       Added output trsoutput.numericaltrouble as a detector of numerical
+%       issues that may be used by trustregions to decide to stop early.
 
 
 % See trs_tCG for references to relevant equations in
@@ -169,9 +173,13 @@ if ~trsinput.accept && options.trscache
     end
 end
 
-% returned boolean to trustregions. true if we are limited by the TR
-% boundary (returns boundary solution). Otherwise false.
+% This boolean is part of the outputs. It is set to true if the solution
+% eta we return was limited in norm by the trust-region radius Delta.
 limitedbyTR = false;
+
+% Flip this to true if we encountered difficulties due to inexact
+% arithmetic: trustregions may want to terminate if so.
+numericaltrouble = false;
 
 theta = options.theta;
 kappa = options.kappa;
@@ -358,6 +366,7 @@ for j = 1 : options.maxinner
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
         stopreason_str = 'model increased in last inner iteration';
+        numericaltrouble = true;
         break;
     end
     
@@ -454,6 +463,7 @@ end
 trsoutput.eta = eta;
 trsoutput.Heta = Heta;
 trsoutput.limitedbyTR = limitedbyTR;
+trsoutput.numericaltrouble = numericaltrouble;
 trsoutput.printstr = printstr;
 trsoutput.stats = stats;
 end

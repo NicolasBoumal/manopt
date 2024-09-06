@@ -142,6 +142,15 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       This may be beneficial, so it is allowed by default.
 %       Setting this option to "false" makes it so that if this is about to
 %       happen, the step is rejected and the solver terminates.
+%   stopiftrstrouble (false)
+%       Terminate TR if the subproblem solver detects numerical issues that
+%       are most likely due to finite numerical precision. This is false be
+%       default because a user may want to push the method continue, as
+%       perhaps it can still find even more accurate solutions (though this
+%       can be unreliable and slow). This should not be flipped to "true"
+%       if using a finite-difference approximation of the Hessian, as then
+%       the typical numerical issues detector (in tCG-style subproblem
+%       solvers) would be fooled by the nonlinearity.
 %   statsfun (none)
 %       Function handle to a function that is called after each iteration
 %       to provide the opportunity to log additional statistics.
@@ -321,6 +330,12 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       To implement this new option, the logic for step accept/reject and
 %       the logic for radius increase/decrease were permuted, and the pair
 %       of variables stop_next_time and stop_next_time_reason were added.
+%
+%   NB Sep.  6, 2024:
+%       Added options.stopiftrstrouble, false by default (so that the
+%       default behavior does not change). This is useful to detect that we
+%       are so close to convergence that inexact arithmetic is starting to
+%       dominate the behavior of the method and so we should stop.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -361,6 +376,7 @@ localdefaults.rho_regularization = 1e3;
 localdefaults.subproblemsolver = @trs_tCG_cached;
 localdefaults.tolgradnorm = 1e-6;
 localdefaults.allowcostincrease = true;
+localdefaults.stopiftrstrouble = false;
 
 % Merge global and local defaults, then merge w/ user options, if any.
 localdefaults = mergeOptions(getGlobalDefaults(), localdefaults);
@@ -531,8 +547,19 @@ while true
     eta = trsoutput.eta;
     Heta = trsoutput.Heta;
     limitedbyTR = trsoutput.limitedbyTR;
+    trsnumericaltrouble = isfield(trsoutput, 'numericaltrouble') && ...
+                          trsoutput.numericaltrouble;
     trsprintstr = trsoutput.printstr;
     trsstats = trsoutput.stats;
+
+    if trsnumericaltrouble && options.stopiftrstrouble
+        stop_next_time = true;
+        stop_next_time_reason = ['TRS encountered numerical issues. ' ...
+                                 '(This is expected once the gradient ' ...
+                                 'norm nears machine precision.)\n' ...
+                                 'Force TR to continue by setting ' ...
+                                 'options.stopiftrstrouble = false;'];
+    end
 
         
     % This is computed for logging purposes and may be useful for some

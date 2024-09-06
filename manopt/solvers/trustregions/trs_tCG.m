@@ -151,6 +151,10 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %       small for eta0 produced by useRand though, so it's almost
 %       inconsequential as a change in behavior, and it's arguably the
 %       right thing to do for general eta0.
+%
+%   NB Sep.  6, 2024:
+%       Added output trsoutput.numericaltrouble as a detector of numerical
+%       issues that may be used by trustregions to decide to stop early.
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -228,6 +232,10 @@ kappa = options.kappa;
 % This boolean is part of the outputs. It is set to true if the solution
 % eta we return was limited in norm by the trust-region radius Delta.
 limitedbyTR = false;
+
+% Flip this to true if we encountered difficulties due to inexact
+% arithmetic: trustregions may want to terminate if so.
+numericaltrouble = false;
 
 % If eta0 is provided, check whether we can use it, or if we ignore it.
 if options.useRand && ~isempty(eta0)
@@ -401,6 +409,7 @@ for j = 1 : options.maxinner
     new_model_value = model_fun(new_eta, new_Heta);
     if new_model_value >= model_value
         stopreason_str = 'model increased in last inner iteration';
+        numericaltrouble = true;
         break;
     end
     
@@ -516,6 +525,7 @@ end
 trsoutput.eta = eta;
 trsoutput.Heta = Heta;
 trsoutput.limitedbyTR = limitedbyTR;
+trsoutput.numericaltrouble = numericaltrouble;
 trsoutput.printstr = printstr;
 trsoutput.stats = stats;
 end
