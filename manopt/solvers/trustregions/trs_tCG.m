@@ -41,7 +41,12 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %       Set to true if the subproblem solver is to be initiated with a
 %       random tangent vector. If set to true, no preconditioner will be
 %       used. This option is set to true in some scenarios to escape saddle
-%       points, but is otherwise seldom activated. 
+%       points, but is otherwise seldom activated.
+%   hessianshift (0)
+%       If nonzero, then the Hessian is replaced by
+%           Hessian + hessianshift*identity.
+%       A typical use would be to set hessianshift = sqrt(eps), to resolve
+%       certain numerical issues.
 %       
 % Output: the structure trsoutput contains the following fields:
 %   eta: approximate solution to the trust-region subproblem at x
@@ -155,6 +160,9 @@ function trsoutput = trs_tCG(problem, trsinput, options, storedb, key)
 %   NB Sep.  6, 2024:
 %       Added output trsoutput.numericaltrouble as a detector of numerical
 %       issues that may be used by trustregions to decide to stop early.
+%
+%   NB Sep. 11, 2024:
+%       Added options.hessianshift (0 by default).
 
 % All terms involving the trust-region radius use an inner product
 % w.r.t. the preconditioner; this is because the iterates grow in
@@ -219,6 +227,7 @@ localdefaults.theta = 1.0;
 localdefaults.mininner = 1;
 localdefaults.maxinner = M.dim();
 localdefaults.useRand = false;
+localdefaults.hessianshift = 0;
 
 % Merge local defaults with user options, if any
 if ~exist('options', 'var') || isempty(options)
@@ -228,6 +237,16 @@ options = mergeOptions(localdefaults, options);
 
 theta = options.theta;
 kappa = options.kappa;
+
+% If hessianshift is nonzero, then we add that multiple of the identity to
+% the Hessian.
+if options.hessianshift == 0
+    hessian = @(u) getHessian(problem, x, u, storedb, key);
+else
+    hessian = @(u) problem.M.lincomb(x, ...
+                            1, getHessian(problem, x, u, storedb, key), ...
+                            options.hessianshift, u);
+end
 
 % This boolean is part of the outputs. It is set to true if the solution
 % eta we return was limited in norm by the trust-region radius Delta.
@@ -275,7 +294,7 @@ else
     else
         eta = eta0;
     end
-    Heta = getHessian(problem, x, eta, storedb, key);
+    Heta = hessian(eta);
     r = lincomb(1, grad, 1, Heta);
     e_Pe = inner(eta, eta);
 end
@@ -335,7 +354,7 @@ stopreason_str = 'maximum inner iterations';
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
-    Hmdelta = getHessian(problem, x, mdelta, storedb, key);
+    Hmdelta = hessian(mdelta);
     
     % Compute curvature.
     d_Hd = inner(mdelta, Hmdelta);
@@ -490,7 +509,7 @@ if options.useRand
     used_cauchy = false;
     
     % Check the curvature,
-    Hg = getHessian(problem, x, grad, storedb, key);
+    Hg = hessian(grad);
     g_Hg = M.inner(x, grad, Hg);
     if g_Hg <= 0
         tau_c = 1;

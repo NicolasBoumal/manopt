@@ -45,6 +45,11 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %       The default is 1GB but this value can be increased depending on the
 %       user's machine. To disable the warning completely use: 
 %       warning('off', 'manopt:trs_tCG_cached:memory')
+%   hessianshift (0)
+%       If nonzero, then the Hessian is replaced by
+%           Hessian + hessianshift*identity.
+%       A typical use would be to set hessianshift = sqrt(eps), to resolve
+%       certain numerical issues.
 %
 % Output: the structure trsoutput contains the following fields:
 %   eta: approximate solution to the trust-region subproblem at x
@@ -102,6 +107,9 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %   NB Sep.  6, 2024:
 %       Added output trsoutput.numericaltrouble as a detector of numerical
 %       issues that may be used by trustregions to decide to stop early.
+%
+%   NB Sep. 11, 2024:
+%       Added options.hessianshift (0 by default).
 
 
 % See trs_tCG for references to relevant equations in
@@ -153,6 +161,7 @@ localdefaults.mininner = 1;
 localdefaults.maxinner = problem.M.dim();
 localdefaults.trscache = true;
 localdefaults.memorytCG_warningtol = 1000;
+localdefaults.hessianshift = 0;
 
 % Merge local defaults with user options, if any
 if ~exist('options', 'var') || isempty(options)
@@ -171,6 +180,16 @@ if ~trsinput.accept && options.trscache
         trsoutput = tCG_rejectedstep(problem, trsinput, options, store);
         return;
     end
+end
+
+% If hessianshift is nonzero, then we add that multiple of the identity to
+% the Hessian.
+if options.hessianshift == 0
+    hessian = @(u) getHessian(problem, x, u, storedb, key);
+else
+    hessian = @(u) problem.M.lincomb(x, ...
+                            1, getHessian(problem, x, u, storedb, key), ...
+                            options.hessianshift, u);
 end
 
 % This boolean is part of the outputs. It is set to true if the solution
@@ -251,7 +270,7 @@ printstr = '';
 for j = 1 : options.maxinner
     
     % This call is the computationally expensive step.
-    Hmdelta = getHessian(problem, x, mdelta, storedb, key);
+    Hmdelta = hessian(mdelta);
     
     % Compute curvature (often called kappa).
     d_Hd = inner(mdelta, Hmdelta);
