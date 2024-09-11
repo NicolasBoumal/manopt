@@ -336,6 +336,11 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       default behavior does not change). This is useful to detect that we
 %       are so close to convergence that inexact arithmetic is starting to
 %       dominate the behavior of the method and so we should stop.
+%
+%   NB Sep. 11, 2024:
+%       Removed legacy debug code that used to print the actual rho and the
+%       used rho, because those are now displayed under "rho" and
+%       "rho_noreg" at each iteration when verbosity is high enough.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -674,18 +679,6 @@ while true
         else
             fprintf('The cost function did not return a NaN value.\n');
         end
-    end
-   
-    if options.debug > 0
-        m = @(x, eta) ...
-          getCost(problem, x, storedb, key) + ...
-          getDirectionalDerivative(problem, x, eta, storedb, key) + ...
-             .5*M.inner(x, getHessian(problem, x, eta, storedb, key), eta);
-        zerovec = M.zerovec(x);
-        actrho = (fx - fx_prop) / (m(x, zerovec) - m(x, eta));
-        fprintf('DBG:   new f(x) : %+e\n', fx_prop);
-        fprintf('DBG: actual rho : %e\n', actrho);
-        fprintf('DBG:   used rho : %e\n', rho);
     end
 
 
