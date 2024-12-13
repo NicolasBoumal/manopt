@@ -49,17 +49,17 @@ function egrad = egradcompute(problem, x, complexflag)
     if isa(problem.autogradfunc,'deep.AcceleratedFunction')
         try
             % compute egrad according to autogradfunc
-            [~,egrad] = dlfeval(problem.autogradfunc,dlx);
+            [~, egrad] = dlfeval(problem.autogradfunc,dlx);
         catch
             % clear the old cache
             clearCache(problem.autogradfunc);
-            [~,egrad] = dlfeval(problem.autogradfunc,dlx);
-            warning('manopt:AD:cachedlaccelerte', ...
+            [~, egrad] = dlfeval(problem.autogradfunc,dlx);
+            warning('manopt:AD:cachedlaccelerate', ...
             ['The representation of points on the manifold is inconsistent.\n'...
             'AcceleratedFunction has to clear its old cache to accept the new '...
             'representation of the input.\nPlease check the consistency when '...
             'writing the manifold factory.\n'...
-            'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerte'')']);
+            'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerate'')']);
         end
     else
         [~, egrad] = dlfeval(problem.autogradfunc,dlx);

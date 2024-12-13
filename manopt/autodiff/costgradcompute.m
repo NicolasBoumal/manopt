@@ -19,7 +19,7 @@ function [cost, grad] = costgradcompute(problem, x, complexflag)
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
-%
+
 % To do: Add AD to fixed-rank manifolds.
 
     assert(isfield(problem, 'autogradfunc'), ...
@@ -43,7 +43,7 @@ function [cost, grad] = costgradcompute(problem, x, complexflag)
     % defined in the retr and the rand functions in a manifold factory are 
     % inconsistent, an error will occur. In this case, the old cache should 
     % be cleared in order to accept the new input.
-    if isa(problem.autogradfunc,'deep.AcceleratedFunction')
+    if isa(problem.autogradfunc, 'deep.AcceleratedFunction')
         try
             % compute egrad according to autogradfunc
             [cost, egrad] = dlfeval(problem.autogradfunc, dlx);
