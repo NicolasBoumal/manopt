@@ -341,6 +341,10 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %       Removed legacy debug code that used to print the actual rho and the
 %       used rho, because those are now displayed under "rho" and
 %       "rho_noreg" at each iteration when verbosity is high enough.
+%
+%   NB Dec. 13, 2024:
+%       Fixed a bug with AD caching which was introduced Aug. 17, 2024.
+%       Behavior unchanged.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -694,8 +698,17 @@ while true
                                                 ~options.allowcostincrease;
     if should_accept && ~forbidden_cost_increase
 
-        fgradx_prop = getGradient(problem, x_prop, storedb, key_prop);
-        norm_grad_prop = M.norm(x_prop, fgradx_prop);
+        % Dec. 13, 2024
+        % This was commented out and the related computations were moved to
+        % the end of the if-block, because it broke something related to
+        % caching for AD. I do not know why.
+        % 
+        % The commit that broke things (and which is reverted here) is:
+        % https://github.com/NicolasBoumal/manopt/commit/ ...
+        %                          0d9b9c62b3df0d4aeac3374a7b7663b107a83384
+
+        % fgradx_prop = getGradient(problem, x_prop, storedb, key_prop);
+        % norm_grad_prop = M.norm(x_prop, fgradx_prop);
 
         % To consider: we might want to check that the cost function value
         % actually decreases (see comments below), and if not, we might
@@ -710,8 +723,8 @@ while true
         x = x_prop;
         key = key_prop;
         fx = fx_prop;
-        fgradx = fgradx_prop;
-        norm_grad = norm_grad_prop;
+        fgradx = getGradient(problem, x, storedb, key); % fgradx_prop;
+        norm_grad = M.norm(x, fgradx); % norm_grad_prop;
 
     end
 
