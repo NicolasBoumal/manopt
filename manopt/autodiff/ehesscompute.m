@@ -80,7 +80,7 @@ function [ehess,store] = ehesscompute(problem, x, xdot, store, complexflag)
     end
     
     % define gradient computation function which is similar to autograd
-    function [dlx, dlegrad] = subautograd(costfunction,complexflag, x)
+    function [dlx, dlegrad] = subautograd(costfunction, complexflag, x)
         
         % convert x into dlarrays to prepare for AD
         if complexflag == true
