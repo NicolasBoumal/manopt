@@ -46,14 +46,14 @@ function egrad = egradcompute(problem, x, complexflag)
     % defined in the retr and the rand functions in a manifold factory are 
     % inconsistent, an error will occur. In this case, the old cache should 
     % be cleared in order to accept the new input.
-    if isa(problem.autogradfunc,'deep.AcceleratedFunction')
+    if isa(problem.autogradfunc, 'deep.AcceleratedFunction')
         try
             % compute egrad according to autogradfunc
-            [~, egrad] = dlfeval(problem.autogradfunc,dlx);
+            [~, egrad] = dlfeval(problem.autogradfunc, dlx);
         catch
             % clear the old cache
             clearCache(problem.autogradfunc);
-            [~, egrad] = dlfeval(problem.autogradfunc,dlx);
+            [~, egrad] = dlfeval(problem.autogradfunc, dlx);
             warning('manopt:AD:cachedlaccelerate', ...
             ['The representation of points on the manifold is inconsistent.\n'...
             'AcceleratedFunction has to clear its old cache to accept the new '...
@@ -62,7 +62,7 @@ function egrad = egradcompute(problem, x, complexflag)
             'To disable this warning: warning(''off'', ''manopt:AD:cachedlaccelerate'')']);
         end
     else
-        [~, egrad] = dlfeval(problem.autogradfunc,dlx);
+        [~, egrad] = dlfeval(problem.autogradfunc, dlx);
     end
 
     % convert egrad back to numeric arrays

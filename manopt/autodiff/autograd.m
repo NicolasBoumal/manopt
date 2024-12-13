@@ -9,8 +9,8 @@ function autogradfunc = autograd(problem, fixedrankflag)
 % deeplearning/ref/deep.acceleratedfunction.html for more descriptions 
 % about AcceleratedFunction.
 %
-% Note: to evaluate the Euclidean gradient of a certain point x(x should be
-% of type dlarray), call dfeval(autogradfunc,x) instead of autogradfunc(x).
+% Note: to evaluate the Euclidean gradient of a  point x (x should be of
+% type dlarray), call dlfeval(autogradfunc, x) instead of autogradfunc(x).
 %
 % See also: manoptAD, egradcompute, costgradcompute
 
@@ -18,7 +18,7 @@ function autogradfunc = autograd(problem, fixedrankflag)
 % Original author: Xiaowen Jiang, Aug. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
-%
+
 % To do: Add AD to fixed-rank manifolds.
     
     % Check availability 
@@ -60,8 +60,9 @@ function autogradfunc = autograd(problem, fixedrankflag)
     
     % define Euclidean gradient function
     function [y, egrad] = autogradfuncinternal(x)
-            
+
         y = costfunction(x);
+        
         % In case that the user forgot to take the real part of the cost
         % when dealing with complex problems with Matlab R2021a or earlier, 
         % take the real part for AD
@@ -69,8 +70,8 @@ function autogradfunc = autograd(problem, fixedrankflag)
             y = creal(y);
         end
         
-        % Call dlgradient to compute the Euclidean gradient. by default, 
-        % 'RetainData' and 'EnableHigherDerivatives' are set to false
+        % Call dlgradient to compute the Euclidean gradient. By default, 
+        % 'RetainData' and 'EnableHigherDerivatives' are set to false.
         egrad = dlgradient(y, x);
         
     end
