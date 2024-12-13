@@ -20,9 +20,7 @@ function [cost, grad] = costgradcompute(problem, x, complexflag)
 % Contributors: Nicolas Boumal
 % Change log: 
 %
-% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
-% and the product manifold which contains fixedrankembeddedfactory
-% or anchoredrotationsfactory
+% To do: Add AD to fixed-rank manifolds.
 
     assert(isfield(problem, 'autogradfunc'), ...
             ['The problem structure must ' ...

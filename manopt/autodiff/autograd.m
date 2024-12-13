@@ -19,9 +19,7 @@ function autogradfunc = autograd(problem, fixedrankflag)
 % Contributors: Nicolas Boumal
 % Change log: 
 %
-% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
-% and the product manifold which contains fixedrankembeddedfactory
-% or anchoredrotationsfactory
+% To do: Add AD to fixed-rank manifolds.
     
     % Check availability 
     assert(isfield(problem,'M') && isfield(problem,'cost'),...
@@ -75,15 +73,6 @@ function autogradfunc = autograd(problem, fixedrankflag)
         % 'RetainData' and 'EnableHigherDerivatives' are set to false
         egrad = dlgradient(y, x);
         
-        % in case that the user is optimizing over anchoredrotationsfactory
-        % egrad of anchors with indices in A should be zero
-        problem_name = problem.M.name();
-        if (contains(problem_name,'Product rotations manifold') &&..., 
-            contains(problem_name,'anchors') &&...,
-            ~startsWith(problem_name,'Product manifold'))
-            A = findA_anchors(problem);
-            egrad(:, :, A) = 0;
-        end
     end
     
     % fixedrankembeddedfactory part

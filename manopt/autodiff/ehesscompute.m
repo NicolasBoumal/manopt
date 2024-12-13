@@ -153,13 +153,4 @@ function [ehess,store] = ehesscompute(problem, x, xdot, store, complexflag)
         ehess = dl2mat(ehess);
     end
     
-    
-    % in case that the user is optimizing over anchoredrotationsfactory
-    % ehess of anchors with indices in A should be zero
-    if (contains(problem.M.name(),'Product rotations manifold') &&..., 
-            contains(problem.M.name(),'anchors'))
-        A = findA_anchors(problem);
-        ehess(:, :, A) = 0;
-    end
-    
 end

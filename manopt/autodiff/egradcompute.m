@@ -21,9 +21,7 @@ function egrad = egradcompute(problem, x, complexflag)
 % Contributors: Nicolas Boumal
 % Change log: 
 
-% To do: Add AD to fixedTTrankfactory, fixedranktensorembeddedfactory
-% and the product manifold which contains fixedrankembeddedfactory
-% or anchoredrotationsfactory
+% To do: Add AD to fixed-rank manifolds.
 
     % check availability
     assert(isfield(problem,'autogradfunc'),['the problem structure must'...,
