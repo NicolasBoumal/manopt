@@ -23,57 +23,69 @@ function M = Relaxd_Indicator_Matrix_factory(n, c, row,upper,lower)
 % The factory file extends the factory file
 % multinomialdoublystochasticgeneralfactory 
 
-    maxDSiters = min(1000, n*c); % Ideally it should be supplid by user. 
+    %Set the maximum number of iterations
+    maxDSiters = min(1000, n*c); 
+
+    %Check whether the dimensions of the input row-sum vector and column-bound vector are consistent.
     if size(row, 1) ~= n
         error('row should be a column vector of size n.');
     end
-
     if size(upper, 1) ~= c
         error('upper should be a column vector of size c.');
     end
-
     if size(lower, 1) ~= c
         error('lower should be a column vector of size c.');
     end
-
+    
+    %Return the name of the manifold.
     M.name = @() sprintf('%dx%d matrices with positive entries such that row sum is row and column sum is smaller than upper bigger then lower', n, c);
 
+    %Return the dimension of the manifold, as proven in Theorem 1 of our paper.
     M.dim = @() (n-1)*c; 
 
+    %Return the inner product, where the Euclidean inner product is the sum of the element-wise multiplications.
     M.inner = @iproduct; 
     function ip = iproduct(X,eta, zeta)
         ip = sum((eta(:).*zeta(:)));
     end
 
+    %Return the length of the vector, which is the square root of its inner product with itself.
     M.norm = @(X,eta) sqrt(M.inner(X,eta, eta));
 
     M.typicaldist = @() n+c;
 
+    %Return a point on the RIM manifold by randomly selecting a matrix and projecting it back onto the manifold using Dykstras algorithm, as Theorem 6 in our paper.
     M.rand = @random; 
     function X = random(X)
         Z = abs(randn(n, c));     
         X = Dykstras(Z, row, lower, upper, maxDSiters); 
     end
 
+    %Return a tangent vector by randomly selecting a vector and projecting it onto the tangent space, as proven in Theorem 2 of our paper.
     M.randvec = @randomvec; 
     function eta = randomvec(X) 
         Z = randn(n, c);
         eta = ProjToTangent(Z);
     end
 
+    %The function for the projection method, as proven in Theorem 2 of our paper.
     M.proj = @projection;  
     function etaproj = projection(X,eta) 
         etaproj = ProjToTangent(eta);
     end
 
     M.tangent = M.proj;
+
+    %The tangent vector itself lies in the Euclidean space; return it as it is.
     M.tangent2ambient = @(X,eta) eta;
 
+    %Return the Riemannian Gradient, which is the projection of the Euclidean Gradient, as proven in Theorem 2.
     M.egrad2rgrad = @egrad2rgrad;
     function rgrad = egrad2rgrad(X,egrad) % projection of the euclidean gradient
         rgrad = ProjToTangent(egrad);
     end
 
+    %The Retraction method, where Dykstras algorithm is used to map X + t*eta back onto the manifold.
     M.retr = @retraction;
     function Y = retraction(X, eta, t)
         if nargin < 3
@@ -82,16 +94,18 @@ function M = Relaxd_Indicator_Matrix_factory(n, c, row,upper,lower)
         Y=Dykstras(X+t*eta, row, lower, upper, maxDSiters);
     end
 
-
+    %Return the Riemannian Hessian, which is the projection of the Euclidean Hessian, as proven in Theorem 4.
     M.ehess2rhess = @ehess2rhess;
     function rhess = ehess2rhess(X, egrad, ehess, eta)
         rhess = ProjToTangent(ehess);
     end
 
+    %The function for the projection method, as proven in Theorem 2 of our paper.
     function P = ProjToTangent(X)
             c=size(X,2);
             P=X-1/c*X*ones(c,c);
     end
+
 
     M.hash = @(X) ['z' hashmd5(X(:))];
     M.lincomb = @matrixlincomb;
@@ -101,6 +115,10 @@ function M = Relaxd_Indicator_Matrix_factory(n, c, row,upper,lower)
     M.mat = @(X, u) reshape(u, n, c);
     M.vecmatareisometries = @() true;
 
+%The algorithm for projecting onto the simplex can be found in reference [1]. The optimization problem is given by:
+% min ||x - v||^2,s.t. x >= 0, sum(x) = k
+% where k is typically set to 1 by default.
+% Refer to Theorem 6 of our paper.
 function [x,ft] = EProjSimplex_new(v, k)
 if nargin < 2
     k = 1;
@@ -134,71 +152,65 @@ else
 end
 end
 
-
+% Use Dykstra's algorithm for the projection, as detailed in reference [2], or refer to the proof section of Theorem 6 in our paper.
 function [P] = Dykstras(M, a, b_l, b_u, N)
-% Dykstra's algorithm for projecting onto intersection of convex sets
-% Input:
-%   M: initial matrix
-%   a: vector for simplex constraints (feasible set 1)
-%   b_l: lower bounds for column sum constraints (feasible set 2)
-%   b_u: upper bounds for column sum constraints (feasible set 3)
-%   N: maximum number of iterations
-% Output:
-%   P: projected matrix
-%   obj: objective value (optional, for tracking convergence)
-if b_l==b_u 
-    tol=1e-2;
-else
-    tol=1e-1;
-end
-rng(1);
-[mn, mc] = size(M);
-P = M;
-z1 = zeros(mn, mc); % Residuals for feasible set 1
-z2 = zeros(mn, mc); % Residuals for feasible set 2
-z3 = zeros(mn, mc); % Residuals for feasible set 3
-
-for iter = 1:N
-
-        % Project onto feasible set 1 (simplex constraints)
-    for i = 1:mn
-        P(i, :) = EProjSimplex_new(P(i, :) + z1(i, :), a(i));
-        z1(i, :) = P(i, :) + z1(i, :) - P(i, :); % Update residual
+    if b_l==b_u 
+        tol=1e-2;
+    else
+        tol=1e-1;
     end
-    % Project onto feasible set 2 (lower bound constraints)
-    for j = 1:mc
-        if sum(P(:, j) + z2(:, j)) >= b_l(j)
-            z2(:, j) = P(:, j) + z2(:, j) - P(:, j); % No adjustment needed
-        else
-            delta = (b_l(j) - sum(P(:, j) + z2(:, j))) / mn;
-            P(:, j) = P(:, j) + z2(:, j) + delta * ones(mn, 1);
-            z2(:, j) = P(:, j) + z2(:, j) - P(:, j); % Update residual
+    rng(1);
+    [mn, mc] = size(M);
+    P = M;
+    z1 = zeros(mn, mc);
+    z2 = zeros(mn, mc); 
+    z3 = zeros(mn, mc); 
+    
+    for iter = 1:N
+        for i = 1:mn
+            prev_row = P(i, :) + z1(i, :);
+            P(i, :) = EProjSimplex_new(prev_row, a(i));
+            z1(i, :) = prev_row - P(i, :);
+        end
+
+        for j = 1:mc
+            prev_col = P(:, j) + z2(:, j);
+            current_sum = sum(prev_col);
+            if current_sum >= b_l(j)
+                z2(:, j) = 0;
+                P(:, j) = prev_col;
+            else
+                delta = (b_l(j) - current_sum) / mn;
+                new_col = prev_col + delta * ones(mn, 1);
+                z2(:, j) = prev_col - new_col;
+                P(:, j) = new_col;
+            end
+        end
+
+        for j = 1:mc
+            prev_col = P(:, j) + z3(:, j);
+            current_sum = sum(prev_col);
+            if current_sum <= b_u(j)
+                z3(:, j) = 0; 
+                P(:, j) = prev_col;
+            else
+                delta = (b_u(j) - current_sum) / mn;
+                new_col = prev_col + delta * ones(mn, 1);
+                z3(:, j) = prev_col - new_col;
+                P(:, j) = new_col;
+            end
+        end
+
+        if norm(P*ones(mc,1)-a, 'fro') < tol && all(P(:)>=-tol)
+            disp(['Converged at iteration: ', num2str(iter)]);
+            break;
         end
     end
-
-    % Project onto feasible set 3 (upper bound constraints)
-    for j = 1:mc
-        if sum(P(:, j) + z3(:, j)) <= b_u(j)
-            z3(:, j) = P(:, j) + z3(:, j) - P(:, j); % No adjustment needed
-        else
-            delta = (b_u(j) - sum(P(:, j) + z3(:, j))) / mn;
-            P(:, j) = P(:, j) + z3(:, j) + delta * ones(mn, 1);
-            z3(:, j) = P(:, j) + z3(:, j) - P(:, j); % Update residual
-        end
-    end
-
-
-
-    % Convergence check (optional, based on residual norms)
-    if norm(P*ones(mc,1)-a, 'fro') < tol && all(P(:)>=-tol)
-        disp(['Converged at iteration: ', num2str(iter)]);
-        break;
-    end
-end
 end
 
 
 end
 
 
-
+%[1] The Constrained Laplacian Rank Algorithm for Graph-Based Clustering
+%[2] Dykstra’s Algorithm, ADMM, and Coordinate Descent: Connections, Insights, and Extensions
