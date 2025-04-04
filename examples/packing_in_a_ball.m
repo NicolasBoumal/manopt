@@ -42,6 +42,10 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, June 26, 2024
 % Contributors:
+% Change log: 
+% 
+%   April 4, 2025 (NB):
+%       Factored out plotting code to allow plotting at each iteration.
 
     if ~exist('d', 'var') || isempty(d)
         % Dimension of the embedding space: R^d
@@ -76,6 +80,13 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
     % We would like to reach a fairly accurate critical point.
     options.tolgradnorm = 1e-9;
 
+    % Optionally, we may display the configuration at each iteration.
+    options.statsfun = @(Y) plot_points(lift.phi(Y));
+    % Alternatively, this can also be achieved with the following code.
+    % The advantage is that statsfunhelper allows more flexibility in the
+    % inputs and in combining this without other statsfuns with records.
+    % options.statsfun = statsfunhelper('norecord', @(Y) plot_points(lift.phi(Y)));
+
     % Run a smooth optimization algorithm on the lifted problem.
     Y = trustregions(upstairs, [], options);
 
@@ -86,16 +97,30 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
     % Figure out the minimal distance between any two distinct point of X.
     % That is what we actually want to maximize. Minimizing the cost
     % function defined above is merely a proxy for that goal.
+    min_distance = mindistance(X);
+
+    % Final plot
+    plot_points(X);
+
+end
+
+% Compute the minimal distance between two of the points
+function val = mindistance(X)
+    n = size(X, 2);
     [I, J] = find(triu(ones(n), 1));
     ij = sub2ind([n, n], I, J);
+    gram2edm = @(G) diag(G)*ones(1, n) + ones(n, 1)*diag(G).' - 2*G;
     E = gram2edm(X.'*X);
-    min_distance = sqrt(min(E(ij)));
-
-
-    % Some code to display the results
-    if d == 2  % if we are working in a disk
+    val = sqrt(min(E(ij)));
+end
+    
+% Some code to display the results
+function plot_points(X)
+    [d, n] = size(X);
+    min_distance = mindistance(X);
+    if d == 2  % if we are working in a 2-D disk
         clf;
-        hold all;
+        hold on;
         t = linspace(0, 2*pi, 251);
         r = (min_distance/2);
         for i = 1 : n
@@ -111,14 +136,15 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
         text(.45, -1.1, sprintf('Minimum distance: %.4g', min_distance));
         density = (n*r^2)/(1+r)^2;
         text(.45, -1.2, sprintf('Density: %.4g', density));
-    elseif d == 3
+        drawnow;
+    elseif d == 3 % if we are working in a 3-D ball
         clf;
         plot3(X(1, :), X(2, :), X(3, :), '.', 'MarkerSize', 20);
-        hold all;
+        hold on;
         plot(0, 0, 'k.', 'MarkerSize', 10);
         axis equal off;
         set(gcf, 'Color', 'w');
         title(sprintf('Minimum distance: %.4g', min_distance));
+        drawnow;
     end
-
 end
