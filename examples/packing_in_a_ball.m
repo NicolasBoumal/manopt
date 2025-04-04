@@ -93,6 +93,7 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
     % Alternatively, this can also be achieved with the following code.
     % The advantage is that statsfunhelper allows more flexibility in the
     % inputs and in combining this without other statsfuns with records.
+    % For example, we might also record the density at each iteration.
     % options.statsfun = statsfunhelper('norecord', @(Y) plot_points(lift.phi(Y)));
 
     % Run a smooth optimization algorithm on the lifted problem.
