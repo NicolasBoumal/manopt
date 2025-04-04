@@ -52,6 +52,18 @@ function statsfun = statsfunhelper(inp1, inp2)
 %
 % The different function handles (here, fun and otherfun) can take 1 to 4
 % inputs too, and they do not have to take the same number of inputs.
+%
+% Special field name:
+%
+% If a function with fieldname 'norecord' is specified, then the
+% corresponding function is called without outputs, and no field is created
+% in the stats structure for that function.
+%
+% This is especially helpful to display text or graphical information only.
+%
+% Example:
+%
+%  metrics.norecord = @(x) my_plotting_function_without_outputs(x);
 
 % This file is part of Manopt: www.manopt.org.
 % Original author: Nicolas Boumal, Dec. 17, 2014.
@@ -59,6 +71,8 @@ function statsfun = statsfunhelper(inp1, inp2)
 % Change log: 
 %     Jan 2, 2021 (NB):
 %         Passing S to thestatsfun explicitly for compatibility with Octave 6.
+%     Apr 4, 2025 (NB):
+%         Added special treatment for field name 'norecord', giving no output.
 
     if (nargin == 1) && isstruct(inp1)
         S = inp1;
@@ -76,17 +90,32 @@ function statsfun = statsfunhelper(inp1, inp2)
         for it = 1 : length(names)
             name = names{it};
             fun = S.(name);
-            switch nargin(fun)
-                case 1
-                    stats.(name) = fun(x);
-                case 2
-                    stats.(name) = fun(problem, x);
-                case 3
-                    stats.(name) = fun(problem, x, stats);
-                case 4
-                    stats.(name) = fun(problem, x, stats, store);
-                otherwise
-                    error('The functions passed to statsfunhelper must take 1 to 4 inputs.');
+            if ~strcmp('norecord', name)
+                switch nargin(fun)
+                    case 1
+                        stats.(name) = fun(x);
+                    case 2
+                        stats.(name) = fun(problem, x);
+                    case 3
+                        stats.(name) = fun(problem, x, stats);
+                    case 4
+                        stats.(name) = fun(problem, x, stats, store);
+                    otherwise
+                        error('The functions passed to statsfunhelper must take 1 to 4 inputs.');
+                end
+            else
+                switch nargin(fun)
+                    case 1
+                        fun(x);
+                    case 2
+                        fun(problem, x);
+                    case 3
+                        fun(problem, x, stats);
+                    case 4
+                        fun(problem, x, stats, store);
+                    otherwise
+                        error('The functions passed to statsfunhelper must take 1 to 4 inputs.');
+                end
             end
         end
     end

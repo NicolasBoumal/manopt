@@ -25,10 +25,20 @@ function stats = applyStatsfun(problem, x, storedb, key, options, stats)
 %
 %   July 19, 2020 (NB):
 %       Creates a field called 'hooked' in stats structures, for applyHook.
+%
+%   April 4, 2025 (NB):
+%       Allow statsfun(x) and statsfun(problem, x), in which case the
+%       function is not expected to have any outputs, and stats is left
+%       unchanged. This is useful when using statsfun to display
+%       information rather than record information.
 
     if isfield(options, 'statsfun')
         
         switch nargin(options.statsfun)
+            case 1
+                options.statsfun(x);
+            case 2
+                options.statsfun(problem, x);
             case 3
                 stats = options.statsfun(problem, x, stats);
             case 4
