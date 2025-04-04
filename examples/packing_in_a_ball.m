@@ -46,6 +46,7 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
 % 
 %   April 4, 2025 (NB):
 %       Factored out plotting code to allow plotting at each iteration.
+%       Added code for another cost function in the comments.
 
     if ~exist('d', 'var') || isempty(d)
         % Dimension of the embedding space: R^d
@@ -71,6 +72,13 @@ function [X, min_distance] = packing_in_a_ball(d, n, sigma)
     % Cost function in R^(dxn), unconstrained.
     downstairs.cost = @(X) 2*sigma^2*log(sum( ...
                                 exp(-gram2edm(X.'*X)/(2*sigma^2)), 'all'));
+    
+    % Another interesting function: sum of log of 1/squared distances.
+    % This leads to rather different behavior.
+    % 
+    % kk = find(triu(ones(n), 1));
+    % triupvals = @(M) M(kk);
+    % downstairs.cost = @(X) -mean(log(triupvals(gram2edm(X.'*X))));
     
     % Lift the problem to a smooth manifold from where we can smoothly
     % parameterize the product of balls. Also use automatic
