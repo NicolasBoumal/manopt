@@ -20,8 +20,20 @@ function M = stiefelcomplexfactory(n, p, k)
 % By default, k = 1.
 %
 %
-% Please cite the Manopt paper as well as either of these research papers
+% Please cite the Manopt paper as well as any of these research papers
 % pertaining to this specific geometry:
+% 
+% @article{oza2009quantum,
+%   Title = {Optimization search effort over the control landscapes for open quantum systems with {K}raus-map evolution},
+%   Author = {Oza, A. and Pechen, A. and Dominy, J. and Beltrani, V. and Moore, K. and Rabitz, H.},
+%   Journal = {Journal of Physics {A}: Mathematical and Theoretical},
+%   Year = {2009},
+%   Volume = {42},
+%   Number = {20},
+%   DOI = {10.1088/1751-8113/42/20/205305},
+%   publisher = {{IOP} Publishing},
+%   pages = {205305}
+% }
 % @InProceedings{sato2013complex,
 %   Title        = {A complex singular value decomposition algorithm based on the {R}iemannian {N}ewton method},
 %   Author       = {Sato, H. and Iwai, T.},
