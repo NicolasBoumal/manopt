@@ -20,8 +20,8 @@ function tr = multitrace(A)
 
     
     assert(ndims(A) <= 3, ...
-           ['multitrace is only well defined for arrays of 2 or 3 ' ...
-            'dimensions.']);
+           ['multitrace is only well defined for arrays of 3 or ' ...
+            'fewer dimensions.']);
 
     [n, m, N] = size(A);
 
