@@ -37,17 +37,25 @@ function C = multiprod(A, B, unused1, unused2) %#ok<INUSD>
 %       compatible with dlarray, necessary for automatic differentiation.
 %       Accordingly, multiprod became a wrapper for pagemtimes, and the old
 %       code for multiprod remains available as multiprod_legacy.
+%
+%   Nov. 28, 2025 (NB):
+%       Vanni Noferini pointed out that the call to exist(..., 'file') is
+%       slow. The code was changed so that the check is executed only once.
 
     assert(nargin == 2, ...
-           'The new multiprod only takes two inputs. Check multiprod_legacy.');
+           ['The new multiprod only takes two inputs. ' ...
+            'Check multiprod_legacy.']);
 
-    if exist('pagemtimes', 'builtin') % Added to Matlab R2020b
+    % Determine once whether pagemtimes is available.
+    % It was added to Matlab R2020b.
+    persistent haspagemtimes;
+    if isempty(haspagemtimes)
+        haspagemtimes = ~isempty(which('pagemtimes'));
+    end
+
+    if haspagemtimes
         C = pagemtimes(A, B);
     else
-    %   warning('manopt:multi', ...
-    %          ['Matlab R2020b introduced pagemtimes, faster than multiprod.\n' ...
-    %           'Calling the old code multiprod_legacy instead.\n' ...
-    %           'To disable this warning: warning(''off'', ''manopt:multi'')']);
         C = multiprod_legacy(A, B);
     end
 
