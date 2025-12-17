@@ -39,6 +39,10 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
 %       Working with the new StoreDB class system. The code keeps track of
 %       storedb keys for all points, even though it is not strictly
 %       necessary. This extra bookkeeping should help maintaining the code.
+%
+%   June 24, 2025 (NB):
+%       Added option to initialize with a single point, around which a
+%       population is generated at random.
     
     
     % Verify that the problem description is sufficient for the solver.
@@ -82,10 +86,20 @@ function [xbest, fbest, info, options] = pso(problem, x, options)
             x{i} = problem.M.rand();
         end
     else
+        % If the given x is not a cell, then we presume that x is a single
+        % point on the manifold, and we try to generate a random population
+        % around that point.
+        % Note: this won't work well with manifolds whose points are
+        % represented as cells.
         if ~iscell(x)
-            error('The initial guess x0 must be a cell (a population).');
-        end
-        if length(x) ~= options.populationsize
+            x0 = x;
+            x = cell(options.populationsize, 1);
+            x{1} = x0;
+            for i = 2 : options.populationsize
+                step = randn(1);
+                x{i} = problem.M.retr(x0, problem.M.randvec(x0), step);
+            end
+        elseif length(x) ~= options.populationsize
             options.populationsize = length(x);
             warning('manopt:pso:size', ...
                     ['The option populationsize was forced to the size' ...
