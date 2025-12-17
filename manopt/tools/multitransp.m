@@ -29,17 +29,25 @@ function B = multitransp(A, unused) %#ok<INUSD>
 %       in Manopt. Accordingly, multitransp became a wrapper for
 %       pagetranspose, and the old code for multitransp remains available
 %       as multitransp_legacy.
+%
+%   Nov. 28, 2025 (NB):
+%       Vanni Noferini pointed out that the call to exist(..., 'file') is
+%       slow. The code was changed so that the check is executed only once.
 
     assert(nargin == 1, ...
-           'The new multitransp only takes one input. Check multitransp_legacy.');
+           ['The new multitransp only takes one input. ' ...
+            'Check multitransp_legacy.']);
 
-    if exist('pagetranspose', 'file') % Added to Matlab R2020b
+    % Determine once whether pagetranspose is available.
+    % It was added to Matlab R2020b.
+    persistent haspagetranspose;
+    if isempty(haspagetranspose)
+        haspagetranspose = ~isempty(which('pagetranspose'));
+    end
+
+    if haspagetranspose
         B = pagetranspose(A);
     else
-    %   warning('manopt:multi', ...
-    %          ['Matlab R2020b introduced pagetranspose.\n' ...
-    %           'Calling the old code multitransp_legacy instead.\n' ...
-    %           'To disable this warning: warning(''off'', ''manopt:multi'')']);
         B = multitransp_legacy(A);
     end
 

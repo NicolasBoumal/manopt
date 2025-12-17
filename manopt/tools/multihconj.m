@@ -29,17 +29,25 @@ function B = multihconj(A, unused) %#ok<INUSD>
 %       in Manopt. Accordingly, multihconj became a wrapper for
 %       pagectranspose, and the old code for multihconj remains available
 %       as multihconj_legacy.
+%
+%   Nov. 28, 2025 (NB):
+%       Vanni Noferini pointed out that the call to exist(..., 'file') is
+%       slow. The code was changed so that the check is executed only once.
 
     assert(nargin == 1, ...
-           'The new multihconj only takes one input. Check multihconj_legacy.');
+           ['The new multihconj only takes one input. ' ...
+            'Check multihconj_legacy.']);
 
-    if exist('pagectranspose', 'file') % Added to Matlab R2020b
+    % Determine once whether pagectranspose is available.
+    % It was added to Matlab R2020b.
+    persistent haspagectranspose;
+    if isempty(haspagectranspose)
+        haspagectranspose = ~isempty(which('pagectranspose'));
+    end
+
+    if haspagectranspose
         B = pagectranspose(A);
     else
-    %   warning('manopt:multi', ...
-    %          ['Matlab R2020b introduced pagectranspose.\n' ...
-    %           'Calling the old code multihconj_legacy instead.\n' ...
-    %           'To disable this warning: warning(''off'', ''manopt:multi'')']);
         B = multihconj_legacy(A);
     end
 

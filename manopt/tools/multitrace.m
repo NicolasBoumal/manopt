@@ -1,10 +1,11 @@
 function tr = multitrace(A)
-% Computes the traces of the 2D slices in a 3D matrix.
+% Computes the traces of the 2D slices in a 3D array.
 % 
 % function tr = multitrace(A)
 %
-% For a 3-dimensional matrix A of size n-by-n-by-N, returns a column vector
-% tr of length N such that tr(k) = trace(A(:, :, k));
+% For a 3-dimensional array A of size n-by-m-by-N, returns a column vector
+% tr of length N such that tr(k) = sum(diag(A(:, :, k)). In particular,
+% if n = m (each slice is square), then tr(k) = trace(A(:, :, k)).
 %
 % See also: multiprod multitransp multiscale
 
@@ -12,12 +13,20 @@ function tr = multitrace(A)
 % Original author: Nicolas Boumal, Dec. 30, 2012.
 % Contributors: 
 % Change log: 
+%
+%   Nov. 28, 2025 (NB):
+%       Removed call to diagsum in favor of more direct code, and now
+%       allowing non-square slices just in case.
 
     
     assert(ndims(A) <= 3, ...
-           ['multitrace is only well defined for matrix arrays of 3 ' ...
-            'or fewer dimensions.']);
+           ['multitrace is only well defined for arrays of 3 or ' ...
+            'fewer dimensions.']);
 
-    tr = diagsum(A, 1, 2);
+    [n, m, N] = size(A);
+
+    B = reshape(A, n*m, N);
+
+    tr = sum(B(1:(n+1):end, :), 1).';
     
 end
