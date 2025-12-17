@@ -180,7 +180,7 @@ function [upstairs, downstairs] = manoptlift(downstairs, lift, ADflag, lambda)
         case {'noAD', ''}
             callAD = false;
         otherwise
-            warning(['ADflag must be empty, omitted, or one of these:\n' ...
+            warning(['ADflag must be empty, omitted, or one of these: ' ...
                      '''AD'', ''ADnohess'', ''noAD''.']);
     end
     if callAD
