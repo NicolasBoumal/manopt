@@ -345,6 +345,13 @@ function [x, cost, info, options] = trustregions(problem, x, options)
 %   NB Dec. 13, 2024:
 %       Fixed a bug with AD caching which was introduced Aug. 17, 2024.
 %       Behavior unchanged.
+%
+%   NB Jan. 12, 2026:
+%       Construction of trsinput was changed from struct('x', x, ...) to
+%       trsinput = struct(); trsinput.x = x; ... This prevents Matlab from
+%       silently creating the struct as a struct-array instead whenever the
+%       inputs involve (for example) cells. This caused some issues with
+%       powermanifold.
 
 
 % Verify that the problem description is sufficient for the solver.
@@ -547,9 +554,11 @@ while true
     % *************************
   
     % Solve TR subproblem with solver specified by options.subproblemsolver
-    trsinput = struct('x', x, 'fgradx', fgradx, 'Delta', Delta, ...
-                      'accept', accept);
-
+    trsinput = struct();
+    trsinput.x = x;
+    trsinput.fgradx = fgradx;
+    trsinput.Delta = Delta;
+    trsinput.accept = accept;
     trsoutput = options.subproblemsolver(problem, trsinput, options, ...
                                          storedb, key);
     

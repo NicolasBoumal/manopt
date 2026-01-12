@@ -110,6 +110,11 @@ function trsoutput = trs_tCG_cached(problem, trsinput, options, storedb, key)
 %
 %   NB Sep. 11, 2024:
 %       Added options.hessianshift (0 by default).
+%
+%   NB Jan. 12, 2026:
+%       Same as in trustregions.m: changed the way certain stuct variables
+%       are created to prevent Matlab from silently creating the struct as
+%       a struct-array instead whenever the inputs involve cells.
 
 
 % See trs_tCG for references to relevant equations in
@@ -127,8 +132,11 @@ if nargin == 3 && isempty(problem) && isempty(trsinput)
                             'numinner', 'hessvec', 'numstored', ...
                             'memtCG_MB', 'stopreason');
     end
-    trsoutput.initstats = struct('numinner', 0, 'hessvecevals', 0, ...
-                   'memorytCG_MB', 0);
+    initstats = struct();
+    initstats.numinner = 0;
+    initstats.hessvecevals = 0;
+    initstats.memorytCG_MB = 0;
+    trsoutput.initstats = initstats;
     return;
 end
 
@@ -243,13 +251,6 @@ model_value = 0;
 % Pre-assume termination because j == end.
 stopreason_str = 'maximum inner iterations';
 
-% Track certain iterations in case step is rejected.
-% store_iters tracks candidate etas with increasing squared
-% norm relevant when limitedbyTR = true, or when <eta, Heta> <= 0
-store_iters = struct('normsq', [], 'numinner', [], 'e_Pe', [], ...
-    'd_Pd', [], 'e_Pd', [], 'd_Hd', [], 'eta', [], 'Heta', [], ...
-    'mdelta', [], 'Hmdelta', []);
-
 max_normsq = 0;
 
 % only need to compute memory for one item in store_iters in Megabytes(MB)
@@ -304,10 +305,18 @@ for j = 1 : options.maxinner
         if d_Hd <= 0 || e_Pe_new >= next_smallest
             numstored = numstored + 1;
 
-            store_iters(numstored) = struct('normsq', e_Pe_new, 'numinner', ...
-                             j, 'e_Pe', e_Pe, 'd_Pd', d_Pd, 'e_Pd', e_Pd,...
-                             'd_Hd', d_Hd, 'eta', eta, 'Heta', Heta, ...
-                             'mdelta', mdelta, 'Hmdelta', Hmdelta);
+            store_struct = struct();
+            store_struct.normsq = e_Pe_new;
+            store_struct.numinner = j;
+            store_struct.e_Pe = e_Pe;
+            store_struct.d_Pd = d_Pd;
+            store_struct.e_Pd = e_Pd;
+            store_struct.d_Hd = d_Hd;
+            store_struct.eta = eta;
+            store_struct.Heta = Heta;
+            store_struct.mdelta = mdelta;
+            store_struct.Hmdelta = Hmdelta;
+            store_iters(numstored) = store_struct;
             max_normsq = e_Pe_new;
     
             % getSize for one entry in store_iters which will be the same
@@ -450,8 +459,11 @@ if options.trscache
         % Store extra information since we did not exit because we were 
         % limited by TR (model value increased or kappa/theta stopping 
         % criterion satisfied)
-        store_last = struct('numinner', j, 'stopreason_str', ...
-            stopreason_str, 'eta', eta, 'Heta', Heta);
+        store_last = struct();
+        store_last.numinner = j;
+        store_last.stopreason_str = stopreason_str;
+        store_last.eta = eta;
+        store_last.Heta = Heta;
         memorytCG_MB = memorytCG_MB + getsize(store_last)/1024^2;
         
         if memorytCG_MB > options.memorytCG_warningtol
@@ -468,8 +480,10 @@ if options.trscache
 
     storedb.set(store, key);
 end
-stats = struct('numinner', j, 'hessvecevals', j, ...
-                    'memorytCG_MB', memorytCG_MB);
+stats = struct();
+stats.numinner = j;
+stats.hessvecevals = j;
+stats.memorytCG_MB = memorytCG_MB;
 
 if options.verbosity == 2
     printstr = sprintf('%9d   %9d   %9d   %s', j, j, numstored, ...
