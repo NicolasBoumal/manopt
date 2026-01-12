@@ -13,6 +13,7 @@ function dlx = mat2dl(x)
 % Original author: Xiaowen Jiang, July. 31, 2021.
 % Contributors: Nicolas Boumal
 % Change log: 
+%   Jan. 12, 2026 (NB): in mat2dl_cell, pre-set size of dlx.
 
     if ~isstruct(x) && ~iscell(x) && ~isnumeric(x)
         up = MException('manopt:autodiff:mat2dl', ...
@@ -32,8 +33,7 @@ function dlx = mat2dl(x)
     % convert x into dlarray if x is a struct
     function dlx = mat2dl_struct(x)
         elems = fieldnames(x);
-        nelems = numel(elems);
-        for ii = 1:nelems
+        for ii = 1:numel(elems)
             if isstruct(x.(elems{ii}))
                 dlx.(elems{ii}) = mat2dl_struct(x.(elems{ii}));
             elseif iscell(x.(elems{ii}))
@@ -46,8 +46,8 @@ function dlx = mat2dl(x)
 
     % convert x into dlarray if x is a cell
     function dlx = mat2dl_cell(x)
-        ncell = length(x);
-        for ii = 1:ncell
+        dlx = cell(size(x));
+        for ii = 1:length(x)
             if isstruct(x{ii})
                 dlx{ii} = mat2dl_struct(x{ii});
             elseif iscell(x{ii})
@@ -57,5 +57,5 @@ function dlx = mat2dl(x)
             end
         end
     end
-end
 
+end
